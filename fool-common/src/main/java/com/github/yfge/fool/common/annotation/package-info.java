@@ -1,0 +1,1 @@
+package com.github.yfge.fool.common.annotation;
