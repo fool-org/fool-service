@@ -14,14 +14,14 @@
     <properties>
         <spring.boot.version>2.1.6.RELEASE</spring.boot.version>
         <java.version>1.10</java.version>
+        <fool.version>1.0-SNAPSHOT</fool.version>
     </properties>
     <modules>
 
         <module>fool-common</module>
-
         <module>fool-dao</module>
-        <!---->
         <module>fool-auth</module>
+        <module>business-application</module>
         <!---->
         <!--        <module>fool-dynamic</module>-->
         <!---->
@@ -49,7 +49,7 @@
             <artifactId>spring-boot-dependencies</artifactId>
             <version>${spring.boot.version}</version>
             <type>pom</type>
-            <scope>import</scope>
+            <!--            <scope>import</scope>-->
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -73,7 +73,6 @@
             <scope>test</scope>
 
         </dependency>
-
         <dependency>
 
             <groupId>mysql</groupId>
@@ -87,7 +86,6 @@
         </dependency>
 
         <dependency>
-
             <groupId>org.projectlombok</groupId>
 
             <artifactId>lombok</artifactId>
@@ -99,22 +97,24 @@
     </dependencies>
 
     <dependencyManagement>
-
         <dependencies>
-
             <dependency>
-
                 <groupId>com.github.yfge.fool</groupId>
-
                 <artifactId>fool-common</artifactId>
-                <version>1.0-SNAPSHOT</version>
-
+                <version>${fool.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.github.yfge.fool</groupId>
+                <artifactId>fool-dao</artifactId>
+                <version>${fool.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.yfge.fool</groupId>
+                <artifactId>fool-auth</artifactId>
+                <version>${fool.version}</version>
+            </dependency>
         </dependencies>
-
     </dependencyManagement>
-
     <build>
         <plugins>
             <plugin>

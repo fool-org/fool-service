@@ -1,9 +1,14 @@
 package com.github.yfge.fool.dao;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 public class FunctionMap {
 
     private static ConcurrentHashMap<String, GetFieldFunction> map = new ConcurrentHashMap<>();
@@ -31,6 +36,13 @@ public class FunctionMap {
         map.put("char", ResultSet::getByte);
         map.put("float", ResultSet::getFloat);
         map.put("java.math.BigDecimal", ResultSet::getBigDecimal);
+        map.put("java.time.LocalDateTime", new GetFieldFunction() {
+            @Override
+            public Object get(ResultSet resultSet, String columnName) throws SQLException {
+//                log.info("{}", resultSet.getTimestamp(columnName));
+                return LocalDateTime.now();
+            }
+        });
     }
 
     public static GetFieldFunction getFieldFunction(Field field) {
