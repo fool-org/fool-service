@@ -3,10 +3,10 @@ package com.github.yfge.fool.dao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.github.yfge.fool.common.annotation.Column;
-import com.github.yfge.fool.common.annotation.Table;
+import com.github.yfge.fool.common.annotation.*;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -39,7 +39,7 @@ public class Mapper<T> extends
      * 映射的信息
      */
     private List<MapField> mapFields = new LinkedList<>();
-    private String primaryKeyColumn;
+    private MapField primaryField;
     private PropertyNamingStrategy.PropertyNamingStrategyBase propertyNamingStrategy;
 
     /**
@@ -50,7 +50,6 @@ public class Mapper<T> extends
         JsonNaming jsonNaming = clazz.getDeclaredAnnotation(JsonNaming.class);
         if (jsonNaming != null) {
             try {
-//                log.info("get json naming");
                 this.propertyNamingStrategy = (PropertyNamingStrategy.PropertyNamingStrategyBase) jsonNaming.value().getDeclaredConstructor().newInstance();
             } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
                 e.printStackTrace();
@@ -59,11 +58,31 @@ public class Mapper<T> extends
         this.tableName = getTableName(clazz);
         for (Field field : clazz.getDeclaredFields()
         ) {
+            /**
+             * 设置成可见
+             */
             field.setAccessible(true);
-            var mapField = new MapField(field, FunctionMap.getFieldFunction(field), getColumnName(field), isCollection(field.getType()));
+            /**
+             * 自动插入和更新相关
+             */
+            SqlGenerateConfig sqlGenerateConfig = SqlGenerateConfig.NULL;
+            SqlGenerate sqlGenerate = field.getDeclaredAnnotation(SqlGenerate.class);
+            if (sqlGenerate != null) {
+                sqlGenerateConfig = sqlGenerate.value();
+            }
+            /**
+             * mapFiled初始化
+             */
+            var mapField = new MapField(field, FunctionMap.getFieldFunction(field), getColumnName(field), isCollection(field.getType()), sqlGenerateConfig);
             mapFields.add(mapField);
+
+            /**
+             * Id 列
+             */
             if (mapField.getColumnName().toLowerCase().equals("id")) {
-                this.primaryKeyColumn = mapField.getColumnName();
+                this.primaryField = mapField;
+            } else if (field.getDeclaredAnnotation(Id.class) != null) {
+                this.primaryField = mapField;
             }
         }
     }
@@ -91,7 +110,7 @@ public class Mapper<T> extends
 
     private String getColumnName(Field field) {
         Column column = field.getDeclaredAnnotation(Column.class);
-        if (column != null) {
+        if (column != null && StringUtils.isEmpty(column.value()) == false) {
             return column.value();
         }
         String name = field.getName();
@@ -107,6 +126,7 @@ public class Mapper<T> extends
             T t = clazz.getDeclaredConstructor().newInstance();
             for (MapField mapField : mapFields.stream().filter(p -> p.isCollection() == false).collect(Collectors.toList())
             ) {
+
                 mapField.getField().set(t,
                         mapField.getGetFieldFunction().get(resultSet, mapField.getColumnName()));
             }

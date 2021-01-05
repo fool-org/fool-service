@@ -3,6 +3,9 @@ package com.github.yfge.fool.dao.business;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.github.yfge.fool.common.annotation.Id;
+import com.github.yfge.fool.common.annotation.SqlGenerate;
+import com.github.yfge.fool.common.annotation.SqlGenerateConfig;
 import com.github.yfge.fool.common.annotation.Table;
 import lombok.Data;
 
@@ -49,9 +52,12 @@ import java.util.List;
 @Table("market_order")
 @Data
 public class Order {
+    @SqlGenerate(SqlGenerateConfig.AUTO_INCREMENT)
+    @Id
     private String id;
     private BigDecimal orderPrice;
     private BigDecimal orderStopPrice;
+    @SqlGenerate(SqlGenerateConfig.INSERT)
     private LocalDateTime createAt;
     private String orderSymbol;
 

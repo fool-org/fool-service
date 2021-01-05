@@ -58,4 +58,14 @@ public class DaoServiceTest {
         Order order = daoService.getOneByKey(613, Order.class);
         log.info("get one by key :{}", order);
     }
+
+    @Test
+    public void create() {
+        Order order = daoService.getOneByKey(613, Order.class);
+        order.setOrderSymbol("testOrder");
+        order.setOrderStopPrice(BigDecimal.ONE);
+        order.setOrderPrice(BigDecimal.ONE);
+        daoService.create(order);
+        log.info("order created:{}", order);
+    }
 }
