@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -101,11 +102,10 @@ public class DaoService {
     }
 
 
+    @Transactional
     public <T> void create(T object) {
         var mapper = getMapper(object.getClass());
         var queryAndArgs = this.sqlScriptGenerator.generateOnInsert(mapper, object);
-
-
         int result = this.jdbcTemplate.update(queryAndArgs.getSql(), new ArgumentPreparedStatementSetter(queryAndArgs.getArgs()));
         if (result > 0) {
             var updateArgs = this.sqlScriptGenerator.generateAfterInsert(mapper, object);
@@ -128,22 +128,5 @@ public class DaoService {
             }
         }
     }
-
-//
-//                rch -> {
-//            var fields = mapper.getMapFields().stream().filter(
-//                    p -> p.getSqlGenerateConfig() == SqlGenerateConfig.INSERT_AND_UPDATE
-//                            || p.getSqlGenerateConfig() == SqlGenerateConfig.INSERT
-//                            || p.getSqlGenerateConfig() == SqlGenerateConfig.AUTO_INCREMENT
-//            );
-//            fields.forEach(p -> {
-//                try {
-//                    p.getField().set(object,
-//                            p.getGetFieldFunction().get(rch, p.getColumnName()));
-//                } catch (IllegalAccessException | SQLException e) {
-//                    log.error("create failed:", e);
-//                }
-//            });
-//        });
 
 }
