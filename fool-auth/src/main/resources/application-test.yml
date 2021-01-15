@@ -1,0 +1,47 @@
+server:
+  port: 8088
+spring:
+  profiles: test
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/car_wash?serverTimezone=Hongkong&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: Pa88word
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    driverClassName: com.mysql.cj.jdbc.Driver
+  jackson:
+    time-zone: Asia/Shanghai
+  mail:
+    host: smtpdm.aliyun.com
+    username: notify@mail.fhfund.ltd
+    password: Pa88wordGyf123
+    port: 465
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enable: true
+          auth: true
+          starttls:
+            enable: true
+            required: true
+mybatis:
+  mapper-locations: classpath:mybatis/mapper/*Mapper.xml
+  type-aliases-package: com.github.yfge.huobiapp.dao
+  config-locations: classpath:mybatis/mybatis-config.xml
+proxy:
+  enable: "true"
+dingtou:
+  sync: true
+otc:
+  url: https://otc-api-hk.eiijo.cn/v1/data/trade-market?coinId=2&currency=1&tradeType=buy&currPage=1&payMethod=0&country=37&blockType=general&online=1&range=0&amount=
+#showSql
+logging:
+  level:
+    com:
+      example:
+  path: "./logs/"
+notify:
+  dingding:
+    url: https://oapi.dingtalk.com/robot/send?access_token=b355661e804dee046084fc03a6470a53e16dd741d35d9d410efb4749e881ecc1
+

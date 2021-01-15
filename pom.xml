@@ -22,6 +22,7 @@
         <module>fool-dao</module>
         <module>fool-auth</module>
         <module>business-application</module>
+        <module>fool-dto</module>
         <!---->
         <!--        <module>fool-dynamic</module>-->
         <!---->

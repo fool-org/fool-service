@@ -34,6 +34,36 @@ public class DaoService {
         return concurrentHashMap.get(name);
     }
 
+
+    /**
+     * 得到列表
+     *
+     * @param clazz
+     * @param sql
+     * @param <T>
+     * @return
+     */
+    public <T> List<T> selectList(Class<T> clazz, String sql) {
+        var mapper = getMapper(clazz);
+        return this.jdbcTemplate.query(sql, mapper);
+    }
+
+
+    /**
+     * 得到列表
+     *
+     * @param clazz
+     * @param sql
+     * @param args
+     * @param <T>
+     * @return
+     */
+    public <T> List<T> selectList(Class<T> clazz, String sql, Object... args) {
+        var mapper = this.getMapper(clazz);
+        return this.jdbcTemplate.query(sql, mapper, args);
+
+    }
+
     /**
      * 所有列表
      *
@@ -55,7 +85,7 @@ public class DaoService {
      * @param <T>
      * @return
      */
-    public <T> T getOneByKey(Object key, Class<T> clazz) {
+    public <T> T getOneByKey(Class<T> clazz, Object key) {
         var mapper = getMapper(clazz);
         var queryAndArgs = this.sqlScriptGenerator.generateSelectOne(mapper, key);
         var items = this.jdbcTemplate.query(queryAndArgs.getSql(), mapper, key);

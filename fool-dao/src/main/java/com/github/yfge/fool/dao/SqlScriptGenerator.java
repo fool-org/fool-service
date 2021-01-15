@@ -17,10 +17,11 @@ public class SqlScriptGenerator {
 
     private static final String SELECT = "SELECT ";
     private static final String INSERT = "INSERT INTO ";
+    private static final String DELETE = "DELETE FROM ";
     private static final String VALUES = " VALUES ";
     private static final String UPDATE = "UPDATE ";
     private static final String FROM = " FROM ";
-    private static final String WHERE = "WHERE ";
+    private static final String WHERE = "WHERE 1=1 AND ";
     private static final String SET = " SET ";
     private static final String COUNT_ONE = " COUNT(1)";
 
@@ -153,9 +154,53 @@ public class SqlScriptGenerator {
                     .append("`" + optionalMapField.get().getColumnName() + "`=")
                     .append("@@IDENTITY;");
 
+        } else {
+            return null;
         }
         queryAndArgs.setSql(builder.toString());
         queryAndArgs.setArgs(objects.toArray());
         return queryAndArgs;
+    }
+
+    public <T> QueryAndArgs generateDelete(Mapper<?> mapper, T object) {
+        QueryAndArgs queryAndArgs = new QueryAndArgs();
+        StringBuilder builder = new StringBuilder();
+        builder.append(DELETE)
+                .append('`' + mapper.getTableName() + "`")
+                .append(SET);
+
+        final Object[] key = new Object[1];
+        final String[] filter = {""};
+        var fields =
+                mapper.getMapFields().stream().filter(p -> p.isCollection() == false).collect(Collectors.toList());
+        if (fields.size() > 0) {
+            List<Object> objects = new LinkedList<>();
+            builder.append(
+                    fields.stream().map(p -> {
+                        Object value = null;
+                        try {
+                            value = p.getField().get(object);
+
+                        } catch (IllegalAccessException e) {
+                            log.error("{}", e);
+                        }
+                        objects.add(value);
+                        String msg = "`" + p.getColumnName() + "` = ?";
+                        if (p == mapper.getPrimaryField()) {
+                            filter[0] = " WHERE `" + p.getColumnName() + "`= ?";
+                            key[0] = value;
+                        }
+                        return msg;
+                    }).collect(Collectors.joining(",")));
+
+            builder.append(filter[0]);
+            objects.add(key[0]);
+            builder.append(";");
+            queryAndArgs.setSql(builder.toString());
+            queryAndArgs.setArgs(objects.toArray());
+            log.info("generate update sql : {}", queryAndArgs);
+            return queryAndArgs;
+        }
+        return null;
     }
 }

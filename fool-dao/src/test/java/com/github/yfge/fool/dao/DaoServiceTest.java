@@ -11,6 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -55,17 +56,39 @@ public class DaoServiceTest {
     public void delete() {
 
 
-        Order order = daoService.getOneByKey(613, Order.class);
+        Order order = daoService.getOneByKey(Order.class, 613);
         log.info("get one by key :{}", order);
     }
 
     @Test
     public void create() {
-        Order order = daoService.getOneByKey(613, Order.class);
+        Order order = daoService.getOneByKey(Order.class, 613);
         order.setOrderSymbol("testOrder");
         order.setOrderStopPrice(BigDecimal.ONE);
         order.setOrderPrice(BigDecimal.ONE);
         daoService.create(order);
         log.info("order created:{}", order);
+    }
+
+    @Test
+    public void selectList() {
+
+        String sql = "select * from `market_order` where id>? and id < ?";
+
+        List<Order> orderList = daoService.selectList(Order.class, sql, 100, 110);
+        for (var i : orderList) {
+            log.info("{}", i);
+        }
+    }
+
+    @Test
+    public void testSelectList() {
+
+        String sql = "select * from `market_order` where id>100 and id < 110";
+
+        List<Order> orderList = daoService.selectList(Order.class, sql);
+        for (var i : orderList) {
+            log.info("{}", i);
+        }
     }
 }

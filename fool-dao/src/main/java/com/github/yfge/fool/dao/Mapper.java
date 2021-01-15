@@ -54,6 +54,8 @@ public class Mapper<T> extends
             } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
                 e.printStackTrace();
             }
+        } else {
+            this.propertyNamingStrategy = (PropertyNamingStrategy.PropertyNamingStrategyBase) PropertyNamingStrategy.SNAKE_CASE;
         }
         this.tableName = getTableName(clazz);
         for (Field field : clazz.getDeclaredFields()
