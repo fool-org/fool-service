@@ -1,5 +1,5 @@
 spring:
-  profiles:dev
+  profiles: dev
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/car_wash?serverTimezone=Hongkong&useSSL=false&allowPublicKeyRetrieval=true
     username: root
