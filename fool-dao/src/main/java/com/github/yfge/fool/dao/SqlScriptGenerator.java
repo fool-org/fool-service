@@ -3,9 +3,11 @@ package com.github.yfge.fool.dao;
 import com.github.yfge.fool.common.annotation.SqlGenerateConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -21,9 +23,11 @@ public class SqlScriptGenerator {
     private static final String VALUES = " VALUES ";
     private static final String UPDATE = "UPDATE ";
     private static final String FROM = " FROM ";
-    private static final String WHERE = "WHERE 1=1 AND ";
+    private static final String WHERE = "WHERE 1=1 ";
     private static final String SET = " SET ";
     private static final String COUNT_ONE = " COUNT(1)";
+    private static final String AND = " AND ";
+    private static final String PAGE_INFO = " LIMIT ? OFFSET ?";
 
     public String generateSelect(Mapper mapper) {
         StringBuilder builder = new StringBuilder();
@@ -54,6 +58,7 @@ public class SqlScriptGenerator {
         builder.append(FROM);
         builder.append("`" + mapper.getTableName() + "`");
         builder.append(WHERE);
+        builder.append(AND);
         builder.append(mapper.getPrimaryField().getColumnName());
         builder.append(" = ? ");
         queryAndArgs.setSql(builder.toString());
@@ -151,6 +156,7 @@ public class SqlScriptGenerator {
                     .append(FROM)
                     .append("`" + mapper.getTableName() + "`")
                     .append(WHERE)
+                    .append(AND)
                     .append("`" + optionalMapField.get().getColumnName() + "`=")
                     .append("@@IDENTITY;");
 
@@ -202,5 +208,48 @@ public class SqlScriptGenerator {
             return queryAndArgs;
         }
         return null;
+    }
+
+    public QueryAndArgs generateSelectithPageBySimpleFilter(Mapper<?> mapper, PageNavigator pageNavigator, Map<String, Object[]> filter) {
+        QueryAndArgs queryAndArgs = new QueryAndArgs();
+        StringBuilder builder = new StringBuilder();
+        builder.append(SELECT);
+        List<MapField> fieldList = mapper.getMapFields();
+        builder.append(fieldList.stream().filter(p -> p.isCollection() == false).map(MapField::getColumnName).collect(Collectors.joining(",")));
+        builder.append(FROM);
+        builder.append("`" + mapper.getTableName() + "`");
+        builder.append(WHERE);
+
+        List<Object> params = new LinkedList<>();
+
+        if (!CollectionUtils.isEmpty(filter)) {
+            for (String key : filter.keySet()
+            ) {
+                var field = fieldList.stream().filter(p -> p.isCollection() == false && (p.getColumnName().equals(key) || p.getField().getName().equals(key))).findFirst();
+                if (field.isPresent()) {
+                    var values = filter.get(key);
+                    builder.append(AND);
+                    if (values.length == 1) {
+                        builder.append("`" + field.get().getColumnName() + "` = ? ");
+                        params.add(values[0]);
+
+                    } else if (values.length == 2) {
+                        builder.append("`" + field.get().getColumnName() + "` BETWEEN ? AND ? ");
+                        params.add(values[0]);
+                        params.add(values[1]);
+                    }
+                }
+            }
+        }
+
+        builder.append(PAGE_INFO);
+        params.add(pageNavigator.getPageSize());
+        params.add(pageNavigator.getPageSize() * (pageNavigator.getPageIndex() - 1));
+
+        queryAndArgs.setSql(builder.toString());
+        queryAndArgs.setArgs(params.toArray());
+        log.info("generate select one sql:{}", queryAndArgs);
+
+        return queryAndArgs;
     }
 }

@@ -1,6 +1,6 @@
 package com.github.yfge.fool.auth.business.service;
 
-import com.github.yfge.fool.auth.business.model.User;
+import com.github.yfge.fool.auth.Application;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +20,7 @@ public class AuthServiceTest {
 
     @Test
     public void login() {
-        User user = authService.login("admin", "123456");
+        var user = authService.login("admin", "123456");
         log.info("login success.{}", user);
     }
 

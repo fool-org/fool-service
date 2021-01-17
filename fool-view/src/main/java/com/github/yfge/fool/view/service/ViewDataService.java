@@ -1,4 +1,6 @@
-package com.github.yfge.fool.view;
+package com.github.yfge.fool.view.service;
+
+import com.github.yfge.fool.view.model.View;
 
 import java.util.List;
 

@@ -11,7 +11,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -62,12 +64,16 @@ public class DaoServiceTest {
 
     @Test
     public void create() {
-        Order order = daoService.getOneByKey(Order.class, 613);
-        order.setOrderSymbol("testOrder");
-        order.setOrderStopPrice(BigDecimal.ONE);
-        order.setOrderPrice(BigDecimal.ONE);
-        daoService.create(order);
-        log.info("order created:{}", order);
+        try {
+            Order order = daoService.getOneDetailByKey(Order.class, 613);
+            order.setOrderSymbol("testOrder");
+            order.setOrderStopPrice(BigDecimal.ONE);
+            order.setOrderPrice(BigDecimal.ONE);
+            daoService.create(order);
+            log.info("order created:{}", order);
+        }catch (Throwable throwable){
+            log.info("",throwable);
+        }
     }
 
     @Test
@@ -90,5 +96,15 @@ public class DaoServiceTest {
         for (var i : orderList) {
             log.info("{}", i);
         }
+    }
+
+    @Test
+    public void getWithPageBySimpleFilter() {
+
+        PageNavigator pageNavigator = new PageNavigator();
+        pageNavigator.setPageIndex(1);
+        pageNavigator.setPageSize(10);
+        Map<String, Object[]> filters = new HashMap<>();
+        log.info("{}", daoService.getWithPageBySimpleFilter(Order.class, pageNavigator, filters));
     }
 }

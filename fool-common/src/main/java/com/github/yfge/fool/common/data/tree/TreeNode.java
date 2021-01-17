@@ -30,6 +30,8 @@ public class TreeNode<T> {
     @ToString.Exclude
     @JsonIgnore
     Tree<T> tree;
+
+    @JsonIgnore
     int level;
 
 
@@ -38,6 +40,7 @@ public class TreeNode<T> {
 
     }
 
+    @JsonIgnore
     public TreeNode<T> getNext() {
         if (this.parent != null) {
             int i = this.parent.children.indexOf(this);
@@ -48,6 +51,7 @@ public class TreeNode<T> {
         return null;
     }
 
+    @JsonIgnore
     public int getWidth() {
         if (this.children.size() == 0)
             return 1;

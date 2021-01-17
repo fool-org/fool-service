@@ -5,3 +5,8 @@ spring:
     active: test
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
+logging:
+  path: "./log"
+  level:
+    root: INFO
+    com.github.yfge.fool.dao: INFO

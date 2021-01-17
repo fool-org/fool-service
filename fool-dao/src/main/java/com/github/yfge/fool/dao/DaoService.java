@@ -9,9 +9,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.ParameterizedType;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -95,8 +98,58 @@ public class DaoService {
         return null;
     }
 
-    public <T> PageResult<T> getByPage(PageNavigator pageNavigator) {
+
+    /**
+     * 查询数据,同时得到子项数据
+     *
+     * @param clazz
+     * @param key
+     * @param <T>
+     * @return
+     */
+    public <T> T getOneDetailByKey(Class<T> clazz, Object key) {
+        var mapper = getMapper(clazz);
+        var queryAndArgs = this.sqlScriptGenerator.generateSelectOne(mapper, key);
+        var items = this.jdbcTemplate.query(queryAndArgs.getSql(), mapper, key);
+        if (items != null && items.size() > 0) {
+            T result = items.get(0);
+            fillItems(clazz, result, mapper, key);
+            return result;
+        }
         return null;
+    }
+
+    private <T> void fillItems(Class<T> clazz, T result, Mapper<?> mapper, Object key) {
+        var fieldList = mapper.getMapFields();
+        var collectionFields = fieldList.stream().filter(p -> p.isCollection()).collect(Collectors.toList());
+
+        for (var field : collectionFields) {
+//            var paramTypes = field.getField().getType().getTypeParameters();
+            log.info(field.getColumnName());
+            log.info("{}", field.getField());
+            log.info(field.getField().getType().getName());
+//            log.info()
+            ParameterizedType t = (ParameterizedType) field.getField().getGenericType();
+            Class<?> itemClazz = (Class<?>) t.getActualTypeArguments()[0];
+            log.info("{}", itemClazz.getName());
+//            if (paramTypes.length > 0) {
+//                var itemTypes = paramTypes[0].getBounds();
+//
+//                for (var itemType : itemTypes) {
+//                    log.info("{}", itemType.getTypeName());
+//                }
+        }
+
+    }
+
+
+    public <T> PageResult<T> getWithPageBySimpleFilter(Class<T> clazz, PageNavigator pageNavigator, Map<String, Object[]> filter) {
+        var mapper = getMapper(clazz);
+        var queryAndArgs = this.sqlScriptGenerator.generateSelectithPageBySimpleFilter(mapper, pageNavigator, filter);
+        PageResult<T> result = new PageResult<>();
+        result.setItems(
+                this.jdbcTemplate.query(queryAndArgs.getSql(), queryAndArgs.getArgs(), mapper));
+        return result;
     }
 
 

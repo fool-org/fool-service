@@ -1,0 +1,12 @@
+server:
+  port: 8088
+spring:
+  profiles:dev
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/car_wash?serverTimezone=Hongkong&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: Pa88word
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    driverClassName: com.mysql.cj.jdbc.Driver
+  jackson:
+    time-zone: Asia/Shanghai
