@@ -1,0 +1,1 @@
+package org.fool.framework.common.annotation;

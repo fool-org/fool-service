@@ -38,6 +38,14 @@
             <groupId>io.springfox</groupId>
             <artifactId>springfox-boot-starter</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.github.yfge.fool</groupId>
+            <artifactId>fool-error-handler</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.yfge.fool</groupId>
+            <artifactId>fool-log</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -45,7 +53,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.github.yfge.fool.auth.Application</mainClass>
+                    <mainClass>org.fool.framework.auth.Application</mainClass>
                     <layout>ZIP</layout>
                     <classifier>exec</classifier>
                     <includeSystemScope>true</includeSystemScope>

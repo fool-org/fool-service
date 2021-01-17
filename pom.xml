@@ -23,6 +23,8 @@
         <module>fool-auth</module>
         <module>business-application</module>
         <module>fool-dto</module>
+        <module>fool-error-handler</module>
+        <module>fool-log</module>
         <!---->
         <!--        <module>fool-dynamic</module>-->
         <!---->
@@ -106,6 +108,16 @@
             </dependency>
             <dependency>
                 <groupId>com.github.yfge.fool</groupId>
+                <version>${fool.version}</version>
+                <artifactId>fool-error-handler</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>com.github.yfge.fool</groupId>
+                <version>${fool.version}</version>
+                <artifactId>fool-log</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>com.github.yfge.fool</groupId>
                 <artifactId>fool-dto</artifactId>
                 <version>${fool.version}</version>
             </dependency>
@@ -142,6 +154,12 @@
                     <version>3.0.0</version>
                 </dependency>
             -->
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>4.0.1</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
     <build>

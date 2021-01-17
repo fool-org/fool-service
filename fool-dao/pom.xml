@@ -25,6 +25,10 @@
             <artifactId>fool-common</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.github.yfge.fool</groupId>
+            <artifactId>fool-error-handler</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
@@ -51,7 +55,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.github.yfge.fool.dao.Application</mainClass>
+                    <mainClass>Application</mainClass>
                     <layout>ZIP</layout>
                     <classifier>exec</classifier>
                     <includeSystemScope>true</includeSystemScope>
