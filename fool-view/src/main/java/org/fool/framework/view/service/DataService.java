@@ -16,9 +16,16 @@ public class DataService {
     @Autowired
     private DaoService daoService;
 
+    /**
+     * 得到视图信息
+     *
+     * @param viewName
+     * @param filter
+     * @param pageInfo
+     */
     public void queryViewDataList(String viewName, Map<String, QueryValue> filter, PageInfo pageInfo) {
         Class modelClass = null;
-        View view = daoService.getOneByKey(View.class, viewName);
+        View view = daoService.getOneDetailByKey(View.class, viewName);
         if (view == null) {
             throw new CommonException(ErrorCode.VIEW_NOT_FOUND, "没有查到视图");
         }

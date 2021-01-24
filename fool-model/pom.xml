@@ -11,5 +11,11 @@
 
     <artifactId>fool-model</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.lombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

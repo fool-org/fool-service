@@ -39,14 +39,32 @@ public class FunctionMap {
         map.put("java.time.LocalDateTime", new GetFieldFunction() {
             @Override
             public Object get(ResultSet resultSet, String columnName) throws SQLException {
-//                log.info("{}", resultSet.getTimestamp(columnName));
                 return LocalDateTime.now();
             }
         });
     }
 
+    /**
+     * 得到get操作
+     *
+     * @param field
+     * @return
+     */
     public static GetFieldFunction getFieldFunction(Field field) {
         String name = field.getType().getName();
+        if (field.getType().isEnum()) {
+            return new GetFieldFunction() {
+                @Override
+                public Object get(ResultSet resultSet, String columnName) throws SQLException {
+                    var values = field.getType().getEnumConstants();
+                    Integer index = resultSet.getInt(columnName);
+                    if (index != null && index < values.length) {
+                        return values[index];
+                    }
+                    return null;
+                }
+            };
+        }
         return map.getOrDefault(name, null);
     }
 }

@@ -119,27 +119,41 @@ public class DaoService {
         return null;
     }
 
+    /**
+     * 填充列表项
+     *
+     * @param clazz
+     * @param result
+     * @param mapper
+     * @param key
+     * @param <T>
+     */
     private <T> void fillItems(Class<T> clazz, T result, Mapper<?> mapper, Object key) {
         var fieldList = mapper.getMapFields();
         var collectionFields = fieldList.stream().filter(p -> p.isCollection()).collect(Collectors.toList());
 
         for (var field : collectionFields) {
-//            var paramTypes = field.getField().getType().getTypeParameters();
-            log.info(field.getColumnName());
-            log.info("{}", field.getField());
-            log.info(field.getField().getType().getName());
-//            log.info()
+            /**
+             * 得到集合类型
+             */
             ParameterizedType t = (ParameterizedType) field.getField().getGenericType();
             Class<?> itemClazz = (Class<?>) t.getActualTypeArguments()[0];
-            log.info("{}", itemClazz.getName());
-//            if (paramTypes.length > 0) {
-//                var itemTypes = paramTypes[0].getBounds();
-//
-//                for (var itemType : itemTypes) {
-//                    log.info("{}", itemType.getTypeName());
-//                }
+            var itemMapper = getMapper(itemClazz);
+
+            String foreignColumn = getForeignColumn(field);
+            var varQueryAndArgs = this.sqlScriptGenerator.generateSelectItems(itemMapper, field.getColumnName(), key);
+            var items = this.jdbcTemplate.query(varQueryAndArgs.getSql(), itemMapper, key);
+            try {
+                field.getField().set(result, items);
+            } catch (IllegalAccessException e) {
+                log.info("set {} of {} error", field.getField().getName(), clazz.getName(), e);
+            }
         }
 
+    }
+
+    private String getForeignColumn(MapField field) {
+        return null;
     }
 
 

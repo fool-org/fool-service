@@ -62,6 +62,14 @@ public class AuthService {
 
     }
 
+    /**
+     * 注册
+     * @param id
+     * @param password
+     * @param name
+     * @param mobile
+     * @return
+     */
     public User register(String id, String password, String name, String mobile) {
         try {
             var md5 = MessageDigest.getInstance("md5");

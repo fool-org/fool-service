@@ -60,7 +60,5 @@ public class Order {
     @SqlGenerate(SqlGenerateConfig.INSERT)
     private LocalDateTime createAt;
     private String orderSymbol;
-
-
     private List<OrderItems> orderItemsList;
 }

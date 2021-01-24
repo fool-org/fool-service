@@ -1,5 +1,7 @@
 package org.fool.framework.common.dynamic;
 
+import java.util.Map;
+
 /**
  * 表示一个动态的数据
  * 可能是硬编码的反射
@@ -40,4 +42,7 @@ public interface IDynamicData {
      * @param args       参数
      */
     void invoke(String methodName, Object... args);
+
+
+    Map<String ,Object> toMap();
 }

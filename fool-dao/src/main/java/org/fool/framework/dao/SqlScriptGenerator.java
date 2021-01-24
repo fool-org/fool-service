@@ -1,7 +1,7 @@
 package org.fool.framework.dao;
 
-import org.fool.framework.common.annotation.SqlGenerateConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.fool.framework.common.annotation.SqlGenerateConfig;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -18,12 +18,13 @@ public class SqlScriptGenerator {
 
 
     private static final String SELECT = "SELECT ";
+    private static final String CREATE = "CREATE TABLE ";
     private static final String INSERT = "INSERT INTO ";
     private static final String DELETE = "DELETE FROM ";
     private static final String VALUES = " VALUES ";
     private static final String UPDATE = "UPDATE ";
     private static final String FROM = " FROM ";
-    private static final String WHERE = "WHERE 1=1 ";
+    private static final String WHERE = " WHERE 1=1 ";
     private static final String SET = " SET ";
     private static final String COUNT_ONE = " COUNT(1)";
     private static final String AND = " AND ";
@@ -47,7 +48,6 @@ public class SqlScriptGenerator {
         builder.append("`" + mapper.getTableName() + "`");
         return builder.toString();
     }
-
 
     public QueryAndArgs generateSelectOne(Mapper mapper, Object key) {
         QueryAndArgs queryAndArgs = new QueryAndArgs();
@@ -168,17 +168,23 @@ public class SqlScriptGenerator {
         return queryAndArgs;
     }
 
+    /**
+     * 生成删除的语句
+     *
+     * @param mapper
+     * @param object
+     * @param <T>
+     * @return
+     */
     public <T> QueryAndArgs generateDelete(Mapper<?> mapper, T object) {
         QueryAndArgs queryAndArgs = new QueryAndArgs();
         StringBuilder builder = new StringBuilder();
         builder.append(DELETE)
                 .append('`' + mapper.getTableName() + "`")
                 .append(SET);
-
         final Object[] key = new Object[1];
         final String[] filter = {""};
-        var fields =
-                mapper.getMapFields().stream().filter(p -> p.isCollection() == false).collect(Collectors.toList());
+        var fields = mapper.getMapFields().stream().filter(p -> p.isCollection() == false).collect(Collectors.toList());
         if (fields.size() > 0) {
             List<Object> objects = new LinkedList<>();
             builder.append(
@@ -186,7 +192,6 @@ public class SqlScriptGenerator {
                         Object value = null;
                         try {
                             value = p.getField().get(object);
-
                         } catch (IllegalAccessException e) {
                             log.error("{}", e);
                         }
@@ -198,7 +203,6 @@ public class SqlScriptGenerator {
                         }
                         return msg;
                     }).collect(Collectors.joining(",")));
-
             builder.append(filter[0]);
             objects.add(key[0]);
             builder.append(";");
@@ -251,5 +255,50 @@ public class SqlScriptGenerator {
         log.info("generate select one sql:{}", queryAndArgs);
 
         return queryAndArgs;
+    }
+
+    /**
+     * 查询子项
+     *
+     * @param itemMapper
+     * @param parentColumnName
+     * @param key
+     * @return
+     */
+    public QueryAndArgs generateSelectItems(Mapper<?> itemMapper, String parentColumnName, Object key) {
+        var queryAndArgs = new QueryAndArgs();
+        StringBuilder builder = new StringBuilder();
+        builder.append(SELECT);
+        List<MapField> fieldList = itemMapper.getMapFields();
+        builder.append(fieldList.stream().filter(p -> p.isCollection() == false).map(MapField::getColumnName).collect(Collectors.joining(",")));
+        builder.append(FROM);
+        builder.append("`" + itemMapper.getTableName() + "`");
+        builder.append(WHERE);
+        builder.append("`" + parentColumnName + "`=?");
+        queryAndArgs.setSql(builder.toString());
+        queryAndArgs.setArgs(new Object[]{key});
+
+        log.info("generate update sql : {}", queryAndArgs);
+        return queryAndArgs;
+
+    }
+
+
+    /**
+     * 生成建表语句
+     *
+     * @param mapper
+     * @return
+     */
+    public String generateCreateTable(Mapper<?> mapper) {
+
+        StringBuilder builder = new StringBuilder();
+        builder.append(CREATE);
+        builder.append("`" + mapper.getTableName() + "`");
+        List<MapField> fieldList = mapper.getMapFields();
+        builder.append(fieldList.stream().filter(p -> p.isCollection() == false).map(MapField::getColumnName).collect(Collectors.joining(",")));
+
+
+        return builder.toString();
     }
 }

@@ -19,9 +19,7 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.OAS_30)
                 .apiInfo(apiInfo()).enable(true)
                 .select()
-                //apis： 添加swagger接口提取范围
                 .apis(RequestHandlerSelectors.basePackage("org.fool.framework"))
-                //.apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
                 .paths(PathSelectors.any())
                 .build();
     }
