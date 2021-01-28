@@ -274,6 +274,7 @@ public class SqlScriptGenerator {
         builder.append(FROM);
         builder.append("`" + itemMapper.getTableName() + "`");
         builder.append(WHERE);
+        builder.append(AND);
         builder.append("`" + parentColumnName + "`=?");
         queryAndArgs.setSql(builder.toString());
         queryAndArgs.setArgs(new Object[]{key});

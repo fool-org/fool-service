@@ -1,0 +1,10 @@
+spring:
+  profiles: test
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/car_wash?zeroDateTimeBehavior=round&useSSL=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&allowMultiQueries=true&autoReconnect=true
+    username: car_wash
+    password: Pa88word!@#Car
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    driverClassName: com.mysql.cj.jdbc.Driver
+  jackson:
+    time-zone: Asia/Shanghai

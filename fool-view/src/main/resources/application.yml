@@ -1,0 +1,18 @@
+server:
+  port: 8089
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+      enabled: true
+spring:
+  profiles:
+    active: dev
+  http:
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+logging:
+  path: "./log"
+  level:
+    root: INFO

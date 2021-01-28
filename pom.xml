@@ -25,16 +25,7 @@
         <module>fool-dto</module>
         <module>fool-error-handler</module>
         <module>fool-log</module>
-        <!---->
-        <!--        <module>fool-dynamic</module>-->
-        <!---->
-        <!--        <module>fool-reflect</module>-->
-        <!---->
-        <!--        <module>fool-model</module>-->
-        <!---->
-        <!--        <module>fool-view</module>-->
-
-
+        <module>fool-view</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -175,6 +166,13 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <!-- https://mvnrepository.com/artifact/org.flywaydb/flyway-maven-plugin -->
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>7.5.1</version>
+
             </plugin>
         </plugins>
     </build>

@@ -138,11 +138,11 @@ public class DaoService {
              */
             ParameterizedType t = (ParameterizedType) field.getField().getGenericType();
             Class<?> itemClazz = (Class<?>) t.getActualTypeArguments()[0];
-            var itemMapper = getMapper(itemClazz);
 
-            String foreignColumn = getForeignColumn(field);
-            var varQueryAndArgs = this.sqlScriptGenerator.generateSelectItems(itemMapper, field.getColumnName(), key);
-            var items = this.jdbcTemplate.query(varQueryAndArgs.getSql(), itemMapper, key);
+            Object foreignKey = getKey(result, mapper);
+            var itemMapper = getMapper(itemClazz);
+            var varQueryAndArgs = this.sqlScriptGenerator.generateSelectItems(itemMapper, field.getColumnName(), foreignKey);
+            var items = this.jdbcTemplate.query(varQueryAndArgs.getSql(), itemMapper, foreignKey);
             try {
                 field.getField().set(result, items);
             } catch (IllegalAccessException e) {
@@ -150,6 +150,22 @@ public class DaoService {
             }
         }
 
+    }
+
+    private <T> Object getKey(T result, Mapper<?> mapper) {
+
+
+        var fields =
+                mapper.getMapFields().stream().filter(p -> p.isCollection() == false && p.getSqlGenerateConfig() == SqlGenerateConfig.AUTO_INCREMENT).collect(Collectors.toList());
+        if (fields.size() > 0) {
+
+            try {
+                return fields.get(0).getField().get(result);
+            } catch (IllegalAccessException e) {
+                return null;
+            }
+        }
+        return null;
     }
 
     private String getForeignColumn(MapField field) {

@@ -30,7 +30,7 @@ public class DataService {
             throw new CommonException(ErrorCode.VIEW_NOT_FOUND, "没有查到视图");
         }
         try {
-            modelClass = Class.forName(view.getModelClass());
+            modelClass = Class.forName(view.getViewModelClass());
         } catch (ClassNotFoundException e) {
             throw new CommonException(ErrorCode.VIEW_MODEL_NOT_FOUND, "没有查到视图对应的模型类型");
         }

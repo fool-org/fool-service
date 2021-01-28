@@ -8,9 +8,9 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
+    <version>1.0-SNAPSHOT</version>
     <artifactId>fool-view</artifactId>
-
+    <groupId>com.github.yfge.fool</groupId>
     <dependencies>
         <dependency>
             <groupId>com.github.yfge.fool</groupId>
@@ -21,11 +21,11 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>om.github.yfge.fool</groupId>
+            <groupId>com.github.yfge.fool</groupId>
             <artifactId>fool-dto</artifactId>
         </dependency>
         <dependency>
-            <groupId></groupId>
+            <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
     </dependencies>
