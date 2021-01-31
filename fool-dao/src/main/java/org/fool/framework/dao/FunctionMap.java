@@ -8,6 +8,9 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * 得到枚举的操作
+ */
 @Slf4j
 public class FunctionMap {
 
