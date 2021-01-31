@@ -20,7 +20,7 @@ public class ViewController {
     private ViewAdapter viewAdapter;
 
     @ResponseBody
-    @PostMapping("/get-vew")
+    @PostMapping("/get-view")
     @ApiOperation("得到视图的定义")
     public CommonResponse<ListViewInfo> getViewData(@RequestBody ViewDataRequest request) {
         return new CommonResponse<>(viewAdapter.getViewInfo(viewDataService.getViewData(request.getViewName(), request.getToken())));
