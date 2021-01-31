@@ -26,6 +26,8 @@
         <module>fool-error-handler</module>
         <module>fool-log</module>
         <module>fool-view</module>
+        <module>fool-query</module>
+        <module>fool-model</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -110,6 +112,16 @@
             <dependency>
                 <groupId>com.github.yfge.fool</groupId>
                 <artifactId>fool-dto</artifactId>
+                <version>${fool.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.yfge.fool</groupId>
+                <artifactId>fool-model</artifactId>
+                <version>${fool.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.yfge.fool</groupId>
+                <artifactId>fool-query</artifactId>
                 <version>${fool.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-redis -->

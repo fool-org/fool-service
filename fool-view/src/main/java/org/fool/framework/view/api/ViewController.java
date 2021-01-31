@@ -5,7 +5,6 @@ import org.fool.framework.dto.CommonResponse;
 import org.fool.framework.view.adapter.ViewAdapter;
 import org.fool.framework.view.dto.ListViewInfo;
 import org.fool.framework.view.dto.ViewDataRequest;
-import org.fool.framework.view.model.View;
 import org.fool.framework.view.service.ViewDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +26,6 @@ public class ViewController {
     @RequestMapping("/get-vew")
     @ApiOperation("得到视图的定义")
     public CommonResponse<ListViewInfo> getViewData(@RequestBody ViewDataRequest request) {
-        return new CommonResponse<>(viewAdapter.getViewInfo(viewDataService.getViewData(request.getViewName(), request.getToken()_));
+        return new CommonResponse<>(viewAdapter.getViewInfo(viewDataService.getViewData(request.getViewName(), request.getToken())));
     }
 }

@@ -16,7 +16,6 @@ public class View {
     private String viewRemark;
     private String viewTitle;
     private ViewType viewType;
-//    private List<ViewItem> items;
     private String viewModel;
     @Column("view_id")
     private List<ViewItem> listItems;

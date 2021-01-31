@@ -1,5 +1,6 @@
 package org.fool.framework.view.adapter;
 
+import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.view.dto.ListViewInfo;
 import org.fool.framework.view.dto.TableColumnInfo;
 import org.fool.framework.view.dto.ViewInputInfo;
@@ -8,14 +9,17 @@ import org.fool.framework.view.model.View;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
+import java.util.List;
 
 @Component
 public class ViewAdapter {
 
+    public static void getDataItem(List<IDynamicData> result) {
+
+    }
+
     public ListViewInfo getViewInfo(View view) {
-
         ListViewInfo result = new ListViewInfo();
-
 
         result.setId(view.getId());
         result.setViewName(view.getViewName());

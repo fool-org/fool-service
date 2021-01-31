@@ -12,7 +12,6 @@ import java.util.List;
 
 @Data
 @ApiModel("表单输入项")
-@NoArgsConstructor
 @Builder
 public class ViewInputInfo {
     private String property;

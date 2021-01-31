@@ -12,6 +12,7 @@ public class ViewDataService {
     @Autowired
     private DaoService daoService;
 
+
     public View getViewData(String viewName, String token) {
         return daoService.getOneDetailByKey(View.class, viewName);
     }

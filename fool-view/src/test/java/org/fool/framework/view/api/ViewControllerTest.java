@@ -1,6 +1,8 @@
-package org.fool.framework.view.service;
+package org.fool.framework.view.api;
 
 import lombok.extern.slf4j.Slf4j;
+import org.fool.framework.view.dto.ViewDataRequest;
+import org.fool.framework.view.Application;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,18 +15,18 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @SpringBootApplication
 @SpringBootTest(classes = Application.class)
-public class ViewDataServiceTest {
+public class ViewControllerTest {
 
 
     @Autowired
-    private ViewDataService viewDataService;
+    private ViewController viewController;
 
     @Test
-    public void getViewData() {
+    public void TestGetView() {
         String name = "CarOwnerList";
+        ViewDataRequest req = new ViewDataRequest();
+        req.setViewName(name);
+        log.info("{}", viewController.getViewData(req));
 
-        var view = viewDataService.getViewData(name, "");
-
-        log.info("{}", view);
     }
 }

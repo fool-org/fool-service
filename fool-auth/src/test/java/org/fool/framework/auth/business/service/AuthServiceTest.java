@@ -1,7 +1,7 @@
 package org.fool.framework.auth.business.service;
 
-import org.fool.framework.auth.Application;
 import lombok.extern.slf4j.Slf4j;
+import org.fool.framework.auth.Application;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,8 @@ public class AuthServiceTest {
 
     @Test
     public void getAuth() {
-
-        log.info("get auth:{}", authService.getAuth("admin"));
+        var user = authService.login("admin", "123456");
+        log.info("login success.{}", user);
+        log.info("get auth:{}", authService.getAuth(user.getToken()));
     }
 }
