@@ -16,6 +16,10 @@
         </dependency>
         <dependency>
             <groupId>com.github.yfge.fool</groupId>
+            <artifactId>fool-view</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.yfge.fool</groupId>
             <artifactId>fool-dao</artifactId>
         </dependency>
         <dependency>

@@ -124,6 +124,11 @@
                 <artifactId>fool-query</artifactId>
                 <version>${fool.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.github.yfge.fool</groupId>
+                <artifactId>fool-view</artifactId>
+                <version>${fool.version}</version>
+            </dependency>
             <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-redis -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>

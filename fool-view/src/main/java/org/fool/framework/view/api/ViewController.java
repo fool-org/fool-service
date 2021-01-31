@@ -7,10 +7,7 @@ import org.fool.framework.view.dto.ListViewInfo;
 import org.fool.framework.view.dto.ViewDataRequest;
 import org.fool.framework.view.service.ViewDataService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/view")
@@ -23,7 +20,7 @@ public class ViewController {
     private ViewAdapter viewAdapter;
 
     @ResponseBody
-    @RequestMapping("/get-vew")
+    @PostMapping("/get-vew")
     @ApiOperation("得到视图的定义")
     public CommonResponse<ListViewInfo> getViewData(@RequestBody ViewDataRequest request) {
         return new CommonResponse<>(viewAdapter.getViewInfo(viewDataService.getViewData(request.getViewName(), request.getToken())));
