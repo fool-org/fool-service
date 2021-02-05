@@ -15,6 +15,7 @@ public class Model {
     private String remark;
     private ModelType modelType;
     private String className;
+    private String tableName;
     private List<Property> properties;
     private List<EnumValue> enums;
     private List<Operation> operations;

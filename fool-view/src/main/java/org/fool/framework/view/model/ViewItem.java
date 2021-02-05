@@ -10,8 +10,14 @@ import org.fool.framework.common.annotation.Table;
 @Table("fool_sys_view_item")
 public class ViewItem {
 
+    /**
+     * ID
+     */
     @SqlGenerate(SqlGenerateConfig.INSERT)
     private Long id;
+    /**
+     * 名称
+     */
     private String itemName;
     private String itemLabel;
     private String itemLegend;
@@ -20,6 +26,7 @@ public class ViewItem {
     private boolean canEdit;
     private String selectViewName;
     private String inputRegx;
+
 
     private Long viewId;
 }

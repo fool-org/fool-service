@@ -16,5 +16,6 @@ public class Property {
     private Model owner;
     private String filter;
     private String format;
+    private String column;
     private List<Trigger> triggerList;
 }

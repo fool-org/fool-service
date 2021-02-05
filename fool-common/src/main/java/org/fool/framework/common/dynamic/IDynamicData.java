@@ -1,5 +1,6 @@
 package org.fool.framework.common.dynamic;
 
+
 import java.util.Map;
 
 /**
@@ -8,6 +9,8 @@ import java.util.Map;
  * 也可能是数据库中查询得到的数据
  */
 public interface IDynamicData {
+
+
     /**
      * 得到特定值
      *
@@ -44,5 +47,12 @@ public interface IDynamicData {
     void invoke(String methodName, Object... args);
 
 
-    Map<String ,Object> toMap();
+    Map<String, Object> toMap();
+
+    /**
+     * ID  暂时固定为String
+     *
+     * @return
+     */
+    String getId();
 }

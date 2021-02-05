@@ -16,7 +16,6 @@ public class ViewDataService {
 
     public View getViewData(String viewName, String token) {
         var view = daoService.getOneDetailByKey(View.class, viewName);
-        log.info("the view is :{}", view);
         return view;
     }
 }

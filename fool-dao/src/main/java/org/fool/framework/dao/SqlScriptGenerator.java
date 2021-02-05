@@ -2,6 +2,7 @@ package org.fool.framework.dao;
 
 import lombok.extern.slf4j.Slf4j;
 import org.fool.framework.common.annotation.SqlGenerateConfig;
+import org.fool.framework.common.commonconst.DbConst;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -17,34 +18,21 @@ import java.util.stream.Collectors;
 public class SqlScriptGenerator {
 
 
-    private static final String SELECT = "SELECT ";
-    private static final String CREATE = "CREATE TABLE ";
-    private static final String INSERT = "INSERT INTO ";
-    private static final String DELETE = "DELETE FROM ";
-    private static final String VALUES = " VALUES ";
-    private static final String UPDATE = "UPDATE ";
-    private static final String FROM = " FROM ";
-    private static final String WHERE = " WHERE 1=1 ";
-    private static final String SET = " SET ";
-    private static final String COUNT_ONE = " COUNT(1)";
-    private static final String AND = " AND ";
-    private static final String PAGE_INFO = " LIMIT ? OFFSET ?";
-
     public String generateSelect(Mapper mapper) {
         StringBuilder builder = new StringBuilder();
-        builder.append(SELECT);
+        builder.append(DbConst.SELECT);
         List<MapField> fieldList = mapper.getMapFields();
         builder.append(fieldList.stream().filter(p -> p.isCollection() == false).map(MapField::getColumnName).collect(Collectors.joining(",")));
-        builder.append(FROM);
+        builder.append(DbConst.FROM);
         builder.append("`" + mapper.getTableName() + "`");
         return builder.toString();
     }
 
     public String generateSelectCount(Mapper mapper) {
         StringBuilder builder = new StringBuilder();
-        builder.append(SELECT)
-                .append(COUNT_ONE)
-                .append(FROM);
+        builder.append(DbConst.SELECT)
+                .append(DbConst.COUNT_ONE)
+                .append(DbConst.FROM);
         builder.append("`" + mapper.getTableName() + "`");
         return builder.toString();
     }
@@ -52,13 +40,13 @@ public class SqlScriptGenerator {
     public QueryAndArgs generateSelectOne(Mapper mapper, Object key) {
         QueryAndArgs queryAndArgs = new QueryAndArgs();
         StringBuilder builder = new StringBuilder();
-        builder.append(SELECT);
+        builder.append(DbConst.SELECT);
         List<MapField> fieldList = mapper.getMapFields();
         builder.append(fieldList.stream().filter(p -> p.isCollection() == false).map(MapField::getColumnName).collect(Collectors.joining(",")));
-        builder.append(FROM);
+        builder.append(DbConst.FROM);
         builder.append("`" + mapper.getTableName() + "`");
-        builder.append(WHERE);
-        builder.append(AND);
+        builder.append(DbConst.WHERE);
+        builder.append(DbConst.AND);
         builder.append(mapper.getPrimaryField().getColumnName());
         builder.append(" = ? ");
         queryAndArgs.setSql(builder.toString());
@@ -70,9 +58,9 @@ public class SqlScriptGenerator {
     public <T> QueryAndArgs generateUpdate(Mapper<?> mapper, T object) {
         QueryAndArgs queryAndArgs = new QueryAndArgs();
         StringBuilder builder = new StringBuilder();
-        builder.append(UPDATE)
+        builder.append(DbConst.UPDATE)
                 .append('`' + mapper.getTableName() + "`")
-                .append(SET);
+                .append(DbConst.SET);
 
         final Object[] key = new Object[1];
         final String[] filter = {""};
@@ -113,7 +101,7 @@ public class SqlScriptGenerator {
         List<Object> objects = new LinkedList<>();
         QueryAndArgs queryAndArgs = new QueryAndArgs();
         StringBuilder builder = new StringBuilder();
-        builder.append(INSERT)
+        builder.append(DbConst.INSERT)
                 .append('`' + mapper.getTableName() + "`");
 
         var fields = mapper.getMapFields().stream().filter(p -> p.isCollection() == false
@@ -126,7 +114,7 @@ public class SqlScriptGenerator {
                     .append("(")
                     .append(fields.stream().map(p -> "`" + p.getColumnName() + "`").collect(Collectors.joining(",")))
                     .append(")")
-                    .append(VALUES)
+                    .append(DbConst.VALUES)
                     .append("(")
                     .append(fields.stream().map(p -> "?").collect(Collectors.joining(",")))
                     .append(");");
@@ -151,12 +139,12 @@ public class SqlScriptGenerator {
         StringBuilder builder = new StringBuilder();
         Optional<MapField> optionalMapField = mapper.getMapFields().stream().filter(p -> p.getSqlGenerateConfig() == SqlGenerateConfig.AUTO_INCREMENT).findFirst();
         if (optionalMapField.isPresent()) {
-            builder.append(SELECT)
+            builder.append(DbConst.SELECT)
                     .append(mapper.getMapFields().stream().filter(p -> p.isCollection() == false).map(p -> "`" + p.getColumnName() + "`").collect(Collectors.joining(",")))
-                    .append(FROM)
+                    .append(DbConst.FROM)
                     .append("`" + mapper.getTableName() + "`")
-                    .append(WHERE)
-                    .append(AND)
+                    .append(DbConst.WHERE)
+                    .append(DbConst.AND)
                     .append("`" + optionalMapField.get().getColumnName() + "`=")
                     .append("@@IDENTITY;");
 
@@ -179,9 +167,9 @@ public class SqlScriptGenerator {
     public <T> QueryAndArgs generateDelete(Mapper<?> mapper, T object) {
         QueryAndArgs queryAndArgs = new QueryAndArgs();
         StringBuilder builder = new StringBuilder();
-        builder.append(DELETE)
+        builder.append(DbConst.DELETE)
                 .append('`' + mapper.getTableName() + "`")
-                .append(SET);
+                .append(DbConst.SET);
         final Object[] key = new Object[1];
         final String[] filter = {""};
         var fields = mapper.getMapFields().stream().filter(p -> p.isCollection() == false).collect(Collectors.toList());
@@ -217,12 +205,12 @@ public class SqlScriptGenerator {
     public QueryAndArgs generateSelectithPageBySimpleFilter(Mapper<?> mapper, PageNavigator pageNavigator, Map<String, Object[]> filter) {
         QueryAndArgs queryAndArgs = new QueryAndArgs();
         StringBuilder builder = new StringBuilder();
-        builder.append(SELECT);
+        builder.append(DbConst.SELECT);
         List<MapField> fieldList = mapper.getMapFields();
         builder.append(fieldList.stream().filter(p -> p.isCollection() == false).map(MapField::getColumnName).collect(Collectors.joining(",")));
-        builder.append(FROM);
+        builder.append(DbConst.FROM);
         builder.append("`" + mapper.getTableName() + "`");
-        builder.append(WHERE);
+        builder.append(DbConst.WHERE);
 
         List<Object> params = new LinkedList<>();
 
@@ -232,7 +220,7 @@ public class SqlScriptGenerator {
                 var field = fieldList.stream().filter(p -> p.isCollection() == false && (p.getColumnName().equals(key) || p.getField().getName().equals(key))).findFirst();
                 if (field.isPresent()) {
                     var values = filter.get(key);
-                    builder.append(AND);
+                    builder.append(DbConst.AND);
                     if (values.length == 1) {
                         builder.append("`" + field.get().getColumnName() + "` = ? ");
                         params.add(values[0]);
@@ -246,7 +234,7 @@ public class SqlScriptGenerator {
             }
         }
 
-        builder.append(PAGE_INFO);
+        builder.append(DbConst.PAGE_INFO);
         params.add(pageNavigator.getPageSize());
         params.add(pageNavigator.getPageSize() * (pageNavigator.getPageIndex() - 1));
 
@@ -268,13 +256,13 @@ public class SqlScriptGenerator {
     public QueryAndArgs generateSelectItems(Mapper<?> itemMapper, String parentColumnName, Object key) {
         var queryAndArgs = new QueryAndArgs();
         StringBuilder builder = new StringBuilder();
-        builder.append(SELECT);
+        builder.append(DbConst.SELECT);
         List<MapField> fieldList = itemMapper.getMapFields();
         builder.append(fieldList.stream().filter(p -> p.isCollection() == false).map(MapField::getColumnName).collect(Collectors.joining(",")));
-        builder.append(FROM);
+        builder.append(DbConst.FROM);
         builder.append("`" + itemMapper.getTableName() + "`");
-        builder.append(WHERE);
-        builder.append(AND);
+        builder.append(DbConst.WHERE);
+        builder.append(DbConst.AND);
         builder.append("`" + parentColumnName + "`=?");
         queryAndArgs.setSql(builder.toString());
         queryAndArgs.setArgs(new Object[]{key});
@@ -294,7 +282,7 @@ public class SqlScriptGenerator {
     public String generateCreateTable(Mapper<?> mapper) {
 
         StringBuilder builder = new StringBuilder();
-        builder.append(CREATE);
+        builder.append(DbConst.CREATE);
         builder.append("`" + mapper.getTableName() + "`");
         List<MapField> fieldList = mapper.getMapFields();
         builder.append(fieldList.stream().filter(p -> p.isCollection() == false).map(MapField::getColumnName).collect(Collectors.joining(",")));

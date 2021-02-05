@@ -12,4 +12,10 @@
     <version>1.0-SNAPSHOT</version>
     <groupId>com.github.yfge.fool</groupId>
     <packaging>jar</packaging>
+    <dependencies>
+        <dependency>
+            <groupId>com.github.yfge.fool</groupId>
+            <artifactId>fool-dao</artifactId>
+        </dependency>
+    </dependencies>
 </project>
