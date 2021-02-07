@@ -68,6 +68,11 @@ public class FunctionMap {
                 }
             };
         }
-        return map.getOrDefault(name, null);
+        return map.getOrDefault(name, new GetFieldFunction() {
+            @Override
+            public Object get(ResultSet resultSet, String columnName) throws SQLException {
+                return CacheService.get(field.getType(), resultSet.getObject(columnName));
+            }
+        });
     }
 }

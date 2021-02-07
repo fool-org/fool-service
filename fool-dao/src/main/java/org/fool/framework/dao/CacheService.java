@@ -1,11 +1,14 @@
 package org.fool.framework.dao;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.ObjectUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ConcurrentHashMap;
 
+
+@Slf4j
 public class CacheService {
 
 
@@ -38,6 +41,7 @@ public class CacheService {
             try {
                 object = clazz.getDeclaredConstructor().newInstance();
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                log.error("create error:");
                 return null;
             }
             T last = (T) cacheMapper.putIfAbsent(cacheKey, object);
@@ -47,7 +51,8 @@ public class CacheService {
             } else {
                 return object;
             }
+        } else {
+            return (T) cacheMapper.get(cacheKey);
         }
-        return null;
     }
 }

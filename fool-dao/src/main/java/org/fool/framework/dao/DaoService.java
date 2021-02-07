@@ -21,18 +21,17 @@ import java.util.stream.Collectors;
 public class DaoService {
 
 
+    private static ConcurrentHashMap<String, Mapper> concurrentHashMap = new ConcurrentHashMap<>();
     @Autowired
     private SqlScriptGenerator sqlScriptGenerator;
-
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    private ConcurrentHashMap<String, Mapper> concurrentHashMap = new ConcurrentHashMap<>();
-
-    private <T> Mapper<T> getMapper(Class<T> clazz) {
+    static <T> Mapper<T> getMapper(Class<T> clazz) {
         String name = clazz.getName();
         if (!concurrentHashMap.containsKey(name)) {
             concurrentHashMap.put(name, new Mapper<T>(clazz));
+            return concurrentHashMap.get(name);
         }
         return concurrentHashMap.get(name);
     }
@@ -138,13 +137,14 @@ public class DaoService {
              */
             ParameterizedType t = (ParameterizedType) field.getField().getGenericType();
             Class<?> itemClazz = (Class<?>) t.getActualTypeArguments()[0];
-
+            log.info("resutl:{}", result);
             Object foreignKey = getKey(result, mapper);
             var itemMapper = getMapper(itemClazz);
             var varQueryAndArgs = this.sqlScriptGenerator.generateSelectItems(itemMapper, field.getColumnName(), foreignKey);
             var items = this.jdbcTemplate.query(varQueryAndArgs.getSql(), itemMapper, foreignKey);
             try {
                 field.getField().set(result, items);
+
             } catch (IllegalAccessException e) {
                 log.info("set {} of {} error", field.getField().getName(), clazz.getName(), e);
             }
@@ -153,19 +153,11 @@ public class DaoService {
     }
 
     private <T> Object getKey(T result, Mapper<?> mapper) {
-
-
-        var fields =
-                mapper.getMapFields().stream().filter(p -> p.isCollection() == false && p.getSqlGenerateConfig() == SqlGenerateConfig.AUTO_INCREMENT).collect(Collectors.toList());
-        if (fields.size() > 0) {
-
-            try {
-                return fields.get(0).getField().get(result);
-            } catch (IllegalAccessException e) {
-                return null;
-            }
+        try {
+            return mapper.getPrimaryField().getField().get(result);
+        } catch (IllegalAccessException e) {
+            return null;
         }
-        return null;
     }
 
     private String getForeignColumn(MapField field) {

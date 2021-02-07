@@ -126,6 +126,7 @@ public class Mapper<T> extends
         return isCollection || isArray;
     }
 
+
     private String getTableName(Class<T> clazz) {
         Table table = clazz.getDeclaredAnnotation(Table.class);
         if (table != null) {
@@ -135,10 +136,13 @@ public class Mapper<T> extends
         if (this.propertyNamingStrategy != null) {
             return this.propertyNamingStrategy.translate(className);
         }
-
         return className;
     }
 
+    /**
+     * @param field
+     * @return
+     */
     private String getColumnName(Field field) {
         Column column = field.getDeclaredAnnotation(Column.class);
         if (column != null && StringUtils.isEmpty(column.value()) == false) {
@@ -154,7 +158,6 @@ public class Mapper<T> extends
     @Override
     public T mapRow(ResultSet resultSet, int row) {
         try {
-
             T t = null;
             if (this.primaryField != null) {
                 String key = resultSet.getString(this.primaryField.getColumnName());
@@ -164,12 +167,11 @@ public class Mapper<T> extends
             }
             for (MapField mapField : mapFields.stream().filter(p -> p.isCollection() == false).collect(Collectors.toList())
             ) {
-
                 try {
                     mapField.getField().set(t,
                             mapField.getGetFieldFunction().get(resultSet, mapField.getColumnName()));
                 } catch (Exception e) {
-                    log.warn("map {} to {} error.", mapField.getColumnName(), mapField.getField().getName());
+                    log.warn("map {} to {} error.", mapField.getColumnName(), mapField.getField().getName(), e.getMessage());
                 }
             }
             return t;
