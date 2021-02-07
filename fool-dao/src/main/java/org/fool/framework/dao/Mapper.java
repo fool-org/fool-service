@@ -3,7 +3,6 @@ package org.fool.framework.dao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import org.fool.framework.common.annotation.*;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.fool.framework.common.annotation.*;
@@ -130,8 +129,12 @@ public class Mapper<T> extends
             for (MapField mapField : mapFields.stream().filter(p -> p.isCollection() == false).collect(Collectors.toList())
             ) {
 
-                mapField.getField().set(t,
-                        mapField.getGetFieldFunction().get(resultSet, mapField.getColumnName()));
+                try {
+                    mapField.getField().set(t,
+                            mapField.getGetFieldFunction().get(resultSet, mapField.getColumnName()));
+                } catch (Exception e) {
+                    log.warn("map {} to {} error.", mapField.getColumnName(), mapField.getField().getName());
+                }
             }
             return t;
         } catch (Throwable e) {

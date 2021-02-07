@@ -5,8 +5,10 @@ import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.dao.AbstratMapper;
 import org.fool.framework.model.model.DbMysqlDynamic;
 import org.fool.framework.model.model.Model;
+import org.springframework.util.StringUtils;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.stream.Collectors;
 
 
@@ -43,9 +45,13 @@ public class Mapper extends AbstratMapper<IDynamicData> {
         try {
 
             DbMysqlDynamic mysqlDynamic = new DbMysqlDynamic(this.model);
-            for (var property : this.model.getProperties().stream().filter(p -> p.getIsCollection() == false).collect(Collectors.toList())) {
-                mysqlDynamic.set(property.getName(), resultSet.getObject(property.getColumn()));
+            for (var property : this.model.getProperties().stream().filter(p -> p.getIsCollection() == false && !StringUtils.isEmpty(p.getColumn())).collect(Collectors.toList())) {
+                try {
+                    mysqlDynamic.set(property.getName(), resultSet.getObject(property.getColumn()));
+                } catch (SQLException ex) {
+                }
             }
+            return mysqlDynamic;
         } catch (Throwable e) {
             e.printStackTrace();
         }

@@ -35,6 +35,7 @@ public class SqlGenerator {
         builder.append(DbConst.FROM);
         builder.append("`" + model.getTableName() + "`");
         builder.append(DbConst.WHERE)
+                .append(DbConst.AND)
                 .append(filterQuery.getSql());
 
         List<Object> params = new LinkedList<>();
@@ -47,6 +48,8 @@ public class SqlGenerator {
         QueryAndArgs queryAndArgs = new QueryAndArgs();
         queryAndArgs.setSql(builder.toString());
         queryAndArgs.setArgs(params.toArray());
+
+        log.info("generate select sql:{}", queryAndArgs);
         return queryAndArgs;
     }
 
@@ -65,6 +68,7 @@ public class SqlGenerator {
         builder.append(DbConst.FROM);
         builder.append("`" + model.getTableName() + "`");
         builder.append(DbConst.WHERE)
+                .append(DbConst.AND)
                 .append(filterQuery.getSql());
         QueryAndArgs queryAndArgs = new QueryAndArgs();
         queryAndArgs.setSql(builder.toString());

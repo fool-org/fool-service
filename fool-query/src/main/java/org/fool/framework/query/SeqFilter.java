@@ -1,5 +1,9 @@
 package org.fool.framework.query;
 
+
+import lombok.Getter;
+
+@Getter
 public class SeqFilter {
     private BoolOp boolOp;
     private IQueryFilter seqExp;

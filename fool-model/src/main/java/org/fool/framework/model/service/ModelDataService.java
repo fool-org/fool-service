@@ -82,9 +82,17 @@ public class ModelDataService {
         PageResult<IDynamicData> result = new PageResult<>();
         result.setItems(this.jdbcTemplate.query(queryAndArgs.getSql(), queryAndArgs.getArgs(), mapper));
         result.setPageInfo(new PageNavigatorResult());
-        result.getPageInfo().setCurrentPage(pageNavigator.getPageIndex());
+        result.getPageInfo().setPageCount(pageNavigator.getPageIndex());
         result.getPageInfo().setPageSize(pageNavigator.getPageSize());
 
+        var countArgs = sqlGenerator.generateSelectCount(mapper.getModel(), filter);
+
+        var rowset =
+                this.jdbcTemplate.queryForRowSet(countArgs.getSql(), countArgs.getArgs());
+        if (rowset.next()) {
+            result.getPageInfo().setTotal(rowset.getInt(1));
+            result.getPageInfo().setPageCount(result.getPageInfo().getTotal() / result.getPageInfo().getPageSize() + (result.getPageInfo().getTotal() % result.getPageInfo().getPageSize() > 0 ? 1 : 0));
+        }
         return result;
     }
 

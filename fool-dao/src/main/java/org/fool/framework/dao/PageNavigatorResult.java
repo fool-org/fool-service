@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class PageNavigatorResult {
     private int pageSize;
-    private int pageIndex;
+    private long pageIndex;
     private long total;
-    private long currentPage;
+    private long pageCount;
 }

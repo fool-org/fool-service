@@ -258,7 +258,7 @@ public class SqlScriptGenerator {
         StringBuilder builder = new StringBuilder();
         builder.append(DbConst.SELECT);
         List<MapField> fieldList = itemMapper.getMapFields();
-        builder.append(fieldList.stream().filter(p -> p.isCollection() == false).map(MapField::getColumnName).collect(Collectors.joining(",")));
+        builder.append("`"+fieldList.stream().filter(p -> p.isCollection() == false).map(MapField::getColumnName).collect(Collectors.joining("`,`"))+"`");
         builder.append(DbConst.FROM);
         builder.append("`" + itemMapper.getTableName() + "`");
         builder.append(DbConst.WHERE);

@@ -8,9 +8,10 @@ import org.fool.framework.dto.CommonException;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.model.service.ModelDataService;
+import org.fool.framework.query.BetweenFilter;
+import org.fool.framework.query.CompareFilter;
 import org.fool.framework.query.CompareOp;
 import org.fool.framework.query.IQueryFilter;
-import org.fool.framework.query.SimpleFilter;
 import org.fool.framework.view.common.ErrorCode;
 import org.fool.framework.view.dto.QueryValue;
 import org.fool.framework.view.model.View;
@@ -62,23 +63,24 @@ public class DataQueryService {
      * @return
      */
     private IQueryFilter generateFilter(Model model, Map<String, QueryValue> filter) {
-        IQueryFilter queryFilter = new SimpleFilter("1", CompareOp.EQUAL, "1");
-
+        IQueryFilter queryFilter = IQueryFilter.init();
         var properties = model.getProperties();
-        for (var key : filter.keySet()
-        ) {
-            var value = filter.get(key);
-            if (properties.stream().filter(p -> p.getName().equals(key)).count() > 0) {
-                if (!StringUtils.isEmpty(value.getValue())) {
-                    /**
-                     * 如果传了一个值，就是相等
-                     */
-                    queryFilter = queryFilter.and(new SimpleFilter(key, CompareOp.EQUAL, filter.get(key).getValue()));
-                } else if ((!CollectionUtils.isEmpty(value.getValues())) && value.getValues().size() == 2) {
-                    /**
-                     * 如果传了两值就是between
-                     */
-                    queryFilter = queryFilter.and(new SimpleFilter(key, CompareOp.BETWEEN, value.getValues().get(0), value.getValues().get(1)));
+        if (filter != null) {
+            for (var key : filter.keySet()
+            ) {
+                var value = filter.get(key);
+                if (properties.stream().filter(p -> p.getName().equals(key)).count() > 0) {
+                    if (!StringUtils.isEmpty(value.getValue())) {
+                        /**
+                         * 如果传了一个值，就是相等
+                         */
+                        queryFilter = queryFilter.and(new CompareFilter(key, CompareOp.EQUAL, filter.get(key).getValue()));
+                    } else if ((!CollectionUtils.isEmpty(value.getValues())) && value.getValues().size() == 2) {
+                        /**
+                         * 如果传了两值就是between
+                         */
+                        queryFilter = queryFilter.and(new BetweenFilter(key, value.getValues().get(0), value.getValues().get(1)));
+                    }
                 }
             }
         }
@@ -90,7 +92,7 @@ public class DataQueryService {
         for (var item : view.getListItems()) {
             var propertyOptional = model.getProperties().stream().filter(p -> p.getName().equals(item.getModelProperty())).findFirst();
             if (propertyOptional.isPresent()) {
-//                result.add(propertyOptional.get());
+                result.add(propertyOptional.get());
             }
         }
         return result;

@@ -52,4 +52,13 @@ public class DbMysqlDynamic implements IDynamicData {
     public String getId() {
         return null;
     }
+
+    @Override
+    public String toString() {
+        if (this.propertyMaps != null)
+            return this.propertyMaps.toString();
+        else {
+            return "empty";
+        }
+    }
 }

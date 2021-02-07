@@ -1,7 +1,7 @@
-package org.fool.framework.view.service;
+package org.fool.framework.model.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.fool.framework.view.Application;
+import org.fool.framework.model.Application;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,25 +9,28 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootApplication
 @SpringBootTest(classes = Application.class)
-public class ViewDataQueryServiceTest {
-
+public class ModelDataServiceTest {
 
     @Autowired
-    private ViewDataService viewDataService;
+    private ModelDataService modelDataService;
 
     @Test
-    public void getViewData() {
-        String name = "CarOwnerList";
+    public void getModel() {
 
-        var view = viewDataService.getViewData(name, "");
+        String modelName = "user";
 
-        log.info("{}", view);
+        var model = modelDataService.getModel(modelName);
+
+        log.info("the model is :{}", model);
     }
 
 
+    @Test
+    public void getDataListWithPageInfo(){
+
+    }
 }
