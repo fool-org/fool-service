@@ -91,7 +91,7 @@ public class DaoService {
     public <T> T getOneByKey(Class<T> clazz, Object key) {
         var mapper = getMapper(clazz);
         var queryAndArgs = this.sqlScriptGenerator.generateSelectOne(mapper, key);
-        var items = this.jdbcTemplate.query(queryAndArgs.getSql(), mapper, key);
+        var items = this.jdbcTemplate.query(queryAndArgs.getSql(), queryAndArgs.getArgs(), mapper);
         if (items != null && items.size() > 0) {
             return items.get(0);
         }
@@ -110,7 +110,7 @@ public class DaoService {
     public <T> T getOneDetailByKey(Class<T> clazz, Object key) {
         var mapper = getMapper(clazz);
         var queryAndArgs = this.sqlScriptGenerator.generateSelectOne(mapper, key);
-        var items = this.jdbcTemplate.query(queryAndArgs.getSql(), mapper, key);
+        var items = this.jdbcTemplate.query(queryAndArgs.getSql(), queryAndArgs.getArgs(), mapper);
         if (items != null && items.size() > 0) {
             T result = items.get(0);
             fillItems(clazz, result, mapper, key);

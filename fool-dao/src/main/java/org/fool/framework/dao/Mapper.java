@@ -3,30 +3,32 @@ package org.fool.framework.dao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import lombok.Data;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.fool.framework.common.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
-
 
 /**
  * Mapper 类，用于实现查询后的值
  *
  * @param <T>
  */
-@Data
+@Getter
 @Slf4j
 public class Mapper<T> extends
         AbstratMapper<T> {
+    private static final String ID_DEFAULT = "__ID_DEFAULT";
     private static ObjectMapper objectMapper = new ObjectMapper();
+
+    @Autowired
+    private static CacheService cacheService;
     /**
      * 类的信息
      */
@@ -39,8 +41,13 @@ public class Mapper<T> extends
      * 映射的信息
      */
     private List<MapField> mapFields = new LinkedList<>();
+    private Map<String, List<MapField>> groupKeys = new LinkedHashMap<>();
     private MapField primaryField;
     private PropertyNamingStrategy.PropertyNamingStrategyBase propertyNamingStrategy;
+
+
+    @Autowired
+
 
     /**
      * 默认构造函数
@@ -81,11 +88,33 @@ public class Mapper<T> extends
             /**
              * Id 列
              */
-            if (mapField.getColumnName().toLowerCase().equals("id")) {
+            if (mapField.getSqlGenerateConfig() == SqlGenerateConfig.AUTO_INCREMENT) {
                 this.primaryField = mapField;
-            } else if (field.getDeclaredAnnotation(Id.class) != null) {
-                this.primaryField = mapField;
+            } else {
+                Id idInfo = field.getDeclaredAnnotation(Id.class);
+                if (idInfo != null) {
+                    String idGroup = idInfo.value();
+                    if (StringUtils.isEmpty(idGroup)) {
+                        idGroup = ID_DEFAULT + mapField.getField().getName();
+                    }
+                    if (!this.groupKeys.containsKey(idGroup)) {
+                        this.groupKeys.put(idGroup, new LinkedList<>());
+                    }
+                    this.groupKeys.get(idGroup).add(mapField);
+                }
             }
+        }
+
+        /**
+         * 如果只有一个，则置为主key
+         */
+        if (this.primaryField == null && this.groupKeys.keySet().size() == 1) {
+            var keys = this.groupKeys.get(this.groupKeys.keySet().toArray()[0]);
+            if (keys.size() == 0) {
+                this.primaryField = keys.get(0);
+                this.groupKeys.clear();
+            }
+
         }
     }
 
@@ -125,7 +154,14 @@ public class Mapper<T> extends
     @Override
     public T mapRow(ResultSet resultSet, int row) {
         try {
-            T t = clazz.getDeclaredConstructor().newInstance();
+
+            T t = null;
+            if (this.primaryField != null) {
+                String key = resultSet.getString(this.primaryField.getColumnName());
+                t = CacheService.getOrInit(clazz, key);
+            } else {
+                t = clazz.getDeclaredConstructor().newInstance();
+            }
             for (MapField mapField : mapFields.stream().filter(p -> p.isCollection() == false).collect(Collectors.toList())
             ) {
 

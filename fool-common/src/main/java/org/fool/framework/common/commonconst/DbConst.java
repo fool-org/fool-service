@@ -10,6 +10,7 @@ public class DbConst {
     public static final String SET = " SET ";
     public static final String COUNT_ONE = " COUNT(1)";
     public static final String AND = " AND ";
+    public static final String OR = " OR ";
     public static final String SELECT = "SELECT ";
     public static final String VALUES = " VALUES ";
     public static final String PAGE_INFO = " LIMIT ? OFFSET ?";
