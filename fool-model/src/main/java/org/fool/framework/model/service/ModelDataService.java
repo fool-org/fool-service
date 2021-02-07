@@ -84,9 +84,7 @@ public class ModelDataService {
         result.setPageInfo(new PageNavigatorResult());
         result.getPageInfo().setPageCount(pageNavigator.getPageIndex());
         result.getPageInfo().setPageSize(pageNavigator.getPageSize());
-
         var countArgs = sqlGenerator.generateSelectCount(mapper.getModel(), filter);
-
         var rowset =
                 this.jdbcTemplate.queryForRowSet(countArgs.getSql(), countArgs.getArgs());
         if (rowset.next()) {
