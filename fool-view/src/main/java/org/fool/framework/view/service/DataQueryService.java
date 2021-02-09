@@ -1,9 +1,7 @@
 package org.fool.framework.view.service;
 
-import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.dao.DaoService;
 import org.fool.framework.dao.PageNavigator;
-import org.fool.framework.dao.PageResult;
 import org.fool.framework.dto.CommonException;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
@@ -12,7 +10,6 @@ import org.fool.framework.query.BetweenFilter;
 import org.fool.framework.query.CompareFilter;
 import org.fool.framework.query.CompareOp;
 import org.fool.framework.query.IQueryFilter;
-import org.fool.framework.view.adapter.ViewAdapter;
 import org.fool.framework.view.adapter.ViewDataAdapter;
 import org.fool.framework.view.common.ErrorCode;
 import org.fool.framework.view.dto.ListViewResult;
@@ -80,12 +77,12 @@ public class DataQueryService {
                         /**
                          * 如果传了一个值，就是相等
                          */
-                        queryFilter = queryFilter.and(new CompareFilter(key, CompareOp.EQUAL, filter.get(key).getValue()));
+                        queryFilter = queryFilter.and(new CompareFilter(properties.stream().filter(p -> p.getName().equals(key)).findFirst().get().getColumn(), CompareOp.EQUAL, filter.get(key).getValue()));
                     } else if ((!CollectionUtils.isEmpty(value.getValues())) && value.getValues().size() == 2) {
                         /**
                          * 如果传了两值就是between
                          */
-                        queryFilter = queryFilter.and(new BetweenFilter(key, value.getValues().get(0), value.getValues().get(1)));
+                        queryFilter = queryFilter.and(new BetweenFilter(properties.stream().filter(p -> p.getName().equals(key)).findFirst().get().getColumn(), value.getValues().get(0), value.getValues().get(1)));
                     }
                 }
             }

@@ -23,7 +23,7 @@ public class CompareFilter extends SimpleFilter {
     public QueryAndArgs generateSql() {
         QueryAndArgs queryAndArgs = new QueryAndArgs();
         queryAndArgs.setSql("`" + this.compareColumn.getDbValue() + "`" + this.compareOp.getDbValue()+ " ?");
-        queryAndArgs.setArgs(new Object[]{compareColumn.getDbValue()});
+        queryAndArgs.setArgs(new Object[]{compareValue.getDbValue()});
         return queryAndArgs;
     }
 

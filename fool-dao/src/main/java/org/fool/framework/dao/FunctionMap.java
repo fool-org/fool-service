@@ -74,7 +74,6 @@ public class FunctionMap {
         return map.getOrDefault(name, new GetFieldFunction() {
             @Override
             public Object get(ResultSet resultSet, String columnName) throws SQLException {
-                log.info("get from {}", columnName);
                 return CacheService.getIns().get(field.getType(), resultSet.getObject(columnName));
             }
         });
