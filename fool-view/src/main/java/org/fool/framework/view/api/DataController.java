@@ -23,8 +23,8 @@ public class DataController {
     @PostMapping("/query-list")
     @ResponseBody
     public CommonResponse<ListViewResult> queryViewDataList(@RequestBody QueryDataRequest request) {
-        return new CommonResponse<ListViewResult>(viewDataAdapter.getListViewResult(
-                dataQueryService.queryViewDataList(request.getViewName(), request.getFilter(), request.getPageInfo())));
+        return new CommonResponse<ListViewResult>(
+                dataQueryService.queryViewDataList(request.getViewName(), request.getFilter(), request.getPageInfo()));
     }
 
     public void queryViewDetailData() {

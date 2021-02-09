@@ -12,7 +12,10 @@ import org.fool.framework.query.BetweenFilter;
 import org.fool.framework.query.CompareFilter;
 import org.fool.framework.query.CompareOp;
 import org.fool.framework.query.IQueryFilter;
+import org.fool.framework.view.adapter.ViewAdapter;
+import org.fool.framework.view.adapter.ViewDataAdapter;
 import org.fool.framework.view.common.ErrorCode;
+import org.fool.framework.view.dto.ListViewResult;
 import org.fool.framework.view.dto.QueryValue;
 import org.fool.framework.view.model.View;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +33,8 @@ public class DataQueryService {
     private DaoService daoService;
 
     @Autowired
+    private ViewDataAdapter viewAdapter;
+    @Autowired
     private ModelDataService modelDataService;
 
     /**
@@ -39,7 +44,7 @@ public class DataQueryService {
      * @param filter
      * @param pageInfo
      */
-    public PageResult<IDynamicData> queryViewDataList(String viewName, Map<String, QueryValue> filter, PageNavigator pageInfo) {
+    public ListViewResult queryViewDataList(String viewName, Map<String, QueryValue> filter, PageNavigator pageInfo) {
 
         View view = daoService.getOneDetailByKey(View.class, viewName);
         if (view == null) {
@@ -52,7 +57,8 @@ public class DataQueryService {
         var properties = getViewProperies(view, model);
         IQueryFilter queryFilter = generateFilter(model, filter);
         var result = modelDataService.getDataListWithPageInfo(view.getViewModel(), queryFilter, properties, pageInfo);
-        return result;
+
+        return viewAdapter.getListViewResult(view, result);
     }
 
     /**

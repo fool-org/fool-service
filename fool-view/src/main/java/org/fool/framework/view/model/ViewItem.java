@@ -26,6 +26,7 @@ public class ViewItem {
     private boolean canEdit;
     private String selectViewName;
     private String inputRegx;
+    private String formatRegx;
 
 
     private Long viewId;

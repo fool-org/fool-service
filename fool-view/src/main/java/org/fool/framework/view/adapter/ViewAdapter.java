@@ -45,8 +45,7 @@ public class ViewAdapter {
                             .build()
             );
         });
-
-
         return result;
     }
+
 }
