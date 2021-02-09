@@ -20,6 +20,7 @@ public class Model {
     private String tableName;
     @Column("owner")
     private List<Property> properties;
+    private Property idProperty;
 //    private List<EnumValue> enums;
 //    private List<Operation> operations;
 //    private List<Trigger> triggers;

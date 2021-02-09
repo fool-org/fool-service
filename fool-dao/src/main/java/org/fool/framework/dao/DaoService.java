@@ -130,7 +130,6 @@ public class DaoService {
     private <T> void fillItems(Class<T> clazz, T result, Mapper<?> mapper, Object key) {
         var fieldList = mapper.getMapFields();
         var collectionFields = fieldList.stream().filter(p -> p.isCollection()).collect(Collectors.toList());
-
         for (var field : collectionFields) {
             /**
              * 得到集合类型

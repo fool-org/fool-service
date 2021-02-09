@@ -31,7 +31,9 @@ public class SqlGenerator {
         var filterQuery = filter.generateSql();
         StringBuilder builder = new StringBuilder();
         builder.append(DbConst.SELECT);
-        builder.append(properties.stream().filter(p -> p.getIsCollection() == false).map(Property::getColumn).collect(Collectors.joining(",")));
+        builder.append(properties.stream().filter(p -> p.getIsCollection() == false || (model.getIdProperty() != null && model.getIdProperty().getColumn().equals(p.getColumn()))).map(Property::getColumn).collect(Collectors.joining(",")));
+
+
         builder.append(DbConst.FROM);
         builder.append("`" + model.getTableName() + "`");
         builder.append(DbConst.WHERE)
@@ -48,7 +50,6 @@ public class SqlGenerator {
         QueryAndArgs queryAndArgs = new QueryAndArgs();
         queryAndArgs.setSql(builder.toString());
         queryAndArgs.setArgs(params.toArray());
-
         log.info("generate select sql:{}", queryAndArgs);
         return queryAndArgs;
     }
@@ -73,10 +74,39 @@ public class SqlGenerator {
         QueryAndArgs queryAndArgs = new QueryAndArgs();
         queryAndArgs.setSql(builder.toString());
         queryAndArgs.setArgs(filterQuery.getArgs());
+        log.info("generate select sql:{}", queryAndArgs);
         return queryAndArgs;
     }
 
     public QueryAndArgs generateSelect(Model model, List<Property> properties, IQueryFilter filter) {
         return generateSelect(model, properties, filter, null);
+    }
+
+    public QueryAndArgs generateItems(Property property, List<String> ids) {
+        var model = property.getPropertyModel();
+        StringBuilder builder = new StringBuilder();
+        builder.append(DbConst.SELECT);
+
+        var columns = model.getProperties().stream().filter(p -> p.getIsCollection() == false).map(Property::getColumn).collect(Collectors.toList());
+        if (!columns.contains(property.getColumn())) {
+            columns.add(property.getColumn());
+        }
+        builder.append(columns.stream().collect(Collectors.joining(",")));
+
+
+        builder.append(DbConst.FROM);
+        builder.append("`" + model.getTableName() + "`");
+        builder.append(DbConst.WHERE)
+                .append(DbConst.AND)
+                .append("`" + property.getColumn() + "` in (")
+                .append(ids.stream().map(p -> "?").collect(Collectors.joining(",")))
+                .append(")");
+        var queryAndArgs = new QueryAndArgs();
+        queryAndArgs.setArgs(ids.toArray());
+        queryAndArgs.setSql(builder.toString());
+        log.info("generate select sql:{}", queryAndArgs);
+        return queryAndArgs;
+
+
     }
 }

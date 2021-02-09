@@ -24,4 +24,6 @@ public class Property {
     private String format;
     private String column;
     private List<Trigger> triggerList;
+
+
 }

@@ -22,12 +22,17 @@ public class DataQueryServiceTest {
 
     @Test
     public void queryViewDataList() {
-        String name = "CarOwnerList";
-        PageNavigator pageNavigator = new PageNavigator();
-        pageNavigator.setPageIndex(1);
-        pageNavigator.setPageSize(20);
-        var data = dataQueryService.queryViewDataList(name, null, pageNavigator);
-        log.info("data:{}", data);
+
+        try {
+            String name = "CarOwnerList";
+            PageNavigator pageNavigator = new PageNavigator();
+            pageNavigator.setPageIndex(1);
+            pageNavigator.setPageSize(20);
+            var data = dataQueryService.queryViewDataList(name, null, pageNavigator);
+            log.info("data:{}", data);
+        } catch (Throwable e) {
+            log.info("", e);
+        }
     }
 
 }

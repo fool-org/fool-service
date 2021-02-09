@@ -44,6 +44,7 @@
     <!-- 日志输出级别 -->
     <root level="INFO">
         <appender-ref ref="ASYNC"/>
+        <appender-ref ref="CONSOLE"/>
     </root>
 
 </configuration>

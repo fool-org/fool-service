@@ -1,6 +1,7 @@
 package org.fool.framework.dao;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
@@ -15,6 +16,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class FunctionMap {
 
     private static ConcurrentHashMap<String, GetFieldFunction> map = new ConcurrentHashMap<>();
+
+
 
     /**
      *
@@ -71,7 +74,8 @@ public class FunctionMap {
         return map.getOrDefault(name, new GetFieldFunction() {
             @Override
             public Object get(ResultSet resultSet, String columnName) throws SQLException {
-                return CacheService.get(field.getType(), resultSet.getObject(columnName));
+                log.info("get from {}", columnName);
+                return CacheService.getIns().get(field.getType(), resultSet.getObject(columnName));
             }
         });
     }

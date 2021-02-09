@@ -14,6 +14,7 @@ public class DbMysqlDynamic implements IDynamicData {
     private final Model model;
     private final Map<String, Object> propertyMaps;
 
+
     public DbMysqlDynamic(Model model) {
         this.model = model;
         this.propertyMaps = new LinkedHashMap<>();
@@ -50,6 +51,10 @@ public class DbMysqlDynamic implements IDynamicData {
 
     @Override
     public String getId() {
+
+        if (model.getIdProperty() != null) {
+            return (String) this.propertyMaps.get(model.getIdProperty().getName());
+        }
         return null;
     }
 

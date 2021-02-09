@@ -22,7 +22,7 @@ public class SqlScriptGenerator {
         StringBuilder builder = new StringBuilder();
         builder.append(DbConst.SELECT);
         List<MapField> fieldList = mapper.getMapFields();
-        builder.append(fieldList.stream().filter(p -> p.isCollection() == false).map(MapField::getColumnName).collect(Collectors.joining(",")));
+        builder.append(fieldList.stream().filter(p -> p.isCollection() == false).map(p->"`"+p.getColumnName()+"`").collect(Collectors.joining(",")));
         builder.append(DbConst.FROM);
         builder.append("`" + mapper.getTableName() + "`");
         return builder.toString();
@@ -40,24 +40,27 @@ public class SqlScriptGenerator {
     public QueryAndArgs generateSelectOne(Mapper mapper, Object key) {
         QueryAndArgs queryAndArgs = new QueryAndArgs();
         List<Object> keys = new LinkedList<>();
-        keys.add(key);
+
         StringBuilder builder = new StringBuilder();
         builder.append(DbConst.SELECT);
         List<MapField> fieldList = mapper.getMapFields();
-        builder.append(fieldList.stream().filter(p -> p.isCollection() == false).map(MapField::getColumnName).collect(Collectors.joining(",")));
+        builder.append(fieldList.stream().filter(p -> p.isCollection() == false).map(p->"`"+p.getColumnName()+"`").collect(Collectors.joining(",")));
         builder.append(DbConst.FROM);
         builder.append("`" + mapper.getTableName() + "`");
         builder.append(DbConst.WHERE);
-        builder.append(DbConst.AND);
-        builder.append(mapper.getPrimaryField().getColumnName());
-        builder.append(" = ? ");
+        if (mapper.getPrimaryField() != null) {
+            keys.add(key);
+            builder.append(DbConst.AND);
+            builder.append("`" + mapper.getPrimaryField().getColumnName() + "`");
+            builder.append(" = ? ");
+        }
         if (mapper.getGroupKeys().keySet().size() > 0) {
             Map<String, List<MapField>> groupMap = mapper.getGroupKeys();
             for (var groupKey : groupMap.keySet()) {
                 List<MapField> fields = groupMap.get(groupKey);
                 if (fields.size() == 1) {
                     builder.append(DbConst.OR);
-                    builder.append(fields.get(0).getColumnName());
+                    builder.append("`" + fields.get(0).getColumnName() + "`");
                     builder.append("  = ?");
                     keys.add(key);
 

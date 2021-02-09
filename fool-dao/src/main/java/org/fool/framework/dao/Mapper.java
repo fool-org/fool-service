@@ -27,8 +27,6 @@ public class Mapper<T> extends
     private static final String ID_DEFAULT = "__ID_DEFAULT";
     private static ObjectMapper objectMapper = new ObjectMapper();
 
-    @Autowired
-    private static CacheService cacheService;
     /**
      * 类的信息
      */
@@ -161,7 +159,7 @@ public class Mapper<T> extends
             T t = null;
             if (this.primaryField != null) {
                 String key = resultSet.getString(this.primaryField.getColumnName());
-                t = CacheService.getOrInit(clazz, key);
+                t = CacheService.getIns().getOrInit(clazz, key);
             } else {
                 t = clazz.getDeclaredConstructor().newInstance();
             }
@@ -171,7 +169,7 @@ public class Mapper<T> extends
                     mapField.getField().set(t,
                             mapField.getGetFieldFunction().get(resultSet, mapField.getColumnName()));
                 } catch (Exception e) {
-                    log.warn("map {} to {} error.", mapField.getColumnName(), mapField.getField().getName(), e.getMessage());
+                    log.warn("map {} to {} error.", mapField.getColumnName(), mapField.getField().getName(), e);
                 }
             }
             return t;
