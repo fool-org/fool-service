@@ -38,8 +38,6 @@ public class ViewDataAdapter {
                 for (var viewItem : view.getListItems()) {
                     dataItem.getValues().put(viewItem.getModelProperty(), getFormat(viewItem.getFormatRegx(), p.get(viewItem.getModelProperty())));
                 }
-
-//                dataItem.setValues(p.toMap());
                 dataItem.setId(p.getId());
                 result.getItems().add(dataItem);
 
