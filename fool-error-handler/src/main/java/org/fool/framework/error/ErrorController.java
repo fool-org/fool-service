@@ -46,7 +46,7 @@ public class ErrorController extends BasicErrorController {
         if (status == HttpStatus.NO_CONTENT) {
             return new ResponseEntity(status);
         } else {
-            Map<String, Object> body = this.getErrorAttributes(request, this.isIncludeStackTrace(request, MediaType.ALL));
+            Map<String, Object> body = this.getErrorAttributes(request, this.getErrorAttributeOptions(request, MediaType.ALL));
             CommonResponse commonResponse;
             Throwable throwable = this.errorAttributes.getError(new ServletWebRequest(request));
             if (throwable == null) {

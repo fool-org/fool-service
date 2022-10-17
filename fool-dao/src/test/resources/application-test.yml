@@ -25,6 +25,10 @@ spring:
           starttls:
             enable: true
             required: true
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
 mybatis:
   mapper-locations: classpath:mybatis/mapper/*Mapper.xml
   type-aliases-package: com.github.yfge.huobiapp.dao

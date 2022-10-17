@@ -22,9 +22,7 @@ public class ModelDataServiceTest {
     public void getModel() {
 
         String modelName = "user";
-
         var model = modelDataService.getModel(modelName);
-
         log.info("the model is :{}", model);
     }
 
