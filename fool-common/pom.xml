@@ -11,6 +11,7 @@
     <groupId>com.github.yfge.fool</groupId>
     <artifactId>fool-common</artifactId>
     <version>1.0-SNAPSHOT</version>
+
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -19,6 +20,6 @@
     </dependencies>
     <packaging>jar</packaging>
     <properties>
-        <java.version>1.10</java.version>
+        <java.version>17</java.version>
     </properties>
 </project>
