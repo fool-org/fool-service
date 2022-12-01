@@ -12,6 +12,9 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
 logging:
   path: "./log"
   level:

@@ -8,3 +8,6 @@ spring:
     driverClassName: com.mysql.cj.jdbc.Driver
   jackson:
     time-zone: Asia/Shanghai
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher

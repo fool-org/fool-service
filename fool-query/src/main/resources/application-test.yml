@@ -8,9 +8,6 @@ spring:
     password: Pa88word
     driver-class-name: com.mysql.cj.jdbc.Driver
     driverClassName: com.mysql.cj.jdbc.Driver
-  mvc:
-    pathmatch:
-      matching-strategy: ant_path_matcher
   jackson:
     time-zone: Asia/Shanghai
   mail:

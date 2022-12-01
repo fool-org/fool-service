@@ -148,17 +148,12 @@
             </dependency>
             <dependency>
                 <groupId>io.springfox</groupId>
-                <artifactId>springfox-boot-starter</artifactId>
-                <version>3.0.0</version>
-            </dependency>
-            <dependency>
-                <groupId>io.springfox</groupId>
-                <artifactId>springfox-data-rest</artifactId>
-                <version>3.0.0</version>
-            </dependency>
-            <dependency>
-                <groupId>io.springfox</groupId>
                 <artifactId>springfox-swagger-ui</artifactId>
+                <version>3.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-boot-starter</artifactId>
                 <version>3.0.0</version>
             </dependency>
             <dependency>
@@ -166,13 +161,6 @@
                 <artifactId>fastjson</artifactId>
                 <version>1.2.6</version>
             </dependency>
-            <!--   Uncomment for regular spring mvc projects and commend above dependency
-                <dependency>
-                    <groupId>io.springfox</groupId>
-                    <artifactId>springfox-oas</artifactId>
-                    <version>3.0.0</version>
-                </dependency>
-            -->
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>javax.servlet-api</artifactId>
