@@ -136,14 +136,13 @@ public class DaoService {
              */
             ParameterizedType t = (ParameterizedType) field.getField().getGenericType();
             Class<?> itemClazz = (Class<?>) t.getActualTypeArguments()[0];
-            log.info("resutl:{}", result);
+            log.info("result:{}", result);
             Object foreignKey = getKey(result, mapper);
             var itemMapper = getMapper(itemClazz);
             var varQueryAndArgs = this.sqlScriptGenerator.generateSelectItems(itemMapper, field.getColumnName(), foreignKey);
             var items = this.jdbcTemplate.query(varQueryAndArgs.getSql(), itemMapper, foreignKey);
             try {
                 field.getField().set(result, items);
-
             } catch (IllegalAccessException e) {
                 log.info("set {} of {} error", field.getField().getName(), clazz.getName(), e);
             }

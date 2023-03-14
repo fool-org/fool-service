@@ -44,8 +44,6 @@ public class Mapper<T> extends
     private PropertyNamingStrategy.PropertyNamingStrategyBase propertyNamingStrategy;
 
 
-    @Autowired
-
 
     /**
      * 默认构造函数
