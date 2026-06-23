@@ -17,3 +17,17 @@ Just for My Dream.
 * fool-auth 简单的基于角色的权限管理
 * business-application 一个启动程序
 
+## Harness 与 Standard Engine
+
+Agent 入口在 `AGENTS.md`。本地最小仓库门禁：
+
+```bash
+python scripts/check_repo_harness.py
+```
+
+验证矩阵见 `docs/validation.md`，版本化标准见 `docs/standards/README.md`。
+需要保存自动化证据时使用：
+
+```bash
+python scripts/check_repo_harness.py --report-json artifacts/runs/<run_id>/repo-harness.json
+```
