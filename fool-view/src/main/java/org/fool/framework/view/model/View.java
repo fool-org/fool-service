@@ -19,6 +19,7 @@ public class View {
     private ViewType viewType;
     private String viewModel;
     private String filter;
+    private Integer autoFreshInterval = 0;
     @Column("view_id")
     private List<ViewItem> listItems;
     private String viewModelClass;

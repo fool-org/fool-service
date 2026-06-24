@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -30,6 +31,8 @@ public class ViewDataAdapter {
     public ListViewResult getListViewResult(View view, PageResult<IDynamicData> item) {
         ListViewResult result = new ListViewResult();
         result.setPageInfo(item.getPageInfo());
+        result.setFreshTime(LocalDateTime.now());
+        result.setAutoFreshTime(safeAutoFreshTime(view));
         result.setCols(view.getListItems().stream()
                 .filter(p -> p.getEditType() != ItemEditType.Format)
                 .map(this::columnName)
@@ -56,6 +59,10 @@ public class ViewDataAdapter {
 
         return result;
 
+    }
+
+    private Integer safeAutoFreshTime(View view) {
+        return view.getAutoFreshInterval() == null ? 0 : view.getAutoFreshInterval();
     }
 
     private String columnName(ViewItem viewItem) {

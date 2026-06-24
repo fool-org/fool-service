@@ -21,6 +21,8 @@ public class ListViewInfo {
     private String browserTitle;
     @ApiModelProperty("类型")
     private ViewType viewType;
+    @ApiModelProperty("自动刷新间隔")
+    private Integer autoFreshTime;
     @ApiModelProperty("查询/输入选项")
     private List<ViewInputInfo> inputInfo;
     @ApiModelProperty("表头")

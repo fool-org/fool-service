@@ -9,11 +9,27 @@ CREATE TABLE IF NOT EXISTS `fool_sys_view` (
   `view_type` int DEFAULT NULL,
   `view_model` varchar(255) DEFAULT NULL,
   `filter` text,
+  `auto_fresh_interval` int NOT NULL DEFAULT 0,
   `view_model_class` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_fool_sys_view_name` (`view_name`),
   KEY `ix_fool_sys_view_model` (`view_model`)
 );
+
+SET @add_view_auto_fresh_interval = (
+  SELECT IF(
+    COUNT(*) = 0,
+    'ALTER TABLE `fool_sys_view` ADD COLUMN `auto_fresh_interval` int NOT NULL DEFAULT 0 AFTER `filter`',
+    'SELECT 1'
+  )
+  FROM INFORMATION_SCHEMA.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'fool_sys_view'
+    AND COLUMN_NAME = 'auto_fresh_interval'
+);
+PREPARE add_view_auto_fresh_interval_stmt FROM @add_view_auto_fresh_interval;
+EXECUTE add_view_auto_fresh_interval_stmt;
+DEALLOCATE PREPARE add_view_auto_fresh_interval_stmt;
 
 CREATE TABLE IF NOT EXISTS `fool_sys_view_item` (
   `id` bigint NOT NULL AUTO_INCREMENT,
@@ -92,8 +108,8 @@ SET `property_type` = 11,
     `multi_map` = 0
 WHERE `owner` = 100 AND `name` = 'state';
 
-INSERT INTO `fool_sys_view` (`id`, `view_name`, `view_text`, `view_remark`, `view_title`, `view_type`, `view_model`, `filter`, `view_model_class`)
-SELECT 100, 'OrderList', 'OrderList', 'Seeded Docker smoke view', 'Order List', 0, 'Order', '', 'org.fool.framework.market.Order'
+INSERT INTO `fool_sys_view` (`id`, `view_name`, `view_text`, `view_remark`, `view_title`, `view_type`, `view_model`, `filter`, `auto_fresh_interval`, `view_model_class`)
+SELECT 100, 'OrderList', 'OrderList', 'Seeded Docker smoke view', 'Order List', 0, 'Order', '', 0, 'org.fool.framework.market.Order'
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view` WHERE `view_name` = 'OrderList');
 
 INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `view_id`)

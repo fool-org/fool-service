@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.fool.framework.dao.PageNavigatorResult;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -15,6 +16,10 @@ public class ListViewResult {
     private PageNavigatorResult pageInfo;
     @ApiModelProperty("列名")
     private List<String> cols;
+    @ApiModelProperty("刷新时间")
+    private LocalDateTime freshTime;
+    @ApiModelProperty("自动刷新间隔")
+    private Integer autoFreshTime;
     @ApiModelProperty("结果数据")
     private List<ListDataItem> items;
 }

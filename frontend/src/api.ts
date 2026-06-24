@@ -58,6 +58,7 @@ export interface ListViewInfo {
   viewTitle?: string;
   browserTitle?: string;
   viewType?: string;
+  autoFreshTime?: number;
   inputInfo?: ViewInputInfo[];
   tableColumn?: TableColumnInfo[];
   operations?: OperationInfo[];
@@ -80,6 +81,8 @@ export interface ListDataItem {
 export interface ListViewResult {
   pageInfo?: PageNavigatorResult;
   cols?: string[];
+  freshTime?: string;
+  autoFreshTime?: number;
   items?: ListDataItem[];
 }
 

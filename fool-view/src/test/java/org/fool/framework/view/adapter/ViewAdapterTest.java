@@ -57,6 +57,17 @@ public class ViewAdapterTest {
         assertEquals(ViewOperationType.COMMAND, info.getOperations().get(1).getType());
     }
 
+    @Test
+    public void viewInfoIncludesLegacyAutoFreshTime() {
+        View view = new View();
+        view.setAutoFreshInterval(45);
+        view.setListItems(List.of());
+
+        ListViewInfo info = new ViewAdapter().getViewInfo(view);
+
+        assertEquals(Integer.valueOf(45), info.getAutoFreshTime());
+    }
+
     private static ViewOperation operation(
             String name,
             boolean requireSelect,

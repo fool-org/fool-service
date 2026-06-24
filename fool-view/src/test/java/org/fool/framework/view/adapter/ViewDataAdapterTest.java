@@ -15,6 +15,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 public class ViewDataAdapterTest {
     @Test
@@ -39,6 +40,21 @@ public class ViewDataAdapterTest {
         assertFalse(item.getValues().containsKey("rowClass"));
         assertEquals(List.of("Order ID"), result.getCols());
         assertEquals(10, ItemEditType.Format.ordinal());
+    }
+
+    @Test
+    public void listResultIncludesLegacyRefreshMetadata() {
+        View view = new View();
+        view.setAutoFreshInterval(30);
+        view.setListItems(List.of(viewItem("orderId", ItemEditType.ReadOnly)));
+
+        PageResult<IDynamicData> page = new PageResult<>();
+        page.setItems(List.of(new MapDynamicData("order-1", new LinkedHashMap<>(Map.of("orderId", 1001)))));
+
+        ListViewResult result = new ViewDataAdapter().getListViewResult(view, page);
+
+        assertEquals(Integer.valueOf(30), result.getAutoFreshTime());
+        assertNotNull(result.getFreshTime());
     }
 
     private static ViewItem viewItem(String modelProperty, ItemEditType editType) {

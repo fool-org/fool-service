@@ -561,7 +561,8 @@ public class DaoAppInstallGateway implements AppInstallGateway {
         List<View> existingViews = daoService.selectList(
                 View.class,
                 "SELECT `id`,`view_name`,`view_text`,`view_remark`,`view_title`,`view_type`,"
-                        + "`view_model`,`filter`,`view_model_class` FROM `fool_sys_view` WHERE `view_name` = ?",
+                        + "`view_model`,`filter`,`auto_fresh_interval`,`view_model_class` "
+                        + "FROM `fool_sys_view` WHERE `view_name` = ?",
                 view.getViewName());
         if (!existingViews.isEmpty()) {
             return existingViews.get(0);
