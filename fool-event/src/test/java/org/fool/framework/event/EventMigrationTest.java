@@ -91,6 +91,15 @@ public class EventMigrationTest {
     }
 
     @Test
+    public void eventSqlHelperRendersLegacyNullFilterAsEmptyText() {
+        EventDefinition definition = new EventDefinition();
+
+        assertEquals(
+                "SELECT * FROM [OrderTable] WHERE ",
+                EventSqlHelper.buildQuerySql("[OrderTable]", definition));
+    }
+
+    @Test
     public void jdbcEventModelTableResolverLoadsMigratedModelQueryMetadata() {
         JdbcEventModelTableResolver resolver = new JdbcEventModelTableResolver(modelId -> {
             assertEquals("order-model", modelId);

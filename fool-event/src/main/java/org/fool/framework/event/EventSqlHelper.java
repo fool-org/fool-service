@@ -5,6 +5,7 @@ public final class EventSqlHelper {
     }
 
     public static String buildQuerySql(String tableName, EventDefinition definition) {
-        return String.format("SELECT * FROM %s WHERE %s", tableName, definition.getFilter());
+        String filter = definition.getFilter() == null ? "" : definition.getFilter();
+        return String.format("SELECT * FROM %s WHERE %s", tableName, filter);
     }
 }
