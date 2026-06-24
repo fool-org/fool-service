@@ -16,6 +16,10 @@ public class QueryColumnCollection extends ArrayList<QueryColumn> {
         return null;
     }
 
+    public QueryColumn get(String expression) {
+        return find(expression);
+    }
+
     private boolean matches(QueryColumn column, String normalizedExpression) {
         return Objects.equals(normalize(column.getDbName()), normalizedExpression)
                 || Objects.equals(normalize(column.getShowName()), normalizedExpression)

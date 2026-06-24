@@ -19,7 +19,10 @@ public class QueryLookupCollectionTest {
 
         assertEquals(orders, tables.find(" ORDERS "));
         assertEquals(accounts, tables.find(" 账户 "));
+        assertEquals(orders, tables.get(" ORDERS "));
+        assertEquals(accounts, tables.get(" 账户 "));
         assertNull(tables.find("missing"));
+        assertNull(tables.get("missing"));
     }
 
     @Test
@@ -36,7 +39,10 @@ public class QueryLookupCollectionTest {
         assertEquals(symbol, columns.find("交易对"));
         assertEquals(orderId, columns.find("orders.order_id"));
         assertEquals(symbol, columns.find("订单.交易对"));
+        assertEquals(orderId, columns.get("orders.order_id"));
+        assertEquals(symbol, columns.get("订单.交易对"));
         assertNull(columns.find("orders.missing"));
+        assertNull(columns.get("orders.missing"));
     }
 
     private QueryColumn column(QueryTable table, String showName, String dbName) {

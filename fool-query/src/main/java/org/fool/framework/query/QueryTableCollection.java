@@ -17,6 +17,10 @@ public class QueryTableCollection extends ArrayList<QueryTable> {
         return null;
     }
 
+    public QueryTable get(String expression) {
+        return find(expression);
+    }
+
     private String normalize(String value) {
         return value == null ? "" : value.trim().toUpperCase(Locale.ROOT);
     }
