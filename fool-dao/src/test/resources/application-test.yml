@@ -1,7 +1,9 @@
 server:
   port: 8088
 spring:
-  profiles: test
+  config:
+    activate:
+      on-profile: test
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/aip?serverTimezone=Hongkong&useSSL=false&allowPublicKeyRetrieval=true
     username: root
@@ -48,4 +50,3 @@ logging:
 notify:
   dingding:
     url: https://oapi.dingtalk.com/robot/send?access_token=b355661e804dee046084fc03a6470a53e16dd741d35d9d410efb4749e881ecc1
-
