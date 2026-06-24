@@ -1,0 +1,8 @@
+.git/
+.idea/
+.m2-docker/
+**/target/
+frontend/node_modules/
+frontend/dist/
+README.md
+docs/

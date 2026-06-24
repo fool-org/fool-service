@@ -7,7 +7,7 @@ explicitly named as authoritative for fool-service.
 
 - [x] Bootstrap harness and Standard Engine entrypoints.
 - [x] Add a repo-local validation matrix and checker.
-- [ ] Add runtime evidence bundles for Docker/browser smoke checks after the
+- [x] Add runtime evidence bundles for Docker/browser smoke checks after the
       Docker stack stabilizes.
 
 ## Backlog

@@ -1,6 +1,10 @@
 .DS_Store
 .idea/
-./*/target/*
+target/
+*/target/
+.m2-docker/
+frontend/dist/
+frontend/node_modules/
 artifacts/
 __pycache__/
 *.pyc
