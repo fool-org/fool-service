@@ -28,6 +28,16 @@ public class SqlGenerator {
      * @return
      */
     public QueryAndArgs generateSelect(Model model, List<Property> properties, IQueryFilter filter, PageNavigator pageNavigator) {
+        return generateSelect(model, properties, filter, pageNavigator, null, false);
+    }
+
+    public QueryAndArgs generateSelect(
+            Model model,
+            List<Property> properties,
+            IQueryFilter filter,
+            PageNavigator pageNavigator,
+            String orderColumn,
+            boolean orderDescending) {
         var filterQuery = filter.generateSql();
         StringBuilder builder = new StringBuilder();
         builder.append(DbConst.SELECT);
@@ -42,6 +52,12 @@ public class SqlGenerator {
 
         List<Object> params = new LinkedList<>();
         params.addAll(Arrays.asList(filterQuery.getArgs()));
+        if (orderColumn != null && !orderColumn.isBlank()) {
+            builder.append(" ORDER BY `")
+                    .append(orderColumn)
+                    .append("` ")
+                    .append(orderDescending ? "DESC" : "ASC");
+        }
         if (pageNavigator != null) {
             builder.append(DbConst.PAGE_INFO);
             params.add(pageNavigator.getPageSize());

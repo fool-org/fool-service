@@ -15,11 +15,13 @@ import org.fool.framework.view.common.ErrorCode;
 import org.fool.framework.view.dto.ListViewResult;
 import org.fool.framework.view.dto.QueryValue;
 import org.fool.framework.view.model.View;
+import org.fool.framework.view.model.ViewItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +55,14 @@ public class DataQueryService {
         }
         var properties = getViewProperies(view, model);
         IQueryFilter queryFilter = generateFilter(model, filter);
-        var result = modelDataService.getDataListWithPageInfo(view.getViewModel(), queryFilter, properties, pageInfo);
+        Property orderProperty = getDefaultOrderProperty(view, model);
+        var result = modelDataService.getDataListWithPageInfo(
+                view.getViewModel(),
+                queryFilter,
+                properties,
+                pageInfo,
+                orderProperty == null ? null : orderProperty.getColumn(),
+                orderProperty != null);
 
         return viewAdapter.getListViewResult(view, result);
     }
@@ -92,13 +101,38 @@ public class DataQueryService {
 
     private List<Property> getViewProperies(View view, Model model) {
         List<Property> result = new LinkedList<>();
-        for (var item : view.getListItems()) {
+        for (var item : orderedListItems(view)) {
             var propertyOptional = model.getProperties().stream().filter(p -> p.getName().equals(item.getModelProperty())).findFirst();
             if (propertyOptional.isPresent()) {
                 result.add(propertyOptional.get());
             }
         }
         return result;
+    }
+
+    private Property getDefaultOrderProperty(View view, Model model) {
+        for (var item : orderedListItems(view)) {
+            var propertyOptional = model.getProperties().stream()
+                    .filter(p -> p.getName().equals(item.getModelProperty()))
+                    .findFirst();
+            if (propertyOptional.isPresent()) {
+                return propertyOptional.get();
+            }
+        }
+        return null;
+    }
+
+    private List<ViewItem> orderedListItems(View view) {
+        if (CollectionUtils.isEmpty(view.getListItems())) {
+            return List.of();
+        }
+        return view.getListItems().stream()
+                .sorted(Comparator.comparingInt(this::safeShowIndex))
+                .toList();
+    }
+
+    private int safeShowIndex(ViewItem item) {
+        return item.getShowIndex() == null ? 0 : item.getShowIndex();
     }
 
 }

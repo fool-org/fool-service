@@ -110,8 +110,19 @@ public class ModelDataService {
      * @return
      */
     public PageResult<IDynamicData> getDataListWithPageInfo(String modelId, IQueryFilter filter, List<Property> properties, PageNavigator pageNavigator) {
+        return getDataListWithPageInfo(modelId, filter, properties, pageNavigator, null, false);
+    }
+
+    public PageResult<IDynamicData> getDataListWithPageInfo(
+            String modelId,
+            IQueryFilter filter,
+            List<Property> properties,
+            PageNavigator pageNavigator,
+            String orderColumn,
+            boolean orderDescending) {
         var mapper = getMapper(modelId);
-        QueryAndArgs queryAndArgs = sqlGenerator.generateSelect(mapper.getModel(), properties, filter, pageNavigator);
+        QueryAndArgs queryAndArgs = sqlGenerator.generateSelect(
+                mapper.getModel(), properties, filter, pageNavigator, orderColumn, orderDescending);
         PageResult<IDynamicData> result = new PageResult<>();
         var items = this.jdbcTemplate.query(queryAndArgs.getSql(), queryAndArgs.getArgs(), mapper);
         if (items.size() > 0) {
