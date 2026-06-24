@@ -2,17 +2,21 @@ package org.fool.framework.event;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 @Repository
 public class JdbcEventObjectQuery implements EventObjectQuery {
+    static final String MISSING_ID_COLUMN_MESSAGE = "Can't Gerneration Query Because The Id Column Isn't Included!";
+
     private final JdbcTemplate jdbcTemplate;
     private final EventModelTableResolver tableResolver;
 
@@ -29,15 +33,43 @@ public class JdbcEventObjectQuery implements EventObjectQuery {
         }
         EventModelQueryMetadata metadata = tableResolver.resolve(definition.getModelId());
         String sql = EventSqlHelper.buildQuerySql(metadata.tableName(), definition);
-        return jdbcTemplate.query(sql, (rs, rowNum) ->
-                new EventMatchedObject(rs.getString(metadata.objectIdColumn()), rowValues(rs)));
+        ResultSetExtractor<List<EventMatchedObject>> extractor =
+                resultSet -> matchedObjects(resultSet, metadata.objectIdColumn());
+        return jdbcTemplate.query(sql, extractor);
     }
 
-    private static Map<String, Object> rowValues(ResultSet resultSet) throws SQLException {
+    private static List<EventMatchedObject> matchedObjects(ResultSet resultSet, String objectIdColumn)
+            throws SQLException {
         ResultSetMetaData metaData = resultSet.getMetaData();
-        Map<String, Object> values = new LinkedHashMap<>();
+        List<String> columns = columnLabels(metaData);
+        requireObjectIdColumn(columns, objectIdColumn);
+        List<EventMatchedObject> matchedObjects = new ArrayList<>();
+        while (resultSet.next()) {
+            Map<String, Object> values = rowValues(resultSet, columns);
+            Object objectId = values.get(objectIdColumn);
+            matchedObjects.add(new EventMatchedObject(objectId == null ? null : objectId.toString(), values));
+        }
+        return matchedObjects;
+    }
+
+    private static List<String> columnLabels(ResultSetMetaData metaData) throws SQLException {
+        List<String> columns = new ArrayList<>();
         for (int index = 1; index <= metaData.getColumnCount(); index++) {
-            values.put(columnLabel(metaData, index), resultSet.getObject(index));
+            columns.add(columnLabel(metaData, index));
+        }
+        return columns;
+    }
+
+    private static void requireObjectIdColumn(List<String> columns, String objectIdColumn) {
+        if (!columns.contains(objectIdColumn)) {
+            throw new IllegalStateException(MISSING_ID_COLUMN_MESSAGE);
+        }
+    }
+
+    private static Map<String, Object> rowValues(ResultSet resultSet, List<String> columns) throws SQLException {
+        Map<String, Object> values = new LinkedHashMap<>();
+        for (int index = 1; index <= columns.size(); index++) {
+            values.put(columns.get(index - 1), resultSet.getObject(index));
         }
         return values;
     }

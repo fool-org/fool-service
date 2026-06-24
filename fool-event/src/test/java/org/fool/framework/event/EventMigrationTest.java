@@ -6,6 +6,7 @@ import org.fool.framework.common.annotation.Table;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
@@ -161,6 +163,26 @@ public class EventMigrationTest {
         assertEquals("order-1", matchedObjects.get(0).values().get("order_id"));
         assertEquals(0, matchedObjects.get(0).values().get("status"));
         assertEquals(125, matchedObjects.get(0).values().get("amount"));
+    }
+
+    @Test
+    public void jdbcEventObjectQueryRejectsResultsWithoutLegacyKeyColumn() {
+        EventDefinition definition = new EventDefinition();
+        definition.setModelId("order-model");
+        definition.setFilter("`status` = 0");
+        RecordingJdbcTemplate jdbcTemplate =
+                new RecordingJdbcTemplate(List.of(Map.of("status", 0, "amount", 125)));
+        EventModelTableResolver tableResolver =
+                modelId -> new EventModelQueryMetadata("market_order", "SYSID");
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> new JdbcEventObjectQuery(jdbcTemplate, tableResolver).findMatchedObjects(definition));
+
+        assertEquals(
+                "Can't Gerneration Query Because The Id Column Isn't Included!",
+                exception.getMessage());
+        assertEquals("SELECT * FROM market_order WHERE `status` = 0", jdbcTemplate.queriedSql);
     }
 
     @Test
@@ -877,6 +899,16 @@ public class EventMigrationTest {
             return mappedRows;
         }
 
+        @Override
+        public <T> T query(String sql, ResultSetExtractor<T> resultSetExtractor) {
+            this.queriedSql = sql;
+            try {
+                return resultSetExtractor.extractData(resultSet(rows));
+            } catch (java.sql.SQLException exception) {
+                throw new IllegalStateException(exception);
+            }
+        }
+
         private static <T> T mapRow(RowMapper<T> rowMapper, Map<String, Object> row, int index) {
             List<String> columns = new ArrayList<>(row.keySet());
             java.sql.ResultSetMetaData metaData = (java.sql.ResultSetMetaData) java.lang.reflect.Proxy.newProxyInstance(
@@ -908,6 +940,35 @@ public class EventMigrationTest {
             } catch (java.sql.SQLException exception) {
                 throw new IllegalStateException(exception);
             }
+        }
+
+        private static java.sql.ResultSet resultSet(List<Map<String, Object>> rows) {
+            List<String> columns = rows.isEmpty() ? List.of() : new ArrayList<>(rows.get(0).keySet());
+            int[] cursor = {-1};
+            java.sql.ResultSetMetaData metaData = (java.sql.ResultSetMetaData) java.lang.reflect.Proxy.newProxyInstance(
+                    java.sql.ResultSetMetaData.class.getClassLoader(),
+                    new Class<?>[]{java.sql.ResultSetMetaData.class},
+                    (proxy, method, args) -> switch (method.getName()) {
+                        case "getColumnCount" -> columns.size();
+                        case "getColumnLabel", "getColumnName" -> columns.get(((Integer) args[0]) - 1);
+                        default -> throw new UnsupportedOperationException(method.getName());
+                    });
+            return (java.sql.ResultSet) java.lang.reflect.Proxy.newProxyInstance(
+                    java.sql.ResultSet.class.getClassLoader(),
+                    new Class<?>[]{java.sql.ResultSet.class},
+                    (proxy, method, args) -> {
+                        if ("next".equals(method.getName())) {
+                            cursor[0]++;
+                            return cursor[0] < rows.size();
+                        }
+                        if ("getMetaData".equals(method.getName())) {
+                            return metaData;
+                        }
+                        if ("getObject".equals(method.getName()) && args != null && args.length == 1) {
+                            return rows.get(cursor[0]).get(columns.get(((Integer) args[0]) - 1));
+                        }
+                        throw new UnsupportedOperationException(method.getName());
+                    });
         }
     }
 
