@@ -64,6 +64,13 @@ public class ReportMigrationTest {
     }
 
     @Test
+    public void matrixResultKeepsLegacyUnsupportedAddSurface() {
+        MatrixResult result = new MatrixResult();
+
+        assertThrows(UnsupportedOperationException.class, result::add);
+    }
+
+    @Test
     public void getCellsMapsMatrixHeadersAndDataRectsToAbsoluteCoordinates() {
         MatrixTable table = new MatrixTable();
         table.getColHeaders().add(List.of(singleCell("2026", 2, false)));
