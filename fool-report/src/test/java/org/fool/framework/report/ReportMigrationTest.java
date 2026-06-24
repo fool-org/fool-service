@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
@@ -51,6 +52,51 @@ public class ReportMigrationTest {
         assertTrue(table.getCells().isEmpty());
 
         assertSame(ReportEmptyValue.getValue(), ReportEmptyValue.getValue());
+    }
+
+    @Test
+    public void matrixHeaderKeepsLegacyComparableIdentityAndValueSemantics() {
+        CellFormat format = formatCell("region");
+        StaticFormat subtotal = staticFormat("Subtotal", StaticType.Sum);
+        MatrixHeader header = new MatrixHeader();
+        header.setFormatCell(format);
+        header.setValue("north");
+        header.setStaticCell(subtotal);
+        header.setCompute(true);
+        header.setComputeExp("0-1");
+
+        MatrixHeader sameLegacyKey = new MatrixHeader();
+        sameLegacyKey.setFormatCell(format);
+        sameLegacyKey.setValue(new String("north"));
+        sameLegacyKey.setStaticCell(subtotal);
+
+        MatrixHeader differentFormatIdentity = new MatrixHeader();
+        differentFormatIdentity.setFormatCell(formatCell("region"));
+        differentFormatIdentity.setValue("north");
+        differentFormatIdentity.setStaticCell(subtotal);
+
+        assertEquals(0, header.compareTo(header));
+        assertEquals(0, header.compareTo(sameLegacyKey));
+        assertEquals(header, sameLegacyKey);
+        assertEquals(-1, header.compareTo(differentFormatIdentity));
+        assertEquals(-1, header.compareTo("north"));
+        assertTrue(header.isCompute());
+        assertEquals("0-1", header.getComputeExp());
+    }
+
+    @Test
+    public void staticCellValueKeepsLegacyInternalValueShape() {
+        StaticFormat subtotal = staticFormat("Subtotal", StaticType.Sum);
+        StaticCellValue value = new StaticCellValue();
+        value.setCellFormat(subtotal);
+        value.setStaticValue(new Object[]{"north", 2026});
+        value.setStaticIndex(2);
+        value.setStaticFilter("region = 'north'");
+
+        assertSame(subtotal, value.getCellFormat());
+        assertArrayEquals(new Object[]{"north", 2026}, value.getStaticValue());
+        assertEquals(2, value.getStaticIndex());
+        assertEquals("region = 'north'", value.getStaticFilter());
     }
 
     @Test
