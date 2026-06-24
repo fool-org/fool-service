@@ -6,6 +6,7 @@ import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.dao.PageResult;
 import org.fool.framework.view.dto.ListDataItem;
 import org.fool.framework.view.dto.ListViewResult;
+import org.fool.framework.view.model.ItemEditType;
 import org.fool.framework.view.model.View;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -36,6 +37,10 @@ public class ViewDataAdapter {
 
                 dataItem.setValues(new LinkedHashMap<>());
                 for (var viewItem : view.getListItems()) {
+                    if (viewItem.getEditType() == ItemEditType.Format) {
+                        dataItem.setRowFmt(formatRow(p.get(viewItem.getModelProperty())));
+                        continue;
+                    }
                     dataItem.getValues().put(viewItem.getModelProperty(), getFormat(viewItem.getFormatRegx(), p.get(viewItem.getModelProperty())));
                 }
                 dataItem.setId(p.getId());
@@ -46,6 +51,10 @@ public class ViewDataAdapter {
 
         return result;
 
+    }
+
+    private String formatRow(Object value) {
+        return value == null ? "" : value.toString();
     }
 
     private Object getFormat(String formatRegx, Object o) {

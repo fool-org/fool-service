@@ -27,6 +27,7 @@ public class ViewItem {
     private String selectViewName;
     private String inputRegx;
     private String formatRegx;
+    private ItemEditType editType = ItemEditType.ReadOnly;
 
 
     private Long viewId;

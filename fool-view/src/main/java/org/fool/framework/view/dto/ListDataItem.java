@@ -12,6 +12,8 @@ public class ListDataItem {
     private String id;
     @ApiModelProperty("结果值,为属性-值的对，值大多数情况为String(退已经格式化完成）")
     private Map<String, Object> values;
+    @ApiModelProperty("行格式")
+    private String rowFmt;
     @ApiModelProperty("可以进行的操作")
     private List<OperationInfo> operation;
 }

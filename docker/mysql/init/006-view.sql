@@ -26,11 +26,27 @@ CREATE TABLE IF NOT EXISTS `fool_sys_view_item` (
   `select_view_name` varchar(255) DEFAULT NULL,
   `input_regx` text,
   `format_regx` text,
+  `edit_type` int DEFAULT 0,
   `view_id` bigint DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `ix_fool_sys_view_item_view_id` (`view_id`),
   KEY `ix_fool_sys_view_item_property` (`model_property`)
 );
+
+SET @add_view_item_edit_type = (
+  SELECT IF(
+    COUNT(*) = 0,
+    'ALTER TABLE `fool_sys_view_item` ADD COLUMN `edit_type` int DEFAULT 0 AFTER `format_regx`',
+    'SELECT 1'
+  )
+  FROM INFORMATION_SCHEMA.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'fool_sys_view_item'
+    AND COLUMN_NAME = 'edit_type'
+);
+PREPARE add_view_item_edit_type_stmt FROM @add_view_item_edit_type;
+EXECUTE add_view_item_edit_type_stmt;
+DEALLOCATE PREPARE add_view_item_edit_type_stmt;
 
 INSERT INTO `fool_sys_model` (`id`, `name`, `text`, `remark`, `model_type`, `class_name`, `table_name`, `auto_sys_id`, `id_property`)
 SELECT 100, 'Order', 'Order', 'Market order smoke model', 3, 'org.fool.framework.market.Order', 'market_order', 0, NULL
@@ -80,16 +96,16 @@ INSERT INTO `fool_sys_view` (`id`, `view_name`, `view_text`, `view_remark`, `vie
 SELECT 100, 'OrderList', 'OrderList', 'Seeded Docker smoke view', 'Order List', 0, 'Order', '', 'org.fool.framework.market.Order'
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view` WHERE `view_name` = 'OrderList');
 
-INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `view_id`)
-SELECT 1001, 'Order ID', 'Order ID', 'Order ID', 'orderId', 0, 0, NULL, NULL, NULL, 100
+INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `view_id`)
+SELECT 1001, 'Order ID', 'Order ID', 'Order ID', 'orderId', 0, 0, NULL, NULL, NULL, 0, 100
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 100 AND `model_property` = 'orderId');
 
-INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `view_id`)
-SELECT 1002, 'Symbol', 'Symbol', 'Symbol', 'symbol', 0, 0, NULL, NULL, NULL, 100
+INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `view_id`)
+SELECT 1002, 'Symbol', 'Symbol', 'Symbol', 'symbol', 0, 0, NULL, NULL, NULL, 0, 100
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 100 AND `model_property` = 'symbol');
 
-INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `view_id`)
-SELECT 1003, 'State', 'State', 'State', 'state', 0, 0, NULL, NULL, NULL, 100
+INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `view_id`)
+SELECT 1003, 'State', 'State', 'State', 'state', 0, 0, NULL, NULL, NULL, 0, 100
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 100 AND `model_property` = 'state');
 
 INSERT INTO `market_order` (
