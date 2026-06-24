@@ -21,6 +21,7 @@ public class EventDefinition {
     private String viewId;
     @Column("EVTDEF_OPERATION")
     private String operationId;
+    private String operationName;
     @Column("EVTDEF_MSGFMT")
     private String messageFormat;
     @Column("EVTDEF_TIMEOUTSECS")

@@ -85,8 +85,15 @@ public class EventRuntimeService {
         event.setObjectId(object.objectId());
         event.setViewId(definition.getViewId());
         event.setEventMessage(definition.getMessageFormat());
-        event.setDealOperationText(definition.getOperationId());
+        event.setDealOperationText(dealOperationText(definition));
         return event;
+    }
+
+    private String dealOperationText(EventDefinition definition) {
+        if (definition.getOperationName() != null && !definition.getOperationName().isBlank()) {
+            return definition.getOperationName();
+        }
+        return definition.getOperationId();
     }
 
     private void createMessages(EventDefinition definition, EventMatchedObject object, EventRecord event) {

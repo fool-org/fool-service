@@ -498,6 +498,30 @@ public class EventMigrationTest {
     }
 
     @Test
+    public void eventRuntimeUsesLegacyOperationNameForDealText() {
+        UUID definitionId = UUID.randomUUID();
+        UUID eventId = UUID.randomUUID();
+        LocalDateTime now = LocalDateTime.of(2026, 6, 24, 8, 55);
+
+        EventDefinition definition = eventDefinition(definitionId);
+        definition.setOperationName("Read order");
+        CapturingEventRecordRepository eventRepository = new CapturingEventRecordRepository();
+
+        EventRuntimeService service = new EventRuntimeService(
+                new CapturingEventDefinitionRepository(List.of(definition)),
+                new CapturingEventObjectQuery(List.of(new EventMatchedObject("order-1"))),
+                eventRepository,
+                (def, object) -> List.of(),
+                new MessageFactory(UUID::randomUUID, () -> now, new CapturingEventMessageRepository()),
+                () -> eventId,
+                () -> now);
+
+        service.processRunningDefinitions();
+
+        assertEquals("Read order", eventRepository.saved.get(0).getDealOperationText());
+    }
+
+    @Test
     public void eventRuntimeSkipsExistingEventsForIdempotency() {
         UUID definitionId = UUID.randomUUID();
         LocalDateTime now = LocalDateTime.of(2026, 6, 23, 10, 10);
