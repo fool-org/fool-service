@@ -1,6 +1,8 @@
 package org.fool.framework.view.adapter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.fool.framework.common.dynamic.IDynamicData;
+import org.fool.framework.dao.PageNavigatorResult;
 import org.fool.framework.dao.PageResult;
 import org.fool.framework.view.dto.ListDataItem;
 import org.fool.framework.view.dto.ListViewResult;
@@ -15,6 +17,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
 public class ViewDataAdapterTest {
@@ -55,6 +58,27 @@ public class ViewDataAdapterTest {
 
         assertEquals(Integer.valueOf(30), result.getAutoFreshTime());
         assertNotNull(result.getFreshTime());
+    }
+
+    @Test
+    public void listRowsExposeLegacyRowIndexFromPageOffset() {
+        View view = new View();
+        view.setListItems(List.of(viewItem("orderId", ItemEditType.ReadOnly)));
+
+        PageNavigatorResult pageInfo = new PageNavigatorResult();
+        pageInfo.setPageIndex(2);
+        pageInfo.setPageSize(20);
+
+        PageResult<IDynamicData> page = new PageResult<>();
+        page.setPageInfo(pageInfo);
+        page.setItems(List.of(new MapDynamicData("order-21", new LinkedHashMap<>(Map.of("orderId", 1021)))));
+
+        ListViewResult result = new ViewDataAdapter().getListViewResult(view, page);
+
+        ListDataItem item = result.getItems().get(0);
+        Map<?, ?> serialized = new ObjectMapper().convertValue(item, Map.class);
+        assertTrue(serialized.containsKey("rowIndex"));
+        assertEquals(21L, ((Number) serialized.get("rowIndex")).longValue());
     }
 
     private static ViewItem viewItem(String modelProperty, ItemEditType editType) {

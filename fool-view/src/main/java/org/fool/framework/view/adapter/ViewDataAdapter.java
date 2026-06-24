@@ -3,6 +3,7 @@ package org.fool.framework.view.adapter;
 
 import lombok.extern.slf4j.Slf4j;
 import org.fool.framework.common.dynamic.IDynamicData;
+import org.fool.framework.dao.PageNavigatorResult;
 import org.fool.framework.dao.PageResult;
 import org.fool.framework.view.dto.ListDataItem;
 import org.fool.framework.view.dto.ListViewResult;
@@ -39,11 +40,12 @@ public class ViewDataAdapter {
                 .collect(Collectors.toList()));
         result.setItems(new LinkedList<>());
         if (!CollectionUtils.isEmpty(item.getItems())) {
-            item.getItems().forEach(p -> {
+            for (int itemIndex = 0; itemIndex < item.getItems().size(); itemIndex++) {
+                IDynamicData p = item.getItems().get(itemIndex);
                 ListDataItem dataItem = new ListDataItem();
-                var maps = p.toMap();
 
                 dataItem.setValues(new LinkedHashMap<>());
+                dataItem.setRowIndex(rowIndex(item.getPageInfo(), itemIndex));
                 for (var viewItem : view.getListItems()) {
                     if (viewItem.getEditType() == ItemEditType.Format) {
                         dataItem.setRowFmt(formatRow(p.get(viewItem.getModelProperty())));
@@ -54,11 +56,18 @@ public class ViewDataAdapter {
                 dataItem.setId(p.getId());
                 result.getItems().add(dataItem);
 
-            });
+            }
         }
 
         return result;
 
+    }
+
+    private long rowIndex(PageNavigatorResult pageInfo, int itemIndex) {
+        if (pageInfo == null || pageInfo.getPageSize() <= 0 || pageInfo.getPageIndex() <= 0) {
+            return itemIndex + 1L;
+        }
+        return (pageInfo.getPageIndex() - 1L) * pageInfo.getPageSize() + itemIndex + 1L;
     }
 
     private Integer safeAutoFreshTime(View view) {

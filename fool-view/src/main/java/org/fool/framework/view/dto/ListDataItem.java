@@ -10,6 +10,8 @@ import java.util.Map;
 public class ListDataItem {
     @ApiModelProperty("id")
     private String id;
+    @ApiModelProperty("legacy row index")
+    private Long rowIndex;
     @ApiModelProperty("结果值,为属性-值的对，值大多数情况为String(退已经格式化完成）")
     private Map<String, Object> values;
     @ApiModelProperty("行格式")

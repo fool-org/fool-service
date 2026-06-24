@@ -74,6 +74,7 @@ export interface PageNavigatorResult {
 
 export interface ListDataItem {
   id?: string;
+  rowIndex?: number;
   values?: Record<string, unknown>;
   rowFmt?: string;
   operation?: OperationInfo[];
