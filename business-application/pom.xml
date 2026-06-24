@@ -24,6 +24,10 @@
         </dependency>
         <dependency>
             <groupId>com.github.yfge.fool</groupId>
+            <artifactId>fool-event</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.yfge.fool</groupId>
             <artifactId>fool-report</artifactId>
         </dependency>
         <dependency>
