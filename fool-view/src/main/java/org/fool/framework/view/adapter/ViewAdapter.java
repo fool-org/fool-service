@@ -8,9 +8,11 @@ import org.fool.framework.view.dto.ViewInputInfo;
 import org.fool.framework.view.model.InputType;
 import org.fool.framework.view.model.ItemEditType;
 import org.fool.framework.view.model.View;
+import org.fool.framework.view.model.ViewItem;
 import org.fool.framework.view.model.ViewOperation;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -31,14 +33,15 @@ public class ViewAdapter {
         result.setBrowserTitle(view.getViewRemark());
         result.setAutoFreshTime(safeAutoFreshTime(view));
         result.setTableColumn(new LinkedList<>());
-        view.getListItems().stream().filter(p -> p.getEditType() != ItemEditType.Format).forEach(p -> {
+        orderedListItems(view).stream().filter(p -> p.getEditType() != ItemEditType.Format).forEach(p -> {
             result.getTableColumn().add(
                     TableColumnInfo.builder().property(p.getModelProperty())
                             .title(p.getItemLabel())
+                            .showIndex(safeShowIndex(p))
                             .build());
         });
         result.setInputInfo(new LinkedList<>());
-        view.getListItems().stream()
+        orderedListItems(view).stream()
                 .filter(p -> p.getEditType() != ItemEditType.Format)
                 .filter(p -> p.getInputType() != InputType.READ_ONLY)
                 .forEach(p -> {
@@ -55,6 +58,16 @@ public class ViewAdapter {
         result.setOperations(new LinkedList<>());
         view.getOperations().forEach(p -> result.getOperations().add(toOperationInfo(p)));
         return result;
+    }
+
+    private List<ViewItem> orderedListItems(View view) {
+        return view.getListItems().stream()
+                .sorted(Comparator.comparingInt(this::safeShowIndex))
+                .toList();
+    }
+
+    private int safeShowIndex(ViewItem item) {
+        return item.getShowIndex() == null ? 0 : item.getShowIndex();
     }
 
     private Integer safeAutoFreshTime(View view) {

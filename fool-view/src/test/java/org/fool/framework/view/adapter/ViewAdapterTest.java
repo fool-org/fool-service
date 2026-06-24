@@ -14,6 +14,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 import static org.junit.Assert.assertTrue;
 
 public class ViewAdapterTest {
@@ -72,6 +73,22 @@ public class ViewAdapterTest {
         assertEquals(Integer.valueOf(45), info.getAutoFreshTime());
     }
 
+    @Test
+    public void viewInfoOrdersLegacyListColumnsByShowIndex() {
+        ViewItem symbol = viewItem("symbol", "Symbol", ItemEditType.ReadOnly);
+        setShowIndex(symbol, 2);
+        ViewItem orderId = viewItem("orderId", "Order ID", ItemEditType.ReadOnly);
+        setShowIndex(orderId, 1);
+
+        View view = new View();
+        view.setListItems(List.of(symbol, orderId));
+
+        ListViewInfo info = new ViewAdapter().getViewInfo(view);
+
+        assertEquals("orderId", info.getTableColumn().get(0).getProperty());
+        assertEquals("symbol", info.getTableColumn().get(1).getProperty());
+    }
+
     private static ViewOperation operation(
             String name,
             boolean requireSelect,
@@ -99,5 +116,13 @@ public class ViewAdapterTest {
         item.setInputType(InputType.READ_ONLY);
         item.setEditType(editType);
         return item;
+    }
+
+    private static void setShowIndex(ViewItem item, int showIndex) {
+        try {
+            ViewItem.class.getMethod("setShowIndex", Integer.class).invoke(item, showIndex);
+        } catch (ReflectiveOperationException e) {
+            fail("ViewItem should expose legacy showIndex metadata");
+        }
     }
 }

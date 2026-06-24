@@ -14,4 +14,6 @@ public class TableColumnInfo {
     private String title;
     @ApiModelProperty("属性")
     private String property;
+    @ApiModelProperty("显示顺序")
+    private Integer showIndex;
 }

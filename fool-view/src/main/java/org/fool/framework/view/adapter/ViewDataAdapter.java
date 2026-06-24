@@ -21,8 +21,10 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -34,7 +36,8 @@ public class ViewDataAdapter {
         result.setPageInfo(item.getPageInfo());
         result.setFreshTime(LocalDateTime.now());
         result.setAutoFreshTime(safeAutoFreshTime(view));
-        result.setCols(view.getListItems().stream()
+        List<ViewItem> listItems = orderedListItems(view);
+        result.setCols(listItems.stream()
                 .filter(p -> p.getEditType() != ItemEditType.Format)
                 .map(this::columnName)
                 .collect(Collectors.toList()));
@@ -46,7 +49,7 @@ public class ViewDataAdapter {
 
                 dataItem.setValues(new LinkedHashMap<>());
                 dataItem.setRowIndex(rowIndex(item.getPageInfo(), itemIndex));
-                for (var viewItem : view.getListItems()) {
+                for (var viewItem : listItems) {
                     if (viewItem.getEditType() == ItemEditType.Format) {
                         dataItem.setRowFmt(formatRow(p.get(viewItem.getModelProperty())));
                         continue;
@@ -61,6 +64,16 @@ public class ViewDataAdapter {
 
         return result;
 
+    }
+
+    private List<ViewItem> orderedListItems(View view) {
+        return view.getListItems().stream()
+                .sorted(Comparator.comparingInt(this::safeShowIndex))
+                .toList();
+    }
+
+    private int safeShowIndex(ViewItem item) {
+        return item.getShowIndex() == null ? 0 : item.getShowIndex();
     }
 
     private long rowIndex(PageNavigatorResult pageInfo, int itemIndex) {

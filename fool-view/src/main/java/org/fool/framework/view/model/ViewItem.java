@@ -2,6 +2,7 @@ package org.fool.framework.view.model;
 
 
 import lombok.Data;
+import org.fool.framework.common.annotation.Column;
 import org.fool.framework.common.annotation.SqlGenerate;
 import org.fool.framework.common.annotation.SqlGenerateConfig;
 import org.fool.framework.common.annotation.Table;
@@ -28,6 +29,8 @@ public class ViewItem {
     private String inputRegx;
     private String formatRegx;
     private ItemEditType editType = ItemEditType.ReadOnly;
+    @Column("show_index")
+    private Integer showIndex = 0;
 
 
     private Long viewId;

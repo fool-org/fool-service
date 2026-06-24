@@ -14,11 +14,13 @@ import org.junit.Test;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 public class ViewDataAdapterTest {
     @Test
@@ -81,11 +83,42 @@ public class ViewDataAdapterTest {
         assertEquals(21L, ((Number) serialized.get("rowIndex")).longValue());
     }
 
+    @Test
+    public void listRowsAndColumnsFollowLegacyShowIndexOrder() {
+        ViewItem symbol = viewItem("symbol", ItemEditType.ReadOnly);
+        symbol.setItemName("Symbol");
+        setShowIndex(symbol, 2);
+        ViewItem orderId = viewItem("orderId", ItemEditType.ReadOnly);
+        orderId.setItemName("Order ID");
+        setShowIndex(orderId, 1);
+
+        View view = new View();
+        view.setListItems(List.of(symbol, orderId));
+
+        PageResult<IDynamicData> page = new PageResult<>();
+        page.setItems(List.of(new MapDynamicData("order-1", new LinkedHashMap<>(Map.of(
+                "orderId", 1001,
+                "symbol", "BTC-USDT")))));
+
+        ListViewResult result = new ViewDataAdapter().getListViewResult(view, page);
+
+        assertEquals(List.of("Order ID", "Symbol"), result.getCols());
+        assertEquals(List.of("orderId", "symbol"), new ArrayList<>(result.getItems().get(0).getValues().keySet()));
+    }
+
     private static ViewItem viewItem(String modelProperty, ItemEditType editType) {
         ViewItem item = new ViewItem();
         item.setModelProperty(modelProperty);
         item.setEditType(editType);
         return item;
+    }
+
+    private static void setShowIndex(ViewItem item, int showIndex) {
+        try {
+            ViewItem.class.getMethod("setShowIndex", Integer.class).invoke(item, showIndex);
+        } catch (ReflectiveOperationException e) {
+            fail("ViewItem should expose legacy showIndex metadata");
+        }
     }
 
     private record MapDynamicData(String id, Map<String, Object> values) implements IDynamicData {
