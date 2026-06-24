@@ -61,11 +61,14 @@ public class DriverManagerAppDaoServiceFactory implements AppDaoServiceFactory {
         }
         String url = first(values, "url", "jdbcurl", "jdbc-url", "jdbc_url");
         if (url == null || url.isBlank()) {
+            url = legacySqlServerUrl(values);
+        }
+        if (url == null || url.isBlank()) {
             throw new IllegalArgumentException("App database JDBC url is required.");
         }
         return new ConnectionSettings(
                 url,
-                first(values, "username", "user", "user id", "userid"),
+                first(values, "username", "user", "user id", "userid", "uid"),
                 first(values, "password", "pwd"),
                 first(values, "driver", "driverclassname", "driver-class-name"));
     }
@@ -75,6 +78,32 @@ public class DriverManagerAppDaoServiceFactory implements AppDaoServiceFactory {
             throw new IllegalArgumentException("App database connection string is required.");
         }
         return connectionString.trim();
+    }
+
+    private static String legacySqlServerUrl(Map<String, String> values) {
+        String dataSource = first(values, "data source", "server", "address", "addr", "network address");
+        if (dataSource == null || dataSource.isBlank()) {
+            return null;
+        }
+
+        StringBuilder url = new StringBuilder("jdbc:sqlserver://").append(dataSource);
+        String database = first(values, "initial catalog", "database", "database name");
+        if (database != null && !database.isBlank()) {
+            url.append(";databaseName=").append(database);
+        }
+        String integratedSecurity = first(values, "integrated security", "integratedsecurity", "trusted_connection");
+        if (isTruthy(integratedSecurity)) {
+            url.append(";integratedSecurity=true");
+        }
+        return url.toString();
+    }
+
+    private static boolean isTruthy(String value) {
+        if (value == null) {
+            return false;
+        }
+        String normalized = value.trim().toLowerCase(Locale.ROOT);
+        return "true".equals(normalized) || "sspi".equals(normalized) || "yes".equals(normalized);
     }
 
     private static String first(Map<String, String> values, String... keys) {

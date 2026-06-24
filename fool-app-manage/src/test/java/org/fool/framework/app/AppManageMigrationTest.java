@@ -1170,6 +1170,19 @@ public class AppManageMigrationTest {
     }
 
     @Test
+    public void driverManagerAppDaoServiceFactoryParsesLegacySqlConStrings() {
+        DriverManagerAppDaoServiceFactory.ConnectionSettings settings =
+                DriverManagerAppDaoServiceFactory.parse(
+                        "Data Source=legacy-db;Initial Catalog=LegacyApp;"
+                                + "Integrated Security=False;User ID=app_user;Password=secret");
+
+        assertEquals("jdbc:sqlserver://legacy-db;databaseName=LegacyApp", settings.url());
+        assertEquals("app_user", settings.username());
+        assertEquals("secret", settings.password());
+        assertNull(settings.driverClassName());
+    }
+
+    @Test
     public void daoAppInstallGatewayPersistsLegacyDefaultViewsForModels() {
         RecordingDaoService daoService = new RecordingDaoService();
         DaoAppInstallGateway gateway = new DaoAppInstallGateway(daoService);
