@@ -68,6 +68,18 @@ public class QueryContextTest {
     }
 
     @Test
+    public void canJoinSelectedStateBelongsToLegacyContextNotInstance() {
+        QueryContext context = new QueryContext((table, joinType) -> List.of());
+
+        assertEquals(false, context.isCanJoinSelected());
+
+        context.setCanJoinSelected(true);
+        context.clear();
+
+        assertEquals(true, context.isCanJoinSelected());
+    }
+
+    @Test
     public void saveKeepsLegacyNotImplementedSurface() {
         QueryContext context = new QueryContext((table, joinType) -> List.of());
 

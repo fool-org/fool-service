@@ -9,6 +9,7 @@ public class QueryContext {
     private final QueryFactory factory;
     private final JdbcQueryExecutor executor;
     private final String queryConnectionString;
+    private boolean canJoinSelected;
     private QueryInstance instance;
 
     public QueryContext(QueryFactory factory) {
@@ -36,6 +37,14 @@ public class QueryContext {
 
     public String getQueryConnectionString() {
         return queryConnectionString;
+    }
+
+    public boolean isCanJoinSelected() {
+        return canJoinSelected;
+    }
+
+    public void setCanJoinSelected(boolean canJoinSelected) {
+        this.canJoinSelected = canJoinSelected;
     }
 
     public void add(QueryTable table) {
