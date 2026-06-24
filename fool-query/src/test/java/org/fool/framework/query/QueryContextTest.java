@@ -109,6 +109,36 @@ public class QueryContextTest {
         assertTrue(jdbcTemplate.pageSql.contains("WHEN [Orders].[STATUS]=1 THEN 'Ready'"));
     }
 
+    @Test
+    public void getSqlReturnsLegacyNonPagedSelectAndLoadsEnumStateValues() {
+        QueryTable orders = new QueryTable("Orders", "orders");
+        QueryFactory factory = new QueryFactory() {
+            @Override
+            public List<JoinTable> getCanJoinedTables(QueryTable table, JoinQueryType joinType) {
+                return List.of();
+            }
+
+            @Override
+            public List<ColStateValue> getStateValues(QueryColumn col) {
+                ColStateValue ready = new ColStateValue();
+                ready.setDbName("1");
+                ready.setShowName("Ready");
+                return List.of(ready);
+            }
+        };
+        QueryContext context = new QueryContext(factory);
+        context.add(orders);
+        SelectedTable selectedOrders = context.getInstance().getSelectedTables().getTables().get(0);
+        context.getInstance().getSelectedColumns().add(enumSelectedColumn(selectedOrders));
+
+        String sql = context.getSql("idx");
+
+        assertEquals(1, context.getInstance().getSelectedColumns().get(0).getValues().size());
+        assertEquals("SELECT distinct (CASE WHEN [Orders].[STATUS]=1 THEN 'Ready'  ELSE '' END) AS [status_name],"
+                + "ROW_NUMBER() OVER  (ORDER BY  [Orders].[STATUS] ASC) AS [idx]"
+                + " FROM [orders] as [Orders]", sql);
+    }
+
     private SelectedColumn selectedColumn(SelectedTable selectedTable) {
         QueryColumn queryColumn = new QueryColumn();
         queryColumn.setTable(selectedTable.getTable());

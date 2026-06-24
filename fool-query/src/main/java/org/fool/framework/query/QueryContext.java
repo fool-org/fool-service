@@ -47,6 +47,15 @@ public class QueryContext {
         this.instance = new QueryInstance();
     }
 
+    public String getSql() {
+        return getSql("RowIndex");
+    }
+
+    public String getSql(String rowIndex) {
+        populateEnumStateValues();
+        return QuerySqlBuilder.selectSql(instance, rowIndex);
+    }
+
     public QueryResult getResult(int pageSize) {
         return getResult(pageSize, 1);
     }
