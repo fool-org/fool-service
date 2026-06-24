@@ -28,7 +28,7 @@ public class CommonLogInterceptor implements HandlerInterceptor {
     private static final String REQUEST_ID = "x-request-id";
 
     @Autowired
-    private GuaziWebMvcConfigurerAdapter guaziWebMvcConfigurerAdapter;
+    private ResponseBodyCapture responseBodyCapture;
 
 
     @Override
@@ -63,8 +63,7 @@ public class CommonLogInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,
                                 @Nullable Exception ex) throws Exception {
-        String body = this.guaziWebMvcConfigurerAdapter.getByteArrayOutputStream().toString();
-        this.guaziWebMvcConfigurerAdapter.getByteArrayOutputStream().reset();
+        String body = this.responseBodyCapture.close();
         //
         long latency = -1;
         Long startTime = GuaziThreadContextHelper.getStartTime();

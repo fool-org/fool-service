@@ -26,6 +26,7 @@
         <module>fool-view</module>
         <module>fool-query</module>
         <module>fool-model</module>
+        <module>fool-app-manage</module>
         <module>fool-db-manage</module>
         <module>fool-event</module>
         <module>fool-report</module>
@@ -142,6 +143,11 @@
             <dependency>
                 <groupId>com.github.yfge.fool</groupId>
                 <artifactId>fool-view</artifactId>
+                <version>${fool.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.yfge.fool</groupId>
+                <artifactId>fool-app-manage</artifactId>
                 <version>${fool.version}</version>
             </dependency>
             <dependency>

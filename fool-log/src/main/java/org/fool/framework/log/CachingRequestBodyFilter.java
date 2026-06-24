@@ -21,7 +21,7 @@ import java.io.IOException;
 public class CachingRequestBodyFilter extends GenericFilterBean {
 
     @Autowired
-    private GuaziWebMvcConfigurerAdapter myConfiguration;
+    private ResponseBodyCapture responseBodyCapture;
 
 
     @Override
@@ -37,7 +37,7 @@ public class CachingRequestBodyFilter extends GenericFilterBean {
             }
         }
         RequestWrapper wrappedRequest = new RequestWrapper(currentRequest);
-        HttpServletResponse responseWrapper = loggingResponseWrapper((HttpServletResponse) servletResponse, myConfiguration.getByteArrayOutputStream());
+        HttpServletResponse responseWrapper = loggingResponseWrapper((HttpServletResponse) servletResponse, responseBodyCapture.open());
         chain.doFilter(wrappedRequest, responseWrapper);
         return;
 

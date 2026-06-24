@@ -3,6 +3,7 @@ package org.fool.framework.view.model;
 import lombok.Data;
 import org.fool.framework.common.annotation.*;
 
+import java.util.LinkedList;
 import java.util.List;
 
 @Data
@@ -17,7 +18,10 @@ public class View {
     private String viewTitle;
     private ViewType viewType;
     private String viewModel;
+    private String filter;
     @Column("view_id")
     private List<ViewItem> listItems;
     private String viewModelClass;
+    private transient View defaultDetailView;
+    private transient List<ViewOperation> operations = new LinkedList<>();
 }

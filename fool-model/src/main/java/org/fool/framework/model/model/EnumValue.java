@@ -10,4 +10,5 @@ public class EnumValue {
     private String name;
     private String value;
     private String remark;
+    private Long owner;
 }

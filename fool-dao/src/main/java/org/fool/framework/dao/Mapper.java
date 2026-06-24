@@ -11,6 +11,7 @@ import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.sql.ResultSet;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -63,6 +64,9 @@ public class Mapper<T> extends
         this.tableName = getTableName(clazz);
         for (Field field : clazz.getDeclaredFields()
         ) {
+            if (Modifier.isStatic(field.getModifiers()) || Modifier.isTransient(field.getModifiers())) {
+                continue;
+            }
             /**
              * 设置成可见
              */

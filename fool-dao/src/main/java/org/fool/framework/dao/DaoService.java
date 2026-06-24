@@ -27,6 +27,14 @@ public class DaoService {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    public DaoService() {
+    }
+
+    public DaoService(SqlScriptGenerator sqlScriptGenerator, JdbcTemplate jdbcTemplate) {
+        this.sqlScriptGenerator = sqlScriptGenerator;
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
     static <T> Mapper<T> getMapper(Class<T> clazz) {
         String name = clazz.getName();
         if (!concurrentHashMap.containsKey(name)) {
@@ -64,6 +72,13 @@ public class DaoService {
         var mapper = this.getMapper(clazz);
         return this.jdbcTemplate.query(sql, mapper, args);
 
+    }
+
+    public void execute(String sql) {
+        if (sql == null || sql.isBlank()) {
+            return;
+        }
+        this.jdbcTemplate.execute(sql);
     }
 
     /**

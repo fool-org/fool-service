@@ -20,6 +20,10 @@
         </dependency>
         <dependency>
             <groupId>com.github.yfge.fool</groupId>
+            <artifactId>fool-app-manage</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.yfge.fool</groupId>
             <artifactId>fool-db-manage</artifactId>
         </dependency>
         <dependency>

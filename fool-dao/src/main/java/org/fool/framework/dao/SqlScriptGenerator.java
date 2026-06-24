@@ -89,12 +89,7 @@ public class SqlScriptGenerator {
             builder.append(
                     fields.stream().map(p -> {
                         Object value = null;
-                        try {
-                            value = p.getField().get(object);
-
-                        } catch (IllegalAccessException e) {
-                            log.error("{}", e);
-                        }
+                        value = getSqlArgument(p, object);
                         objects.add(value);
                         String msg = "`" + p.getColumnName() + "` = ?";
                         if (p == mapper.getPrimaryField()) {
@@ -136,14 +131,9 @@ public class SqlScriptGenerator {
                     .append("(")
                     .append(fields.stream().map(p -> "?").collect(Collectors.joining(",")))
                     .append(");");
-            objects.addAll(fields.stream().map(p -> {
-                try {
-                    return p.getField().get(object);
-                } catch (IllegalAccessException e) {
-
-                }
-                return null;
-            }).collect(Collectors.toList()));
+            objects.addAll(fields.stream()
+                    .map(p -> getSqlArgument(p, object))
+                    .collect(Collectors.toList()));
             queryAndArgs.setSql(builder.toString());
             queryAndArgs.setArgs(objects.toArray());
             return queryAndArgs;
@@ -196,11 +186,7 @@ public class SqlScriptGenerator {
             builder.append(
                     fields.stream().map(p -> {
                         Object value = null;
-                        try {
-                            value = p.getField().get(object);
-                        } catch (IllegalAccessException e) {
-                            log.error("{}", e);
-                        }
+                        value = getSqlArgument(p, object);
                         objects.add(value);
                         String msg = "`" + p.getColumnName() + "` = ?";
                         if (p == mapper.getPrimaryField()) {
@@ -307,5 +293,18 @@ public class SqlScriptGenerator {
 
 
         return builder.toString();
+    }
+
+    private <T> Object getSqlArgument(MapField field, T object) {
+        try {
+            Object value = field.getField().get(object);
+            if (value instanceof Enum<?>) {
+                return ((Enum<?>) value).ordinal();
+            }
+            return value;
+        } catch (IllegalAccessException e) {
+            log.error("{}", e);
+            return null;
+        }
     }
 }
