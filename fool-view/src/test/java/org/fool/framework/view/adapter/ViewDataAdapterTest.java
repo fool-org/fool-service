@@ -21,6 +21,7 @@ public class ViewDataAdapterTest {
     public void formatViewItemBecomesLegacyRowFmtAndIsExcludedFromValues() {
         View view = new View();
         ViewItem orderId = viewItem("orderId", ItemEditType.ReadOnly);
+        orderId.setItemName("Order ID");
         ViewItem rowClass = viewItem("rowClass", ItemEditType.Format);
         view.setListItems(List.of(orderId, rowClass));
 
@@ -36,6 +37,7 @@ public class ViewDataAdapterTest {
         assertEquals("warning", item.getRowFmt());
         assertEquals(1001, item.getValues().get("orderId"));
         assertFalse(item.getValues().containsKey("rowClass"));
+        assertEquals(List.of("Order ID"), result.getCols());
         assertEquals(10, ItemEditType.Format.ordinal());
     }
 

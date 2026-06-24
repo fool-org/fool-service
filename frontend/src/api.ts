@@ -44,6 +44,14 @@ export interface TableColumnInfo {
   property?: string;
 }
 
+export interface OperationInfo {
+  text?: string;
+  type?: string;
+  viewName?: string;
+  viewId?: number;
+  requireSelect?: boolean;
+}
+
 export interface ListViewInfo {
   id?: number;
   viewName?: string;
@@ -52,6 +60,7 @@ export interface ListViewInfo {
   viewType?: string;
   inputInfo?: ViewInputInfo[];
   tableColumn?: TableColumnInfo[];
+  operations?: OperationInfo[];
 }
 
 export interface PageNavigatorResult {
@@ -64,11 +73,13 @@ export interface PageNavigatorResult {
 export interface ListDataItem {
   id?: string;
   values?: Record<string, unknown>;
-  operation?: unknown[];
+  rowFmt?: string;
+  operation?: OperationInfo[];
 }
 
 export interface ListViewResult {
   pageInfo?: PageNavigatorResult;
+  cols?: string[];
   items?: ListDataItem[];
 }
 

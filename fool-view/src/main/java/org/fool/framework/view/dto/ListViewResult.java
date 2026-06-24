@@ -13,6 +13,8 @@ import java.util.List;
 public class ListViewResult {
     @ApiModelProperty("翻页信息")
     private PageNavigatorResult pageInfo;
+    @ApiModelProperty("列名")
+    private List<String> cols;
     @ApiModelProperty("结果数据")
     private List<ListDataItem> items;
 }

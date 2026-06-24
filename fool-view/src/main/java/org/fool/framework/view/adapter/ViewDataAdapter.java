@@ -8,6 +8,7 @@ import org.fool.framework.view.dto.ListDataItem;
 import org.fool.framework.view.dto.ListViewResult;
 import org.fool.framework.view.model.ItemEditType;
 import org.fool.framework.view.model.View;
+import org.fool.framework.view.model.ViewItem;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
@@ -29,6 +30,10 @@ public class ViewDataAdapter {
     public ListViewResult getListViewResult(View view, PageResult<IDynamicData> item) {
         ListViewResult result = new ListViewResult();
         result.setPageInfo(item.getPageInfo());
+        result.setCols(view.getListItems().stream()
+                .filter(p -> p.getEditType() != ItemEditType.Format)
+                .map(this::columnName)
+                .collect(Collectors.toList()));
         result.setItems(new LinkedList<>());
         if (!CollectionUtils.isEmpty(item.getItems())) {
             item.getItems().forEach(p -> {
@@ -51,6 +56,10 @@ public class ViewDataAdapter {
 
         return result;
 
+    }
+
+    private String columnName(ViewItem viewItem) {
+        return StringUtils.isEmpty(viewItem.getItemName()) ? viewItem.getModelProperty() : viewItem.getItemName();
     }
 
     private String formatRow(Object value) {
