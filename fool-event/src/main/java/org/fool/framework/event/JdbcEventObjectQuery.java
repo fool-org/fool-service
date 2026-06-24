@@ -42,11 +42,11 @@ public class JdbcEventObjectQuery implements EventObjectQuery {
             throws SQLException {
         ResultSetMetaData metaData = resultSet.getMetaData();
         List<String> columns = columnLabels(metaData);
-        requireObjectIdColumn(columns, objectIdColumn);
+        String matchedObjectIdColumn = requireObjectIdColumn(columns, objectIdColumn);
         List<EventMatchedObject> matchedObjects = new ArrayList<>();
         while (resultSet.next()) {
             Map<String, Object> values = rowValues(resultSet, columns);
-            Object objectId = values.get(objectIdColumn);
+            Object objectId = values.get(matchedObjectIdColumn);
             matchedObjects.add(new EventMatchedObject(objectId == null ? null : objectId.toString(), values));
         }
         return matchedObjects;
@@ -60,10 +60,18 @@ public class JdbcEventObjectQuery implements EventObjectQuery {
         return columns;
     }
 
-    private static void requireObjectIdColumn(List<String> columns, String objectIdColumn) {
-        if (!columns.contains(objectIdColumn)) {
-            throw new IllegalStateException(MISSING_ID_COLUMN_MESSAGE);
+    private static String requireObjectIdColumn(List<String> columns, String objectIdColumn) {
+        for (String column : columns) {
+            if (column.equals(objectIdColumn)) {
+                return column;
+            }
         }
+        for (String column : columns) {
+            if (column.equalsIgnoreCase(objectIdColumn)) {
+                return column;
+            }
+        }
+        throw new IllegalStateException(MISSING_ID_COLUMN_MESSAGE);
     }
 
     private static Map<String, Object> rowValues(ResultSet resultSet, List<String> columns) throws SQLException {

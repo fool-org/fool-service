@@ -175,6 +175,27 @@ public class EventMigrationTest {
     }
 
     @Test
+    public void jdbcEventObjectQueryMatchesLegacyKeyColumnCaseInsensitively() {
+        EventDefinition definition = new EventDefinition();
+        definition.setModelId("order-model");
+        definition.setFilter("`status` = 0");
+        RecordingJdbcTemplate jdbcTemplate =
+                new RecordingJdbcTemplate(List.of(Map.of(
+                        "sysid", "order-1",
+                        "status", 0)));
+        EventModelTableResolver tableResolver =
+                modelId -> new EventModelQueryMetadata("market_order", "SYSID");
+
+        List<EventMatchedObject> matchedObjects =
+                new JdbcEventObjectQuery(jdbcTemplate, tableResolver).findMatchedObjects(definition);
+
+        assertEquals("SELECT * FROM market_order WHERE `status` = 0", jdbcTemplate.queriedSql);
+        assertEquals("order-1", matchedObjects.get(0).objectId());
+        assertEquals("order-1", matchedObjects.get(0).values().get("sysid"));
+        assertEquals(0, matchedObjects.get(0).values().get("status"));
+    }
+
+    @Test
     public void jdbcEventObjectQueryRejectsResultsWithoutLegacyKeyColumn() {
         EventDefinition definition = new EventDefinition();
         definition.setModelId("order-model");
