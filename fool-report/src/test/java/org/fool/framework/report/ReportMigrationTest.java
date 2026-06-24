@@ -11,6 +11,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 public class ReportMigrationTest {
@@ -47,6 +48,19 @@ public class ReportMigrationTest {
         assertTrue(table.getCells().isEmpty());
 
         assertSame(ReportEmptyValue.getValue(), ReportEmptyValue.getValue());
+    }
+
+    @Test
+    public void tableHeaderKeepsLegacyUnsupportedGetterNoOpSetterSurface() {
+        TableHeader header = new TableHeader();
+
+        header.setSourceDataCol(1);
+        header.setIndex(2);
+        header.setAddSum(3);
+
+        assertThrows(UnsupportedOperationException.class, header::getSourceDataCol);
+        assertThrows(UnsupportedOperationException.class, header::getIndex);
+        assertThrows(UnsupportedOperationException.class, header::getAddSum);
     }
 
     @Test

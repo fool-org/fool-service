@@ -1,10 +1,24 @@
 package org.fool.framework.report;
 
-import lombok.Data;
-
-@Data
 public class TableHeader {
-    private int sourceDataCol;
-    private int index;
-    private int addSum;
+    public int getSourceDataCol() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void setSourceDataCol(int sourceDataCol) {
+    }
+
+    public int getIndex() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void setIndex(int index) {
+    }
+
+    public int getAddSum() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void setAddSum(int addSum) {
+    }
 }
