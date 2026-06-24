@@ -297,10 +297,18 @@ public class MatrixTableFactory {
             List<String> ranges = new ArrayList<>();
             int start = -1;
             int last = -1;
-            for (HeaderNode leaf : leavesUnder(staticNode.parent())) {
+            for (HeaderNode leaf : leaves) {
                 int index = leafIndexes.getOrDefault(leaf, -1);
                 if (index < 0 || index >= staticIndex) {
                     break;
+                }
+                if (!leaf.sharesLegacyParent(staticNode)) {
+                    if (start >= 0) {
+                        ranges.add(start + "-" + last);
+                        start = -1;
+                    }
+                    last = -1;
+                    continue;
                 }
                 if (leaf.hasStaticAncestor()) {
                     if (start >= 0) {
@@ -330,22 +338,6 @@ public class MatrixTableFactory {
                 current = current.children().get(0);
             }
             return current;
-        }
-
-        private static List<HeaderNode> leavesUnder(HeaderNode node) {
-            List<HeaderNode> result = new ArrayList<>();
-            collectLeaves(node.children(), result);
-            return result;
-        }
-
-        private static void collectLeaves(List<HeaderNode> nodes, List<HeaderNode> result) {
-            for (HeaderNode node : nodes) {
-                if (node.children().isEmpty()) {
-                    result.add(node);
-                } else {
-                    collectLeaves(node.children(), result);
-                }
-            }
         }
     }
 
@@ -413,6 +405,32 @@ public class MatrixTableFactory {
                 node = node.parent;
             }
             return false;
+        }
+
+        private boolean sharesLegacyParent(HeaderNode other) {
+            List<HeaderNode> ancestors = ancestors();
+            List<HeaderNode> otherAncestors = other.ancestors();
+            if (ancestors.isEmpty() || otherAncestors.isEmpty()) {
+                return true;
+            }
+            for (HeaderNode ancestor : ancestors) {
+                for (HeaderNode otherAncestor : otherAncestors) {
+                    if (ancestor == otherAncestor) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private List<HeaderNode> ancestors() {
+            List<HeaderNode> result = new ArrayList<>();
+            HeaderNode node = parent;
+            while (node != null && node.parent != null) {
+                result.add(node);
+                node = node.parent;
+            }
+            return result;
         }
 
         private int width() {

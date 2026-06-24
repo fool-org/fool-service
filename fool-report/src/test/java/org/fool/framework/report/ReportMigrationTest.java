@@ -306,6 +306,36 @@ public class ReportMigrationTest {
     }
 
     @Test
+    public void createMatrixTableScopesDeepColumnStaticSubtotalsToSharedAncestors() {
+        TableFormat format = new TableFormat();
+        format.getColums().add(formatCell("year"));
+        format.getColums().add(formatCell("quarter"));
+        CellFormat month = formatCell("month");
+        month.getStaticFormats().add(staticFormat("Subtotal", StaticType.Sum));
+        format.getColums().add(month);
+        format.getRows().add(formatCell("region"));
+        ValueCell amount = new ValueCell();
+        amount.setSourceColumn("amount");
+        format.getValueCell().add(amount);
+
+        MatrixTable table = new MatrixTableFactory().createMatrixTable(
+                format,
+                List.of(
+                        row("year", 2026, "quarter", "Q1", "month", "Jan", "region", "north", "amount", 10),
+                        row("year", 2026, "quarter", "Q1", "month", "Feb", "region", "north", "amount", 20),
+                        row("year", 2026, "quarter", "Q2", "month", "Mar", "region", "north", "amount", 30),
+                        row("year", 2027, "quarter", "Q1", "month", "Jan", "region", "north", "amount", 40)));
+
+        assertEquals(List.of("Jan", "Feb", "Subtotal", "Mar", "Subtotal", "Jan", "Subtotal"),
+                table.getColHeaders().get(2).stream().map(SingleCell::getValue).toList());
+
+        DataRect q2Subtotal = table.getCells().get(5);
+        assertEquals(4, q2Subtotal.getColHeaderIndex());
+        assertEquals("0-1,3-3", q2Subtotal.getCells().get(0).getCalScope());
+        assertEquals("Subtotal0", q2Subtotal.getCells().get(0).getValue());
+    }
+
+    @Test
     public void reportGridRendererBuildsLegacyMakeReportCellsFromFlatRows() {
         ReportGridResult result = new ReportGridRenderer().render(
                 12,
