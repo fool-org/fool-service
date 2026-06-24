@@ -103,6 +103,19 @@ public class ReportMigrationTest {
     }
 
     @Test
+    public void cellFactoryOrdersCellsByColumnThenRowInPlace() {
+        List<Cell> cells = new java.util.ArrayList<>(List.of(
+                positionedCell(2, 1, "c"),
+                positionedCell(1, 3, "b"),
+                positionedCell(1, 2, "a")));
+
+        new CellFactory().ordCells(cells);
+
+        assertEquals(List.of("a", "b", "c"),
+                cells.stream().map(Cell::getValue).toList());
+    }
+
+    @Test
     public void reportDataClassesStoreLegacyReportDefinitionShape() {
         Param param = new Param();
         param.setName("region");
@@ -394,6 +407,13 @@ public class ReportMigrationTest {
     private static Cell valueCell(Object value) {
         Cell cell = new Cell();
         cell.setValue(value);
+        return cell;
+    }
+
+    private static Cell positionedCell(int column, int row, Object value) {
+        Cell cell = valueCell(value);
+        cell.setColumn(column);
+        cell.setRow(row);
         return cell;
     }
 
