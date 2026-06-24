@@ -3,6 +3,8 @@ package org.fool.framework.query;
 import org.fool.framework.common.PropertyType;
 import org.junit.Test;
 
+import java.lang.reflect.Method;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -39,6 +41,37 @@ public class SelectedColumnCollectionTest {
     }
 
     @Test
+    public void insertKeepsLegacyDirectListInsertSurface() throws Exception {
+        SelectedColumnCollection columns = new SelectedColumnCollection();
+        SelectedColumn first = new SelectedColumn("orderId", queryColumn("ORDER_ID"));
+        SelectedColumn inserted = new SelectedColumn("symbol", queryColumn("SYMBOL"));
+        inserted.setSelectedIndex(99);
+        columns.add(first);
+
+        method("insert", int.class, SelectedColumn.class).invoke(columns, 0, inserted);
+
+        assertEquals(inserted, columns.get(0));
+        assertEquals(first, columns.get(1));
+        assertEquals(99, inserted.getSelectedIndex());
+        assertEquals(0, first.getSelectedIndex());
+    }
+
+    @Test
+    public void removeAtKeepsLegacyDirectListRemovalSurface() throws Exception {
+        SelectedColumnCollection columns = new SelectedColumnCollection();
+        SelectedColumn first = new SelectedColumn("orderId", queryColumn("ORDER_ID"));
+        SelectedColumn second = new SelectedColumn("symbol", queryColumn("SYMBOL"));
+        columns.add(first);
+        columns.add(second);
+
+        method("removeAt", int.class).invoke(columns, 0);
+
+        assertEquals(1, columns.size());
+        assertEquals(second, columns.get(0));
+        assertEquals(1, second.getSelectedIndex());
+    }
+
+    @Test
     public void isReadOnlyKeepsLegacyCollectionFlag() {
         SelectedColumnCollection columns = new SelectedColumnCollection();
 
@@ -66,5 +99,14 @@ public class SelectedColumnCollectionTest {
         column.setShowName(dbName);
         column.setDataType(PropertyType.String);
         return column;
+    }
+
+    private Method method(String name, Class<?>... parameterTypes) {
+        try {
+            return SelectedColumnCollection.class.getMethod(name, parameterTypes);
+        } catch (NoSuchMethodException ex) {
+            fail("SelectedColumnCollection should expose legacy " + name + " method");
+            return null;
+        }
     }
 }

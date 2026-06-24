@@ -32,6 +32,14 @@ public class SelectedColumnCollection implements Iterable<SelectedColumn> {
         return items.get(index);
     }
 
+    public void insert(int index, SelectedColumn item) {
+        items.add(index, item);
+    }
+
+    public void removeAt(int index) {
+        items.remove(index);
+    }
+
     public void set(int index, SelectedColumn item) {
         throw new UnsupportedOperationException("NotImplementedException");
     }
