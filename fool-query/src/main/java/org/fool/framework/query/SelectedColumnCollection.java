@@ -32,8 +32,16 @@ public class SelectedColumnCollection implements Iterable<SelectedColumn> {
         return items.get(index);
     }
 
+    public void set(int index, SelectedColumn item) {
+        throw new UnsupportedOperationException("NotImplementedException");
+    }
+
     public int indexOf(SelectedColumn item) {
         return items.indexOf(item);
+    }
+
+    public boolean isReadOnly() {
+        return true;
     }
 
     public boolean remove(SelectedColumn item) {

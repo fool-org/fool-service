@@ -4,6 +4,7 @@ import org.fool.framework.common.PropertyType;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class SelectedColumnCollectionTest {
@@ -34,6 +35,26 @@ public class SelectedColumnCollectionTest {
             fail("expected duplicate selected name to be rejected");
         } catch (IllegalArgumentException ex) {
             assertEquals("已经有相同的列名称存在", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void isReadOnlyKeepsLegacyCollectionFlag() {
+        SelectedColumnCollection columns = new SelectedColumnCollection();
+
+        assertTrue(columns.isReadOnly());
+    }
+
+    @Test
+    public void indexedSetterKeepsLegacyNotImplementedSurface() {
+        SelectedColumnCollection columns = new SelectedColumnCollection();
+        columns.add(new SelectedColumn("orderId", queryColumn("ORDER_ID")));
+
+        try {
+            columns.set(0, new SelectedColumn("symbol", queryColumn("SYMBOL")));
+            fail("expected indexed setter to preserve legacy NotImplemented surface");
+        } catch (UnsupportedOperationException ex) {
+            assertEquals("NotImplementedException", ex.getMessage());
         }
     }
 
