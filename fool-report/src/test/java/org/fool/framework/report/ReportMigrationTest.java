@@ -487,11 +487,11 @@ public class ReportMigrationTest {
         assertEquals(3, result.getTotalPages());
         assertEquals(6, result.getCells().size());
         assertReportCell(result.getCells().get(0), 0, 0, "name");
-        assertReportCell(result.getCells().get(1), 0, 0, "amount");
+        assertReportCell(result.getCells().get(1), 1, 0, "amount");
         assertReportCell(result.getCells().get(2), 0, 1, "north");
-        assertReportCell(result.getCells().get(3), 0, 1, "10");
+        assertReportCell(result.getCells().get(3), 1, 1, "10");
         assertReportCell(result.getCells().get(4), 0, 2, "south");
-        assertReportCell(result.getCells().get(5), 0, 2, "20");
+        assertReportCell(result.getCells().get(5), 1, 2, "20");
     }
 
     @Test
@@ -512,7 +512,7 @@ public class ReportMigrationTest {
         assertEquals(0, result.getTotalPages());
         assertEquals(2, result.getCells().size());
         assertReportCell(result.getCells().get(0), 0, 0, "name");
-        assertReportCell(result.getCells().get(1), 0, 0, "amount");
+        assertReportCell(result.getCells().get(1), 1, 0, "amount");
     }
 
     private static SingleCell singleCell(String value, int span, boolean mergeToParent) {

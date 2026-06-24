@@ -20,21 +20,15 @@ public class ReportGridRenderer {
         result.setTotalRecords(totalRecords);
         result.setTotalPages(totalPages);
 
-        TableFormat format = new TableFormat();
-        for (String column : columns) {
-            ValueCell valueCell = new ValueCell();
-            valueCell.setSourceColumn(column);
-            valueCell.setName(column);
-            format.getValueCell().add(valueCell);
-            result.getCells().add(cell(0, 0, column));
+        for (int columnIndex = 0; columnIndex < columns.size(); columnIndex++) {
+            result.getCells().add(cell(columnIndex, 0, columns.get(columnIndex)));
         }
 
-        MatrixTable matrix = new MatrixTableFactory().createMatrixTable(format, rows);
-        int rowIndex = 0;
-        for (DataRect dataRect : matrix.getCells()) {
-            rowIndex++;
-            for (Cell valueCell : dataRect.getCells()) {
-                result.getCells().add(cell(0, rowIndex, Objects.toString(valueCell.getValue(), "")));
+        for (int rowIndex = 0; rowIndex < rows.size(); rowIndex++) {
+            Map<String, Object> row = rows.get(rowIndex);
+            for (int columnIndex = 0; columnIndex < columns.size(); columnIndex++) {
+                String column = columns.get(columnIndex);
+                result.getCells().add(cell(columnIndex, rowIndex + 1, Objects.toString(row.get(column), "")));
             }
         }
 
