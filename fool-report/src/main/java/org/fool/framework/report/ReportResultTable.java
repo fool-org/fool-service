@@ -1,11 +1,19 @@
 package org.fool.framework.report;
 
-import lombok.Data;
-
 import java.util.List;
 
-@Data
 public class ReportResultTable {
-    private String name;
-    private List<ReportResultTableColumn> columns;
+    public String getName() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void setName(String name) {
+    }
+
+    public List<ReportResultTableColumn> getColumns() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void setColumns(List<ReportResultTableColumn> columns) {
+    }
 }

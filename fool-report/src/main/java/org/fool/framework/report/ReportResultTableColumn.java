@@ -1,11 +1,26 @@
 package org.fool.framework.report;
 
-import lombok.Data;
 import org.fool.framework.common.PropertyType;
 
-@Data
 public class ReportResultTableColumn {
-    private String colName;
-    private PropertyType dataType;
-    private int index;
+    public String getColName() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void setColName(String colName) {
+    }
+
+    public PropertyType getDataType() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void setDataType(PropertyType dataType) {
+    }
+
+    public int getIndex() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void setIndex(int index) {
+    }
 }

@@ -3,10 +3,12 @@ package org.fool.framework.report;
 import org.fool.framework.common.PropertyType;
 import org.junit.Test;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -137,7 +139,7 @@ public class ReportMigrationTest {
     }
 
     @Test
-    public void reportDataClassesStoreLegacyReportDefinitionShape() {
+    public void reportStoresLegacySupportedDefinitionShape() {
         Param param = new Param();
         param.setName("region");
         param.setFormat("string");
@@ -147,34 +149,75 @@ public class ReportMigrationTest {
         input.setValue("north");
         input.setShow("North");
 
+        UUID reportId = UUID.randomUUID();
+        Report report = new Report();
+        report.setName("Sales Report");
+        report.setId(reportId);
+        report.setNo("RPT-001");
+        report.setParams(List.of(param));
+
+        assertEquals("Sales Report", report.getName());
+        assertEquals(reportId, report.getId());
+        assertEquals("RPT-001", report.getNo());
+        assertEquals("region", report.getParams().get(0).getName());
+        assertEquals("North", input.getShow());
+    }
+
+    @Test
+    public void reportKeepsLegacyUnsupportedGetterNoOpSetterSurface() {
+        Report report = new Report();
+
+        report.setResult(List.of(new ReportResultTable()));
+        report.setSource(new IReportSource() {
+        });
+        report.setCreateTime(LocalDateTime.of(2026, 6, 24, 9, 10));
+        report.setCreatePerson("admin");
+        report.setModifyTime(LocalDateTime.of(2026, 6, 24, 9, 20));
+        report.setMoidiyPerson("operator");
+
+        assertThrows(UnsupportedOperationException.class, report::getResult);
+        assertThrows(UnsupportedOperationException.class, report::getSource);
+        assertThrows(UnsupportedOperationException.class, report::getCreateTime);
+        assertThrows(UnsupportedOperationException.class, report::getCreatePerson);
+        assertThrows(UnsupportedOperationException.class, report::getModifyTime);
+        assertThrows(UnsupportedOperationException.class, report::getMoidiyPerson);
+    }
+
+    @Test
+    public void reportResultKeepsLegacyUnsupportedGetterNoOpSetterSurface() {
+        ReportResult result = new ReportResult();
+
+        result.setReport(new Report());
+        result.setResult(List.of());
+        result.setReportTime("2026-06-23 09:50");
+        result.setReportPerson("admin");
+        result.setInputs(List.of(new ParamInput()));
+        result.setTitle("Sales Report");
+
+        assertThrows(UnsupportedOperationException.class, result::getReport);
+        assertThrows(UnsupportedOperationException.class, result::getResult);
+        assertThrows(UnsupportedOperationException.class, result::getReportTime);
+        assertThrows(UnsupportedOperationException.class, result::getReportPerson);
+        assertThrows(UnsupportedOperationException.class, result::getInputs);
+        assertThrows(UnsupportedOperationException.class, result::getTitle);
+    }
+
+    @Test
+    public void reportResultTableKeepsLegacyUnsupportedGetterNoOpSetterSurface() {
+        ReportResultTable table = new ReportResultTable();
         ReportResultTableColumn column = new ReportResultTableColumn();
+
+        table.setName("Sales");
+        table.setColumns(List.of(column));
         column.setColName("Amount");
         column.setDataType(PropertyType.Decimal);
         column.setIndex(2);
 
-        ReportResultTable resultTable = new ReportResultTable();
-        resultTable.setName("Sales");
-        resultTable.setColumns(List.of(column));
-
-        Report report = new Report();
-        report.setName("Sales Report");
-        report.setNo("RPT-001");
-        report.setParams(List.of(param));
-        report.setResult(List.of(resultTable));
-
-        ReportResult result = new ReportResult();
-        result.setReport(report);
-        result.setReportTime("2026-06-23 09:50");
-        result.setReportPerson("admin");
-        result.setInputs(List.of(input));
-        result.setTitle("Sales Report");
-
-        assertEquals("Sales Report", result.getReport().getName());
-        assertEquals("RPT-001", result.getReport().getNo());
-        assertEquals("region", result.getInputs().get(0).getParam().getName());
-        assertEquals("North", result.getInputs().get(0).getShow());
-        assertEquals("Sales", result.getReport().getResult().get(0).getName());
-        assertEquals(PropertyType.Decimal, result.getReport().getResult().get(0).getColumns().get(0).getDataType());
+        assertThrows(UnsupportedOperationException.class, table::getName);
+        assertThrows(UnsupportedOperationException.class, table::getColumns);
+        assertThrows(UnsupportedOperationException.class, column::getColName);
+        assertThrows(UnsupportedOperationException.class, column::getDataType);
+        assertThrows(UnsupportedOperationException.class, column::getIndex);
     }
 
     @Test
