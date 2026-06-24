@@ -122,6 +122,23 @@ public class EventMigrationTest {
     }
 
     @Test
+    public void jdbcEventModelTableResolverUsesLegacySysIdForAutoSysIdModels() {
+        JdbcEventModelTableResolver resolver = new JdbcEventModelTableResolver(modelId -> {
+            Map<String, Object> row = new java.util.LinkedHashMap<>();
+            row.put("table_name", "market_order");
+            row.put("object_id_column", null);
+            row.put("auto_sys_id", true);
+            return List.of(row);
+        });
+
+        EventModelQueryMetadata metadata = resolver.resolve("order-model");
+
+        assertEquals("market_order", metadata.tableName());
+        assertEquals("SYSID", metadata.objectIdColumn());
+        assertTrue(JdbcEventModelTableResolver.SELECT_MODEL_TABLE_SQL.contains("auto_sys_id"));
+    }
+
+    @Test
     public void jdbcEventObjectQueryUsesResolvedModelTableName() {
         EventDefinition definition = new EventDefinition();
         definition.setModelId("order-model");
