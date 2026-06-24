@@ -25,4 +25,6 @@ public class ListViewInfo {
     private List<ViewInputInfo> inputInfo;
     @ApiModelProperty("表头")
     private List<TableColumnInfo> tableColumn;
+    @ApiModelProperty("可执行操作")
+    private List<OperationInfo> operations;
 }

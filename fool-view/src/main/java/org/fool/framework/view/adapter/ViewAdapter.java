@@ -2,11 +2,13 @@ package org.fool.framework.view.adapter;
 
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.view.dto.ListViewInfo;
+import org.fool.framework.view.dto.OperationInfo;
 import org.fool.framework.view.dto.TableColumnInfo;
 import org.fool.framework.view.dto.ViewInputInfo;
 import org.fool.framework.view.model.InputType;
 import org.fool.framework.view.model.ItemEditType;
 import org.fool.framework.view.model.View;
+import org.fool.framework.view.model.ViewOperation;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
@@ -49,6 +51,23 @@ public class ViewAdapter {
                             .build()
             );
         });
+        result.setOperations(new LinkedList<>());
+        view.getOperations().forEach(p -> result.getOperations().add(toOperationInfo(p)));
+        return result;
+    }
+
+    private OperationInfo toOperationInfo(ViewOperation operation) {
+        OperationInfo result = new OperationInfo();
+        result.setText(operation.getName());
+        result.setRequireSelect(operation.isRequireSelect());
+        result.setType(operation.getType());
+        if (operation.getResultView() == null) {
+            result.setViewName("");
+            result.setViewId(0L);
+        } else {
+            result.setViewName(operation.getResultView().getViewName());
+            result.setViewId(operation.getResultView().getId());
+        }
         return result;
     }
 

@@ -15,4 +15,8 @@ public class OperationInfo {
     private ViewOperationType type;
     @ApiModelProperty("操作视图")
     private String viewName;
+    @ApiModelProperty("操作视图ID")
+    private Long viewId;
+    @ApiModelProperty("是否需要选择数据")
+    private boolean requireSelect;
 }
