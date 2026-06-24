@@ -1,5 +1,6 @@
 package org.fool.framework.view.adapter;
 
+import org.fool.framework.model.model.Operation;
 import org.fool.framework.view.dto.ListViewInfo;
 import org.fool.framework.view.model.InputType;
 import org.fool.framework.view.model.ItemEditType;
@@ -37,6 +38,7 @@ public class ViewAdapterTest {
         detailView.setViewName("OrderDetail");
 
         ViewOperation create = operation("Create", false, ViewOperationType.MODAL_DETAIL_VIEW, detailView);
+        create.setOperation(operation(300L));
         ViewOperation delete = operation("Delete", true, ViewOperationType.COMMAND, null);
 
         View view = new View();
@@ -51,10 +53,12 @@ public class ViewAdapterTest {
         assertEquals(ViewOperationType.MODAL_DETAIL_VIEW, info.getOperations().get(0).getType());
         assertEquals("OrderDetail", info.getOperations().get(0).getViewName());
         assertEquals(Long.valueOf(200L), info.getOperations().get(0).getViewId());
+        assertEquals(Long.valueOf(300L), info.getOperations().get(0).getId());
 
         assertEquals("Delete", info.getOperations().get(1).getText());
         assertTrue(info.getOperations().get(1).isRequireSelect());
         assertEquals(ViewOperationType.COMMAND, info.getOperations().get(1).getType());
+        assertEquals(Long.valueOf(0L), info.getOperations().get(1).getId());
     }
 
     @Test
@@ -78,6 +82,12 @@ public class ViewAdapterTest {
         operation.setRequireSelect(requireSelect);
         operation.setType(type);
         operation.setResultView(resultView);
+        return operation;
+    }
+
+    private static Operation operation(Long id) {
+        Operation operation = new Operation();
+        operation.setId(id);
         return operation;
     }
 

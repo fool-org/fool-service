@@ -9,6 +9,8 @@ import org.fool.framework.view.model.ViewOperationType;
 @Data
 @ApiModel("可以进行操作")
 public class OperationInfo {
+    @ApiModelProperty("操作ID")
+    private Long id;
     @ApiModelProperty("操作名称")
     private String text;
     @ApiModelProperty("操作类型")

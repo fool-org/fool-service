@@ -63,6 +63,7 @@ public class ViewAdapter {
 
     private OperationInfo toOperationInfo(ViewOperation operation) {
         OperationInfo result = new OperationInfo();
+        result.setId(operationId(operation));
         result.setText(operation.getName());
         result.setRequireSelect(operation.isRequireSelect());
         result.setType(operation.getType());
@@ -74,6 +75,13 @@ public class ViewAdapter {
             result.setViewId(operation.getResultView().getId());
         }
         return result;
+    }
+
+    private Long operationId(ViewOperation operation) {
+        if (operation.getOperation() == null || operation.getOperation().getId() == null) {
+            return 0L;
+        }
+        return operation.getOperation().getId();
     }
 
 }
