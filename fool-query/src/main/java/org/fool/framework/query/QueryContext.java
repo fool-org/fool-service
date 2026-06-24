@@ -8,20 +8,34 @@ import java.util.List;
 public class QueryContext {
     private final QueryFactory factory;
     private final JdbcQueryExecutor executor;
+    private final String queryConnectionString;
     private QueryInstance instance;
 
     public QueryContext(QueryFactory factory) {
-        this(factory, null);
+        this(factory, (JdbcQueryExecutor) null, null);
     }
 
     public QueryContext(QueryFactory factory, JdbcQueryExecutor executor) {
+        this(factory, executor, null);
+    }
+
+    public QueryContext(QueryFactory factory, String queryConnectionString) {
+        this(factory, null, queryConnectionString);
+    }
+
+    public QueryContext(QueryFactory factory, JdbcQueryExecutor executor, String queryConnectionString) {
         this.factory = factory;
         this.executor = executor;
+        this.queryConnectionString = queryConnectionString;
         this.instance = new QueryInstance();
     }
 
     public QueryInstance getInstance() {
         return instance;
+    }
+
+    public String getQueryConnectionString() {
+        return queryConnectionString;
     }
 
     public void add(QueryTable table) {

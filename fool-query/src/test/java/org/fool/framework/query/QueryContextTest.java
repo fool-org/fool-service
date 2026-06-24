@@ -57,6 +57,17 @@ public class QueryContextTest {
     }
 
     @Test
+    public void constructorKeepsLegacyQueryConnectionStringAcrossClear() {
+        QueryContext context = new QueryContext((table, joinType) -> List.of(), "Server=legacy;Database=car_wash");
+        context.add(new QueryTable("Orders", "orders"));
+
+        context.clear();
+
+        assertEquals("Server=legacy;Database=car_wash", context.getQueryConnectionString());
+        assertEquals(0, context.getInstance().getSelectedColumns().size());
+    }
+
+    @Test
     public void saveKeepsLegacyNotImplementedSurface() {
         QueryContext context = new QueryContext((table, joinType) -> List.of());
 
