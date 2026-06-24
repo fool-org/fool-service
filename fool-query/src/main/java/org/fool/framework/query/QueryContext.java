@@ -47,6 +47,10 @@ public class QueryContext {
         this.instance = new QueryInstance();
     }
 
+    public void save() {
+        throw new UnsupportedOperationException("NotImplementedException");
+    }
+
     public String getSql() {
         return getSql("RowIndex");
     }

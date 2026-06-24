@@ -12,6 +12,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class QueryContextTest {
 
@@ -53,6 +54,18 @@ public class QueryContextTest {
 
         assertNotSame(first, context.getInstance());
         assertEquals(0, context.getInstance().getSelectedColumns().size());
+    }
+
+    @Test
+    public void saveKeepsLegacyNotImplementedSurface() {
+        QueryContext context = new QueryContext((table, joinType) -> List.of());
+
+        try {
+            context.save();
+            fail("expected save to preserve legacy NotImplemented surface");
+        } catch (UnsupportedOperationException ex) {
+            assertEquals("NotImplementedException", ex.getMessage());
+        }
     }
 
     @Test
