@@ -33,10 +33,18 @@ public class CompareFilterTest {
         QueryAndArgs sql = filter.generateSql();
 
         assertEquals(
-                "(`STATUS`= ?) AND (`ORDER_DATE` BETWEEN ? AND ?) OR (`OWNER_ID` IN (?, ?))",
+                "(`STATUS`= ?) And (`ORDER_DATE` BETWEEN ? AND ?) OR (`OWNER_ID` IN (?, ?))",
                 sql.getSql());
         assertArrayEquals(
                 new Object[]{"READY", "2026-01-01", "2026-01-31", "u1", "u2"},
                 sql.getArgs());
+    }
+
+    @Test
+    public void boolOpKeepsLegacyDisplayAndSqlTokens() {
+        assertEquals(" And ", BoolOp.AND.getDbName());
+        assertEquals("并且", BoolOp.AND.getShowName());
+        assertEquals(" OR ", BoolOp.OR.getDbName());
+        assertEquals("或者", BoolOp.OR.getShowName());
     }
 }

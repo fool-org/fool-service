@@ -53,7 +53,7 @@ public class BoolExpressionFactoryTest {
 
         QueryAndArgs sql = first.getExp().generateSql(2);
 
-        assertEquals("([Orders].[STATUS]= ?) AND ([Orders].[AMOUNT]> ?)", sql.getSql());
+        assertEquals("([Orders].[STATUS]= ?) And ([Orders].[AMOUNT]> ?)", sql.getSql());
         assertArrayEquals(new Object[]{"READY", "100"}, sql.getArgs());
         assertEquals("@p2", instance.getReportParams().get(0).getExp());
         assertEquals("@p3", instance.getReportParams().get(1).getExp());

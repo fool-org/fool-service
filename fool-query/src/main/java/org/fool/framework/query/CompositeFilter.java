@@ -35,7 +35,7 @@ public class CompositeFilter implements IQueryFilter {
         for (var seq : this.seqFilterList
         ) {
             var seqSql = seq.getSeqExp().generateSql(nextParameterIndex);
-            builder.append(" ").append(seq.getBoolOp()).append(" ");
+            builder.append(seq.getBoolOp().getDbName());
             builder.append("(").append(seqSql.getSql()).append(")");
             params = merge(params, seqSql.getArgs());
             nextParameterIndex += seqSql.getArgs().length;

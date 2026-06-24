@@ -66,7 +66,7 @@ public class ReportCompareFilterTest {
 
         QueryAndArgs sql = filter.generateSql();
 
-        assertEquals("(`ORDER_ID`= ?) AND (`STATUS`= ?)", sql.getSql());
+        assertEquals("(`ORDER_ID`= ?) And (`STATUS`= ?)", sql.getSql());
         assertArrayEquals(new Object[]{"1001", "READY"}, sql.getArgs());
         assertEquals("@p1", instance.getReportParams().get(0).getExp());
     }
