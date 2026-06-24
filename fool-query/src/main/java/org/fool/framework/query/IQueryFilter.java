@@ -28,6 +28,10 @@ public interface IQueryFilter {
 
     QueryAndArgs generateSql();
 
+    default QueryAndArgs generateSql(int parameterStartIndex) {
+        return generateSql();
+    }
+
     IQueryFilter and(IQueryFilter filter);
 
     IQueryFilter or(IQueryFilter filter);

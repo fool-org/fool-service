@@ -1,40 +1,42 @@
-//package org.fool.framework.query;
-//
-//import lombok.extern.slf4j.Slf4j;
-//import org.junit.Test;
-//import org.junit.runner.RunWith;
-//import org.springframework.boot.autoconfigure.SpringBootApplication;
-//import org.springframework.boot.test.context.SpringBootTest;
-//import org.springframework.test.context.junit4.SpringRunner;
-//
-//@Slf4j
-////@RunWith(SpringRunner.class)
-//@SpringBootApplication
-////@SpringBootTest(classes = Application.class)
-//public class CompareFilterTest {
-//
-//
-//    @Test
-//    public void revert() {
-//        CompareFilter.LinkedNode<Integer> current = new CompareFilter.LinkedNode<Integer>();
-//        CompareFilter.LinkedNode<Integer> head = current;
-//        for (Integer i = 0; i < 10; i++) {
-//            current.setData(i);
-//            current.setNext(new CompareFilter.LinkedNode<Integer>());
-//            current = current.getNext();
-//        }
-//        current.setNext(null);
-//        var node = head;
-//        while (node != null) {
-//            log.info("current value :{}", node.getData());
-//            node = node.getNext();
-//        }
-//        node = CompareFilter.revert(head);
-//        log.info("the revert result");
-//        while (node != null) {
-//            log.info("current value :{}", node.getData());
-//            node = node.getNext();
-//        }
-//
-//    }
-//}
+package org.fool.framework.query;
+
+import org.fool.framework.dao.QueryAndArgs;
+import org.junit.Test;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+
+public class CompareFilterTest {
+
+    @Test
+    public void betweenFilterGeneratesLegacyRangeSqlWithOrderedParameters() {
+        QueryAndArgs sql = new BetweenFilter("ORDER_DATE", "2026-01-01", "2026-01-31").generateSql();
+
+        assertEquals("`ORDER_DATE` BETWEEN ? AND ?", sql.getSql());
+        assertArrayEquals(new Object[]{"2026-01-01", "2026-01-31"}, sql.getArgs());
+    }
+
+    @Test
+    public void inFilterClosesLegacyPlaceholderList() {
+        QueryAndArgs sql = new InFilter("STATUS", "READY", "DONE").generateSql();
+
+        assertEquals("`STATUS` IN (?, ?)", sql.getSql());
+        assertArrayEquals(new Object[]{"READY", "DONE"}, sql.getArgs());
+    }
+
+    @Test
+    public void compositeFilterKeepsLegacyExpressionParenthesesAndArgumentOrder() {
+        IQueryFilter filter = new CompareFilter("STATUS", CompareOp.EQUAL, "READY")
+                .and(new BetweenFilter("ORDER_DATE", "2026-01-01", "2026-01-31"))
+                .or(new InFilter("OWNER_ID", "u1", "u2"));
+
+        QueryAndArgs sql = filter.generateSql();
+
+        assertEquals(
+                "(`STATUS`= ?) AND (`ORDER_DATE` BETWEEN ? AND ?) OR (`OWNER_ID` IN (?, ?))",
+                sql.getSql());
+        assertArrayEquals(
+                new Object[]{"READY", "2026-01-01", "2026-01-31", "u1", "u2"},
+                sql.getArgs());
+    }
+}

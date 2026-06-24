@@ -20,17 +20,25 @@ public class CompositeFilter implements IQueryFilter {
 
     @Override
     public QueryAndArgs generateSql() {
+        return generateSql(0);
+    }
+
+    @Override
+    public QueryAndArgs generateSql(int parameterStartIndex) {
         QueryAndArgs queryAndArgs = new QueryAndArgs();
         StringBuilder builder = new StringBuilder();
-        var first = this.first.generateSql();
-        builder = builder.append(first.getSql());
+        int nextParameterIndex = parameterStartIndex;
+        var first = this.first.generateSql(nextParameterIndex);
+        builder.append("(").append(first.getSql()).append(")");
         var params = first.getArgs();
+        nextParameterIndex += params.length;
         for (var seq : this.seqFilterList
         ) {
-            var seqSql = seq.getSeqExp().generateSql();
-            builder = builder.append(seq.getBoolOp().toString());
-            builder = builder.append(" ( " + seqSql.getSql() + " ) ");
+            var seqSql = seq.getSeqExp().generateSql(nextParameterIndex);
+            builder.append(" ").append(seq.getBoolOp()).append(" ");
+            builder.append("(").append(seqSql.getSql()).append(")");
             params = merge(params, seqSql.getArgs());
+            nextParameterIndex += seqSql.getArgs().length;
         }
         queryAndArgs.setSql(builder.toString());
         queryAndArgs.setArgs(params);

@@ -23,7 +23,7 @@ public class BetweenFilter extends SimpleFilter {
     @Override
     public QueryAndArgs generateSql() {
         QueryAndArgs andArgs = new QueryAndArgs();
-        andArgs.setSql("`" + this.compareColumn.getDbValue() + "` ? AND ? ");
+        andArgs.setSql("`" + this.compareColumn.getDbValue() + "` BETWEEN ? AND ?");
         andArgs.setArgs(new Object[]{this.compareBottom.getDbValue(), this.compareTop.getDbValue()});
         return andArgs;
     }

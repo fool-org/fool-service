@@ -26,7 +26,9 @@ public class InFilter extends SimpleFilter {
     @Override
     public QueryAndArgs generateSql() {
         QueryAndArgs andArgs = new QueryAndArgs();
-        andArgs.setSql("`" + this.compareColumn.getDbValue() + "` IN  (" + this.compareValueList.stream().map(p -> "?").collect(Collectors.joining(",")));
+        andArgs.setSql("`" + this.compareColumn.getDbValue() + "` IN ("
+                + this.compareValueList.stream().map(p -> "?").collect(Collectors.joining(", "))
+                + ")");
         andArgs.setArgs(this.compareValueList.stream().map(CompareValue::getDbValue).toArray());
         return andArgs;
     }
