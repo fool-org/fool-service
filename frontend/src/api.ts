@@ -227,6 +227,38 @@ export interface QueryDataDetailResult {
   operations?: OperationInfo[];
 }
 
+export interface SaveKeypair {
+  key?: string;
+  value?: unknown;
+}
+
+export interface SaveItem {
+  isExist?: boolean;
+  itemId?: string;
+  propertyies?: SaveKeypair[];
+}
+
+export interface SaveItemProperty {
+  key?: string;
+  items?: SaveItem[];
+  delteItems?: SaveItem[];
+  addedItems?: SaveItem[];
+}
+
+export interface SaveObject {
+  id?: string;
+  propertyies?: SaveKeypair[];
+  itemproperties?: SaveItemProperty[];
+  viewID?: string;
+  parentId?: string;
+  model?: string;
+}
+
+export interface SaveObjRequest {
+  token?: string;
+  saveObj?: SaveObject;
+}
+
 export async function postApi<T>(path: string, payload: unknown): Promise<CommonResponse<T>> {
   const response = await fetch(path, {
     method: "POST",

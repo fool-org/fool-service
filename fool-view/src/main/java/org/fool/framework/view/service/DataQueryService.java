@@ -6,6 +6,7 @@ import org.fool.framework.dao.PageResult;
 import org.fool.framework.dao.QueryAndArgs;
 import org.fool.framework.dto.CommonException;
 import org.fool.framework.common.PropertyType;
+import org.fool.framework.model.model.DbMysqlDynamic;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.MultiDbMap;
 import org.fool.framework.model.model.Property;
@@ -22,6 +23,7 @@ import org.fool.framework.view.dto.InputQueryResult;
 import org.fool.framework.view.dto.ListViewResult;
 import org.fool.framework.view.dto.QueryDataDetailResult;
 import org.fool.framework.view.dto.QueryValue;
+import org.fool.framework.view.dto.SaveObjRequest;
 import org.fool.framework.view.model.InputType;
 import org.fool.framework.view.model.View;
 import org.fool.framework.view.model.ViewItem;
@@ -117,6 +119,27 @@ public class DataQueryService {
                     .toList());
         }
         return result;
+    }
+
+    public void saveLegacyObject(SaveObjRequest request) {
+        SaveObjRequest.SaveObject saveObj = request.getSaveObj();
+        View view = daoService.getOneDetailByKey(View.class, saveObj.getViewID());
+        if (view == null) {
+            throw new CommonException(ErrorCode.VIEW_NOT_FOUND, "没有查到视图");
+        }
+        Model model = daoService.getOneDetailByKey(Model.class, view.getViewModel());
+        if (model == null) {
+            throw new CommonException(ErrorCode.MODEL_NOT_FOUND, "没有查到元数据定义");
+        }
+        DbMysqlDynamic data = new DbMysqlDynamic(model);
+        Property idProperty = model.getIdProperty();
+        if (idProperty != null && idProperty.getName() != null) {
+            data.set(idProperty.getName(), saveObj.getId());
+        }
+        for (SaveObjRequest.SaveKeypair pair : saveObj.getPropertyies()) {
+            data.set(pair.getKey(), pair.getValue());
+        }
+        modelDataService.saveData(data);
     }
 
     private ListViewResult queryViewDataList(String viewName, Map<String, QueryValue> filter, PageNavigator pageInfo, String keyword, String legacyQueryFilter) {

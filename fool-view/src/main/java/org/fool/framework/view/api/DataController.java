@@ -15,6 +15,7 @@ import org.fool.framework.view.dto.LegacyQueryDataDetailRequest;
 import org.fool.framework.view.dto.ListViewResult;
 import org.fool.framework.view.dto.QueryDataDetailResult;
 import org.fool.framework.view.dto.QueryDataRequest;
+import org.fool.framework.view.dto.SaveObjRequest;
 import org.fool.framework.view.service.DataQueryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -82,6 +83,13 @@ public class DataController {
     @ResponseBody
     public CommonResponse<InputQueryResult> inputQuery(@RequestBody InputQueryRequest request) {
         return new CommonResponse<>(dataQueryService.inputQuery(request));
+    }
+
+    @PostMapping("/saveobj")
+    @ResponseBody
+    public CommonResponse<Void> saveObj(@RequestBody SaveObjRequest request) {
+        dataQueryService.saveLegacyObject(request);
+        return new CommonResponse<>((Void) null);
     }
 
 }
