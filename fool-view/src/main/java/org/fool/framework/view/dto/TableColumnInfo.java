@@ -17,6 +17,8 @@ public class TableColumnInfo {
     private String title;
     @ApiModelProperty("属性")
     private String property;
+    @ApiModelProperty("属性名称")
+    private String propertyName;
     @ApiModelProperty("显示顺序")
     private Integer showIndex;
     @ApiModelProperty("列宽")

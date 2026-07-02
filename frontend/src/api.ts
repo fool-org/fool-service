@@ -43,6 +43,7 @@ export interface TableColumnInfo {
   name?: string;
   title?: string;
   property?: string;
+  propertyName?: string;
   showIndex?: number;
   width?: number;
   format?: string;

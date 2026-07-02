@@ -38,6 +38,7 @@ public class ViewAdapter {
             result.getTableColumn().add(
                     TableColumnInfo.builder().name(p.getItemName())
                             .property(p.getModelProperty())
+                            .propertyName(p.getModelProperty())
                             .title(p.getItemLabel())
                             .showIndex(safeShowIndex(p))
                             .width(safeWidth(p))

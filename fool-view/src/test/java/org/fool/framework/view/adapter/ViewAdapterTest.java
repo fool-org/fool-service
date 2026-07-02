@@ -134,6 +134,18 @@ public class ViewAdapterTest {
     }
 
     @Test
+    public void viewInfoIncludesLegacyColumnPropertyName() {
+        ViewItem orderId = viewItem("orderId", "Order ID", ItemEditType.ReadOnly);
+
+        View view = new View();
+        view.setListItems(List.of(orderId));
+
+        ListViewInfo info = new ViewAdapter().getViewInfo(view);
+
+        assertEquals("orderId", columnPropertyName(info.getTableColumn().get(0)));
+    }
+
+    @Test
     public void viewInfoIncludesLegacyColumnBehaviorMetadata() {
         ViewItem orderId = viewItem("orderId", "Order ID", ItemEditType.TextBox);
         orderId.setFormatRegx("format-price");
@@ -209,6 +221,15 @@ public class ViewAdapterTest {
             return (String) column.getClass().getMethod("getName").invoke(column);
         } catch (ReflectiveOperationException e) {
             fail("TableColumnInfo should expose legacy name metadata");
+            return null;
+        }
+    }
+
+    private static String columnPropertyName(Object column) {
+        try {
+            return (String) column.getClass().getMethod("getPropertyName").invoke(column);
+        } catch (ReflectiveOperationException e) {
+            fail("TableColumnInfo should expose legacy property-name metadata");
             return null;
         }
     }
