@@ -72,12 +72,28 @@ public class EventMigrationTest {
     public void preservesLegacyEnumOrdinals() {
         assertEquals(List.of("IsRunning", "Stopped"),
                 Arrays.stream(EventState.values()).map(Enum::name).toList());
+        assertEquals(0, EventState.IsRunning.code());
+        assertEquals(1, EventState.Stopped.code());
         assertEquals(List.of("Generate", "Push", "Readed", "Dealed", "TimeOut"),
                 Arrays.stream(MsgState.values()).map(Enum::name).toList());
+        assertEquals(0, MsgState.Generate.code());
+        assertEquals(1, MsgState.Push.code());
+        assertEquals(2, MsgState.Readed.code());
+        assertEquals(3, MsgState.Dealed.code());
+        assertEquals(4, MsgState.TimeOut.code());
         assertEquals(List.of("User", "Role", "Dep", "Company", "Auth", "All"),
                 Arrays.stream(MsgNotifyType.values()).map(Enum::name).toList());
+        assertEquals(0, MsgNotifyType.User.code());
+        assertEquals(1, MsgNotifyType.Role.code());
+        assertEquals(2, MsgNotifyType.Dep.code());
+        assertEquals(3, MsgNotifyType.Company.code());
+        assertEquals(4, MsgNotifyType.Auth.code());
+        assertEquals(5, MsgNotifyType.All.code());
         assertEquals(List.of("SysModel", "AppModel", "DbModel"),
                 Arrays.stream(EventModelRefType.values()).map(Enum::name).toList());
+        assertEquals(0, EventModelRefType.SysModel.code());
+        assertEquals(1, EventModelRefType.AppModel.code());
+        assertEquals(2, EventModelRefType.DbModel.code());
     }
 
     @Test
