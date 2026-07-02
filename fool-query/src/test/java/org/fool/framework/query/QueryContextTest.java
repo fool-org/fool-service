@@ -114,6 +114,28 @@ public class QueryContextTest {
     }
 
     @Test
+    public void getResultKeepsLegacyConnectionStringOverload() {
+        RecordingJdbcTemplate jdbcTemplate = new RecordingJdbcTemplate(
+                1L,
+                List.of(Map.of("order_id", "1001")));
+        QueryContext context = new QueryContext(
+                (table, joinType) -> List.of(),
+                new JdbcQueryExecutor(jdbcTemplate),
+                "Server=default;Database=car_wash");
+        QueryTable orders = new QueryTable("Orders", "orders");
+        context.add(orders);
+        SelectedTable selectedOrders = context.getInstance().getSelectedTables().getTables().get(0);
+        context.getInstance().getSelectedColumns().add(selectedColumn(selectedOrders));
+
+        QueryResult result = context.getResult("Server=runtime;Database=car_wash", 15);
+
+        assertEquals(1, result.getCurrentPage());
+        assertEquals(15, result.getPageSize());
+        assertEquals("Server=default;Database=car_wash", context.getQueryConnectionString());
+        assertArrayEquals(new Object[]{1, 15, 1, 15}, jdbcTemplate.pageArgs);
+    }
+
+    @Test
     public void getResultLoadsLegacyEnumStateValuesBeforeExecuting() {
         RecordingJdbcTemplate jdbcTemplate = new RecordingJdbcTemplate(
                 1L,

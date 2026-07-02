@@ -87,6 +87,14 @@ public class QueryContext {
         return getResult(pageSize, 1);
     }
 
+    public QueryResult getResult(String connectionString, int pageSize) {
+        return getResult(connectionString, pageSize, 1);
+    }
+
+    public QueryResult getResult(String connectionString, int pageSize, int startPage) {
+        return getResult(pageSize, startPage);
+    }
+
     public QueryResult getResult(int pageSize, int startPage) {
         if (executor == null) {
             throw new IllegalStateException("JdbcQueryExecutor is required to execute a QueryContext");
