@@ -2,6 +2,7 @@ package org.fool.framework.model.service;
 
 
 import lombok.extern.slf4j.Slf4j;
+import org.fool.framework.common.data.SubItemList;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.dao.*;
 import org.fool.framework.model.model.DbMysqlDynamic;
@@ -187,6 +188,10 @@ public class ModelDataService {
     }
 
     public Boolean saveData(IDynamicData data) {
+        return saveData(data, null, null, true);
+    }
+
+    private Boolean saveData(IDynamicData data, String extraColumn, Object extraValue, boolean writeCollections) {
         if (!(data instanceof DbMysqlDynamic dynamicData)) {
             return false;
         }
@@ -204,6 +209,7 @@ public class ModelDataService {
             return false;
         }
         Map<String, Object> columnValues = writableColumnValues(model, data, idColumn);
+        addColumnValue(columnValues, extraColumn, extraValue, idColumn);
         if (columnValues.isEmpty()) {
             return false;
         }
@@ -215,7 +221,7 @@ public class ModelDataService {
         args.add(idValue);
         String sql = "UPDATE `" + model.getTableName() + "` SET " + assignments + " WHERE `" + idColumn + "` = ?";
         boolean saved = jdbcTemplate.update(sql, args.toArray()) > 0;
-        if (saved) {
+        if (saved && writeCollections) {
             writeCollectionRelations(model, data);
         }
         return saved;
@@ -254,6 +260,10 @@ public class ModelDataService {
     }
 
     public Boolean createData(IDynamicData data) {
+        return createData(data, null, null, true);
+    }
+
+    private Boolean createData(IDynamicData data, String extraColumn, Object extraValue, boolean writeCollections) {
         if (!(data instanceof DbMysqlDynamic dynamicData)) {
             return false;
         }
@@ -263,6 +273,7 @@ public class ModelDataService {
             return false;
         }
         Map<String, Object> columnValues = writableColumnValues(model, data, null);
+        addColumnValue(columnValues, extraColumn, extraValue, null);
         if (columnValues.isEmpty()) {
             return false;
         }
@@ -274,7 +285,7 @@ public class ModelDataService {
                 .collect(Collectors.joining(","));
         String sql = "INSERT INTO `" + model.getTableName() + "` (" + columns + ") VALUES (" + values + ")";
         boolean created = jdbcTemplate.update(sql, columnValues.values().toArray()) > 0;
-        if (created) {
+        if (created && writeCollections) {
             writeCollectionRelations(model, data);
         }
         return created;
@@ -289,6 +300,10 @@ public class ModelDataService {
             return;
         }
         for (Relation relation : model.getRelations()) {
+            if (isWritableOwnedRelation(relation)) {
+                writeOwnedCollection(relation, data.get(relation.getProperty().getName()), parentId);
+                continue;
+            }
             if (!isWritableComplexRelation(relation)) {
                 continue;
             }
@@ -305,6 +320,39 @@ public class ModelDataService {
                 }
             }
         }
+    }
+
+    private void writeOwnedCollection(Relation relation, Object value, Object parentId) {
+        if (value instanceof Iterable<?> items) {
+            for (Object item : items) {
+                if (item instanceof IDynamicData itemData) {
+                    Model itemModel = dynamicModel(itemData, relation.getProperty().getPropertyModel());
+                    if (dataExists(itemData, itemModel)) {
+                        saveData(itemData, relation.getTargetColumn(), parentId, false);
+                    } else {
+                        createData(itemData, relation.getTargetColumn(), parentId, false);
+                    }
+                }
+            }
+        }
+        if (value instanceof SubItemList<?> subItems) {
+            for (Object item : subItems.getDeleteList()) {
+                if (item instanceof IDynamicData itemData) {
+                    deleteData(itemData);
+                }
+            }
+        }
+    }
+
+    private boolean isWritableOwnedRelation(Relation relation) {
+        return relation != null
+                && relation.getProperty() != null
+                && relation.getProperty().getName() != null
+                && !relation.getProperty().getName().isBlank()
+                && (relation.getRelationType() == RelationType.One2Many
+                || relation.getRelationType() == RelationType.Many2One)
+                && relation.getTargetColumn() != null
+                && !relation.getTargetColumn().isBlank();
     }
 
     private boolean isWritableComplexRelation(Relation relation) {
@@ -332,6 +380,32 @@ public class ModelDataService {
             }
         }
         return data.getId();
+    }
+
+    private boolean dataExists(IDynamicData data, Model model) {
+        if (model == null || model.getTableName() == null || model.getTableName().isBlank()) {
+            return false;
+        }
+        Property idProperty = model.getIdProperty();
+        String idColumn = idProperty != null && idProperty.getColumn() != null && !idProperty.getColumn().isBlank()
+                ? idProperty.getColumn()
+                : "SYSID";
+        Object idValue = idProperty != null ? data.get(idProperty.getName()) : data.getId();
+        if (idValue == null) {
+            return false;
+        }
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM `" + model.getTableName() + "` WHERE `" + idColumn + "` = ?",
+                Integer.class,
+                idValue);
+        return count != null && count > 0;
+    }
+
+    private Model dynamicModel(IDynamicData data, Model fallback) {
+        if (data instanceof DbMysqlDynamic dynamicData && dynamicData.getModel() != null) {
+            return dynamicData.getModel();
+        }
+        return fallback;
     }
 
     private void insertRelationIfMissing(Relation relation, Object parentId, Object itemId) {

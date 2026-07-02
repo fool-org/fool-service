@@ -2,6 +2,7 @@ package org.fool.framework.model.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.fool.framework.common.PropertyType;
+import org.fool.framework.common.data.SubItemList;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.model.Application;
 import org.fool.framework.model.model.DbMysqlDynamic;
@@ -378,6 +379,61 @@ public class ModelDataServiceTest {
     }
 
     @Test
+    public void createDataWritesLegacyOneToManyChildRows() {
+        String orderTable = "runtime_create_child_order";
+        String itemTable = "runtime_create_child_order_item";
+        cleanupRuntimeOneToManyTables(orderTable, itemTable);
+        try {
+            createRuntimeOneToManyTables(orderTable, itemTable);
+            Model order = oneToManyOrderModel(orderTable, itemTable);
+            DbMysqlDynamic data = oneToManyOrderData(order, "9201", "Created parent",
+                    List.of(orderItemData(order, "I1", "Created child")));
+
+            assertEquals(Boolean.TRUE, modelDataService.createData(data));
+
+            Integer count = jdbcTemplate.queryForObject(
+                    "SELECT COUNT(*) FROM `" + itemTable + "` WHERE `ITEM_ID` = ? AND `ITEM_NAME` = ? AND `ORDER_ID` = ?",
+                    Integer.class,
+                    "I1",
+                    "Created child",
+                    "9201");
+            assertEquals(1, count.intValue());
+        } finally {
+            cleanupRuntimeOneToManyTables(orderTable, itemTable);
+        }
+    }
+
+    @Test
+    public void saveDataSyncsLegacyOneToManyChildRows() {
+        String orderTable = "runtime_save_child_order";
+        String itemTable = "runtime_save_child_order_item";
+        cleanupRuntimeOneToManyTables(orderTable, itemTable);
+        try {
+            createRuntimeOneToManyTables(orderTable, itemTable);
+            jdbcTemplate.update("INSERT INTO `" + orderTable + "` (`ORDER_ID`,`ORDER_NAME`) VALUES (?,?)", "9301", "Before save");
+            jdbcTemplate.update("INSERT INTO `" + itemTable + "` (`ITEM_ID`,`ITEM_NAME`,`ORDER_ID`) VALUES (?,?,?)", "I2", "Before child", "9301");
+            jdbcTemplate.update("INSERT INTO `" + itemTable + "` (`ITEM_ID`,`ITEM_NAME`,`ORDER_ID`) VALUES (?,?,?)", "I4", "Remove child", "9301");
+            Model order = oneToManyOrderModel(orderTable, itemTable);
+            SubItemList<IDynamicData> items = new SubItemList<>();
+            items.add(orderItemData(order, "I2", "After child"));
+            items.add(orderItemData(order, "I3", "New child"));
+            IDynamicData removed = orderItemData(order, "I4", "Remove child");
+            items.add(removed);
+            items.remove(removed);
+            DbMysqlDynamic data = oneToManyOrderData(order, "9301", "After save", items);
+
+            assertEquals(Boolean.TRUE, modelDataService.saveData(data));
+
+            List<String> rows = jdbcTemplate.queryForList(
+                    "SELECT CONCAT(`ITEM_ID`, ':', `ITEM_NAME`, ':', `ORDER_ID`) FROM `" + itemTable + "` ORDER BY `ITEM_ID`",
+                    String.class);
+            assertEquals(List.of("I2:After child:9301", "I3:New child:9301"), rows);
+        } finally {
+            cleanupRuntimeOneToManyTables(orderTable, itemTable);
+        }
+    }
+
+    @Test
     public void initDataBuildsLegacySimpleDynamicDefaults() {
         Model model = new Model();
         model.setProperties(List.of(
@@ -512,6 +568,45 @@ public class ModelDataServiceTest {
         data.set("nodeName", parentName);
         data.set("children", List.of(child));
         return data;
+    }
+
+    private Model oneToManyOrderModel(String orderTable, String itemTable) {
+        Model item = new Model();
+        item.setTableName(itemTable);
+        Property itemId = columnProperty("itemId", "ITEM_ID", PropertyType.String);
+        item.setIdProperty(itemId);
+        item.setProperties(List.of(itemId, columnProperty("itemName", "ITEM_NAME", PropertyType.String)));
+
+        Model order = new Model();
+        order.setTableName(orderTable);
+        Property orderId = columnProperty("orderId", "ORDER_ID", PropertyType.String);
+        order.setIdProperty(orderId);
+        Property orderName = columnProperty("orderName", "ORDER_NAME", PropertyType.String);
+        Property items = collectionProperty("items");
+        items.setPropertyModel(item);
+        Relation relation = new Relation();
+        relation.setProperty(items);
+        relation.setTargetProperty(items);
+        relation.setRelationType(RelationType.One2Many);
+        relation.setTargetColumn("ORDER_ID");
+        order.setProperties(List.of(orderId, orderName, items));
+        order.setRelations(List.of(relation));
+        return order;
+    }
+
+    private DbMysqlDynamic oneToManyOrderData(Model order, String orderId, String orderName, List<? extends IDynamicData> items) {
+        DbMysqlDynamic data = new DbMysqlDynamic(order);
+        data.set("orderId", orderId);
+        data.set("orderName", orderName);
+        data.set("items", items);
+        return data;
+    }
+
+    private DbMysqlDynamic orderItemData(Model order, String itemId, String itemName) {
+        DbMysqlDynamic item = new DbMysqlDynamic(order.getProperties().get(2).getPropertyModel());
+        item.set("itemId", itemId);
+        item.set("itemName", itemName);
+        return item;
     }
 
     private Property simpleProperty(String name, PropertyType type) {
@@ -656,5 +751,22 @@ public class ModelDataServiceTest {
     private void cleanupRuntimeRecurveTables(String nodeTable, String relationTable) {
         jdbcTemplate.execute("DROP TABLE IF EXISTS `" + relationTable + "`");
         jdbcTemplate.execute("DROP TABLE IF EXISTS `" + nodeTable + "`");
+    }
+
+    private void createRuntimeOneToManyTables(String orderTable, String itemTable) {
+        jdbcTemplate.execute("CREATE TABLE `" + orderTable + "` ("
+                + "`ORDER_ID` varchar(64) NOT NULL,"
+                + "`ORDER_NAME` varchar(255) DEFAULT NULL,"
+                + "PRIMARY KEY (`ORDER_ID`))");
+        jdbcTemplate.execute("CREATE TABLE `" + itemTable + "` ("
+                + "`ITEM_ID` varchar(64) NOT NULL,"
+                + "`ITEM_NAME` varchar(255) DEFAULT NULL,"
+                + "`ORDER_ID` varchar(64) DEFAULT NULL,"
+                + "PRIMARY KEY (`ITEM_ID`))");
+    }
+
+    private void cleanupRuntimeOneToManyTables(String orderTable, String itemTable) {
+        jdbcTemplate.execute("DROP TABLE IF EXISTS `" + itemTable + "`");
+        jdbcTemplate.execute("DROP TABLE IF EXISTS `" + orderTable + "`");
     }
 }
