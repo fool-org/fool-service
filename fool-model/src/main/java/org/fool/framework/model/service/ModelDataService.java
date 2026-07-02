@@ -7,6 +7,8 @@ import org.fool.framework.dao.*;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.model.sqlscript.SqlGenerator;
+import org.fool.framework.query.CompareFilter;
+import org.fool.framework.query.CompareOp;
 import org.fool.framework.query.IQueryFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -56,7 +58,22 @@ public class ModelDataService {
     }
 
     public IDynamicData getOneData(String modelId, String dataId) {
-        return null;
+        if (dataId == null || dataId.isBlank()) {
+            return null;
+        }
+        var mapper = getMapper(modelId);
+        Model model = mapper.getModel();
+        String idColumn = model.getIdProperty() != null
+                && model.getIdProperty().getColumn() != null
+                && !model.getIdProperty().getColumn().isBlank()
+                ? model.getIdProperty().getColumn()
+                : "SYSID";
+        QueryAndArgs queryAndArgs = sqlGenerator.generateSelect(
+                model,
+                model.getProperties(),
+                new CompareFilter(idColumn, CompareOp.EQUAL, dataId));
+        var items = this.jdbcTemplate.query(queryAndArgs.getSql(), queryAndArgs.getArgs(), mapper);
+        return items.isEmpty() ? null : items.get(0);
     }
 
     /**

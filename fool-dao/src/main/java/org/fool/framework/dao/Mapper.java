@@ -67,6 +67,10 @@ public class Mapper<T> extends
             if (Modifier.isStatic(field.getModifiers()) || Modifier.isTransient(field.getModifiers())) {
                 continue;
             }
+            Column column = field.getDeclaredAnnotation(Column.class);
+            if (column != null && column.noMap()) {
+                continue;
+            }
             /**
              * 设置成可见
              */

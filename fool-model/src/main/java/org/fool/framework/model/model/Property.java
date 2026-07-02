@@ -37,7 +37,9 @@ public class Property {
     private String generationExpression;
     private String defaultValue;
     private Boolean multiMap = false;
+    @Column("SW_SYS_PROPERTY_DBMapsSysId")
     private List<MultiDbMap> dbMaps = new ArrayList<>();
+    @Column(noMap = true)
     private List<Trigger> triggerList;
 
 
