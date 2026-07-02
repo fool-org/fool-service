@@ -9,6 +9,8 @@ import org.fool.framework.dao.QueryAndArgs;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.MultiDbMap;
 import org.fool.framework.model.model.Property;
+import org.fool.framework.model.model.Relation;
+import org.fool.framework.model.model.RelationType;
 import org.fool.framework.query.IQueryFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -17,11 +19,13 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
 @Slf4j
 public class SqlGenerator {
+    public static final String ITEM_PARENT_ID_COLUMN = "__parent_id";
 
     /**
      * 生成统一查询
@@ -212,22 +216,39 @@ public class SqlGenerator {
     }
 
     public QueryAndArgs generateItems(Property property, List<String> ids) {
+        return generateItems(property.getOwner(), property, ids);
+    }
+
+    public QueryAndArgs generateItems(Model parentModel, Property property, List<String> ids) {
         var model = property.getPropertyModel();
+        Relation relation = itemRelation(parentModel, property);
+        String parentColumn = itemParentColumn(property, relation);
         StringBuilder builder = new StringBuilder();
         builder.append(DbConst.SELECT);
 
-        var columns = model.getProperties().stream().filter(p -> p.getIsCollection() == false).map(Property::getColumn).collect(Collectors.toList());
-        if (!columns.contains(property.getColumn())) {
-            columns.add(property.getColumn());
+        var columns = itemColumns(model, relation != null);
+        if (!columns.contains(parentColumn) && relation == null) {
+            columns.add(parentColumn);
         }
-        builder.append(columns.stream().collect(Collectors.joining(",")));
-
-
+        builder.append(String.join(",", columns));
+        if (relation == null) {
+            builder.append(",`").append(parentColumn).append("` AS `").append(ITEM_PARENT_ID_COLUMN).append("`");
+        } else {
+            builder.append(",`")
+                    .append(relation.getRelationTable())
+                    .append("`.`")
+                    .append(parentColumn)
+                    .append("` AS `")
+                    .append(ITEM_PARENT_ID_COLUMN)
+                    .append("`");
+        }
         builder.append(DbConst.FROM);
         builder.append("`" + model.getTableName() + "`");
+        appendItemJoin(builder, model, relation);
         builder.append(DbConst.WHERE)
                 .append(DbConst.AND)
-                .append("`" + property.getColumn() + "` in (")
+                .append(itemWhereColumn(property, relation))
+                .append(" in (")
                 .append(ids.stream().map(p -> "?").collect(Collectors.joining(",")))
                 .append(")");
         var queryAndArgs = new QueryAndArgs();
@@ -237,5 +258,77 @@ public class SqlGenerator {
         return queryAndArgs;
 
 
+    }
+
+    private List<String> itemColumns(Model model, boolean qualify) {
+        return model.getProperties().stream()
+                .filter(property -> !Boolean.TRUE.equals(property.getIsCollection()))
+                .map(Property::getColumn)
+                .filter(StringUtils::hasText)
+                .map(column -> qualify ? "`" + model.getTableName() + "`.`" + column + "` AS `" + column + "`" : column)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private Relation itemRelation(Model parentModel, Property property) {
+        if (parentModel == null || parentModel.getRelations() == null) {
+            return null;
+        }
+        return parentModel.getRelations().stream()
+                .filter(relation -> sameProperty(relation.getProperty(), property))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private boolean sameProperty(Property left, Property right) {
+        return left == right
+                || (left != null && right != null
+                && (Objects.equals(left.getId(), right.getId()) || Objects.equals(left.getName(), right.getName())));
+    }
+
+    private String itemParentColumn(Property property, Relation relation) {
+        if (relation == null || relation.getRelationType() == null) {
+            return property.getColumn();
+        }
+        if (relation.getRelationType() == RelationType.Recurve) {
+            return relation.getPropertyColumn();
+        }
+        return relation.getTargetColumn();
+    }
+
+    private String itemWhereColumn(Property property, Relation relation) {
+        if (relation == null) {
+            return "`" + property.getColumn() + "`";
+        }
+        return "`" + relation.getRelationTable() + "`.`" + itemParentColumn(property, relation) + "`";
+    }
+
+    private void appendItemJoin(StringBuilder builder, Model model, Relation relation) {
+        if (relation == null || relation.getRelationType() == RelationType.One2Many) {
+            return;
+        }
+        builder.append(" JOIN `")
+                .append(relation.getRelationTable())
+                .append("` ON `")
+                .append(relation.getRelationTable())
+                .append("`.`")
+                .append(itemChildColumn(relation))
+                .append("`=`")
+                .append(model.getTableName())
+                .append("`.`")
+                .append(keyColumn(model))
+                .append("`");
+    }
+
+    private String itemChildColumn(Relation relation) {
+        return relation.getRelationType() == RelationType.Recurve
+                ? relation.getTargetColumn()
+                : relation.getPropertyColumn();
+    }
+
+    private String keyColumn(Model model) {
+        if (model.getIdProperty() != null && StringUtils.hasText(model.getIdProperty().getColumn())) {
+            return model.getIdProperty().getColumn();
+        }
+        return "SYSID";
     }
 }

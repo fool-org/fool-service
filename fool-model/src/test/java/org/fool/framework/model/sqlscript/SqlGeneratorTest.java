@@ -6,6 +6,8 @@ import org.fool.framework.dao.QueryAndArgs;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.ModelType;
 import org.fool.framework.model.model.Property;
+import org.fool.framework.model.model.Relation;
+import org.fool.framework.model.model.RelationType;
 import org.fool.framework.query.IQueryFilter;
 import org.fool.framework.query.SimpleFilter;
 import org.junit.Test;
@@ -188,6 +190,74 @@ public class SqlGeneratorTest {
         assertArrayEquals(new Object[]{}, query.getArgs());
     }
 
+    @Test
+    public void generateItemsUsesLegacyOneToManyRelationTargetColumnForParentIds() {
+        Model order = model("Order", "market_order");
+        Property lines = property("lines", "lines");
+        Model line = model("Line", "order_line");
+        line.setProperties(List.of(property("lineId", "line_id"), property("amount", "amount")));
+        lines.setPropertyModel(line);
+        lines.setIsCollection(true);
+        Relation relation = relation(lines, RelationType.One2Many, "order_line", "line_id", "order_id");
+        order.setRelations(List.of(relation));
+
+        QueryAndArgs query = new SqlGenerator().generateItems(order, lines, List.of("1001", "1002"));
+
+        assertEquals(
+                "SELECT `order_line`.`line_id` AS `line_id`,`order_line`.`amount` AS `amount`,"
+                        + "`order_line`.`order_id` AS `__parent_id`"
+                        + " FROM `order_line` WHERE 1=1  AND `order_line`.`order_id` in (?,?)",
+                query.getSql());
+        assertArrayEquals(new Object[]{"1001", "1002"}, query.getArgs());
+    }
+
+    @Test
+    public void generateItemsUsesLegacyManyToManyRelationTableForParentIds() {
+        Model order = model("Order", "market_order");
+        Property roles = property("roles", "roles");
+        Model role = model("Role", "role");
+        Property roleId = property("roleId", "role_id");
+        role.setIdProperty(roleId);
+        role.setProperties(List.of(roleId, property("name", "name")));
+        roles.setPropertyModel(role);
+        roles.setIsCollection(true);
+        Relation relation = relation(roles, RelationType.Many2Many, "order_role", "role_id", "order_id");
+        order.setRelations(List.of(relation));
+
+        QueryAndArgs query = new SqlGenerator().generateItems(order, roles, List.of("1001"));
+
+        assertEquals(
+                "SELECT `role`.`role_id` AS `role_id`,`role`.`name` AS `name`,"
+                        + "`order_role`.`order_id` AS `__parent_id`"
+                        + " FROM `role` JOIN `order_role` ON `order_role`.`role_id`=`role`.`role_id`"
+                        + " WHERE 1=1  AND `order_role`.`order_id` in (?)",
+                query.getSql());
+        assertArrayEquals(new Object[]{"1001"}, query.getArgs());
+    }
+
+    @Test
+    public void generateItemsUsesLegacyRecurveRelationParentAndChildColumns() {
+        Model folder = model("Folder", "folder");
+        Property folderId = property("folderId", "folder_id");
+        folder.setIdProperty(folderId);
+        folder.setProperties(List.of(folderId, property("name", "name")));
+        Property children = property("children", "children");
+        children.setPropertyModel(folder);
+        children.setIsCollection(true);
+        Relation relation = relation(children, RelationType.Recurve, "folder_children", "parent_id", "child_id");
+        folder.setRelations(List.of(relation));
+
+        QueryAndArgs query = new SqlGenerator().generateItems(folder, children, List.of("root"));
+
+        assertEquals(
+                "SELECT `folder`.`folder_id` AS `folder_id`,`folder`.`name` AS `name`,"
+                        + "`folder_children`.`parent_id` AS `__parent_id`"
+                        + " FROM `folder` JOIN `folder_children` ON `folder_children`.`child_id`=`folder`.`folder_id`"
+                        + " WHERE 1=1  AND `folder_children`.`parent_id` in (?)",
+                query.getSql());
+        assertArrayEquals(new Object[]{"root"}, query.getArgs());
+    }
+
     private static Model model(String name, String tableName) {
         Model model = new Model();
         model.setName(name);
@@ -209,5 +279,20 @@ public class SqlGeneratorTest {
         property.setAllowDbNull(false);
         property.setCheck(false);
         return property;
+    }
+
+    private static Relation relation(
+            Property property,
+            RelationType relationType,
+            String table,
+            String propertyColumn,
+            String targetColumn) {
+        Relation relation = new Relation();
+        relation.setProperty(property);
+        relation.setRelationType(relationType);
+        relation.setRelationTable(table);
+        relation.setPropertyColumn(propertyColumn);
+        relation.setTargetColumn(targetColumn);
+        return relation;
     }
 }

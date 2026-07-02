@@ -78,15 +78,16 @@ public class ModelDataService {
                 for (var id : ids) {
                     infos.put(id, new LinkedList());
                 }
-                QueryAndArgs propertyArgs = sqlGenerator.generateItems(property, ids);
-                String propertyColumnt = property.getColumn();
+                QueryAndArgs propertyArgs = sqlGenerator.generateItems(mapper.getModel(), property, ids);
                 var itemsMapper = getMapper(property.getPropertyModel().getId().toString());
                 this.jdbcTemplate.query(propertyArgs.getSql(), propertyArgs.getArgs(), new RowMapper<IDynamicData>() {
                     @Override
                     public IDynamicData mapRow(ResultSet resultSet, int i) throws SQLException {
                         var item = itemsMapper.mapRow(resultSet, i);
-                        var id = resultSet.getString(propertyColumnt);
-                        infos.get(id).add(item);
+                        var id = resultSet.getString(SqlGenerator.ITEM_PARENT_ID_COLUMN);
+                        if (infos.containsKey(id)) {
+                            infos.get(id).add(item);
+                        }
                         return item;
                     }
                 });
@@ -132,15 +133,16 @@ public class ModelDataService {
                 for (var id : ids) {
                     infos.put(id, new LinkedList());
                 }
-                QueryAndArgs propertyArgs = sqlGenerator.generateItems(property, ids);
-                String propertyColumnt = property.getColumn();
+                QueryAndArgs propertyArgs = sqlGenerator.generateItems(mapper.getModel(), property, ids);
                 var itemsMapper = getMapper(property.getPropertyModel().getId().toString());
                 this.jdbcTemplate.query(propertyArgs.getSql(), propertyArgs.getArgs(), new RowMapper<IDynamicData>() {
                     @Override
                     public IDynamicData mapRow(ResultSet resultSet, int i) throws SQLException {
                         var item = itemsMapper.mapRow(resultSet, i);
-                        var id = resultSet.getString(propertyColumnt);
-                        infos.get(id).add(item);
+                        var id = resultSet.getString(SqlGenerator.ITEM_PARENT_ID_COLUMN);
+                        if (infos.containsKey(id)) {
+                            infos.get(id).add(item);
+                        }
                         return item;
                     }
                 });
