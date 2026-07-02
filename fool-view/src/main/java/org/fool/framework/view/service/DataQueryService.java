@@ -17,6 +17,7 @@ import org.fool.framework.query.SimpleFilter;
 import org.fool.framework.view.adapter.ViewDataAdapter;
 import org.fool.framework.view.common.ErrorCode;
 import org.fool.framework.view.dto.ListViewResult;
+import org.fool.framework.view.dto.QueryDataDetailResult;
 import org.fool.framework.view.dto.QueryValue;
 import org.fool.framework.view.model.InputType;
 import org.fool.framework.view.model.View;
@@ -60,6 +61,19 @@ public class DataQueryService {
         return queryViewDataList(viewId, null, pageInfo, null, queryFilter);
     }
 
+    public QueryDataDetailResult queryLegacyViewDataDetail(String viewId, String dataId) {
+        View view = daoService.getOneDetailByKey(View.class, viewId);
+        if (view == null) {
+            throw new CommonException(ErrorCode.VIEW_NOT_FOUND, "没有查到视图");
+        }
+        Model model = daoService.getOneDetailByKey(Model.class, view.getViewModel());
+        if (model == null) {
+            throw new CommonException(ErrorCode.MODEL_NOT_FOUND, "没有查到元数据定义");
+        }
+        attachProperties(view, model);
+        return viewAdapter.getDetailViewResult(view, modelDataService.getOneData(view.getViewModel(), dataId));
+    }
+
     private ListViewResult queryViewDataList(String viewName, Map<String, QueryValue> filter, PageNavigator pageInfo, String keyword, String legacyQueryFilter) {
 
         View view = daoService.getOneDetailByKey(View.class, viewName);
@@ -71,6 +85,7 @@ public class DataQueryService {
             throw new CommonException(ErrorCode.MODEL_NOT_FOUND, "没有查到元数据定义");
         }
         var properties = getViewProperies(view, model);
+        attachProperties(view, model);
         IQueryFilter queryFilter = generateFilter(model, view, filter, keyword, legacyQueryFilter);
         Property orderProperty = getDefaultOrderProperty(view, model);
         var result = modelDataService.getDataListWithPageInfo(
@@ -258,6 +273,17 @@ public class DataQueryService {
             }
         }
         return result;
+    }
+
+    private void attachProperties(View view, Model model) {
+        if (CollectionUtils.isEmpty(view.getListItems()) || CollectionUtils.isEmpty(model.getProperties())) {
+            return;
+        }
+        view.getListItems().forEach(item -> model.getProperties().stream()
+                .filter(property -> item.getModelProperty() != null
+                        && item.getModelProperty().equals(property.getName()))
+                .findFirst()
+                .ifPresent(item::setProperty));
     }
 
     private Property getDefaultOrderProperty(View view, Model model) {

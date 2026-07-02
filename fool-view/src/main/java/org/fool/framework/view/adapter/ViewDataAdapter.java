@@ -12,9 +12,12 @@ import org.fool.framework.model.model.Property;
 import org.fool.framework.view.dto.ListDataItem;
 import org.fool.framework.view.dto.ListDataValue;
 import org.fool.framework.view.dto.ListViewResult;
+import org.fool.framework.view.dto.OperationInfo;
+import org.fool.framework.view.dto.QueryDataDetailResult;
 import org.fool.framework.view.model.ItemEditType;
 import org.fool.framework.view.model.View;
 import org.fool.framework.view.model.ViewItem;
+import org.fool.framework.view.model.ViewOperation;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
@@ -84,6 +87,48 @@ public class ViewDataAdapter {
 
         return result;
 
+    }
+
+    public QueryDataDetailResult getDetailViewResult(View view, IDynamicData data) {
+        QueryDataDetailResult result = new QueryDataDetailResult();
+        result.setAutoFreshTime(safeAutoFreshTime(view));
+        result.setCanEdit(true);
+        result.setOperations(view.getOperations().stream().map(this::legacyOperation).toList());
+        QueryDataDetailResult.DataDetail detail = new QueryDataDetailResult.DataDetail();
+        detail.setObjId(data == null ? "" : formatRow(data.getId()));
+        detail.setName(view.getViewName());
+        detail.setModel(view.getViewModel());
+        detail.setParentId("");
+        detail.setItems(List.of());
+        detail.setSimpleData(orderedListItems(view).stream()
+                .filter(item -> item.getEditType() != ItemEditType.Format)
+                .map(item -> {
+                    Object rawValue = data == null ? null : data.get(item.getModelProperty());
+                    Object formattedValue = getFormat(item.getFormatRegx(), rawValue);
+                    return legacyValueItem(item, rawValue, formattedValue);
+                })
+                .toList());
+        result.setData(detail);
+        return result;
+    }
+
+    private OperationInfo legacyOperation(ViewOperation operation) {
+        OperationInfo result = new OperationInfo();
+        result.setId(operation.getOperation() == null || operation.getOperation().getId() == null
+                ? 0L
+                : operation.getOperation().getId());
+        result.setName(operation.getName());
+        result.setText(operation.getName());
+        result.setType(operation.getType());
+        result.setLocation(operation.getLocation());
+        result.setRequireSelect(operation.isRequireSelect());
+        result.setViewId(operation.getResultView() == null || operation.getResultView().getId() == null
+                ? 0L
+                : operation.getResultView().getId());
+        result.setViewName(operation.getResultView() == null || operation.getResultView().getViewName() == null
+                ? ""
+                : operation.getResultView().getViewName());
+        return result;
     }
 
     private List<ViewItem> orderedListItems(View view) {

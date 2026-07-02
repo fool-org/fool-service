@@ -151,6 +151,29 @@ export interface LegacyQueryDataRequest {
   queryFilter?: string;
 }
 
+export interface LegacyQueryDataDetailRequest {
+  token?: string;
+  viewId?: number;
+  objId?: unknown;
+  idExp?: string;
+}
+
+export interface QueryDataDetail {
+  objId?: string;
+  name?: string;
+  simpleData?: ListDataValue[];
+  items?: unknown[];
+  model?: string;
+  parentId?: string;
+}
+
+export interface QueryDataDetailResult {
+  data?: QueryDataDetail;
+  autoFreshTime?: number;
+  canEdit?: boolean;
+  operations?: OperationInfo[];
+}
+
 export async function postApi<T>(path: string, payload: unknown): Promise<CommonResponse<T>> {
   const response = await fetch(path, {
     method: "POST",

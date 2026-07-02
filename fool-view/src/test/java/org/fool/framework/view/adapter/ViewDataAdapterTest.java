@@ -5,15 +5,19 @@ import org.fool.framework.common.PropertyType;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.dao.PageNavigatorResult;
 import org.fool.framework.dao.PageResult;
+import org.fool.framework.model.model.Operation;
 import org.fool.framework.model.model.EnumValue;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.view.dto.ListDataItem;
 import org.fool.framework.view.dto.ListDataValue;
 import org.fool.framework.view.dto.ListViewResult;
+import org.fool.framework.view.dto.QueryDataDetailResult;
 import org.fool.framework.view.model.ItemEditType;
 import org.fool.framework.view.model.View;
 import org.fool.framework.view.model.ViewItem;
+import org.fool.framework.view.model.ViewOperation;
+import org.fool.framework.view.model.ViewOperationType;
 import org.junit.Test;
 
 import java.time.LocalDate;
@@ -216,6 +220,54 @@ public class ViewDataAdapterTest {
 
         assertEquals(List.of("Order ID", "Symbol"), result.getCols());
         assertEquals(List.of("orderId", "symbol"), new ArrayList<>(result.getItems().get(0).getValues().keySet()));
+    }
+
+    @Test
+    public void detailResultIncludesLegacySimpleDataAndOperations() {
+        ViewItem orderId = viewItem("orderId", ItemEditType.ReadOnly);
+        orderId.setItemName("Order ID");
+        setProperty(orderId, property("orderId", PropertyType.Long));
+        ViewItem symbol = viewItem("symbol", ItemEditType.ReadOnly);
+        symbol.setItemName("Symbol");
+        setProperty(symbol, property("symbol", PropertyType.String));
+        View detailView = new View();
+        detailView.setId(200L);
+        detailView.setViewName("OrderDetail");
+        ViewOperation edit = new ViewOperation();
+        edit.setName("Edit");
+        edit.setType(ViewOperationType.MODAL_DETAIL_VIEW);
+        edit.setResultView(detailView);
+        Operation operation = new Operation();
+        operation.setId(300L);
+        edit.setOperation(operation);
+
+        View view = new View();
+        view.setViewName("OrderDetail");
+        view.setViewModel("Order");
+        view.setAutoFreshInterval(15);
+        view.setListItems(List.of(orderId, symbol));
+        view.setOperations(List.of(edit));
+        MapDynamicData data = new MapDynamicData("1001", new LinkedHashMap<>(Map.of(
+                "orderId", 1001,
+                "symbol", "BTC-USDT")));
+
+        QueryDataDetailResult result = new ViewDataAdapter().getDetailViewResult(view, data);
+
+        assertEquals(Integer.valueOf(15), result.getAutoFreshTime());
+        assertEquals(Boolean.TRUE, result.getCanEdit());
+        assertEquals("1001", result.getData().getObjId());
+        assertEquals("OrderDetail", result.getData().getName());
+        assertEquals("Order", result.getData().getModel());
+        assertEquals(2, result.getData().getSimpleData().size());
+        assertEquals("orderId", result.getData().getSimpleData().get(0).getPrpId());
+        assertEquals("1001", result.getData().getSimpleData().get(0).getFmtValue());
+        assertEquals("Symbol", result.getData().getSimpleData().get(1).getPrpShowName());
+        assertEquals("BTC-USDT", result.getData().getSimpleData().get(1).getFmtValue());
+        assertTrue(result.getData().getItems().isEmpty());
+        assertEquals(1, result.getOperations().size());
+        assertEquals("Edit", result.getOperations().get(0).getName());
+        assertEquals(Long.valueOf(300L), result.getOperations().get(0).getId());
+        assertEquals(Long.valueOf(200L), result.getOperations().get(0).getViewId());
     }
 
     private static ViewItem viewItem(String modelProperty, ItemEditType editType) {

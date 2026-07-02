@@ -9,7 +9,9 @@ import org.fool.framework.view.adapter.ViewDataAdapter;
 import org.fool.framework.view.dto.GetEnumRequest;
 import org.fool.framework.view.dto.GetEnumResult;
 import org.fool.framework.view.dto.LegacyQueryDataRequest;
+import org.fool.framework.view.dto.LegacyQueryDataDetailRequest;
 import org.fool.framework.view.dto.ListViewResult;
+import org.fool.framework.view.dto.QueryDataDetailResult;
 import org.fool.framework.view.dto.QueryDataRequest;
 import org.fool.framework.view.service.DataQueryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +54,14 @@ public class DataController {
         return new CommonResponse<>(dataQueryService.queryLegacyViewData(viewId, pageInfo, request.getQueryFilter()));
     }
 
+    @PostMapping("/querydatadetail")
+    @ResponseBody
+    public CommonResponse<QueryDataDetailResult> queryDataDetail(@RequestBody LegacyQueryDataDetailRequest request) {
+        String viewId = request.getViewId() == null ? null : request.getViewId().toString();
+        String objId = request.getObjId() == null ? null : request.getObjId().toString();
+        return new CommonResponse<>(dataQueryService.queryLegacyViewDataDetail(viewId, objId));
+    }
+
     @PostMapping("/getenums")
     @ResponseBody
     public CommonResponse<GetEnumResult> getEnums(@RequestBody GetEnumRequest request) {
@@ -66,7 +76,4 @@ public class DataController {
         return new CommonResponse<>(result);
     }
 
-    public void queryViewDetailData() {
-
-    }
 }

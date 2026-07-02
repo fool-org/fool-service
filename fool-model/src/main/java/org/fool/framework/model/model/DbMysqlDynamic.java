@@ -69,7 +69,8 @@ public class DbMysqlDynamic implements IDynamicData {
     public String getId() {
 
         if (model.getIdProperty() != null) {
-            return (String) this.propertyMaps.get(model.getIdProperty().getName());
+            Object id = this.propertyMaps.get(model.getIdProperty().getName());
+            return id == null ? null : id.toString();
         }
         return null;
     }

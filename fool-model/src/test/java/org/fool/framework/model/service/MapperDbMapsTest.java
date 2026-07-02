@@ -48,6 +48,7 @@ public class MapperDbMapsTest {
 
         IDynamicData mapped = new Mapper(order).mapRow(resultSet, 0);
 
+        assertEquals("1001", mapped.getId());
         Object customerValue = mapped.get("customer");
         assertNotNull(customerValue);
         assertTrue(customerValue instanceof IDynamicData);
