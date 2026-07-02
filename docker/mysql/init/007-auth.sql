@@ -1,5 +1,29 @@
 USE car_wash;
 
+CREATE TABLE IF NOT EXISTS `SW_AUTH_USER` (
+  `USER_UID` bigint NOT NULL AUTO_INCREMENT,
+  `USER_UUID` varchar(36) DEFAULT NULL,
+  `USER_LOGINNAME` varchar(255) DEFAULT NULL,
+  `USER_PHONE` varchar(64) DEFAULT NULL,
+  `USER_MAIL` varchar(255) DEFAULT NULL,
+  `USER_FIRSTNAME` varchar(255) DEFAULT NULL,
+  `USER_LASTNAME` varchar(255) DEFAULT NULL,
+  `USER_SHOWNAME` varchar(255) DEFAULT NULL,
+  `USER_TITLE` varchar(255) DEFAULT NULL,
+  `USER_AVTAR` varchar(500) DEFAULT NULL,
+  `USER_PWD` varchar(255) DEFAULT NULL,
+  `USER_REGTIME` datetime DEFAULT NULL,
+  `USER_LASTLOGINTIME` datetime DEFAULT NULL,
+  `USER_LASTMODIFYTIME` datetime DEFAULT NULL,
+  `USER_SEX` int DEFAULT NULL,
+  `USER_DEFAULTVIEW` bigint DEFAULT NULL,
+  PRIMARY KEY (`USER_UID`),
+  UNIQUE KEY `uk_sw_auth_user_uuid` (`USER_UUID`),
+  UNIQUE KEY `uk_sw_auth_user_loginname` (`USER_LOGINNAME`),
+  UNIQUE KEY `uk_sw_auth_user_phone` (`USER_PHONE`),
+  UNIQUE KEY `uk_sw_auth_user_mail` (`USER_MAIL`)
+);
+
 CREATE TABLE IF NOT EXISTS `auth_user` (
   `id` varchar(64) NOT NULL,
   `mobile` varchar(64) DEFAULT NULL,
@@ -39,7 +63,7 @@ CREATE TABLE IF NOT EXISTS `auth_role_auth` (
 );
 
 INSERT INTO `auth_user` (`id`, `mobile`, `name`, `password`)
-VALUES ('admin', '', 'Admin', LOWER(MD5('admin')))
+VALUES ('admin', '', 'Admin', LOWER(MD5(CONCAT('admin', 'admin'))))
 ON DUPLICATE KEY UPDATE
   `mobile` = VALUES(`mobile`),
   `name` = VALUES(`name`),
