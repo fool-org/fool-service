@@ -192,7 +192,23 @@ public class ModelDataService {
     }
 
     public Boolean deleteData(IDynamicData data) {
-        return true;
+        if (!(data instanceof DbMysqlDynamic dynamicData)) {
+            return false;
+        }
+        Model model = dynamicData.getModel();
+        if (model == null || model.getTableName() == null || model.getTableName().isBlank()) {
+            return false;
+        }
+        Property idProperty = model.getIdProperty();
+        String idColumn = idProperty != null && idProperty.getColumn() != null && !idProperty.getColumn().isBlank()
+                ? idProperty.getColumn()
+                : "SYSID";
+        Object idValue = idProperty != null ? data.get(idProperty.getName()) : data.getId();
+        if (idValue == null) {
+            return false;
+        }
+        String sql = "DELETE FROM `" + model.getTableName() + "` WHERE `" + idColumn + "` = ?";
+        return jdbcTemplate.update(sql, idValue) > 0;
     }
 
     public Boolean createData(IDynamicData data) {

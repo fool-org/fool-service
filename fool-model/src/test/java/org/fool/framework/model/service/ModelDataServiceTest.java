@@ -143,6 +143,36 @@ public class ModelDataServiceTest {
         }
     }
 
+    @Test
+    public void deleteDataDeletesLegacySimpleDynamicRowById() {
+        long modelId = 94001L;
+        long idPropertyId = 94002L;
+        long namePropertyId = 94003L;
+        String modelName = "RuntimeDeleteOrder";
+        String tableName = "runtime_delete_order";
+        cleanupRuntimeDetailModel(modelId, modelName, tableName);
+        try {
+            createRuntimeDetailModel(modelId, idPropertyId, namePropertyId, modelName, tableName);
+            jdbcTemplate.update(
+                    "INSERT INTO `" + tableName + "` (`ORDER_ID`,`ORDER_NAME`) VALUES (?,?)",
+                    "3001",
+                    "Delete detail");
+            Model model = modelDataService.getModel(modelName);
+            DbMysqlDynamic data = new DbMysqlDynamic(model);
+            data.set("orderId", "3001");
+
+            assertEquals(Boolean.TRUE, modelDataService.deleteData(data));
+
+            Integer count = jdbcTemplate.queryForObject(
+                    "SELECT COUNT(*) FROM `" + tableName + "` WHERE `ORDER_ID` = ?",
+                    Integer.class,
+                    "3001");
+            assertEquals(0, count.intValue());
+        } finally {
+            cleanupRuntimeDetailModel(modelId, modelName, tableName);
+        }
+    }
+
     private void cleanupRuntimeEnumModel(long modelId, String modelName) {
         jdbcTemplate.update("DELETE FROM `fool_sys_model_enum` WHERE `owner` = ?", modelId);
         jdbcTemplate.update("DELETE FROM `fool_sys_model` WHERE `id` = ? OR `name` = ?", modelId, modelName);
