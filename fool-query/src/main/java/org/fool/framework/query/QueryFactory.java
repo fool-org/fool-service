@@ -1,6 +1,7 @@
 package org.fool.framework.query;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 @FunctionalInterface
@@ -12,9 +13,10 @@ public interface QueryFactory {
     }
 
     default QueryTable getTable(String tableName) {
+        String normalized = normalize(tableName);
         return getTables().stream()
-                .filter(table -> Objects.equals(table.getShowName(), tableName)
-                        || Objects.equals(table.getDbName(), tableName))
+                .filter(table -> Objects.equals(normalize(table.getShowName()), normalized)
+                        || Objects.equals(normalize(table.getDbName()), normalized))
                 .findFirst()
                 .orElse(null);
     }
@@ -33,5 +35,9 @@ public interface QueryFactory {
                 .map(ColStateValue::getDbName)
                 .findFirst()
                 .orElse(value);
+    }
+
+    private static String normalize(String value) {
+        return value == null ? "" : value.trim().toUpperCase(Locale.ROOT);
     }
 }

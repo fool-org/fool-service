@@ -25,7 +25,9 @@ public class QueryFactoryTest {
 
         assertEquals(orders, factory.getTable("订单"));
         assertEquals(orders, factory.getTable("orders"));
+        assertEquals(orders, factory.getTable(" ORDERS "));
         assertEquals(customers, factory.getTable("customers"));
+        assertEquals(customers, factory.getTable(" 客户 "));
         assertEquals(null, factory.getTable("missing"));
         assertEquals(List.of(), factory.getColumns(orders));
     }
