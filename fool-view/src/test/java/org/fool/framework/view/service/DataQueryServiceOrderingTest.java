@@ -188,6 +188,63 @@ public class DataQueryServiceOrderingTest {
         assertArrayEquals(new Object[]{"%USDT%", "%USDT%"}, sql.getArgs());
     }
 
+    @Test
+    public void queryViewDataListAppliesLegacyKeywordToBusinessObjectShowProperty() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
+        DataQueryService service = new DataQueryService();
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+        ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
+        ReflectionTestUtils.setField(service, "viewAdapter", viewAdapter);
+
+        View view = new View();
+        view.setViewName("OrderList");
+        view.setViewModel("Order");
+        view.setListItems(List.of(
+                viewItem("orderId", 10, InputType.TEXT_BOX, true),
+                viewItem("customer", 20, InputType.READ_ONLY, false)));
+        Model customer = model("Customer", List.of(
+                property("customerId", "customer_id"),
+                property("customerName", "customer_name")));
+        customer.setTableName("customer");
+        customer.setIdProperty(customer.getProperties().get(0));
+        customer.setShowProperty(customer.getProperties().get(1));
+        Property customerProperty = property("customer", "customer_id");
+        customerProperty.setPropertyType(PropertyType.BusinessObject);
+        customerProperty.setPropertyModel(customer);
+        Model order = model("Order", List.of(
+                property("orderId", "order_id"),
+                customerProperty));
+        PageNavigator pageNavigator = new PageNavigator();
+        PageResult<IDynamicData> pageResult = new PageResult<>();
+        when(daoService.getOneDetailByKey(View.class, "OrderList")).thenReturn(view);
+        when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(order);
+        when(modelDataService.getDataListWithPageInfo(
+                eq("Order"),
+                any(IQueryFilter.class),
+                anyList(),
+                eq(pageNavigator),
+                eq("order_id"),
+                eq(true)))
+                .thenReturn(pageResult);
+        when(viewAdapter.getListViewResult(eq(view), eq(pageResult))).thenReturn(new ListViewResult());
+
+        service.queryViewDataList("OrderList", null, pageNavigator, "Ada");
+
+        ArgumentCaptor<IQueryFilter> filterCaptor = ArgumentCaptor.forClass(IQueryFilter.class);
+        verify(modelDataService).getDataListWithPageInfo(
+                eq("Order"),
+                filterCaptor.capture(),
+                anyList(),
+                eq(pageNavigator),
+                eq("order_id"),
+                eq(true));
+        var sql = filterCaptor.getValue().generateSql();
+        assertEquals("( 1=1 ) And (`customer`.`customer_name` LIKE ?)", sql.getSql());
+        assertArrayEquals(new Object[]{"%Ada%"}, sql.getArgs());
+    }
+
     private static ViewItem viewItem(String modelProperty, int showIndex) {
         return viewItem(modelProperty, showIndex, InputType.READ_ONLY, false);
     }

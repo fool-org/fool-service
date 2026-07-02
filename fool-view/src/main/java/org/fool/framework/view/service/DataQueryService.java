@@ -6,6 +6,7 @@ import org.fool.framework.dao.QueryAndArgs;
 import org.fool.framework.dto.CommonException;
 import org.fool.framework.common.PropertyType;
 import org.fool.framework.model.model.Model;
+import org.fool.framework.model.model.MultiDbMap;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.model.service.ModelDataService;
 import org.fool.framework.query.BetweenFilter;
@@ -113,7 +114,7 @@ public class DataQueryService {
             return queryFilter;
         }
         var pattern = "%" + keyword.trim() + "%";
-        var columns = orderedListItems(view).stream()
+        var columnExpressions = orderedListItems(view).stream()
                 .filter(this::readOnlyItem)
                 .map(ViewItem::getModelProperty)
                 .map(name -> model.getProperties().stream()
@@ -121,26 +122,63 @@ public class DataQueryService {
                         .findFirst()
                         .orElse(null))
                 .filter(property -> property != null
-                        && property.getPropertyType() != PropertyType.BusinessObject
-                        && !Boolean.TRUE.equals(property.getIsCollection())
-                        && StringUtils.hasText(property.getColumn()))
-                .map(Property::getColumn)
+                        && !Boolean.TRUE.equals(property.getIsCollection()))
+                .map(this::keywordColumnExpression)
+                .filter(StringUtils::hasText)
                 .toList();
-        if (columns.isEmpty()) {
+        if (columnExpressions.isEmpty()) {
             return queryFilter;
         }
         return queryFilter.and(new SimpleFilter() {
             @Override
             public QueryAndArgs generateSql() {
                 QueryAndArgs queryAndArgs = new QueryAndArgs();
-                queryAndArgs.setSql(columns.stream()
-                        .map(column -> "`" + column + "` LIKE ?")
+                queryAndArgs.setSql(columnExpressions.stream()
+                        .map(column -> column + " LIKE ?")
                         .reduce((left, right) -> left + " OR " + right)
                         .orElse(" 1=1 "));
-                queryAndArgs.setArgs(columns.stream().map(column -> pattern).toArray());
+                queryAndArgs.setArgs(columnExpressions.stream().map(column -> pattern).toArray());
                 return queryAndArgs;
             }
         });
+    }
+
+    private String keywordColumnExpression(Property property) {
+        if (!PropertyType.BusinessObject.equals(property.getPropertyType())) {
+            return StringUtils.hasText(property.getColumn()) ? "`" + property.getColumn() + "`" : null;
+        }
+        Model targetModel = property.getPropertyModel();
+        if (targetModel == null) {
+            return null;
+        }
+        Property showProperty = showProperty(targetModel);
+        if (showProperty == null) {
+            return null;
+        }
+        if (Boolean.TRUE.equals(property.getMultiMap())) {
+            return safeDbMaps(property).stream()
+                    .filter(map -> map != null)
+                    .filter(map -> showProperty.getName().equals(map.getPropertyName()))
+                    .map(MultiDbMap::getColumnName)
+                    .filter(StringUtils::hasText)
+                    .findFirst()
+                    .map(column -> "`" + column + "`")
+                    .orElse(null);
+        }
+        if (showProperty == targetModel.getIdProperty()) {
+            return StringUtils.hasText(property.getColumn()) ? "`" + property.getColumn() + "`" : null;
+        }
+        return StringUtils.hasText(showProperty.getColumn())
+                ? "`" + property.getName() + "`.`" + showProperty.getColumn() + "`"
+                : null;
+    }
+
+    private Property showProperty(Model model) {
+        return model.getShowProperty() == null ? model.getIdProperty() : model.getShowProperty();
+    }
+
+    private List<MultiDbMap> safeDbMaps(Property property) {
+        return property.getDbMaps() == null ? List.of() : property.getDbMaps();
     }
 
     private boolean readOnlyItem(ViewItem item) {
