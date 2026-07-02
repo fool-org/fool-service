@@ -58,6 +58,20 @@ public class AppManageMigrationTest {
         assertColumn(AuthorizedUser.class, "userLoginName", "APP_AUTH_USERLOGINNAME", false);
         assertColumn(AuthorizedUser.class, "departmentId", "APP_AUTH_DEP", false);
 
+        assertEquals("SW_APP_AUTH_COMPANY", tableName(AuthCompany.class));
+        assertColumn(AuthCompany.class, "companyId", "APP_COR_ID", true);
+        assertColumn(AuthCompany.class, "name", "APP_COR_NAME", false);
+
+        assertEquals("SW_APP_AUTH_DEPARTMENT", tableName(AuthDepartment.class));
+        assertColumn(AuthDepartment.class, "departmentId", "APP_DEP_ID", true);
+        assertColumn(AuthDepartment.class, "ownerCompanyId", "SW_APP_AUTH_COMPANY_DepsAPP_COR_ID", false);
+        assertColumn(AuthDepartment.class, "name", "APP_DEP_NAME", false);
+        assertColumn(AuthDepartment.class, "defaultViewId", "APP_DEP_DEFAULTVIEW", false);
+
+        assertEquals("SW_APP_AUTH_DEPARTMENT_SubDepartments", tableName(AuthDepartmentSubDepartmentRelation.class));
+        assertColumn(AuthDepartmentSubDepartmentRelation.class, "parentDepartmentId", "SW_APP_AUTH_DEPARTMENT_SubDepartmentsAPP_DEP_ID", false);
+        assertColumn(AuthDepartmentSubDepartmentRelation.class, "subDepartmentId", "SW_APP_AUTH_DEPARTMENT_SUBDEPARTMENTS_ITEM", false);
+
         assertEquals("SW_APP_AUTH_MENU", tableName(AuthMenuItem.class));
         assertColumn(AuthMenuItem.class, "menuId", "AUTH_MENU_ID", true);
         assertColumn(AuthMenuItem.class, "text", "AUTH_MENU_TEXT", false);
