@@ -188,6 +188,40 @@ public class AppManageMigrationTest {
         assertColumn(AppInstalledPropertyTriggerCommand.class, "propertyExpression", "SW_SYS_COMMAND_PROPERTY_EXP", false);
         assertColumn(AppInstalledPropertyTriggerCommand.class, "tempValue", "SW_SYS_COMMAND_TEMPVALUE", false);
 
+        assertEquals("SW_SYS_OPERATION", tableName(AppInstalledOperation.class));
+        assertColumn(AppInstalledOperation.class, "operationId", "SysId", true);
+        assertColumn(AppInstalledOperation.class, "ownerModelId", "SW_SYS_MODEL_OperationsMODEL_ID", false);
+        assertColumn(AppInstalledOperation.class, "name", "SW_MODEL_OPERATION_NAME", false);
+        assertColumn(AppInstalledOperation.class, "filter", "SW_MODEL_OPERATION_FILTER", false);
+        assertColumn(AppInstalledOperation.class, "baseType", "SW_MODEL_OPERATION_BASETYPE", false);
+        assertColumn(AppInstalledOperation.class, "argModelId", "SW_MODEL_OPERATION_ARGMODEL", false);
+        assertColumn(AppInstalledOperation.class, "argFilter", "SW_MODEL_OPERATION_ARGFILTER", false);
+        assertColumn(AppInstalledOperation.class, "invokeDll", "SW_MODEL_OPERATION_INVOKEDLL", false);
+        assertColumn(AppInstalledOperation.class, "invokeClass", "SW_MODEL_OPERATION_INVOKECLASS", false);
+        assertColumn(AppInstalledOperation.class, "invokeMethod", "SW_MODEL_OPERATION_INVOKEMETHOD", false);
+        assertColumn(AppInstalledOperation.class, "returnModelId", "SW_MODEL_OPERATION_RETURNMODEL", false);
+
+        assertEquals("SW_SYS_COMMANDS", tableName(AppInstalledOperationCommand.class));
+        assertColumn(AppInstalledOperationCommand.class, "commandId", "SysId", true);
+        assertColumn(AppInstalledOperationCommand.class, "ownerOperationId", "SW_SYS_OPERATION_CommandsSysId", false);
+        assertColumn(AppInstalledOperationCommand.class, "commandType", "SW_SYS_COMMAND_TYPE", false);
+        assertColumn(AppInstalledOperationCommand.class, "propertyId", "SW_SYS_COMMAND_PROPERTY", false);
+        assertColumn(AppInstalledOperationCommand.class, "expression", "SW_SYS_COMMAND_EXP", false);
+        assertColumn(AppInstalledOperationCommand.class, "argModelId", "SW_SYS_COMMAND_ARGMODEL", false);
+        assertColumn(AppInstalledOperationCommand.class, "argExpression", "SW_SYS_COMMAND_ARGEXP", false);
+        assertColumn(AppInstalledOperationCommand.class, "argSourceIdExpression", "SW_SYS_COMMAND_ARGID", false);
+        assertColumn(AppInstalledOperationCommand.class, "index", "SW_SYS_COMMAND_INDEX", false);
+        assertColumn(AppInstalledOperationCommand.class, "propertyExpression", "SW_SYS_COMMAND_PROPERTY_EXP", false);
+        assertColumn(AppInstalledOperationCommand.class, "tempValue", "SW_SYS_COMMAND_TEMPVALUE", false);
+
+        assertEquals("SW_SYS_OPERATION_PARAM", tableName(AppInstalledOperationParam.class));
+        assertColumn(AppInstalledOperationParam.class, "paramId", "SysId", true);
+        assertColumn(AppInstalledOperationParam.class, "ownerOperationId", "SW_SYS_OPERATION_ParamsSysId", false);
+        assertColumn(AppInstalledOperationParam.class, "name", "SW_SYS_OPERATION_PARAM_NAME", false);
+        assertColumn(AppInstalledOperationParam.class, "viewId", "SW_SYS_OPERATION_PARAM_VIEW", false);
+        assertColumn(AppInstalledOperationParam.class, "filter", "SW_SYS_OPERATION_PARAM_FILTER", false);
+        assertColumn(AppInstalledOperationParam.class, "value", "SW_SYS_OPERATION_PARAM_VALUE", false);
+
         assertEquals("SW_SYS_RELATION", tableName(AppInstalledRelation.class));
         assertColumn(AppInstalledRelation.class, "relationType", "SW_SYS_RELATION_TYPE", false);
         assertColumn(AppInstalledRelation.class, "sourcePropertyId", "SW_SYS_RELATION_SOURCEPROPERTY", false);
