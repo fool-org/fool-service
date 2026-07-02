@@ -260,12 +260,29 @@ public class ModelDataServiceTest {
         assertEquals("", data.get("code"));
     }
 
+    @Test
+    public void initDataBuildsLegacyCollectionDefaults() {
+        Model model = new Model();
+        model.setProperties(List.of(collectionProperty("items")));
+
+        IDynamicData data = modelDataService.initData(model);
+
+        assertNotNull(data);
+        assertEquals(List.of(), data.get("items"));
+    }
+
     private Property simpleProperty(String name, PropertyType type) {
         Property property = new Property();
         property.setName(name);
         property.setPropertyType(type);
         property.setIsCollection(false);
         property.setMultiMap(false);
+        return property;
+    }
+
+    private Property collectionProperty(String name) {
+        Property property = simpleProperty(name, PropertyType.BusinessObject);
+        property.setIsCollection(true);
         return property;
     }
 

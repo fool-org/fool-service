@@ -290,9 +290,12 @@ public class ModelDataService {
             return data;
         }
         model.getProperties().stream()
-                .filter(property -> !Boolean.TRUE.equals(property.getIsCollection()))
                 .filter(property -> !Boolean.TRUE.equals(property.getMultiMap()))
-                .forEach(property -> data.set(property.getName(), Mapper.defaultValue(property)));
+                .forEach(property -> data.set(
+                        property.getName(),
+                        Boolean.TRUE.equals(property.getIsCollection())
+                                ? new LinkedList<>()
+                                : Mapper.defaultValue(property)));
         return data;
     }
 
