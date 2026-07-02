@@ -12,6 +12,23 @@ public class OperationEnumMigrationTest {
     }
 
     @Test
+    public void operationBaseTypeKeepsLegacyCodesAndSpelling() {
+        assertEquals(0, OperationBaseType.CREATE.code());
+        assertEquals(1, OperationBaseType.UPDATE.code());
+        assertEquals(2, OperationBaseType.DELETE.code());
+        assertEquals(4, OperationBaseType.NULL.code());
+        assertEquals(5, OperationBaseType.ASSEBMLY.code());
+        assertEquals(6, OperationBaseType.WCF.code());
+        assertEquals(7, OperationBaseType.JSONPOST.code());
+        assertEquals(8, OperationBaseType.JSONGET.code());
+    }
+
+    @Test
+    public void operationDefaultsToLegacyNullBaseType() {
+        assertEquals(OperationBaseType.NULL, new Operation().getBaseOperationType());
+    }
+
+    @Test
     public void commandsTypeKeepsLegacyCodesAndSpelling() {
         assertEquals(0, CommandsType.SET_VALUE.code());
         assertEquals(1, CommandsType.SET_ACCESS.code());
