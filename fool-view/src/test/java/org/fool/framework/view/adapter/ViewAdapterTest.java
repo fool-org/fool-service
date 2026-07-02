@@ -264,6 +264,20 @@ public class ViewAdapterTest {
         assertEquals("order-cell.html", columnViewFile(column));
     }
 
+    @Test
+    public void viewInfoIncludesLegacyColumnDefaultPropertyAndEditIds() {
+        ViewItem orderId = viewItem("orderId", "Order ID", ItemEditType.ReadOnly);
+
+        View view = new View();
+        view.setListItems(List.of(orderId));
+
+        Object column = new ViewAdapter().getViewInfo(view).getTableColumn().get(0);
+
+        assertEquals(Long.valueOf(0L), columnPropertyId(column));
+        assertEquals(Long.valueOf(0L), columnEditViewId(column));
+        assertEquals(Long.valueOf(0L), columnEditExp(column));
+    }
+
     private static ViewOperation operation(
             String name,
             boolean requireSelect,
@@ -429,6 +443,33 @@ public class ViewAdapterTest {
             return (String) column.getClass().getMethod("getViewFile").invoke(column);
         } catch (ReflectiveOperationException e) {
             fail("TableColumnInfo should expose legacy view-file metadata");
+            return null;
+        }
+    }
+
+    private static Long columnPropertyId(Object column) {
+        try {
+            return (Long) column.getClass().getMethod("getPropertyId").invoke(column);
+        } catch (ReflectiveOperationException e) {
+            fail("TableColumnInfo should expose legacy property ID metadata");
+            return null;
+        }
+    }
+
+    private static Long columnEditViewId(Object column) {
+        try {
+            return (Long) column.getClass().getMethod("getEditViewId").invoke(column);
+        } catch (ReflectiveOperationException e) {
+            fail("TableColumnInfo should expose legacy edit-view ID metadata");
+            return null;
+        }
+    }
+
+    private static Long columnEditExp(Object column) {
+        try {
+            return (Long) column.getClass().getMethod("getEditExp").invoke(column);
+        } catch (ReflectiveOperationException e) {
+            fail("TableColumnInfo should expose legacy edit-exp metadata");
             return null;
         }
     }

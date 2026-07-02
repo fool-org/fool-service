@@ -50,8 +50,11 @@ export interface TableColumnInfo {
   format?: string;
   isReadOnly?: boolean;
   editType?: string;
+  propertyId?: number;
   listViewId?: number;
   listViewType?: number;
+  editViewId?: number;
+  editExp?: number;
   propertyType?: string;
   propertyModel?: number;
   viewFile?: string | null;
