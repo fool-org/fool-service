@@ -9,7 +9,7 @@ the heaviest runtime path for every edit.
 | Change type | Minimum check | Escalation |
 | --- | --- | --- |
 | Harness, standards, docs, task state | `python scripts/check_repo_harness.py` | Run JSON/JUnit output when wiring CI or artifacts |
-| Backend Java module | `mvn test` or a focused `mvn -pl <module> test` | Full `mvn test` when shared parent POM, common modules, or Spring wiring changes |
+| Backend Java module | `docker run --rm --network fool-service_default -v "$PWD":/workspace -v "$HOME/.m2":/root/.m2 -w /workspace maven:3.9-eclipse-temurin-17 mvn -DfailIfNoTests=false test` after `docker compose up -d` | Focus with `-pl <module> -am` when the scope is isolated |
 | Frontend Vue workflow | `cd frontend && npm test && npm run build` | Browser smoke through Docker when API contracts or runtime routing changes |
 | Docker/runtime stack | `docker compose up -d --build`, `docker compose ps`, `curl http://localhost:8080/test` | Capture logs and add an artifact bundle under `artifacts/runs/<run_id>/` |
 | FoolFrame migration parity | Update `docs/migration/foolframe-parity.md` plus focused backend/frontend tests | Docker smoke when a migrated workflow crosses frontend, backend, database, or runtime wiring |
@@ -19,7 +19,7 @@ the heaviest runtime path for every edit.
 - `python scripts/check_repo_harness.py`
 - `python scripts/check_repo_harness.py --report-json artifacts/runs/<run_id>/repo-harness.json`
 - `python scripts/check_repo_harness.py --junit-out artifacts/runs/<run_id>/repo-harness.xml`
-- `mvn test`
+- `docker run --rm --network fool-service_default -v "$PWD":/workspace -v "$HOME/.m2":/root/.m2 -w /workspace maven:3.9-eclipse-temurin-17 mvn -DfailIfNoTests=false test`
 - `cd frontend && npm test && npm run build`
 - `docker compose up -d --build`
 - `curl http://localhost:8080/test`

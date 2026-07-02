@@ -5,9 +5,9 @@ spring:
     activate:
       on-profile: test
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/car_wash?serverTimezone=Hongkong&useSSL=false&allowPublicKeyRetrieval=true
-    username: root
-    password: Pa88word
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://mysql:3306/car_wash?serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&allowMultiQueries=true&autoReconnect=true}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:Pa88word}
     driver-class-name: com.mysql.cj.jdbc.Driver
     driverClassName: com.mysql.cj.jdbc.Driver
   jackson:
