@@ -78,6 +78,20 @@ public class ViewAdapterTest {
     }
 
     @Test
+    public void viewInfoIncludesLegacyDetailViewId() {
+        View detail = new View();
+        detail.setId(500L);
+
+        View view = new View();
+        view.setDefaultDetailView(detail);
+        view.setListItems(List.of());
+
+        ListViewInfo info = new ViewAdapter().getViewInfo(view);
+
+        assertEquals(Long.valueOf(500L), detailViewId(info));
+    }
+
+    @Test
     public void viewInfoOrdersLegacyListColumnsByShowIndex() {
         ViewItem symbol = viewItem("symbol", "Symbol", ItemEditType.ReadOnly);
         setShowIndex(symbol, 2);
@@ -200,6 +214,15 @@ public class ViewAdapterTest {
             return (ItemEditType) column.getClass().getMethod("getEditType").invoke(column);
         } catch (ReflectiveOperationException e) {
             fail("TableColumnInfo should expose legacy edit-type metadata");
+            return null;
+        }
+    }
+
+    private static Long detailViewId(Object info) {
+        try {
+            return (Long) info.getClass().getMethod("getDetailViewId").invoke(info);
+        } catch (ReflectiveOperationException e) {
+            fail("ListViewInfo should expose legacy detail view ID metadata");
             return null;
         }
     }

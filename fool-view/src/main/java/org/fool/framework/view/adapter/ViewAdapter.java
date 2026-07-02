@@ -31,6 +31,7 @@ public class ViewAdapter {
         result.setViewTitle(view.getViewTitle());
         result.setViewType(view.getViewType());
         result.setBrowserTitle(view.getViewRemark());
+        result.setDetailViewId(safeDetailViewId(view));
         result.setAutoFreshTime(safeAutoFreshTime(view));
         result.setTableColumn(new LinkedList<>());
         orderedListItems(view).stream().filter(p -> p.getEditType() != ItemEditType.Format).forEach(p -> {
@@ -76,6 +77,12 @@ public class ViewAdapter {
 
     private int safeWidth(ViewItem item) {
         return item.getWidth() == null ? 0 : item.getWidth();
+    }
+
+    private long safeDetailViewId(View view) {
+        return view.getDefaultDetailView() == null || view.getDefaultDetailView().getId() == null
+                ? 0L
+                : view.getDefaultDetailView().getId();
     }
 
     private Integer safeAutoFreshTime(View view) {

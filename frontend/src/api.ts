@@ -65,6 +65,7 @@ export interface ListViewInfo {
   viewTitle?: string;
   browserTitle?: string;
   viewType?: string;
+  detailViewId?: number;
   autoFreshTime?: number;
   inputInfo?: ViewInputInfo[];
   tableColumn?: TableColumnInfo[];
