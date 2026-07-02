@@ -326,6 +326,12 @@ public class AppManageMigrationTest {
         assertEquals(
                 Arrays.asList("Web", "WinForm", "Android", "iOS", "Service", "Sensor"),
                 Arrays.stream(AppType.values()).map(Enum::name).toList());
+        assertEquals(0, AppType.Web.code());
+        assertEquals(1, AppType.WinForm.code());
+        assertEquals(2, AppType.Android.code());
+        assertEquals(3, AppType.iOS.code());
+        assertEquals(4, AppType.Service.code());
+        assertEquals(5, AppType.Sensor.code());
     }
 
     @Test
