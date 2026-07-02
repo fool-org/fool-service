@@ -136,6 +136,58 @@ public class AppManageMigrationTest {
         assertColumn(AppInstalledMultiDbMap.class, "columnName", "MAP_COLNAME", false);
         assertColumn(AppInstalledMultiDbMap.class, "ownerPropertyId", "SW_SYS_PROPERTY_DBMapsSysId", false);
 
+        assertEquals("SW_SYS_MODEL_TRIGGER", tableName(AppInstalledModelTrigger.class));
+        assertColumn(AppInstalledModelTrigger.class, "triggerId", "SysId", true);
+        assertColumn(AppInstalledModelTrigger.class, "ownerModelId", "SW_SYS_MODEL_TriggersMODEL_ID", false);
+        assertColumn(AppInstalledModelTrigger.class, "argModelId", "SW_MODEL_TRIGGER_ARGMODEL", false);
+        assertColumn(AppInstalledModelTrigger.class, "triggerType", "SW_MODEL_TRIGGER_TYPE", false);
+        assertColumn(AppInstalledModelTrigger.class, "filter", "SW_MODEL_TRIGGER_FILTER", false);
+        assertColumn(AppInstalledModelTrigger.class, "argFilter", "SW_MODEL_TRIGGER_ARGFILTER", false);
+        assertColumn(AppInstalledModelTrigger.class, "operationType", "SW_MODEL_TRIGGER_OPERATIONTYPE", false);
+        assertColumn(AppInstalledModelTrigger.class, "invokeDll", "SW_MODEL_TRIGGER_INVOKEDLL", false);
+        assertColumn(AppInstalledModelTrigger.class, "invokeClass", "SW_MODEL_TRIGGER_INVOKECLASS", false);
+        assertColumn(AppInstalledModelTrigger.class, "invokeMethod", "SW_MODEL_TRIGGER_INVOKEMETHOD", false);
+
+        assertEquals("SW_SYS_MODEL_TRIGGER_COMMANDS", tableName(AppInstalledModelTriggerCommand.class));
+        assertColumn(AppInstalledModelTriggerCommand.class, "commandId", "SysId", true);
+        assertColumn(AppInstalledModelTriggerCommand.class, "ownerTriggerId", "SW_SYS_MODEL_TRIGGER_CommandsSysId", false);
+        assertColumn(AppInstalledModelTriggerCommand.class, "commandType", "SW_SYS_COMMAND_TYPE", false);
+        assertColumn(AppInstalledModelTriggerCommand.class, "propertyId", "SW_SYS_COMMAND_PROPERTY", false);
+        assertColumn(AppInstalledModelTriggerCommand.class, "expression", "SW_SYS_COMMAND_EXP", false);
+        assertColumn(AppInstalledModelTriggerCommand.class, "argModelId", "SW_SYS_COMMAND_ARGMODEL", false);
+        assertColumn(AppInstalledModelTriggerCommand.class, "argExpression", "SW_SYS_COMMAND_ARGEXP", false);
+        assertColumn(AppInstalledModelTriggerCommand.class, "argSourceIdExpression", "SW_SYS_COMMAND_ARGID", false);
+        assertColumn(AppInstalledModelTriggerCommand.class, "index", "SW_SYS_COMMAND_Index", false);
+        assertColumn(AppInstalledModelTriggerCommand.class, "propertyExpression", "SW_SYS_COMMAND_PROPERTY_EXP", false);
+        assertColumn(AppInstalledModelTriggerCommand.class, "tempValue", "SW_SYS_COMMAND_TEMPVALUE", false);
+
+        assertEquals("SW_SYS_PROPERTY_TRIGGER", tableName(AppInstalledPropertyTrigger.class));
+        assertColumn(AppInstalledPropertyTrigger.class, "triggerId", "SysId", true);
+        assertColumn(AppInstalledPropertyTrigger.class, "ownerPropertyId", "SW_SYS_PROPERTY_TriggersSysId", false);
+        assertColumn(AppInstalledPropertyTrigger.class, "argFilter", "SW_PROPERTY_TRIGGER_ARGFILTER", false);
+        assertColumn(AppInstalledPropertyTrigger.class, "argModelId", "SW_PROPERTY_TRIGGER_ARGMODEL", false);
+        assertColumn(AppInstalledPropertyTrigger.class, "filter", "SW_PROPERTY_TRIGGER_FILTER", false);
+        assertColumn(AppInstalledPropertyTrigger.class, "triggerType", "SW_PROPERTY_TRIGGER_TYPE", false);
+        assertColumn(AppInstalledPropertyTrigger.class, "name", "SW_PROPERTY_TRIGGER_NAME", false);
+        assertColumn(AppInstalledPropertyTrigger.class, "propertyId", "SW_PROPERTY_TRIGGER_PROPERTY", false);
+        assertColumn(AppInstalledPropertyTrigger.class, "baseType", "SW_PROPERTY_TRIGGER_BASETYPE", false);
+        assertColumn(AppInstalledPropertyTrigger.class, "invokeDll", "SW_MODEL_TRIGGER_INVOKEDLL", false);
+        assertColumn(AppInstalledPropertyTrigger.class, "invokeClass", "SW_MODEL_TRIGGER_INVOKECLASS", false);
+        assertColumn(AppInstalledPropertyTrigger.class, "invokeMethod", "SW_MODEL_TRIGGER_INVOKEMETHOD", false);
+
+        assertEquals("SW_SYS_PROPERTY_TRIGGER_COMMANDS", tableName(AppInstalledPropertyTriggerCommand.class));
+        assertColumn(AppInstalledPropertyTriggerCommand.class, "commandId", "SysId", true);
+        assertColumn(AppInstalledPropertyTriggerCommand.class, "ownerTriggerId", "SW_SYS_PROPERTY_TRIGGER_CommandsSysId", false);
+        assertColumn(AppInstalledPropertyTriggerCommand.class, "commandType", "SW_SYS_COMMAND_TYPE", false);
+        assertColumn(AppInstalledPropertyTriggerCommand.class, "propertyId", "SW_SYS_COMMAND_PROPERTY", false);
+        assertColumn(AppInstalledPropertyTriggerCommand.class, "expression", "SW_SYS_COMMAND_EXP", false);
+        assertColumn(AppInstalledPropertyTriggerCommand.class, "argModelId", "SW_SYS_COMMAND_ARGMODEL", false);
+        assertColumn(AppInstalledPropertyTriggerCommand.class, "argExpression", "SW_SYS_COMMAND_ARGEXP", false);
+        assertColumn(AppInstalledPropertyTriggerCommand.class, "argSourceIdExpression", "SW_SYS_COMMAND_ARGID", false);
+        assertColumn(AppInstalledPropertyTriggerCommand.class, "index", "SW_SYS_COMMAND_INDEX", false);
+        assertColumn(AppInstalledPropertyTriggerCommand.class, "propertyExpression", "SW_SYS_COMMAND_PROPERTY_EXP", false);
+        assertColumn(AppInstalledPropertyTriggerCommand.class, "tempValue", "SW_SYS_COMMAND_TEMPVALUE", false);
+
         assertEquals("SW_SYS_RELATION", tableName(AppInstalledRelation.class));
         assertColumn(AppInstalledRelation.class, "relationType", "SW_SYS_RELATION_TYPE", false);
         assertColumn(AppInstalledRelation.class, "sourcePropertyId", "SW_SYS_RELATION_SOURCEPROPERTY", false);
