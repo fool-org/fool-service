@@ -30,7 +30,16 @@ public interface QueryFactory {
     }
 
     default String getStateStr(QueryColumn col, String value) {
-        return getStateValues(col).stream()
+        List<ColStateValue> values = getStateValues(col);
+        String showName = values.stream()
+                .filter(stateValue -> Objects.equals(stateValue.getDbName(), value))
+                .map(ColStateValue::getShowName)
+                .findFirst()
+                .orElse(null);
+        if (showName != null) {
+            return showName;
+        }
+        return values.stream()
                 .filter(stateValue -> Objects.equals(stateValue.getShowName(), value))
                 .map(ColStateValue::getDbName)
                 .findFirst()

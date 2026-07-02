@@ -33,7 +33,7 @@ public class QueryFactoryTest {
     }
 
     @Test
-    public void getStateStrMapsLegacyDisplayStateToDatabaseState() {
+    public void getStateStrMapsLegacyStateValuesInBothDirections() {
         QueryColumn column = new QueryColumn();
         column.setShowName("状态");
         column.setDbName("STATUS");
@@ -53,7 +53,9 @@ public class QueryFactoryTest {
         };
 
         assertEquals("READY", factory.getStateStr(column, "就绪"));
+        assertEquals("就绪", factory.getStateStr(column, "READY"));
         assertEquals("DONE", factory.getStateStr(column, "完成"));
+        assertEquals("完成", factory.getStateStr(column, "DONE"));
         assertEquals("UNKNOWN", factory.getStateStr(column, "UNKNOWN"));
     }
 
