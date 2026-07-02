@@ -69,7 +69,8 @@ public class SimpleBoolExpression extends SimpleFilter {
     }
 
     private String columnSql() {
-        return "[" + col.getSelectedTableName() + "].[" + col.getCol().getDbName() + "]";
+        return "[" + QuerySqlBuilder.identifier(col.getSelectedTableName()) + "].["
+                + QuerySqlBuilder.identifier(col.getCol().getDbName()) + "]";
     }
 
     @Override

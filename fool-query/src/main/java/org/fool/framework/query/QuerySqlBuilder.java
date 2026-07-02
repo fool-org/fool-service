@@ -269,7 +269,7 @@ public final class QuerySqlBuilder {
                 identifier(column.getDataColumn().getDbName()));
     }
 
-    private static String identifier(String value) {
+    static String identifier(String value) {
         if (value != null && value.startsWith("[") && value.endsWith("]") && value.length() > 1) {
             return value.substring(1, value.length() - 1);
         }

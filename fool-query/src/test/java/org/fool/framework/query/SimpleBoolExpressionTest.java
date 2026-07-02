@@ -32,6 +32,22 @@ public class SimpleBoolExpressionTest {
     }
 
     @Test
+    public void simpleBoolExpressionDoesNotDoubleWrapLegacyBracketedCompareColumn() {
+        SimpleBoolExpression expression = new SimpleBoolExpression(
+                compareCol("[Orders]", "[STATUS]"),
+                CompareOp.EQUAL,
+                "READY",
+                "Ready",
+                new QueryInstance(),
+                null);
+
+        QueryAndArgs sql = expression.generateSql();
+
+        assertEquals("[Orders].[STATUS]= ?", sql.getSql());
+        assertArrayEquals(new Object[]{"READY"}, sql.getArgs());
+    }
+
+    @Test
     public void simpleBoolExpressionFormatsLegacyDisplayString() {
         SimpleBoolExpression expression = new SimpleBoolExpression(
                 compareCol("Orders", "STATUS", "状态"),
