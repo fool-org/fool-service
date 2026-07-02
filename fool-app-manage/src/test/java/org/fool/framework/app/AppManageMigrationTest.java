@@ -95,6 +95,10 @@ public class AppManageMigrationTest {
         assertColumn(AuthRoleAuthorizedUserRelation.class, "roleId", "SW_APP_AUTH_ROLE_ID", false);
         assertColumn(AuthRoleAuthorizedUserRelation.class, "authorizedUserId", "SW_APP_AUTH_USER_ID", false);
 
+        assertEquals("SW_APP_AUTH_DEPARTMENT_SW_APP_AUTH_ROLE", tableName(AuthRoleDepartmentRelation.class));
+        assertColumn(AuthRoleDepartmentRelation.class, "departmentId", "SW_APP_AUTH_DEPARTMENT_ID", false);
+        assertColumn(AuthRoleDepartmentRelation.class, "roleId", "SW_APP_AUTH_ROLE_ID", false);
+
         assertEquals("SW_APP_AUTH_MENU_SW_APP_AUTH_ROLE", tableName(AuthRoleMenuItemRelation.class));
         assertColumn(AuthRoleMenuItemRelation.class, "menuId", "SW_APP_AUTH_MENU_ID", false);
         assertColumn(AuthRoleMenuItemRelation.class, "roleId", "SW_APP_AUTH_ROLE_ID", false);
