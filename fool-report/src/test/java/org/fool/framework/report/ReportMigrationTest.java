@@ -23,10 +23,20 @@ public class ReportMigrationTest {
     public void preservesLegacyReportEnumOrdinals() {
         assertEquals(List.of("ASC", "DESC"),
                 Arrays.stream(OrderType.values()).map(Enum::name).toList());
+        assertEquals(0, OrderType.ASC.code());
+        assertEquals(1, OrderType.DESC.code());
         assertEquals(List.of("Max", "Min", "Avg", "Sum", "Ignore"),
                 Arrays.stream(StaticType.values()).map(Enum::name).toList());
+        assertEquals(0, StaticType.Max.code());
+        assertEquals(1, StaticType.Min.code());
+        assertEquals(2, StaticType.Avg.code());
+        assertEquals(3, StaticType.Sum.code());
+        assertEquals(4, StaticType.Ignore.code());
         assertEquals(List.of("Null", "Row", "Column"),
                 Arrays.stream(CalDirection.values()).map(Enum::name).toList());
+        assertEquals(0, CalDirection.Null.code());
+        assertEquals(1, CalDirection.Row.code());
+        assertEquals(2, CalDirection.Column.code());
     }
 
     @Test
