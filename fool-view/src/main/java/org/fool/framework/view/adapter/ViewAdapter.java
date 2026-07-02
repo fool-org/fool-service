@@ -57,6 +57,7 @@ public class ViewAdapter {
                             .listViewType(0)
                             .propertyType(safePropertyType(p))
                             .propertyModel(safePropertyModel(p))
+                            .viewFile(p.getViewFile())
                             .build());
         });
         result.setInputInfo(new LinkedList<>());

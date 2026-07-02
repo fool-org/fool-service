@@ -54,6 +54,7 @@ export interface TableColumnInfo {
   listViewType?: number;
   propertyType?: string;
   propertyModel?: number;
+  viewFile?: string | null;
 }
 
 export interface OperationInfo {

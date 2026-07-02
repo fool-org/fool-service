@@ -251,6 +251,19 @@ public class ViewAdapterTest {
         assertEquals(Long.valueOf(700L), columnPropertyModel(column));
     }
 
+    @Test
+    public void viewInfoIncludesLegacyColumnViewFile() {
+        ViewItem orderId = viewItem("orderId", "Order ID", ItemEditType.ReadOnly);
+        setViewFile(orderId, "order-cell.html");
+
+        View view = new View();
+        view.setListItems(List.of(orderId));
+
+        Object column = new ViewAdapter().getViewInfo(view).getTableColumn().get(0);
+
+        assertEquals("order-cell.html", columnViewFile(column));
+    }
+
     private static ViewOperation operation(
             String name,
             boolean requireSelect,
@@ -301,6 +314,14 @@ public class ViewAdapterTest {
             ViewItem.class.getMethod("setProperty", Property.class).invoke(item, property);
         } catch (ReflectiveOperationException e) {
             fail("ViewItem should expose legacy property metadata");
+        }
+    }
+
+    private static void setViewFile(ViewItem item, String viewFile) {
+        try {
+            ViewItem.class.getMethod("setViewFile", String.class).invoke(item, viewFile);
+        } catch (ReflectiveOperationException e) {
+            fail("ViewItem should expose legacy item-file metadata");
         }
     }
 
@@ -399,6 +420,15 @@ public class ViewAdapterTest {
             return (Long) column.getClass().getMethod("getPropertyModel").invoke(column);
         } catch (ReflectiveOperationException e) {
             fail("TableColumnInfo should expose legacy property-model metadata");
+            return null;
+        }
+    }
+
+    private static String columnViewFile(Object column) {
+        try {
+            return (String) column.getClass().getMethod("getViewFile").invoke(column);
+        } catch (ReflectiveOperationException e) {
+            fail("TableColumnInfo should expose legacy view-file metadata");
             return null;
         }
     }

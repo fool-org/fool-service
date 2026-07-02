@@ -40,4 +40,6 @@ public class TableColumnInfo {
     private PropertyType propertyType;
     @ApiModelProperty("legacy 属性模型ID")
     private Long propertyModel;
+    @ApiModelProperty("legacy 视图项模板文件")
+    private String viewFile;
 }

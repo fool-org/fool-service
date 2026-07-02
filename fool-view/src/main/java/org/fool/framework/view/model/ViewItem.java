@@ -36,6 +36,8 @@ public class ViewItem {
     private Integer width = 0;
     @Column(noMap = true)
     private transient Property property;
+    @Column(noMap = true)
+    private transient String viewFile;
 
 
     private Long viewId;
