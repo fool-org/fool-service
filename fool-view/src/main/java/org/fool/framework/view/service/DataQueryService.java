@@ -4,6 +4,7 @@ import org.fool.framework.dao.DaoService;
 import org.fool.framework.dao.PageNavigator;
 import org.fool.framework.dao.QueryAndArgs;
 import org.fool.framework.dto.CommonException;
+import org.fool.framework.common.PropertyType;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.model.service.ModelDataService;
@@ -16,6 +17,7 @@ import org.fool.framework.view.adapter.ViewDataAdapter;
 import org.fool.framework.view.common.ErrorCode;
 import org.fool.framework.view.dto.ListViewResult;
 import org.fool.framework.view.dto.QueryValue;
+import org.fool.framework.view.model.InputType;
 import org.fool.framework.view.model.View;
 import org.fool.framework.view.model.ViewItem;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +48,10 @@ public class DataQueryService {
      * @param pageInfo
      */
     public ListViewResult queryViewDataList(String viewName, Map<String, QueryValue> filter, PageNavigator pageInfo) {
+        return queryViewDataList(viewName, filter, pageInfo, null);
+    }
+
+    public ListViewResult queryViewDataList(String viewName, Map<String, QueryValue> filter, PageNavigator pageInfo, String keyword) {
 
         View view = daoService.getOneDetailByKey(View.class, viewName);
         if (view == null) {
@@ -56,7 +62,7 @@ public class DataQueryService {
             throw new CommonException(ErrorCode.MODEL_NOT_FOUND, "没有查到元数据定义");
         }
         var properties = getViewProperies(view, model);
-        IQueryFilter queryFilter = generateFilter(model, filter, view.getFilter());
+        IQueryFilter queryFilter = generateFilter(model, view, filter, keyword);
         Property orderProperty = getDefaultOrderProperty(view, model);
         var result = modelDataService.getDataListWithPageInfo(
                 view.getViewModel(),
@@ -76,8 +82,9 @@ public class DataQueryService {
      * @param filter
      * @return
      */
-    private IQueryFilter generateFilter(Model model, Map<String, QueryValue> filter, String viewFilter) {
-        IQueryFilter queryFilter = rawViewFilter(viewFilter);
+    private IQueryFilter generateFilter(Model model, View view, Map<String, QueryValue> filter, String keyword) {
+        IQueryFilter queryFilter = rawViewFilter(view.getFilter());
+        queryFilter = appendKeywordFilter(queryFilter, model, view, keyword);
         var properties = model.getProperties();
         if (filter != null) {
             for (var key : filter.keySet()
@@ -99,6 +106,45 @@ public class DataQueryService {
             }
         }
         return queryFilter;
+    }
+
+    private IQueryFilter appendKeywordFilter(IQueryFilter queryFilter, Model model, View view, String keyword) {
+        if (!StringUtils.hasText(keyword)) {
+            return queryFilter;
+        }
+        var pattern = "%" + keyword.trim() + "%";
+        var columns = orderedListItems(view).stream()
+                .filter(this::readOnlyItem)
+                .map(ViewItem::getModelProperty)
+                .map(name -> model.getProperties().stream()
+                        .filter(property -> property.getName().equals(name))
+                        .findFirst()
+                        .orElse(null))
+                .filter(property -> property != null
+                        && property.getPropertyType() != PropertyType.BusinessObject
+                        && !Boolean.TRUE.equals(property.getIsCollection())
+                        && StringUtils.hasText(property.getColumn()))
+                .map(Property::getColumn)
+                .toList();
+        if (columns.isEmpty()) {
+            return queryFilter;
+        }
+        return queryFilter.and(new SimpleFilter() {
+            @Override
+            public QueryAndArgs generateSql() {
+                QueryAndArgs queryAndArgs = new QueryAndArgs();
+                queryAndArgs.setSql(columns.stream()
+                        .map(column -> "`" + column + "` LIKE ?")
+                        .reduce((left, right) -> left + " OR " + right)
+                        .orElse(" 1=1 "));
+                queryAndArgs.setArgs(columns.stream().map(column -> pattern).toArray());
+                return queryAndArgs;
+            }
+        });
+    }
+
+    private boolean readOnlyItem(ViewItem item) {
+        return item.getInputType() == InputType.READ_ONLY || !item.isCanEdit();
     }
 
     private IQueryFilter rawViewFilter(String viewFilter) {

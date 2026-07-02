@@ -4,6 +4,7 @@ export interface QueryRequestInput {
   pageIndex: number;
   pageSize: number;
   filterJson: string;
+  keyword?: string;
   visibleFilters?: VisibleFilterInput[];
 }
 
@@ -21,13 +22,15 @@ export interface QueryRequest {
     pageSize: number;
   };
   filter: Record<string, unknown>;
+  keyword?: string;
 }
 
 export function buildQueryRequest(input: QueryRequestInput): QueryRequest {
   const filter = parseFilter(input.filterJson);
   const visibleFilter = buildVisibleFilter(input.visibleFilters || []);
+  const keyword = input.keyword?.trim();
 
-  return {
+  const request: QueryRequest = {
     token: input.token,
     viewName: input.viewName,
     pageInfo: {
@@ -39,6 +42,10 @@ export function buildQueryRequest(input: QueryRequestInput): QueryRequest {
       ...visibleFilter
     }
   };
+  if (keyword) {
+    request.keyword = keyword;
+  }
+  return request;
 }
 
 function parseFilter(filterJson: string): Record<string, unknown> {

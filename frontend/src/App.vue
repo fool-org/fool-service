@@ -20,6 +20,7 @@ const viewName = ref("OrderList");
 const pageIndex = ref(1);
 const pageSize = ref(20);
 const filterJson = ref("{}");
+const keyword = ref("");
 const quickFilterProperty = ref("orderId");
 const quickFilterMode = ref<"equals" | "range">("range");
 const quickFilterValue = ref("");
@@ -174,6 +175,7 @@ async function queryData() {
     pageIndex: Number(pageIndex.value),
     pageSize: Number(pageSize.value),
     filterJson: filterJson.value,
+    keyword: keyword.value,
     visibleFilters: visibleFilters.value
   });
 
@@ -313,6 +315,10 @@ function formatValue(value: unknown) {
           </div>
           <div class="filter-builder">
             <div class="filter-toolbar">
+              <label>
+                Keyword
+                <input v-model="keyword" />
+              </label>
               <label>
                 Property
                 <select v-model="quickFilterProperty">

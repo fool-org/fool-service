@@ -12,4 +12,5 @@ public class QueryDataRequest extends CommonRequest {
     private String viewName;
     private PageNavigator pageInfo;
     private Map<String,QueryValue> filter;
+    private String keyword;
 }

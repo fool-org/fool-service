@@ -24,7 +24,11 @@ public class DataController {
     @ResponseBody
     public CommonResponse<ListViewResult> queryViewDataList(@RequestBody QueryDataRequest request) {
         return new CommonResponse<ListViewResult>(
-                dataQueryService.queryViewDataList(request.getViewName(), request.getFilter(), request.getPageInfo()));
+                dataQueryService.queryViewDataList(
+                        request.getViewName(),
+                        request.getFilter(),
+                        request.getPageInfo(),
+                        request.getKeyword()));
     }
 
     public void queryViewDetailData() {

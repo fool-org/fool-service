@@ -61,4 +61,17 @@ describe("buildQueryRequest", () => {
       }
     });
   });
+
+  it("trims and sends the legacy keyword filter", () => {
+    const request = buildQueryRequest({
+      token: "token-1",
+      viewName: "OrderList",
+      pageIndex: 1,
+      pageSize: 20,
+      filterJson: "{}",
+      keyword: "  USDT  "
+    });
+
+    expect(request.keyword).toBe("USDT");
+  });
 });

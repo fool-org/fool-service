@@ -13,6 +13,7 @@ import org.fool.framework.query.IQueryFilter;
 import org.fool.framework.view.adapter.ViewDataAdapter;
 import org.fool.framework.view.dto.ListViewResult;
 import org.fool.framework.view.dto.QueryValue;
+import org.fool.framework.view.model.InputType;
 import org.fool.framework.view.model.View;
 import org.fool.framework.view.model.ViewItem;
 import org.junit.Test;
@@ -137,10 +138,66 @@ public class DataQueryServiceOrderingTest {
         assertArrayEquals(new Object[]{"BTC-USDT"}, sql.getArgs());
     }
 
+    @Test
+    public void queryViewDataListAppliesLegacyKeywordToReadOnlyItems() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
+        DataQueryService service = new DataQueryService();
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+        ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
+        ReflectionTestUtils.setField(service, "viewAdapter", viewAdapter);
+
+        View view = new View();
+        view.setViewName("OrderList");
+        view.setViewModel("Order");
+        view.setListItems(List.of(
+                viewItem("orderId", 10, InputType.TEXT_BOX, true),
+                viewItem("symbol", 20, InputType.READ_ONLY, false),
+                viewItem("state", 30, InputType.READ_ONLY, false)));
+        Model model = model("Order", List.of(
+                property("orderId", "order_id"),
+                property("symbol", "order_symbol"),
+                property("state", "order_state")));
+        PageNavigator pageNavigator = new PageNavigator();
+        PageResult<IDynamicData> pageResult = new PageResult<>();
+        when(daoService.getOneDetailByKey(View.class, "OrderList")).thenReturn(view);
+        when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(model);
+        when(modelDataService.getDataListWithPageInfo(
+                eq("Order"),
+                any(IQueryFilter.class),
+                anyList(),
+                eq(pageNavigator),
+                eq("order_id"),
+                eq(true)))
+                .thenReturn(pageResult);
+        when(viewAdapter.getListViewResult(eq(view), eq(pageResult))).thenReturn(new ListViewResult());
+
+        service.queryViewDataList("OrderList", null, pageNavigator, "USDT");
+
+        ArgumentCaptor<IQueryFilter> filterCaptor = ArgumentCaptor.forClass(IQueryFilter.class);
+        verify(modelDataService).getDataListWithPageInfo(
+                eq("Order"),
+                filterCaptor.capture(),
+                anyList(),
+                eq(pageNavigator),
+                eq("order_id"),
+                eq(true));
+        var sql = filterCaptor.getValue().generateSql();
+        assertEquals("( 1=1 ) And (`order_symbol` LIKE ? OR `order_state` LIKE ?)", sql.getSql());
+        assertArrayEquals(new Object[]{"%USDT%", "%USDT%"}, sql.getArgs());
+    }
+
     private static ViewItem viewItem(String modelProperty, int showIndex) {
+        return viewItem(modelProperty, showIndex, InputType.READ_ONLY, false);
+    }
+
+    private static ViewItem viewItem(String modelProperty, int showIndex, InputType inputType, boolean canEdit) {
         ViewItem item = new ViewItem();
         item.setModelProperty(modelProperty);
         item.setShowIndex(showIndex);
+        item.setInputType(inputType);
+        item.setCanEdit(canEdit);
         return item;
     }
 
