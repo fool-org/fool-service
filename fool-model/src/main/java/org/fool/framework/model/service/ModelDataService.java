@@ -184,7 +184,39 @@ public class ModelDataService {
     }
 
     public Boolean saveData(IDynamicData data) {
-        return true;
+        if (!(data instanceof DbMysqlDynamic dynamicData)) {
+            return false;
+        }
+        Model model = dynamicData.getModel();
+        if (model == null || model.getTableName() == null || model.getTableName().isBlank()
+                || model.getProperties() == null) {
+            return false;
+        }
+        Property idProperty = model.getIdProperty();
+        String idColumn = idProperty != null && idProperty.getColumn() != null && !idProperty.getColumn().isBlank()
+                ? idProperty.getColumn()
+                : "SYSID";
+        Object idValue = idProperty != null ? data.get(idProperty.getName()) : data.getId();
+        if (idValue == null) {
+            return false;
+        }
+        List<Property> properties = model.getProperties().stream()
+                .filter(property -> !Boolean.TRUE.equals(property.getIsCollection()))
+                .filter(property -> !Boolean.TRUE.equals(property.getMultiMap()))
+                .filter(property -> property.getColumn() != null && !property.getColumn().isBlank())
+                .filter(property -> !property.getColumn().equals(idColumn))
+                .toList();
+        if (properties.isEmpty()) {
+            return false;
+        }
+        String assignments = properties.stream()
+                .map(property -> "`" + property.getColumn() + "` = ?")
+                .collect(Collectors.joining(","));
+        List<Object> args = new LinkedList<>();
+        properties.forEach(property -> args.add(data.get(property.getName())));
+        args.add(idValue);
+        String sql = "UPDATE `" + model.getTableName() + "` SET " + assignments + " WHERE `" + idColumn + "` = ?";
+        return jdbcTemplate.update(sql, args.toArray()) > 0;
     }
 
     public Boolean saveDataList(List<IDynamicData> dataList) {

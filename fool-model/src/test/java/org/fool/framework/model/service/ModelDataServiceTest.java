@@ -173,6 +173,37 @@ public class ModelDataServiceTest {
         }
     }
 
+    @Test
+    public void saveDataUpdatesLegacySimpleDynamicRowById() {
+        long modelId = 95001L;
+        long idPropertyId = 95002L;
+        long namePropertyId = 95003L;
+        String modelName = "RuntimeSaveOrder";
+        String tableName = "runtime_save_order";
+        cleanupRuntimeDetailModel(modelId, modelName, tableName);
+        try {
+            createRuntimeDetailModel(modelId, idPropertyId, namePropertyId, modelName, tableName);
+            jdbcTemplate.update(
+                    "INSERT INTO `" + tableName + "` (`ORDER_ID`,`ORDER_NAME`) VALUES (?,?)",
+                    "4001",
+                    "Before save");
+            Model model = modelDataService.getModel(modelName);
+            DbMysqlDynamic data = new DbMysqlDynamic(model);
+            data.set("orderId", "4001");
+            data.set("orderName", "After save");
+
+            assertEquals(Boolean.TRUE, modelDataService.saveData(data));
+
+            String name = jdbcTemplate.queryForObject(
+                    "SELECT `ORDER_NAME` FROM `" + tableName + "` WHERE `ORDER_ID` = ?",
+                    String.class,
+                    "4001");
+            assertEquals("After save", name);
+        } finally {
+            cleanupRuntimeDetailModel(modelId, modelName, tableName);
+        }
+    }
+
     private void cleanupRuntimeEnumModel(long modelId, String modelName) {
         jdbcTemplate.update("DELETE FROM `fool_sys_model_enum` WHERE `owner` = ?", modelId);
         jdbcTemplate.update("DELETE FROM `fool_sys_model` WHERE `id` = ? OR `name` = ?", modelId, modelName);
