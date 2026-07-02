@@ -72,6 +72,7 @@ export interface ListViewInfo {
   viewType?: string;
   type?: string;
   showType?: string;
+  tempFile?: string;
   detailViewId?: number;
   autoFreshTime?: number;
   inputInfo?: ViewInputInfo[];

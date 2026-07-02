@@ -93,6 +93,16 @@ public class ViewAdapterTest {
     }
 
     @Test
+    public void viewInfoIncludesLegacyEmptyTempFile() {
+        View view = new View();
+        view.setListItems(List.of());
+
+        ListViewInfo info = new ViewAdapter().getViewInfo(view);
+
+        assertEquals("", legacyTempFile(info));
+    }
+
+    @Test
     public void viewInfoIncludesLegacyNameAndShowType() {
         View view = new View();
         view.setViewName("OrderList");
@@ -330,6 +340,15 @@ public class ViewAdapterTest {
             return (org.fool.framework.view.model.ViewType) info.getClass().getMethod("getType").invoke(info);
         } catch (ReflectiveOperationException e) {
             fail("ListViewInfo should expose legacy type metadata");
+            return null;
+        }
+    }
+
+    private static String legacyTempFile(Object info) {
+        try {
+            return (String) info.getClass().getMethod("getTempFile").invoke(info);
+        } catch (ReflectiveOperationException e) {
+            fail("ListViewInfo should expose legacy temp file metadata");
             return null;
         }
     }

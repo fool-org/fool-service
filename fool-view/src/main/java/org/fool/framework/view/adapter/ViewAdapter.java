@@ -33,6 +33,7 @@ public class ViewAdapter {
         result.setViewType(view.getViewType());
         result.setType(view.getViewType());
         result.setShowType(view.getViewType());
+        result.setTempFile("");
         result.setBrowserTitle(view.getViewRemark());
         result.setDetailViewId(safeDetailViewId(view));
         result.setAutoFreshTime(safeAutoFreshTime(view));

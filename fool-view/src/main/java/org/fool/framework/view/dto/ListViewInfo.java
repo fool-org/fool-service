@@ -27,6 +27,8 @@ public class ListViewInfo {
     private ViewType type;
     @ApiModelProperty("legacy 显示类型")
     private ViewType showType;
+    @ApiModelProperty("legacy 模板文件")
+    private String tempFile;
     @ApiModelProperty("默认详情视图ID")
     private Long detailViewId;
     @ApiModelProperty("自动刷新间隔")
