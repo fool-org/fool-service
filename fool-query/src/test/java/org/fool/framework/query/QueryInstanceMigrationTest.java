@@ -55,12 +55,14 @@ public class QueryInstanceMigrationTest {
         assertEquals(41L, result.getTotalRecords());
         assertEquals(3L, result.getTotalPages());
         assertEquals(2, result.getRows().size());
+        assertEquals(1001L, result.getData().get(0).get("ORDER_ID"));
 
         result.setCurrentPage(3);
         result.updatePage(40, List.of());
 
         assertEquals(3, result.getCurrentPage());
         assertEquals(2L, result.getTotalPages());
+        assertTrue(result.getData().isEmpty());
     }
 
     private QueryColumn column(String showName, String dbName) {

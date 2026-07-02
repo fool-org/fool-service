@@ -26,4 +26,8 @@ public class QueryResult {
         this.totalPages = totalRecords / pageSize + (totalRecords % pageSize == 0 ? 0 : 1);
         this.rows = new ArrayList<>(rows);
     }
+
+    public List<Map<String, Object>> getData() {
+        return rows;
+    }
 }
