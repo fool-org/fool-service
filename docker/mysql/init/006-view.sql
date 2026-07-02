@@ -50,6 +50,16 @@ CREATE TABLE IF NOT EXISTS `fool_sys_view_item` (
   KEY `ix_fool_sys_view_item_property` (`model_property`)
 );
 
+CREATE TABLE IF NOT EXISTS `SW_SYS_VIEW_FILE` (
+  `VIEW_FILE_ID` bigint NOT NULL AUTO_INCREMENT,
+  `VIEW_FILE_NAME` varchar(255) DEFAULT NULL,
+  `VIEW_FILE_VIEWTYPE` int DEFAULT NULL,
+  `VIEW_FILE_FILENAME` varchar(500) DEFAULT NULL,
+  `VIEW_FILE_FILECONTENT` longtext,
+  PRIMARY KEY (`VIEW_FILE_ID`),
+  UNIQUE KEY `uk_sw_sys_view_file_name` (`VIEW_FILE_NAME`)
+);
+
 CREATE TABLE IF NOT EXISTS `SW_SYS_VIEW_ITEM` (
   `SysId` bigint NOT NULL AUTO_INCREMENT,
   `VIEW_ITEM_NAME` varchar(255) DEFAULT NULL,
