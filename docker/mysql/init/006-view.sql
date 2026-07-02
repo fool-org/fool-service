@@ -296,7 +296,7 @@ EXECUTE add_view_item_show_index_stmt;
 DEALLOCATE PREPARE add_view_item_show_index_stmt;
 
 INSERT INTO `fool_sys_model` (`id`, `name`, `text`, `remark`, `model_type`, `class_name`, `table_name`, `auto_sys_id`, `id_property`)
-SELECT 100, 'Order', 'Order', 'Market order smoke model', 3, 'org.fool.framework.market.Order', 'market_order', 0, NULL
+SELECT 100, 'Order', 'Order', 'Market order smoke model', 0, 'org.fool.framework.market.Order', 'market_order', 0, NULL
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_model` WHERE `name` = 'Order');
 
 UPDATE `fool_sys_model`

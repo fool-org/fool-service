@@ -55,7 +55,7 @@ public class ModelDataServiceTest {
                     modelName,
                     modelName,
                     "runtime enum rehydration test",
-                    ModelType.ENUM.ordinal(),
+                    ModelType.ENUM.code(),
                     "example.RuntimeEnumState",
                     null,
                     false,
