@@ -90,6 +90,19 @@ public class AppManageMigrationTest {
         assertColumn(AppSystemView.class, "viewName", "VIEW_NAME", false);
         assertColumn(AppSystemView.class, "connectionType", "VIEW_CONTYPE", false);
 
+        assertEquals("SW_SYS_VIEW", tableName(AppInstalledView.class));
+        assertColumn(AppInstalledView.class, "viewId", "VIEW_ID", true);
+        assertColumn(AppInstalledView.class, "modelId", "VIEW_MODEL", false);
+        assertColumn(AppInstalledView.class, "name", "VIEW_NAME", false);
+        assertColumn(AppInstalledView.class, "filter", "VIEW_FILTER", false);
+        assertColumn(AppInstalledView.class, "defaultViewId", "VIEW_DEFAULT", false);
+        assertColumn(AppInstalledView.class, "viewType", "VIEW_TYPE", false);
+        assertColumn(AppInstalledView.class, "connectionType", "VIEW_CONTYPE", false);
+        assertColumn(AppInstalledView.class, "fileId", "VIEW_FILE", false);
+        assertColumn(AppInstalledView.class, "checkAuth", "VIEW_CHECKAUTH", false);
+        assertColumn(AppInstalledView.class, "autoFreshInterval", "VIEW_AUTOFRESHINTERVAL", false);
+        assertColumn(AppInstalledView.class, "canEdit", "VIEW_CANEDIT", false);
+
         assertEquals("SW_SYS_MODULE", tableName(AppInstalledModule.class));
         assertColumn(AppInstalledModule.class, "moduleName", "MODULE_NAME", true);
         assertColumn(AppInstalledModule.class, "remark", "MODULE_REMARK", false);
@@ -221,6 +234,55 @@ public class AppManageMigrationTest {
         assertColumn(AppInstalledOperationParam.class, "viewId", "SW_SYS_OPERATION_PARAM_VIEW", false);
         assertColumn(AppInstalledOperationParam.class, "filter", "SW_SYS_OPERATION_PARAM_FILTER", false);
         assertColumn(AppInstalledOperationParam.class, "value", "SW_SYS_OPERATION_PARAM_VALUE", false);
+
+        assertEquals("SW_SYS_VIEW_ITEM", tableName(AppInstalledViewItem.class));
+        assertColumn(AppInstalledViewItem.class, "itemId", "SysId", true);
+        assertColumn(AppInstalledViewItem.class, "ownerViewId", "SW_SYS_VIEW_ItemsVIEW_ID", false);
+        assertColumn(AppInstalledViewItem.class, "name", "VIEW_ITEM_NAME", false);
+        assertColumn(AppInstalledViewItem.class, "note", "VIEW_ITEM_NOTE", false);
+        assertColumn(AppInstalledViewItem.class, "format", "VIEW_ITEM_FORMAT", false);
+        assertColumn(AppInstalledViewItem.class, "propertyId", "VIEW_ITEM_PROPERTY", false);
+        assertColumn(AppInstalledViewItem.class, "showPropertyId", "VIEW_ITEM_PROPERTY_SHOW", false);
+        assertColumn(AppInstalledViewItem.class, "valuePropertyId", "VIEW_ITEM_PROPERTY_VALUE", false);
+        assertColumn(AppInstalledViewItem.class, "readOnly", "VIEW_ITEM_READONLY", false);
+        assertColumn(AppInstalledViewItem.class, "showIndex", "VIEW_ITEM_INDEX", false);
+        assertColumn(AppInstalledViewItem.class, "listViewId", "VIEW_ITEM_SUBVIEW", false);
+        assertColumn(AppInstalledViewItem.class, "editViewId", "VIEW_ITEM_EDITVIEW", false);
+        assertColumn(AppInstalledViewItem.class, "selectedViewId", "VIEW_ITEM_SELECTVIEW", false);
+        assertColumn(AppInstalledViewItem.class, "width", "VIEW_ITEM_WIDTH", false);
+        assertColumn(AppInstalledViewItem.class, "show", "VIEW_ITEM_ISSHOW", false);
+        assertColumn(AppInstalledViewItem.class, "fileId", "VIEW_ITEM_FILE", false);
+        assertColumn(AppInstalledViewItem.class, "editType", "VIEW_ITEM_EDITTYPE", false);
+        assertColumn(AppInstalledViewItem.class, "sourceExpression", "VIEW_ITEM_SOURCEEXP", false);
+
+        assertEquals("SW_SYS_VIEW_OPERATION", tableName(AppInstalledViewOperation.class));
+        assertColumn(AppInstalledViewOperation.class, "viewOperationId", "SysId", true);
+        assertColumn(AppInstalledViewOperation.class, "ownerViewId", "SW_SYS_VIEW_OperationsVIEW_ID", false);
+        assertColumn(AppInstalledViewOperation.class, "name", "SW_VIEW_OPERATION_NAME", false);
+        assertColumn(AppInstalledViewOperation.class, "operationViewId", "SW_VIEW_OPERATION_MODELOPERATION", false);
+        assertColumn(AppInstalledViewOperation.class, "resultViewId", "SW_VIEW_OPERATION_RESULTVIEW", false);
+        assertColumn(AppInstalledViewOperation.class, "showProcess", "SW_VIEW_OPERATION_SHOWPROCESS", false);
+        assertColumn(AppInstalledViewOperation.class, "location", "SW_VIEW_OPERATION_INDEX", false);
+        assertColumn(AppInstalledViewOperation.class, "requireSelect", "SW_VIEW_OPERATION_REQUIRESELECTB", false);
+        assertColumn(AppInstalledViewOperation.class, "image", "SW_VIEW_OPERATION_IMAGE", false);
+
+        assertEquals("SW_SYS_OPERATIONVIEW", tableName(AppInstalledOperationView.class));
+        assertColumn(AppInstalledOperationView.class, "operationViewId", "SysId", true);
+        assertColumn(AppInstalledOperationView.class, "name", "SW_SYS_OPVIEW_NAME", false);
+        assertColumn(AppInstalledOperationView.class, "resultViewId", "SW_SYS_OPVIEW_RESULT", false);
+        assertColumn(AppInstalledOperationView.class, "operationId", "SW_SYS_OPVIEW_OPREATION", false);
+        assertColumn(AppInstalledOperationView.class, "successMsg", "SW_SYS_OPVIEW_SUCCESMSG", false);
+        assertColumn(AppInstalledOperationView.class, "errorMsg", "SW_SYS_OPVIEW_ERRORMSG", false);
+        assertColumn(AppInstalledOperationView.class, "msg", "SW_SYS_OPVIEW_MSG", false);
+        assertColumn(AppInstalledOperationView.class, "show", "SW_SYS_OPVIEW_SHOW", false);
+        assertColumn(AppInstalledOperationView.class, "confirmMsg", "SW_SYS_OPVIEW_ConfirmMSG", false);
+
+        assertEquals("SW_SYS_OPERATIONVIEW_ITEM", tableName(AppInstalledOperationViewItem.class));
+        assertColumn(AppInstalledOperationViewItem.class, "itemId", "SysId", true);
+        assertColumn(AppInstalledOperationViewItem.class, "ownerOperationViewId", "SW_SYS_OPERATIONVIEW_ParamsSysId", false);
+        assertColumn(AppInstalledOperationViewItem.class, "paramName", "SW_SYS_OPVIEWITEM_NAME", false);
+        assertColumn(AppInstalledOperationViewItem.class, "index", "SW_SYS_OPVIEWITEM_INDEX", false);
+        assertColumn(AppInstalledOperationViewItem.class, "paramId", "SW_SYS_OPVIEWITEM_PARAM", false);
 
         assertEquals("SW_SYS_RELATION", tableName(AppInstalledRelation.class));
         assertColumn(AppInstalledRelation.class, "relationType", "SW_SYS_RELATION_TYPE", false);
