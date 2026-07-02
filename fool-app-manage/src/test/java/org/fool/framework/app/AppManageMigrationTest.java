@@ -128,6 +128,11 @@ public class AppManageMigrationTest {
         assertColumn(AppInstalledProperty.class, "format", "PROPERTY_FORMAT", false);
         assertColumn(AppInstalledProperty.class, "propertySqlCon", "PROPERTY_SQLCON", false);
         assertColumn(AppInstalledProperty.class, "ownerModelId", "SW_SYS_MODEL_PropertiesSysId", false);
+        assertEquals("SW_SYS_MULTIMAP", tableName(AppInstalledMultiDbMap.class));
+        assertColumn(AppInstalledMultiDbMap.class, "mapId", "SysId", true);
+        assertColumn(AppInstalledMultiDbMap.class, "propertyName", "MAP_NAME", false);
+        assertColumn(AppInstalledMultiDbMap.class, "columnName", "MAP_COLNAME", false);
+        assertColumn(AppInstalledMultiDbMap.class, "ownerPropertyId", "SW_SYS_PROPERTY_DBMapsSysId", false);
 
         assertEquals("SW_SYS_RELATION", tableName(AppInstalledRelation.class));
         assertColumn(AppInstalledRelation.class, "relationType", "SW_SYS_RELATION_TYPE", false);
@@ -1020,6 +1025,47 @@ public class AppManageMigrationTest {
     }
 
     @Test
+    public void daoAppInstallGatewayPersistsLegacyMultiDbMaps() {
+        RecordingDaoService daoService = new RecordingDaoService();
+        DaoAppInstallGateway gateway = new DaoAppInstallGateway(daoService);
+        Model customer = legacyModel("Customer", "SW_CUSTOMER");
+        Property customerId = legacyProperty("customerId", "CUSTOMER_ID", PropertyType.Long);
+        Property displayName = legacyProperty("displayName", "DISPLAY_NAME", PropertyType.String);
+        customer.setProperties(List.of(customerId, displayName));
+        Model order = legacyModel("Order", "SW_ORDER");
+        Property orderId = legacyProperty("orderId", "ORDER_ID", PropertyType.IdentifyId);
+        Property customerSnapshot = legacyProperty("customer", null, PropertyType.BusinessObject);
+        customerSnapshot.setPropertyModel(customer);
+        customerSnapshot.setMultiMap(true);
+        customerSnapshot.setDbMaps(List.of(
+                new org.fool.framework.model.model.MultiDbMap("customerId", "CUSTOMER_ID"),
+                new org.fool.framework.model.model.MultiDbMap("displayName", "CUSTOMER_NAME")));
+        order.setIdProperty(orderId);
+        order.setProperties(List.of(orderId, customerSnapshot));
+        AppModuleDefinition module = AppModuleDefinition.legacy(
+                "MKT01",
+                "example.OrderModule",
+                "2.0.0",
+                List.of(customer, order));
+
+        gateway.installModuleSource(
+                "sys-con",
+                "work-con",
+                new StaticAppModuleSource(List.of(module)));
+
+        List<Object> dbMaps = createdBySimpleName(daoService.created, "AppInstalledMultiDbMap");
+        assertEquals(2, dbMaps.size());
+        AppInstalledProperty installedCustomer =
+                createdBySimpleName(daoService.created, "AppInstalledProperty").stream()
+                        .map(AppInstalledProperty.class::cast)
+                        .filter(property -> "customer".equals(property.getPropertyName()))
+                        .findFirst()
+                        .orElseThrow();
+        assertInstalledMultiDbMap(dbMaps.get(0), "customerId", "CUSTOMER_ID", installedCustomer.getPropertyId());
+        assertInstalledMultiDbMap(dbMaps.get(1), "displayName", "CUSTOMER_NAME", installedCustomer.getPropertyId());
+    }
+
+    @Test
     public void daoAppInstallGatewayPersistsLegacyModuleSourceRelations() {
         RecordingDaoService daoService = new RecordingDaoService();
         DaoAppInstallGateway gateway = new DaoAppInstallGateway(daoService);
@@ -1345,6 +1391,17 @@ public class AppManageMigrationTest {
         assertEquals(name, enumValue.getClass().getMethod("getName").invoke(enumValue));
         assertEquals(value, enumValue.getClass().getMethod("getValue").invoke(enumValue));
         assertEquals(ownerModelId, enumValue.getClass().getMethod("getOwnerModelId").invoke(enumValue));
+    }
+
+    private static void assertInstalledMultiDbMap(
+            Object dbMap,
+            String propertyName,
+            String columnName,
+            Long ownerPropertyId) {
+        AppInstalledMultiDbMap installedDbMap = (AppInstalledMultiDbMap) dbMap;
+        assertEquals(propertyName, installedDbMap.getPropertyName());
+        assertEquals(columnName, installedDbMap.getColumnName());
+        assertEquals(ownerPropertyId, installedDbMap.getOwnerPropertyId());
     }
 
     private static Model findModel(List<Model> models, String name) {

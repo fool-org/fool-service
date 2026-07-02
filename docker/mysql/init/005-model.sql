@@ -118,6 +118,16 @@ CREATE TABLE IF NOT EXISTS `SW_SYS_PROPERTY` (
   KEY `ix_sw_sys_property_name` (`PROPERTY_PROPERTYNAME`)
 );
 
+CREATE TABLE IF NOT EXISTS `SW_SYS_MULTIMAP` (
+  `SysId` bigint NOT NULL AUTO_INCREMENT,
+  `MAP_NAME` varchar(255) DEFAULT NULL,
+  `MAP_COLNAME` varchar(255) DEFAULT NULL,
+  `SW_SYS_PROPERTY_DBMapsSysId` bigint DEFAULT NULL,
+  PRIMARY KEY (`SysId`),
+  KEY `ix_sw_sys_multimap_owner` (`SW_SYS_PROPERTY_DBMapsSysId`),
+  KEY `ix_sw_sys_multimap_name` (`MAP_NAME`)
+);
+
 CREATE TABLE IF NOT EXISTS `fool_sys_model_property` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,

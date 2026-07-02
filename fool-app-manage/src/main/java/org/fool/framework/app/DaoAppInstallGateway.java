@@ -4,6 +4,7 @@ import org.fool.framework.dao.DaoService;
 import org.fool.framework.model.model.EnumValue;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.ModelType;
+import org.fool.framework.model.model.MultiDbMap;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.model.model.Relation;
 import org.fool.framework.model.sqlscript.LegacyMysqlDdlGenerator;
@@ -400,6 +401,7 @@ public class DaoAppInstallGateway implements AppInstallGateway {
                     property.getName());
             if (existing != null) {
                 installedProperties.put(property, existing);
+                installMultiDbMaps(daoService, property, existing);
                 continue;
             }
             AppInstalledModel propertyModel = property.getPropertyModel() == null
@@ -414,7 +416,37 @@ public class DaoAppInstallGateway implements AppInstallGateway {
                     connection);
             daoService.create(installedProperty);
             installedProperties.put(property, installedProperty);
+            installMultiDbMaps(daoService, property, installedProperty);
         }
+    }
+
+    private void installMultiDbMaps(
+            DaoService daoService,
+            Property property,
+            AppInstalledProperty installedProperty) {
+        if (!Boolean.TRUE.equals(property.getMultiMap())
+                || property.getDbMaps() == null
+                || installedProperty.getPropertyId() == null) {
+            return;
+        }
+        for (MultiDbMap dbMap : property.getDbMaps()) {
+            if (dbMap == null || isInstalledMultiDbMap(daoService, installedProperty.getPropertyId(), dbMap)) {
+                continue;
+            }
+            daoService.create(AppInstalledMultiDbMap.fromDbMap(dbMap, installedProperty.getPropertyId()));
+        }
+    }
+
+    private boolean isInstalledMultiDbMap(DaoService daoService, Long ownerPropertyId, MultiDbMap dbMap) {
+        List<AppInstalledMultiDbMap> maps = daoService.selectList(
+                AppInstalledMultiDbMap.class,
+                "SELECT `SysId`,`MAP_NAME`,`MAP_COLNAME`,`SW_SYS_PROPERTY_DBMapsSysId` "
+                        + "FROM `SW_SYS_MULTIMAP` WHERE `SW_SYS_PROPERTY_DBMapsSysId` = ? "
+                        + "AND `MAP_NAME` = ? AND `MAP_COLNAME` = ?",
+                ownerPropertyId,
+                dbMap.getPropertyName(),
+                dbMap.getColumnName());
+        return !maps.isEmpty();
     }
 
     private void installEnumValues(
