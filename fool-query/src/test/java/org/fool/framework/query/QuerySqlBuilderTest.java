@@ -41,6 +41,45 @@ public class QuerySqlBuilderTest {
     }
 
     @Test
+    public void sqlBuilderDoesNotDoubleWrapLegacyBracketedIdentifiers() {
+        SelectedTable orders = selectedTable("Orders", "[orders]", "[o]");
+        SelectedTables selectedTables = new SelectedTables(
+                orders,
+                (table, joinType) -> List.of());
+        QueryInstance instance = new QueryInstance();
+        instance.setSelectedTables(selectedTables);
+        instance.getSelectedColumns().add(selectedColumn(
+                orders,
+                "订单号",
+                "[ORDER_ID]",
+                PropertyType.Long,
+                "order_id",
+                selectType("[{0}].[{1}]", false)));
+
+        assertEquals("[orders] as [o]", QuerySqlBuilder.tableSql(selectedTables));
+        assertEquals(
+                "SELECT distinct  [o].[ORDER_ID]  AS [order_id],"
+                        + "ROW_NUMBER() OVER  (ORDER BY  [o].[ORDER_ID] ASC) AS [RowIndex]"
+                        + " FROM [orders] as [o]",
+                QuerySqlBuilder.selectSql(instance));
+    }
+
+    @Test
+    public void tableSqlDoesNotDoubleWrapLegacyBracketedJoinIdentifiers() {
+        SelectedTable orders = selectedTable("Orders", "[orders]", "[o]");
+        SelectedTable items = selectedTable("Items", "[order_items]", "[i]");
+        JoinTable factoryJoin = join(orders, items, "[ID]", "[ORDER_ID]");
+        SelectedTables selectedTables = new SelectedTables(
+                orders,
+                (table, joinType) -> List.of(factoryJoin));
+
+        selectedTables.add(items, orders);
+
+        assertEquals("[orders] as [o] JOIN [order_items] as [i] ON 1=1 AND [o].[ID]=[i].[ORDER_ID]",
+                QuerySqlBuilder.tableSql(selectedTables));
+    }
+
+    @Test
     public void selectedColumnSqlExpandsEnumValuesToLegacyCaseExpression() {
         SelectedColumn column = selectedColumn(
                 selectedTable("Orders", "orders", "o"),

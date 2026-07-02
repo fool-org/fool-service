@@ -26,13 +26,13 @@ public final class QuerySqlBuilder {
                     .append(" ON 1=1");
             for (JoinCondition condition : joinTable.getConditions()) {
                 sql.append(" AND [")
-                        .append(joinTable.getLeftTable().getSelectedTableName())
+                        .append(identifier(joinTable.getLeftTable().getSelectedTableName()))
                         .append("].[")
-                        .append(condition.getLeftCol())
+                        .append(identifier(condition.getLeftCol()))
                         .append("]=[")
-                        .append(joinTable.getRightTable().getSelectedTableName())
+                        .append(identifier(joinTable.getRightTable().getSelectedTableName()))
                         .append("].[")
-                        .append(condition.getRightCol())
+                        .append(identifier(condition.getRightCol()))
                         .append("]");
             }
         }
@@ -43,7 +43,7 @@ public final class QuerySqlBuilder {
     public static String selectedColumnSql(SelectedColumn column) {
         String expression = columnExpression(column);
         if (column.getDataColumn().getDataType() != PropertyType.Enum) {
-            return String.format(" %s  AS [%s]", expression, column.getSelectedName());
+            return String.format(" %s  AS [%s]", expression, identifier(column.getSelectedName()));
         }
 
         StringBuilder stateSql = new StringBuilder("(CASE");
@@ -59,7 +59,7 @@ public final class QuerySqlBuilder {
             }
         }
         stateSql.append(" ELSE '' END) AS [")
-                .append(column.getSelectedName())
+                .append(identifier(column.getSelectedName()))
                 .append("]");
         return stateSql.toString();
     }
@@ -131,7 +131,9 @@ public final class QuerySqlBuilder {
     }
 
     private static String selectedTableSql(SelectedTable table) {
-        return String.format("[%s] as [%s]", table.getTable().getDbName(), table.getSelectedTableName());
+        return String.format("[%s] as [%s]",
+                identifier(table.getTable().getDbName()),
+                identifier(table.getSelectedTableName()));
     }
 
     private static String rowNumberSql(List<SelectedColumn> selectedColumns, String rowIndex) {
@@ -153,7 +155,7 @@ public final class QuerySqlBuilder {
             rowSql.setLength(rowSql.length() - 1);
         }
 
-        rowSql.append(") AS [").append(rowIndex).append("]");
+        rowSql.append(") AS [").append(identifier(rowIndex)).append("]");
         return rowSql.toString();
     }
 
@@ -235,10 +237,10 @@ public final class QuerySqlBuilder {
         for (SelectedColumn column : instance.getSelectedColumns().asList().stream()
                 .sorted(Comparator.comparingInt(SelectedColumn::getSelectedIndex))
                 .collect(Collectors.toList())) {
-            sql.append("[").append(column.getSelectedName()).append("],");
+            sql.append("[").append(identifier(column.getSelectedName())).append("],");
         }
         if (includeRowIndex) {
-            sql.append("[").append(rowIndex).append("],");
+            sql.append("[").append(identifier(rowIndex)).append("],");
         }
         sql.setLength(sql.length() - 1);
         return sql.toString();
@@ -263,8 +265,15 @@ public final class QuerySqlBuilder {
     private static String columnExpression(SelectedColumn column) {
         return formatCSharp(
                 column.getSelectType().getDbExp(),
-                column.getSelectedTable().getSelectedTableName(),
-                column.getDataColumn().getDbName());
+                identifier(column.getSelectedTable().getSelectedTableName()),
+                identifier(column.getDataColumn().getDbName()));
+    }
+
+    private static String identifier(String value) {
+        if (value != null && value.startsWith("[") && value.endsWith("]") && value.length() > 1) {
+            return value.substring(1, value.length() - 1);
+        }
+        return value;
     }
 
     private static String formatCSharp(String template, Object... values) {
