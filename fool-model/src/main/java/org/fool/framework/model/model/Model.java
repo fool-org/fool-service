@@ -24,6 +24,7 @@ public class Model {
     @Column("owner")
     private List<Property> properties;
     private Property idProperty;
+    private transient Property showProperty;
     private transient List<Relation> relations;
     private transient List<Operation> operations;
     @Column("owner")

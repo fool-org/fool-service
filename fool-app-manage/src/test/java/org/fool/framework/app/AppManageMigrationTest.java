@@ -354,6 +354,7 @@ public class AppManageMigrationTest {
         assertEquals("ORDER_ID", order.getIdProperty().getColumn());
         assertEquals(PropertyType.IdentifyId, order.getIdProperty().getPropertyType());
         assertEquals(Boolean.FALSE, order.getIdProperty().getAllowDbNull());
+        assertSame(order.getIdProperty(), order.getShowProperty());
 
         Property amount = findProperty(order, "amount");
         assertEquals("ORDER_AMOUNT", amount.getColumn());
@@ -428,6 +429,7 @@ public class AppManageMigrationTest {
         Model node = findModel(source.getModels(source.getModules().get(0)), "ReflectiveAutoTreeNode");
 
         assertEquals(Boolean.TRUE, node.getAutoSysId());
+        assertEquals("name", node.getShowProperty().getName());
         Relation relation = node.getRelations().get(0);
         assertEquals(RelationType.Recurve, relation.getRelationType());
         assertEquals("RF_AUTO_TREE_NODE_children_SYSID", relation.getTargetColumn());

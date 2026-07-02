@@ -38,6 +38,7 @@ import java.util.Enumeration;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -223,7 +224,21 @@ public class ReflectiveAppModuleSource implements AppModuleSource {
         }
         model.setProperties(properties);
         model.setAutoSysId(model.getIdProperty() == null);
+        model.setShowProperty(legacyShowProperty(model));
         return model;
+    }
+
+    private Property legacyShowProperty(Model model) {
+        for (Property property : safeProperties(model)) {
+            String name = property.getName();
+            if (name != null && name.toLowerCase(Locale.ROOT).contains("name")) {
+                return property;
+            }
+        }
+        if (model.getIdProperty() != null) {
+            return model.getIdProperty();
+        }
+        return safeProperties(model).isEmpty() ? null : safeProperties(model).get(0);
     }
 
     private List<EnumValue> enumValuesFor(Class<?> enumType) {
