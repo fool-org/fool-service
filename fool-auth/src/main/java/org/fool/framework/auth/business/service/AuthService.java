@@ -15,8 +15,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.List;
 
 @Service
@@ -43,11 +45,8 @@ public class AuthService {
         if (user == null) {
             throw new CommonException(BusinessErrorCode.USER_NOT_FOUND, "用户不存在");
         } else {
-            MessageDigest md5 = null;
             try {
-                md5 = MessageDigest.getInstance("md5");
-                md5.update((user.getId().toString() + password).getBytes());
-                String info = new String(md5.digest());
+                String info = passwordHash(user.getId(), password);
                 if (!user.getPassword().equals(info)) {
                     throw new CommonException(BusinessErrorCode.PASSWORD_WRONG, "密码不正确");
                 }
@@ -72,12 +71,11 @@ public class AuthService {
      */
     public User register(String id, String password, String name, String mobile) {
         try {
-            var md5 = MessageDigest.getInstance("md5");
             User user = new User();
             user.setId(id);
             user.setName(name);
             user.setMobile(mobile);
-            user.setPassword(new String(md5.digest((id + password).getBytes())));
+            user.setPassword(passwordHash(id, password));
             daoService.create(user);
             return user;
         } catch (Exception ex) {
@@ -85,6 +83,12 @@ public class AuthService {
 
         }
         return null;
+    }
+
+    String passwordHash(String id, String password) throws NoSuchAlgorithmException {
+        MessageDigest md5 = MessageDigest.getInstance("md5");
+        return HexFormat.of().formatHex(
+                md5.digest((String.valueOf(id) + String.valueOf(password)).getBytes(StandardCharsets.UTF_8)));
     }
 
     /**
