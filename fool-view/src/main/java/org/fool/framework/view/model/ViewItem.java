@@ -31,6 +31,8 @@ public class ViewItem {
     private ItemEditType editType = ItemEditType.ReadOnly;
     @Column("show_index")
     private Integer showIndex = 0;
+    @Column("width")
+    private Integer width = 0;
 
 
     private Long viewId;

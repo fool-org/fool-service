@@ -93,6 +93,19 @@ public class ViewAdapterTest {
         assertEquals("symbol", info.getTableColumn().get(1).getProperty());
     }
 
+    @Test
+    public void viewInfoIncludesLegacyColumnWidth() {
+        ViewItem orderId = viewItem("orderId", "Order ID", ItemEditType.ReadOnly);
+        setWidth(orderId, 180);
+
+        View view = new View();
+        view.setListItems(List.of(orderId));
+
+        ListViewInfo info = new ViewAdapter().getViewInfo(view);
+
+        assertEquals(Integer.valueOf(180), columnWidth(info.getTableColumn().get(0)));
+    }
+
     private static ViewOperation operation(
             String name,
             boolean requireSelect,
@@ -127,6 +140,23 @@ public class ViewAdapterTest {
             ViewItem.class.getMethod("setShowIndex", Integer.class).invoke(item, showIndex);
         } catch (ReflectiveOperationException e) {
             fail("ViewItem should expose legacy showIndex metadata");
+        }
+    }
+
+    private static void setWidth(ViewItem item, int width) {
+        try {
+            ViewItem.class.getMethod("setWidth", Integer.class).invoke(item, width);
+        } catch (ReflectiveOperationException e) {
+            fail("ViewItem should expose legacy width metadata");
+        }
+    }
+
+    private static Integer columnWidth(Object column) {
+        try {
+            return (Integer) column.getClass().getMethod("getWidth").invoke(column);
+        } catch (ReflectiveOperationException e) {
+            fail("TableColumnInfo should expose legacy width metadata");
+            return null;
         }
     }
 }

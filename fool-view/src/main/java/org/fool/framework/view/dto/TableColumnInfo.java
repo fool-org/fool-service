@@ -16,4 +16,6 @@ public class TableColumnInfo {
     private String property;
     @ApiModelProperty("显示顺序")
     private Integer showIndex;
+    @ApiModelProperty("列宽")
+    private Integer width;
 }

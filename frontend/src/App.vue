@@ -7,6 +7,7 @@ import {
   type ListViewInfo,
   type ListViewResult,
   type LoginVo,
+  type TableColumnInfo,
   type TreeNode,
   type UserDTO,
   postApi
@@ -50,7 +51,7 @@ const navItems = [
   { id: "migration", label: "Migration Map" }
 ];
 
-const resultColumns = computed(() => {
+const resultColumns = computed<TableColumnInfo[]>(() => {
   const declared = viewResponse.value?.data?.tableColumn || [];
   if (declared.length > 0) {
     return declared;
@@ -386,14 +387,22 @@ function formatValue(value: unknown) {
             <table v-if="resultColumns.length > 0">
               <thead>
                 <tr>
-                  <th v-for="column in resultColumns" :key="column.property || column.title">
+                  <th
+                    v-for="column in resultColumns"
+                    :key="column.property || column.title"
+                    :style="{ width: column.width ? `${column.width}px` : undefined }"
+                  >
                     {{ column.title || column.property }}
                   </th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="row in resultRows" :key="row.id || JSON.stringify(row.values)">
-                  <td v-for="column in resultColumns" :key="column.property || column.title">
+                  <td
+                    v-for="column in resultColumns"
+                    :key="column.property || column.title"
+                    :style="{ width: column.width ? `${column.width}px` : undefined }"
+                  >
                     {{ formatValue(row.values?.[column.property || ""]) }}
                   </td>
                 </tr>

@@ -38,6 +38,7 @@ public class ViewAdapter {
                     TableColumnInfo.builder().property(p.getModelProperty())
                             .title(p.getItemLabel())
                             .showIndex(safeShowIndex(p))
+                            .width(safeWidth(p))
                             .build());
         });
         result.setInputInfo(new LinkedList<>());
@@ -68,6 +69,10 @@ public class ViewAdapter {
 
     private int safeShowIndex(ViewItem item) {
         return item.getShowIndex() == null ? 0 : item.getShowIndex();
+    }
+
+    private int safeWidth(ViewItem item) {
+        return item.getWidth() == null ? 0 : item.getWidth();
     }
 
     private Integer safeAutoFreshTime(View view) {

@@ -44,11 +44,23 @@ CREATE TABLE IF NOT EXISTS `fool_sys_view_item` (
   `format_regx` text,
   `edit_type` int DEFAULT 0,
   `show_index` int NOT NULL DEFAULT 0,
+  `width` int NOT NULL DEFAULT 0,
   `view_id` bigint DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `ix_fool_sys_view_item_view_id` (`view_id`),
   KEY `ix_fool_sys_view_item_property` (`model_property`)
 );
+
+SET @ddl = (
+  SELECT IF(COUNT(*) = 0, 'ALTER TABLE `fool_sys_view_item` ADD COLUMN `width` int NOT NULL DEFAULT 0 AFTER `show_index`', 'SELECT 1')
+  FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'fool_sys_view_item'
+    AND COLUMN_NAME = 'width'
+);
+PREPARE stmt FROM @ddl;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 CREATE TABLE IF NOT EXISTS `SW_SYS_VIEW` (
   `VIEW_ID` bigint NOT NULL AUTO_INCREMENT,
