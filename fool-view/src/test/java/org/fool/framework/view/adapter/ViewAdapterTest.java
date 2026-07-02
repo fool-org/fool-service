@@ -148,6 +148,19 @@ public class ViewAdapterTest {
     }
 
     @Test
+    public void viewInfoIncludesLegacyColumnId() {
+        ViewItem orderId = viewItem("orderId", "Order ID", ItemEditType.ReadOnly);
+        orderId.setId(901L);
+
+        View view = new View();
+        view.setListItems(List.of(orderId));
+
+        ListViewInfo info = new ViewAdapter().getViewInfo(view);
+
+        assertEquals(Long.valueOf(901L), columnId(info.getTableColumn().get(0)));
+    }
+
+    @Test
     public void viewInfoIncludesLegacyColumnPropertyName() {
         ViewItem orderId = viewItem("orderId", "Order ID", ItemEditType.ReadOnly);
 
@@ -235,6 +248,15 @@ public class ViewAdapterTest {
             return (String) column.getClass().getMethod("getName").invoke(column);
         } catch (ReflectiveOperationException e) {
             fail("TableColumnInfo should expose legacy name metadata");
+            return null;
+        }
+    }
+
+    private static Long columnId(Object column) {
+        try {
+            return (Long) column.getClass().getMethod("getId").invoke(column);
+        } catch (ReflectiveOperationException e) {
+            fail("TableColumnInfo should expose legacy ID metadata");
             return null;
         }
     }

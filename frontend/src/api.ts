@@ -40,6 +40,7 @@ export interface ViewInputInfo {
 }
 
 export interface TableColumnInfo {
+  id?: number;
   name?: string;
   title?: string;
   property?: string;
