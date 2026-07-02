@@ -103,6 +103,13 @@ public class AppManageMigrationTest {
         assertColumn(AppInstalledView.class, "autoFreshInterval", "VIEW_AUTOFRESHINTERVAL", false);
         assertColumn(AppInstalledView.class, "canEdit", "VIEW_CANEDIT", false);
 
+        assertEquals("SW_SYS_VIEW_FILE", tableName(AppInstalledViewFile.class));
+        assertColumn(AppInstalledViewFile.class, "fileId", "VIEW_FILE_ID", true);
+        assertColumn(AppInstalledViewFile.class, "name", "VIEW_FILE_NAME", false);
+        assertColumn(AppInstalledViewFile.class, "viewType", "VIEW_FILE_VIEWTYPE", false);
+        assertColumn(AppInstalledViewFile.class, "fileName", "VIEW_FILE_FILENAME", false);
+        assertColumn(AppInstalledViewFile.class, "fileContent", "VIEW_FILE_FILECONTENT", false);
+
         assertEquals("SW_SYS_MODULE", tableName(AppInstalledModule.class));
         assertColumn(AppInstalledModule.class, "moduleName", "MODULE_NAME", true);
         assertColumn(AppInstalledModule.class, "remark", "MODULE_REMARK", false);
