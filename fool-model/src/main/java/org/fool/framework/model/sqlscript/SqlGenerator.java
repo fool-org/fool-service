@@ -96,8 +96,9 @@ public class SqlGenerator {
         if (Boolean.TRUE.equals(property.getMultiMap())) {
             return safeDbMaps(property).stream()
                     .filter(map -> map != null)
-                    .map(MultiDbMap::getColumnName)
-                    .filter(StringUtils::hasText)
+                    .filter(map -> StringUtils.hasText(map.getColumnName()))
+                    .map(map -> baseColumn(model, map.getColumnName()) + " AS `" + property.getName() + "_"
+                            + (StringUtils.hasText(map.getPropertyName()) ? map.getPropertyName() : map.getColumnName()) + "`")
                     .toList();
         }
         if (joinsBusinessObject(property)) {

@@ -91,18 +91,31 @@ public class Mapper extends AbstratMapper<IDynamicData> {
             if (targetProperty == null) {
                 continue;
             }
-            try {
-                Object value = resultSet.getObject(dbMap.getColumnName());
-                if (value != null) {
-                    target.set(targetProperty.getName(), value);
-                    mapped = true;
-                }
-            } catch (SQLException ex) {
+            Object value = multiDbMapValue(property, dbMap, resultSet);
+            if (value != null) {
+                target.set(targetProperty.getName(), value);
+                mapped = true;
             }
         }
         if (mapped) {
             owner.set(property.getName(), target);
         }
+    }
+
+    private Object multiDbMapValue(Property property, MultiDbMap dbMap, ResultSet resultSet) {
+        // ponytail: raw column fallback keeps older non-aliased DBMap selects working.
+        String alias = property.getName() + "_"
+                + (StringUtils.hasText(dbMap.getPropertyName()) ? dbMap.getPropertyName() : dbMap.getColumnName());
+        for (String column : List.of(alias, dbMap.getColumnName())) {
+            try {
+                Object value = resultSet.getObject(column);
+                if (value != null) {
+                    return value;
+                }
+            } catch (SQLException ex) {
+            }
+        }
+        return null;
     }
 
     private void mapBusinessObjectProperty(DbMysqlDynamic owner, Property property, ResultSet resultSet) {

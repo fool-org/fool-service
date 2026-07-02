@@ -57,6 +57,37 @@ public class MapperDbMapsTest {
     }
 
     @Test
+    public void mapsLegacyMultiDbMapBusinessObjectFromListQueryAliases() throws Exception {
+        Model customer = model("Customer", "SW_CUSTOMER");
+        Property customerId = property("customerId", "CUSTOMER_ID", PropertyType.Long, false);
+        Property displayName = property("displayName", "DISPLAY_NAME", PropertyType.String, false);
+        customer.setIdProperty(customerId);
+        customer.setProperties(List.of(customerId, displayName));
+
+        Model order = model("Order", "SW_ORDER");
+        Property customerSnapshot = property("customer", null, PropertyType.BusinessObject, false);
+        customerSnapshot.setPropertyModel(customer);
+        customerSnapshot.setMultiMap(true);
+        customerSnapshot.setDbMaps(List.of(
+                new MultiDbMap("customerId", "CUSTOMER_ID"),
+                new MultiDbMap("displayName", "CUSTOMER_NAME")));
+        order.setProperties(List.of(customerSnapshot));
+
+        ResultSet resultSet = mock(ResultSet.class);
+        when(resultSet.getObject("customer_customerId")).thenReturn(42L);
+        when(resultSet.getObject("customer_displayName")).thenReturn("Ada");
+
+        IDynamicData mapped = new Mapper(order).mapRow(resultSet, 0);
+
+        Object customerValue = mapped.get("customer");
+        assertNotNull(customerValue);
+        assertTrue(customerValue instanceof IDynamicData);
+        IDynamicData customerData = (IDynamicData) customerValue;
+        assertEquals(42L, customerData.get("customerId"));
+        assertEquals("Ada", customerData.get("displayName"));
+    }
+
+    @Test
     public void mapsLegacyJoinedBusinessObjectFromListQueryAliases() throws Exception {
         Model customer = model("Customer", "SW_CUSTOMER");
         Property customerId = property("customerId", "CUSTOMER_ID", PropertyType.Long, false);

@@ -106,6 +106,36 @@ public class SqlGeneratorTest {
     }
 
     @Test
+    public void generateSelectAliasesLegacyMultiMapBusinessObjectColumns() {
+        Model customer = model("Customer", "customer");
+        Property customerId = property("customerId", "customer_id");
+        Property customerName = property("customerName", "customer_name");
+        customer.setProperties(List.of(customerId, customerName));
+
+        Model order = model("Order", "market_order");
+        Property orderId = property("orderId", "order_id");
+        Property customerSnapshot = property("customer", null);
+        customerSnapshot.setPropertyType(PropertyType.BusinessObject);
+        customerSnapshot.setPropertyModel(customer);
+        customerSnapshot.setMultiMap(true);
+        customerSnapshot.setDbMaps(List.of(
+                new org.fool.framework.model.model.MultiDbMap("customerId", "customer_id"),
+                new org.fool.framework.model.model.MultiDbMap("customerName", "customer_name")));
+
+        QueryAndArgs query = new SqlGenerator().generateSelect(
+                order,
+                List.of(orderId, customerSnapshot),
+                IQueryFilter.init());
+
+        assertEquals(
+                "SELECT order_id,`market_order`.`customer_id` AS `customer_customerId`,"
+                        + "`market_order`.`customer_name` AS `customer_customerName`"
+                        + " FROM `market_order` WHERE 1=1  AND  1=1 ",
+                query.getSql());
+        assertArrayEquals(new Object[]{}, query.getArgs());
+    }
+
+    @Test
     public void generateSelectCountJoinsLegacyBusinessObjectShowPropertyForFilters() {
         Model customer = model("Customer", "customer");
         Property customerId = property("customerId", "customer_id");
