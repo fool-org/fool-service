@@ -98,6 +98,21 @@ CREATE TABLE IF NOT EXISTS `SW_SYS_VIEW_OPERATION` (
   KEY `ix_sw_sys_view_operation_index` (`SW_VIEW_OPERATION_INDEX`)
 );
 
+CREATE TABLE IF NOT EXISTS `SW_SYS_OPERATIONVIEW` (
+  `SysId` bigint NOT NULL AUTO_INCREMENT,
+  `SW_SYS_OPVIEW_NAME` varchar(255) DEFAULT NULL,
+  `SW_SYS_OPVIEW_RESULT` bigint DEFAULT NULL,
+  `SW_SYS_OPVIEW_OPREATION` bigint DEFAULT NULL,
+  `SW_SYS_OPVIEW_SUCCESMSG` text,
+  `SW_SYS_OPVIEW_ERRORMSG` text,
+  `SW_SYS_OPVIEW_MSG` text,
+  `SW_SYS_OPVIEW_SHOW` tinyint(1) NOT NULL DEFAULT '0',
+  `SW_SYS_OPVIEW_ConfirmMSG` text,
+  PRIMARY KEY (`SysId`),
+  KEY `ix_sw_sys_operationview_result` (`SW_SYS_OPVIEW_RESULT`),
+  KEY `ix_sw_sys_operationview_operation` (`SW_SYS_OPVIEW_OPREATION`)
+);
+
 SET @add_view_item_edit_type = (
   SELECT IF(
     COUNT(*) = 0,
