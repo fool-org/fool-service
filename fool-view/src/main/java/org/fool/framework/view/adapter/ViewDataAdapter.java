@@ -2,9 +2,11 @@ package org.fool.framework.view.adapter;
 
 
 import lombok.extern.slf4j.Slf4j;
+import org.fool.framework.common.PropertyType;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.dao.PageNavigatorResult;
 import org.fool.framework.dao.PageResult;
+import org.fool.framework.model.model.EnumValue;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.view.dto.ListDataItem;
@@ -22,12 +24,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -110,18 +118,95 @@ public class ViewDataAdapter {
     private ListDataValue legacyValueItem(ViewItem viewItem, Object rawValue, Object formattedValue) {
         ListDataValue result = new ListDataValue();
         Property property = viewItem.getProperty();
-        result.setObjId(formatRow(rawValue));
+        PropertyType propertyType = property == null || property.getPropertyType() == null
+                ? PropertyType.String
+                : property.getPropertyType();
+        result.setObjId(legacyObjId(propertyType, rawValue));
         result.setPrpId(property == null || property.getName() == null ? viewItem.getModelProperty() : property.getName());
-        result.setFmtValue(formatRow(formattedValue));
+        result.setFmtValue(legacyFmtValue(property, propertyType, rawValue, formattedValue));
         result.setPrpShowName(columnName(viewItem));
-        result.setPrpType(property == null || property.getPropertyType() == null
-                ? org.fool.framework.common.PropertyType.String
-                : property.getPropertyType());
+        result.setPrpType(propertyType);
         Model propertyModel = property == null ? null : property.getPropertyModel();
         result.setPrpModelId(propertyModel == null || propertyModel.getId() == null ? 0L : propertyModel.getId());
         result.setReadOnly(!viewItem.isCanEdit());
         result.setEditType(viewItem.getEditType());
         return result;
+    }
+
+    private String legacyObjId(PropertyType propertyType, Object rawValue) {
+        if (propertyType == PropertyType.BusinessObject && rawValue instanceof IDynamicData data) {
+            return formatRow(data.getId());
+        }
+        return formatRow(rawValue);
+    }
+
+    private String legacyFmtValue(Property property, PropertyType propertyType, Object rawValue, Object formattedValue) {
+        return switch (propertyType) {
+            case Date -> formatDate(rawValue);
+            case Time -> formatTime(rawValue);
+            case BusinessObject -> formatBusinessObject(property, rawValue);
+            case Enum -> formatEnumValue(property, rawValue);
+            default -> formatRow(formattedValue);
+        };
+    }
+
+    private String formatDate(Object value) {
+        if (value instanceof LocalDate date) {
+            return date.format(DateTimeFormatter.ISO_LOCAL_DATE);
+        }
+        if (value instanceof LocalDateTime dateTime) {
+            return dateTime.toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE);
+        }
+        if (value instanceof java.sql.Date date) {
+            return date.toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE);
+        }
+        if (value instanceof Date date) {
+            return new SimpleDateFormat("yyyy-MM-dd").format(date);
+        }
+        return formatRow(value);
+    }
+
+    private String formatTime(Object value) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        if (value instanceof LocalTime time) {
+            return time.format(formatter);
+        }
+        if (value instanceof LocalDateTime dateTime) {
+            return dateTime.toLocalTime().format(formatter);
+        }
+        if (value instanceof java.sql.Time time) {
+            return time.toLocalTime().format(formatter);
+        }
+        if (value instanceof Date date) {
+            return new SimpleDateFormat("HH:mm:ss").format(date);
+        }
+        return formatRow(value);
+    }
+
+    private String formatBusinessObject(Property property, Object value) {
+        if (value instanceof IDynamicData data) {
+            Model model = property == null ? null : property.getPropertyModel();
+            Property showProperty = model == null ? null : model.getShowProperty();
+            if (showProperty != null && showProperty.getName() != null) {
+                return formatRow(data.get(showProperty.getName()));
+            }
+            return formatRow(data.getId());
+        }
+        return formatRow(value);
+    }
+
+    private String formatEnumValue(Property property, Object value) {
+        String rawValue = formatRow(value);
+        Model model = property == null ? null : property.getPropertyModel();
+        if (model == null || model.getEnumValues() == null) {
+            return rawValue;
+        }
+        for (EnumValue enumValue : model.getEnumValues()) {
+            if (enumValue != null && Objects.equals(enumValue.getValue(), rawValue)) {
+                return enumValue.getName() == null ? rawValue : enumValue.getName();
+            }
+        }
+        return rawValue;
     }
 
     private Object getFormat(String formatRegx, Object o) {

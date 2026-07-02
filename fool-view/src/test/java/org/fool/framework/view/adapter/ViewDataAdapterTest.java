@@ -5,14 +5,19 @@ import org.fool.framework.common.PropertyType;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.dao.PageNavigatorResult;
 import org.fool.framework.dao.PageResult;
+import org.fool.framework.model.model.EnumValue;
+import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.view.dto.ListDataItem;
+import org.fool.framework.view.dto.ListDataValue;
 import org.fool.framework.view.dto.ListViewResult;
 import org.fool.framework.view.model.ItemEditType;
 import org.fool.framework.view.model.View;
 import org.fool.framework.view.model.ViewItem;
 import org.junit.Test;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -143,6 +148,54 @@ public class ViewDataAdapterTest {
     }
 
     @Test
+    public void listRowsFormatLegacyTypedValueItems() {
+        ViewItem tradeDate = viewItem("tradeDate", ItemEditType.ReadOnly);
+        tradeDate.setItemName("Trade Date");
+        setProperty(tradeDate, property("tradeDate", PropertyType.Date));
+
+        ViewItem tradeTime = viewItem("tradeTime", ItemEditType.ReadOnly);
+        tradeTime.setItemName("Trade Time");
+        setProperty(tradeTime, property("tradeTime", PropertyType.Time));
+
+        Model stateModel = new Model();
+        stateModel.setEnumValues(List.of(enumValue("Open", "1"), enumValue("Closed", "2")));
+        Property stateProperty = property("state", PropertyType.Enum);
+        stateProperty.setPropertyModel(stateModel);
+        ViewItem state = viewItem("state", ItemEditType.ReadOnly);
+        state.setItemName("State");
+        setProperty(state, stateProperty);
+
+        Property customerName = property("name", PropertyType.String);
+        Model customerModel = new Model();
+        customerModel.setShowProperty(customerName);
+        Property customerProperty = property("customer", PropertyType.BusinessObject);
+        customerProperty.setPropertyModel(customerModel);
+        ViewItem customer = viewItem("customer", ItemEditType.ReadOnly);
+        customer.setItemName("Customer");
+        setProperty(customer, customerProperty);
+
+        Map<String, Object> values = new LinkedHashMap<>();
+        values.put("tradeDate", LocalDate.of(2026, 7, 3));
+        values.put("tradeTime", LocalTime.of(9, 5, 6));
+        values.put("state", 2);
+        values.put("customer", new MapDynamicData("C-7", new LinkedHashMap<>(Map.of("name", "Alice"))));
+
+        View view = new View();
+        view.setListItems(List.of(tradeDate, tradeTime, state, customer));
+        PageResult<IDynamicData> page = new PageResult<>();
+        page.setItems(List.of(new MapDynamicData("order-1", values)));
+
+        List<ListDataValue> items = new ViewDataAdapter().getListViewResult(view, page).getItems().get(0).getItems();
+
+        assertEquals("2026-07-03", items.get(0).getFmtValue());
+        assertEquals("09:05:06", items.get(1).getFmtValue());
+        assertEquals("2", items.get(2).getObjId());
+        assertEquals("Closed", items.get(2).getFmtValue());
+        assertEquals("C-7", items.get(3).getObjId());
+        assertEquals("Alice", items.get(3).getFmtValue());
+    }
+
+    @Test
     public void listRowsAndColumnsFollowLegacyShowIndexOrder() {
         ViewItem symbol = viewItem("symbol", ItemEditType.ReadOnly);
         symbol.setItemName("Symbol");
@@ -170,6 +223,20 @@ public class ViewDataAdapterTest {
         item.setModelProperty(modelProperty);
         item.setEditType(editType);
         return item;
+    }
+
+    private static Property property(String name, PropertyType type) {
+        Property property = new Property();
+        property.setName(name);
+        property.setPropertyType(type);
+        return property;
+    }
+
+    private static EnumValue enumValue(String name, String value) {
+        EnumValue enumValue = new EnumValue();
+        enumValue.setName(name);
+        enumValue.setValue(value);
+        return enumValue;
     }
 
     private static void setShowIndex(ViewItem item, int showIndex) {
