@@ -220,6 +220,14 @@ public class ModelDataService {
     }
 
     public Boolean saveDataList(List<IDynamicData> dataList) {
+        if (dataList == null) {
+            return false;
+        }
+        for (IDynamicData data : dataList) {
+            if (!Boolean.TRUE.equals(saveData(data))) {
+                return false;
+            }
+        }
         return true;
     }
 

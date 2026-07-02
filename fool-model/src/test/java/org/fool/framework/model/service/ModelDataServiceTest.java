@@ -204,6 +204,43 @@ public class ModelDataServiceTest {
         }
     }
 
+    @Test
+    public void saveDataListUpdatesLegacySimpleDynamicRows() {
+        long modelId = 96001L;
+        long idPropertyId = 96002L;
+        long namePropertyId = 96003L;
+        String modelName = "RuntimeBatchSaveOrder";
+        String tableName = "runtime_batch_save_order";
+        cleanupRuntimeDetailModel(modelId, modelName, tableName);
+        try {
+            createRuntimeDetailModel(modelId, idPropertyId, namePropertyId, modelName, tableName);
+            jdbcTemplate.update(
+                    "INSERT INTO `" + tableName + "` (`ORDER_ID`,`ORDER_NAME`) VALUES (?,?)",
+                    "5001",
+                    "Before save 1");
+            jdbcTemplate.update(
+                    "INSERT INTO `" + tableName + "` (`ORDER_ID`,`ORDER_NAME`) VALUES (?,?)",
+                    "5002",
+                    "Before save 2");
+            Model model = modelDataService.getModel(modelName);
+            DbMysqlDynamic first = new DbMysqlDynamic(model);
+            first.set("orderId", "5001");
+            first.set("orderName", "After save 1");
+            DbMysqlDynamic second = new DbMysqlDynamic(model);
+            second.set("orderId", "5002");
+            second.set("orderName", "After save 2");
+
+            assertEquals(Boolean.TRUE, modelDataService.saveDataList(List.of(first, second)));
+
+            List<String> names = jdbcTemplate.queryForList(
+                    "SELECT `ORDER_NAME` FROM `" + tableName + "` ORDER BY `ORDER_ID`",
+                    String.class);
+            assertEquals(List.of("After save 1", "After save 2"), names);
+        } finally {
+            cleanupRuntimeDetailModel(modelId, modelName, tableName);
+        }
+    }
+
     private void cleanupRuntimeEnumModel(long modelId, String modelName) {
         jdbcTemplate.update("DELETE FROM `fool_sys_model_enum` WHERE `owner` = ?", modelId);
         jdbcTemplate.update("DELETE FROM `fool_sys_model` WHERE `id` = ? OR `name` = ?", modelId, modelName);
