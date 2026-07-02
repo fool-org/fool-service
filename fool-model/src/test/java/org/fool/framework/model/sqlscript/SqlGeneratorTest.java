@@ -7,6 +7,7 @@ import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.ModelType;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.query.IQueryFilter;
+import org.fool.framework.query.SimpleFilter;
 import org.junit.Test;
 
 import java.util.List;
@@ -68,6 +69,76 @@ public class SqlGeneratorTest {
                         + " WHERE 1=1  AND  1=1 ",
                 query.getSql());
         assertArrayEquals(new Object[]{}, query.getArgs());
+    }
+
+    @Test
+    public void generateSelectOrdersByLegacyJoinedBusinessObjectShowProperty() {
+        Model customer = model("Customer", "customer");
+        Property customerId = property("customerId", "customer_id");
+        Property customerName = property("customerName", "customer_name");
+        customer.setIdProperty(customerId);
+        customer.setShowProperty(customerName);
+        customer.setProperties(List.of(customerId, customerName));
+
+        Model order = model("Order", "market_order");
+        Property orderId = property("orderId", "order_id");
+        Property customerProperty = property("customer", "customer_id");
+        customerProperty.setPropertyType(PropertyType.BusinessObject);
+        customerProperty.setPropertyModel(customer);
+
+        QueryAndArgs query = new SqlGenerator().generateSelect(
+                order,
+                List.of(orderId, customerProperty),
+                IQueryFilter.init(),
+                null,
+                "`customer`.`customer_name`",
+                true);
+
+        assertEquals(
+                "SELECT `market_order`.`order_id` AS `order_id`,"
+                        + "`customer`.`customer_id` AS `customer_customer_id`,"
+                        + "`customer`.`customer_name` AS `customer_customer_name`"
+                        + " FROM `market_order` LEFT OUTER JOIN `customer` AS `customer`"
+                        + " ON `customer`.`customer_id`=`market_order`.`customer_id`"
+                        + " WHERE 1=1  AND  1=1  ORDER BY `customer`.`customer_name` DESC",
+                query.getSql());
+        assertArrayEquals(new Object[]{}, query.getArgs());
+    }
+
+    @Test
+    public void generateSelectCountJoinsLegacyBusinessObjectShowPropertyForFilters() {
+        Model customer = model("Customer", "customer");
+        Property customerId = property("customerId", "customer_id");
+        Property customerName = property("customerName", "customer_name");
+        customer.setIdProperty(customerId);
+        customer.setShowProperty(customerName);
+        customer.setProperties(List.of(customerId, customerName));
+
+        Model order = model("Order", "market_order");
+        Property orderId = property("orderId", "order_id");
+        Property customerProperty = property("customer", "customer_id");
+        customerProperty.setPropertyType(PropertyType.BusinessObject);
+        customerProperty.setPropertyModel(customer);
+
+        QueryAndArgs query = new SqlGenerator().generateSelectCount(
+                order,
+                new SimpleFilter() {
+                    @Override
+                    public QueryAndArgs generateSql() {
+                        QueryAndArgs queryAndArgs = new QueryAndArgs();
+                        queryAndArgs.setSql("`customer`.`customer_name` LIKE ?");
+                        queryAndArgs.setArgs(new Object[]{"%Ada%"});
+                        return queryAndArgs;
+                    }
+                },
+                List.of(orderId, customerProperty));
+
+        assertEquals(
+                "SELECT  COUNT(1) FROM `market_order` LEFT OUTER JOIN `customer` AS `customer`"
+                        + " ON `customer`.`customer_id`=`market_order`.`customer_id`"
+                        + " WHERE 1=1  AND `customer`.`customer_name` LIKE ?",
+                query.getSql());
+        assertArrayEquals(new Object[]{"%Ada%"}, query.getArgs());
     }
 
     @Test

@@ -67,9 +67,9 @@ public class SqlGenerator {
         List<Object> params = new LinkedList<>();
         params.addAll(Arrays.asList(filterQuery.getArgs()));
         if (orderColumn != null && !orderColumn.isBlank()) {
-            builder.append(" ORDER BY `")
-                    .append(orderColumn)
-                    .append("` ")
+            builder.append(" ORDER BY ")
+                    .append(orderExpression(orderColumn))
+                    .append(" ")
                     .append(orderDescending ? "DESC" : "ASC");
         }
         if (pageNavigator != null) {
@@ -95,6 +95,7 @@ public class SqlGenerator {
     private List<String> selectExpressions(Model model, Property property, boolean qualifyBaseColumns) {
         if (Boolean.TRUE.equals(property.getMultiMap())) {
             return safeDbMaps(property).stream()
+                    .filter(map -> map != null)
                     .map(MultiDbMap::getColumnName)
                     .filter(StringUtils::hasText)
                     .toList();
@@ -166,6 +167,10 @@ public class SqlGenerator {
         return property.getDbMaps() == null ? List.of() : property.getDbMaps();
     }
 
+    private String orderExpression(String orderColumn) {
+        return orderColumn.startsWith("`") ? orderColumn : "`" + orderColumn + "`";
+    }
+
     /**
      * 生成数量
      *
@@ -174,12 +179,23 @@ public class SqlGenerator {
      * @return
      */
     public QueryAndArgs generateSelectCount(Model model, IQueryFilter filter) {
+        return generateSelectCount(model, filter, List.of());
+    }
+
+    public QueryAndArgs generateSelectCount(Model model, IQueryFilter filter, List<Property> properties) {
         var filterQuery = filter.generateSql();
         StringBuilder builder = new StringBuilder();
+        List<Property> selectedProperties = selectedProperties(model, properties);
         builder.append(DbConst.SELECT);
         builder.append(DbConst.COUNT_ONE);
         builder.append(DbConst.FROM);
         builder.append("`" + model.getTableName() + "`");
+        for (Property property : selectedProperties) {
+            String join = joinExpression(model, property);
+            if (StringUtils.hasText(join)) {
+                builder.append(" ").append(join);
+            }
+        }
         builder.append(DbConst.WHERE)
                 .append(DbConst.AND)
                 .append(filterQuery.getSql());

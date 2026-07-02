@@ -70,7 +70,7 @@ public class DataQueryService {
                 queryFilter,
                 properties,
                 pageInfo,
-                orderProperty == null ? null : orderProperty.getColumn(),
+                orderProperty == null ? null : orderColumnExpression(orderProperty),
                 orderProperty != null);
 
         return viewAdapter.getListViewResult(view, result);
@@ -171,6 +171,35 @@ public class DataQueryService {
         return StringUtils.hasText(showProperty.getColumn())
                 ? "`" + property.getName() + "`.`" + showProperty.getColumn() + "`"
                 : null;
+    }
+
+    private String orderColumnExpression(Property property) {
+        if (!PropertyType.BusinessObject.equals(property.getPropertyType())) {
+            return property.getColumn();
+        }
+        Model targetModel = property.getPropertyModel();
+        if (targetModel == null) {
+            return property.getColumn();
+        }
+        Property showProperty = showProperty(targetModel);
+        if (showProperty == null) {
+            return property.getColumn();
+        }
+        if (Boolean.TRUE.equals(property.getMultiMap())) {
+            return safeDbMaps(property).stream()
+                    .filter(map -> map != null)
+                    .filter(map -> showProperty.getName().equals(map.getPropertyName()))
+                    .map(MultiDbMap::getColumnName)
+                    .filter(StringUtils::hasText)
+                    .findFirst()
+                    .orElse(property.getColumn());
+        }
+        if (showProperty == targetModel.getIdProperty()) {
+            return property.getColumn();
+        }
+        return StringUtils.hasText(showProperty.getColumn())
+                ? "`" + property.getName() + "`.`" + showProperty.getColumn() + "`"
+                : property.getColumn();
     }
 
     private Property showProperty(Model model) {

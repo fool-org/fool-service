@@ -153,7 +153,7 @@ public class ModelDataService {
         result.setPageInfo(new PageNavigatorResult());
         result.getPageInfo().setPageSize(pageNavigator.getPageSize());
         result.getPageInfo().setPageIndex(pageNavigator.getPageIndex());
-        var countArgs = sqlGenerator.generateSelectCount(mapper.getModel(), filter);
+        var countArgs = sqlGenerator.generateSelectCount(mapper.getModel(), filter, properties);
         var rowset =
                 this.jdbcTemplate.queryForRowSet(countArgs.getSql(), countArgs.getArgs());
         if (rowset.next()) {

@@ -88,6 +88,57 @@ public class DataQueryServiceOrderingTest {
     }
 
     @Test
+    public void queryViewDataListOrdersBusinessObjectByLegacyShowProperty() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
+        DataQueryService service = new DataQueryService();
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+        ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
+        ReflectionTestUtils.setField(service, "viewAdapter", viewAdapter);
+
+        View view = new View();
+        view.setViewName("OrderList");
+        view.setViewModel("Order");
+        view.setListItems(List.of(
+                viewItem("customer", 10),
+                viewItem("orderId", 20)));
+        Model customer = model("Customer", List.of(
+                property("customerId", "customer_id"),
+                property("customerName", "customer_name")));
+        customer.setTableName("customer");
+        customer.setIdProperty(customer.getProperties().get(0));
+        customer.setShowProperty(customer.getProperties().get(1));
+        Property customerProperty = property("customer", "customer_id");
+        customerProperty.setPropertyType(PropertyType.BusinessObject);
+        customerProperty.setPropertyModel(customer);
+        Model order = model("Order", List.of(customerProperty, property("orderId", "order_id")));
+        PageNavigator pageNavigator = new PageNavigator();
+        PageResult<IDynamicData> pageResult = new PageResult<>();
+        when(daoService.getOneDetailByKey(View.class, "OrderList")).thenReturn(view);
+        when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(order);
+        when(modelDataService.getDataListWithPageInfo(
+                eq("Order"),
+                any(IQueryFilter.class),
+                anyList(),
+                eq(pageNavigator),
+                eq("`customer`.`customer_name`"),
+                eq(true)))
+                .thenReturn(pageResult);
+        when(viewAdapter.getListViewResult(eq(view), eq(pageResult))).thenReturn(new ListViewResult());
+
+        service.queryViewDataList("OrderList", null, pageNavigator);
+
+        verify(modelDataService).getDataListWithPageInfo(
+                eq("Order"),
+                any(IQueryFilter.class),
+                anyList(),
+                eq(pageNavigator),
+                eq("`customer`.`customer_name`"),
+                eq(true));
+    }
+
+    @Test
     public void queryViewDataListAppliesLegacyViewFilterBeforeRequestFilter() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
