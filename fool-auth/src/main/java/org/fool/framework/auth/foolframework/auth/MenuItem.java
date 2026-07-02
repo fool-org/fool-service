@@ -8,6 +8,9 @@ import org.fool.framework.common.annotation.SqlGenerate;
 import org.fool.framework.common.annotation.SqlGenerateConfig;
 import org.fool.framework.common.annotation.Table;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Table(value = "SW_APP_AUTH_MENU", columnPrefix = "AUTH_MENU_")
 @Data
 public class MenuItem {
@@ -22,13 +25,15 @@ public class MenuItem {
     @Column("AUTH_MENU_IMAGE")
     private String image;
     @Column("AUTH_MENU_VISIABLE")
-    private Boolean defaultVisible;
+    private Boolean defaultVisible = false;
     @Column("AUTH_MENU_ENABLE")
-    private Boolean defaultEnable;
+    private Boolean defaultEnable = false;
     @Column("AUTH_MENU_VIEWID")
-    private Long viewId;
+    private Long viewId = 0L;
     @Column("AUTH_MENU_TEMPLATEFILE")
     private String templateFile;
     @Column("AUTH_MENU_INDEX")
-    private Integer index;
+    private Integer index = 0;
+    private transient List<MenuItem> subItems = new ArrayList<>();
+    private transient List<Role> roles = new ArrayList<>();
 }

@@ -8,6 +8,9 @@ import org.fool.framework.common.annotation.SqlGenerate;
 import org.fool.framework.common.annotation.SqlGenerateConfig;
 import org.fool.framework.common.annotation.Table;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Table(value = "SW_APP_AUTH_USER", columnPrefix = "APP_AUTH_")
 @Data
 public class AuthorizedUser {
@@ -20,4 +23,5 @@ public class AuthorizedUser {
     @SqlGenerate(SqlGenerateConfig.AUTO_INCREMENT)
     @Column(value = "APP_AUTH_ID", key = true, generationType = GenerationType.ON_INSERT)
     private Long authorizedId;
+    private transient List<Role> roles = new ArrayList<>();
 }
