@@ -25,4 +25,12 @@ public class ViewController {
     public CommonResponse<ListViewInfo> getViewData(@RequestBody ViewDataRequest request) {
         return new CommonResponse<>(viewAdapter.getViewInfo(viewDataService.getViewData(request.getViewName(), request.getToken())));
     }
+
+    @ResponseBody
+    @PostMapping("/getlistview")
+    @ApiOperation("得到旧版视图定义")
+    public CommonResponse<ListViewInfo> getListView(@RequestBody ViewDataRequest request) {
+        String viewId = request.getViewId() == null ? null : request.getViewId().toString();
+        return new CommonResponse<>(viewAdapter.getViewInfo(viewDataService.getViewData(viewId, request.getToken())));
+    }
 }

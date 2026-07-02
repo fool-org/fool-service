@@ -7,5 +7,6 @@ import org.fool.framework.dto.CommonRequest;
 
 @Data
 public class ViewDataRequest extends CommonRequest {
+    private Long viewId;
     private String viewName;
 }

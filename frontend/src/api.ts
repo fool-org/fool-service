@@ -88,6 +88,12 @@ export interface ListViewInfo {
   operations?: OperationInfo[];
 }
 
+export interface ViewDataRequest {
+  token?: string;
+  viewId?: number;
+  viewName?: string;
+}
+
 export interface PageNavigatorResult {
   pageSize?: number;
   pageIndex?: number;
