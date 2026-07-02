@@ -34,6 +34,10 @@ public class ViewDataAdapter {
     public ListViewResult getListViewResult(View view, PageResult<IDynamicData> item) {
         ListViewResult result = new ListViewResult();
         result.setPageInfo(item.getPageInfo());
+        PageNavigatorResult pageInfo = item.getPageInfo();
+        result.setTotalItem(pageInfo == null ? 0L : pageInfo.getTotal());
+        result.setTotalPage(pageInfo == null ? 0L : pageInfo.getPageCount());
+        result.setPageIndex(pageInfo == null ? 0L : pageInfo.getPageIndex());
         result.setFreshTime(LocalDateTime.now());
         result.setAutoFreshTime(safeAutoFreshTime(view));
         List<ViewItem> listItems = orderedListItems(view);
@@ -61,6 +65,7 @@ public class ViewDataAdapter {
 
             }
         }
+        result.setData(result.getItems());
 
         return result;
 

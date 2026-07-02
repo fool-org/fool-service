@@ -84,6 +84,32 @@ public class ViewDataAdapterTest {
     }
 
     @Test
+    public void listResultIncludesLegacyPagingAliasesAndDataAlias() {
+        View view = new View();
+        view.setListItems(List.of(viewItem("orderId", ItemEditType.ReadOnly)));
+
+        PageNavigatorResult pageInfo = new PageNavigatorResult();
+        pageInfo.setPageIndex(3);
+        pageInfo.setPageSize(10);
+        pageInfo.setTotal(25);
+        pageInfo.setPageCount(3);
+
+        PageResult<IDynamicData> page = new PageResult<>();
+        page.setPageInfo(pageInfo);
+        page.setItems(List.of(new MapDynamicData("order-21", new LinkedHashMap<>(Map.of("orderId", 1021)))));
+
+        ListViewResult result = new ViewDataAdapter().getListViewResult(view, page);
+        result.setFreshTime(null);
+
+        Map<?, ?> serialized = new ObjectMapper().convertValue(result, Map.class);
+        assertTrue("ListViewResult should expose legacy totalItem", serialized.containsKey("totalItem"));
+        assertEquals(25L, ((Number) serialized.get("totalItem")).longValue());
+        assertEquals(3L, ((Number) serialized.get("totalPage")).longValue());
+        assertEquals(3L, ((Number) serialized.get("pageIndex")).longValue());
+        assertEquals(serialized.get("items"), serialized.get("data"));
+    }
+
+    @Test
     public void listRowsAndColumnsFollowLegacyShowIndexOrder() {
         ViewItem symbol = viewItem("symbol", ItemEditType.ReadOnly);
         symbol.setItemName("Symbol");

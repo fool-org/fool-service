@@ -105,10 +105,14 @@ export interface ListDataItem {
 
 export interface ListViewResult {
   pageInfo?: PageNavigatorResult;
+  totalItem?: number;
+  totalPage?: number;
+  pageIndex?: number;
   cols?: string[];
   freshTime?: string;
   autoFreshTime?: number;
   items?: ListDataItem[];
+  data?: ListDataItem[];
 }
 
 export async function postApi<T>(path: string, payload: unknown): Promise<CommonResponse<T>> {

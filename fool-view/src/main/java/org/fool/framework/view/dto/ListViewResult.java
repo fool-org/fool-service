@@ -14,6 +14,12 @@ import java.util.List;
 public class ListViewResult {
     @ApiModelProperty("翻页信息")
     private PageNavigatorResult pageInfo;
+    @ApiModelProperty("legacy 总条数")
+    private Long totalItem;
+    @ApiModelProperty("legacy 总页数")
+    private Long totalPage;
+    @ApiModelProperty("legacy 当前页")
+    private Long pageIndex;
     @ApiModelProperty("列名")
     private List<String> cols;
     @ApiModelProperty("刷新时间")
@@ -22,4 +28,6 @@ public class ListViewResult {
     private Integer autoFreshTime;
     @ApiModelProperty("结果数据")
     private List<ListDataItem> items;
+    @ApiModelProperty("legacy 结果数据")
+    private List<ListDataItem> data;
 }
