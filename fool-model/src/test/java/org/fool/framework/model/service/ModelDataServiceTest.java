@@ -7,6 +7,7 @@ import org.fool.framework.model.Application;
 import org.fool.framework.model.model.DbMysqlDynamic;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.ModelType;
+import org.fool.framework.model.model.MultiDbMap;
 import org.fool.framework.model.model.Property;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -243,6 +244,63 @@ public class ModelDataServiceTest {
     }
 
     @Test
+    public void createDataWritesLegacyMultiDbMapColumns() {
+        String tableName = "runtime_create_dbmaps_order";
+        cleanupRuntimeDbMapsTable(tableName);
+        try {
+            createRuntimeDbMapsTable(tableName);
+            Model order = dbMapsOrderModel(tableName);
+            DbMysqlDynamic data = dbMapsOrderData(order, "7001", 42L, "Ada");
+
+            assertEquals(Boolean.TRUE, modelDataService.createData(data));
+
+            Long customerId = jdbcTemplate.queryForObject(
+                    "SELECT `CUSTOMER_ID` FROM `" + tableName + "` WHERE `ORDER_ID` = ?",
+                    Long.class,
+                    "7001");
+            String customerName = jdbcTemplate.queryForObject(
+                    "SELECT `CUSTOMER_NAME` FROM `" + tableName + "` WHERE `ORDER_ID` = ?",
+                    String.class,
+                    "7001");
+            assertEquals(Long.valueOf(42L), customerId);
+            assertEquals("Ada", customerName);
+        } finally {
+            cleanupRuntimeDbMapsTable(tableName);
+        }
+    }
+
+    @Test
+    public void saveDataUpdatesLegacyMultiDbMapColumnsById() {
+        String tableName = "runtime_save_dbmaps_order";
+        cleanupRuntimeDbMapsTable(tableName);
+        try {
+            createRuntimeDbMapsTable(tableName);
+            jdbcTemplate.update(
+                    "INSERT INTO `" + tableName + "` (`ORDER_ID`,`CUSTOMER_ID`,`CUSTOMER_NAME`) VALUES (?,?,?)",
+                    "8001",
+                    1L,
+                    "Before save");
+            Model order = dbMapsOrderModel(tableName);
+            DbMysqlDynamic data = dbMapsOrderData(order, "8001", 42L, "Ada");
+
+            assertEquals(Boolean.TRUE, modelDataService.saveData(data));
+
+            Long customerId = jdbcTemplate.queryForObject(
+                    "SELECT `CUSTOMER_ID` FROM `" + tableName + "` WHERE `ORDER_ID` = ?",
+                    Long.class,
+                    "8001");
+            String customerName = jdbcTemplate.queryForObject(
+                    "SELECT `CUSTOMER_NAME` FROM `" + tableName + "` WHERE `ORDER_ID` = ?",
+                    String.class,
+                    "8001");
+            assertEquals(Long.valueOf(42L), customerId);
+            assertEquals("Ada", customerName);
+        } finally {
+            cleanupRuntimeDbMapsTable(tableName);
+        }
+    }
+
+    @Test
     public void initDataBuildsLegacySimpleDynamicDefaults() {
         Model model = new Model();
         model.setProperties(List.of(
@@ -271,12 +329,48 @@ public class ModelDataServiceTest {
         assertEquals(List.of(), data.get("items"));
     }
 
+    private Model dbMapsOrderModel(String tableName) {
+        Model customer = new Model();
+        customer.setProperties(List.of(
+                simpleProperty("customerId", PropertyType.Long),
+                simpleProperty("displayName", PropertyType.String)));
+
+        Model order = new Model();
+        order.setTableName(tableName);
+        Property orderId = columnProperty("orderId", "ORDER_ID", PropertyType.String);
+        order.setIdProperty(orderId);
+        Property customerSnapshot = simpleProperty("customer", PropertyType.BusinessObject);
+        customerSnapshot.setPropertyModel(customer);
+        customerSnapshot.setMultiMap(true);
+        customerSnapshot.setDbMaps(List.of(
+                new MultiDbMap("customerId", "CUSTOMER_ID"),
+                new MultiDbMap("displayName", "CUSTOMER_NAME")));
+        order.setProperties(List.of(orderId, customerSnapshot));
+        return order;
+    }
+
+    private DbMysqlDynamic dbMapsOrderData(Model order, String orderId, Long customerId, String customerName) {
+        DbMysqlDynamic customerData = new DbMysqlDynamic(order.getProperties().get(1).getPropertyModel());
+        customerData.set("customerId", customerId);
+        customerData.set("displayName", customerName);
+        DbMysqlDynamic orderData = new DbMysqlDynamic(order);
+        orderData.set("orderId", orderId);
+        orderData.set("customer", customerData);
+        return orderData;
+    }
+
     private Property simpleProperty(String name, PropertyType type) {
         Property property = new Property();
         property.setName(name);
         property.setPropertyType(type);
         property.setIsCollection(false);
         property.setMultiMap(false);
+        return property;
+    }
+
+    private Property columnProperty(String name, String column, PropertyType type) {
+        Property property = simpleProperty(name, type);
+        property.setColumn(column);
         return property;
     }
 
@@ -357,6 +451,18 @@ public class ModelDataServiceTest {
     private void cleanupRuntimeDetailModel(long modelId, String modelName, String tableName) {
         jdbcTemplate.update("DELETE FROM `fool_sys_model_property` WHERE `owner` = ?", modelId);
         jdbcTemplate.update("DELETE FROM `fool_sys_model` WHERE `id` = ? OR `name` = ?", modelId, modelName);
+        jdbcTemplate.execute("DROP TABLE IF EXISTS `" + tableName + "`");
+    }
+
+    private void createRuntimeDbMapsTable(String tableName) {
+        jdbcTemplate.execute("CREATE TABLE `" + tableName + "` ("
+                + "`ORDER_ID` varchar(64) NOT NULL,"
+                + "`CUSTOMER_ID` bigint DEFAULT NULL,"
+                + "`CUSTOMER_NAME` varchar(255) DEFAULT NULL,"
+                + "PRIMARY KEY (`ORDER_ID`))");
+    }
+
+    private void cleanupRuntimeDbMapsTable(String tableName) {
         jdbcTemplate.execute("DROP TABLE IF EXISTS `" + tableName + "`");
     }
 }

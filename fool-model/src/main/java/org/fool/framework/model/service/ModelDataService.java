@@ -6,6 +6,7 @@ import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.dao.*;
 import org.fool.framework.model.model.DbMysqlDynamic;
 import org.fool.framework.model.model.Model;
+import org.fool.framework.model.model.MultiDbMap;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.model.sqlscript.SqlGenerator;
 import org.fool.framework.query.CompareFilter;
@@ -200,20 +201,15 @@ public class ModelDataService {
         if (idValue == null) {
             return false;
         }
-        List<Property> properties = model.getProperties().stream()
-                .filter(property -> !Boolean.TRUE.equals(property.getIsCollection()))
-                .filter(property -> !Boolean.TRUE.equals(property.getMultiMap()))
-                .filter(property -> property.getColumn() != null && !property.getColumn().isBlank())
-                .filter(property -> !property.getColumn().equals(idColumn))
-                .toList();
-        if (properties.isEmpty()) {
+        Map<String, Object> columnValues = writableColumnValues(model, data, idColumn);
+        if (columnValues.isEmpty()) {
             return false;
         }
-        String assignments = properties.stream()
-                .map(property -> "`" + property.getColumn() + "` = ?")
+        String assignments = columnValues.keySet().stream()
+                .map(column -> "`" + column + "` = ?")
                 .collect(Collectors.joining(","));
         List<Object> args = new LinkedList<>();
-        properties.forEach(property -> args.add(data.get(property.getName())));
+        args.addAll(columnValues.values());
         args.add(idValue);
         String sql = "UPDATE `" + model.getTableName() + "` SET " + assignments + " WHERE `" + idColumn + "` = ?";
         return jdbcTemplate.update(sql, args.toArray()) > 0;
@@ -260,25 +256,51 @@ public class ModelDataService {
                 || model.getProperties() == null) {
             return false;
         }
-        List<Property> properties = model.getProperties().stream()
-                .filter(property -> !Boolean.TRUE.equals(property.getIsCollection()))
-                .filter(property -> !Boolean.TRUE.equals(property.getMultiMap()))
-                .filter(property -> property.getColumn() != null && !property.getColumn().isBlank())
-                .toList();
-        if (properties.isEmpty()) {
+        Map<String, Object> columnValues = writableColumnValues(model, data, null);
+        if (columnValues.isEmpty()) {
             return false;
         }
-        String columns = properties.stream()
-                .map(property -> "`" + property.getColumn() + "`")
+        String columns = columnValues.keySet().stream()
+                .map(column -> "`" + column + "`")
                 .collect(Collectors.joining(","));
-        String values = properties.stream()
+        String values = columnValues.keySet().stream()
                 .map(property -> "?")
                 .collect(Collectors.joining(","));
-        Object[] args = properties.stream()
-                .map(property -> data.get(property.getName()))
-                .toArray();
         String sql = "INSERT INTO `" + model.getTableName() + "` (" + columns + ") VALUES (" + values + ")";
-        return jdbcTemplate.update(sql, args) > 0;
+        return jdbcTemplate.update(sql, columnValues.values().toArray()) > 0;
+    }
+
+    private Map<String, Object> writableColumnValues(Model model, IDynamicData data, String excludedColumn) {
+        Map<String, Object> values = new LinkedHashMap<>();
+        for (Property property : model.getProperties()) {
+            if (Boolean.TRUE.equals(property.getIsCollection())) {
+                continue;
+            }
+            if (Boolean.TRUE.equals(property.getMultiMap())) {
+                Object propertyValue = data.get(property.getName());
+                if (propertyValue instanceof IDynamicData mappedData) {
+                    for (MultiDbMap dbMap : safeDbMaps(property)) {
+                        if (dbMap.getPropertyName() != null && !dbMap.getPropertyName().isBlank()) {
+                            addColumnValue(values, dbMap.getColumnName(), mappedData.get(dbMap.getPropertyName()), excludedColumn);
+                        }
+                    }
+                }
+                continue;
+            }
+            addColumnValue(values, property.getColumn(), data.get(property.getName()), excludedColumn);
+        }
+        return values;
+    }
+
+    private void addColumnValue(Map<String, Object> values, String column, Object value, String excludedColumn) {
+        if (column == null || column.isBlank() || column.equals(excludedColumn)) {
+            return;
+        }
+        values.put(column, value);
+    }
+
+    private List<MultiDbMap> safeDbMaps(Property property) {
+        return property.getDbMaps() == null ? List.of() : property.getDbMaps();
     }
 
     public IDynamicData initData(Model model) {
