@@ -13,6 +13,7 @@ import java.util.UUID;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -205,27 +206,34 @@ public class ReportMigrationTest {
 
     @Test
     public void reportStoresLegacySupportedDefinitionShape() {
-        Param param = new Param();
-        param.setName("region");
-        param.setFormat("string");
-
-        ParamInput input = new ParamInput();
-        input.setParam(param);
-        input.setValue("north");
-        input.setShow("North");
-
         UUID reportId = UUID.randomUUID();
         Report report = new Report();
         report.setName("Sales Report");
         report.setId(reportId);
         report.setNo("RPT-001");
-        report.setParams(List.of(param));
 
         assertEquals("Sales Report", report.getName());
         assertEquals(reportId, report.getId());
         assertEquals("RPT-001", report.getNo());
-        assertEquals("region", report.getParams().get(0).getName());
-        assertEquals("North", input.getShow());
+        assertNull(report.getParams());
+    }
+
+    @Test
+    public void paramAndInputKeepLegacyUnsupportedGetterNoOpSetterSurface() {
+        Param param = new Param();
+        ParamInput input = new ParamInput();
+
+        param.setName("region");
+        param.setFormat("string");
+        input.setParam(param);
+        input.setValue("north");
+        input.setShow("North");
+
+        assertThrows(UnsupportedOperationException.class, param::getName);
+        assertThrows(UnsupportedOperationException.class, param::getFormat);
+        assertThrows(UnsupportedOperationException.class, input::getParam);
+        assertThrows(UnsupportedOperationException.class, input::getValue);
+        assertThrows(UnsupportedOperationException.class, input::getShow);
     }
 
     @Test

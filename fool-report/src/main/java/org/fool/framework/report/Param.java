@@ -1,9 +1,17 @@
 package org.fool.framework.report;
 
-import lombok.Data;
-
-@Data
 public class Param {
-    private String name;
-    private String format;
+    public String getName() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void setName(String name) {
+    }
+
+    public String getFormat() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void setFormat(String format) {
+    }
 }
