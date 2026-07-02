@@ -92,6 +92,19 @@ public class ViewAdapterTest {
     }
 
     @Test
+    public void viewInfoIncludesLegacyNameAndShowType() {
+        View view = new View();
+        view.setViewName("OrderList");
+        view.setViewType(org.fool.framework.view.model.ViewType.ListView);
+        view.setListItems(List.of());
+
+        ListViewInfo info = new ViewAdapter().getViewInfo(view);
+
+        assertEquals("OrderList", legacyName(info));
+        assertEquals(org.fool.framework.view.model.ViewType.ListView, legacyShowType(info));
+    }
+
+    @Test
     public void viewInfoOrdersLegacyListColumnsByShowIndex() {
         ViewItem symbol = viewItem("symbol", "Symbol", ItemEditType.ReadOnly);
         setShowIndex(symbol, 2);
@@ -257,6 +270,24 @@ public class ViewAdapterTest {
             return (ItemEditType) column.getClass().getMethod("getEditType").invoke(column);
         } catch (ReflectiveOperationException e) {
             fail("TableColumnInfo should expose legacy edit-type metadata");
+            return null;
+        }
+    }
+
+    private static String legacyName(Object info) {
+        try {
+            return (String) info.getClass().getMethod("getName").invoke(info);
+        } catch (ReflectiveOperationException e) {
+            fail("ListViewInfo should expose legacy name metadata");
+            return null;
+        }
+    }
+
+    private static org.fool.framework.view.model.ViewType legacyShowType(Object info) {
+        try {
+            return (org.fool.framework.view.model.ViewType) info.getClass().getMethod("getShowType").invoke(info);
+        } catch (ReflectiveOperationException e) {
+            fail("ListViewInfo should expose legacy show type metadata");
             return null;
         }
     }

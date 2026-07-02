@@ -28,8 +28,10 @@ public class ViewAdapter {
 
         result.setId(view.getId());
         result.setViewName(view.getViewName());
+        result.setName(view.getViewName());
         result.setViewTitle(view.getViewTitle());
         result.setViewType(view.getViewType());
+        result.setShowType(view.getViewType());
         result.setBrowserTitle(view.getViewRemark());
         result.setDetailViewId(safeDetailViewId(view));
         result.setAutoFreshTime(safeAutoFreshTime(view));

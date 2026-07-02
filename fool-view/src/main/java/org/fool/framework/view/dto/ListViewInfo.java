@@ -15,12 +15,16 @@ public class ListViewInfo {
     private Long id;
     @ApiModelProperty("名称")
     private String viewName;
+    @ApiModelProperty("legacy 名称")
+    private String name;
     @ApiModelProperty("标题")
     private String viewTitle;
     @ApiModelProperty("浏览器标题")
     private String browserTitle;
     @ApiModelProperty("类型")
     private ViewType viewType;
+    @ApiModelProperty("legacy 显示类型")
+    private ViewType showType;
     @ApiModelProperty("默认详情视图ID")
     private Long detailViewId;
     @ApiModelProperty("自动刷新间隔")

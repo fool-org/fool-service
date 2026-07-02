@@ -64,9 +64,11 @@ export interface OperationInfo {
 export interface ListViewInfo {
   id?: number;
   viewName?: string;
+  name?: string;
   viewTitle?: string;
   browserTitle?: string;
   viewType?: string;
+  showType?: string;
   detailViewId?: number;
   autoFreshTime?: number;
   inputInfo?: ViewInputInfo[];
