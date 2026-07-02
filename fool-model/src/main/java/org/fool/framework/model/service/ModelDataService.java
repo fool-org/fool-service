@@ -282,7 +282,18 @@ public class ModelDataService {
     }
 
     public IDynamicData initData(Model model) {
-        return null;
+        if (model == null) {
+            return null;
+        }
+        DbMysqlDynamic data = new DbMysqlDynamic(model);
+        if (model.getProperties() == null) {
+            return data;
+        }
+        model.getProperties().stream()
+                .filter(property -> !Boolean.TRUE.equals(property.getIsCollection()))
+                .filter(property -> !Boolean.TRUE.equals(property.getMultiMap()))
+                .forEach(property -> data.set(property.getName(), Mapper.defaultValue(property)));
+        return data;
     }
 
 }

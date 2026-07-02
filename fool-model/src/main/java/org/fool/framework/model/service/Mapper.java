@@ -170,7 +170,7 @@ public class Mapper extends AbstratMapper<IDynamicData> {
         return model.getProperties() == null ? List.of() : model.getProperties();
     }
 
-    private Object defaultValue(Property property) {
+    static Object defaultValue(Property property) {
         if (property.getPropertyType() == null) {
             return null;
         }
@@ -189,7 +189,7 @@ public class Mapper extends AbstratMapper<IDynamicData> {
         };
     }
 
-    private Object enumDefaultValue(Property property) {
+    private static Object enumDefaultValue(Property property) {
         Model enumModel = property.getPropertyModel();
         if (enumModel == null || enumModel.getEnumValues() == null || enumModel.getEnumValues().isEmpty()) {
             return null;

@@ -7,6 +7,7 @@ import org.fool.framework.model.Application;
 import org.fool.framework.model.model.DbMysqlDynamic;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.ModelType;
+import org.fool.framework.model.model.Property;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -239,6 +240,33 @@ public class ModelDataServiceTest {
         } finally {
             cleanupRuntimeDetailModel(modelId, modelName, tableName);
         }
+    }
+
+    @Test
+    public void initDataBuildsLegacySimpleDynamicDefaults() {
+        Model model = new Model();
+        model.setProperties(List.of(
+                simpleProperty("active", PropertyType.Boolean),
+                simpleProperty("count", PropertyType.Int),
+                simpleProperty("total", PropertyType.Long),
+                simpleProperty("code", PropertyType.String)));
+
+        IDynamicData data = modelDataService.initData(model);
+
+        assertNotNull(data);
+        assertEquals(false, data.get("active"));
+        assertEquals(0, data.get("count"));
+        assertEquals(0L, data.get("total"));
+        assertEquals("", data.get("code"));
+    }
+
+    private Property simpleProperty(String name, PropertyType type) {
+        Property property = new Property();
+        property.setName(name);
+        property.setPropertyType(type);
+        property.setIsCollection(false);
+        property.setMultiMap(false);
+        return property;
     }
 
     private void cleanupRuntimeEnumModel(long modelId, String modelName) {
