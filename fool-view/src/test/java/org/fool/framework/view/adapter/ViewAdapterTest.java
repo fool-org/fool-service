@@ -102,6 +102,7 @@ public class ViewAdapterTest {
         ListViewInfo info = new ViewAdapter().getViewInfo(view);
 
         assertEquals("OrderList", legacyName(info));
+        assertEquals(org.fool.framework.view.model.ViewType.ListView, legacyType(info));
         assertEquals(org.fool.framework.view.model.ViewType.ListView, legacyShowType(info));
     }
 
@@ -320,6 +321,15 @@ public class ViewAdapterTest {
             return (org.fool.framework.view.model.ViewType) info.getClass().getMethod("getShowType").invoke(info);
         } catch (ReflectiveOperationException e) {
             fail("ListViewInfo should expose legacy show type metadata");
+            return null;
+        }
+    }
+
+    private static org.fool.framework.view.model.ViewType legacyType(Object info) {
+        try {
+            return (org.fool.framework.view.model.ViewType) info.getClass().getMethod("getType").invoke(info);
+        } catch (ReflectiveOperationException e) {
+            fail("ListViewInfo should expose legacy type metadata");
             return null;
         }
     }

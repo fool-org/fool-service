@@ -31,6 +31,7 @@ public class ViewAdapter {
         result.setName(view.getViewName());
         result.setViewTitle(view.getViewTitle());
         result.setViewType(view.getViewType());
+        result.setType(view.getViewType());
         result.setShowType(view.getViewType());
         result.setBrowserTitle(view.getViewRemark());
         result.setDetailViewId(safeDetailViewId(view));

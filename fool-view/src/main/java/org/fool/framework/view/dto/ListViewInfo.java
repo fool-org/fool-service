@@ -23,6 +23,8 @@ public class ListViewInfo {
     private String browserTitle;
     @ApiModelProperty("类型")
     private ViewType viewType;
+    @ApiModelProperty("legacy 类型")
+    private ViewType type;
     @ApiModelProperty("legacy 显示类型")
     private ViewType showType;
     @ApiModelProperty("默认详情视图ID")

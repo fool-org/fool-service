@@ -70,6 +70,7 @@ export interface ListViewInfo {
   viewTitle?: string;
   browserTitle?: string;
   viewType?: string;
+  type?: string;
   showType?: string;
   detailViewId?: number;
   autoFreshTime?: number;
