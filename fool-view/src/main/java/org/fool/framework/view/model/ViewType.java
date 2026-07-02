@@ -7,26 +7,38 @@ public enum ViewType {
     /**
      * 列表视图
      */
-    ListView,
+    ListView(0),
     /**
      * 查询视图
      */
-    QueryView,
+    QueryView(2),
     /**
      * 详情视图
      */
-    DetailView,
+    DetailView(1),
     /**
      * 组件视图
      */
-    GroupView,
+    GroupView(4),
     /**
      * 地图视图
      */
-    MapView,
+    MapView(3),
     /**
      * 报表
      */
-    ReportView
+    ReportView(5),
+    ButtonListView(6),
+    GridView(7);
+
+    private final int code;
+
+    ViewType(int code) {
+        this.code = code;
+    }
+
+    public int code() {
+        return code;
+    }
 
 }

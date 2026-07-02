@@ -64,8 +64,8 @@ public class FunctionMap {
                 public Object get(ResultSet resultSet, String columnName) throws SQLException {
                     var values = field.getType().getEnumConstants();
                     Integer index = resultSet.getInt(columnName);
-                    if (index != null && index < values.length) {
-                        return values[index];
+                    if (index != null) {
+                        return EnumCode.enumValue(values, index);
                     }
                     return null;
                 }

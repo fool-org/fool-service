@@ -299,7 +299,7 @@ public class SqlScriptGenerator {
         try {
             Object value = field.getField().get(object);
             if (value instanceof Enum<?>) {
-                return ((Enum<?>) value).ordinal();
+                return EnumCode.value((Enum<?>) value);
             }
             return value;
         } catch (IllegalAccessException e) {
