@@ -26,6 +26,13 @@ public class ColumnTest {
         assertFalse(column.identify());
     }
 
+    @Test
+    public void encryptTypesKeepLegacyCodes() {
+        assertEquals(0, EncryptType.NONE.code());
+        assertEquals(1, EncryptType.MD5.code());
+        assertEquals(2, EncryptType.RADOM_DECS.code());
+    }
+
     private static class Sample {
         @Column(value = "ID", keyCanBeNullOrEmpty = true, sqlType = "BigInt", identify = true)
         private long id;

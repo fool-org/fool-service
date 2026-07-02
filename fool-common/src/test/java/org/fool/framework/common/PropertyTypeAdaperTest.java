@@ -42,6 +42,32 @@ public class PropertyTypeAdaperTest {
         assertNull(PropertyTypeAdaper.getDefaultValue(PropertyType.BusinessObject));
     }
 
+    @Test
+    public void propertyTypesKeepLegacyCodes() {
+        assertEquals(0, PropertyType.IdentifyId.code());
+        assertEquals(1, PropertyType.Int.code());
+        assertEquals(2, PropertyType.UInt.code());
+        assertEquals(3, PropertyType.Long.code());
+        assertEquals(4, PropertyType.ULong.code());
+        assertEquals(5, PropertyType.Float.code());
+        assertEquals(6, PropertyType.Double.code());
+        assertEquals(7, PropertyType.Decimal.code());
+        assertEquals(8, PropertyType.Boolean.code());
+        assertEquals(9, PropertyType.Char.code());
+        assertEquals(10, PropertyType.Byte.code());
+        assertEquals(11, PropertyType.String.code());
+        assertEquals(12, PropertyType.Date.code());
+        assertEquals(13, PropertyType.Time.code());
+        assertEquals(14, PropertyType.DateTime.code());
+        assertEquals(15, PropertyType.Enum.code());
+        assertEquals(16, PropertyType.BusinessObject.code());
+        assertEquals(17, PropertyType.SerialNo.code());
+        assertEquals(18, PropertyType.MD5.code());
+        assertEquals(19, PropertyType.Radom.code());
+        assertEquals(20, PropertyType.RadomDECS.code());
+        assertEquals(21, PropertyType.Guid.code());
+    }
+
     private enum SampleState {
         READY
     }
