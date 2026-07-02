@@ -127,6 +127,20 @@ export interface ListViewResult {
   data?: ListDataItem[];
 }
 
+export interface GetEnumRequest {
+  token?: string;
+  modelId?: string;
+}
+
+export interface GetEnumValue {
+  name?: string;
+  value?: number;
+}
+
+export interface GetEnumResult {
+  enumValues?: GetEnumValue[];
+}
+
 export async function postApi<T>(path: string, payload: unknown): Promise<CommonResponse<T>> {
   const response = await fetch(path, {
     method: "POST",
