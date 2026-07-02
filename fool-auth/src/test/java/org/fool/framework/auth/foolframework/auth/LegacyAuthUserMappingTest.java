@@ -61,6 +61,8 @@ public class LegacyAuthUserMappingTest {
 
         assertEquals(0, Sex.Male.ordinal());
         assertEquals(1, Sex.Female.ordinal());
+        assertEquals(0, Sex.Male.code());
+        assertEquals(1, Sex.Female.code());
     }
 
     private static void assertColumn(String fieldName, String columnName, boolean id) throws Exception {
