@@ -77,4 +77,16 @@ public class TokenService {
         redisUtils.set(userTokeKey, userId);
 
     }
+
+    public void logoutToken(String token) {
+        if (StringUtils.isEmpty(token)) {
+            return;
+        }
+        String tokenKey = RedisKeyPrefix.USER_TOKEN_PREFIX + token;
+        String userId = redisUtils.get(tokenKey);
+        redisUtils.del(tokenKey);
+        if (!StringUtils.isEmpty(userId)) {
+            redisUtils.del(RedisKeyPrefix.USER_ID_TOKEN_PREFIX + userId);
+        }
+    }
 }

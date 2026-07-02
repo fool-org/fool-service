@@ -135,4 +135,8 @@ public class AuthService {
         BeanUtils.copyProperties(dbuser, user);
         return user;
     }
+
+    public void logout(String token) {
+        tokenService.logoutToken(token);
+    }
 }

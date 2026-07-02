@@ -48,4 +48,12 @@ public class LoginController {
     public CommonResponse<List<TreeNode<Auth>>> getMenus(@RequestBody CommonRequest request) {
         return new CommonResponse<List<TreeNode<Auth>>>(authService.getAuth(request.getToken()));
     }
+
+    @ApiOperation("登出")
+    @PostMapping("/logout")
+    @ResponseBody
+    public CommonResponse<Void> logout(@RequestBody CommonRequest request) {
+        authService.logout(request.getToken());
+        return new CommonResponse<>((Void) null);
+    }
 }

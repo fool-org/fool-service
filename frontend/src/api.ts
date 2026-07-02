@@ -4,6 +4,10 @@ export interface CommonResponse<T> {
   data: T;
 }
 
+export interface CommonRequest {
+  token?: string;
+}
+
 export interface UserDTO {
   id?: string;
   name?: string;
