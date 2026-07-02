@@ -4,6 +4,7 @@ package org.fool.framework.model.service;
 import lombok.extern.slf4j.Slf4j;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.dao.*;
+import org.fool.framework.model.model.DbMysqlDynamic;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.model.sqlscript.SqlGenerator;
@@ -195,7 +196,33 @@ public class ModelDataService {
     }
 
     public Boolean createData(IDynamicData data) {
-        return true;
+        if (!(data instanceof DbMysqlDynamic dynamicData)) {
+            return false;
+        }
+        Model model = dynamicData.getModel();
+        if (model == null || model.getTableName() == null || model.getTableName().isBlank()
+                || model.getProperties() == null) {
+            return false;
+        }
+        List<Property> properties = model.getProperties().stream()
+                .filter(property -> !Boolean.TRUE.equals(property.getIsCollection()))
+                .filter(property -> !Boolean.TRUE.equals(property.getMultiMap()))
+                .filter(property -> property.getColumn() != null && !property.getColumn().isBlank())
+                .toList();
+        if (properties.isEmpty()) {
+            return false;
+        }
+        String columns = properties.stream()
+                .map(property -> "`" + property.getColumn() + "`")
+                .collect(Collectors.joining(","));
+        String values = properties.stream()
+                .map(property -> "?")
+                .collect(Collectors.joining(","));
+        Object[] args = properties.stream()
+                .map(property -> data.get(property.getName()))
+                .toArray();
+        String sql = "INSERT INTO `" + model.getTableName() + "` (" + columns + ") VALUES (" + values + ")";
+        return jdbcTemplate.update(sql, args) > 0;
     }
 
     public IDynamicData initData(Model model) {

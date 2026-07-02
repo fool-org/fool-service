@@ -20,7 +20,7 @@ public class DbMysqlDynamic implements IDynamicData {
         this.propertyMaps = new LinkedHashMap<>();
     }
 
-    Model getModel() {
+    public Model getModel() {
         return this.model;
     }
 

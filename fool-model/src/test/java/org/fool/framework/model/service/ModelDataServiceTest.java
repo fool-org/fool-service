@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.fool.framework.common.PropertyType;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.model.Application;
+import org.fool.framework.model.model.DbMysqlDynamic;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.ModelType;
 import org.junit.Test;
@@ -98,65 +99,11 @@ public class ModelDataServiceTest {
         String tableName = "runtime_detail_order";
         cleanupRuntimeDetailModel(modelId, modelName, tableName);
         try {
-            jdbcTemplate.execute("CREATE TABLE `" + tableName + "` ("
-                    + "`ORDER_ID` varchar(64) NOT NULL,"
-                    + "`ORDER_NAME` varchar(255) DEFAULT NULL,"
-                    + "PRIMARY KEY (`ORDER_ID`))");
+            createRuntimeDetailModel(modelId, idPropertyId, namePropertyId, modelName, tableName);
             jdbcTemplate.update(
                     "INSERT INTO `" + tableName + "` (`ORDER_ID`,`ORDER_NAME`) VALUES (?,?)",
                     "1001",
                     "Legacy detail");
-            jdbcTemplate.update(
-                    "INSERT INTO `fool_sys_model` "
-                            + "(`id`,`name`,`text`,`remark`,`model_type`,`class_name`,`table_name`,`auto_sys_id`,`id_property`) "
-                            + "VALUES (?,?,?,?,?,?,?,?,?)",
-                    modelId,
-                    modelName,
-                    modelName,
-                    "runtime detail test",
-                    ModelType.DYNAMIC.code(),
-                    "example.RuntimeDetailOrder",
-                    tableName,
-                    false,
-                    idPropertyId);
-            jdbcTemplate.update(
-                    "INSERT INTO `fool_sys_model_property` "
-                            + "(`id`,`name`,`remark`,`property_model`,`is_collection`,`owner`,`filter`,`format`,`column`,"
-                            + "`property_type`,`allow_db_null`,`is_check`,`ix_group`,`multi_map`) "
-                            + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                    idPropertyId,
-                    "orderId",
-                    "order id",
-                    null,
-                    false,
-                    modelId,
-                    null,
-                    null,
-                    "ORDER_ID",
-                    PropertyType.String.code(),
-                    false,
-                    true,
-                    "",
-                    false);
-            jdbcTemplate.update(
-                    "INSERT INTO `fool_sys_model_property` "
-                            + "(`id`,`name`,`remark`,`property_model`,`is_collection`,`owner`,`filter`,`format`,`column`,"
-                            + "`property_type`,`allow_db_null`,`is_check`,`ix_group`,`multi_map`) "
-                            + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                    namePropertyId,
-                    "orderName",
-                    "order name",
-                    null,
-                    false,
-                    modelId,
-                    null,
-                    null,
-                    "ORDER_NAME",
-                    PropertyType.String.code(),
-                    true,
-                    false,
-                    null,
-                    false);
 
             IDynamicData data = modelDataService.getOneData(modelName, "1001");
 
@@ -168,9 +115,100 @@ public class ModelDataServiceTest {
         }
     }
 
+    @Test
+    public void createDataInsertsLegacySimpleDynamicRow() {
+        long modelId = 93001L;
+        long idPropertyId = 93002L;
+        long namePropertyId = 93003L;
+        String modelName = "RuntimeCreateOrder";
+        String tableName = "runtime_create_order";
+        cleanupRuntimeDetailModel(modelId, modelName, tableName);
+        try {
+            createRuntimeDetailModel(modelId, idPropertyId, namePropertyId, modelName, tableName);
+            Model model = modelDataService.getModel(modelName);
+            DbMysqlDynamic data = new DbMysqlDynamic(model);
+            data.set("orderId", "2001");
+            data.set("orderName", "Created detail");
+
+            assertEquals(Boolean.TRUE, modelDataService.createData(data));
+
+            Integer count = jdbcTemplate.queryForObject(
+                    "SELECT COUNT(*) FROM `" + tableName + "` WHERE `ORDER_ID` = ? AND `ORDER_NAME` = ?",
+                    Integer.class,
+                    "2001",
+                    "Created detail");
+            assertEquals(1, count.intValue());
+        } finally {
+            cleanupRuntimeDetailModel(modelId, modelName, tableName);
+        }
+    }
+
     private void cleanupRuntimeEnumModel(long modelId, String modelName) {
         jdbcTemplate.update("DELETE FROM `fool_sys_model_enum` WHERE `owner` = ?", modelId);
         jdbcTemplate.update("DELETE FROM `fool_sys_model` WHERE `id` = ? OR `name` = ?", modelId, modelName);
+    }
+
+    private void createRuntimeDetailModel(
+            long modelId,
+            long idPropertyId,
+            long namePropertyId,
+            String modelName,
+            String tableName) {
+        jdbcTemplate.execute("CREATE TABLE `" + tableName + "` ("
+                + "`ORDER_ID` varchar(64) NOT NULL,"
+                + "`ORDER_NAME` varchar(255) DEFAULT NULL,"
+                + "PRIMARY KEY (`ORDER_ID`))");
+        jdbcTemplate.update(
+                "INSERT INTO `fool_sys_model` "
+                        + "(`id`,`name`,`text`,`remark`,`model_type`,`class_name`,`table_name`,`auto_sys_id`,`id_property`) "
+                        + "VALUES (?,?,?,?,?,?,?,?,?)",
+                modelId,
+                modelName,
+                modelName,
+                "runtime detail test",
+                ModelType.DYNAMIC.code(),
+                "example." + modelName,
+                tableName,
+                false,
+                idPropertyId);
+        jdbcTemplate.update(
+                "INSERT INTO `fool_sys_model_property` "
+                        + "(`id`,`name`,`remark`,`property_model`,`is_collection`,`owner`,`filter`,`format`,`column`,"
+                        + "`property_type`,`allow_db_null`,`is_check`,`ix_group`,`multi_map`) "
+                        + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                idPropertyId,
+                "orderId",
+                "order id",
+                null,
+                false,
+                modelId,
+                null,
+                null,
+                "ORDER_ID",
+                PropertyType.String.code(),
+                false,
+                true,
+                "",
+                false);
+        jdbcTemplate.update(
+                "INSERT INTO `fool_sys_model_property` "
+                        + "(`id`,`name`,`remark`,`property_model`,`is_collection`,`owner`,`filter`,`format`,`column`,"
+                        + "`property_type`,`allow_db_null`,`is_check`,`ix_group`,`multi_map`) "
+                        + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                namePropertyId,
+                "orderName",
+                "order name",
+                null,
+                false,
+                modelId,
+                null,
+                null,
+                "ORDER_NAME",
+                PropertyType.String.code(),
+                true,
+                false,
+                null,
+                false);
     }
 
     private void cleanupRuntimeDetailModel(long modelId, String modelName, String tableName) {
