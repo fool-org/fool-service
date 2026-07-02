@@ -5,6 +5,7 @@ import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Operation;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.view.dto.ListViewInfo;
+import org.fool.framework.view.dto.ReadItemViewInfo;
 import org.fool.framework.view.model.InputType;
 import org.fool.framework.view.model.ItemEditType;
 import org.fool.framework.view.model.View;
@@ -21,6 +22,37 @@ import static org.junit.Assert.fail;
 import static org.junit.Assert.assertTrue;
 
 public class ViewAdapterTest {
+    @Test
+    public void readItemViewIncludesLegacySimpleItems() {
+        Property orderIdProperty = new Property();
+        orderIdProperty.setName("orderId");
+        orderIdProperty.setPropertyType(PropertyType.Long);
+
+        ViewItem orderId = viewItem("orderId", "Order ID", ItemEditType.TextBox);
+        orderId.setItemName("Order ID");
+        orderId.setCanEdit(false);
+        setShowIndex(orderId, 1);
+        setProperty(orderId, orderIdProperty);
+
+        View view = new View();
+        view.setId(100L);
+        view.setViewName("OrderDetail");
+        view.setListItems(List.of(orderId));
+
+        ReadItemViewInfo info = new ViewAdapter().getReadItemView(view);
+
+        assertEquals(Long.valueOf(100L), info.getViewId());
+        assertEquals("OrderDetail", info.getViewName());
+        assertEquals(1, info.getItems().size());
+        assertEquals("Order ID", info.getItems().get(0).getName());
+        assertEquals(Integer.valueOf(1), info.getItems().get(0).getIndex());
+        assertEquals(PropertyType.Long, info.getItems().get(0).getPrpType());
+        assertEquals("orderId", info.getItems().get(0).getPrpId());
+        assertTrue(info.getItems().get(0).isReadOnly());
+        assertEquals(ItemEditType.TextBox, info.getItems().get(0).getEditType());
+        assertEquals(0, info.getDetailViews().size());
+    }
+
     @Test
     public void formatViewItemsAreExcludedFromLegacyListColumnsAndInputs() {
         View view = new View();

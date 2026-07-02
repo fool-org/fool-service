@@ -94,6 +94,29 @@ export interface ViewDataRequest {
   viewName?: string;
 }
 
+export interface ReadItemViewItemInfo {
+  name?: string;
+  prpType?: string;
+  index?: number;
+  prpId?: string;
+  prpModelId?: number;
+  id?: string;
+  prpShowName?: string;
+  readOnly?: boolean;
+  editType?: string;
+}
+
+export interface ReadItemViewDetailInfo extends ReadItemViewItemInfo {
+  items?: ReadItemViewItemInfo[];
+}
+
+export interface ReadItemViewInfo {
+  viewName?: string;
+  viewId?: number;
+  items?: ReadItemViewItemInfo[];
+  detailViews?: ReadItemViewDetailInfo[];
+}
+
 export interface PageNavigatorResult {
   pageSize?: number;
   pageIndex?: number;

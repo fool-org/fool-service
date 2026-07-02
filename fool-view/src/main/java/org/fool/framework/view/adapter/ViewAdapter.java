@@ -6,6 +6,8 @@ import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.view.dto.ListViewInfo;
 import org.fool.framework.view.dto.OperationInfo;
+import org.fool.framework.view.dto.ReadItemViewInfo;
+import org.fool.framework.view.dto.ReadItemViewItemInfo;
 import org.fool.framework.view.dto.TableColumnInfo;
 import org.fool.framework.view.dto.ViewInputInfo;
 import org.fool.framework.view.model.InputType;
@@ -83,6 +85,18 @@ public class ViewAdapter {
         return result;
     }
 
+    public ReadItemViewInfo getReadItemView(View view) {
+        ReadItemViewInfo result = new ReadItemViewInfo();
+        result.setViewName(view.getViewName());
+        result.setViewId(view.getId());
+        result.setItems(new LinkedList<>());
+        result.setDetailViews(new LinkedList<>());
+        orderedListItems(view).stream()
+                .filter(item -> !safeIsCollection(item))
+                .forEach(item -> result.getItems().add(toReadItem(item)));
+        return result;
+    }
+
     private List<ViewItem> orderedListItems(View view) {
         return view.getListItems().stream()
                 .sorted(Comparator.comparingInt(this::safeShowIndex))
@@ -123,6 +137,23 @@ public class ViewAdapter {
     private String safePropertyName(ViewItem item) {
         Property property = item.getProperty();
         return property == null || property.getName() == null ? "" : property.getName();
+    }
+
+    private boolean safeIsCollection(ViewItem item) {
+        Property property = item.getProperty();
+        return property != null && Boolean.TRUE.equals(property.getIsCollection());
+    }
+
+    private ReadItemViewItemInfo toReadItem(ViewItem item) {
+        ReadItemViewItemInfo result = new ReadItemViewItemInfo();
+        result.setName(item.getItemName());
+        result.setIndex(safeShowIndex(item));
+        result.setPrpType(safePropertyType(item));
+        result.setPrpId(safePropertyName(item));
+        result.setPrpModelId(safePropertyModel(item));
+        result.setReadOnly(!item.isCanEdit());
+        result.setEditType(item.getEditType());
+        return result;
     }
 
     private OperationInfo toOperationInfo(ViewOperation operation) {
