@@ -53,16 +53,19 @@ public class AppManageMigrationTest {
         assertColumn(StoreDatabase.class, "connection", "SW_STORE_CON", false);
 
         assertEquals("SW_APP_AUTH_USER", tableName(AuthorizedUser.class));
+        assertEquals("APP_AUTH_", tablePrefix(AuthorizedUser.class));
         assertColumn(AuthorizedUser.class, "authorizedId", "APP_AUTH_ID", true);
         assertColumn(AuthorizedUser.class, "userId", "APP_AUTH_USERID", false);
         assertColumn(AuthorizedUser.class, "userLoginName", "APP_AUTH_USERLOGINNAME", false);
         assertColumn(AuthorizedUser.class, "departmentId", "APP_AUTH_DEP", false);
 
         assertEquals("SW_APP_AUTH_COMPANY", tableName(AuthCompany.class));
+        assertEquals("APP_COR_", tablePrefix(AuthCompany.class));
         assertColumn(AuthCompany.class, "companyId", "APP_COR_ID", true);
         assertColumn(AuthCompany.class, "name", "APP_COR_NAME", false);
 
         assertEquals("SW_APP_AUTH_DEPARTMENT", tableName(AuthDepartment.class));
+        assertEquals("APP_DEP_", tablePrefix(AuthDepartment.class));
         assertColumn(AuthDepartment.class, "departmentId", "APP_DEP_ID", true);
         assertColumn(AuthDepartment.class, "ownerCompanyId", "SW_APP_AUTH_COMPANY_DepsAPP_COR_ID", false);
         assertColumn(AuthDepartment.class, "name", "APP_DEP_NAME", false);
@@ -73,6 +76,7 @@ public class AppManageMigrationTest {
         assertColumn(AuthDepartmentSubDepartmentRelation.class, "subDepartmentId", "SW_APP_AUTH_DEPARTMENT_SUBDEPARTMENTS_ITEM", false);
 
         assertEquals("SW_APP_AUTH_MENU", tableName(AuthMenuItem.class));
+        assertEquals("AUTH_MENU_", tablePrefix(AuthMenuItem.class));
         assertColumn(AuthMenuItem.class, "menuId", "AUTH_MENU_ID", true);
         assertColumn(AuthMenuItem.class, "text", "AUTH_MENU_TEXT", false);
         assertColumn(AuthMenuItem.class, "shortcutKey", "AUTH_MENU_SHORTCUTKEY", false);
@@ -88,6 +92,7 @@ public class AppManageMigrationTest {
         assertColumn(AuthMenuSubItemRelation.class, "subItemMenuId", "SW_APP_AUTH_MENU_SUBITEMS_ITEM", false);
 
         assertEquals("SW_APP_AUTH_ROLE", tableName(AuthRole.class));
+        assertEquals("AUTH_ROLE_", tablePrefix(AuthRole.class));
         assertColumn(AuthRole.class, "roleId", "AUTH_ROLE_ID", true);
         assertColumn(AuthRole.class, "roleName", "AUTH_ROLE_NAME", false);
 
@@ -1448,6 +1453,12 @@ public class AppManageMigrationTest {
         Table table = type.getDeclaredAnnotation(Table.class);
         assertNotNull("missing @Table on " + type.getName(), table);
         return table.value();
+    }
+
+    private static String tablePrefix(Class<?> type) {
+        Table table = type.getDeclaredAnnotation(Table.class);
+        assertNotNull("missing @Table on " + type.getName(), table);
+        return table.columnPrefix();
     }
 
     private static JdbcTemplate jdbcTemplate(DaoService daoService) throws Exception {

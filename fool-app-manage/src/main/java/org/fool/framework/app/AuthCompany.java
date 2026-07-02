@@ -7,7 +7,7 @@ import org.fool.framework.common.annotation.SqlGenerate;
 import org.fool.framework.common.annotation.SqlGenerateConfig;
 import org.fool.framework.common.annotation.Table;
 
-@Table("SW_APP_AUTH_COMPANY")
+@Table(value = "SW_APP_AUTH_COMPANY", columnPrefix = "APP_COR_")
 @Data
 public class AuthCompany {
     @Id

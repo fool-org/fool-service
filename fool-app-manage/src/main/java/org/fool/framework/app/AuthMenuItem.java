@@ -6,7 +6,7 @@ import org.fool.framework.common.annotation.Id;
 import org.fool.framework.common.annotation.SqlGenerate;
 import org.fool.framework.common.annotation.Table;
 
-@Table("SW_APP_AUTH_MENU")
+@Table(value = "SW_APP_AUTH_MENU", columnPrefix = "AUTH_MENU_")
 @Data
 public class AuthMenuItem {
     @Id
