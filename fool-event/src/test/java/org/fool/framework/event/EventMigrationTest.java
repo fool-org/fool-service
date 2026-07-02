@@ -232,6 +232,22 @@ public class EventMigrationTest {
     }
 
     @Test
+    public void jdbcEventObjectQueryReturnsNoMatchesWhenLegacyQueryFindsNoRows() {
+        EventDefinition definition = new EventDefinition();
+        definition.setModelId("order-model");
+        definition.setFilter("`status` = 0");
+        RecordingJdbcTemplate jdbcTemplate = new RecordingJdbcTemplate(List.of());
+        EventModelTableResolver tableResolver =
+                modelId -> new EventModelQueryMetadata("market_order", "SYSID");
+
+        List<EventMatchedObject> matchedObjects =
+                new JdbcEventObjectQuery(jdbcTemplate, tableResolver).findMatchedObjects(definition);
+
+        assertTrue(matchedObjects.isEmpty());
+        assertEquals("SELECT * FROM market_order WHERE `status` = 0", jdbcTemplate.queriedSql);
+    }
+
+    @Test
     public void jdbcEventObjectQueryReturnsNoMatchesWhenDefinitionHasNoModel() {
         EventDefinition definition = new EventDefinition();
         definition.setFilter("`status` = 0");

@@ -40,15 +40,18 @@ public class JdbcEventObjectQuery implements EventObjectQuery {
 
     private static List<EventMatchedObject> matchedObjects(ResultSet resultSet, String objectIdColumn)
             throws SQLException {
+        if (!resultSet.next()) {
+            return List.of();
+        }
         ResultSetMetaData metaData = resultSet.getMetaData();
         List<String> columns = columnLabels(metaData);
         String matchedObjectIdColumn = requireObjectIdColumn(columns, objectIdColumn);
         List<EventMatchedObject> matchedObjects = new ArrayList<>();
-        while (resultSet.next()) {
+        do {
             Map<String, Object> values = rowValues(resultSet, columns);
             Object objectId = values.get(matchedObjectIdColumn);
             matchedObjects.add(new EventMatchedObject(objectId == null ? null : objectId.toString(), values));
-        }
+        } while (resultSet.next());
         return matchedObjects;
     }
 
