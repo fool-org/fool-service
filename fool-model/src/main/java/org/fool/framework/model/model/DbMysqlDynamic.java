@@ -4,6 +4,7 @@ import org.fool.framework.common.dynamic.IDynamicData;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * sql查询的动态结果
@@ -13,11 +14,13 @@ public class DbMysqlDynamic implements IDynamicData {
 
     private final Model model;
     private final Map<String, Object> propertyMaps;
+    private final Map<String, Object> oldPropertyMaps;
 
 
     public DbMysqlDynamic(Model model) {
         this.model = model;
         this.propertyMaps = new LinkedHashMap<>();
+        this.oldPropertyMaps = new LinkedHashMap<>();
     }
 
     public Model getModel() {
@@ -31,7 +34,20 @@ public class DbMysqlDynamic implements IDynamicData {
 
     @Override
     public void set(String field, Object value) {
+        if (this.propertyMaps.containsKey(field)
+                && !this.oldPropertyMaps.containsKey(field)
+                && !Objects.equals(this.propertyMaps.get(field), value)) {
+            this.oldPropertyMaps.put(field, this.propertyMaps.get(field));
+        }
         this.propertyMaps.put(field, value);
+    }
+
+    public Object getOld(String field) {
+        return this.oldPropertyMaps.get(field);
+    }
+
+    public boolean hasOld(String field) {
+        return this.oldPropertyMaps.containsKey(field);
     }
 
     @Override

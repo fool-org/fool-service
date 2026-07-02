@@ -204,7 +204,7 @@ public class ModelDataService {
         String idColumn = idProperty != null && idProperty.getColumn() != null && !idProperty.getColumn().isBlank()
                 ? idProperty.getColumn()
                 : "SYSID";
-        Object idValue = idProperty != null ? data.get(idProperty.getName()) : data.getId();
+        Object idValue = lookupIdValue(dynamicData, idProperty);
         if (idValue == null) {
             return false;
         }
@@ -251,7 +251,7 @@ public class ModelDataService {
         String idColumn = idProperty != null && idProperty.getColumn() != null && !idProperty.getColumn().isBlank()
                 ? idProperty.getColumn()
                 : "SYSID";
-        Object idValue = idProperty != null ? data.get(idProperty.getName()) : data.getId();
+        Object idValue = lookupIdValue(dynamicData, idProperty);
         if (idValue == null) {
             return false;
         }
@@ -400,7 +400,9 @@ public class ModelDataService {
         String idColumn = idProperty != null && idProperty.getColumn() != null && !idProperty.getColumn().isBlank()
                 ? idProperty.getColumn()
                 : "SYSID";
-        Object idValue = idProperty != null ? data.get(idProperty.getName()) : data.getId();
+        Object idValue = data instanceof DbMysqlDynamic dynamicData
+                ? lookupIdValue(dynamicData, idProperty)
+                : (idProperty != null ? data.get(idProperty.getName()) : data.getId());
         if (idValue == null) {
             return false;
         }
@@ -416,6 +418,17 @@ public class ModelDataService {
             return dynamicData.getModel();
         }
         return fallback;
+    }
+
+    private Object lookupIdValue(DbMysqlDynamic data, Property idProperty) {
+        if (idProperty != null) {
+            String idName = idProperty.getName();
+            if (idName != null && data.hasOld(idName)) {
+                return data.getOld(idName);
+            }
+            return data.get(idName);
+        }
+        return data.getId();
     }
 
     private void insertRelationIfMissing(Relation relation, Object parentId, Object itemId) {

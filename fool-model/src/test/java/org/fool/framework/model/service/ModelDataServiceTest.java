@@ -210,6 +210,43 @@ public class ModelDataServiceTest {
     }
 
     @Test
+    public void saveDataUsesLegacyOldIdWhenIdPropertyChanged() {
+        long modelId = 95101L;
+        long idPropertyId = 95102L;
+        long namePropertyId = 95103L;
+        String modelName = "RuntimeSaveOldIdOrder";
+        String tableName = "runtime_save_old_id_order";
+        cleanupRuntimeDetailModel(modelId, modelName, tableName);
+        try {
+            createRuntimeDetailModel(modelId, idPropertyId, namePropertyId, modelName, tableName);
+            jdbcTemplate.update(
+                    "INSERT INTO `" + tableName + "` (`ORDER_ID`,`ORDER_NAME`) VALUES (?,?)",
+                    "4101",
+                    "Before old id save");
+            Model model = modelDataService.getModel(modelName);
+            DbMysqlDynamic data = new DbMysqlDynamic(model);
+            data.set("orderId", "4101");
+            data.set("orderId", "4102");
+            data.set("orderName", "After old id save");
+
+            assertEquals(Boolean.TRUE, modelDataService.saveData(data));
+
+            String name = jdbcTemplate.queryForObject(
+                    "SELECT `ORDER_NAME` FROM `" + tableName + "` WHERE `ORDER_ID` = ?",
+                    String.class,
+                    "4101");
+            Integer changedIdCount = jdbcTemplate.queryForObject(
+                    "SELECT COUNT(*) FROM `" + tableName + "` WHERE `ORDER_ID` = ?",
+                    Integer.class,
+                    "4102");
+            assertEquals("After old id save", name);
+            assertEquals(0, changedIdCount.intValue());
+        } finally {
+            cleanupRuntimeDetailModel(modelId, modelName, tableName);
+        }
+    }
+
+    @Test
     public void saveDataListUpdatesLegacySimpleDynamicRows() {
         long modelId = 96001L;
         long idPropertyId = 96002L;
