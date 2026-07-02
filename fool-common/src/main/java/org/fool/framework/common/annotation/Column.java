@@ -26,6 +26,12 @@ public @interface Column {
 
     String keyGroupName() default "";
 
+    boolean keyCanBeNullOrEmpty() default false;
+
+    String sqlType() default "";
+
+    boolean identify() default false;
+
     GenerationType generationType() default GenerationType.NEVER;
 
     String generationExpression() default "";

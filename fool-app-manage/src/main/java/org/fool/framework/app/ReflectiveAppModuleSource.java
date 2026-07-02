@@ -418,7 +418,7 @@ public class ReflectiveAppModuleSource implements AppModuleSource {
         property.setPropertyModel(propertyModel);
         property.setPropertyType(propertyType(field.getType(), valueType, propertyModel));
         property.setAllowDbNull(!field.getType().isPrimitive());
-        applyColumnMetadata(owner, property, columns);
+        applyColumnMetadata(owner, property, field, columns);
 
         Id id = field.getDeclaredAnnotation(Id.class);
         if (id != null) {
@@ -452,7 +452,7 @@ public class ReflectiveAppModuleSource implements AppModuleSource {
         return fields;
     }
 
-    private void applyColumnMetadata(Model owner, Property property, Column[] columns) {
+    private void applyColumnMetadata(Model owner, Property property, Field field, Column[] columns) {
         if (columns == null || columns.length == 0) {
             return;
         }
@@ -476,6 +476,15 @@ public class ReflectiveAppModuleSource implements AppModuleSource {
         if (column.key()) {
             property.setCheck(true);
             property.setIxGroup(column.keyGroupName());
+        }
+        if (column.keyCanBeNullOrEmpty()) {
+            property.setKeysCanBeDefault(true);
+        }
+        if (column.identify()) {
+            if (!UUID.class.equals(field.getType())) {
+                property.setPropertyType(PropertyType.IdentifyId);
+            }
+            property.setCheck(true);
         }
         property.setGenerationType(column.generationType().code());
         if (!column.generationExpression().isBlank()) {

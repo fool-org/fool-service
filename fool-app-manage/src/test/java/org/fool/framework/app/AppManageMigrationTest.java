@@ -739,7 +739,8 @@ public class AppManageMigrationTest {
         AppInstalledModel installedModel = (AppInstalledModel) daoService.created.get(1);
         AppInstalledProperty code = findCreatedProperty(daoService.created, "code");
         AppInstalledProperty secret = findCreatedProperty(daoService.created, "secret");
-        assertEquals(Boolean.TRUE, installedModel.getAutoSysId());
+        AppInstalledProperty nullableKey = findCreatedProperty(daoService.created, "nullableKey");
+        assertEquals(Boolean.FALSE, installedModel.getAutoSysId());
         assertEquals("RECORD_CODE", code.getColumnName());
         assertEquals(PropertyType.MD5, code.getPropertyType());
         assertEquals(Boolean.TRUE, code.getCheck());
@@ -748,6 +749,22 @@ public class AppManageMigrationTest {
         assertEquals("yyyyMMdd", code.getFormat());
         assertEquals(PropertyType.RadomDECS, secret.getPropertyType());
         assertEquals("SECRET_VALUE", secret.getColumnName());
+        assertEquals(PropertyType.IdentifyId, nullableKey.getPropertyType());
+        assertEquals(Boolean.TRUE, nullableKey.getCheck());
+    }
+
+    @Test
+    public void reflectiveModuleSourcePreservesLegacyNullableKeyMetadata() {
+        ReflectiveAppModuleSource source = new ReflectiveAppModuleSource(
+                "KEYNULL01",
+                "example.NullableKeyModule",
+                "1.0.0",
+                List.of(ReflectiveColumnMetadataRecord.class));
+
+        Model model = findModel(source.getModels(source.getModules().get(0)), "ReflectiveColumnMetadataRecord");
+        Property nullableKey = findProperty(model, "nullableKey");
+
+        assertEquals(Boolean.TRUE, nullableKey.getKeysCanBeDefault());
     }
 
     @Test
@@ -1799,6 +1816,8 @@ public class AppManageMigrationTest {
         private String code;
         @Column(value = "SECRET_VALUE", encryptType = EncryptType.RADOM_DECS)
         private String secret;
+        @Column(value = "NULLABLE_KEY", key = true, keyCanBeNullOrEmpty = true, identify = true)
+        private Long nullableKey;
         @Column(value = "STATUS", defaultValue = "NEW")
         private String status;
         @Column(value = "CREATED_AT", generationExpression = "CURRENT_TIMESTAMP")

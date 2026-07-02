@@ -30,6 +30,8 @@ public class Property {
     private Boolean allowDbNull = true;
     @Column("is_check")
     private Boolean check = false;
+    @Column(noMap = true)
+    private transient Boolean keysCanBeDefault = false;
     private String ixGroup;
     private Integer generationType;
     private String generationExpression;
