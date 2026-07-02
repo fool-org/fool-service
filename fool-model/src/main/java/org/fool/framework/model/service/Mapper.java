@@ -1,11 +1,12 @@
 package org.fool.framework.model.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.fool.framework.common.PropertyType;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.dao.AbstratMapper;
 import org.fool.framework.model.model.DbMysqlDynamic;
-import org.fool.framework.model.model.EnumValue;
 import org.fool.framework.model.model.Model;
+import org.fool.framework.model.model.EnumValue;
 import org.fool.framework.model.model.MultiDbMap;
 import org.fool.framework.model.model.Property;
 import org.springframework.util.StringUtils;
@@ -54,6 +55,8 @@ public class Mapper extends AbstratMapper<IDynamicData> {
             for (var property : this.model.getProperties().stream().filter(p -> p.getIsCollection() == false).collect(Collectors.toList())) {
                 if (Boolean.TRUE.equals(property.getMultiMap())) {
                     mapMultiDbMapProperty(mysqlDynamic, property, resultSet);
+                } else if (PropertyType.BusinessObject.equals(property.getPropertyType())) {
+                    mapBusinessObjectProperty(mysqlDynamic, property, resultSet);
                 } else if (!StringUtils.isEmpty(property.getColumn())) {
                     try {
                         mysqlDynamic.set(property.getName(), simpleColumnValue(property, resultSet));
@@ -100,6 +103,44 @@ public class Mapper extends AbstratMapper<IDynamicData> {
         if (mapped) {
             owner.set(property.getName(), target);
         }
+    }
+
+    private void mapBusinessObjectProperty(DbMysqlDynamic owner, Property property, ResultSet resultSet) {
+        Model targetModel = property.getPropertyModel();
+        if (targetModel == null) {
+            return;
+        }
+        DbMysqlDynamic target = new DbMysqlDynamic(targetModel);
+        boolean mapped = false;
+        mapped = mapAliasedBusinessObjectProperty(target, property, targetModel.getIdProperty(), resultSet) || mapped;
+        mapped = mapAliasedBusinessObjectProperty(target, property, showProperty(targetModel), resultSet) || mapped;
+        if (mapped) {
+            owner.set(property.getName(), target);
+        }
+    }
+
+    private boolean mapAliasedBusinessObjectProperty(
+            DbMysqlDynamic target,
+            Property ownerProperty,
+            Property targetProperty,
+            ResultSet resultSet) {
+        if (targetProperty == null || !StringUtils.hasText(targetProperty.getColumn())) {
+            return false;
+        }
+        try {
+            Object value = resultSet.getObject(ownerProperty.getName() + "_" + targetProperty.getColumn());
+            if (value == null) {
+                return false;
+            }
+            target.set(targetProperty.getName(), value);
+            return true;
+        } catch (SQLException ex) {
+            return false;
+        }
+    }
+
+    private Property showProperty(Model model) {
+        return model.getShowProperty() == null ? model.getIdProperty() : model.getShowProperty();
     }
 
     private Property mappedProperty(Model model, String propertyName) {

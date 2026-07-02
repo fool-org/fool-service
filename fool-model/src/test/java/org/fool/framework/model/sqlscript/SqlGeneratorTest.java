@@ -39,6 +39,54 @@ public class SqlGeneratorTest {
         assertArrayEquals(new Object[]{10, 10}, query.getArgs());
     }
 
+    @Test
+    public void generateSelectJoinsLegacyBusinessObjectShowProperty() {
+        Model customer = model("Customer", "customer");
+        Property customerId = property("customerId", "customer_id");
+        Property customerName = property("customerName", "customer_name");
+        customer.setIdProperty(customerId);
+        customer.setShowProperty(customerName);
+        customer.setProperties(List.of(customerId, customerName));
+
+        Model order = model("Order", "market_order");
+        Property orderId = property("orderId", "order_id");
+        Property customerProperty = property("customer", "customer_id");
+        customerProperty.setPropertyType(PropertyType.BusinessObject);
+        customerProperty.setPropertyModel(customer);
+
+        QueryAndArgs query = new SqlGenerator().generateSelect(
+                order,
+                List.of(orderId, customerProperty),
+                IQueryFilter.init());
+
+        assertEquals(
+                "SELECT `market_order`.`order_id` AS `order_id`,"
+                        + "`customer`.`customer_id` AS `customer_customer_id`,"
+                        + "`customer`.`customer_name` AS `customer_customer_name`"
+                        + " FROM `market_order` LEFT OUTER JOIN `customer` AS `customer`"
+                        + " ON `customer`.`customer_id`=`market_order`.`customer_id`"
+                        + " WHERE 1=1  AND  1=1 ",
+                query.getSql());
+        assertArrayEquals(new Object[]{}, query.getArgs());
+    }
+
+    @Test
+    public void generateSelectSkipsLegacyMultiMapWhenDbMapsMissing() {
+        Model order = model("Order", "market_order");
+        Property orderId = property("orderId", "order_id");
+        Property customerProperty = property("customer", null);
+        customerProperty.setPropertyType(PropertyType.BusinessObject);
+        customerProperty.setMultiMap(true);
+
+        QueryAndArgs query = new SqlGenerator().generateSelect(
+                order,
+                List.of(orderId, customerProperty),
+                IQueryFilter.init());
+
+        assertEquals("SELECT order_id FROM `market_order` WHERE 1=1  AND  1=1 ", query.getSql());
+        assertArrayEquals(new Object[]{}, query.getArgs());
+    }
+
     private static Model model(String name, String tableName) {
         Model model = new Model();
         model.setName(name);
