@@ -5,13 +5,14 @@ import org.fool.framework.common.annotation.Column;
 import org.fool.framework.common.annotation.Id;
 import org.fool.framework.common.annotation.SqlGenerate;
 import org.fool.framework.common.annotation.Table;
+import org.fool.framework.model.model.ConnectionType;
 import org.fool.framework.model.model.Model;
 
 @Table("SW_SYS_MODEL")
 @Data
 public class AppInstalledModel {
-    public static final int CONNECTION_TYPE_APP_SYS = 2;
-    public static final int CONNECTION_TYPE_CURRENT = 3;
+    public static final int CONNECTION_TYPE_APP_SYS = ConnectionType.APP_SYS.code();
+    public static final int CONNECTION_TYPE_CURRENT = ConnectionType.CURRENT.code();
 
     @Id
     @SqlGenerate
