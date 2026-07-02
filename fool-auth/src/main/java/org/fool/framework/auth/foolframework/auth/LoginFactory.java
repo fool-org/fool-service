@@ -1,10 +1,8 @@
 package org.fool.framework.auth.foolframework.auth;
 
+import org.fool.framework.common.data.ds.EncryptUtil;
 import org.fool.framework.dao.DaoService;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Objects;
 
@@ -43,16 +41,7 @@ public class LoginFactory {
     }
 
     public static String toMD5(String value) {
-        try {
-            byte[] digest = MessageDigest.getInstance("MD5").digest(value.getBytes(StandardCharsets.UTF_16LE));
-            StringBuilder result = new StringBuilder();
-            for (byte item : digest) {
-                result.append(Integer.toHexString(item & 0xff));
-            }
-            return result.toString();
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException(e);
-        }
+        return EncryptUtil.toMD5(value);
     }
 
     private User findByLoginName(String userName) {
