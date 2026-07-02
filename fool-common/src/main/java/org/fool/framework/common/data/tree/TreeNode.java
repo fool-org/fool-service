@@ -25,7 +25,8 @@ public class TreeNode<T> {
     /// <summary>
     /// 子结点
     /// </summary>
-    public List<TreeNode<T>> children;
+    @Builder.Default
+    public List<TreeNode<T>> children = new LinkedList<>();
 
     @ToString.Exclude
     @JsonIgnore
