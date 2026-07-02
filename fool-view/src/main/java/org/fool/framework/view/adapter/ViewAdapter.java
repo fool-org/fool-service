@@ -39,6 +39,9 @@ public class ViewAdapter {
                             .title(p.getItemLabel())
                             .showIndex(safeShowIndex(p))
                             .width(safeWidth(p))
+                            .format(p.getFormatRegx())
+                            .isReadOnly(!p.isCanEdit())
+                            .editType(p.getEditType())
                             .build());
         });
         result.setInputInfo(new LinkedList<>());

@@ -44,6 +44,9 @@ export interface TableColumnInfo {
   property?: string;
   showIndex?: number;
   width?: number;
+  format?: string;
+  isReadOnly?: boolean;
+  editType?: string;
 }
 
 export interface OperationInfo {

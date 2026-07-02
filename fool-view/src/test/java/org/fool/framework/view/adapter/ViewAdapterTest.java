@@ -106,6 +106,23 @@ public class ViewAdapterTest {
         assertEquals(Integer.valueOf(180), columnWidth(info.getTableColumn().get(0)));
     }
 
+    @Test
+    public void viewInfoIncludesLegacyColumnBehaviorMetadata() {
+        ViewItem orderId = viewItem("orderId", "Order ID", ItemEditType.TextBox);
+        orderId.setFormatRegx("format-price");
+        orderId.setCanEdit(false);
+
+        View view = new View();
+        view.setListItems(List.of(orderId));
+
+        ListViewInfo info = new ViewAdapter().getViewInfo(view);
+
+        Object column = info.getTableColumn().get(0);
+        assertEquals("format-price", columnFormat(column));
+        assertEquals(Boolean.TRUE, columnIsReadOnly(column));
+        assertEquals(ItemEditType.TextBox, columnEditType(column));
+    }
+
     private static ViewOperation operation(
             String name,
             boolean requireSelect,
@@ -156,6 +173,33 @@ public class ViewAdapterTest {
             return (Integer) column.getClass().getMethod("getWidth").invoke(column);
         } catch (ReflectiveOperationException e) {
             fail("TableColumnInfo should expose legacy width metadata");
+            return null;
+        }
+    }
+
+    private static String columnFormat(Object column) {
+        try {
+            return (String) column.getClass().getMethod("getFormat").invoke(column);
+        } catch (ReflectiveOperationException e) {
+            fail("TableColumnInfo should expose legacy format metadata");
+            return null;
+        }
+    }
+
+    private static Boolean columnIsReadOnly(Object column) {
+        try {
+            return (Boolean) column.getClass().getMethod("getIsReadOnly").invoke(column);
+        } catch (ReflectiveOperationException e) {
+            fail("TableColumnInfo should expose legacy read-only metadata");
+            return null;
+        }
+    }
+
+    private static ItemEditType columnEditType(Object column) {
+        try {
+            return (ItemEditType) column.getClass().getMethod("getEditType").invoke(column);
+        } catch (ReflectiveOperationException e) {
+            fail("TableColumnInfo should expose legacy edit-type metadata");
             return null;
         }
     }
