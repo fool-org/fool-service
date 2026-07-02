@@ -141,6 +141,16 @@ export interface GetEnumResult {
   enumValues?: GetEnumValue[];
 }
 
+export interface LegacyQueryDataRequest {
+  token?: string;
+  viewId?: number;
+  pageSize?: number;
+  pageIndex?: number;
+  orderByItem?: number;
+  orderByType?: number;
+  queryFilter?: string;
+}
+
 export async function postApi<T>(path: string, payload: unknown): Promise<CommonResponse<T>> {
   const response = await fetch(path, {
     method: "POST",

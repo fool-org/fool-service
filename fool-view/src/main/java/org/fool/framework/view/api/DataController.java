@@ -2,11 +2,13 @@ package org.fool.framework.view.api;
 
 
 import org.fool.framework.dto.CommonResponse;
+import org.fool.framework.dao.PageNavigator;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.service.ModelDataService;
 import org.fool.framework.view.adapter.ViewDataAdapter;
 import org.fool.framework.view.dto.GetEnumRequest;
 import org.fool.framework.view.dto.GetEnumResult;
+import org.fool.framework.view.dto.LegacyQueryDataRequest;
 import org.fool.framework.view.dto.ListViewResult;
 import org.fool.framework.view.dto.QueryDataRequest;
 import org.fool.framework.view.service.DataQueryService;
@@ -38,6 +40,16 @@ public class DataController {
                         request.getFilter(),
                         request.getPageInfo(),
                         request.getKeyword()));
+    }
+
+    @PostMapping("/querydata")
+    @ResponseBody
+    public CommonResponse<ListViewResult> queryData(@RequestBody LegacyQueryDataRequest request) {
+        PageNavigator pageInfo = new PageNavigator();
+        pageInfo.setPageSize(request.getPageSize() == null ? 0 : request.getPageSize());
+        pageInfo.setPageIndex(request.getPageIndex() == null ? 0 : request.getPageIndex());
+        String viewId = request.getViewId() == null ? null : request.getViewId().toString();
+        return new CommonResponse<>(dataQueryService.queryLegacyViewData(viewId, pageInfo, request.getQueryFilter()));
     }
 
     @PostMapping("/getenums")

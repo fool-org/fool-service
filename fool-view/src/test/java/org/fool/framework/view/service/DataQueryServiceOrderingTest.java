@@ -190,6 +190,53 @@ public class DataQueryServiceOrderingTest {
     }
 
     @Test
+    public void queryLegacyViewDataAppliesLegacyQueryFilterAfterViewFilter() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
+        DataQueryService service = new DataQueryService();
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+        ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
+        ReflectionTestUtils.setField(service, "viewAdapter", viewAdapter);
+
+        View view = new View();
+        view.setViewName("OpenOrderList");
+        view.setViewModel("Order");
+        view.setFilter("`tenant_id`=1");
+        view.setListItems(List.of(viewItem("orderId", 10), viewItem("symbol", 20)));
+        Model model = model("Order", List.of(
+                property("orderId", "order_id"),
+                property("symbol", "order_symbol")));
+        PageNavigator pageNavigator = new PageNavigator();
+        PageResult<IDynamicData> pageResult = new PageResult<>();
+        when(daoService.getOneDetailByKey(View.class, "42")).thenReturn(view);
+        when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(model);
+        when(modelDataService.getDataListWithPageInfo(
+                eq("Order"),
+                any(IQueryFilter.class),
+                anyList(),
+                eq(pageNavigator),
+                eq("order_id"),
+                eq(true)))
+                .thenReturn(pageResult);
+        when(viewAdapter.getListViewResult(eq(view), eq(pageResult))).thenReturn(new ListViewResult());
+
+        service.queryLegacyViewData("42", pageNavigator, "`order_state`='OPEN'");
+
+        ArgumentCaptor<IQueryFilter> filterCaptor = ArgumentCaptor.forClass(IQueryFilter.class);
+        verify(modelDataService).getDataListWithPageInfo(
+                eq("Order"),
+                filterCaptor.capture(),
+                anyList(),
+                eq(pageNavigator),
+                eq("order_id"),
+                eq(true));
+        var sql = filterCaptor.getValue().generateSql();
+        assertEquals("(`tenant_id`=1) And (`order_state`='OPEN')", sql.getSql());
+        assertArrayEquals(new Object[]{}, sql.getArgs());
+    }
+
+    @Test
     public void queryViewDataListAppliesLegacyKeywordToReadOnlyItems() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);

@@ -53,6 +53,14 @@ public class DataQueryService {
     }
 
     public ListViewResult queryViewDataList(String viewName, Map<String, QueryValue> filter, PageNavigator pageInfo, String keyword) {
+        return queryViewDataList(viewName, filter, pageInfo, keyword, null);
+    }
+
+    public ListViewResult queryLegacyViewData(String viewId, PageNavigator pageInfo, String queryFilter) {
+        return queryViewDataList(viewId, null, pageInfo, null, queryFilter);
+    }
+
+    private ListViewResult queryViewDataList(String viewName, Map<String, QueryValue> filter, PageNavigator pageInfo, String keyword, String legacyQueryFilter) {
 
         View view = daoService.getOneDetailByKey(View.class, viewName);
         if (view == null) {
@@ -63,7 +71,7 @@ public class DataQueryService {
             throw new CommonException(ErrorCode.MODEL_NOT_FOUND, "没有查到元数据定义");
         }
         var properties = getViewProperies(view, model);
-        IQueryFilter queryFilter = generateFilter(model, view, filter, keyword);
+        IQueryFilter queryFilter = generateFilter(model, view, filter, keyword, legacyQueryFilter);
         Property orderProperty = getDefaultOrderProperty(view, model);
         var result = modelDataService.getDataListWithPageInfo(
                 view.getViewModel(),
@@ -83,8 +91,9 @@ public class DataQueryService {
      * @param filter
      * @return
      */
-    private IQueryFilter generateFilter(Model model, View view, Map<String, QueryValue> filter, String keyword) {
+    private IQueryFilter generateFilter(Model model, View view, Map<String, QueryValue> filter, String keyword, String legacyQueryFilter) {
         IQueryFilter queryFilter = rawViewFilter(view.getFilter());
+        queryFilter = appendRawFilter(queryFilter, legacyQueryFilter);
         queryFilter = appendKeywordFilter(queryFilter, model, view, keyword);
         var properties = model.getProperties();
         if (filter != null) {
@@ -107,6 +116,13 @@ public class DataQueryService {
             }
         }
         return queryFilter;
+    }
+
+    private IQueryFilter appendRawFilter(IQueryFilter queryFilter, String rawFilter) {
+        if (!StringUtils.hasText(rawFilter)) {
+            return queryFilter;
+        }
+        return queryFilter.and(rawFilter(rawFilter));
     }
 
     private IQueryFilter appendKeywordFilter(IQueryFilter queryFilter, Model model, View view, String keyword) {
@@ -218,11 +234,15 @@ public class DataQueryService {
         if (!StringUtils.hasText(viewFilter)) {
             return IQueryFilter.init();
         }
+        return rawFilter(viewFilter);
+    }
+
+    private IQueryFilter rawFilter(String filter) {
         return new SimpleFilter() {
             @Override
             public QueryAndArgs generateSql() {
                 QueryAndArgs queryAndArgs = new QueryAndArgs();
-                queryAndArgs.setSql(viewFilter);
+                queryAndArgs.setSql(filter);
                 queryAndArgs.setArgs(new Object[]{});
                 return queryAndArgs;
             }
