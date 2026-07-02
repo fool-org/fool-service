@@ -50,6 +50,8 @@ export interface TableColumnInfo {
   format?: string;
   isReadOnly?: boolean;
   editType?: string;
+  listViewId?: number;
+  listViewType?: number;
 }
 
 export interface OperationInfo {

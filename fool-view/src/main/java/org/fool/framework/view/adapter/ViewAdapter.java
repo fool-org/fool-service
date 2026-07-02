@@ -50,6 +50,8 @@ public class ViewAdapter {
                             .format(p.getFormatRegx())
                             .isReadOnly(!p.isCanEdit())
                             .editType(p.getEditType())
+                            .listViewId(0L)
+                            .listViewType(0)
                             .build());
         });
         result.setInputInfo(new LinkedList<>());

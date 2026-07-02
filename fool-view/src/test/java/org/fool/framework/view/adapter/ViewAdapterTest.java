@@ -200,6 +200,19 @@ public class ViewAdapterTest {
         assertEquals(ItemEditType.TextBox, columnEditType(column));
     }
 
+    @Test
+    public void viewInfoIncludesLegacyLinkedListViewDefaults() {
+        ViewItem orderId = viewItem("orderId", "Order ID", ItemEditType.ReadOnly);
+
+        View view = new View();
+        view.setListItems(List.of(orderId));
+
+        Object column = new ViewAdapter().getViewInfo(view).getTableColumn().get(0);
+
+        assertEquals(Long.valueOf(0L), columnListViewId(column));
+        assertEquals(Integer.valueOf(0), columnListViewType(column));
+    }
+
     private static ViewOperation operation(
             String name,
             boolean requireSelect,
@@ -304,6 +317,24 @@ public class ViewAdapterTest {
             return (ItemEditType) column.getClass().getMethod("getEditType").invoke(column);
         } catch (ReflectiveOperationException e) {
             fail("TableColumnInfo should expose legacy edit-type metadata");
+            return null;
+        }
+    }
+
+    private static Long columnListViewId(Object column) {
+        try {
+            return (Long) column.getClass().getMethod("getListViewId").invoke(column);
+        } catch (ReflectiveOperationException e) {
+            fail("TableColumnInfo should expose legacy list-view ID metadata");
+            return null;
+        }
+    }
+
+    private static Integer columnListViewType(Object column) {
+        try {
+            return (Integer) column.getClass().getMethod("getListViewType").invoke(column);
+        } catch (ReflectiveOperationException e) {
+            fail("TableColumnInfo should expose legacy list-view type metadata");
             return null;
         }
     }

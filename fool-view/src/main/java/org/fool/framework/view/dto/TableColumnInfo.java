@@ -31,4 +31,8 @@ public class TableColumnInfo {
     private Boolean isReadOnly;
     @ApiModelProperty("编辑类型")
     private ItemEditType editType;
+    @ApiModelProperty("legacy 关联列表视图ID")
+    private Long listViewId;
+    @ApiModelProperty("legacy 关联列表视图类型")
+    private Integer listViewType;
 }
