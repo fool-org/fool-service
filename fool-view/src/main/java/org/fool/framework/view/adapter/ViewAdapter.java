@@ -46,7 +46,7 @@ public class ViewAdapter {
                     TableColumnInfo.builder().id(p.getId())
                             .name(p.getItemName())
                             .property(p.getModelProperty())
-                            .propertyName(p.getModelProperty())
+                            .propertyName(safePropertyName(p))
                             .title(p.getItemLabel())
                             .showIndex(safeShowIndex(p))
                             .width(safeWidth(p))
@@ -114,6 +114,11 @@ public class ViewAdapter {
         Property property = item.getProperty();
         Model model = property == null ? null : property.getPropertyModel();
         return model == null || model.getId() == null ? 0L : model.getId();
+    }
+
+    private String safePropertyName(ViewItem item) {
+        Property property = item.getProperty();
+        return property == null || property.getName() == null ? "" : property.getName();
     }
 
     private OperationInfo toOperationInfo(ViewOperation operation) {

@@ -177,6 +177,9 @@ public class ViewAdapterTest {
     @Test
     public void viewInfoIncludesLegacyColumnPropertyName() {
         ViewItem orderId = viewItem("orderId", "Order ID", ItemEditType.ReadOnly);
+        Property property = new Property();
+        property.setName("orderId");
+        setProperty(orderId, property);
 
         View view = new View();
         view.setListItems(List.of(orderId));
@@ -184,6 +187,18 @@ public class ViewAdapterTest {
         ListViewInfo info = new ViewAdapter().getViewInfo(view);
 
         assertEquals("orderId", columnPropertyName(info.getTableColumn().get(0)));
+    }
+
+    @Test
+    public void viewInfoUsesEmptyLegacyColumnPropertyNameWhenPropertyIsMissing() {
+        ViewItem orderId = viewItem("orderId", "Order ID", ItemEditType.ReadOnly);
+
+        View view = new View();
+        view.setListItems(List.of(orderId));
+
+        ListViewInfo info = new ViewAdapter().getViewInfo(view);
+
+        assertEquals("", columnPropertyName(info.getTableColumn().get(0)));
     }
 
     @Test
