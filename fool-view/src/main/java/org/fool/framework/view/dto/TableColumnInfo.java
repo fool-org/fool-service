@@ -11,6 +11,8 @@ import org.fool.framework.view.model.ItemEditType;
 @ApiModel("表头列")
 @Builder
 public class TableColumnInfo {
+    @ApiModelProperty("名称")
+    private String name;
     @ApiModelProperty("标题")
     private String title;
     @ApiModelProperty("属性")

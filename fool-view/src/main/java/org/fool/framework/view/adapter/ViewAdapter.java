@@ -36,7 +36,8 @@ public class ViewAdapter {
         result.setTableColumn(new LinkedList<>());
         orderedListItems(view).stream().filter(p -> p.getEditType() != ItemEditType.Format).forEach(p -> {
             result.getTableColumn().add(
-                    TableColumnInfo.builder().property(p.getModelProperty())
+                    TableColumnInfo.builder().name(p.getItemName())
+                            .property(p.getModelProperty())
                             .title(p.getItemLabel())
                             .showIndex(safeShowIndex(p))
                             .width(safeWidth(p))
