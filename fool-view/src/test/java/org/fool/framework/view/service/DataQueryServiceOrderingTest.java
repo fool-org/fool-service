@@ -12,6 +12,7 @@ import org.fool.framework.model.service.ModelDataService;
 import org.fool.framework.query.IQueryFilter;
 import org.fool.framework.view.adapter.ViewDataAdapter;
 import org.fool.framework.view.dto.ListViewResult;
+import org.fool.framework.view.dto.QueryValue;
 import org.fool.framework.view.model.View;
 import org.fool.framework.view.model.ViewItem;
 import org.junit.Test;
@@ -19,7 +20,9 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
+import java.util.Map;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.mockito.ArgumentMatchers.any;
@@ -81,6 +84,57 @@ public class DataQueryServiceOrderingTest {
         assertEquals(
                 List.of("orderId", "symbol"),
                 propertiesCaptor.getValue().stream().map(Property::getName).toList());
+    }
+
+    @Test
+    public void queryViewDataListAppliesLegacyViewFilterBeforeRequestFilter() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
+        DataQueryService service = new DataQueryService();
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+        ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
+        ReflectionTestUtils.setField(service, "viewAdapter", viewAdapter);
+
+        View view = new View();
+        view.setViewName("OpenOrderList");
+        view.setViewModel("Order");
+        view.setFilter("`order_state`='OPEN'");
+        view.setListItems(List.of(viewItem("orderId", 10), viewItem("symbol", 20)));
+        Model model = model("Order", List.of(
+                property("orderId", "order_id"),
+                property("symbol", "order_symbol")));
+        QueryValue symbolFilter = new QueryValue();
+        symbolFilter.setValue("BTC-USDT");
+        PageNavigator pageNavigator = new PageNavigator();
+        pageNavigator.setPageIndex(1);
+        pageNavigator.setPageSize(10);
+        PageResult<IDynamicData> pageResult = new PageResult<>();
+        when(daoService.getOneDetailByKey(View.class, "OpenOrderList")).thenReturn(view);
+        when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(model);
+        when(modelDataService.getDataListWithPageInfo(
+                eq("Order"),
+                any(IQueryFilter.class),
+                anyList(),
+                eq(pageNavigator),
+                eq("order_id"),
+                eq(true)))
+                .thenReturn(pageResult);
+        when(viewAdapter.getListViewResult(eq(view), eq(pageResult))).thenReturn(new ListViewResult());
+
+        service.queryViewDataList("OpenOrderList", Map.of("symbol", symbolFilter), pageNavigator);
+
+        ArgumentCaptor<IQueryFilter> filterCaptor = ArgumentCaptor.forClass(IQueryFilter.class);
+        verify(modelDataService).getDataListWithPageInfo(
+                eq("Order"),
+                filterCaptor.capture(),
+                anyList(),
+                eq(pageNavigator),
+                eq("order_id"),
+                eq(true));
+        var sql = filterCaptor.getValue().generateSql();
+        assertEquals("(`order_state`='OPEN') And (`order_symbol`= ?)", sql.getSql());
+        assertArrayEquals(new Object[]{"BTC-USDT"}, sql.getArgs());
     }
 
     private static ViewItem viewItem(String modelProperty, int showIndex) {

@@ -2,6 +2,7 @@ package org.fool.framework.view.service;
 
 import org.fool.framework.dao.DaoService;
 import org.fool.framework.dao.PageNavigator;
+import org.fool.framework.dao.QueryAndArgs;
 import org.fool.framework.dto.CommonException;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
@@ -10,6 +11,7 @@ import org.fool.framework.query.BetweenFilter;
 import org.fool.framework.query.CompareFilter;
 import org.fool.framework.query.CompareOp;
 import org.fool.framework.query.IQueryFilter;
+import org.fool.framework.query.SimpleFilter;
 import org.fool.framework.view.adapter.ViewDataAdapter;
 import org.fool.framework.view.common.ErrorCode;
 import org.fool.framework.view.dto.ListViewResult;
@@ -54,7 +56,7 @@ public class DataQueryService {
             throw new CommonException(ErrorCode.MODEL_NOT_FOUND, "没有查到元数据定义");
         }
         var properties = getViewProperies(view, model);
-        IQueryFilter queryFilter = generateFilter(model, filter);
+        IQueryFilter queryFilter = generateFilter(model, filter, view.getFilter());
         Property orderProperty = getDefaultOrderProperty(view, model);
         var result = modelDataService.getDataListWithPageInfo(
                 view.getViewModel(),
@@ -74,8 +76,8 @@ public class DataQueryService {
      * @param filter
      * @return
      */
-    private IQueryFilter generateFilter(Model model, Map<String, QueryValue> filter) {
-        IQueryFilter queryFilter = IQueryFilter.init();
+    private IQueryFilter generateFilter(Model model, Map<String, QueryValue> filter, String viewFilter) {
+        IQueryFilter queryFilter = rawViewFilter(viewFilter);
         var properties = model.getProperties();
         if (filter != null) {
             for (var key : filter.keySet()
@@ -97,6 +99,21 @@ public class DataQueryService {
             }
         }
         return queryFilter;
+    }
+
+    private IQueryFilter rawViewFilter(String viewFilter) {
+        if (!StringUtils.hasText(viewFilter)) {
+            return IQueryFilter.init();
+        }
+        return new SimpleFilter() {
+            @Override
+            public QueryAndArgs generateSql() {
+                QueryAndArgs queryAndArgs = new QueryAndArgs();
+                queryAndArgs.setSql(viewFilter);
+                queryAndArgs.setArgs(new Object[]{});
+                return queryAndArgs;
+            }
+        };
     }
 
     private List<Property> getViewProperies(View view, Model model) {
