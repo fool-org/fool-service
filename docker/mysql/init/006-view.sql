@@ -50,6 +50,29 @@ CREATE TABLE IF NOT EXISTS `fool_sys_view_item` (
   KEY `ix_fool_sys_view_item_property` (`model_property`)
 );
 
+CREATE TABLE IF NOT EXISTS `SW_SYS_VIEW_ITEM` (
+  `SysId` bigint NOT NULL AUTO_INCREMENT,
+  `VIEW_ITEM_NAME` varchar(255) DEFAULT NULL,
+  `VIEW_ITEM_NOTE` text,
+  `VIEW_ITEM_FORMAT` varchar(255) DEFAULT NULL,
+  `VIEW_ITEM_PROPERTY` bigint DEFAULT NULL,
+  `VIEW_ITEM_PROPERTY_SHOW` bigint DEFAULT NULL,
+  `VIEW_ITEM_PROPERTY_VALUE` bigint DEFAULT NULL,
+  `VIEW_ITEM_READONLY` tinyint(1) NOT NULL DEFAULT '0',
+  `VIEW_ITEM_INDEX` int NOT NULL DEFAULT '0',
+  `VIEW_ITEM_SUBVIEW` bigint DEFAULT NULL,
+  `VIEW_ITEM_EDITVIEW` bigint DEFAULT NULL,
+  `VIEW_ITEM_SELECTVIEW` bigint DEFAULT NULL,
+  `VIEW_ITEM_WIDTH` int NOT NULL DEFAULT '0',
+  `VIEW_ITEM_ISSHOW` tinyint(1) NOT NULL DEFAULT '0',
+  `VIEW_ITEM_FILE` bigint DEFAULT NULL,
+  `VIEW_ITEM_EDITTYPE` int DEFAULT NULL,
+  `VIEW_ITEM_SOURCEEXP` text,
+  PRIMARY KEY (`SysId`),
+  KEY `ix_sw_sys_view_item_property` (`VIEW_ITEM_PROPERTY`),
+  KEY `ix_sw_sys_view_item_index` (`VIEW_ITEM_INDEX`)
+);
+
 SET @add_view_item_edit_type = (
   SELECT IF(
     COUNT(*) = 0,
