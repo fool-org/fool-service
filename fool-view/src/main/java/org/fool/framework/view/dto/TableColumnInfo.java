@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.fool.framework.common.PropertyType;
 import org.fool.framework.view.model.ItemEditType;
 
 @Data
@@ -35,4 +36,8 @@ public class TableColumnInfo {
     private Long listViewId;
     @ApiModelProperty("legacy 关联列表视图类型")
     private Integer listViewType;
+    @ApiModelProperty("legacy 属性类型")
+    private PropertyType propertyType;
+    @ApiModelProperty("legacy 属性模型ID")
+    private Long propertyModel;
 }

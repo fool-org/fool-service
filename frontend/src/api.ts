@@ -52,6 +52,8 @@ export interface TableColumnInfo {
   editType?: string;
   listViewId?: number;
   listViewType?: number;
+  propertyType?: string;
+  propertyModel?: number;
 }
 
 export interface OperationInfo {

@@ -1,6 +1,9 @@
 package org.fool.framework.view.adapter;
 
+import org.fool.framework.common.PropertyType;
+import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Operation;
+import org.fool.framework.model.model.Property;
 import org.fool.framework.view.dto.ListViewInfo;
 import org.fool.framework.view.model.InputType;
 import org.fool.framework.view.model.ItemEditType;
@@ -213,6 +216,26 @@ public class ViewAdapterTest {
         assertEquals(Integer.valueOf(0), columnListViewType(column));
     }
 
+    @Test
+    public void viewInfoIncludesLegacyColumnPropertyTypeAndModel() {
+        Model customer = new Model();
+        customer.setId(700L);
+        Property property = new Property();
+        property.setName("customer");
+        property.setPropertyType(PropertyType.BusinessObject);
+        property.setPropertyModel(customer);
+        ViewItem customerItem = viewItem("customer", "Customer", ItemEditType.ReadOnly);
+        setProperty(customerItem, property);
+
+        View view = new View();
+        view.setListItems(List.of(customerItem));
+
+        Object column = new ViewAdapter().getViewInfo(view).getTableColumn().get(0);
+
+        assertEquals(PropertyType.BusinessObject, columnPropertyType(column));
+        assertEquals(Long.valueOf(700L), columnPropertyModel(column));
+    }
+
     private static ViewOperation operation(
             String name,
             boolean requireSelect,
@@ -255,6 +278,14 @@ public class ViewAdapterTest {
             ViewItem.class.getMethod("setWidth", Integer.class).invoke(item, width);
         } catch (ReflectiveOperationException e) {
             fail("ViewItem should expose legacy width metadata");
+        }
+    }
+
+    private static void setProperty(ViewItem item, Property property) {
+        try {
+            ViewItem.class.getMethod("setProperty", Property.class).invoke(item, property);
+        } catch (ReflectiveOperationException e) {
+            fail("ViewItem should expose legacy property metadata");
         }
     }
 
@@ -335,6 +366,24 @@ public class ViewAdapterTest {
             return (Integer) column.getClass().getMethod("getListViewType").invoke(column);
         } catch (ReflectiveOperationException e) {
             fail("TableColumnInfo should expose legacy list-view type metadata");
+            return null;
+        }
+    }
+
+    private static PropertyType columnPropertyType(Object column) {
+        try {
+            return (PropertyType) column.getClass().getMethod("getPropertyType").invoke(column);
+        } catch (ReflectiveOperationException e) {
+            fail("TableColumnInfo should expose legacy property-type metadata");
+            return null;
+        }
+    }
+
+    private static Long columnPropertyModel(Object column) {
+        try {
+            return (Long) column.getClass().getMethod("getPropertyModel").invoke(column);
+        } catch (ReflectiveOperationException e) {
+            fail("TableColumnInfo should expose legacy property-model metadata");
             return null;
         }
     }

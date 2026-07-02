@@ -1,6 +1,9 @@
 package org.fool.framework.view.adapter;
 
+import org.fool.framework.common.PropertyType;
 import org.fool.framework.common.dynamic.IDynamicData;
+import org.fool.framework.model.model.Model;
+import org.fool.framework.model.model.Property;
 import org.fool.framework.view.dto.ListViewInfo;
 import org.fool.framework.view.dto.OperationInfo;
 import org.fool.framework.view.dto.TableColumnInfo;
@@ -52,6 +55,8 @@ public class ViewAdapter {
                             .editType(p.getEditType())
                             .listViewId(0L)
                             .listViewType(0)
+                            .propertyType(safePropertyType(p))
+                            .propertyModel(safePropertyModel(p))
                             .build());
         });
         result.setInputInfo(new LinkedList<>());
@@ -96,6 +101,19 @@ public class ViewAdapter {
 
     private Integer safeAutoFreshTime(View view) {
         return view.getAutoFreshInterval() == null ? 0 : view.getAutoFreshInterval();
+    }
+
+    private PropertyType safePropertyType(ViewItem item) {
+        Property property = item.getProperty();
+        return property == null || property.getPropertyType() == null
+                ? PropertyType.String
+                : property.getPropertyType();
+    }
+
+    private Long safePropertyModel(ViewItem item) {
+        Property property = item.getProperty();
+        Model model = property == null ? null : property.getPropertyModel();
+        return model == null || model.getId() == null ? 0L : model.getId();
     }
 
     private OperationInfo toOperationInfo(ViewOperation operation) {

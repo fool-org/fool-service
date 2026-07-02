@@ -6,6 +6,7 @@ import org.fool.framework.common.annotation.Column;
 import org.fool.framework.common.annotation.SqlGenerate;
 import org.fool.framework.common.annotation.SqlGenerateConfig;
 import org.fool.framework.common.annotation.Table;
+import org.fool.framework.model.model.Property;
 
 @Data
 @Table("fool_sys_view_item")
@@ -33,6 +34,8 @@ public class ViewItem {
     private Integer showIndex = 0;
     @Column("width")
     private Integer width = 0;
+    @Column(noMap = true)
+    private transient Property property;
 
 
     private Long viewId;
