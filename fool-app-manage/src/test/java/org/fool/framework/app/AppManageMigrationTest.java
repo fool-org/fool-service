@@ -21,6 +21,8 @@ import org.fool.framework.view.model.View;
 import org.fool.framework.view.model.ViewItem;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -1218,6 +1220,16 @@ public class AppManageMigrationTest {
     }
 
     @Test
+    public void driverManagerAppDaoServiceFactoryReusesSingleConnectionPerLegacySqlCon() throws Exception {
+        DriverManagerAppDaoServiceFactory factory =
+                new DriverManagerAppDaoServiceFactory(new org.fool.framework.dao.SqlScriptGenerator());
+
+        DaoService daoService = factory.create("jdbc:h2:mem:app-manage-boundary");
+
+        assertTrue(jdbcTemplate(daoService).getDataSource() instanceof SingleConnectionDataSource);
+    }
+
+    @Test
     public void driverManagerAppDaoServiceFactoryParsesLegacySqlConStrings() {
         DriverManagerAppDaoServiceFactory.ConnectionSettings settings =
                 DriverManagerAppDaoServiceFactory.parse(
@@ -1263,6 +1275,12 @@ public class AppManageMigrationTest {
         Table table = type.getDeclaredAnnotation(Table.class);
         assertNotNull("missing @Table on " + type.getName(), table);
         return table.value();
+    }
+
+    private static JdbcTemplate jdbcTemplate(DaoService daoService) throws Exception {
+        Field field = DaoService.class.getDeclaredField("jdbcTemplate");
+        field.setAccessible(true);
+        return (JdbcTemplate) field.get(daoService);
     }
 
     private static void assertColumn(Class<?> type, String fieldName, String columnName, boolean key) throws Exception {

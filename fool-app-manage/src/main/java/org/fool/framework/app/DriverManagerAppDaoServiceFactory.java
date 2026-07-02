@@ -3,7 +3,7 @@ package org.fool.framework.app;
 import org.fool.framework.dao.DaoService;
 import org.fool.framework.dao.SqlScriptGenerator;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
@@ -28,7 +28,9 @@ public class DriverManagerAppDaoServiceFactory implements AppDaoServiceFactory {
 
     private DaoService createUncached(String connectionString) {
         ConnectionSettings settings = parse(connectionString);
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        // ponytail: one cached legacy SqlCon gets one JDBC connection; use Hikari if concurrent installs need pooling.
+        SingleConnectionDataSource dataSource = new SingleConnectionDataSource();
+        dataSource.setSuppressClose(true);
         dataSource.setUrl(settings.url());
         if (settings.username() != null) {
             dataSource.setUsername(settings.username());
