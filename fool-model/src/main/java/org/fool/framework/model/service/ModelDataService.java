@@ -319,6 +319,16 @@ public class ModelDataService {
                     }
                 }
             }
+            if (value instanceof SubItemList<?> subItems) {
+                for (Object item : subItems.getDeleteList()) {
+                    if (item instanceof IDynamicData itemData) {
+                        Object itemId = dynamicId(itemData, relation.getProperty().getPropertyModel());
+                        if (itemId != null) {
+                            deleteRelation(relation, parentId, itemId);
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -424,6 +434,16 @@ public class ModelDataService {
                     propertyValue,
                     targetValue);
         }
+    }
+
+    private void deleteRelation(Relation relation, Object parentId, Object itemId) {
+        Object propertyValue = relation.getRelationType() == RelationType.Recurve ? parentId : itemId;
+        Object targetValue = relation.getRelationType() == RelationType.Recurve ? itemId : parentId;
+        jdbcTemplate.update(
+                "DELETE FROM `" + relation.getRelationTable() + "` WHERE `"
+                        + relation.getPropertyColumn() + "` = ? AND `" + relation.getTargetColumn() + "` = ?",
+                propertyValue,
+                targetValue);
     }
 
     private Map<String, Object> writableColumnValues(Model model, IDynamicData data, String excludedColumn) {
