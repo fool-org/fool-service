@@ -9,6 +9,8 @@ import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.ModelType;
 import org.fool.framework.model.model.MultiDbMap;
 import org.fool.framework.model.model.Property;
+import org.fool.framework.model.model.Relation;
+import org.fool.framework.model.model.RelationType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -301,6 +303,81 @@ public class ModelDataServiceTest {
     }
 
     @Test
+    public void createDataWritesLegacyManyToManyRelationRows() {
+        String orderTable = "runtime_create_relation_order";
+        String roleTable = "runtime_create_relation_role";
+        String relationTable = "runtime_create_order_role";
+        cleanupRuntimeManyToManyTables(orderTable, roleTable, relationTable);
+        try {
+            createRuntimeManyToManyTables(orderTable, roleTable, relationTable);
+            jdbcTemplate.update("INSERT INTO `" + roleTable + "` (`ROLE_ID`,`ROLE_NAME`) VALUES (?,?)", "R1", "Admin");
+            Model order = manyToManyOrderModel(orderTable, roleTable, relationTable);
+            DbMysqlDynamic data = manyToManyOrderData(order, "9001", "Created relation", "R1", "Admin");
+
+            assertEquals(Boolean.TRUE, modelDataService.createData(data));
+
+            Integer count = jdbcTemplate.queryForObject(
+                    "SELECT COUNT(*) FROM `" + relationTable + "` WHERE `ROLE_ID` = ? AND `ORDER_ID` = ?",
+                    Integer.class,
+                    "R1",
+                    "9001");
+            assertEquals(1, count.intValue());
+        } finally {
+            cleanupRuntimeManyToManyTables(orderTable, roleTable, relationTable);
+        }
+    }
+
+    @Test
+    public void saveDataWritesLegacyManyToManyRelationRows() {
+        String orderTable = "runtime_save_relation_order";
+        String roleTable = "runtime_save_relation_role";
+        String relationTable = "runtime_save_order_role";
+        cleanupRuntimeManyToManyTables(orderTable, roleTable, relationTable);
+        try {
+            createRuntimeManyToManyTables(orderTable, roleTable, relationTable);
+            jdbcTemplate.update("INSERT INTO `" + orderTable + "` (`ORDER_ID`,`ORDER_NAME`) VALUES (?,?)", "9101", "Before save");
+            jdbcTemplate.update("INSERT INTO `" + roleTable + "` (`ROLE_ID`,`ROLE_NAME`) VALUES (?,?)", "R2", "Editor");
+            Model order = manyToManyOrderModel(orderTable, roleTable, relationTable);
+            DbMysqlDynamic data = manyToManyOrderData(order, "9101", "After save", "R2", "Editor");
+
+            assertEquals(Boolean.TRUE, modelDataService.saveData(data));
+
+            Integer count = jdbcTemplate.queryForObject(
+                    "SELECT COUNT(*) FROM `" + relationTable + "` WHERE `ROLE_ID` = ? AND `ORDER_ID` = ?",
+                    Integer.class,
+                    "R2",
+                    "9101");
+            assertEquals(1, count.intValue());
+        } finally {
+            cleanupRuntimeManyToManyTables(orderTable, roleTable, relationTable);
+        }
+    }
+
+    @Test
+    public void createDataWritesLegacyRecurveRelationRows() {
+        String nodeTable = "runtime_create_recurve_node";
+        String relationTable = "runtime_create_recurve_node_rel";
+        cleanupRuntimeRecurveTables(nodeTable, relationTable);
+        try {
+            createRuntimeRecurveTables(nodeTable, relationTable);
+            jdbcTemplate.update("INSERT INTO `" + nodeTable + "` (`NODE_ID`,`NODE_NAME`) VALUES (?,?)", "C1", "Child");
+            Model node = recurveNodeModel(nodeTable, relationTable);
+            DbMysqlDynamic data = recurveNodeData(node, "P1", "Parent", "C1", "Child");
+
+            assertEquals(Boolean.TRUE, modelDataService.createData(data));
+
+            Integer count = jdbcTemplate.queryForObject(
+                    "SELECT COUNT(*) FROM `" + relationTable + "` WHERE `PARENT_ID` = ? AND `CHILD_ID` = ?",
+                    Integer.class,
+                    "P1",
+                    "C1");
+            assertEquals(1, count.intValue());
+        } finally {
+            cleanupRuntimeRecurveTables(nodeTable, relationTable);
+        }
+    }
+
+    @Test
     public void initDataBuildsLegacySimpleDynamicDefaults() {
         Model model = new Model();
         model.setProperties(List.of(
@@ -357,6 +434,84 @@ public class ModelDataServiceTest {
         orderData.set("orderId", orderId);
         orderData.set("customer", customerData);
         return orderData;
+    }
+
+    private Model manyToManyOrderModel(String orderTable, String roleTable, String relationTable) {
+        Model role = new Model();
+        role.setTableName(roleTable);
+        Property roleId = columnProperty("roleId", "ROLE_ID", PropertyType.String);
+        role.setIdProperty(roleId);
+        role.setProperties(List.of(roleId, columnProperty("roleName", "ROLE_NAME", PropertyType.String)));
+
+        Model order = new Model();
+        order.setTableName(orderTable);
+        Property orderId = columnProperty("orderId", "ORDER_ID", PropertyType.String);
+        order.setIdProperty(orderId);
+        Property orderName = columnProperty("orderName", "ORDER_NAME", PropertyType.String);
+        Property roles = collectionProperty("roles");
+        roles.setPropertyModel(role);
+        Relation relation = new Relation();
+        relation.setProperty(roles);
+        relation.setTargetProperty(roles);
+        relation.setRelationType(RelationType.Many2Many);
+        relation.setRelationTable(relationTable);
+        relation.setPropertyColumn("ROLE_ID");
+        relation.setTargetColumn("ORDER_ID");
+        order.setProperties(List.of(orderId, orderName, roles));
+        order.setRelations(List.of(relation));
+        return order;
+    }
+
+    private DbMysqlDynamic manyToManyOrderData(
+            Model order,
+            String orderId,
+            String orderName,
+            String roleId,
+            String roleName) {
+        DbMysqlDynamic role = new DbMysqlDynamic(order.getProperties().get(2).getPropertyModel());
+        role.set("roleId", roleId);
+        role.set("roleName", roleName);
+        DbMysqlDynamic data = new DbMysqlDynamic(order);
+        data.set("orderId", orderId);
+        data.set("orderName", orderName);
+        data.set("roles", List.of(role));
+        return data;
+    }
+
+    private Model recurveNodeModel(String nodeTable, String relationTable) {
+        Model node = new Model();
+        node.setTableName(nodeTable);
+        Property nodeId = columnProperty("nodeId", "NODE_ID", PropertyType.String);
+        node.setIdProperty(nodeId);
+        Property nodeName = columnProperty("nodeName", "NODE_NAME", PropertyType.String);
+        Property children = collectionProperty("children");
+        children.setPropertyModel(node);
+        Relation relation = new Relation();
+        relation.setProperty(children);
+        relation.setTargetProperty(children);
+        relation.setRelationType(RelationType.Recurve);
+        relation.setRelationTable(relationTable);
+        relation.setPropertyColumn("PARENT_ID");
+        relation.setTargetColumn("CHILD_ID");
+        node.setProperties(List.of(nodeId, nodeName, children));
+        node.setRelations(List.of(relation));
+        return node;
+    }
+
+    private DbMysqlDynamic recurveNodeData(
+            Model node,
+            String parentId,
+            String parentName,
+            String childId,
+            String childName) {
+        DbMysqlDynamic child = new DbMysqlDynamic(node);
+        child.set("nodeId", childId);
+        child.set("nodeName", childName);
+        DbMysqlDynamic data = new DbMysqlDynamic(node);
+        data.set("nodeId", parentId);
+        data.set("nodeName", parentName);
+        data.set("children", List.of(child));
+        return data;
     }
 
     private Property simpleProperty(String name, PropertyType type) {
@@ -464,5 +619,42 @@ public class ModelDataServiceTest {
 
     private void cleanupRuntimeDbMapsTable(String tableName) {
         jdbcTemplate.execute("DROP TABLE IF EXISTS `" + tableName + "`");
+    }
+
+    private void createRuntimeManyToManyTables(String orderTable, String roleTable, String relationTable) {
+        jdbcTemplate.execute("CREATE TABLE `" + orderTable + "` ("
+                + "`ORDER_ID` varchar(64) NOT NULL,"
+                + "`ORDER_NAME` varchar(255) DEFAULT NULL,"
+                + "PRIMARY KEY (`ORDER_ID`))");
+        jdbcTemplate.execute("CREATE TABLE `" + roleTable + "` ("
+                + "`ROLE_ID` varchar(64) NOT NULL,"
+                + "`ROLE_NAME` varchar(255) DEFAULT NULL,"
+                + "PRIMARY KEY (`ROLE_ID`))");
+        jdbcTemplate.execute("CREATE TABLE `" + relationTable + "` ("
+                + "`ROLE_ID` varchar(64) NOT NULL,"
+                + "`ORDER_ID` varchar(64) NOT NULL,"
+                + "PRIMARY KEY (`ROLE_ID`,`ORDER_ID`))");
+    }
+
+    private void cleanupRuntimeManyToManyTables(String orderTable, String roleTable, String relationTable) {
+        jdbcTemplate.execute("DROP TABLE IF EXISTS `" + relationTable + "`");
+        jdbcTemplate.execute("DROP TABLE IF EXISTS `" + roleTable + "`");
+        jdbcTemplate.execute("DROP TABLE IF EXISTS `" + orderTable + "`");
+    }
+
+    private void createRuntimeRecurveTables(String nodeTable, String relationTable) {
+        jdbcTemplate.execute("CREATE TABLE `" + nodeTable + "` ("
+                + "`NODE_ID` varchar(64) NOT NULL,"
+                + "`NODE_NAME` varchar(255) DEFAULT NULL,"
+                + "PRIMARY KEY (`NODE_ID`))");
+        jdbcTemplate.execute("CREATE TABLE `" + relationTable + "` ("
+                + "`PARENT_ID` varchar(64) NOT NULL,"
+                + "`CHILD_ID` varchar(64) NOT NULL,"
+                + "PRIMARY KEY (`PARENT_ID`,`CHILD_ID`))");
+    }
+
+    private void cleanupRuntimeRecurveTables(String nodeTable, String relationTable) {
+        jdbcTemplate.execute("DROP TABLE IF EXISTS `" + relationTable + "`");
+        jdbcTemplate.execute("DROP TABLE IF EXISTS `" + nodeTable + "`");
     }
 }

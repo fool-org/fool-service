@@ -8,6 +8,8 @@ import org.fool.framework.model.model.DbMysqlDynamic;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.MultiDbMap;
 import org.fool.framework.model.model.Property;
+import org.fool.framework.model.model.Relation;
+import org.fool.framework.model.model.RelationType;
 import org.fool.framework.model.sqlscript.SqlGenerator;
 import org.fool.framework.query.CompareFilter;
 import org.fool.framework.query.CompareOp;
@@ -212,7 +214,11 @@ public class ModelDataService {
         args.addAll(columnValues.values());
         args.add(idValue);
         String sql = "UPDATE `" + model.getTableName() + "` SET " + assignments + " WHERE `" + idColumn + "` = ?";
-        return jdbcTemplate.update(sql, args.toArray()) > 0;
+        boolean saved = jdbcTemplate.update(sql, args.toArray()) > 0;
+        if (saved) {
+            writeCollectionRelations(model, data);
+        }
+        return saved;
     }
 
     public Boolean saveDataList(List<IDynamicData> dataList) {
@@ -267,7 +273,83 @@ public class ModelDataService {
                 .map(property -> "?")
                 .collect(Collectors.joining(","));
         String sql = "INSERT INTO `" + model.getTableName() + "` (" + columns + ") VALUES (" + values + ")";
-        return jdbcTemplate.update(sql, columnValues.values().toArray()) > 0;
+        boolean created = jdbcTemplate.update(sql, columnValues.values().toArray()) > 0;
+        if (created) {
+            writeCollectionRelations(model, data);
+        }
+        return created;
+    }
+
+    private void writeCollectionRelations(Model model, IDynamicData data) {
+        if (model.getRelations() == null) {
+            return;
+        }
+        Object parentId = dynamicId(data, model);
+        if (parentId == null) {
+            return;
+        }
+        for (Relation relation : model.getRelations()) {
+            if (!isWritableComplexRelation(relation)) {
+                continue;
+            }
+            Object value = data.get(relation.getProperty().getName());
+            if (!(value instanceof Iterable<?> items)) {
+                continue;
+            }
+            for (Object item : items) {
+                if (item instanceof IDynamicData itemData) {
+                    Object itemId = dynamicId(itemData, relation.getProperty().getPropertyModel());
+                    if (itemId != null) {
+                        insertRelationIfMissing(relation, parentId, itemId);
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean isWritableComplexRelation(Relation relation) {
+        return relation != null
+                && relation.getProperty() != null
+                && relation.getProperty().getName() != null
+                && !relation.getProperty().getName().isBlank()
+                && (relation.getRelationType() == RelationType.Many2Many
+                || relation.getRelationType() == RelationType.Recurve)
+                && relation.getRelationTable() != null
+                && !relation.getRelationTable().isBlank()
+                && relation.getPropertyColumn() != null
+                && !relation.getPropertyColumn().isBlank()
+                && relation.getTargetColumn() != null
+                && !relation.getTargetColumn().isBlank();
+    }
+
+    private Object dynamicId(IDynamicData data, Model model) {
+        if (model != null && model.getIdProperty() != null
+                && model.getIdProperty().getName() != null
+                && !model.getIdProperty().getName().isBlank()) {
+            Object id = data.get(model.getIdProperty().getName());
+            if (id != null) {
+                return id;
+            }
+        }
+        return data.getId();
+    }
+
+    private void insertRelationIfMissing(Relation relation, Object parentId, Object itemId) {
+        Object propertyValue = relation.getRelationType() == RelationType.Recurve ? parentId : itemId;
+        Object targetValue = relation.getRelationType() == RelationType.Recurve ? itemId : parentId;
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM `" + relation.getRelationTable() + "` WHERE `"
+                        + relation.getPropertyColumn() + "` = ? AND `" + relation.getTargetColumn() + "` = ?",
+                Integer.class,
+                propertyValue,
+                targetValue);
+        if (count == null || count == 0) {
+            jdbcTemplate.update(
+                    "INSERT INTO `" + relation.getRelationTable() + "` (`"
+                            + relation.getPropertyColumn() + "`,`" + relation.getTargetColumn() + "`) VALUES (?,?)",
+                    propertyValue,
+                    targetValue);
+        }
     }
 
     private Map<String, Object> writableColumnValues(Model model, IDynamicData data, String excludedColumn) {
