@@ -2,6 +2,7 @@ package org.fool.framework.view.service;
 
 import org.fool.framework.dao.DaoService;
 import org.fool.framework.dao.PageNavigator;
+import org.fool.framework.dao.PageResult;
 import org.fool.framework.dao.QueryAndArgs;
 import org.fool.framework.dto.CommonException;
 import org.fool.framework.common.PropertyType;
@@ -16,6 +17,8 @@ import org.fool.framework.query.IQueryFilter;
 import org.fool.framework.query.SimpleFilter;
 import org.fool.framework.view.adapter.ViewDataAdapter;
 import org.fool.framework.view.common.ErrorCode;
+import org.fool.framework.view.dto.InputQueryRequest;
+import org.fool.framework.view.dto.InputQueryResult;
 import org.fool.framework.view.dto.ListViewResult;
 import org.fool.framework.view.dto.QueryDataDetailResult;
 import org.fool.framework.view.dto.QueryValue;
@@ -31,6 +34,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 public class DataQueryService {
@@ -72,6 +76,47 @@ public class DataQueryService {
         }
         attachProperties(view, model);
         return viewAdapter.getDetailViewResult(view, modelDataService.getOneData(view.getViewModel(), dataId));
+    }
+
+    public InputQueryResult inputQuery(InputQueryRequest request) {
+        View view = daoService.getOneDetailByKey(View.class, request.getViewName());
+        if (view == null) {
+            throw new CommonException(ErrorCode.VIEW_NOT_FOUND, "没有查到视图");
+        }
+        Model model = daoService.getOneDetailByKey(Model.class, view.getViewModel());
+        if (model == null) {
+            throw new CommonException(ErrorCode.MODEL_NOT_FOUND, "没有查到元数据定义");
+        }
+        attachProperties(view, model);
+        ViewItem item = orderedListItems(view).stream()
+                .filter(viewItem -> Objects.equals(viewItem.getItemName(), request.getViewItemId())
+                        || Objects.equals(viewItem.getModelProperty(), request.getViewItemId()))
+                .findFirst()
+                .orElseThrow(() -> new CommonException(ErrorCode.VIEW_MODEL_NOT_FOUND, "没有查到视图字段"));
+        Property property = item.getProperty();
+        Model targetModel = property == null ? null : property.getPropertyModel();
+        if (targetModel == null) {
+            return new InputQueryResult();
+        }
+        Property idProperty = targetModel.getIdProperty();
+        Property showProperty = showProperty(targetModel);
+        PageNavigator page = new PageNavigator();
+        page.setPageIndex(1);
+        page.setPageSize(5);
+        PageResult<org.fool.framework.common.dynamic.IDynamicData> pageResult = modelDataService.getDataListWithPageInfo(
+                targetModel.getName(),
+                likeFilter(showProperty, request.getText()),
+                List.of(idProperty, showProperty),
+                page,
+                idProperty == null ? null : idProperty.getColumn(),
+                true);
+        InputQueryResult result = new InputQueryResult();
+        if (pageResult.getItems() != null) {
+            result.setItems(pageResult.getItems().stream()
+                    .map(data -> new InputQueryResult.QueryItem(data.getId(), formatRow(data.get(showProperty.getName()))))
+                    .toList());
+        }
+        return result;
     }
 
     private ListViewResult queryViewDataList(String viewName, Map<String, QueryValue> filter, PageNavigator pageInfo, String keyword, String legacyQueryFilter) {
@@ -235,6 +280,22 @@ public class DataQueryService {
 
     private Property showProperty(Model model) {
         return model.getShowProperty() == null ? model.getIdProperty() : model.getShowProperty();
+    }
+
+    private String formatRow(Object value) {
+        return value == null ? "" : value.toString();
+    }
+
+    private IQueryFilter likeFilter(Property property, String text) {
+        return new SimpleFilter() {
+            @Override
+            public QueryAndArgs generateSql() {
+                QueryAndArgs queryAndArgs = new QueryAndArgs();
+                queryAndArgs.setSql("`" + property.getColumn() + "` LIKE ?");
+                queryAndArgs.setArgs(new Object[]{"%" + (text == null ? "" : text) + "%"});
+                return queryAndArgs;
+            }
+        };
     }
 
     private List<MultiDbMap> safeDbMaps(Property property) {

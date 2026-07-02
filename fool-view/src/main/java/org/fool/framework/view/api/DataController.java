@@ -8,6 +8,8 @@ import org.fool.framework.model.service.ModelDataService;
 import org.fool.framework.view.adapter.ViewDataAdapter;
 import org.fool.framework.view.dto.GetEnumRequest;
 import org.fool.framework.view.dto.GetEnumResult;
+import org.fool.framework.view.dto.InputQueryRequest;
+import org.fool.framework.view.dto.InputQueryResult;
 import org.fool.framework.view.dto.LegacyQueryDataRequest;
 import org.fool.framework.view.dto.LegacyQueryDataDetailRequest;
 import org.fool.framework.view.dto.ListViewResult;
@@ -74,6 +76,12 @@ public class DataController {
                     .toList());
         }
         return new CommonResponse<>(result);
+    }
+
+    @PostMapping("/inputquery")
+    @ResponseBody
+    public CommonResponse<InputQueryResult> inputQuery(@RequestBody InputQueryRequest request) {
+        return new CommonResponse<>(dataQueryService.inputQuery(request));
     }
 
 }

@@ -174,6 +174,26 @@ export interface GetEnumResult {
   enumValues?: GetEnumValue[];
 }
 
+export interface InputQueryRequest {
+  token?: string;
+  text?: string;
+  viewItemId?: string;
+  viewName?: string;
+  modelID?: string;
+  objID?: string;
+  isAdded?: boolean;
+  ownerId?: string;
+}
+
+export interface InputQueryItem {
+  id?: string;
+  text?: string;
+}
+
+export interface InputQueryResult {
+  items?: InputQueryItem[];
+}
+
 export interface LegacyQueryDataRequest {
   token?: string;
   viewId?: number;
