@@ -52,6 +52,7 @@ public class ViewAdapterTest {
 
         assertEquals(2, info.getOperations().size());
         assertEquals("Create", info.getOperations().get(0).getText());
+        assertEquals("Create", legacyOperationName(info.getOperations().get(0)));
         assertFalse(info.getOperations().get(0).isRequireSelect());
         assertEquals(ViewOperationType.MODAL_DETAIL_VIEW, info.getOperations().get(0).getType());
         assertEquals(0, info.getOperations().get(0).getLocation());
@@ -270,6 +271,15 @@ public class ViewAdapterTest {
             return (ItemEditType) column.getClass().getMethod("getEditType").invoke(column);
         } catch (ReflectiveOperationException e) {
             fail("TableColumnInfo should expose legacy edit-type metadata");
+            return null;
+        }
+    }
+
+    private static String legacyOperationName(Object operation) {
+        try {
+            return (String) operation.getClass().getMethod("getName").invoke(operation);
+        } catch (ReflectiveOperationException e) {
+            fail("OperationInfo should expose legacy name metadata");
             return null;
         }
     }

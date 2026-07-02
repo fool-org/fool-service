@@ -96,6 +96,7 @@ public class ViewAdapter {
     private OperationInfo toOperationInfo(ViewOperation operation) {
         OperationInfo result = new OperationInfo();
         result.setId(operationId(operation));
+        result.setName(operation.getName());
         result.setText(operation.getName());
         result.setRequireSelect(operation.isRequireSelect());
         result.setType(operation.getType());

@@ -11,6 +11,8 @@ import org.fool.framework.view.model.ViewOperationType;
 public class OperationInfo {
     @ApiModelProperty("操作ID")
     private Long id;
+    @ApiModelProperty("legacy 操作名称")
+    private String name;
     @ApiModelProperty("操作名称")
     private String text;
     @ApiModelProperty("操作类型")

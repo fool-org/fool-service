@@ -53,6 +53,7 @@ export interface TableColumnInfo {
 
 export interface OperationInfo {
   id?: number;
+  name?: string;
   text?: string;
   type?: string;
   viewName?: string;
