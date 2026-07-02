@@ -153,6 +153,7 @@ CREATE TABLE IF NOT EXISTS `SW_SYS_COMMANDS` (
 
 CREATE TABLE IF NOT EXISTS `SW_SYS_MODEL_TRIGGER` (
   `SysId` bigint NOT NULL AUTO_INCREMENT,
+  `SW_SYS_MODEL_TriggersMODEL_ID` bigint DEFAULT NULL,
   `SW_MODEL_TRIGGER_ARGMODEL` bigint DEFAULT NULL,
   `SW_MODEL_TRIGGER_TYPE` int DEFAULT NULL,
   `SW_MODEL_TRIGGER_FILTER` text,
@@ -162,6 +163,7 @@ CREATE TABLE IF NOT EXISTS `SW_SYS_MODEL_TRIGGER` (
   `SW_MODEL_TRIGGER_INVOKECLASS` varchar(500) DEFAULT NULL,
   `SW_MODEL_TRIGGER_INVOKEMETHOD` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`SysId`),
+  KEY `ix_sw_sys_model_trigger_owner` (`SW_SYS_MODEL_TriggersMODEL_ID`),
   KEY `ix_sw_sys_model_trigger_arg_model` (`SW_MODEL_TRIGGER_ARGMODEL`),
   KEY `ix_sw_sys_model_trigger_type` (`SW_MODEL_TRIGGER_TYPE`),
   KEY `ix_sw_sys_model_trigger_operation_type` (`SW_MODEL_TRIGGER_OPERATIONTYPE`)
@@ -169,6 +171,7 @@ CREATE TABLE IF NOT EXISTS `SW_SYS_MODEL_TRIGGER` (
 
 CREATE TABLE IF NOT EXISTS `SW_SYS_MODEL_TRIGGER_COMMANDS` (
   `SysId` bigint NOT NULL AUTO_INCREMENT,
+  `SW_SYS_MODEL_TRIGGER_CommandsSysId` bigint DEFAULT NULL,
   `SW_SYS_COMMAND_TYPE` int DEFAULT NULL,
   `SW_SYS_COMMAND_PROPERTY` bigint DEFAULT NULL,
   `SW_SYS_COMMAND_EXP` text,
@@ -179,6 +182,7 @@ CREATE TABLE IF NOT EXISTS `SW_SYS_MODEL_TRIGGER_COMMANDS` (
   `SW_SYS_COMMAND_PROPERTY_EXP` text,
   `SW_SYS_COMMAND_TEMPVALUE` text,
   PRIMARY KEY (`SysId`),
+  KEY `ix_sw_sys_model_trigger_commands_owner` (`SW_SYS_MODEL_TRIGGER_CommandsSysId`),
   KEY `ix_sw_sys_model_trigger_commands_type` (`SW_SYS_COMMAND_TYPE`),
   KEY `ix_sw_sys_model_trigger_commands_property` (`SW_SYS_COMMAND_PROPERTY`),
   KEY `ix_sw_sys_model_trigger_commands_arg_model` (`SW_SYS_COMMAND_ARGMODEL`),
@@ -187,6 +191,7 @@ CREATE TABLE IF NOT EXISTS `SW_SYS_MODEL_TRIGGER_COMMANDS` (
 
 CREATE TABLE IF NOT EXISTS `SW_SYS_PROPERTY_TRIGGER` (
   `SysId` bigint NOT NULL AUTO_INCREMENT,
+  `SW_SYS_PROPERTY_TriggersSysId` bigint DEFAULT NULL,
   `SW_PROPERTY_TRIGGER_ARGFILTER` text,
   `SW_PROPERTY_TRIGGER_ARGMODEL` bigint DEFAULT NULL,
   `SW_PROPERTY_TRIGGER_FILTER` text,
@@ -198,6 +203,7 @@ CREATE TABLE IF NOT EXISTS `SW_SYS_PROPERTY_TRIGGER` (
   `SW_MODEL_TRIGGER_INVOKECLASS` varchar(500) DEFAULT NULL,
   `SW_MODEL_TRIGGER_INVOKEMETHOD` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`SysId`),
+  KEY `ix_sw_sys_property_trigger_owner` (`SW_SYS_PROPERTY_TriggersSysId`),
   KEY `ix_sw_sys_property_trigger_name` (`SW_PROPERTY_TRIGGER_NAME`),
   KEY `ix_sw_sys_property_trigger_property` (`SW_PROPERTY_TRIGGER_PROPERTY`),
   KEY `ix_sw_sys_property_trigger_arg_model` (`SW_PROPERTY_TRIGGER_ARGMODEL`),
@@ -207,6 +213,7 @@ CREATE TABLE IF NOT EXISTS `SW_SYS_PROPERTY_TRIGGER` (
 
 CREATE TABLE IF NOT EXISTS `SW_SYS_PROPERTY_TRIGGER_COMMANDS` (
   `SysId` bigint NOT NULL AUTO_INCREMENT,
+  `SW_SYS_PROPERTY_TRIGGER_CommandsSysId` bigint DEFAULT NULL,
   `SW_SYS_COMMAND_TYPE` int DEFAULT NULL,
   `SW_SYS_COMMAND_PROPERTY` bigint DEFAULT NULL,
   `SW_SYS_COMMAND_EXP` text,
@@ -217,11 +224,72 @@ CREATE TABLE IF NOT EXISTS `SW_SYS_PROPERTY_TRIGGER_COMMANDS` (
   `SW_SYS_COMMAND_PROPERTY_EXP` text,
   `SW_SYS_COMMAND_TEMPVALUE` text,
   PRIMARY KEY (`SysId`),
+  KEY `ix_sw_sys_property_trigger_commands_owner` (`SW_SYS_PROPERTY_TRIGGER_CommandsSysId`),
   KEY `ix_sw_sys_property_trigger_commands_type` (`SW_SYS_COMMAND_TYPE`),
   KEY `ix_sw_sys_property_trigger_commands_property` (`SW_SYS_COMMAND_PROPERTY`),
   KEY `ix_sw_sys_property_trigger_commands_arg_model` (`SW_SYS_COMMAND_ARGMODEL`),
   KEY `ix_sw_sys_property_trigger_commands_index` (`SW_SYS_COMMAND_INDEX`)
 );
+
+SET @ddl = (
+  SELECT IF(
+    COUNT(*) = 0,
+    'ALTER TABLE `SW_SYS_MODEL_TRIGGER` ADD COLUMN `SW_SYS_MODEL_TriggersMODEL_ID` bigint DEFAULT NULL AFTER `SysId`, ADD KEY `ix_sw_sys_model_trigger_owner` (`SW_SYS_MODEL_TriggersMODEL_ID`)',
+    'SELECT 1'
+  )
+  FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'SW_SYS_MODEL_TRIGGER'
+    AND COLUMN_NAME = 'SW_SYS_MODEL_TriggersMODEL_ID'
+);
+PREPARE stmt FROM @ddl;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @ddl = (
+  SELECT IF(
+    COUNT(*) = 0,
+    'ALTER TABLE `SW_SYS_MODEL_TRIGGER_COMMANDS` ADD COLUMN `SW_SYS_MODEL_TRIGGER_CommandsSysId` bigint DEFAULT NULL AFTER `SysId`, ADD KEY `ix_sw_sys_model_trigger_commands_owner` (`SW_SYS_MODEL_TRIGGER_CommandsSysId`)',
+    'SELECT 1'
+  )
+  FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'SW_SYS_MODEL_TRIGGER_COMMANDS'
+    AND COLUMN_NAME = 'SW_SYS_MODEL_TRIGGER_CommandsSysId'
+);
+PREPARE stmt FROM @ddl;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @ddl = (
+  SELECT IF(
+    COUNT(*) = 0,
+    'ALTER TABLE `SW_SYS_PROPERTY_TRIGGER` ADD COLUMN `SW_SYS_PROPERTY_TriggersSysId` bigint DEFAULT NULL AFTER `SysId`, ADD KEY `ix_sw_sys_property_trigger_owner` (`SW_SYS_PROPERTY_TriggersSysId`)',
+    'SELECT 1'
+  )
+  FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'SW_SYS_PROPERTY_TRIGGER'
+    AND COLUMN_NAME = 'SW_SYS_PROPERTY_TriggersSysId'
+);
+PREPARE stmt FROM @ddl;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @ddl = (
+  SELECT IF(
+    COUNT(*) = 0,
+    'ALTER TABLE `SW_SYS_PROPERTY_TRIGGER_COMMANDS` ADD COLUMN `SW_SYS_PROPERTY_TRIGGER_CommandsSysId` bigint DEFAULT NULL AFTER `SysId`, ADD KEY `ix_sw_sys_property_trigger_commands_owner` (`SW_SYS_PROPERTY_TRIGGER_CommandsSysId`)',
+    'SELECT 1'
+  )
+  FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'SW_SYS_PROPERTY_TRIGGER_COMMANDS'
+    AND COLUMN_NAME = 'SW_SYS_PROPERTY_TRIGGER_CommandsSysId'
+);
+PREPARE stmt FROM @ddl;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 CREATE TABLE IF NOT EXISTS `SW_SYS_PROPERTY` (
   `SysId` bigint NOT NULL AUTO_INCREMENT,
