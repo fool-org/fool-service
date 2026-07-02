@@ -99,8 +99,20 @@ export interface ListDataItem {
   id?: string;
   rowIndex?: number;
   values?: Record<string, unknown>;
+  items?: ListDataValue[];
   rowFmt?: string;
   operation?: OperationInfo[];
+}
+
+export interface ListDataValue {
+  objId?: string;
+  prpId?: string;
+  fmtValue?: string;
+  prpShowName?: string;
+  prpType?: string;
+  prpModelId?: number;
+  readOnly?: boolean;
+  editType?: string;
 }
 
 export interface ListViewResult {

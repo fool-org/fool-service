@@ -1,9 +1,11 @@
 package org.fool.framework.view.adapter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.fool.framework.common.PropertyType;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.dao.PageNavigatorResult;
 import org.fool.framework.dao.PageResult;
+import org.fool.framework.model.model.Property;
 import org.fool.framework.view.dto.ListDataItem;
 import org.fool.framework.view.dto.ListViewResult;
 import org.fool.framework.view.model.ItemEditType;
@@ -110,6 +112,37 @@ public class ViewDataAdapterTest {
     }
 
     @Test
+    public void listRowsExposeLegacyValueItems() {
+        ViewItem orderId = viewItem("orderId", ItemEditType.ReadOnly);
+        orderId.setItemName("Order ID");
+        Property property = new Property();
+        property.setName("orderId");
+        property.setPropertyType(PropertyType.Long);
+        setProperty(orderId, property);
+
+        View view = new View();
+        view.setListItems(List.of(orderId));
+
+        PageResult<IDynamicData> page = new PageResult<>();
+        page.setItems(List.of(new MapDynamicData("order-1", new LinkedHashMap<>(Map.of("orderId", 1001)))));
+
+        ListDataItem row = new ViewDataAdapter().getListViewResult(view, page).getItems().get(0);
+
+        Map<?, ?> serialized = new ObjectMapper().convertValue(row, Map.class);
+        assertTrue("ListDataItem should expose legacy Items", serialized.containsKey("items"));
+        List<?> legacyItems = (List<?>) serialized.get("items");
+        Map<?, ?> value = (Map<?, ?>) legacyItems.get(0);
+        assertEquals("1001", value.get("objId"));
+        assertEquals("orderId", value.get("prpId"));
+        assertEquals("1001", value.get("fmtValue"));
+        assertEquals("Order ID", value.get("prpShowName"));
+        assertEquals("Long", value.get("prpType"));
+        assertEquals(0, ((Number) value.get("prpModelId")).longValue());
+        assertEquals(true, value.get("readOnly"));
+        assertEquals("ReadOnly", value.get("editType"));
+    }
+
+    @Test
     public void listRowsAndColumnsFollowLegacyShowIndexOrder() {
         ViewItem symbol = viewItem("symbol", ItemEditType.ReadOnly);
         symbol.setItemName("Symbol");
@@ -144,6 +177,14 @@ public class ViewDataAdapterTest {
             ViewItem.class.getMethod("setShowIndex", Integer.class).invoke(item, showIndex);
         } catch (ReflectiveOperationException e) {
             fail("ViewItem should expose legacy showIndex metadata");
+        }
+    }
+
+    private static void setProperty(ViewItem item, Property property) {
+        try {
+            ViewItem.class.getMethod("setProperty", Property.class).invoke(item, property);
+        } catch (ReflectiveOperationException e) {
+            fail("ViewItem should expose legacy property metadata");
         }
     }
 

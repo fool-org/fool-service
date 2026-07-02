@@ -5,7 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.dao.PageNavigatorResult;
 import org.fool.framework.dao.PageResult;
+import org.fool.framework.model.model.Model;
+import org.fool.framework.model.model.Property;
 import org.fool.framework.view.dto.ListDataItem;
+import org.fool.framework.view.dto.ListDataValue;
 import org.fool.framework.view.dto.ListViewResult;
 import org.fool.framework.view.model.ItemEditType;
 import org.fool.framework.view.model.View;
@@ -52,13 +55,17 @@ public class ViewDataAdapter {
                 ListDataItem dataItem = new ListDataItem();
 
                 dataItem.setValues(new LinkedHashMap<>());
+                dataItem.setItems(new LinkedList<>());
                 dataItem.setRowIndex(rowIndex(item.getPageInfo(), itemIndex));
                 for (var viewItem : listItems) {
+                    Object rawValue = p.get(viewItem.getModelProperty());
                     if (viewItem.getEditType() == ItemEditType.Format) {
-                        dataItem.setRowFmt(formatRow(p.get(viewItem.getModelProperty())));
+                        dataItem.setRowFmt(formatRow(rawValue));
                         continue;
                     }
-                    dataItem.getValues().put(viewItem.getModelProperty(), getFormat(viewItem.getFormatRegx(), p.get(viewItem.getModelProperty())));
+                    Object formattedValue = getFormat(viewItem.getFormatRegx(), rawValue);
+                    dataItem.getValues().put(viewItem.getModelProperty(), formattedValue);
+                    dataItem.getItems().add(legacyValueItem(viewItem, rawValue, formattedValue));
                 }
                 dataItem.setId(p.getId());
                 result.getItems().add(dataItem);
@@ -98,6 +105,23 @@ public class ViewDataAdapter {
 
     private String formatRow(Object value) {
         return value == null ? "" : value.toString();
+    }
+
+    private ListDataValue legacyValueItem(ViewItem viewItem, Object rawValue, Object formattedValue) {
+        ListDataValue result = new ListDataValue();
+        Property property = viewItem.getProperty();
+        result.setObjId(formatRow(rawValue));
+        result.setPrpId(property == null || property.getName() == null ? viewItem.getModelProperty() : property.getName());
+        result.setFmtValue(formatRow(formattedValue));
+        result.setPrpShowName(columnName(viewItem));
+        result.setPrpType(property == null || property.getPropertyType() == null
+                ? org.fool.framework.common.PropertyType.String
+                : property.getPropertyType());
+        Model propertyModel = property == null ? null : property.getPropertyModel();
+        result.setPrpModelId(propertyModel == null || propertyModel.getId() == null ? 0L : propertyModel.getId());
+        result.setReadOnly(!viewItem.isCanEdit());
+        result.setEditType(viewItem.getEditType());
+        return result;
     }
 
     private Object getFormat(String formatRegx, Object o) {
