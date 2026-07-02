@@ -39,8 +39,10 @@ public class ViewAdapterTest {
         detailView.setViewName("OrderDetail");
 
         ViewOperation create = operation("Create", false, ViewOperationType.MODAL_DETAIL_VIEW, detailView);
+        create.setLocation(0);
         create.setOperation(operation(300L));
         ViewOperation delete = operation("Delete", true, ViewOperationType.COMMAND, null);
+        delete.setLocation(2);
 
         View view = new View();
         view.setListItems(List.of());
@@ -52,6 +54,7 @@ public class ViewAdapterTest {
         assertEquals("Create", info.getOperations().get(0).getText());
         assertFalse(info.getOperations().get(0).isRequireSelect());
         assertEquals(ViewOperationType.MODAL_DETAIL_VIEW, info.getOperations().get(0).getType());
+        assertEquals(0, info.getOperations().get(0).getLocation());
         assertEquals("OrderDetail", info.getOperations().get(0).getViewName());
         assertEquals(Long.valueOf(200L), info.getOperations().get(0).getViewId());
         assertEquals(Long.valueOf(300L), info.getOperations().get(0).getId());
@@ -59,6 +62,7 @@ public class ViewAdapterTest {
         assertEquals("Delete", info.getOperations().get(1).getText());
         assertTrue(info.getOperations().get(1).isRequireSelect());
         assertEquals(ViewOperationType.COMMAND, info.getOperations().get(1).getType());
+        assertEquals(2, info.getOperations().get(1).getLocation());
         assertEquals(Long.valueOf(0L), info.getOperations().get(1).getId());
     }
 

@@ -80,6 +80,7 @@ public class ViewAdapter {
         result.setText(operation.getName());
         result.setRequireSelect(operation.isRequireSelect());
         result.setType(operation.getType());
+        result.setLocation(operation.getLocation());
         if (operation.getResultView() == null) {
             result.setViewName("");
             result.setViewId(0L);

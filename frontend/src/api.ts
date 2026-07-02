@@ -52,6 +52,7 @@ export interface OperationInfo {
   viewName?: string;
   viewId?: number;
   requireSelect?: boolean;
+  location?: number;
 }
 
 export interface ListViewInfo {

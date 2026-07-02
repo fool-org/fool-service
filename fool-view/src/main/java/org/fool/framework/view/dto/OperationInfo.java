@@ -21,4 +21,6 @@ public class OperationInfo {
     private Long viewId;
     @ApiModelProperty("是否需要选择数据")
     private boolean requireSelect;
+    @ApiModelProperty("操作位置")
+    private int location;
 }
