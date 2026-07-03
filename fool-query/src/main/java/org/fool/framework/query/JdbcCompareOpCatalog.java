@@ -1,6 +1,7 @@
 package org.fool.framework.query;
 
 import org.fool.framework.common.PropertyType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -26,6 +27,7 @@ public class JdbcCompareOpCatalog {
 
     private final Function<PropertyType, List<Map<String, Object>>> rowsByPropertyType;
 
+    @Autowired
     public JdbcCompareOpCatalog(JdbcTemplate jdbcTemplate) {
         this(propertyType -> jdbcTemplate.queryForList(SELECT_SQL, propertyType.ordinal()));
     }

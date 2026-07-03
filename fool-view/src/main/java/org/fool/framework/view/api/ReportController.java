@@ -2,15 +2,20 @@ package org.fool.framework.view.api;
 
 import org.fool.framework.dao.DaoService;
 import org.fool.framework.dao.PageNavigator;
+import org.fool.framework.common.PropertyType;
 import org.fool.framework.dto.CommonResponse;
+import org.fool.framework.model.model.EnumValue;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
+import org.fool.framework.query.JdbcCompareOpCatalog;
+import org.fool.framework.query.JdbcSelectTypeCatalog;
 import org.fool.framework.report.ReportGridRenderer;
 import org.fool.framework.report.ReportGridResult;
 import org.fool.framework.view.dto.ListDataItem;
 import org.fool.framework.view.dto.ListDataValue;
 import org.fool.framework.view.dto.ListViewResult;
 import org.fool.framework.view.dto.MakeReportRequest;
+import org.fool.framework.view.dto.ReportModelResult;
 import org.fool.framework.view.model.View;
 import org.fool.framework.view.service.DataQueryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +41,32 @@ public class ReportController {
     private DataQueryService dataQueryService;
     @Autowired
     private DaoService daoService;
+    @Autowired(required = false)
+    private JdbcCompareOpCatalog compareOpCatalog;
+    @Autowired(required = false)
+    private JdbcSelectTypeCatalog selectTypeCatalog;
 
     private final ReportGridRenderer renderer = new ReportGridRenderer();
+
+    @PostMapping({"/getmkqview", "/mkqview"})
+    @ResponseBody
+    public CommonResponse<ReportModelResult> getReportModel(@RequestBody MakeReportRequest request) {
+        ReportModelResult result = new ReportModelResult();
+        View view = request.getViewId() == null ? null : daoService.getOneDetailByKey(View.class, request.getViewId().toString());
+        if (view == null || !StringUtils.hasText(view.getViewModel())) {
+            return new CommonResponse<>(result);
+        }
+        Model model = daoService.getOneDetailByKey(Model.class, view.getViewModel());
+        if (model == null || CollectionUtils.isEmpty(model.getProperties())) {
+            return new CommonResponse<>(result);
+        }
+        result.setCols(model.getProperties().stream()
+                .filter(property -> !Boolean.TRUE.equals(property.getIsCollection()))
+                .filter(property -> property.getPropertyType() != null)
+                .map(this::reportModelCol)
+                .toList());
+        return new CommonResponse<>(result);
+    }
 
     @PostMapping("/makereport")
     @ResponseBody
@@ -57,6 +86,39 @@ public class ReportController {
                 queryResult.getTotalPage() == null ? 0 : queryResult.getTotalPage(),
                 columns(request, queryResult),
                 rows(queryResult)));
+    }
+
+    private ReportModelResult.QueryCol reportModelCol(Property property) {
+        ReportModelResult.QueryCol col = new ReportModelResult.QueryCol();
+        PropertyType type = property.getPropertyType();
+        col.setId(property.getId() == null ? property.getName() : property.getId().toString());
+        col.setName(StringUtils.hasText(property.getRemark()) ? property.getRemark() : property.getName());
+        col.setPrpType(type.code());
+        col.setModelId(property.getPropertyModel() == null ? null : property.getPropertyModel().getId());
+        col.setStates(states(property.getPropertyModel()));
+        col.setCompareTypes(compareOpCatalog == null ? List.of() : compareOpCatalog.listFor(type).stream()
+                .map(op -> new ReportModelResult.Option(op.getId() + "", op.getShowName()))
+                .toList());
+        col.setQueryTypes(selectTypeCatalog == null ? List.of() : selectTypeCatalog.listFor(type).stream()
+                .map(typeItem -> new ReportModelResult.Option(typeItem.getId() + "", typeItem.getShow()))
+                .toList());
+        return col;
+    }
+
+    private List<ReportModelResult.StateValue> states(Model model) {
+        if (model == null || CollectionUtils.isEmpty(model.getEnumValues())) {
+            return List.of();
+        }
+        return model.getEnumValues().stream()
+                .map(this::stateValue)
+                .toList();
+    }
+
+    private ReportModelResult.StateValue stateValue(EnumValue enumValue) {
+        ReportModelResult.StateValue state = new ReportModelResult.StateValue();
+        state.setShowName(enumValue.getName());
+        state.setDbName(enumValue.getValue());
+        return state;
     }
 
     private String queryFilter(MakeReportRequest request) {

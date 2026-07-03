@@ -2,15 +2,22 @@ package org.fool.framework.view.api;
 
 import org.fool.framework.dao.PageNavigator;
 import org.fool.framework.dao.DaoService;
+import org.fool.framework.common.PropertyType;
 import org.fool.framework.dto.CommonResponse;
+import org.fool.framework.model.model.EnumValue;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
+import org.fool.framework.query.JdbcCompareOpCatalog;
+import org.fool.framework.query.JdbcSelectTypeCatalog;
+import org.fool.framework.query.LegacyCompareOp;
+import org.fool.framework.query.SelectType;
 import org.fool.framework.report.ReportCell;
 import org.fool.framework.report.ReportGridResult;
 import org.fool.framework.view.dto.ListDataItem;
 import org.fool.framework.view.dto.ListDataValue;
 import org.fool.framework.view.dto.ListViewResult;
 import org.fool.framework.view.dto.MakeReportRequest;
+import org.fool.framework.view.dto.ReportModelResult;
 import org.fool.framework.view.model.View;
 import org.fool.framework.view.service.DataQueryService;
 import org.junit.Test;
@@ -28,6 +35,49 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ReportControllerTest {
+    @Test
+    public void getReportModelMapsLegacyCandidateColumns() throws Exception {
+        DaoService daoService = mock(DaoService.class);
+        JdbcCompareOpCatalog compareOpCatalog = mock(JdbcCompareOpCatalog.class);
+        JdbcSelectTypeCatalog selectTypeCatalog = mock(JdbcSelectTypeCatalog.class);
+        Model orderState = new Model();
+        orderState.setId(102L);
+        orderState.setEnumValues(List.of(enumValue("Open", "0"), enumValue("Filled", "1")));
+        Property symbol = property(1002L, "symbol", "order_symbol", PropertyType.String);
+        symbol.setRemark("Symbol");
+        Property state = property(1003L, "state", "order_state", PropertyType.Enum);
+        state.setRemark("State");
+        state.setPropertyModel(orderState);
+        when(daoService.getOneDetailByKey(eq(View.class), eq("100"))).thenReturn(view("100"));
+        when(daoService.getOneDetailByKey(eq(Model.class), eq("100"))).thenReturn(model(symbol, state));
+        when(compareOpCatalog.listFor(PropertyType.String)).thenReturn(List.of(compareOp(1, "等于"), compareOp(7, "包含")));
+        when(selectTypeCatalog.listFor(PropertyType.String)).thenReturn(List.of(selectType(1, "原值")));
+        when(compareOpCatalog.listFor(PropertyType.Enum)).thenReturn(List.of(compareOp(1, "等于")));
+        when(selectTypeCatalog.listFor(PropertyType.Enum)).thenReturn(List.of(selectType(1, "原值")));
+
+        ReportController controller = new ReportController();
+        setField(controller, "daoService", daoService);
+        setField(controller, "compareOpCatalog", compareOpCatalog);
+        setField(controller, "selectTypeCatalog", selectTypeCatalog);
+        MakeReportRequest request = new MakeReportRequest();
+        request.setViewId(100L);
+
+        CommonResponse<ReportModelResult> response = controller.getReportModel(request);
+
+        assertEquals(0, response.getCode());
+        ReportModelResult.QueryCol symbolCol = response.getData().getCols().get(0);
+        assertEquals("1002", symbolCol.getId());
+        assertEquals("Symbol", symbolCol.getName());
+        assertEquals(Integer.valueOf(PropertyType.String.code()), symbolCol.getPrpType());
+        assertEquals("1", symbolCol.getCompareTypes().get(0).getId());
+        assertEquals("包含", symbolCol.getCompareTypes().get(1).getName());
+        assertEquals("原值", symbolCol.getQueryTypes().get(0).getName());
+        ReportModelResult.QueryCol stateCol = response.getData().getCols().get(1);
+        assertEquals(Long.valueOf(102L), stateCol.getModelId());
+        assertEquals("Open", stateCol.getStates().get(0).getShowName());
+        assertEquals("0", stateCol.getStates().get(0).getDbName());
+    }
+
     @Test
     public void makeReportMapsLegacyQueryDataIntoReportGridCells() throws Exception {
         DataQueryService dataQueryService = mock(DataQueryService.class);
@@ -282,6 +332,33 @@ public class ReportControllerTest {
         return property;
     }
 
+    private static Property property(Long id, String name, String column, PropertyType propertyType) {
+        Property property = property(id, name, column);
+        property.setPropertyType(propertyType);
+        return property;
+    }
+
+    private static EnumValue enumValue(String name, String value) {
+        EnumValue enumValue = new EnumValue();
+        enumValue.setName(name);
+        enumValue.setValue(value);
+        return enumValue;
+    }
+
+    private static LegacyCompareOp compareOp(long id, String name) {
+        LegacyCompareOp op = new LegacyCompareOp();
+        op.setId(id);
+        op.setShowName(name);
+        return op;
+    }
+
+    private static SelectType selectType(long id, String name) {
+        SelectType type = new SelectType();
+        type.setId(id);
+        type.setShow(name);
+        return type;
+    }
+
     private static void assertCell(ReportCell cell, int col, int row, String value) {
         assertEquals(col, cell.getCol());
         assertEquals(row, cell.getRow());
@@ -295,4 +372,5 @@ public class ReportControllerTest {
         field.setAccessible(true);
         field.set(target, value);
     }
+
 }
