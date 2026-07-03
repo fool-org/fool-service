@@ -620,6 +620,19 @@ public class EventMigrationTest {
     }
 
     @Test
+    public void driverManagerEventJdbcTemplateFactoryParsesLegacySqlConStrings() {
+        DriverManagerEventJdbcTemplateFactory.ConnectionSettings settings =
+                DriverManagerEventJdbcTemplateFactory.parse(
+                        "Data Source=legacy-db;Initial Catalog=LegacyApp;"
+                                + "Integrated Security=False;User ID=app_user;Password=secret");
+
+        assertEquals("jdbc:sqlserver://legacy-db;databaseName=LegacyApp", settings.url());
+        assertEquals("app_user", settings.username());
+        assertEquals("secret", settings.password());
+        assertNull(settings.driverClassName());
+    }
+
+    @Test
     public void eventRuntimeLoadsOnlyRunningDefinitionsFromRepository() {
         assertNotNull(JdbcEventDefinitionRepository.class.getDeclaredAnnotation(org.springframework.stereotype.Repository.class));
         assertTrue(JdbcEventDefinitionRepository.SELECT_RUNNING_DEFINITIONS_SQL.contains("FROM `SW_EVT_DEF`"));

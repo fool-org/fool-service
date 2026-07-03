@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `SW_APPLICATION_SW_STOREDB` (
 );
 
 INSERT INTO `SW_STOREDB` (`SW_STORE_STOREID`, `SW_STORE_NAME`, `SW_STORE_CON`, `SW_STORE_Note`)
-VALUES ('car_wash', 'car_wash', 'Data Source=mysql:3306;Initial Catalog=car_wash;User ID=root;Password=Pa88word', 'Docker MySQL smoke database')
+VALUES ('car_wash', 'car_wash', 'Url=jdbc:mysql://mysql:3306/car_wash?serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&allowMultiQueries=true&autoReconnect=true;User ID=root;Password=Pa88word', 'Docker MySQL smoke database')
 ON DUPLICATE KEY UPDATE
   `SW_STORE_NAME` = VALUES(`SW_STORE_NAME`),
   `SW_STORE_CON` = VALUES(`SW_STORE_CON`),
@@ -52,7 +52,7 @@ INSERT INTO `SW_APPLICATION` (
 VALUES (
   'fool-service', 'fool-service', 0, NULL, NULL, NOW(), 'admin', NULL,
   'Fool Service', 'Docker smoke application', 'admin', NULL, NOW(), NULL,
-  '1.0.0', 'Data Source=mysql:3306;Initial Catalog=car_wash;User ID=root;Password=Pa88word', 100
+  '1.0.0', 'Url=jdbc:mysql://mysql:3306/car_wash?serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&allowMultiQueries=true&autoReconnect=true;User ID=root;Password=Pa88word', 100
 )
 ON DUPLICATE KEY UPDATE
   `SW_APP_KEY` = VALUES(`SW_APP_KEY`),
