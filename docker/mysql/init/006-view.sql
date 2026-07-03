@@ -337,6 +337,46 @@ SET `auto_sys_id` = 0,
     `id_property` = 1011
 WHERE `name` = 'OrderItem';
 
+INSERT INTO `fool_sys_model` (`id`, `name`, `text`, `remark`, `model_type`, `class_name`, `table_name`, `auto_sys_id`, `id_property`)
+SELECT 102, 'OrderState', 'Order State', 'Market order state enum', 2, 'org.fool.framework.market.OrderState', NULL, 0, NULL
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_model` WHERE `name` = 'OrderState');
+
+UPDATE `fool_sys_model`
+SET `model_type` = 2,
+    `class_name` = 'org.fool.framework.market.OrderState',
+    `table_name` = NULL,
+    `auto_sys_id` = 0,
+    `id_property` = NULL
+WHERE `name` = 'OrderState';
+
+INSERT INTO `fool_sys_model_enum` (`name`, `value`, `remark`, `owner`)
+SELECT 'Open', '0', 'Open order state', 102
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_model_enum` WHERE `owner` = 102 AND `value` = '0');
+
+INSERT INTO `fool_sys_model_enum` (`name`, `value`, `remark`, `owner`)
+SELECT 'Filled', '1', 'Filled order state', 102
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_model_enum` WHERE `owner` = 102 AND `value` = '1');
+
+UPDATE `fool_sys_model_enum`
+SET `value` = '0'
+WHERE `owner` = 102 AND `value` = 'OPEN';
+
+UPDATE `fool_sys_model_enum`
+SET `value` = '1'
+WHERE `owner` = 102 AND `value` = 'FILLED';
+
+INSERT INTO `SW_SYS_MODEL` (`MODEL_ID`, `MODEL_NAME`, `MODEL_CLASS`, `MODEL_CONTYPE`, `MODEL_DATABASETABLE`, `MODEL_MODULE`, `MODEL_AUTOID`, `MODEL_CON`, `MODEL_DEFAULTOWNER`)
+SELECT 102, 'OrderState', 'org.fool.framework.market.OrderState', NULL, NULL, NULL, 0, NULL, NULL
+WHERE NOT EXISTS (SELECT 1 FROM `SW_SYS_MODEL` WHERE `MODEL_ID` = 102);
+
+INSERT INTO `SW_SYS_EMUNVALUE` (`EMUN_STR`, `EMUN_VALUE`, `SW_SYS_MODEL_EnumValuesMODEL_ID`)
+SELECT 'Open', 0, 102
+WHERE NOT EXISTS (SELECT 1 FROM `SW_SYS_EMUNVALUE` WHERE `SW_SYS_MODEL_EnumValuesMODEL_ID` = 102 AND `EMUN_VALUE` = 0);
+
+INSERT INTO `SW_SYS_EMUNVALUE` (`EMUN_STR`, `EMUN_VALUE`, `SW_SYS_MODEL_EnumValuesMODEL_ID`)
+SELECT 'Filled', 1, 102
+WHERE NOT EXISTS (SELECT 1 FROM `SW_SYS_EMUNVALUE` WHERE `SW_SYS_MODEL_EnumValuesMODEL_ID` = 102 AND `EMUN_VALUE` = 1);
+
 INSERT INTO `fool_sys_model_property` (`id`, `name`, `remark`, `property_model`, `is_collection`, `owner`, `filter`, `format`, `column`, `property_type`, `allow_db_null`, `is_check`, `ix_group`, `multi_map`)
 SELECT 1001, 'orderId', 'Order ID', NULL, 0, 100, NULL, NULL, 'order_id', 3, 0, 1, '', 0
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_model_property` WHERE `owner` = 100 AND `name` = 'orderId');
@@ -362,11 +402,12 @@ SET `property_type` = 11,
 WHERE `owner` = 100 AND `name` = 'symbol';
 
 INSERT INTO `fool_sys_model_property` (`id`, `name`, `remark`, `property_model`, `is_collection`, `owner`, `filter`, `format`, `column`, `property_type`, `allow_db_null`, `is_check`, `ix_group`, `multi_map`)
-SELECT 1003, 'state', 'State', NULL, 0, 100, NULL, NULL, 'order_state', 11, 1, 0, NULL, 0
+SELECT 1003, 'state', 'State', 102, 0, 100, NULL, NULL, 'order_state', 15, 1, 0, NULL, 0
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_model_property` WHERE `owner` = 100 AND `name` = 'state');
 
 UPDATE `fool_sys_model_property`
-SET `property_type` = 11,
+SET `property_model` = 102,
+    `property_type` = 15,
     `allow_db_null` = 1,
     `is_check` = 0,
     `ix_group` = NULL,
@@ -456,14 +497,22 @@ WHERE `view_id` = 100 AND `model_property` = 'state';
 INSERT INTO `market_order` (
   `order_id`, `order_symbol`, `order_amount`, `order_price`, `order_type`, `order_state`, `order_user_id`, `order_auth_id`, `status`
 )
-SELECT 1001, 'BTC-USDT', 0.2500000000, 62500.0000000000, 'LIMIT', 'OPEN', 1, 1, 0
+SELECT 1001, 'BTC-USDT', 0.2500000000, 62500.0000000000, 'LIMIT', '0', 1, 1, 0
 WHERE NOT EXISTS (SELECT 1 FROM `market_order` WHERE `order_id` = 1001);
 
 INSERT INTO `market_order` (
   `order_id`, `order_symbol`, `order_amount`, `order_price`, `order_type`, `order_state`, `order_user_id`, `order_auth_id`, `status`
 )
-SELECT 1002, 'ETH-USDT', 1.5000000000, 3450.0000000000, 'LIMIT', 'FILLED', 1, 1, 1
+SELECT 1002, 'ETH-USDT', 1.5000000000, 3450.0000000000, 'LIMIT', '1', 1, 1, 1
 WHERE NOT EXISTS (SELECT 1 FROM `market_order` WHERE `order_id` = 1002);
+
+UPDATE `market_order`
+SET `order_state` = '0'
+WHERE `order_id` = 1001;
+
+UPDATE `market_order`
+SET `order_state` = '1'
+WHERE `order_id` = 1002;
 
 INSERT INTO `market_order_item` (`item_id`, `order_id`, `item_name`)
 VALUES (2001, 1001, 'Legacy item')

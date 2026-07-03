@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import appSource from "./App.vue?raw";
 import {
   buildGetEnumRequest,
   buildInputQueryRequest,
@@ -11,6 +12,14 @@ import {
   buildTokenRequest
 } from "./payload";
 
+describe("App defaults", () => {
+  it("loads the seeded order-state enum model by default", () => {
+    expect(appSource).toContain('const enumModelId = ref("102")');
+    expect(appSource).toContain('const legacyQueryFilter = ref(\'order_state="0"\')');
+    expect(appSource).toContain('{"key":"state","value":"0"}');
+  });
+});
+
 describe("buildQueryRequest", () => {
   it("matches the Spring QueryDataRequest DTO shape", () => {
     const request = buildQueryRequest({
@@ -18,7 +27,7 @@ describe("buildQueryRequest", () => {
       viewName: "OrderList",
       pageIndex: 2,
       pageSize: 25,
-      filterJson: "{\"status\":{\"property\":\"status\",\"value\":\"OPEN\"}}"
+      filterJson: "{\"status\":{\"property\":\"status\",\"value\":\"0\"}}"
     });
 
     expect(request).toEqual({
@@ -31,7 +40,7 @@ describe("buildQueryRequest", () => {
       filter: {
         status: {
           property: "status",
-          value: "OPEN"
+          value: "0"
         }
       }
     });
@@ -43,7 +52,7 @@ describe("buildQueryRequest", () => {
       viewName: "OrderList",
       pageIndex: 1,
       pageSize: 20,
-      filterJson: "{\"state\":{\"property\":\"state\",\"value\":\"OPEN\"}}",
+      filterJson: "{\"state\":{\"property\":\"state\",\"value\":\"0\"}}",
       visibleFilters: [
         {
           property: "symbol",
@@ -59,7 +68,7 @@ describe("buildQueryRequest", () => {
     expect(request.filter).toEqual({
       state: {
         property: "state",
-        value: "OPEN"
+        value: "0"
       },
       symbol: {
         property: "symbol",
@@ -126,7 +135,7 @@ describe("buildSaveObjRequest", () => {
       token: "token-1",
       id: " 1001 ",
       viewID: " 100 ",
-      propertyiesJson: "[{\"key\":\"symbol\",\"value\":\"BTC-USDT\"},{\"key\":\"state\",\"value\":\"OPEN\"}]",
+      propertyiesJson: "[{\"key\":\"symbol\",\"value\":\"BTC-USDT\"},{\"key\":\"state\",\"value\":\"0\"}]",
       itempropertiesJson:
         "[{\"key\":\"items\",\"items\":[{\"itemId\":\"2001\",\"isExist\":true,\"propertyies\":[{\"key\":\"itemName\",\"value\":\"Updated item\"}]}]}]"
     });
@@ -138,7 +147,7 @@ describe("buildSaveObjRequest", () => {
         viewID: "100",
         propertyies: [
           { key: "symbol", value: "BTC-USDT" },
-          { key: "state", value: "OPEN" }
+          { key: "state", value: "0" }
         ],
         itemproperties: [
           {
@@ -224,7 +233,7 @@ describe("buildLegacyQueryDataRequest", () => {
       viewId: 100,
       pageSize: 10,
       pageIndex: 2,
-      queryFilter: " order_state=\"OPEN\" ",
+      queryFilter: " order_state=\"0\" ",
       orderByItem: 1001,
       orderByType: 1
     });
@@ -234,7 +243,7 @@ describe("buildLegacyQueryDataRequest", () => {
       viewId: 100,
       pageSize: 10,
       pageIndex: 2,
-      queryFilter: "order_state=\"OPEN\"",
+      queryFilter: "order_state=\"0\"",
       orderByItem: 1001,
       orderByType: 1
     });
