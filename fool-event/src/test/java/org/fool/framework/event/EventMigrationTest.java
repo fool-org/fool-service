@@ -107,6 +107,16 @@ public class EventMigrationTest {
     }
 
     @Test
+    public void eventSqlHelperNormalizesLegacyBracketFilterForMysqlTables() {
+        EventDefinition definition = new EventDefinition();
+        definition.setFilter("[order_state] = 0 AND [order_price] > 10");
+
+        assertEquals(
+                "SELECT * FROM market_order WHERE `order_state` = 0 AND `order_price` > 10",
+                EventSqlHelper.buildQuerySql("market_order", definition));
+    }
+
+    @Test
     public void eventSqlHelperRendersLegacyNullFilterAsEmptyText() {
         EventDefinition definition = new EventDefinition();
 

@@ -117,6 +117,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   workflow, including `DB_App`, `WorkDataBase`, `DB_AppDB`, and
   `DS_DataSourceSet`; the seeded `WorkDataBase` password payload decrypts with
   the migrated legacy DES cipher.
+- 2026-07-03: made event object-query filters tolerate legacy SQL Server
+  bracket identifiers when the migrated event target table is MySQL-style,
+  converting filters such as `[order_state] = 0` to backtick identifiers while
+  preserving bracketed legacy table queries.
 
 ## Server Source Mapping
 
