@@ -32,6 +32,7 @@ import {
   type UserDTO,
   postApi
 } from "./api";
+import MetadataFieldEditor from "./MetadataFieldEditor.vue";
 import {
   buildAddedItemProperty,
   buildDeletedItemProperty,
@@ -1077,12 +1078,12 @@ function syncDetailDrafts() {
           <div v-if="viewCanEdit" class="order-edit-grid">
             <label v-for="field in detailRows" :key="fieldKey(field)">
               {{ fieldTitle(field) }}
-              <select v-if="isEnumField(field)" v-model="detailDrafts[fieldKey(field)]">
-                <option v-for="option in enumFieldOptions(field)" :key="option.value" :value="option.value">
-                  {{ option.label }}
-                </option>
-              </select>
-              <input v-else v-model="detailDrafts[fieldKey(field)]" />
+              <MetadataFieldEditor
+                v-model="detailDrafts[fieldKey(field)]"
+                :field="field"
+                :options="enumFieldOptions(field)"
+                :readonly-value="field.fmtValue"
+              />
             </label>
             <button class="primary" type="button" :disabled="Boolean(pendingAction)" @click="saveSelectedObject">
               {{ isCreatingObject ? "Create Row" : "Save Row" }}
@@ -1107,12 +1108,11 @@ function syncDetailDrafts() {
                 <div class="item-add-row">
                   <label v-for="field in groupColumns(group)" :key="fieldKey(field)">
                     {{ fieldTitle(field) }}
-                    <select v-if="isEnumField(field)" v-model="newChildDrafts[groupKey(group)][fieldKey(field)]">
-                      <option v-for="option in enumFieldOptions(field)" :key="option.value" :value="option.value">
-                        {{ option.label }}
-                      </option>
-                    </select>
-                    <input v-else v-model="newChildDrafts[groupKey(group)][fieldKey(field)]" />
+                    <MetadataFieldEditor
+                      v-model="newChildDrafts[groupKey(group)][fieldKey(field)]"
+                      :field="field"
+                      :options="enumFieldOptions(field)"
+                    />
                   </label>
                   <button type="button" :disabled="Boolean(pendingAction)" @click="addDetailItem(group)">Add</button>
                 </div>
@@ -1155,15 +1155,11 @@ function syncDetailDrafts() {
                   <span>{{ item.dataId }}</span>
                   <label v-for="field in groupColumns(group)" :key="fieldKey(field)">
                     {{ fieldTitle(field) }}
-                    <select v-if="isEnumField(field)" v-model="childDrafts[itemKey(group, item)][fieldKey(field)]">
-                      <option v-for="option in enumFieldOptions(field)" :key="option.value" :value="option.value">
-                        {{ option.label }}
-                      </option>
-                    </select>
-                    <input
-                      v-else
+                    <MetadataFieldEditor
                       v-model="childDrafts[itemKey(group, item)][fieldKey(field)]"
-                      :placeholder="itemValue(item, field)"
+                      :field="field"
+                      :options="enumFieldOptions(field)"
+                      :readonly-value="itemValue(item, field)"
                     />
                   </label>
                   <button type="button" :disabled="Boolean(pendingAction)" @click="updateDetailItem(group, item)">

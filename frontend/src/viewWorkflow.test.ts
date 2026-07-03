@@ -10,6 +10,7 @@ import {
   columnKey,
   fieldModelId,
   isEnumField,
+  isReadonlyField,
   itemKey,
   rowObjectId,
   rowValue
@@ -37,6 +38,7 @@ describe("view workflow helpers", () => {
 
   it("builds generic save propertyies from detail fields", () => {
     const fields = [
+      { prpId: "orderId", objId: "1001", fmtValue: "1001", readOnly: true },
       { prpId: "symbol", objId: "BTC-USDT", fmtValue: "BTC-USDT" },
       { prpId: "state", objId: "0", fmtValue: "Open" }
     ];
@@ -55,18 +57,24 @@ describe("view workflow helpers", () => {
     expect(isEnumField({ prpId: "name", prpType: "String", prpModelId: 0 })).toBe(false);
   });
 
+  it("identifies readonly fields by metadata", () => {
+    expect(isReadonlyField({ prpId: "id", readOnly: true })).toBe(true);
+    expect(isReadonlyField({ prpId: "id", editType: "ReadOnly" })).toBe(true);
+    expect(isReadonlyField({ prpId: "symbol", readOnly: false, editType: "TextBox" })).toBe(false);
+  });
+
   it("keeps legacy child collection add/update/delete payload names", () => {
     const group = {
       prpId: "items",
       properties: [
-        { prpId: "itemId", fmtValue: "" },
+        { prpId: "itemId", fmtValue: "", editType: "ReadOnly" },
         { prpId: "itemName", fmtValue: "" }
       ]
     };
     const item = {
       dataId: "2001",
       values: [
-        { prpId: "itemId", objId: "2001", fmtValue: "2001" },
+        { prpId: "itemId", objId: "2001", fmtValue: "2001", editType: "ReadOnly" },
         { prpId: "itemName", objId: "Old item", fmtValue: "Old item" }
       ]
     };
@@ -78,10 +86,7 @@ describe("view workflow helpers", () => {
         {
           itemId: "2002",
           isExist: true,
-          propertyies: [
-            { key: "itemId", value: "2002" },
-            { key: "itemName", value: "New item" }
-          ]
+          propertyies: [{ key: "itemName", value: "New item" }]
         }
       ]
     });
@@ -91,10 +96,7 @@ describe("view workflow helpers", () => {
         {
           itemId: "2001",
           isExist: true,
-          propertyies: [
-            { key: "itemId", value: "2001" },
-            { key: "itemName", value: "Updated item" }
-          ]
+          propertyies: [{ key: "itemName", value: "Updated item" }]
         }
       ]
     });

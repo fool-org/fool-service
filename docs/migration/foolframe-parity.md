@@ -113,6 +113,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   render as `<select>` controls while saving the enum DB value through the
   existing `saveobj` / `savenewobj` payloads. Readonly, lookup, and formatted
   field-specific widgets remain future work.
+- 2026-07-04: aligned Vue detail editing with legacy readonly handling from
+  `detailview.js` / `savetext.js`. Detail and child collection fields marked
+  with `readOnly=true` or `editType=ReadOnly` render as disabled controls and
+  are skipped from `saveobj` / `savenewobj` `Propertyies`, matching the legacy
+  `data-readonly` save filter. Lookup and formatted field-specific widgets
+  remain future work.
 - 2026-07-03: added the first Vue detail child-item write workflow for
   `OrderList`. The default detail panel can now add an order item through the
   legacy `saveobj.Itemproperties.AddedItems` payload, matching FoolFrame's
@@ -607,6 +613,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `saveobj.Itemproperties.AddedItems`
 - Metadata-driven Vue enum editors that call legacy `getenums` for detail and
   child collection fields with enum model metadata
+- Metadata-driven Vue readonly editors that display locked detail/child fields
+  and omit them from legacy save payloads
 - A Vue backend smoke panel that calls `/test` and renders the Docker seed rows
 - A migration-map strip showing current server module mapping
 - Vite and Nginx proxies for `/api/*` and `/test` to the backend service

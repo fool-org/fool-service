@@ -42,6 +42,10 @@ export function isEnumField(field: ListDataValue) {
   return String(field.prpType || "").toLowerCase() === "enum" && fieldModelId(field) > 0;
 }
 
+export function isReadonlyField(field: ListDataValue) {
+  return field.readOnly === true || String(field.editType || "").toLowerCase() === "readonly";
+}
+
 export function fieldDraftValue(field: ListDataValue) {
   const value = field.objId === undefined || field.objId === null || field.objId === "" ? field.fmtValue : field.objId;
   return displayValue(value);
@@ -59,6 +63,7 @@ export function buildFieldDrafts(fields: ListDataValue[]) {
 
 export function buildSavePropertyies(fields: ListDataValue[], drafts: Record<string, string>): SaveKeypair[] {
   return fields
+    .filter((field) => !isReadonlyField(field))
     .map((field) => fieldKey(field))
     .filter(Boolean)
     .map((key) => ({ key, value: drafts[key] ?? "" }));
@@ -89,6 +94,7 @@ export function itemValue(item: QueryDataDetailDataItem, field: ListDataValue) {
 
 export function buildItemPropertyies(fields: ListDataValue[], drafts: Record<string, string>): SaveKeypair[] {
   return fields
+    .filter((field) => !isReadonlyField(field))
     .map((field) => fieldKey(field))
     .filter(Boolean)
     .map((key) => ({ key, value: drafts[key] ?? "" }));
