@@ -119,6 +119,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   are skipped from `saveobj` / `savenewobj` `Propertyies`, matching the legacy
   `data-readonly` save filter. Lookup and formatted field-specific widgets
   remain future work.
+- 2026-07-04: migrated legacy list row formatting to the Vue View workflow.
+  `EditType.Format` values are already exposed by the backend as `rowFmt`;
+  Vue now applies `rowFmt` as a row class, matching the old
+  `querylistdata.js` behavior where format values were appended to `<tr
+  class>`. Lookup field-specific widgets remain future work.
 - 2026-07-03: added the first Vue detail child-item write workflow for
   `OrderList`. The default detail panel can now add an order item through the
   legacy `saveobj.Itemproperties.AddedItems` payload, matching FoolFrame's
@@ -615,6 +620,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   child collection fields with enum model metadata
 - Metadata-driven Vue readonly editors that display locked detail/child fields
   and omit them from legacy save payloads
+- Legacy `EditType.Format` row classes applied from `ListDataItem.rowFmt`
 - A Vue backend smoke panel that calls `/test` and renders the Docker seed rows
 - A migration-map strip showing current server module mapping
 - Vite and Nginx proxies for `/api/*` and `/test` to the backend service

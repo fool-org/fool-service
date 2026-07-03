@@ -51,6 +51,7 @@ import {
   isEnumField,
   itemKey,
   itemValue,
+  rowFormatClass,
   rowObjectId,
   rowValue
 } from "./viewWorkflow";
@@ -1054,7 +1055,7 @@ function syncDetailDrafts() {
                 <tr
                   v-for="row in resultRows"
                   :key="rowObjectId(row, resultColumns)"
-                  :class="{ selected: rowObjectId(row, resultColumns) === selectedObjectId }"
+                  :class="[{ selected: rowObjectId(row, resultColumns) === selectedObjectId }, rowFormatClass(row)]"
                 >
                   <td v-for="column in resultColumns" :key="columnKey(column)">
                     {{ rowValue(row, column) }}

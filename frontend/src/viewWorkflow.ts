@@ -26,6 +26,10 @@ export function rowValue(row: ListDataItem, column: TableColumnInfo) {
   return row.items?.find((item) => item.prpId === key)?.fmtValue || displayValue(row.values?.[key]);
 }
 
+export function rowFormatClass(row: ListDataItem) {
+  return displayValue(row.rowFmt).trim();
+}
+
 export function fieldKey(field: ListDataValue) {
   return field.prpId || field.prpShowName || "";
 }

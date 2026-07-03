@@ -12,6 +12,7 @@ import {
   isEnumField,
   isReadonlyField,
   itemKey,
+  rowFormatClass,
   rowObjectId,
   rowValue
 } from "./viewWorkflow";
@@ -34,6 +35,7 @@ describe("view workflow helpers", () => {
     expect(columnKey(columns[0])).toBe("orderId");
     expect(rowObjectId(row, columns)).toBe("1001");
     expect(rowValue(row, columns[1])).toBe("Open");
+    expect(rowFormatClass({ ...row, rowFmt: "warning-row " })).toBe("warning-row");
   });
 
   it("builds generic save propertyies from detail fields", () => {
