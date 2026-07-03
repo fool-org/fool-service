@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: `querydatadetail` now accepts legacy Pascal `ViewId` and
+  `ObjId` request fields in addition to the Vue camel-case fields. This keeps
+  the generic detail-data route aligned with FoolFrame Web payloads and
+  preserves the View-first path: render/load by View id, then fetch detail data
+  by that same View context. `scripts/runtime_doctor.py` now covers
+  `querydatadetail(ViewId, ObjId)` through the frontend proxy.
 - 2026-07-04: `ModelDataService` now hydrates legacy
   `SW_SYS_PROPERTY_TRIGGER` metadata onto model properties and executes
   property `SET` trigger `SET_VALUE` commands during dynamic create/save

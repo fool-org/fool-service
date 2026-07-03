@@ -94,6 +94,13 @@ def common_response_list(payload: dict[str, Any], key: str) -> bool:
     return isinstance(data.get(key), list) and bool(data[key])
 
 
+def detail_response_ok(payload: dict[str, Any]) -> bool:
+    if not common_response_ok(payload):
+        return False
+    detail = payload["data"].get("data")
+    return isinstance(detail, dict) and bool(detail.get("simpleData"))
+
+
 def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[CheckResult]:
     checks = (
         (
@@ -118,6 +125,15 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
                 timeout,
             )),
             "POST /api/v1/data/querydata ViewId=100",
+        ),
+        (
+            "data:querydatadetail",
+            lambda: detail_response_ok(post_json(
+                f"{frontend_url}/api/v1/data/querydatadetail",
+                {"ViewId": 100, "ObjId": "1001"},
+                timeout,
+            )),
+            "POST /api/v1/data/querydatadetail ViewId=100 ObjId=1001",
         ),
         (
             "data:inputquery",

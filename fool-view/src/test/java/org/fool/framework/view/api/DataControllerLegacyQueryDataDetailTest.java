@@ -37,9 +37,9 @@ public class DataControllerLegacyQueryDataDetailTest {
     }
 
     @Test
-    public void queryDataDetailAcceptsLegacyIdExpressionAlias() throws Exception {
+    public void queryDataDetailAcceptsLegacyPascalAliases() throws Exception {
         LegacyQueryDataDetailRequest request = new ObjectMapper().readValue(
-                "{\"viewId\":100,\"objId\":\"1001\",\"IdExp\":\"#.id\"}",
+                "{\"ViewId\":100,\"ObjId\":\"1001\",\"IdExp\":\"#.id\"}",
                 LegacyQueryDataDetailRequest.class);
 
         assertEquals(Long.valueOf(100L), request.getViewId());
