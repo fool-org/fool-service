@@ -455,6 +455,7 @@ async function loadView() {
     viewResponse.value = response;
     applyLoadedView(response.data);
   }
+  return response;
 }
 
 async function loadLegacyListView() {
@@ -468,6 +469,7 @@ async function loadLegacyListView() {
     viewResponse.value = response;
     applyLoadedView(response.data);
   }
+  return response;
 }
 
 async function loadReadItemView() {
@@ -511,6 +513,25 @@ async function queryLegacyData() {
   });
 
   const response = await runAction("legacy-query", () => postApi<ListViewResult>("/api/v1/data/querydata", request));
+  if (response) {
+    dataResponse.value = response;
+  }
+}
+
+async function queryCurrentViewData() {
+  const viewId = Number(currentViewId.value);
+  legacyQueryViewId.value = viewId;
+  legacyQueryPageIndex.value = Number(pageIndex.value);
+  legacyQueryPageSize.value = Number(pageSize.value);
+  const request = buildLegacyQueryDataRequest({
+    token: token.value,
+    viewId,
+    pageIndex: Number(pageIndex.value),
+    pageSize: Number(pageSize.value),
+    keyword: keyword.value
+  });
+
+  const response = await runAction("workflow-query", () => postApi<ListViewResult>("/api/v1/data/querydata", request));
   if (response) {
     dataResponse.value = response;
   }
@@ -717,6 +738,9 @@ function clearQuickFilter() {
 }
 
 function applyLoadedView(view?: ListViewInfo) {
+  if (view?.viewName) {
+    viewName.value = view.viewName;
+  }
   const loadedViewId = view?.id;
   if (loadedViewId) {
     legacyListViewId.value = loadedViewId;
@@ -736,8 +760,11 @@ function applyLoadedView(view?: ListViewInfo) {
 }
 
 async function loadViewWorkflow() {
-  await loadView();
-  await queryData();
+  const loadedView = await loadLegacyListView();
+  if (!loadedView) {
+    return;
+  }
+  await queryCurrentViewData();
   const firstRow = resultRows.value[0];
   if (firstRow) {
     await selectObject(firstRow);
@@ -769,7 +796,7 @@ async function startNewObject() {
     return;
   }
   if (!resultRows.value.length) {
-    await queryData();
+    await queryCurrentViewData();
   }
   detailResponse.value = initialized;
   selectedObjectId.value = nextObjectId();
@@ -807,7 +834,7 @@ async function saveSelectedObject() {
   }
   isCreatingObject.value = false;
   detailObjId.value = selectedObjectId.value;
-  await queryData();
+  await queryCurrentViewData();
   await queryDetail();
 }
 
@@ -1037,8 +1064,8 @@ function syncDetailDrafts() {
           </div>
           <div class="workflow-toolbar">
             <label>
-              View
-              <input v-model="viewName" />
+              View ID
+              <input v-model.number="legacyListViewId" min="1" type="number" />
             </label>
             <label>
               Keyword

@@ -25,6 +25,9 @@ describe("App defaults", () => {
     expect(appSource).toContain("void loadViewWorkflow()");
     expect(appSource).toContain("View workflow");
     expect(appSource).toContain("Load View");
+    expect(appSource).toContain("await loadLegacyListView()");
+    expect(appSource).toContain("await queryCurrentViewData()");
+    expect(appSource).toContain('v-model.number="legacyListViewId"');
     expect(appSource).toContain("New Row");
     expect(appSource).toContain("Create Row");
     expect(appSource).toContain("Save Row");
