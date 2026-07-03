@@ -8,6 +8,8 @@ import {
   buildSelectedExistingItemProperty,
   buildUpdatedItemProperty,
   columnKey,
+  fieldModelId,
+  isEnumField,
   itemKey,
   rowObjectId,
   rowValue
@@ -45,6 +47,12 @@ describe("view workflow helpers", () => {
       { key: "symbol", value: "ETH-USDT" },
       { key: "state", value: "0" }
     ]);
+  });
+
+  it("identifies enum fields by metadata", () => {
+    expect(isEnumField({ prpId: "state", prpType: "Enum", prpModelId: 102 })).toBe(true);
+    expect(fieldModelId({ prpId: "state", prpType: "Enum", prpModelId: 102 })).toBe(102);
+    expect(isEnumField({ prpId: "name", prpType: "String", prpModelId: 0 })).toBe(false);
   });
 
   it("keeps legacy child collection add/update/delete payload names", () => {

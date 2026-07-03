@@ -15,13 +15,15 @@ explicitly named as authoritative for fool-service.
       list/detail/child-row rendering.
 - [x] Add basic select-from-existing child collection support for configured
       Vue detail groups.
+- [x] Render enum detail fields as metadata-driven selects in the Vue View
+      workflow.
 
 ## Backlog
 
 - [ ] Add candidate search/pagination for select-from-existing child collection
       dialogs.
-- [ ] Add richer metadata-specific editors for enum, readonly, lookup, and
-      formatted field types.
+- [ ] Add richer metadata-specific editors for readonly, lookup, and formatted
+      field types.
 - [ ] Add focused Maven module profiles once module boundaries are cleaned up.
 - [ ] Add contract checks for oversized files, package boundaries, and migration
       drift.

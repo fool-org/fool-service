@@ -107,6 +107,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   metadata, and add the selected row through legacy
   `saveobj.Itemproperties.AddedItems`. Candidate search/pagination remains
   future work.
+- 2026-07-04: added metadata-driven enum editors to the default Vue View
+  workflow. Detail and child collection fields with `prpType=Enum` and
+  `prpModelId` now load options through the migrated `getenums` endpoint and
+  render as `<select>` controls while saving the enum DB value through the
+  existing `saveobj` / `savenewobj` payloads. Readonly, lookup, and formatted
+  field-specific widgets remain future work.
 - 2026-07-03: added the first Vue detail child-item write workflow for
   `OrderList`. The default detail panel can now add an order item through the
   legacy `saveobj.Itemproperties.AddedItems` payload, matching FoolFrame's
@@ -599,6 +605,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - A default Vue select-from-existing child collection path that loads
   configured candidate Views and adds selected rows through legacy
   `saveobj.Itemproperties.AddedItems`
+- Metadata-driven Vue enum editors that call legacy `getenums` for detail and
+  child collection fields with enum model metadata
 - A Vue backend smoke panel that calls `/test` and renders the Docker seed rows
 - A migration-map strip showing current server module mapping
 - Vite and Nginx proxies for `/api/*` and `/test` to the backend service

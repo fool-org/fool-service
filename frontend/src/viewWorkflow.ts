@@ -34,6 +34,14 @@ export function fieldTitle(field: ListDataValue) {
   return field.prpShowName || field.prpId || "";
 }
 
+export function fieldModelId(field: ListDataValue) {
+  return field.prpModelId || 0;
+}
+
+export function isEnumField(field: ListDataValue) {
+  return String(field.prpType || "").toLowerCase() === "enum" && fieldModelId(field) > 0;
+}
+
 export function fieldDraftValue(field: ListDataValue) {
   const value = field.objId === undefined || field.objId === null || field.objId === "" ? field.fmtValue : field.objId;
   return displayValue(value);

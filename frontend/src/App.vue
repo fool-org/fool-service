@@ -44,8 +44,10 @@ import {
   columnTitle,
   displayValue,
   fieldKey,
+  fieldModelId,
   fieldTitle,
   groupColumns,
+  isEnumField,
   itemKey,
   itemValue,
   rowObjectId,
@@ -131,6 +133,7 @@ const childDrafts = ref<Record<string, Record<string, string>>>({});
 const newChildDrafts = ref<Record<string, Record<string, string>>>({});
 const childCandidateRows = ref<Record<string, ListDataItem[]>>({});
 const childCandidateColumns = ref<Record<string, TableColumnInfo[]>>({});
+const enumOptions = ref<Record<string, { label: string; value: string }[]>>({});
 
 const loginResponse = ref<CommonResponse<LoginVo> | null>(null);
 const initAppResponse = ref<CommonResponse<LegacyInitAppResult> | null>(null);
@@ -583,6 +586,7 @@ async function queryDetail() {
   if (response) {
     detailResponse.value = response;
     syncDetailDrafts();
+    await loadFieldEnums();
   }
   return response;
 }
@@ -752,6 +756,7 @@ async function startNewObject() {
   operationObjectId.value = selectedObjectId.value;
   isCreatingObject.value = true;
   syncDetailDrafts();
+  await loadFieldEnums();
 }
 
 async function saveSelectedObject() {
@@ -906,6 +911,35 @@ function selectedChildViewId(group: QueryDataDetailItemGroup) {
   return group.selectedView || group.listViewId || 0;
 }
 
+function enumFieldOptions(field: { prpModelId?: number }) {
+  return enumOptions.value[String(field.prpModelId || "")] || [];
+}
+
+async function loadFieldEnums() {
+  const fields = [
+    ...detailRows.value,
+    ...detailItemGroups.value.flatMap((group) => groupColumns(group))
+  ].filter(isEnumField);
+  for (const field of fields) {
+    const modelId = String(fieldModelId(field));
+    if (enumOptions.value[modelId]) {
+      continue;
+    }
+    const response = await runAction("field-enums", () =>
+      postApi<GetEnumResult>("/api/v1/data/getenums", buildGetEnumRequest({ token: token.value, modelId }))
+    );
+    if (response) {
+      enumOptions.value = {
+        ...enumOptions.value,
+        [modelId]: (response.data?.enumValues || []).map((item) => ({
+          label: item.name || formatValue(item.value),
+          value: formatValue(item.value)
+        }))
+      };
+    }
+  }
+}
+
 function candidateRows(group: QueryDataDetailItemGroup) {
   return childCandidateRows.value[groupKey(group)] || [];
 }
@@ -1043,7 +1077,12 @@ function syncDetailDrafts() {
           <div v-if="viewCanEdit" class="order-edit-grid">
             <label v-for="field in detailRows" :key="fieldKey(field)">
               {{ fieldTitle(field) }}
-              <input v-model="detailDrafts[fieldKey(field)]" />
+              <select v-if="isEnumField(field)" v-model="detailDrafts[fieldKey(field)]">
+                <option v-for="option in enumFieldOptions(field)" :key="option.value" :value="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+              <input v-else v-model="detailDrafts[fieldKey(field)]" />
             </label>
             <button class="primary" type="button" :disabled="Boolean(pendingAction)" @click="saveSelectedObject">
               {{ isCreatingObject ? "Create Row" : "Save Row" }}
@@ -1068,7 +1107,12 @@ function syncDetailDrafts() {
                 <div class="item-add-row">
                   <label v-for="field in groupColumns(group)" :key="fieldKey(field)">
                     {{ fieldTitle(field) }}
-                    <input v-model="newChildDrafts[groupKey(group)][fieldKey(field)]" />
+                    <select v-if="isEnumField(field)" v-model="newChildDrafts[groupKey(group)][fieldKey(field)]">
+                      <option v-for="option in enumFieldOptions(field)" :key="option.value" :value="option.value">
+                        {{ option.label }}
+                      </option>
+                    </select>
+                    <input v-else v-model="newChildDrafts[groupKey(group)][fieldKey(field)]" />
                   </label>
                   <button type="button" :disabled="Boolean(pendingAction)" @click="addDetailItem(group)">Add</button>
                 </div>
@@ -1111,7 +1155,13 @@ function syncDetailDrafts() {
                   <span>{{ item.dataId }}</span>
                   <label v-for="field in groupColumns(group)" :key="fieldKey(field)">
                     {{ fieldTitle(field) }}
+                    <select v-if="isEnumField(field)" v-model="childDrafts[itemKey(group, item)][fieldKey(field)]">
+                      <option v-for="option in enumFieldOptions(field)" :key="option.value" :value="option.value">
+                        {{ option.label }}
+                      </option>
+                    </select>
                     <input
+                      v-else
                       v-model="childDrafts[itemKey(group, item)][fieldKey(field)]"
                       :placeholder="itemValue(item, field)"
                     />
