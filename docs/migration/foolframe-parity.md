@@ -91,25 +91,33 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 ## Recent Parity Increments
 
 - 2026-07-03: added legacy `runoperation`
+  `BaseOperationType.Assebmly` execution for Java classpath handlers.
+  `CommandsType.SetParamValue` and `CommandsType.SetConStrValue` now collect
+  method and constructor argument values in command index order, then the
+  migrated path instantiates `SW_MODEL_OPERATION_INVOKECLASS` and invokes
+  `SW_MODEL_OPERATION_INVOKEMETHOD` with the current `IDynamicData` plus method
+  parameters. `SW_MODEL_OPERATION_INVOKEDLL` is intentionally not loaded yet;
+  WCF/JSON operation types, external-model operation execution, and trigger
+  side effects remain future work.
+- 2026-07-03: added legacy `runoperation`
   `CommandsType.ExuteListMethod` for list proxy objects. When a command targets
   a property whose current value exposes the named no-arg method, the migrated
   path invokes that method before the base operation save/delete/create step.
   `IDynamicData` list proxies are also supported through their existing
-  `invoke` surface. External-model operation execution, constructor/parameter
-  commands, and trigger side effects remain future work.
+  `invoke` surface. External-model operation execution and trigger side
+  effects remain future work.
 - 2026-07-03: extended legacy `runoperation`
   `CommandsType.ExuteProprtyModelMethod` to collection properties. When the
   target property is marked as a collection and the current value is iterable,
   the migrated command now invokes the named method on each `IDynamicData`
   item before the base operation save/delete/create step. External-model
-  operation execution, constructor/parameter commands, and trigger side effects
-  remain future work.
+  operation execution and trigger side effects remain future work.
 - 2026-07-03: added legacy `runoperation`
   `CommandsType.ExuteProprtyModelMethod` for direct `IDynamicData` property
   values. The migrated command path now invokes the named method on the current
   object's target property before the base operation save/delete/create step.
-  External-model operation execution, constructor/parameter commands, and
-  trigger side effects remain future work.
+  External-model operation execution and trigger side effects remain future
+  work.
 - 2026-07-03: added legacy `querydatadetail` blank-object fallback. When both
   `objId` and `IdExp` are blank, the migrated service queries the first page of
   the selected view model and loads the first returned object before formatting
@@ -121,16 +129,15 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-03: extended legacy `runoperation` to `BaseOperationType.Create`.
   The existing hydrated object and command pipeline now runs through
   `ModelDataService.createData` before returning the legacy operation success
-  message. Assembly, WCF, JSON, external-model execution, and trigger side
-  effects remain future work.
+  message. WCF, JSON, external-model execution, and trigger side effects remain
+  future work.
 - 2026-07-03: hydrated legacy `SW_SYS_OPERATION` runtime metadata for
   `runoperation`. View-operation loading now carries
   `SW_MODEL_OPERATION_FILTER`, `SW_MODEL_OPERATION_ARGMODEL`,
   `SW_MODEL_OPERATION_ARGFILTER`, `SW_MODEL_OPERATION_INVOKEDLL`,
   `SW_MODEL_OPERATION_INVOKECLASS`, `SW_MODEL_OPERATION_INVOKEMETHOD`, and
   `SW_MODEL_OPERATION_RETURNMODEL` onto the runtime `Operation` object.
-  Assembly invocation, external-model execution, and constructor/parameter
-  command use remain future work.
+  WCF/JSON operation types and external-model execution remain future work.
 - 2026-07-03: added legacy `runoperation` `Filter` command execution.
   `SW_SYS_COMMANDS` runtime hydration now includes arg/property/temp columns,
   command execution preserves command index order, and `Filter` guards query the
@@ -517,7 +524,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 ## Remaining Migration Work
 
 - Complete concrete `AppInstallGateway` side-effect parity beyond application creation, creator authorized-user creation, app-system view preparation, root module/model installation records, menu/role record creation, menu/role relation creation, the model/relation DDL execution hook, configured model/static/reflective module-source schema wiring, static module-source dependency ordering, connection-aware metadata/DDL routing, connection-string `DaoService`/`JdbcTemplate` factory including legacy `SqlCon.ToString()` SQL Server string parsing and routed connection reuse, module-source module/model/property/relation metadata persistence, default auto-view hook wiring, reflective model-reference package traversal, basic reflective collection `One2Many` relation generation, self-collection `Recurve` relation generation, bidirectional collection `Many2Many` relation generation, `ReferToProperyAttrbute`, `MultiTypeAttribute`, legacy `ObjectWithSubItem<>` parent target-property relation generation, legacy `ColumnAttribute` key-group/key-nullability/identity/generation/generation-expression/default-value/format/encryption/no-map/multi-column DBMaps/table column-prefix metadata, and legacy `SW_SYS_EMUNVALUE` enum metadata persistence: transaction boundaries for routed connection strings, deeper DBMaps query/runtime behavior beyond same-row dynamic loading and list-query alias mapping, and arbitrary classpath dependency enumeration beyond model-type references remain.
-- Complete remaining `SCPB05-Soway.Model` runtime data mutations beyond simple dynamic row create/update/delete, CREATE/DELETE/UPDATE `runoperation` with legacy operation metadata hydration plus `SetValue`, `Filter`, direct/collection property-model method, and list-method command slices, simple batch saves, DBMaps create/update writes, One2Many child-row create/update/delete-list sync, Many2Many/Recurve relation-table create/update/delete-list sync, old-id dynamic save lookup, legacy `saveobj` `Itemproperties` request mapping, and legacy `savenewobj` new-object/owner-relation request mapping: richer collection state parity, remaining operation command types, assembly/external-model invocation, operation-trigger side effects, and routed-connection transaction behavior remain.
+- Complete remaining `SCPB05-Soway.Model` runtime data mutations beyond simple dynamic row create/update/delete, CREATE/DELETE/UPDATE `runoperation` with legacy operation metadata hydration plus `SetValue`, `Filter`, direct/collection property-model method, list-method command slices, and Java classpath assembly reflection with constructor/parameter command values, simple batch saves, DBMaps create/update writes, One2Many child-row create/update/delete-list sync, Many2Many/Recurve relation-table create/update/delete-list sync, old-id dynamic save lookup, legacy `saveobj` `Itemproperties` request mapping, and legacy `savenewobj` new-object/owner-relation request mapping: richer collection state parity, remaining operation command types, WCF/JSON/external-model invocation, operation-trigger side effects, and routed-connection transaction behavior remain.
 - Complete remaining `SWDQ01-Soway.Query` behavior: saved-query/report execution surfaces and richer query-to-view integration beyond the current compare/between/in/composite/report filter SQL, selected-table compare-column simple bool-expression path, bool-expression factory create/add orchestration, compare-operation/select-type catalogs, selected column/table state and collection surfaces, selected table join-add/result contract, query instance parameter/result container including the `QueryResult.GetData` current-page data surface, query report definition contract, report-parameter refresh orchestration and named binding, `QueryFactory` table/column/state-value dictionary surface, base/paged SQL builder, JDBC paged executor, `QueryContext` add/clear/CanJoinSelected/connection-string-routed/getSql/getResult orchestration, enum state-value hydration surfaces, and richer input-query expression evaluation beyond added-item `#.` owner source lists.
 - Complete remaining `SCPB09-SOWAY.EVENT` runtime behavior: fuller dynamic object-query parity beyond the current raw DefModel filter SQL, null-model empty result, zero-row empty result, table, explicit/auto-`SYSID` ID-column, case-insensitive ID-column matching, missing key-column validation, and matched-row value capture.
 - Complete remaining `SWRPT01-Soway.Report` behavior: table source adapters, saved report metadata persistence, saved-report execution, and export integration around the rendered report grid. The flat `makereport` REST path now reuses migrated list-query data and `ReportGridRenderer`, with simple and composite `FilterExp` request mapping; the report model candidate-column lookup is exposed through `getmkqview`/`mkqview` with compare/select catalogs and enum states; the legacy `saverpt` no-op success surface is exposed; Matrix static subtotal parity covers nested row/column sibling scope, deep shared-ancestor scope, flat-row grid column coordinates, and the legacy `MatrixHeader`/`StaticCellValue` helper surface; `ReportFactory`/`IReportSource` empty shell parity is covered, but broader report persistence/execution/export wiring remains open.

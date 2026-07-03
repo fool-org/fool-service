@@ -44,9 +44,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -309,13 +314,16 @@ public class DataQueryService {
         IDynamicData data = modelDataService.getOneData(view.getViewModel(), request.getObjectId());
         boolean success;
         try {
-            applyOperationCommands(operation.getOperation(), model, data);
+            OperationCommandValues commandValues = applyOperationCommands(operation.getOperation(), model, data);
             if (operationType == OperationBaseType.DELETE) {
                 success = Boolean.TRUE.equals(modelDataService.deleteData(data));
             } else if (operationType == OperationBaseType.UPDATE) {
                 success = Boolean.TRUE.equals(modelDataService.saveData(data));
             } else if (operationType == OperationBaseType.CREATE) {
                 success = Boolean.TRUE.equals(modelDataService.createData(data));
+            } else if (operationType == OperationBaseType.ASSEBMLY) {
+                invokeAssemblyOperation(operation.getOperation(), data, commandValues);
+                success = true;
             } else {
                 return result;
             }
@@ -331,17 +339,19 @@ public class DataQueryService {
         return result;
     }
 
-    private void applyOperationCommands(Operation operation, Model model, IDynamicData data) {
+    private OperationCommandValues applyOperationCommands(Operation operation, Model model, IDynamicData data) {
+        OperationCommandValues values = new OperationCommandValues();
         if (operation == null || CollectionUtils.isEmpty(operation.getCommands()) || data == null) {
-            return;
+            return values;
         }
         operation.getCommands().stream()
                 .filter(command -> command != null)
                 .sorted(Comparator.comparing(command -> command.getIndex() == null ? 0 : command.getIndex()))
-                .forEach(command -> applyOperationCommand(model, data, command));
+                .forEach(command -> applyOperationCommand(model, data, command, values));
+        return values;
     }
 
-    private void applyOperationCommand(Model model, IDynamicData data, OperationCommand command) {
+    private void applyOperationCommand(Model model, IDynamicData data, OperationCommand command, OperationCommandValues values) {
         if (command.getCommandType() == CommandsType.SET_VALUE) {
             property(model, command.getPropertyId())
                     .ifPresent(property -> data.set(property.getName(),
@@ -354,7 +364,89 @@ public class DataQueryService {
         } else if (command.getCommandType() == CommandsType.EXUTE_LIST_METHOD) {
             property(model, command.getPropertyId())
                     .ifPresent(property -> invokeListMethod(data, property, command.getExpression()));
+        } else if (command.getCommandType() == CommandsType.SET_PARAM_VALUE) {
+            values.params.add(commandValue(property(model, command.getPropertyId()).orElse(null), data, command.getExpression()));
+        } else if (command.getCommandType() == CommandsType.SET_CON_STR_VALUE) {
+            values.constructorValues.add(commandValue(property(model, command.getPropertyId()).orElse(null), data, command.getExpression()));
         }
+    }
+
+    private void invokeAssemblyOperation(Operation operation, IDynamicData data, OperationCommandValues values) {
+        if (!StringUtils.hasText(operation.getInvokeClass()) || !StringUtils.hasText(operation.getInvokeMethod())) {
+            throw new IllegalStateException("Missing assembly invoke target");
+        }
+        try {
+            Class<?> type = Class.forName(operation.getInvokeClass().trim());
+            // ponytail: invokeDll plugin loading waits until real migrated handlers need it.
+            Object target = instantiate(type, values.constructorValues);
+            Object[] args = new Object[values.params.size() + 1];
+            args[0] = data;
+            for (int i = 0; i < values.params.size(); i++) {
+                args[i + 1] = values.params.get(i);
+            }
+            Method method = method(type, operation.getInvokeMethod().trim(), args);
+            method.invoke(Modifier.isStatic(method.getModifiers()) ? null : target, args);
+        } catch (InvocationTargetException e) {
+            rethrowInvocation(e);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private Object instantiate(Class<?> type, List<Object> args) throws ReflectiveOperationException {
+        Constructor<?> constructor = Arrays.stream(type.getConstructors())
+                .filter(candidate -> accepts(candidate.getParameterTypes(), args.toArray()))
+                .findFirst()
+                .orElseThrow(NoSuchMethodException::new);
+        return constructor.newInstance(args.toArray());
+    }
+
+    private Method method(Class<?> type, String name, Object[] args) throws NoSuchMethodException {
+        return Arrays.stream(type.getMethods())
+                .filter(candidate -> candidate.getName().equals(name))
+                .filter(candidate -> accepts(candidate.getParameterTypes(), args))
+                .findFirst()
+                .orElseThrow(NoSuchMethodException::new);
+    }
+
+    private boolean accepts(Class<?>[] parameterTypes, Object[] args) {
+        if (parameterTypes.length != args.length) {
+            return false;
+        }
+        for (int i = 0; i < parameterTypes.length; i++) {
+            if (args[i] != null && !boxed(parameterTypes[i]).isInstance(args[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private Class<?> boxed(Class<?> type) {
+        if (!type.isPrimitive()) {
+            return type;
+        }
+        if (type == boolean.class) {
+            return Boolean.class;
+        }
+        if (type == byte.class) {
+            return Byte.class;
+        }
+        if (type == char.class) {
+            return Character.class;
+        }
+        if (type == double.class) {
+            return Double.class;
+        }
+        if (type == float.class) {
+            return Float.class;
+        }
+        if (type == long.class) {
+            return Long.class;
+        }
+        if (type == short.class) {
+            return Short.class;
+        }
+        return Integer.class;
     }
 
     private void invokeListMethod(IDynamicData data, Property property, String methodName) {
@@ -377,11 +469,15 @@ public class DataQueryService {
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(e);
         } catch (InvocationTargetException e) {
-            if (e.getCause() instanceof RuntimeException runtimeException) {
-                throw runtimeException;
-            }
-            throw new IllegalStateException(e.getCause());
+            rethrowInvocation(e);
         }
+    }
+
+    private void rethrowInvocation(InvocationTargetException e) {
+        if (e.getCause() instanceof RuntimeException runtimeException) {
+            throw runtimeException;
+        }
+        throw new IllegalStateException(e.getCause());
     }
 
     private void invokePropertyModelMethod(IDynamicData data, Property property, String methodName) {
@@ -494,6 +590,11 @@ public class DataQueryService {
                     : modelDataService.getOneData(property.getPropertyModel().getName(), value);
             default -> value;
         };
+    }
+
+    private static class OperationCommandValues {
+        private final List<Object> params = new ArrayList<>();
+        private final List<Object> constructorValues = new ArrayList<>();
     }
 
     private ViewOperation findOperation(View view, Long operationId) {

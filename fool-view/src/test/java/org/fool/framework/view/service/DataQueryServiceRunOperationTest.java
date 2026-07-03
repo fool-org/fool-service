@@ -400,6 +400,38 @@ public class DataQueryServiceRunOperationTest {
     }
 
     @Test
+    public void runLegacyAssemblyOperationInvokesJavaClassWithCollectedParams() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataService viewDataService = mock(ViewDataService.class);
+        DataQueryService service = service(daoService, modelDataService, viewDataService);
+        RecordingAssemblyHandler.reset();
+        Model model = model();
+        ViewOperation operation = operationWithCommand(7005L, OperationBaseType.ASSEBMLY, "执行成功",
+                command(CommandsType.SET_CON_STR_VALUE, 1003L, "$ctor", 1),
+                command(CommandsType.SET_PARAM_VALUE, 1002L, ".symbol", 2));
+        operation.getOperation().setInvokeClass(RecordingAssemblyHandler.class.getName());
+        operation.getOperation().setInvokeMethod("Run");
+        View view = view(operation);
+        DbMysqlDynamic data = new DbMysqlDynamic(model);
+        data.set("orderId", "1001");
+        data.set("symbol", "BTC-USDT");
+        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(modelDataService.getModel("Order")).thenReturn(model);
+        when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
+
+        LegacyRunOperationResult result = service.runLegacyOperation(request("1001", 100L, 7005L));
+
+        assertTrue(result.isSuccess());
+        assertEquals("执行成功", result.getReturnMsg());
+        assertEquals("ctor", RecordingAssemblyHandler.constructorValue);
+        assertEquals(data, RecordingAssemblyHandler.receivedData);
+        assertEquals("BTC-USDT", RecordingAssemblyHandler.receivedSymbol);
+        assertEquals("assembly-run", data.get("state"));
+        verify(modelDataService, never()).saveData(any(IDynamicData.class));
+    }
+
+    @Test
     public void runLegacyOperationReturnsLegacyErrorMessageWhenExecutionFails() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
@@ -585,6 +617,28 @@ public class DataQueryServiceRunOperationTest {
 
         public void CloseAll() {
             closed = true;
+        }
+    }
+
+    public static class RecordingAssemblyHandler {
+        private static String constructorValue;
+        private static IDynamicData receivedData;
+        private static String receivedSymbol;
+
+        public RecordingAssemblyHandler(String constructorValue) {
+            RecordingAssemblyHandler.constructorValue = constructorValue;
+        }
+
+        public void Run(IDynamicData data, String symbol) {
+            receivedData = data;
+            receivedSymbol = symbol;
+            data.set("state", "assembly-run");
+        }
+
+        private static void reset() {
+            constructorValue = null;
+            receivedData = null;
+            receivedSymbol = null;
         }
     }
 }
