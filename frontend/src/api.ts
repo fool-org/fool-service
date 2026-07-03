@@ -194,6 +194,23 @@ export interface InputQueryResult {
   items?: InputQueryItem[];
 }
 
+export interface MessageInfo {
+  messageID?: string;
+  gernerationTime?: string;
+  messageContent?: string;
+  resultView?: number;
+  objId?: string;
+  resultViewType?: string;
+  resultKey?: string;
+  read?: boolean;
+  timeOut?: boolean;
+  readDateTime?: string;
+}
+
+export interface GetMessageResult {
+  messages?: MessageInfo[];
+}
+
 export interface LegacyQueryDataRequest {
   token?: string;
   viewId?: number;

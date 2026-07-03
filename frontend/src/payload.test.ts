@@ -46,6 +46,12 @@ describe("App defaults", () => {
     expect(appSource).toContain("saveReportResponse");
   });
 
+  it("exposes the legacy message polling route in the Vue console", () => {
+    expect(appSource).toContain("Messages");
+    expect(appSource).toContain("/api/v1/message/getmsg");
+    expect(appSource).toContain("messageResponse");
+  });
+
   it("proxies the backend smoke route in local and Compose frontends", () => {
     expect(viteConfig).toContain('"/test"');
     expect(nginxConfig).toContain("location /test");

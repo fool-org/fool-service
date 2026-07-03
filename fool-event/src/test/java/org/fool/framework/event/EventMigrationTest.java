@@ -352,6 +352,46 @@ public class EventMigrationTest {
     }
 
     @Test
+    public void jdbcEventMessageRepositoryPollsGeneratedMessagesAndMarksThemPushed() {
+        UUID messageId = UUID.randomUUID();
+        LocalDateTime generated = LocalDateTime.of(2026, 7, 3, 10, 15);
+        RecordingMessageJdbcTemplate jdbcTemplate = new RecordingMessageJdbcTemplate(List.of(Map.of(
+                "MSG_ID", messageId.toString(),
+                "MSG_EVT", UUID.randomUUID().toString(),
+                "MSG_VIEW", "100",
+                "MSG_OBJ", "1001",
+                "MSG_MSG", "Order timeout",
+                "MSG_CREATETIME", generated,
+                "MSG_STATE", MsgState.Generate.code(),
+                "MSG_USERID", "admin",
+                "MSG_MSGTYPE", MsgNotifyType.User.code())));
+        JdbcEventMessageRepository repository = new JdbcEventMessageRepository(jdbcTemplate);
+
+        List<EventMessage> messages = repository.findGeneratedForUser("admin", 1);
+
+        assertEquals(1, messages.size());
+        assertEquals(messageId, messages.get(0).getMessageId());
+        assertEquals("100", messages.get(0).getViewId());
+        assertEquals("1001", messages.get(0).getObjectId());
+        assertEquals("Order timeout", messages.get(0).getMessageFormat());
+        assertEquals(generated, messages.get(0).getGenerateTime());
+        assertEquals(MsgState.Generate, messages.get(0).getState());
+        assertTrue(jdbcTemplate.queriedSql.contains("FROM `SW_SYS_MSG`"));
+        assertTrue(jdbcTemplate.queriedSql.contains("`MSG_STATE` = ?"));
+        assertTrue(jdbcTemplate.queriedSql.contains("`MSG_USERID` = ?"));
+        assertTrue(jdbcTemplate.queriedSql.contains("ORDER BY `MSG_CREATETIME` DESC"));
+        assertEquals(List.of(MsgState.Generate.code(), "admin", 1), Arrays.asList(jdbcTemplate.queryArgs));
+
+        LocalDateTime pushed = LocalDateTime.of(2026, 7, 3, 10, 16);
+        repository.markPushed(messageId, pushed);
+
+        assertTrue(jdbcTemplate.updateSql.contains("UPDATE `SW_SYS_MSG`"));
+        assertTrue(jdbcTemplate.updateSql.contains("`MSG_STATE` = ?"));
+        assertTrue(jdbcTemplate.updateSql.contains("`MSG_PUSHTIME` = ?"));
+        assertEquals(List.of(MsgState.Push.code(), pushed, messageId.toString()), Arrays.asList(jdbcTemplate.updateArgs));
+    }
+
+    @Test
     public void messageFactoryIsASpringService() {
         assertNotNull(MessageFactory.class.getDeclaredAnnotation(Service.class));
     }
@@ -1040,6 +1080,9 @@ public class EventMigrationTest {
                             return metaData;
                         }
                         if ("getObject".equals(method.getName()) && args != null && args.length == 1) {
+                            if (args[0] instanceof String column) {
+                                return row.get(column);
+                            }
                             return row.get(columns.get(((Integer) args[0]) - 1));
                         }
                         throw new UnsupportedOperationException(method.getName());
@@ -1074,10 +1117,43 @@ public class EventMigrationTest {
                             return metaData;
                         }
                         if ("getObject".equals(method.getName()) && args != null && args.length == 1) {
+                            if (args[0] instanceof String column) {
+                                return rows.get(cursor[0]).get(column);
+                            }
                             return rows.get(cursor[0]).get(columns.get(((Integer) args[0]) - 1));
                         }
                         throw new UnsupportedOperationException(method.getName());
                     });
+        }
+    }
+
+    private static final class RecordingMessageJdbcTemplate extends JdbcTemplate {
+        private final List<Map<String, Object>> rows;
+        private String queriedSql;
+        private Object[] queryArgs;
+        private String updateSql;
+        private Object[] updateArgs;
+
+        private RecordingMessageJdbcTemplate(List<Map<String, Object>> rows) {
+            this.rows = rows;
+        }
+
+        @Override
+        public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... args) {
+            this.queriedSql = sql;
+            this.queryArgs = args;
+            List<T> mappedRows = new ArrayList<>();
+            for (int index = 0; index < rows.size(); index++) {
+                mappedRows.add(RecordingJdbcTemplate.mapRow(rowMapper, rows.get(index), index));
+            }
+            return mappedRows;
+        }
+
+        @Override
+        public int update(String sql, Object... args) {
+            this.updateSql = sql;
+            this.updateArgs = args;
+            return 1;
         }
     }
 
@@ -1103,6 +1179,15 @@ public class EventMigrationTest {
         @Override
         public void saveAll(List<EventMessage> messages) {
             saved.addAll(messages);
+        }
+
+        @Override
+        public List<EventMessage> findGeneratedForUser(String userId, int limit) {
+            return List.of();
+        }
+
+        @Override
+        public void markPushed(UUID messageId, LocalDateTime pushTime) {
         }
     }
 

@@ -4,6 +4,7 @@ import {
   type AuthItem,
   type CommonResponse,
   type GetEnumResult,
+  type GetMessageResult,
   type InputQueryResult,
   type QueryDataDetailResult,
   type ListDataItem,
@@ -86,6 +87,7 @@ const saveObjResponse = ref<CommonResponse<void> | null>(null);
 const reportResponse = ref<CommonResponse<ReportGridResult> | null>(null);
 const reportModelResponse = ref<CommonResponse<ReportModelResult> | null>(null);
 const saveReportResponse = ref<CommonResponse<void> | null>(null);
+const messageResponse = ref<CommonResponse<GetMessageResult> | null>(null);
 const backendSmokeResponse = ref<CommonResponse<Record<string, unknown>[]> | null>(null);
 const errorMessage = ref("");
 const pendingAction = ref("");
@@ -221,6 +223,15 @@ async function loadMenus() {
   );
   if (response) {
     menuResponse.value = response;
+  }
+}
+
+async function loadMessages() {
+  const response = await runAction("messages", () =>
+    postApi<GetMessageResult>("/api/v1/message/getmsg", buildTokenRequest(token.value))
+  );
+  if (response) {
+    messageResponse.value = response;
   }
 }
 
@@ -525,6 +536,38 @@ function formatValue(value: unknown) {
             <button type="button" :disabled="pendingAction === 'profile'" @click="loadProfile">Profile</button>
             <button type="button" :disabled="pendingAction === 'menus'" @click="loadMenus">Menus</button>
             <button type="button" :disabled="pendingAction === 'logout'" @click="logout">Logout</button>
+          </div>
+        </article>
+
+        <article class="panel lookup-panel">
+          <div class="panel-heading">
+            <h2>Messages</h2>
+            <span>POST /api/v1/message/getmsg</span>
+          </div>
+          <button class="primary" type="button" :disabled="pendingAction === 'messages'" @click="loadMessages">
+            Load Messages
+          </button>
+
+          <div class="table-wrap input-query-results">
+            <table v-if="messageResponse?.data?.messages?.length">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Content</th>
+                  <th>View</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="message in messageResponse.data.messages" :key="message.messageID">
+                  <td>{{ message.messageID }}</td>
+                  <td>{{ message.messageContent }}</td>
+                  <td>{{ message.resultView }}</td>
+                  <td>{{ message.resultKey }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div v-else class="empty-state">No generated messages loaded.</div>
           </div>
         </article>
 
@@ -1060,6 +1103,7 @@ function formatValue(value: unknown) {
                 reportModel: reportModelResponse,
                 report: reportResponse,
                 saveReport: saveReportResponse,
+                messages: messageResponse,
                 backendSmoke: backendSmokeResponse
               },
               null,
