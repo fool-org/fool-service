@@ -43,6 +43,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -336,11 +338,19 @@ public class DataQueryService {
     }
 
     private Object staticValue(Property property, String value) {
-        if (property != null && (property.getPropertyType() == PropertyType.Int
-                || property.getPropertyType() == PropertyType.UInt)) {
-            return Integer.valueOf(value);
+        if (property == null || property.getPropertyType() == null) {
+            return value;
         }
-        return value;
+        return switch (property.getPropertyType()) {
+            case Boolean -> Boolean.valueOf(value);
+            case Byte -> Byte.valueOf(value);
+            case Char -> value.charAt(0);
+            case DateTime -> LocalDateTime.parse(value.replace(' ', 'T'));
+            case Int, UInt, Long, ULong -> Integer.valueOf(value);
+            case Decimal -> new BigDecimal(value);
+            case Double, Float -> Double.valueOf(value);
+            default -> value;
+        };
     }
 
     private ViewOperation findOperation(View view, Long operationId) {

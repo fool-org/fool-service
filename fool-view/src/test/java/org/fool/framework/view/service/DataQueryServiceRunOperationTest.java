@@ -19,6 +19,8 @@ import org.fool.framework.view.model.ViewOperation;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -123,6 +125,41 @@ public class DataQueryServiceRunOperationTest {
         verify(modelDataService).saveData(data);
         assertTrue(result.isSuccess());
         assertEquals(Integer.valueOf(7), data.get("retryCount"));
+    }
+
+    @Test
+    public void runLegacyUpdateOperationConvertsStaticSetValueScalarTypes() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataService viewDataService = mock(ViewDataService.class);
+        DataQueryService service = service(daoService, modelDataService, viewDataService);
+        Model model = model();
+        View view = view(operationWithCommand(7002L, OperationBaseType.UPDATE, "保存成功",
+                command(CommandsType.SET_VALUE, 1005L, "$true", 1),
+                command(CommandsType.SET_VALUE, 1006L, "$2", 2),
+                command(CommandsType.SET_VALUE, 1007L, "$A", 3),
+                command(CommandsType.SET_VALUE, 1008L, "$123", 4),
+                command(CommandsType.SET_VALUE, 1009L, "$12.50", 5),
+                command(CommandsType.SET_VALUE, 1010L, "$1.5", 6),
+                command(CommandsType.SET_VALUE, 1011L, "$2026-07-03T10:00:00", 7)));
+        DbMysqlDynamic data = new DbMysqlDynamic(model);
+        data.set("orderId", "1001");
+        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(modelDataService.getModel("Order")).thenReturn(model);
+        when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
+        when(modelDataService.saveData(data)).thenReturn(true);
+
+        LegacyRunOperationResult result = service.runLegacyOperation(request("1001", 100L, 7002L));
+
+        verify(modelDataService).saveData(data);
+        assertTrue(result.isSuccess());
+        assertEquals(Boolean.TRUE, data.get("confirmed"));
+        assertEquals(Byte.valueOf((byte) 2), data.get("byteCode"));
+        assertEquals(Character.valueOf('A'), data.get("marker"));
+        assertEquals(Integer.valueOf(123), data.get("longCode"));
+        assertEquals(new BigDecimal("12.50"), data.get("amount"));
+        assertEquals(Double.valueOf(1.5D), data.get("ratio"));
+        assertEquals(LocalDateTime.of(2026, 7, 3, 10, 0), data.get("startsAt"));
     }
 
     @Test
@@ -240,9 +277,9 @@ public class DataQueryServiceRunOperationTest {
             Long id,
             OperationBaseType type,
             String successMsg,
-            OperationCommand command) {
+            OperationCommand... commands) {
         ViewOperation viewOperation = operation(id, type, successMsg);
-        viewOperation.getOperation().setCommands(List.of(command));
+        viewOperation.getOperation().setCommands(List.of(commands));
         return viewOperation;
     }
 
@@ -279,8 +316,44 @@ public class DataQueryServiceRunOperationTest {
         retryCount.setName("retryCount");
         retryCount.setColumn("retry_count");
         retryCount.setPropertyType(PropertyType.Int);
+        Property confirmed = new Property();
+        confirmed.setId(1005L);
+        confirmed.setName("confirmed");
+        confirmed.setColumn("confirmed");
+        confirmed.setPropertyType(PropertyType.Boolean);
+        Property byteCode = new Property();
+        byteCode.setId(1006L);
+        byteCode.setName("byteCode");
+        byteCode.setColumn("byte_code");
+        byteCode.setPropertyType(PropertyType.Byte);
+        Property marker = new Property();
+        marker.setId(1007L);
+        marker.setName("marker");
+        marker.setColumn("marker");
+        marker.setPropertyType(PropertyType.Char);
+        Property longCode = new Property();
+        longCode.setId(1008L);
+        longCode.setName("longCode");
+        longCode.setColumn("long_code");
+        longCode.setPropertyType(PropertyType.Long);
+        Property amount = new Property();
+        amount.setId(1009L);
+        amount.setName("amount");
+        amount.setColumn("amount");
+        amount.setPropertyType(PropertyType.Decimal);
+        Property ratio = new Property();
+        ratio.setId(1010L);
+        ratio.setName("ratio");
+        ratio.setColumn("ratio");
+        ratio.setPropertyType(PropertyType.Double);
+        Property startsAt = new Property();
+        startsAt.setId(1011L);
+        startsAt.setName("startsAt");
+        startsAt.setColumn("starts_at");
+        startsAt.setPropertyType(PropertyType.DateTime);
         model.setIdProperty(orderId);
-        model.setProperties(List.of(orderId, symbol, state, retryCount));
+        model.setProperties(List.of(orderId, symbol, state, retryCount, confirmed,
+                byteCode, marker, longCode, amount, ratio, startsAt));
         return model;
     }
 }

@@ -88,6 +88,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-03: widened legacy `runoperation` `SetValue` static-value
+  conversion. `$...` command expressions now follow the simple scalar
+  `GetStaticVlue` branches for Boolean, Byte, Char, DateTime, Int/UInt,
+  Long/ULong, Decimal, and Double/Float target properties, while string-like
+  property types keep the literal value. Math, context values, owner
+  traversal, business-object loading, and other command types remain future
+  work.
 - 2026-07-03: extended legacy `runoperation` `SetValue` expression parity.
   FoolFrame-style current-object property expressions such as `.symbol` now
   read from the target object before UPDATE save, and static `$...` values are
