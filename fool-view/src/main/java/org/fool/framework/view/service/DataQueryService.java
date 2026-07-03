@@ -347,6 +347,19 @@ public class DataQueryService {
                             commandValue(property, data, command.getExpression())));
         } else if (command.getCommandType() == CommandsType.FILTER) {
             checkFilterCommand(model, data, command);
+        } else if (command.getCommandType() == CommandsType.EXUTE_PROPRTY_MODEL_METHOD) {
+            property(model, command.getPropertyId())
+                    .ifPresent(property -> invokePropertyModelMethod(data, property, command.getExpression()));
+        }
+    }
+
+    private void invokePropertyModelMethod(IDynamicData data, Property property, String methodName) {
+        if (data == null || property == null || !StringUtils.hasText(methodName)) {
+            return;
+        }
+        Object target = data.get(property.getName());
+        if (target instanceof IDynamicData dynamicData) {
+            dynamicData.invoke(methodName.trim());
         }
     }
 
