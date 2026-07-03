@@ -119,6 +119,15 @@ public class ReportControllerTest {
     }
 
     @Test
+    public void makeReportAlsoExposesLegacyGetRptRoute() throws Exception {
+        var mapping = ReportController.class
+                .getMethod("makeReport", MakeReportRequest.class)
+                .getAnnotation(org.springframework.web.bind.annotation.PostMapping.class);
+
+        assertEquals(true, List.of(mapping.value()).contains("/getrpt"));
+    }
+
+    @Test
     public void saveReportKeepsLegacyNoOpSuccessSurface() {
         ReportController controller = new ReportController();
         MakeReportRequest request = new MakeReportRequest();

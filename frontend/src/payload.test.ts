@@ -33,6 +33,8 @@ describe("App defaults", () => {
   it("exposes the legacy report grid route in the Vue console", () => {
     expect(appSource).toContain("Report Grid");
     expect(appSource).toContain("/api/v1/report/makereport");
+    expect(appSource).toContain("/api/v1/report/getrpt");
+    expect(appSource).toContain("Get Report");
     expect(appSource).toContain("reportResponse");
   });
 

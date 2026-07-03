@@ -454,7 +454,7 @@ async function queryLegacyData() {
   }
 }
 
-async function makeReport() {
+async function runReport(action: string, path: string) {
   const request = buildMakeReportRequest({
     token: token.value,
     viewId: Number(reportViewId.value),
@@ -464,12 +464,18 @@ async function makeReport() {
     reportColsJson: reportColsJson.value
   });
 
-  const response = await runAction("makereport", () =>
-    postApi<ReportGridResult>("/api/v1/report/makereport", request)
-  );
+  const response = await runAction(action, () => postApi<ReportGridResult>(path, request));
   if (response) {
     reportResponse.value = response;
   }
+}
+
+async function makeReport() {
+  await runReport("makereport", "/api/v1/report/makereport");
+}
+
+async function getReport() {
+  await runReport("getrpt", "/api/v1/report/getrpt");
 }
 
 async function loadReportColumns() {
@@ -1103,7 +1109,7 @@ function formatValue(value: unknown) {
         <article class="panel lookup-panel">
           <div class="panel-heading">
             <h2>Report Grid</h2>
-            <span>POST /api/v1/report/makereport</span>
+            <span>POST /api/v1/report/makereport | /api/v1/report/getrpt</span>
           </div>
           <div class="inline-fields">
             <label>
@@ -1129,6 +1135,9 @@ function formatValue(value: unknown) {
           </label>
           <button class="primary" type="button" :disabled="pendingAction === 'makereport'" @click="makeReport">
             Make Report
+          </button>
+          <button type="button" :disabled="pendingAction === 'getrpt'" @click="getReport">
+            Get Report
           </button>
 
           <div class="table-wrap input-query-results">

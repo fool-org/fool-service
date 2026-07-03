@@ -68,7 +68,7 @@ public class ReportController {
         return new CommonResponse<>(result);
     }
 
-    @PostMapping("/makereport")
+    @PostMapping({"/makereport", "/getrpt"})
     @ResponseBody
     public CommonResponse<ReportGridResult> makeReport(@RequestBody MakeReportRequest request) {
         PageNavigator page = new PageNavigator();
