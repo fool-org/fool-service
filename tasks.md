@@ -91,6 +91,8 @@ explicitly named as authoritative for fool-service.
 - [x] Accept FoolFrame Pascal `SaveObj` and nested save payload fields at the
       generic legacy `saveobj` DTO boundary without binding saves to concrete
       business DTOs.
+- [x] Accept legacy `getenums` model-id spellings from both FoolFrame Web
+      proxy forms without changing the enum lookup contract.
 
 ## Backlog
 

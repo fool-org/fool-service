@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: `getenums` now accepts the legacy model-id request spellings
+  used around FoolFrame Web: `ModelId` from `Cloud-Social/soway.js`,
+  `modelid` from the web route proxy, and `ModelID` for the existing legacy
+  acronym convention. Enum lookup still resolves the generic model id through
+  `ModelDataService` and does not introduce business DTO binding.
 - 2026-07-04: `/saveobj` now accepts FoolFrame Web's Pascal/mixed generic
   save payload: top-level `SaveObj` plus nested `Id`, `ViewID`, `ParentId`,
   `Model`, `Propertyies`, `Itemproperties`, `Items`, `AddedItems`,

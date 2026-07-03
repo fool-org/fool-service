@@ -1,5 +1,6 @@
 package org.fool.framework.view.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.fool.framework.dto.CommonResponse;
 import org.fool.framework.model.model.EnumValue;
 import org.fool.framework.model.model.Model;
@@ -16,6 +17,15 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DataControllerEnumTest {
+    @Test
+    public void getEnumRequestReadsLegacyModelIdFields() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+
+        assertEquals("state", mapper.readValue("{\"ModelId\":\"state\"}", GetEnumRequest.class).getModelId());
+        assertEquals("state", mapper.readValue("{\"ModelID\":\"state\"}", GetEnumRequest.class).getModelId());
+        assertEquals("state", mapper.readValue("{\"modelid\":\"state\"}", GetEnumRequest.class).getModelId());
+    }
+
     @Test
     public void getEnumsReturnsLegacyEnumValues() throws Exception {
         Model model = new Model();
