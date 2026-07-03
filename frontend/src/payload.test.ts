@@ -40,6 +40,12 @@ describe("App defaults", () => {
     expect(appSource).toContain("reportModelResponse");
   });
 
+  it("exposes the legacy save report definition route in the Vue console", () => {
+    expect(appSource).toContain("Save Report Definition");
+    expect(appSource).toContain("/api/v1/report/saverpt");
+    expect(appSource).toContain("saveReportResponse");
+  });
+
   it("proxies the backend smoke route in local and Compose frontends", () => {
     expect(viteConfig).toContain('"/test"');
     expect(nginxConfig).toContain("location /test");
@@ -284,7 +290,8 @@ describe("buildMakeReportRequest", () => {
       currentPage: 2,
       pageSize: 10,
       queryFilter: " order_state=\"0\" ",
-      reportColsJson: "[{\"colName\":\"State\",\"index\":2},{\"colName\":\"Symbol\",\"index\":1}]"
+      reportColsJson: "[{\"colName\":\"State\",\"index\":2},{\"colName\":\"Symbol\",\"index\":1}]",
+      reportName: " Order Daily "
     });
 
     expect(request).toEqual({
@@ -293,6 +300,7 @@ describe("buildMakeReportRequest", () => {
       currentPage: 2,
       pageSize: 10,
       queryFilter: "order_state=\"0\"",
+      reportName: "Order Daily",
       reportCols: [
         { colName: "State", index: 2 },
         { colName: "Symbol", index: 1 }

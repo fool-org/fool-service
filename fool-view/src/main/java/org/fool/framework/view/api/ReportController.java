@@ -88,6 +88,12 @@ public class ReportController {
                 rows(queryResult)));
     }
 
+    @PostMapping("/saverpt")
+    @ResponseBody
+    public CommonResponse<Void> saveReport(@RequestBody MakeReportRequest request) {
+        return new CommonResponse<>((Void) null);
+    }
+
     private ReportModelResult.QueryCol reportModelCol(Property property) {
         ReportModelResult.QueryCol col = new ReportModelResult.QueryCol();
         PropertyType type = property.getPropertyType();

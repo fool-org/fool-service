@@ -219,6 +219,7 @@ export interface MakeReportRequest {
   currentPage?: number;
   pageSize?: number;
   queryFilter?: string;
+  reportName?: string;
 }
 
 export interface ReportCell {

@@ -56,6 +56,7 @@ const reportCurrentPage = ref(1);
 const reportPageSize = ref(10);
 const reportQueryFilter = ref('order_state="0"');
 const reportColsJson = ref('[{"colName":"Symbol","index":1},{"colName":"State","index":2}]');
+const reportName = ref("Order Daily");
 const inputQueryViewItemId = ref("symbol");
 const inputQueryText = ref("BTC");
 const inputQueryObjId = ref("");
@@ -84,6 +85,7 @@ const inputQueryResponse = ref<CommonResponse<InputQueryResult> | null>(null);
 const saveObjResponse = ref<CommonResponse<void> | null>(null);
 const reportResponse = ref<CommonResponse<ReportGridResult> | null>(null);
 const reportModelResponse = ref<CommonResponse<ReportModelResult> | null>(null);
+const saveReportResponse = ref<CommonResponse<void> | null>(null);
 const backendSmokeResponse = ref<CommonResponse<Record<string, unknown>[]> | null>(null);
 const errorMessage = ref("");
 const pendingAction = ref("");
@@ -330,6 +332,23 @@ async function loadReportColumns() {
   );
   if (response) {
     reportModelResponse.value = response;
+  }
+}
+
+async function saveReport() {
+  const request = buildMakeReportRequest({
+    token: token.value,
+    viewId: Number(reportViewId.value),
+    currentPage: Number(reportCurrentPage.value),
+    pageSize: Number(reportPageSize.value),
+    queryFilter: reportQueryFilter.value,
+    reportColsJson: reportColsJson.value,
+    reportName: reportName.value
+  });
+
+  const response = await runAction("saverpt", () => postApi<void>("/api/v1/report/saverpt", request));
+  if (response) {
+    saveReportResponse.value = response;
   }
 }
 
@@ -805,6 +824,34 @@ function formatValue(value: unknown) {
 
         <article class="panel lookup-panel">
           <div class="panel-heading">
+            <h2>Save Report Definition</h2>
+            <span>POST /api/v1/report/saverpt</span>
+          </div>
+          <div class="inline-fields">
+            <label>
+              View ID
+              <input v-model.number="reportViewId" min="1" type="number" />
+            </label>
+            <label>
+              Name
+              <input v-model="reportName" />
+            </label>
+          </div>
+          <label>
+            QueryFilter
+            <input v-model="reportQueryFilter" />
+          </label>
+          <label>
+            Report Columns JSON
+            <textarea v-model="reportColsJson" rows="3" spellcheck="false"></textarea>
+          </label>
+          <button class="primary" type="button" :disabled="pendingAction === 'saverpt'" @click="saveReport">
+            Save Report
+          </button>
+        </article>
+
+        <article class="panel lookup-panel">
+          <div class="panel-heading">
             <h2>Detail Data</h2>
             <span>POST /api/v1/data/querydatadetail</span>
           </div>
@@ -1012,6 +1059,7 @@ function formatValue(value: unknown) {
                 saveObj: saveObjResponse,
                 reportModel: reportModelResponse,
                 report: reportResponse,
+                saveReport: saveReportResponse,
                 backendSmoke: backendSmokeResponse
               },
               null,

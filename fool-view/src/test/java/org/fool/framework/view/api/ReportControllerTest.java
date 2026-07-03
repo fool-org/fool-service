@@ -119,6 +119,20 @@ public class ReportControllerTest {
     }
 
     @Test
+    public void saveReportKeepsLegacyNoOpSuccessSurface() {
+        ReportController controller = new ReportController();
+        MakeReportRequest request = new MakeReportRequest();
+        request.setViewId(100L);
+        request.setReportName("Order Daily");
+        request.setReportCols(List.of(reportCol("Symbol", 1)));
+        request.setFilterExp(filterExp("order_state", "1", "等于", "0", "Open"));
+
+        CommonResponse<Void> response = controller.saveReport(request);
+
+        assertEquals(0, response.getCode());
+    }
+
+    @Test
     public void makeReportMapsLegacySimpleFilterExpToQueryFilter() throws Exception {
         DataQueryService dataQueryService = mock(DataQueryService.class);
         when(dataQueryService.queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), eq("`order_state`='0'")))

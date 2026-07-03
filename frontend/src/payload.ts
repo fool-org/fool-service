@@ -84,6 +84,7 @@ export interface MakeReportRequestInput {
   pageSize: number;
   queryFilter?: string;
   reportColsJson: string;
+  reportName?: string;
 }
 
 export interface QueryRequest {
@@ -223,6 +224,10 @@ export function buildMakeReportRequest(input: MakeReportRequestInput): MakeRepor
   const queryFilter = input.queryFilter?.trim();
   if (queryFilter) {
     request.queryFilter = queryFilter;
+  }
+  const reportName = input.reportName?.trim();
+  if (reportName) {
+    request.reportName = reportName;
   }
   return request;
 }

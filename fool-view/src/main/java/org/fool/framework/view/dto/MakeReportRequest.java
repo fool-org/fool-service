@@ -20,6 +20,8 @@ public class MakeReportRequest extends CommonRequest {
     private String queryFilter;
     @JsonAlias("FilterExp")
     private BoolExp filterExp;
+    @JsonAlias("ReportName")
+    private String reportName;
 
     @Data
     public static class ReportCol {
