@@ -4,6 +4,7 @@ import {
   type AuthItem,
   type CommonResponse,
   type InputQueryResult,
+  type QueryDataDetailResult,
   type ListDataItem,
   type ListViewInfo,
   type ListViewResult,
@@ -13,7 +14,13 @@ import {
   type UserDTO,
   postApi
 } from "./api";
-import { buildInputQueryRequest, buildQueryRequest, buildSaveObjRequest, type VisibleFilterInput } from "./payload";
+import {
+  buildInputQueryRequest,
+  buildQueryDataDetailRequest,
+  buildQueryRequest,
+  buildSaveObjRequest,
+  type VisibleFilterInput
+} from "./payload";
 
 const token = ref(localStorage.getItem("fool-service-token") || "");
 const userId = ref("admin");
@@ -33,6 +40,9 @@ const inputQueryText = ref("BTC");
 const inputQueryObjId = ref("");
 const inputQueryOwnerId = ref("");
 const inputQueryIsAdded = ref(false);
+const detailViewId = ref(100);
+const detailObjId = ref("1001");
+const detailIdExp = ref("");
 const saveViewId = ref("100");
 const saveObjId = ref("1001");
 const savePropertyiesJson = ref('[{"key":"symbol","value":"BTC-USDT"},{"key":"state","value":"OPEN"}]');
@@ -44,6 +54,7 @@ const profileResponse = ref<CommonResponse<UserDTO> | null>(null);
 const menuResponse = ref<CommonResponse<TreeNode<AuthItem>[]> | null>(null);
 const viewResponse = ref<CommonResponse<ListViewInfo> | null>(null);
 const dataResponse = ref<CommonResponse<ListViewResult> | null>(null);
+const detailResponse = ref<CommonResponse<QueryDataDetailResult> | null>(null);
 const inputQueryResponse = ref<CommonResponse<InputQueryResult> | null>(null);
 const saveObjResponse = ref<CommonResponse<void> | null>(null);
 const errorMessage = ref("");
@@ -214,6 +225,22 @@ async function inputQuery() {
   );
   if (response) {
     inputQueryResponse.value = response;
+  }
+}
+
+async function queryDetail() {
+  const request = buildQueryDataDetailRequest({
+    token: token.value,
+    viewId: Number(detailViewId.value),
+    objId: detailObjId.value,
+    idExp: detailIdExp.value
+  });
+
+  const response = await runAction("detail", () =>
+    postApi<QueryDataDetailResult>("/api/v1/data/querydatadetail", request)
+  );
+  if (response) {
+    detailResponse.value = response;
   }
 }
 
@@ -420,6 +447,48 @@ function formatValue(value: unknown) {
 
         <article class="panel lookup-panel">
           <div class="panel-heading">
+            <h2>Detail Data</h2>
+            <span>POST /api/v1/data/querydatadetail</span>
+          </div>
+          <div class="inline-fields">
+            <label>
+              View ID
+              <input v-model.number="detailViewId" min="1" type="number" />
+            </label>
+            <label>
+              Object ID
+              <input v-model="detailObjId" />
+            </label>
+          </div>
+          <label>
+            ID Exp
+            <input v-model="detailIdExp" />
+          </label>
+          <button class="primary" type="button" :disabled="pendingAction === 'detail'" @click="queryDetail">
+            Load Detail
+          </button>
+
+          <div class="table-wrap input-query-results">
+            <table v-if="detailResponse?.data?.data?.simpleData?.length">
+              <thead>
+                <tr>
+                  <th>Property</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in detailResponse.data.data.simpleData" :key="item.prpId || item.prpShowName">
+                  <td>{{ item.prpShowName || item.prpId }}</td>
+                  <td>{{ item.fmtValue }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div v-else class="empty-state">No detail loaded.</div>
+          </div>
+        </article>
+
+        <article class="panel lookup-panel">
+          <div class="panel-heading">
             <h2>Input Query</h2>
             <span>POST /api/v1/data/inputquery</span>
           </div>
@@ -545,6 +614,7 @@ function formatValue(value: unknown) {
                 menus: menuResponse,
                 view: viewResponse,
                 data: dataResponse,
+                detail: detailResponse,
                 inputQuery: inputQueryResponse,
                 saveObj: saveObjResponse
               },

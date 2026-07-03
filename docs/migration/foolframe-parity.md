@@ -73,6 +73,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-03: exposed the migrated `saveobj` writeback API in the Vue operator
   console with typed payload building for simple properties and itemproperties,
   plus Docker runtime and MySQL writeback smoke coverage.
+- 2026-07-03: exposed the migrated `querydatadetail` API in the Vue operator
+  console with typed payload building, simple-data display, Docker runtime, and
+  backend detail smoke coverage.
 
 ## Server Source Mapping
 
@@ -138,6 +141,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Vue API types for legacy `getreaditemview` read-item payloads
 - Vue API types for legacy `querydata` request payloads
 - Vue API types for legacy `querydatadetail` request/result payloads
+- A Vue detail-data panel that calls legacy `/api/v1/data/querydatadetail` and
+  renders returned `SimpleData` rows
 - Vue API types for legacy `inputquery` request/result payloads
 - A Vue input candidate lookup panel that calls legacy `/api/v1/data/inputquery`
   with view item, text, existing-object ID, added-item owner ID, and added-item

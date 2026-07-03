@@ -1,4 +1,11 @@
-import type { InputQueryRequest, SaveItemProperty, SaveKeypair, SaveObject, SaveObjRequest } from "./api";
+import type {
+  InputQueryRequest,
+  LegacyQueryDataDetailRequest,
+  SaveItemProperty,
+  SaveKeypair,
+  SaveObject,
+  SaveObjRequest
+} from "./api";
 
 export interface QueryRequestInput {
   token: string;
@@ -35,6 +42,13 @@ export interface SaveObjRequestInput {
   itempropertiesJson?: string;
   parentId?: string;
   model?: string;
+}
+
+export interface QueryDataDetailRequestInput {
+  token: string;
+  viewId: number;
+  objId: string;
+  idExp?: string;
 }
 
 export interface QueryRequest {
@@ -104,6 +118,19 @@ export function buildSaveObjRequest(input: SaveObjRequestInput): SaveObjRequest 
     token: input.token,
     saveObj
   };
+}
+
+export function buildQueryDataDetailRequest(input: QueryDataDetailRequestInput): LegacyQueryDataDetailRequest {
+  const request: LegacyQueryDataDetailRequest = {
+    token: input.token,
+    viewId: input.viewId,
+    objId: input.objId.trim()
+  };
+  const idExp = input.idExp?.trim();
+  if (idExp) {
+    request.idExp = idExp;
+  }
+  return request;
 }
 
 function parseFilter(filterJson: string): Record<string, unknown> {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildInputQueryRequest, buildQueryRequest, buildSaveObjRequest } from "./payload";
+import { buildInputQueryRequest, buildQueryDataDetailRequest, buildQueryRequest, buildSaveObjRequest } from "./payload";
 
 describe("buildQueryRequest", () => {
   it("matches the Spring QueryDataRequest DTO shape", () => {
@@ -133,6 +133,24 @@ describe("buildSaveObjRequest", () => {
           }
         ]
       }
+    });
+  });
+});
+
+describe("buildQueryDataDetailRequest", () => {
+  it("matches the legacy querydatadetail DTO shape", () => {
+    const request = buildQueryDataDetailRequest({
+      token: "token-1",
+      viewId: 100,
+      objId: " 1001 ",
+      idExp: " order_id "
+    });
+
+    expect(request).toEqual({
+      token: "token-1",
+      viewId: 100,
+      objId: "1001",
+      idExp: "order_id"
     });
   });
 });
