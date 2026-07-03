@@ -101,6 +101,24 @@ export function itemValue(item: QueryDataDetailDataItem, field: ListDataValue) {
   return item.values?.find((value) => fieldKey(value) === key)?.fmtValue || "";
 }
 
+export function groupKey(group: QueryDataDetailItemGroup) {
+  return group.prpId || group.name || "items";
+}
+
+export function selectedChildViewId(group: QueryDataDetailItemGroup) {
+  return group.selectedView || group.listViewId || 0;
+}
+
+export function emptyGroupDraft(group: QueryDataDetailItemGroup) {
+  return groupColumns(group).reduce<Record<string, string>>((drafts, field) => {
+    const key = fieldKey(field);
+    if (key) {
+      drafts[key] = "";
+    }
+    return drafts;
+  }, {});
+}
+
 export function buildItemPropertyies(
   fields: ListDataValue[],
   drafts: Record<string, string>,

@@ -46,16 +46,19 @@ import {
   columnKey,
   columnTitle,
   displayValue,
+  emptyGroupDraft,
   fieldKey,
   fieldModelId,
   fieldTitle,
+  groupKey,
   groupColumns,
   isEnumField,
   itemKey,
   itemValue,
   rowFormatClass,
   rowObjectId,
-  rowValue
+  rowValue,
+  selectedChildViewId
 } from "./viewWorkflow";
 import {
   buildGetEnumRequest,
@@ -889,14 +892,6 @@ function nextObjectId() {
   return String(Date.now());
 }
 
-function groupKey(group: QueryDataDetailItemGroup) {
-  return group.prpId || group.name || "items";
-}
-
-function selectedChildViewId(group: QueryDataDetailItemGroup) {
-  return group.selectedView || group.listViewId || 0;
-}
-
 function enumFieldOptions(field: { prpModelId?: number }) {
   return enumOptions.value[String(field.prpModelId || "")] || [];
 }
@@ -918,8 +913,8 @@ async function loadFieldEnums() {
       enumOptions.value = {
         ...enumOptions.value,
         [modelId]: (response.data?.enumValues || []).map((item) => ({
-          label: item.name || formatValue(item.value),
-          value: formatValue(item.value)
+          label: item.name || displayValue(item.value),
+          value: displayValue(item.value)
         }))
       };
     }
@@ -929,20 +924,6 @@ async function loadFieldEnums() {
 async function loadCandidatePage(group: QueryDataDetailItemGroup, pageIndex: number) {
   setCandidateState(group, { pageIndex: Math.max(1, pageIndex) });
   await loadExistingDetailItems(group);
-}
-
-function emptyGroupDraft(group: QueryDataDetailItemGroup) {
-  return groupColumns(group).reduce<Record<string, string>>((drafts, field) => {
-    const key = fieldKey(field);
-    if (key) {
-      drafts[key] = "";
-    }
-    return drafts;
-  }, {});
-}
-
-function formatValue(value: unknown) {
-  return displayValue(value);
 }
 
 function syncDetailDrafts() {
@@ -1429,8 +1410,8 @@ function syncDetailDrafts() {
               </thead>
               <tbody>
                 <tr v-for="row in backendSmokeResponse.data" :key="String(row.id || row.order_price)">
-                  <td>{{ formatValue(row.id) }}</td>
-                  <td>{{ formatValue(row.order_price) }}</td>
+                  <td>{{ displayValue(row.id) }}</td>
+                  <td>{{ displayValue(row.order_price) }}</td>
                 </tr>
               </tbody>
             </table>

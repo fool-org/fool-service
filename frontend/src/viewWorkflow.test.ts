@@ -3,19 +3,22 @@ import {
   buildAddedItemProperty,
   buildDeletedItemProperty,
   buildDraftsFromRow,
+  emptyGroupDraft,
   buildFieldDrafts,
   buildSavePropertyies,
   buildSelectedExistingItemProperty,
   buildUpdatedItemProperty,
   columnKey,
   fieldModelId,
+  groupKey,
   isEnumField,
   isLookupField,
   isReadonlyField,
   itemKey,
   rowFormatClass,
   rowObjectId,
-  rowValue
+  rowValue,
+  selectedChildViewId
 } from "./viewWorkflow";
 
 describe("view workflow helpers", () => {
@@ -152,6 +155,24 @@ describe("view workflow helpers", () => {
           ]
         }
       ]
+    });
+  });
+
+  it("derives child group metadata helpers from View data", () => {
+    const group = {
+      name: "Items",
+      listViewId: 101,
+      properties: [
+        { prpId: "itemId", fmtValue: "" },
+        { prpId: "itemName", fmtValue: "" }
+      ]
+    };
+
+    expect(groupKey(group)).toBe("Items");
+    expect(selectedChildViewId(group)).toBe(101);
+    expect(emptyGroupDraft(group)).toEqual({
+      itemId: "",
+      itemName: ""
     });
   });
 });

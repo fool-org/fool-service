@@ -92,6 +92,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: moved reusable Vue child-group metadata helpers out of
+  `App.vue` and into `viewWorkflow.ts`: child group keys, selected child View
+  IDs, and empty child drafts are now shared tested helpers. `App.vue` dropped
+  the duplicate local helpers and uses the existing `displayValue` formatter
+  directly, keeping the View workflow smaller without changing runtime
+  behavior.
 - 2026-07-04: deleted the unused Vue `buildQueryRequest` helper and its
   `QueryRequestInput` / `VisibleFilterInput` types. The frontend no longer
   ships a request builder for the business-name `query-list` shortcut; active
