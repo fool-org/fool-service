@@ -85,7 +85,7 @@ public class ReportController {
                 queryResult.getTotalItem() == null ? 0 : queryResult.getTotalItem(),
                 queryResult.getTotalPage() == null ? 0 : queryResult.getTotalPage(),
                 columns(request, queryResult),
-                rows(queryResult)));
+                rows(request, queryResult)));
     }
 
     @PostMapping("/saverpt")
@@ -307,12 +307,50 @@ public class ReportController {
         return StringUtils.hasText(property.getRemark()) ? property.getRemark() : property.getName();
     }
 
-    private List<Map<String, Object>> rows(ListViewResult queryResult) {
+    private List<Map<String, Object>> rows(MakeReportRequest request, ListViewResult queryResult) {
         List<ListDataItem> items = queryResult.getData() == null ? queryResult.getItems() : queryResult.getData();
         if (items == null) {
             return List.of();
         }
-        return items.stream().map(this::row).toList();
+        return items.stream().map(item -> row(request, item)).toList();
+    }
+
+    private Map<String, Object> row(MakeReportRequest request, ListDataItem item) {
+        Map<String, Object> row = row(item);
+        if (CollectionUtils.isEmpty(request.getReportCols())) {
+            return row;
+        }
+        for (MakeReportRequest.ReportCol col : request.getReportCols()) {
+            String name = reportColumnName(request, col);
+            if (StringUtils.hasText(name) && !row.containsKey(name)) {
+                Object value = reportColumnValue(request, col, row);
+                if (value != null) {
+                    row.put(name, value);
+                }
+            }
+        }
+        return row;
+    }
+
+    private Object reportColumnValue(MakeReportRequest request, MakeReportRequest.ReportCol col, Map<String, Object> row) {
+        Property property = propertyByToken(request, col.getColId());
+        if (property == null) {
+            return null;
+        }
+        return firstValue(row,
+                property.getName(),
+                property.getRemark(),
+                property.getColumn(),
+                property.getId() == null ? null : property.getId().toString());
+    }
+
+    private Object firstValue(Map<String, Object> row, String... keys) {
+        for (String key : keys) {
+            if (StringUtils.hasText(key) && row.containsKey(key)) {
+                return row.get(key);
+            }
+        }
+        return null;
     }
 
     private Map<String, Object> row(ListDataItem item) {

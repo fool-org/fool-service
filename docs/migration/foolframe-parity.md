@@ -94,6 +94,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: report `getrpt` now projects selected `ReportCols[].ColId`
+  values into the requested `ColName` alias before rendering cells. This
+  matches the FoolFrame report path where `ColName` becomes the selected query
+  output column name, so custom report headers such as `Pair` still receive
+  data from the View model property resolved by `ColId`.
 - 2026-07-04: report `getrpt` now resolves legacy `ReportCols[].ColId`
   through the selected View's model metadata when `ColName` is absent. This
   matches the FoolFrame report protocol shape (`ColId`, `SelectedTypeId`,

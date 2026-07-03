@@ -159,6 +159,35 @@ public class ReportControllerTest {
     }
 
     @Test
+    public void makeReportProjectsColIdValuesToCustomReportColName() throws Exception {
+        DataQueryService dataQueryService = mock(DataQueryService.class);
+        DaoService daoService = mock(DaoService.class);
+        ListViewResult queryResult = new ListViewResult();
+        queryResult.setData(List.of(row()));
+        when(dataQueryService.queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), org.mockito.ArgumentMatchers.isNull()))
+                .thenReturn(queryResult);
+        when(daoService.getOneDetailByKey(eq(View.class), eq("100"))).thenReturn(view("100"));
+        when(daoService.getOneDetailByKey(eq(Model.class), eq("100")))
+                .thenReturn(model(property(1002L, "symbol", "order_symbol", PropertyType.String)));
+
+        ReportController controller = new ReportController();
+        setField(controller, "dataQueryService", dataQueryService);
+        setField(controller, "daoService", daoService);
+
+        MakeReportRequest request = new MakeReportRequest();
+        request.setViewId(100L);
+        request.setCurrentPage(1);
+        request.setPageSize(10);
+        request.setReportCols(List.of(reportCol("Pair", "1002", 1)));
+
+        CommonResponse<ReportGridResult> response = controller.makeReport(request);
+
+        assertEquals(0, response.getCode());
+        assertCell(response.getData().getCells().get(0), 0, 0, "Pair");
+        assertCell(response.getData().getCells().get(1), 0, 1, "BTC-USDT");
+    }
+
+    @Test
     public void saveReportKeepsLegacyNoOpSuccessSurface() {
         ReportController controller = new ReportController();
         MakeReportRequest request = new MakeReportRequest();
@@ -313,6 +342,12 @@ public class ReportControllerTest {
         MakeReportRequest.ReportCol col = new MakeReportRequest.ReportCol();
         col.setColName(name);
         col.setIndex(index);
+        return col;
+    }
+
+    private static MakeReportRequest.ReportCol reportCol(String name, String id, int index) {
+        MakeReportRequest.ReportCol col = reportCol(name, index);
+        col.setColId(id);
         return col;
     }
 

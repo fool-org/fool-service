@@ -63,6 +63,9 @@ explicitly named as authoritative for fool-service.
 - [x] Resolve report `ReportCols[].ColId` through View/Model metadata so
       legacy `getrpt` can render selected columns without frontend business
       DTO assumptions.
+- [x] Project report `ReportCols[].ColId` values into custom `ColName` aliases
+      so selected report columns render data even when the output header differs
+      from the View property name.
 
 ## Backlog
 
