@@ -6,6 +6,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.fool.framework.view.model.ViewOperationType;
 
+import java.util.List;
+
 @Data
 @ApiModel("可以进行操作")
 public class OperationInfo {
@@ -25,4 +27,6 @@ public class OperationInfo {
     private boolean requireSelect;
     @ApiModelProperty("操作位置")
     private int location;
+    @ApiModelProperty("legacy 操作参数")
+    private List<OperationParamInfo> params;
 }

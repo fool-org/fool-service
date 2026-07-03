@@ -3,6 +3,9 @@ package org.fool.framework.view.model;
 import lombok.Data;
 import org.fool.framework.model.model.Operation;
 
+import java.util.LinkedList;
+import java.util.List;
+
 @Data
 public class ViewOperation {
     private int location;
@@ -14,4 +17,5 @@ public class ViewOperation {
     private String confirmMsg;
     private String successMsg;
     private String errorMsg;
+    private List<OperationViewParam> params = new LinkedList<>();
 }

@@ -8,6 +8,7 @@ import org.fool.framework.model.model.OperationBaseType;
 import org.fool.framework.model.model.OperationCommand;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
+import org.fool.framework.view.model.OperationViewParam;
 import org.fool.framework.view.model.PersistedViewOperation;
 import org.fool.framework.view.model.View;
 import org.fool.framework.view.model.ViewItem;
@@ -97,6 +98,60 @@ public class ViewDataServiceTest {
                 result.getOperations().get(0).getOperation().getCommands().get(0).getCommandType());
         assertEquals(1003L,
                 result.getOperations().get(0).getOperation().getCommands().get(0).getPropertyId().longValue());
+    }
+
+    @Test
+    public void getViewDataHydratesLegacyOperationViewParams() {
+        DaoService daoService = mock(DaoService.class);
+        ViewDataService service = new ViewDataService();
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+
+        View view = new View();
+        view.setId(100L);
+        view.setViewModel("Order");
+        PersistedViewOperation row = new PersistedViewOperation();
+        row.setName("保存");
+        row.setOperationId(7002L);
+        row.setOperationViewId(8002L);
+
+        OperationViewParam param = new OperationViewParam();
+        param.setId(8101L);
+        param.setName("审批意见");
+        param.setIndex(1);
+        param.setParamId(7201L);
+        param.setParamName("remark");
+        param.setViewId(100L);
+        param.setFilter("state=0");
+        param.setValue("ok");
+
+        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
+        when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(new Model());
+        when(daoService.selectList(eq(PersistedViewOperation.class), anyString(), eq(100L))).thenReturn(List.of(row));
+        when(daoService.selectList(eq(OperationViewParam.class), anyString(), eq(8002L))).thenReturn(List.of(param));
+        when(daoService.selectList(eq(OperationCommand.class), anyString(), eq(7002L))).thenReturn(List.of());
+
+        View result = service.getViewData("100", "");
+
+        OperationViewParam hydrated = result.getOperations().get(0).getParams().get(0);
+        assertEquals(Long.valueOf(8101L), hydrated.getId());
+        assertEquals("审批意见", hydrated.getName());
+        assertEquals(Integer.valueOf(1), hydrated.getIndex());
+        assertEquals(Long.valueOf(7201L), hydrated.getParamId());
+        assertEquals("remark", hydrated.getParamName());
+        assertEquals(Long.valueOf(100L), hydrated.getViewId());
+        assertEquals("state=0", hydrated.getFilter());
+        assertEquals("ok", hydrated.getValue());
+
+        ArgumentCaptor<String> operationSql = ArgumentCaptor.forClass(String.class);
+        verify(daoService).selectList(eq(PersistedViewOperation.class), operationSql.capture(), eq(100L));
+        assertTrue(operationSql.getValue().contains("opv.`SW_SYS_OPVIEW_OPREATION` AS `SW_VIEW_OPERATION_MODELOPERATION`"));
+        assertTrue(operationSql.getValue().contains("opv.`SysId` = vo.`SW_VIEW_OPERATION_MODELOPERATION`"));
+        assertTrue(operationSql.getValue().contains("opv.`SysId` AS `operation_view_id`"));
+
+        ArgumentCaptor<String> paramSql = ArgumentCaptor.forClass(String.class);
+        verify(daoService).selectList(eq(OperationViewParam.class), paramSql.capture(), eq(8002L));
+        assertTrue(paramSql.getValue().contains("`SW_SYS_OPERATIONVIEW_ITEM`"));
+        assertTrue(paramSql.getValue().contains("`SW_SYS_OPERATION_PARAM`"));
     }
 
     @Test

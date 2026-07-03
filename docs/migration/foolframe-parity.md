@@ -90,6 +90,20 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: hydrated legacy operation-view parameter metadata from
+  `SW_SYS_OPERATIONVIEW_ITEM`. FoolFrame's `ViewOperation.Operation` points to
+  an `OperationView`, and that `OperationView` carries `Params` made of
+  `OperationViewItem` rows. The migrated `getlistview` / `querydatadetail`
+  paths now load those rows by `SW_SYS_OPERATIONVIEW.ParamsSysId`, join the
+  underlying `SW_SYS_OPERATION_PARAM`, and expose `operations[].params[]` with
+  item id/name/index plus param id/name/view/filter/value. The runtime join now
+  follows the legacy chain `SW_SYS_VIEW_OPERATION -> SW_SYS_OPERATIONVIEW ->
+  SW_SYS_OPERATION` instead of relying on matching operation-view/model-operation
+  IDs. Docker seed data now has ViewOperation `7002` point to OperationView
+  `8002`, which points to model Operation `7002`, plus parameter `7201` and
+  operation-view item `8101`; runtime proof shows both list-view and
+  detail-view operation DTOs include `paramName=remark`, `viewId=100`, and
+  `filter=state=0`.
 - 2026-07-04: completed the Docker proof for select-existing child saves.
   FoolFrame saves existing objects by loading the current object first
   (`GetDetail`), applying posted fields (`ObjUpdateToProxy`), then saving; the

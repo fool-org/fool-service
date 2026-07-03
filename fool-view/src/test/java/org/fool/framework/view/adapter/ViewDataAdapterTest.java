@@ -14,6 +14,7 @@ import org.fool.framework.view.dto.ListDataValue;
 import org.fool.framework.view.dto.ListViewResult;
 import org.fool.framework.view.dto.QueryDataDetailResult;
 import org.fool.framework.view.model.ItemEditType;
+import org.fool.framework.view.model.OperationViewParam;
 import org.fool.framework.view.model.View;
 import org.fool.framework.view.model.ViewItem;
 import org.fool.framework.view.model.ViewOperation;
@@ -274,6 +275,11 @@ public class ViewDataAdapterTest {
         Operation operation = new Operation();
         operation.setId(300L);
         edit.setOperation(operation);
+        OperationViewParam param = new OperationViewParam();
+        param.setName("审批意见");
+        param.setIndex(1);
+        param.setParamId(7201L);
+        edit.setParams(List.of(param));
 
         View view = new View();
         view.setViewName("OrderDetail");
@@ -302,6 +308,9 @@ public class ViewDataAdapterTest {
         assertEquals("Edit", result.getOperations().get(0).getName());
         assertEquals(Long.valueOf(300L), result.getOperations().get(0).getId());
         assertEquals(Long.valueOf(200L), result.getOperations().get(0).getViewId());
+        assertEquals("审批意见", result.getOperations().get(0).getParams().get(0).getName());
+        assertEquals(Integer.valueOf(1), result.getOperations().get(0).getParams().get(0).getIndex());
+        assertEquals(Long.valueOf(7201L), result.getOperations().get(0).getParams().get(0).getParamId());
     }
 
     @Test

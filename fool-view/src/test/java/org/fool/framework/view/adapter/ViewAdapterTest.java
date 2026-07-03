@@ -8,6 +8,7 @@ import org.fool.framework.view.dto.ListViewInfo;
 import org.fool.framework.view.dto.ReadItemViewInfo;
 import org.fool.framework.view.model.InputType;
 import org.fool.framework.view.model.ItemEditType;
+import org.fool.framework.view.model.OperationViewParam;
 import org.fool.framework.view.model.View;
 import org.fool.framework.view.model.ViewItem;
 import org.fool.framework.view.model.ViewOperation;
@@ -102,6 +103,13 @@ public class ViewAdapterTest {
         ViewOperation create = operation("Create", false, ViewOperationType.MODAL_DETAIL_VIEW, detailView);
         create.setLocation(0);
         create.setOperation(operation(300L));
+        OperationViewParam param = new OperationViewParam();
+        param.setName("审批意见");
+        param.setIndex(1);
+        param.setParamId(7201L);
+        param.setParamName("remark");
+        param.setViewId(201L);
+        create.setParams(List.of(param));
         ViewOperation delete = operation("Delete", true, ViewOperationType.COMMAND, null);
         delete.setLocation(2);
 
@@ -120,6 +128,12 @@ public class ViewAdapterTest {
         assertEquals("OrderDetail", info.getOperations().get(0).getViewName());
         assertEquals(Long.valueOf(200L), info.getOperations().get(0).getViewId());
         assertEquals(Long.valueOf(300L), info.getOperations().get(0).getId());
+        assertEquals(1, info.getOperations().get(0).getParams().size());
+        assertEquals("审批意见", info.getOperations().get(0).getParams().get(0).getName());
+        assertEquals(Integer.valueOf(1), info.getOperations().get(0).getParams().get(0).getIndex());
+        assertEquals(Long.valueOf(7201L), info.getOperations().get(0).getParams().get(0).getParamId());
+        assertEquals("remark", info.getOperations().get(0).getParams().get(0).getParamName());
+        assertEquals(Long.valueOf(201L), info.getOperations().get(0).getParams().get(0).getViewId());
 
         assertEquals("Delete", info.getOperations().get(1).getText());
         assertTrue(info.getOperations().get(1).isRequireSelect());

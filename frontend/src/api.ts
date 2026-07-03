@@ -170,6 +170,18 @@ export interface OperationInfo {
   viewId?: number;
   requireSelect?: boolean;
   location?: number;
+  params?: OperationParamInfo[];
+}
+
+export interface OperationParamInfo {
+  id?: number;
+  name?: string;
+  index?: number;
+  paramId?: number;
+  paramName?: string;
+  viewId?: number;
+  filter?: string;
+  value?: string;
 }
 
 export interface ListViewInfo {

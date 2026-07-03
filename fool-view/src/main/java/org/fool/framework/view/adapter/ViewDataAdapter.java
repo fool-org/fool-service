@@ -14,6 +14,7 @@ import org.fool.framework.view.dto.ListDataItem;
 import org.fool.framework.view.dto.ListDataValue;
 import org.fool.framework.view.dto.ListViewResult;
 import org.fool.framework.view.dto.OperationInfo;
+import org.fool.framework.view.dto.OperationParamInfo;
 import org.fool.framework.view.dto.QueryDataDetailResult;
 import org.fool.framework.view.model.ItemEditType;
 import org.fool.framework.view.model.View;
@@ -131,6 +132,7 @@ public class ViewDataAdapter {
         result.setViewName(operation.getResultView() == null || operation.getResultView().getViewName() == null
                 ? ""
                 : operation.getResultView().getViewName());
+        result.setParams(operation.getParams().stream().map(OperationParamInfo::from).toList());
         return result;
     }
 

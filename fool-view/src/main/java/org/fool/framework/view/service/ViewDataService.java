@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.fool.framework.dao.DaoService;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.OperationCommand;
+import org.fool.framework.view.model.OperationViewParam;
 import org.fool.framework.view.model.PersistedViewOperation;
 import org.fool.framework.view.model.View;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,17 +19,19 @@ import java.util.List;
 public class ViewDataService {
     private static final String VIEW_OPERATION_SQL = "SELECT "
             + "vo.`SysId`, vo.`SW_SYS_VIEW_OperationsVIEW_ID`, vo.`SW_VIEW_OPERATION_NAME`, "
-            + "vo.`SW_VIEW_OPERATION_MODELOPERATION`, vo.`SW_VIEW_OPERATION_RESULTVIEW`, "
+            + "opv.`SW_SYS_OPVIEW_OPREATION` AS `SW_VIEW_OPERATION_MODELOPERATION`, "
+            + "vo.`SW_VIEW_OPERATION_RESULTVIEW`, "
             + "vo.`SW_VIEW_OPERATION_INDEX`, vo.`SW_VIEW_OPERATION_REQUIRESELECTB`, "
             + "op.`SW_MODEL_OPERATION_FILTER`, op.`SW_MODEL_OPERATION_BASETYPE`, "
             + "op.`SW_MODEL_OPERATION_ARGMODEL`, op.`SW_MODEL_OPERATION_ARGFILTER`, "
             + "op.`SW_MODEL_OPERATION_INVOKEDLL`, op.`SW_MODEL_OPERATION_INVOKECLASS`, "
             + "op.`SW_MODEL_OPERATION_INVOKEMETHOD`, op.`SW_MODEL_OPERATION_RETURNMODEL`, "
+            + "opv.`SysId` AS `operation_view_id`, "
             + "opv.`SW_SYS_OPVIEW_SUCCESMSG`, "
             + "opv.`SW_SYS_OPVIEW_ERRORMSG`, opv.`SW_SYS_OPVIEW_ConfirmMSG` "
             + "FROM `SW_SYS_VIEW_OPERATION` vo "
-            + "LEFT JOIN `SW_SYS_OPERATION` op ON op.`SysId` = vo.`SW_VIEW_OPERATION_MODELOPERATION` "
-            + "LEFT JOIN `SW_SYS_OPERATIONVIEW` opv ON opv.`SW_SYS_OPVIEW_OPREATION` = vo.`SW_VIEW_OPERATION_MODELOPERATION` "
+            + "LEFT JOIN `SW_SYS_OPERATIONVIEW` opv ON opv.`SysId` = vo.`SW_VIEW_OPERATION_MODELOPERATION` "
+            + "LEFT JOIN `SW_SYS_OPERATION` op ON op.`SysId` = opv.`SW_SYS_OPVIEW_OPREATION` "
             + "WHERE vo.`SW_SYS_VIEW_OperationsVIEW_ID` = ? "
             + "ORDER BY vo.`SW_VIEW_OPERATION_INDEX`, vo.`SysId`";
     private static final String OPERATION_COMMAND_SQL = "SELECT "
@@ -39,6 +42,16 @@ public class ViewDataService {
             + "FROM `SW_SYS_COMMANDS` "
             + "WHERE `SW_SYS_OPERATION_CommandsSysId` = ? "
             + "ORDER BY `SW_SYS_COMMAND_INDEX`, `SysId`";
+    private static final String OPERATION_VIEW_PARAM_SQL = "SELECT "
+            + "ovi.`SysId`, ovi.`SW_SYS_OPERATIONVIEW_ParamsSysId`, "
+            + "ovi.`SW_SYS_OPVIEWITEM_NAME`, ovi.`SW_SYS_OPVIEWITEM_INDEX`, "
+            + "ovi.`SW_SYS_OPVIEWITEM_PARAM`, "
+            + "op.`SW_SYS_OPERATION_PARAM_NAME`, op.`SW_SYS_OPERATION_PARAM_VIEW`, "
+            + "op.`SW_SYS_OPERATION_PARAM_FILTER`, op.`SW_SYS_OPERATION_PARAM_VALUE` "
+            + "FROM `SW_SYS_OPERATIONVIEW_ITEM` ovi "
+            + "LEFT JOIN `SW_SYS_OPERATION_PARAM` op ON op.`SysId` = ovi.`SW_SYS_OPVIEWITEM_PARAM` "
+            + "WHERE ovi.`SW_SYS_OPERATIONVIEW_ParamsSysId` = ? "
+            + "ORDER BY ovi.`SW_SYS_OPVIEWITEM_INDEX`, ovi.`SysId`";
 
     @Autowired
     private DaoService daoService;
@@ -54,9 +67,17 @@ public class ViewDataService {
         if (view == null || view.getId() == null) {
             return;
         }
-        var operations = daoService.selectList(PersistedViewOperation.class, VIEW_OPERATION_SQL, view.getId()).stream()
+        var rows = daoService.selectList(PersistedViewOperation.class, VIEW_OPERATION_SQL, view.getId());
+        var operations = rows.stream()
                 .map(PersistedViewOperation::toViewOperation)
                 .toList();
+        for (int i = 0; i < rows.size(); i++) {
+            Long operationViewId = rows.get(i).getOperationViewId();
+            if (operationViewId != null) {
+                operations.get(i).setParams(daoService.selectList(
+                        OperationViewParam.class, OPERATION_VIEW_PARAM_SQL, operationViewId));
+            }
+        }
         operations.stream()
                 .filter(operation -> operation.getOperation() != null && operation.getOperation().getId() != null)
                 .forEach(operation -> {

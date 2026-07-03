@@ -37,6 +37,8 @@ public class PersistedViewOperation {
     private String invokeMethod;
     @Column("SW_MODEL_OPERATION_RETURNMODEL")
     private Long returnModelId;
+    @Column("operation_view_id")
+    private Long operationViewId;
     @Column("SW_SYS_OPVIEW_SUCCESMSG")
     private String successMsg;
     @Column("SW_SYS_OPVIEW_ERRORMSG")

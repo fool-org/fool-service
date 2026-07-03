@@ -6,6 +6,7 @@ import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.view.dto.ListViewInfo;
 import org.fool.framework.view.dto.OperationInfo;
+import org.fool.framework.view.dto.OperationParamInfo;
 import org.fool.framework.view.dto.ReadItemViewInfo;
 import org.fool.framework.view.dto.ReadItemViewItemInfo;
 import org.fool.framework.view.dto.TableColumnInfo;
@@ -174,6 +175,7 @@ public class ViewAdapter {
         result.setRequireSelect(operation.isRequireSelect());
         result.setType(operation.getType());
         result.setLocation(operation.getLocation());
+        result.setParams(operation.getParams().stream().map(OperationParamInfo::from).toList());
         if (operation.getResultView() == null) {
             result.setViewName("");
             result.setViewId(0L);

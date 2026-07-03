@@ -36,6 +36,8 @@ explicitly named as authoritative for fool-service.
 - [x] Drive the main Vue workflow through legacy `getlistview(viewId)` then
       `querydata(viewId)` so the rendered page follows View metadata instead
       of the newer business-name query shortcut.
+- [x] Hydrate legacy `SW_SYS_OPERATIONVIEW_ITEM` operation parameter metadata
+      into View operation DTOs for both list-view and detail-view responses.
 
 ## Backlog
 
