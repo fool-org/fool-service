@@ -238,6 +238,30 @@ export interface ReportGridResult {
   cells: ReportCell[];
 }
 
+export interface ReportModelOption {
+  id?: string;
+  name?: string;
+}
+
+export interface ReportModelState {
+  showName?: string;
+  dbName?: string;
+}
+
+export interface ReportModelColumn {
+  id?: string;
+  name?: string;
+  prpType?: number;
+  modelId?: number;
+  states?: ReportModelState[];
+  compareTypes?: ReportModelOption[];
+  queryTypes?: ReportModelOption[];
+}
+
+export interface ReportModelResult {
+  cols?: ReportModelColumn[];
+}
+
 export interface LegacyQueryDataDetailRequest {
   token?: string;
   viewId?: number;

@@ -34,6 +34,12 @@ describe("App defaults", () => {
     expect(appSource).toContain("reportResponse");
   });
 
+  it("exposes the legacy report column candidate route in the Vue console", () => {
+    expect(appSource).toContain("Report Columns");
+    expect(appSource).toContain("/api/v1/report/getmkqview");
+    expect(appSource).toContain("reportModelResponse");
+  });
+
   it("proxies the backend smoke route in local and Compose frontends", () => {
     expect(viteConfig).toContain('"/test"');
     expect(nginxConfig).toContain("location /test");

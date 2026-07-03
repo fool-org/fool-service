@@ -57,6 +57,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-03: exposed the legacy report model candidate-column lookup in the
+  Vue operator console, calling `/api/v1/report/getmkqview` by view ID and
+  rendering candidate columns with compare/select catalogs and enum states.
 - 2026-07-03: exposed the legacy report model candidate-column lookup at
   `/api/v1/report/getmkqview` and `/api/v1/report/mkqview`, returning the
   `ViewId` model properties with report property type, model enum states,
@@ -257,6 +260,9 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - A Vue report-grid panel that calls legacy `/api/v1/report/makereport` with
   view ID, page, `QueryFilter`, and report column JSON payloads, then renders
   returned report cells
+- Vue API types for legacy `getmkqview` report model candidate payloads
+- A Vue report-column panel that calls `/api/v1/report/getmkqview` by view ID
+  and renders candidate columns, compare/select catalogs, and enum states
 - Vue API types for legacy view-item `ID`, `Name`, `PropertyName`, `ShowIndex`, `Width`, `Format`, `IsReadOnly`, `EditType`, `PropertyId`, `EditViewId`, `EditExp`, linked-list-view defaults, `PropertyType`, and `PropertyModel` metadata
 - Vue API types for legacy view-item `ViewFile` metadata
 - Structured visible equality/range filters that emit Spring `QueryValue` payloads, plus advanced JSON filters

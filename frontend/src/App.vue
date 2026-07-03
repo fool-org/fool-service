@@ -12,6 +12,7 @@ import {
   type LoginVo,
   type ReadItemViewInfo,
   type ReportGridResult,
+  type ReportModelResult,
   type TableColumnInfo,
   type TreeNode,
   type UserDTO,
@@ -82,6 +83,7 @@ const enumResponse = ref<CommonResponse<GetEnumResult> | null>(null);
 const inputQueryResponse = ref<CommonResponse<InputQueryResult> | null>(null);
 const saveObjResponse = ref<CommonResponse<void> | null>(null);
 const reportResponse = ref<CommonResponse<ReportGridResult> | null>(null);
+const reportModelResponse = ref<CommonResponse<ReportModelResult> | null>(null);
 const backendSmokeResponse = ref<CommonResponse<Record<string, unknown>[]> | null>(null);
 const errorMessage = ref("");
 const pendingAction = ref("");
@@ -314,6 +316,20 @@ async function makeReport() {
   );
   if (response) {
     reportResponse.value = response;
+  }
+}
+
+async function loadReportColumns() {
+  const request = buildLegacyListViewRequest({
+    token: token.value,
+    viewId: Number(reportViewId.value)
+  });
+
+  const response = await runAction("report-columns", () =>
+    postApi<ReportModelResult>("/api/v1/report/getmkqview", request)
+  );
+  if (response) {
+    reportModelResponse.value = response;
   }
 }
 
@@ -692,6 +708,51 @@ function formatValue(value: unknown) {
 
         <article class="panel lookup-panel">
           <div class="panel-heading">
+            <h2>Report Columns</h2>
+            <span>POST /api/v1/report/getmkqview</span>
+          </div>
+          <label>
+            View ID
+            <input v-model.number="reportViewId" min="1" type="number" />
+          </label>
+          <button
+            class="primary"
+            type="button"
+            :disabled="pendingAction === 'report-columns'"
+            @click="loadReportColumns"
+          >
+            Load Columns
+          </button>
+
+          <div class="table-wrap input-query-results">
+            <table v-if="reportModelResponse?.data?.cols?.length">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>ID</th>
+                  <th>Type</th>
+                  <th>Compare</th>
+                  <th>Select</th>
+                  <th>States</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="col in reportModelResponse.data.cols" :key="col.id || col.name">
+                  <td>{{ col.name }}</td>
+                  <td>{{ col.id }}</td>
+                  <td>{{ col.prpType }}</td>
+                  <td>{{ col.compareTypes?.map((item) => item.name || item.id).join(", ") }}</td>
+                  <td>{{ col.queryTypes?.map((item) => item.name || item.id).join(", ") }}</td>
+                  <td>{{ col.states?.map((item) => item.showName || item.dbName).join(", ") }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div v-else class="empty-state">No report columns loaded.</div>
+          </div>
+        </article>
+
+        <article class="panel lookup-panel">
+          <div class="panel-heading">
             <h2>Report Grid</h2>
             <span>POST /api/v1/report/makereport</span>
           </div>
@@ -949,6 +1010,7 @@ function formatValue(value: unknown) {
                 enums: enumResponse,
                 inputQuery: inputQueryResponse,
                 saveObj: saveObjResponse,
+                reportModel: reportModelResponse,
                 report: reportResponse,
                 backendSmoke: backendSmokeResponse
               },
