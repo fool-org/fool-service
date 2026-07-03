@@ -159,6 +159,10 @@ export function buildLegacyListViewRequest(input: LegacyListViewRequestInput): V
   };
 }
 
+export function buildLegacyReadItemViewRequest(input: LegacyListViewRequestInput): ViewDataRequest {
+  return buildLegacyListViewRequest(input);
+}
+
 function parseFilter(filterJson: string): Record<string, unknown> {
   const trimmed = filterJson.trim();
   if (!trimmed) {

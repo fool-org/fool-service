@@ -10,6 +10,7 @@ import {
   type ListViewInfo,
   type ListViewResult,
   type LoginVo,
+  type ReadItemViewInfo,
   type TableColumnInfo,
   type TreeNode,
   type UserDTO,
@@ -19,6 +20,7 @@ import {
   buildGetEnumRequest,
   buildInputQueryRequest,
   buildLegacyListViewRequest,
+  buildLegacyReadItemViewRequest,
   buildQueryDataDetailRequest,
   buildQueryRequest,
   buildSaveObjRequest,
@@ -30,6 +32,7 @@ const userId = ref("admin");
 const password = ref("");
 const viewName = ref("OrderList");
 const legacyListViewId = ref(100);
+const readItemViewId = ref(100);
 const pageIndex = ref(1);
 const pageSize = ref(20);
 const filterJson = ref("{}");
@@ -58,6 +61,7 @@ const loginResponse = ref<CommonResponse<LoginVo> | null>(null);
 const profileResponse = ref<CommonResponse<UserDTO> | null>(null);
 const menuResponse = ref<CommonResponse<TreeNode<AuthItem>[]> | null>(null);
 const viewResponse = ref<CommonResponse<ListViewInfo> | null>(null);
+const readItemViewResponse = ref<CommonResponse<ReadItemViewInfo> | null>(null);
 const dataResponse = ref<CommonResponse<ListViewResult> | null>(null);
 const detailResponse = ref<CommonResponse<QueryDataDetailResult> | null>(null);
 const enumResponse = ref<CommonResponse<GetEnumResult> | null>(null);
@@ -207,6 +211,20 @@ async function loadLegacyListView() {
   const response = await runAction("legacy-list-view", () => postApi<ListViewInfo>("/api/v1/view/getlistview", request));
   if (response) {
     viewResponse.value = response;
+  }
+}
+
+async function loadReadItemView() {
+  const request = buildLegacyReadItemViewRequest({
+    token: token.value,
+    viewId: Number(readItemViewId.value)
+  });
+
+  const response = await runAction("read-item-view", () =>
+    postApi<ReadItemViewInfo>("/api/v1/view/getreaditemview", request)
+  );
+  if (response) {
+    readItemViewResponse.value = response;
   }
 }
 
@@ -410,6 +428,42 @@ function formatValue(value: unknown) {
             <div><span>Type</span><strong>{{ viewResponse.data.viewType || "-" }}</strong></div>
             <div><span>Columns</span><strong>{{ viewResponse.data.tableColumn?.length || 0 }}</strong></div>
             <div><span>Inputs</span><strong>{{ viewResponse.data.inputInfo?.length || 0 }}</strong></div>
+          </div>
+        </article>
+
+        <article class="panel lookup-panel">
+          <div class="panel-heading">
+            <h2>Read Item View</h2>
+            <span>POST /api/v1/view/getreaditemview</span>
+          </div>
+          <label>
+            View ID
+            <input v-model.number="readItemViewId" min="1" type="number" />
+          </label>
+          <button class="primary" type="button" :disabled="pendingAction === 'read-item-view'" @click="loadReadItemView">
+            Load Read Items
+          </button>
+
+          <div class="table-wrap input-query-results">
+            <table v-if="readItemViewResponse?.data?.items?.length">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Property</th>
+                  <th>Type</th>
+                  <th>Edit</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in readItemViewResponse.data.items" :key="item.prpId || item.name">
+                  <td>{{ item.name }}</td>
+                  <td>{{ item.prpId }}</td>
+                  <td>{{ item.prpType }}</td>
+                  <td>{{ item.editType }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div v-else class="empty-state">No read items loaded.</div>
           </div>
         </article>
 
@@ -686,6 +740,7 @@ function formatValue(value: unknown) {
                 profile: profileResponse,
                 menus: menuResponse,
                 view: viewResponse,
+                readItemView: readItemViewResponse,
                 data: dataResponse,
                 detail: detailResponse,
                 enums: enumResponse,

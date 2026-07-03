@@ -3,6 +3,7 @@ import {
   buildGetEnumRequest,
   buildInputQueryRequest,
   buildLegacyListViewRequest,
+  buildLegacyReadItemViewRequest,
   buildQueryDataDetailRequest,
   buildQueryRequest,
   buildSaveObjRequest
@@ -179,6 +180,20 @@ describe("buildGetEnumRequest", () => {
 describe("buildLegacyListViewRequest", () => {
   it("matches the legacy getlistview DTO shape", () => {
     const request = buildLegacyListViewRequest({
+      token: "token-1",
+      viewId: 100
+    });
+
+    expect(request).toEqual({
+      token: "token-1",
+      viewId: 100
+    });
+  });
+});
+
+describe("buildLegacyReadItemViewRequest", () => {
+  it("matches the legacy getreaditemview DTO shape", () => {
+    const request = buildLegacyReadItemViewRequest({
       token: "token-1",
       viewId: 100
     });
