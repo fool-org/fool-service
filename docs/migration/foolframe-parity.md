@@ -88,6 +88,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-03: added legacy `runoperation` `SetValue` math-expression
+  evaluation. Composite expressions such as `.retryCount+$2` now reuse the
+  migrated `MathExpression` parser, resolve operands through the existing
+  current-object and static-value branches, and convert the result back to the
+  target property type. Context values, owner traversal beyond the current
+  object shell, business-object loading, and other command types remain future
+  work.
 - 2026-07-03: widened legacy `runoperation` `SetValue` static-value
   conversion. `$...` command expressions now follow the simple scalar
   `GetStaticVlue` branches for Boolean, Byte, Char, DateTime, Int/UInt,

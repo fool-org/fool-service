@@ -7,6 +7,7 @@ import org.fool.framework.dao.QueryAndArgs;
 import org.fool.framework.dto.CommonException;
 import org.fool.framework.common.PropertyType;
 import org.fool.framework.common.data.SubItemList;
+import org.fool.framework.common.data.math.MathExpression;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.model.model.DbMysqlDynamic;
 import org.fool.framework.model.model.Model;
@@ -324,6 +325,12 @@ public class DataQueryService {
 
     private Object commandValue(Property property, IDynamicData data, String expression) {
         String value = expression == null ? "" : expression.trim();
+        if (isCompositeMathExpression(value)) {
+            String result = new MathExpression().calculateParenthesesExpression(
+                    value,
+                    part -> String.valueOf(commandValue(property, data, part)));
+            return staticValue(property, result);
+        }
         if (value.startsWith("$")) {
             return staticValue(property, value.substring(1));
         }
@@ -333,8 +340,26 @@ public class DataQueryService {
         if (value.startsWith("#.")) {
             return data.get(value.substring(2));
         }
-        // ponytail: only literal/current field expressions; add full GetValueExpression grammar when commands need it.
+        // ponytail: literal/current field/math only; add context/owner/business-object grammar when commands need it.
         return "";
+    }
+
+    private boolean isCompositeMathExpression(String value) {
+        if (!MathExpression.isMathExpression(value)) {
+            return false;
+        }
+        if (value.indexOf('+') >= 0 || value.indexOf('*') >= 0 || value.indexOf('/') >= 0
+                || value.indexOf('(') >= 0 || value.indexOf(')') >= 0) {
+            return true;
+        }
+        int minusIndex = value.indexOf('-', 1);
+        while (minusIndex >= 0 && minusIndex + 1 < value.length()) {
+            if ("$.#@".indexOf(value.charAt(minusIndex + 1)) >= 0) {
+                return true;
+            }
+            minusIndex = value.indexOf('-', minusIndex + 1);
+        }
+        return false;
     }
 
     private Object staticValue(Property property, String value) {

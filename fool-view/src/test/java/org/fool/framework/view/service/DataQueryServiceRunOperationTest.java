@@ -128,6 +128,30 @@ public class DataQueryServiceRunOperationTest {
     }
 
     @Test
+    public void runLegacyUpdateOperationEvaluatesSetValueMathExpression() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataService viewDataService = mock(ViewDataService.class);
+        DataQueryService service = service(daoService, modelDataService, viewDataService);
+        Model model = model();
+        View view = view(operationWithCommand(7002L, OperationBaseType.UPDATE, "保存成功",
+                command(CommandsType.SET_VALUE, 1004L, ".retryCount+$2", 1)));
+        DbMysqlDynamic data = new DbMysqlDynamic(model);
+        data.set("orderId", "1001");
+        data.set("retryCount", 7);
+        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(modelDataService.getModel("Order")).thenReturn(model);
+        when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
+        when(modelDataService.saveData(data)).thenReturn(true);
+
+        LegacyRunOperationResult result = service.runLegacyOperation(request("1001", 100L, 7002L));
+
+        verify(modelDataService).saveData(data);
+        assertTrue(result.isSuccess());
+        assertEquals(Integer.valueOf(9), data.get("retryCount"));
+    }
+
+    @Test
     public void runLegacyUpdateOperationConvertsStaticSetValueScalarTypes() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
