@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: Vue row identity and selected-existing child item payloads now
+  prefer legacy row `Items` metadata before falling back to `row.values`. The
+  API-tools result table also uses the shared `rowObjectId(row, columns)` key
+  instead of serializing the values DTO. This keeps row selection and
+  child-item saves aligned with the rendered View item order while preserving
+  `values` only as a compatibility fallback.
 - 2026-07-04: persisted View loading now hydrates FoolFrame's
   `SW_SYS_VIEW.VIEW_DEFAULT` into `getlistview.DetailViewId`, matching
   `HandlerGetListView` returning `view.DefaultDetailView.ID`. Docker seed data

@@ -24,7 +24,13 @@ export function columnTitle(column: TableColumnInfo) {
 
 export function rowObjectId(row: ListDataItem, columns: TableColumnInfo[] = []) {
   const firstColumnKey = columns[0] ? columnKey(columns[0]) : "";
-  return displayValue(row.id || (firstColumnKey ? row.values?.[firstColumnKey] : "") || row.items?.[0]?.objId || row.rowIndex);
+  return displayValue(
+    row.id
+      || row.items?.[0]?.objId
+      || row.items?.[0]?.fmtValue
+      || (firstColumnKey ? row.values?.[firstColumnKey] : "")
+      || row.rowIndex
+  );
 }
 
 export function rowValue(row: ListDataItem, column: TableColumnInfo) {
@@ -292,7 +298,11 @@ export function buildDraftsFromRow(fields: ListDataValue[], row: ListDataItem, c
     const byKey = row.items?.find((item) => fieldKey(item) === key);
     const byIndex = row.items?.[index];
     const columnKeyAtIndex = columns[index] ? columnKey(columns[index]) : "";
-    drafts[key] = byKey?.objId || byKey?.fmtValue || (columnKeyAtIndex ? displayValue(row.values?.[columnKeyAtIndex]) : "") || byIndex?.objId || byIndex?.fmtValue || "";
+    drafts[key] = byKey?.objId
+      || byKey?.fmtValue
+      || byIndex?.objId
+      || byIndex?.fmtValue
+      || (columnKeyAtIndex ? displayValue(row.values?.[columnKeyAtIndex]) : "");
     return drafts;
   }, {});
 }

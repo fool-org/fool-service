@@ -117,6 +117,16 @@ describe("view workflow helpers", () => {
     ]);
   });
 
+  it("uses legacy row item metadata before values DTO fallbacks", () => {
+    const columns = [{ property: "recordId", title: "Record ID" }];
+    const row = {
+      values: { recordId: "dto-id" },
+      items: [{ prpId: "recordId", objId: "item-id", fmtValue: "Item ID" }]
+    };
+
+    expect(rowObjectId(row, columns)).toBe("item-id");
+  });
+
   it("keeps legacy child collection add/update/delete payload names", () => {
     const group = {
       prpId: "items",
@@ -174,7 +184,7 @@ describe("view workflow helpers", () => {
     ];
     const row = {
       id: "3001",
-      values: { id: "3001", name: "Existing item" },
+      values: { id: "wrong-id", name: "Wrong item" },
       items: [
         { prpId: "id", objId: "3001", fmtValue: "3001" },
         { prpId: "name", objId: "Existing item", fmtValue: "Existing item" }

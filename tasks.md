@@ -136,6 +136,8 @@ explicitly named as authoritative for fool-service.
 - [x] Hydrate persisted legacy `SW_SYS_VIEW.VIEW_DEFAULT` into
       `getlistview.DetailViewId` and prove runtime detail loading uses that
       loaded View metadata instead of a fixed business DTO/detail id.
+- [x] Prefer legacy row `Items` metadata over `row.values` DTO fallbacks for
+      Vue row identity and selected-existing child item payloads.
 
 ## Backlog
 

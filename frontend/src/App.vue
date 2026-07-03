@@ -1931,7 +1931,7 @@ function syncDetailDrafts() {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in resultRows" :key="row.id || JSON.stringify(row.values)">
+                <tr v-for="row in resultRows" :key="rowObjectId(row, resultColumns)">
                   <td
                     v-for="column in resultColumns"
                     :key="column.property || column.title"
