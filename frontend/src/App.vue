@@ -9,6 +9,7 @@ import {
   type GetMessageResult,
   type GetNotifyResult,
   type InputQueryResult,
+  type LegacySubMenuResult,
   type LegacyUserInfoResult,
   type QueryDataDetailResult,
   type ListDataItem,
@@ -87,6 +88,7 @@ const saveNewOwnerId = ref("");
 const saveNewProperty = ref("items");
 const checkCodeKey = ref("");
 const checkCodeValue = ref("");
+const subMenuParentAuthCode = ref("");
 const activeSection = ref("auth");
 
 const loginResponse = ref<CommonResponse<LoginVo> | null>(null);
@@ -94,6 +96,7 @@ const profileResponse = ref<CommonResponse<UserDTO> | null>(null);
 const legacyUserInfoResponse = ref<CommonResponse<LegacyUserInfoResult> | null>(null);
 const checkCodeResponse = ref<CommonResponse<CheckCodeResult> | null>(null);
 const checkCodeValidationResponse = ref<CommonResponse<boolean> | null>(null);
+const subMenuResponse = ref<CommonResponse<LegacySubMenuResult> | null>(null);
 const logoutResponse = ref<CommonResponse<void> | null>(null);
 const menuResponse = ref<CommonResponse<TreeNode<AuthItem>[]> | null>(null);
 const viewResponse = ref<CommonResponse<ListViewInfo> | null>(null);
@@ -274,6 +277,18 @@ async function loadMenus() {
   );
   if (response) {
     menuResponse.value = response;
+  }
+}
+
+async function loadSubMenu() {
+  const response = await runAction("getsubmenu", () =>
+    postApi<LegacySubMenuResult>("/api/v1/auth/getsubmenu", {
+      token: token.value,
+      ParentAuthCode: subMenuParentAuthCode.value.trim()
+    })
+  );
+  if (response) {
+    subMenuResponse.value = response;
   }
 }
 
@@ -661,6 +676,42 @@ function formatValue(value: unknown) {
           <div v-if="checkCodeResponse?.data" class="summary-list">
             <div><span>Image bytes</span><strong>{{ checkCodeResponse.data.chkCodeImg?.length || 0 }}</strong></div>
             <div><span>Valid</span><strong>{{ checkCodeValidationResponse?.data ?? "-" }}</strong></div>
+          </div>
+        </article>
+
+        <article class="panel lookup-panel">
+          <div class="panel-heading">
+            <h2>Sub Menu</h2>
+            <span>POST /api/v1/auth/getsubmenu</span>
+          </div>
+          <label>
+            Parent Auth Code
+            <input v-model="subMenuParentAuthCode" placeholder="blank for top level" />
+          </label>
+          <button class="primary" type="button" :disabled="pendingAction === 'getsubmenu'" @click="loadSubMenu">
+            Load Sub Menu
+          </button>
+
+          <div class="table-wrap input-query-results">
+            <table v-if="subMenuResponse?.data?.items?.length">
+              <thead>
+                <tr>
+                  <th>Auth</th>
+                  <th>Text</th>
+                  <th>View</th>
+                  <th>Index</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in subMenuResponse.data.items" :key="item.authNo || item.text">
+                  <td>{{ item.authNo }}</td>
+                  <td>{{ item.text }}</td>
+                  <td>{{ item.viewId }}</td>
+                  <td>{{ item.index }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div v-else class="empty-state">No submenu items loaded.</div>
           </div>
         </article>
 
@@ -1323,6 +1374,7 @@ function formatValue(value: unknown) {
                 legacyUserInfo: legacyUserInfoResponse,
                 checkCode: checkCodeResponse,
                 checkCodeValidation: checkCodeValidationResponse,
+                subMenu: subMenuResponse,
                 logout: logoutResponse,
                 menus: menuResponse,
                 view: viewResponse,

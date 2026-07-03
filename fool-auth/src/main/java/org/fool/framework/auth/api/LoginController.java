@@ -1,6 +1,7 @@
 package org.fool.framework.auth.api;
 
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import org.fool.framework.auth.business.model.Auth;
 import org.fool.framework.auth.business.service.AuthService;
 import org.fool.framework.auth.business.service.CheckCodeService;
@@ -67,6 +68,15 @@ public class LoginController {
         return new CommonResponse<List<TreeNode<Auth>>>(authService.getAuth(request.getToken()));
     }
 
+    @ApiOperation("得到旧版子菜单")
+    @PostMapping("/getsubmenu")
+    @ResponseBody
+    public CommonResponse<LegacySubMenuResult> getSubMenu(@RequestBody LegacySubMenuRequest request) {
+        return new CommonResponse<>(
+                new LegacySubMenuResult(request.getToken(),
+                        authService.getLegacySubMenus(request.getToken(), request.getParentAuthCode())));
+    }
+
     @ApiOperation("登出")
     @PostMapping("/logout")
     @ResponseBody
@@ -112,5 +122,17 @@ public class LoginController {
         private String companyName = "";
         private String departmentName = "";
         private String userAvtarUrl = "";
+    }
+
+    @Data
+    public static class LegacySubMenuRequest extends CommonRequest {
+        @JsonAlias("ParentAuthCode")
+        private String parentAuthCode;
+    }
+
+    @Data
+    public static class LegacySubMenuResult {
+        private final String token;
+        private final List<AuthService.LegacyAuthItem> items;
     }
 }

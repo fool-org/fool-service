@@ -3,6 +3,7 @@ package org.fool.framework.auth.business.service;
 import org.fool.framework.auth.business.common.BusinessErrorCode;
 import org.fool.framework.auth.business.model.Auth;
 import org.fool.framework.auth.business.model.User;
+import org.fool.framework.auth.foolframework.auth.MenuItem;
 import org.fool.framework.auth.dto.LoginVo;
 import org.fool.framework.auth.dto.UserDTO;
 import org.fool.framework.common.data.tree.ITreeFactory;
@@ -11,9 +12,11 @@ import org.fool.framework.common.data.tree.TreeNodeCompareResult;
 import org.fool.framework.dao.DaoService;
 import org.fool.framework.dto.CommonException;
 import lombok.extern.slf4j.Slf4j;
+import lombok.Data;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -24,6 +27,26 @@ import java.util.List;
 @Service
 @Slf4j
 public class AuthService {
+    private static final String LEGACY_MENU_BASE_SQL = """
+            select distinct m.* from SW_APP_AUTH_MENU m
+            join SW_APP_AUTH_MENU_SW_APP_AUTH_ROLE mr on mr.SW_APP_AUTH_MENU_ID = m.AUTH_MENU_ID
+            join SW_APP_AUTH_ROLE_SW_APP_AUTH_USER ru on ru.SW_APP_AUTH_ROLE_ID = mr.SW_APP_AUTH_ROLE_ID
+            join SW_APP_AUTH_USER u on u.APP_AUTH_ID = ru.SW_APP_AUTH_USER_ID
+            """;
+    private static final String LEGACY_TOP_MENU_SQL = LEGACY_MENU_BASE_SQL + """
+            where u.APP_AUTH_USERLOGINNAME = ?
+              and not exists (
+                select 1 from SW_APP_AUTH_MENU_SubItems s
+                where s.SW_APP_AUTH_MENU_SUBITEMS_ITEM = m.AUTH_MENU_ID
+              )
+            order by m.AUTH_MENU_INDEX
+            """;
+    private static final String LEGACY_CHILD_MENU_SQL = LEGACY_MENU_BASE_SQL + """
+            join SW_APP_AUTH_MENU_SubItems s on s.SW_APP_AUTH_MENU_SUBITEMS_ITEM = m.AUTH_MENU_ID
+            where u.APP_AUTH_USERLOGINNAME = ?
+              and s.SW_APP_AUTH_MENU_SubItemsAUTH_MENU_ID = ?
+            order by m.AUTH_MENU_INDEX
+            """;
 
 
     @Autowired
@@ -124,6 +147,27 @@ public class AuthService {
                 });
     }
 
+    public List<LegacyAuthItem> getLegacySubMenus(String token, String parentAuthCode) {
+        String userId = tokenService.getUidByToken(token);
+        List<MenuItem> items = StringUtils.hasText(parentAuthCode)
+                ? daoService.selectList(MenuItem.class, LEGACY_CHILD_MENU_SQL, userId, Long.parseLong(parentAuthCode))
+                : daoService.selectList(MenuItem.class, LEGACY_TOP_MENU_SQL, userId);
+        return items.stream().map(this::legacyAuthItem).toList();
+    }
+
+    private LegacyAuthItem legacyAuthItem(MenuItem menu) {
+        LegacyAuthItem item = new LegacyAuthItem();
+        item.setText(menu.getText());
+        item.setNote(menu.getText());
+        item.setImageUrl(menu.getImage());
+        item.setAuthType(1);
+        item.setViewId(menu.getViewId() == null ? 0L : menu.getViewId());
+        item.setViewType(3);
+        item.setIndex(menu.getIndex() == null ? 0 : menu.getIndex());
+        item.setAuthNo(menu.getId() == null ? "" : menu.getId().toString());
+        return item;
+    }
+
     /**
      * @param token
      * @return
@@ -138,5 +182,18 @@ public class AuthService {
 
     public void logout(String token) {
         tokenService.logoutToken(token);
+    }
+
+    @Data
+    public static class LegacyAuthItem {
+        private String text;
+        private String note;
+        private String imageUrl;
+        private int authType;
+        private long viewId;
+        private int notifyCount;
+        private int viewType;
+        private int index;
+        private String authNo;
     }
 }

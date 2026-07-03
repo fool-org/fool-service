@@ -73,6 +73,12 @@ describe("App defaults", () => {
     expect(appSource).toContain("checkCodeResponse");
   });
 
+  it("exposes the legacy submenu route in the Vue console", () => {
+    expect(appSource).toContain("Sub Menu");
+    expect(appSource).toContain("/api/v1/auth/getsubmenu");
+    expect(appSource).toContain("subMenuResponse");
+  });
+
   it("exposes the legacy initnew route in the Vue console", () => {
     expect(appSource).toContain("Init New Object");
     expect(appSource).toContain("/api/v1/data/initnew");

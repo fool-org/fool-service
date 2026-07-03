@@ -28,6 +28,23 @@ export interface LegacyUserInfoResult {
   user?: LegacyUserInfo;
 }
 
+export interface LegacyAuthItem {
+  text?: string;
+  note?: string;
+  imageUrl?: string;
+  authType?: number;
+  viewId?: number;
+  notifyCount?: number;
+  viewType?: number;
+  index?: number;
+  authNo?: string;
+}
+
+export interface LegacySubMenuResult {
+  token?: string;
+  items?: LegacyAuthItem[];
+}
+
 export interface CheckCodeResult {
   key?: string;
   code?: string;

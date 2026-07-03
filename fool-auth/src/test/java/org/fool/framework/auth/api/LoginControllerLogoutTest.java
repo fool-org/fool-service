@@ -1,5 +1,6 @@
 package org.fool.framework.auth.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.fool.framework.auth.business.service.AuthService;
 import org.fool.framework.auth.business.service.CheckCodeService;
 import org.fool.framework.auth.dto.UserDTO;
@@ -8,6 +9,7 @@ import org.fool.framework.dto.CommonResponse;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -83,6 +85,37 @@ public class LoginControllerLogoutTest {
         assertEquals(0, response.getCode());
         assertEquals(Boolean.TRUE, response.getData());
         verify(checkCodeService).validate(request);
+    }
+
+    @Test
+    public void getSubMenuReturnsLegacyAuthItems() throws Exception {
+        AuthService authService = mock(AuthService.class);
+        LoginController controller = new LoginController();
+        setField(controller, "authService", authService);
+        LoginController.LegacySubMenuRequest request = new LoginController.LegacySubMenuRequest();
+        request.setToken("token-1");
+        request.setParentAuthCode("1");
+        AuthService.LegacyAuthItem item = new AuthService.LegacyAuthItem();
+        item.setAuthNo("2");
+        item.setText("OrderList");
+        when(authService.getLegacySubMenus("token-1", "1")).thenReturn(List.of(item));
+
+        CommonResponse<LoginController.LegacySubMenuResult> response = controller.getSubMenu(request);
+
+        assertEquals(0, response.getCode());
+        assertEquals("token-1", response.getData().getToken());
+        assertEquals("2", response.getData().getItems().get(0).getAuthNo());
+        verify(authService).getLegacySubMenus("token-1", "1");
+    }
+
+    @Test
+    public void subMenuRequestAcceptsLegacyParentAuthCode() throws Exception {
+        LoginController.LegacySubMenuRequest request = new ObjectMapper().readValue(
+                "{\"Token\":\"token-1\",\"ParentAuthCode\":\"1\"}",
+                LoginController.LegacySubMenuRequest.class);
+
+        assertEquals("token-1", request.getToken());
+        assertEquals("1", request.getParentAuthCode());
     }
 
     private static void setField(Object target, String name, Object value) throws Exception {
