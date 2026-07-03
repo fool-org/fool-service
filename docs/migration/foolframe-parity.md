@@ -88,26 +88,28 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-03: added legacy `runoperation` `SetValue` static
+  `BusinessObject` value loading. `$...` expressions targeting a
+  `BusinessObject` property now load the referenced row through the target
+  property model before assigning the command value, matching the FoolFrame
+  `GetStaticVlue` object branch.
 - 2026-07-03: added legacy `runoperation` `SetValue` math-expression
   evaluation. Composite expressions such as `.retryCount+$2` now reuse the
   migrated `MathExpression` parser, resolve operands through the existing
   current-object and static-value branches, and convert the result back to the
   target property type. Context values, owner traversal beyond the current
-  object shell, business-object loading, and other command types remain future
-  work.
+  object shell, and other command types remain future work.
 - 2026-07-03: widened legacy `runoperation` `SetValue` static-value
   conversion. `$...` command expressions now follow the simple scalar
   `GetStaticVlue` branches for Boolean, Byte, Char, DateTime, Int/UInt,
   Long/ULong, Decimal, and Double/Float target properties, while string-like
-  property types keep the literal value. Math, context values, owner
-  traversal, business-object loading, and other command types remain future
-  work.
+  property types keep the literal value. Context values, owner traversal, and
+  other command types remain future work.
 - 2026-07-03: extended legacy `runoperation` `SetValue` expression parity.
   FoolFrame-style current-object property expressions such as `.symbol` now
   read from the target object before UPDATE save, and static `$...` values are
-  converted for `Int`/`UInt` target properties before assignment. Math,
-  context values, owner traversal, business-object loading, and other command
-  types remain future work.
+  converted for `Int`/`UInt` target properties before assignment. Context
+  values, owner traversal, and other command types remain future work.
 - 2026-07-03: migrated the first legacy `runoperation` command execution
   slice. Persisted `SW_SYS_COMMANDS` rows now hydrate onto operations,
   `CommandsType.SetValue` literal expressions such as `$1` are applied before

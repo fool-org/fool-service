@@ -187,6 +187,38 @@ public class DataQueryServiceRunOperationTest {
     }
 
     @Test
+    public void runLegacyUpdateOperationLoadsStaticBusinessObjectSetValue() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataService viewDataService = mock(ViewDataService.class);
+        DataQueryService service = service(daoService, modelDataService, viewDataService);
+        Model model = model();
+        Model customerModel = new Model();
+        customerModel.setName("Customer");
+        model.getProperties().stream()
+                .filter(property -> property.getId().equals(1012L))
+                .findFirst()
+                .orElseThrow()
+                .setPropertyModel(customerModel);
+        View view = view(operationWithCommand(7002L, OperationBaseType.UPDATE, "保存成功",
+                command(CommandsType.SET_VALUE, 1012L, "$C001", 1)));
+        DbMysqlDynamic data = new DbMysqlDynamic(model);
+        data.set("orderId", "1001");
+        DbMysqlDynamic customer = new DbMysqlDynamic(customerModel);
+        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(modelDataService.getModel("Order")).thenReturn(model);
+        when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
+        when(modelDataService.getOneData("Customer", "C001")).thenReturn(customer);
+        when(modelDataService.saveData(data)).thenReturn(true);
+
+        LegacyRunOperationResult result = service.runLegacyOperation(request("1001", 100L, 7002L));
+
+        verify(modelDataService).saveData(data);
+        assertTrue(result.isSuccess());
+        assertEquals(customer, data.get("customer"));
+    }
+
+    @Test
     public void runLegacyUpdateOperationAppliesSetValueFromCurrentObjectProperty() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
@@ -375,9 +407,14 @@ public class DataQueryServiceRunOperationTest {
         startsAt.setName("startsAt");
         startsAt.setColumn("starts_at");
         startsAt.setPropertyType(PropertyType.DateTime);
+        Property customer = new Property();
+        customer.setId(1012L);
+        customer.setName("customer");
+        customer.setColumn("customer_id");
+        customer.setPropertyType(PropertyType.BusinessObject);
         model.setIdProperty(orderId);
         model.setProperties(List.of(orderId, symbol, state, retryCount, confirmed,
-                byteCode, marker, longCode, amount, ratio, startsAt));
+                byteCode, marker, longCode, amount, ratio, startsAt, customer));
         return model;
     }
 }

@@ -374,6 +374,10 @@ public class DataQueryService {
             case Int, UInt, Long, ULong -> Integer.valueOf(value);
             case Decimal -> new BigDecimal(value);
             case Double, Float -> Double.valueOf(value);
+            case BusinessObject -> property.getPropertyModel() == null
+                    || !StringUtils.hasText(property.getPropertyModel().getName())
+                    ? value
+                    : modelDataService.getOneData(property.getPropertyModel().getName(), value);
             default -> value;
         };
     }
