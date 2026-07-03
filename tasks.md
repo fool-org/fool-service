@@ -143,6 +143,8 @@ explicitly named as authoritative for fool-service.
 - [x] Remove `row.values` from Vue View row identity, cell rendering, and
       selected-existing child save mapping so rendered pages stay View/Items
       driven instead of business DTO driven.
+- [x] Send the main Vue View workflow search text as legacy
+      `querydata.QueryFilter`, matching FoolFrame's list page filter box.
 
 ## Backlog
 

@@ -86,6 +86,17 @@ describe("App defaults", () => {
     expect(appSource).not.toContain("buildQueryRequest");
   });
 
+  it("passes the main View filter as legacy querydata QueryFilter", () => {
+    const querySource = appSource.slice(
+      appSource.indexOf("async function queryCurrentViewData"),
+      appSource.indexOf("async function loadResultPage")
+    );
+
+    expect(appSource).toContain('v-model="legacyQueryFilter"');
+    expect(querySource).toContain("queryFilter: legacyQueryFilter.value");
+    expect(querySource).not.toContain("keyword:");
+  });
+
   it("keeps metadata lookup tied to the rendered view id", () => {
     expect(metadataFieldEditorSource).toContain("viewId: props.viewId");
     expect(metadataFieldEditorSource).not.toContain("viewName");

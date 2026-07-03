@@ -98,7 +98,6 @@ const legacyListViewId = ref(100);
 const readItemViewId = ref(100);
 const pageIndex = ref(1);
 const pageSize = ref(20);
-const keyword = ref("");
 const legacyQueryViewId = ref(100);
 const legacyQueryPageIndex = ref(1);
 const legacyQueryPageSize = ref(10);
@@ -461,7 +460,7 @@ async function queryCurrentViewData() {
     viewId,
     pageIndex: Number(pageIndex.value),
     pageSize: Number(pageSize.value),
-    keyword: keyword.value
+    queryFilter: legacyQueryFilter.value
   });
 
   const response = await runAction("workflow-query", () => postApi<ListViewResult>("/api/v1/data/querydata", request));
@@ -1001,8 +1000,8 @@ function syncDetailDrafts() {
               <input v-model.number="legacyListViewId" min="1" type="number" />
             </label>
             <label>
-              Keyword
-              <input v-model="keyword" />
+              QueryFilter
+              <input v-model="legacyQueryFilter" />
             </label>
             <label>
               Page size
