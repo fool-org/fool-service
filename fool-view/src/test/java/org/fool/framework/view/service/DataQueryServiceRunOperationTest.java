@@ -469,6 +469,40 @@ public class DataQueryServiceRunOperationTest {
     }
 
     @Test
+    public void runLegacyUpdateOperationMapsOutModelDetailWhenTargetOperationIsMissing() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataService viewDataService = mock(ViewDataService.class);
+        DataQueryService service = service(daoService, modelDataService, viewDataService);
+        Model model = model();
+        Model shipmentModel = shipmentModel();
+        OperationCommand outCommand = command(CommandsType.EXUTE_OUT_MODEL_METHOD, 1012L, "MissingClose", 1);
+        outCommand.setArgModelId(200L);
+        outCommand.setArgSourceIdExpression(".customer");
+        outCommand.setArgExpression(".status");
+        View view = view(operationWithCommand(7002L, OperationBaseType.UPDATE, "保存成功", outCommand));
+        DbMysqlDynamic data = new DbMysqlDynamic(model);
+        data.set("orderId", "1001");
+        data.set("customer", "S001");
+        DbMysqlDynamic shipment = new DbMysqlDynamic(shipmentModel);
+        shipment.set("shipmentId", "S001");
+        shipment.set("status", "delivered");
+        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(modelDataService.getModel("Order")).thenReturn(model);
+        when(modelDataService.getModel("200")).thenReturn(shipmentModel);
+        when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
+        when(modelDataService.getOneData("Shipment", "S001")).thenReturn(shipment);
+        when(modelDataService.saveData(data)).thenReturn(true);
+
+        LegacyRunOperationResult result = service.runLegacyOperation(request("1001", 100L, 7002L));
+
+        assertTrue(result.isSuccess());
+        assertEquals("delivered", data.get("customer"));
+        verify(modelDataService, never()).saveData(shipment);
+        verify(modelDataService).saveData(data);
+    }
+
+    @Test
     public void runLegacyOperationReturnsLegacyErrorMessageWhenExecutionFails() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
