@@ -41,6 +41,8 @@ explicitly named as authoritative for fool-service.
 - [x] Persist dynamic `BusinessObject` fields through their foreign-key ids so
       legacy `runoperation` update saves stay metadata-driven and do not bind
       to concrete business DTOs.
+- [x] Render View metadata operation buttons in the main Vue workflow and
+      execute them through legacy `runoperation`.
 
 ## Backlog
 

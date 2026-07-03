@@ -42,6 +42,13 @@ describe("App defaults", () => {
     expect(appSource).toContain("rowValue(row, column)");
   });
 
+  it("renders View operations in the main metadata workflow", () => {
+    expect(appSource).toContain("View Operations");
+    expect(appSource).toContain("viewResponse?.data?.operations");
+    expect(appSource).toContain("runViewOperation(operation)");
+    expect(appSource).toContain("operation.params");
+  });
+
   it("loads the seeded order-state enum model by default", () => {
     expect(appSource).toContain('const enumModelId = ref("102")');
     expect(appSource).toContain('const legacyQueryFilter = ref(\'order_state="0"\')');

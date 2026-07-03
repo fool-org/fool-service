@@ -23,6 +23,7 @@ import {
   type ListViewInfo,
   type ListViewResult,
   type LoginVo,
+  type OperationInfo,
   type ReadItemViewInfo,
   type ReportGridResult,
   type ReportModelResult,
@@ -710,6 +711,25 @@ async function runOperation() {
   }
 }
 
+async function runViewOperation(operation: OperationInfo) {
+  if (!selectedObjectId.value) {
+    errorMessage.value = "Select an object first.";
+    return;
+  }
+  if (!operation.id) {
+    return;
+  }
+  operationObjectId.value = selectedObjectId.value;
+  operationViewId.value = Number(currentViewId.value);
+  operationId.value = operation.id;
+  await runOperation();
+  if (runOperationResponse.value?.data?.success) {
+    await queryCurrentViewData();
+    detailObjId.value = selectedObjectId.value;
+    await queryDetail();
+  }
+}
+
 async function loadBackendSmoke() {
   const response = await runAction("backend-smoke", async () => {
     const backendResponse = await fetch("/test");
@@ -1139,6 +1159,26 @@ function syncDetailDrafts() {
             <div v-for="item in detailRows" :key="item.prpId || item.prpShowName">
               <span>{{ fieldTitle(item) }}</span>
               <strong>{{ item.fmtValue }}</strong>
+            </div>
+          </div>
+
+          <div v-if="selectedObject && !isCreatingObject && viewResponse?.data?.operations?.length" class="view-operations">
+            <h3>View Operations</h3>
+            <div class="button-row">
+              <button
+                v-for="operation in viewResponse?.data?.operations || []"
+                :key="operation.id || operation.name"
+                type="button"
+                :disabled="Boolean(pendingAction)"
+                @click="runViewOperation(operation)"
+              >
+                {{ operation.text || operation.name || `Operation ${operation.id}` }}
+              </button>
+            </div>
+            <div v-for="operation in viewResponse?.data?.operations || []" :key="`params-${operation.id}`">
+              <span v-for="param in operation.params || []" :key="param.id || param.paramId" class="operation-param">
+                {{ param.paramName || param.name }}
+              </span>
             </div>
           </div>
 

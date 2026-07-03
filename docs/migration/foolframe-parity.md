@@ -91,6 +91,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: rendered legacy View operations in the primary Vue View
+  workflow. The page now uses `getlistview(viewId)` metadata to show operation
+  buttons beside the selected detail row, executes them through the existing
+  `/api/v1/data/runoperation` legacy DTO, and displays operation parameter
+  names from `operations[].params[]` without introducing a concrete business
+  DTO binding.
 - 2026-07-04: fixed legacy dynamic `BusinessObject` saves to persist the
   referenced object id into ordinary foreign-key columns instead of binding the
   dynamic object itself to JDBC. This keeps the migrated flow metadata-driven:
@@ -699,6 +705,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Legacy `EditType.Format` row classes applied from `ListDataItem.rowFmt`
 - Metadata-driven Vue lookup editors for BusinessObject fields using legacy
   `inputquery`
+- Metadata-driven Vue operation buttons using legacy View operations and
+  operation parameter metadata
 - A Vue backend smoke panel that calls `/test` and renders the Docker seed rows
 - A migration-map strip showing current server module mapping
 - Vite and Nginx proxies for `/api/*` and `/test` to the backend service
