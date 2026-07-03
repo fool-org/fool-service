@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import {
   type AuthItem,
   type CheckCodeRequest,
@@ -734,6 +734,10 @@ async function loadViewWorkflow() {
     await selectObject(firstRow);
   }
 }
+
+onMounted(() => {
+  void loadViewWorkflow();
+});
 
 async function selectObject(row: ListDataItem) {
   const objectId = rowObjectId(row, resultColumns.value);

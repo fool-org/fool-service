@@ -21,6 +21,8 @@ import {
 describe("App defaults", () => {
   it("opens with a metadata-driven view workflow before API tools", () => {
     expect(appSource).toContain('const activeSection = ref("orders")');
+    expect(appSource).toContain("onMounted");
+    expect(appSource).toContain("void loadViewWorkflow()");
     expect(appSource).toContain("View workflow");
     expect(appSource).toContain("Load View");
     expect(appSource).toContain("New Row");

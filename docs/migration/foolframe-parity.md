@@ -90,6 +90,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: made the default Vue View workflow load itself on first render.
+  The app now uses Vue's native `onMounted` hook to call the existing
+  `loadViewWorkflow()` path, so the first screen shows the Docker-seeded
+  `OrderList`, selects the first row, and renders the detail panel without
+  requiring a manual setup click.
 - 2026-07-04: seeded and proved a live BusinessObject lookup path for the Vue
   metadata workflow. Docker MySQL now includes `Customer` model metadata,
   `market_customer` rows, and an editable `Order.customer` View item. The

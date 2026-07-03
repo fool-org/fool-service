@@ -24,6 +24,8 @@ explicitly named as authoritative for fool-service.
 - [x] Add metadata-driven lookup editors for BusinessObject fields.
 - [x] Seed and prove a live BusinessObject lookup path for the Vue View
       workflow.
+- [x] Auto-load the default Vue View workflow so the first screen is usable
+      without opening API tools or pressing a setup button.
 
 ## Backlog
 
