@@ -88,6 +88,32 @@ textarea:focus {
   box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
 }
 
+.metadata-lookup {
+  display: grid;
+  gap: 7px;
+}
+
+.metadata-lookup-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.metadata-lookup-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.metadata-lookup small {
+  color: #647484;
+  overflow-wrap: anywhere;
+}
+
+.metadata-lookup .metadata-lookup-error {
+  color: #b91c1c;
+}
+
 label {
   display: grid;
   gap: 7px;

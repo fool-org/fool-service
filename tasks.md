@@ -21,12 +21,12 @@ explicitly named as authoritative for fool-service.
       save payloads.
 - [x] Apply legacy formatted row classes from View data in the Vue View
       workflow.
+- [x] Add metadata-driven lookup editors for BusinessObject fields.
 
 ## Backlog
 
 - [ ] Add candidate search/pagination for select-from-existing child collection
       dialogs.
-- [ ] Add richer metadata-specific editors for lookup field types.
 - [ ] Add focused Maven module profiles once module boundaries are cleaned up.
 - [ ] Add contract checks for oversized files, package boundaries, and migration
       drift.

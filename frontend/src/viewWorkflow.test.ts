@@ -10,6 +10,7 @@ import {
   columnKey,
   fieldModelId,
   isEnumField,
+  isLookupField,
   isReadonlyField,
   itemKey,
   rowFormatClass,
@@ -57,6 +58,12 @@ describe("view workflow helpers", () => {
     expect(isEnumField({ prpId: "state", prpType: "Enum", prpModelId: 102 })).toBe(true);
     expect(fieldModelId({ prpId: "state", prpType: "Enum", prpModelId: 102 })).toBe(102);
     expect(isEnumField({ prpId: "name", prpType: "String", prpModelId: 0 })).toBe(false);
+  });
+
+  it("identifies lookup fields by metadata", () => {
+    expect(isLookupField({ prpId: "customer", prpType: "BusinessObject", prpModelId: 200 })).toBe(true);
+    expect(isLookupField({ prpId: "customer", prpType: "16", prpModelId: 200 })).toBe(true);
+    expect(isLookupField({ prpId: "name", prpType: "String", prpModelId: 0 })).toBe(false);
   });
 
   it("identifies readonly fields by metadata", () => {

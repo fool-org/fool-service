@@ -124,6 +124,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   Vue now applies `rowFmt` as a row class, matching the old
   `querylistdata.js` behavior where format values were appended to `<tr
   class>`. Lookup field-specific widgets remain future work.
+- 2026-07-04: added metadata-driven lookup editors for BusinessObject fields.
+  Fields with `prpType=BusinessObject` (or legacy type `16`) and a property
+  model now search through the migrated `inputquery` endpoint and only write
+  the selected candidate ID into the `saveobj` / `savenewobj` draft, matching
+  the old typeahead select behavior without adding a new frontend dependency.
 - 2026-07-03: added the first Vue detail child-item write workflow for
   `OrderList`. The default detail panel can now add an order item through the
   legacy `saveobj.Itemproperties.AddedItems` payload, matching FoolFrame's
@@ -621,6 +626,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Metadata-driven Vue readonly editors that display locked detail/child fields
   and omit them from legacy save payloads
 - Legacy `EditType.Format` row classes applied from `ListDataItem.rowFmt`
+- Metadata-driven Vue lookup editors for BusinessObject fields using legacy
+  `inputquery`
 - A Vue backend smoke panel that calls `/test` and renders the Docker seed rows
 - A migration-map strip showing current server module mapping
 - Vite and Nginx proxies for `/api/*` and `/test` to the backend service

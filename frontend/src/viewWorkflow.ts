@@ -46,6 +46,11 @@ export function isEnumField(field: ListDataValue) {
   return String(field.prpType || "").toLowerCase() === "enum" && fieldModelId(field) > 0;
 }
 
+export function isLookupField(field: ListDataValue) {
+  const type = String(field.prpType || "").toLowerCase();
+  return (type === "businessobject" || type === "16") && fieldModelId(field) > 0;
+}
+
 export function isReadonlyField(field: ListDataValue) {
   return field.readOnly === true || String(field.editType || "").toLowerCase() === "readonly";
 }

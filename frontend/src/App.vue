@@ -206,6 +206,13 @@ const selectedObject = computed(() =>
 const detailRows = computed(() => detailResponse.value?.data?.data?.simpleData || []);
 const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() => detailResponse.value?.data?.data?.items || []);
 const viewCanEdit = computed(() => Boolean(selectedObject.value || isCreatingObject.value));
+const fieldEditorContext = computed(() => ({
+  isAdded: isCreatingObject.value,
+  lookupDisabled: Boolean(pendingAction.value),
+  objectId: selectedObjectId.value,
+  token: token.value,
+  viewName: viewName.value
+}));
 
 const reportRows = computed(() => {
   const cells = reportResponse.value?.data?.cells || [];
@@ -1084,6 +1091,7 @@ function syncDetailDrafts() {
                 :field="field"
                 :options="enumFieldOptions(field)"
                 :readonly-value="field.fmtValue"
+                v-bind="fieldEditorContext"
               />
             </label>
             <button class="primary" type="button" :disabled="Boolean(pendingAction)" @click="saveSelectedObject">
@@ -1113,6 +1121,7 @@ function syncDetailDrafts() {
                       v-model="newChildDrafts[groupKey(group)][fieldKey(field)]"
                       :field="field"
                       :options="enumFieldOptions(field)"
+                      v-bind="fieldEditorContext"
                     />
                   </label>
                   <button type="button" :disabled="Boolean(pendingAction)" @click="addDetailItem(group)">Add</button>
@@ -1161,6 +1170,7 @@ function syncDetailDrafts() {
                       :field="field"
                       :options="enumFieldOptions(field)"
                       :readonly-value="itemValue(item, field)"
+                      v-bind="fieldEditorContext"
                     />
                   </label>
                   <button type="button" :disabled="Boolean(pendingAction)" @click="updateDetailItem(group, item)">
