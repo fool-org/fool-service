@@ -47,6 +47,35 @@ public class DataQueryServiceDetailTest {
     }
 
     @Test
+    public void queryLegacyViewDataDetailUsesStaticIdExpressionWhenObjectIdIsBlank() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataService viewDataService = mock(ViewDataService.class);
+        ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
+        DataQueryService service = new DataQueryService();
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+        ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
+        ReflectionTestUtils.setField(service, "viewDataService", viewDataService);
+        ReflectionTestUtils.setField(service, "viewAdapter", viewAdapter);
+
+        View view = new View();
+        view.setViewModel("Order");
+        Model model = new Model();
+        IDynamicData data = mock(IDynamicData.class);
+        QueryDataDetailResult expected = new QueryDataDetailResult();
+        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(modelDataService.getModel("Order")).thenReturn(model);
+        when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
+        when(viewAdapter.getDetailViewResult(view, data)).thenReturn(expected);
+
+        QueryDataDetailResult actual = service.queryLegacyViewDataDetail("100", " ", "$1001");
+
+        assertSame(expected, actual);
+        verify(modelDataService).getOneData("Order", "1001");
+        verify(viewAdapter).getDetailViewResult(view, data);
+    }
+
+    @Test
     public void initLegacyNewObjectFormatsEmptyDetailAndKeepsParentId() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);

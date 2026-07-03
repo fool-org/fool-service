@@ -20,17 +20,18 @@ public class DataControllerLegacyQueryDataDetailTest {
     public void queryDataDetailMapsLegacyViewIdAndObjectId() throws Exception {
         DataQueryService dataQueryService = mock(DataQueryService.class);
         QueryDataDetailResult expected = new QueryDataDetailResult();
-        when(dataQueryService.queryLegacyViewDataDetail("100", "1001")).thenReturn(expected);
+        when(dataQueryService.queryLegacyViewDataDetail("100", "1001", "$1001")).thenReturn(expected);
 
         DataController controller = new DataController();
         setField(controller, "dataQueryService", dataQueryService);
         LegacyQueryDataDetailRequest request = new LegacyQueryDataDetailRequest();
         request.setViewId(100L);
         request.setObjId("1001");
+        request.setIdExp("$1001");
 
         CommonResponse<QueryDataDetailResult> response = controller.queryDataDetail(request);
 
-        verify(dataQueryService).queryLegacyViewDataDetail("100", "1001");
+        verify(dataQueryService).queryLegacyViewDataDetail("100", "1001", "$1001");
         assertEquals(0, response.getCode());
         assertSame(expected, response.getData());
     }

@@ -85,6 +85,10 @@ public class DataQueryService {
     }
 
     public QueryDataDetailResult queryLegacyViewDataDetail(String viewId, String dataId) {
+        return queryLegacyViewDataDetail(viewId, dataId, null);
+    }
+
+    public QueryDataDetailResult queryLegacyViewDataDetail(String viewId, String dataId, String idExp) {
         View view = viewDataService.getViewData(viewId, null);
         if (view == null) {
             throw new CommonException(ErrorCode.VIEW_NOT_FOUND, "没有查到视图");
@@ -93,7 +97,17 @@ public class DataQueryService {
         if (model == null) {
             throw new CommonException(ErrorCode.MODEL_NOT_FOUND, "没有查到元数据定义");
         }
-        return viewAdapter.getDetailViewResult(view, modelDataService.getOneData(view.getViewModel(), dataId));
+        return viewAdapter.getDetailViewResult(view,
+                modelDataService.getOneData(view.getViewModel(), legacyDetailObjectId(dataId, idExp)));
+    }
+
+    private String legacyDetailObjectId(String dataId, String idExp) {
+        if (StringUtils.hasText(dataId) || !StringUtils.hasText(idExp)) {
+            return dataId;
+        }
+        String expression = idExp.trim();
+        // ponytail: only static IdExp is real here; add auth/context expressions when fool-view owns auth context.
+        return expression.startsWith("$") ? expression.substring(1) : dataId;
     }
 
     public QueryDataDetailResult initLegacyNewObject(String viewId, String parentObjId) {

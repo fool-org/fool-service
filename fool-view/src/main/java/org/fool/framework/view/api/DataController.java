@@ -66,7 +66,7 @@ public class DataController {
     public CommonResponse<QueryDataDetailResult> queryDataDetail(@RequestBody LegacyQueryDataDetailRequest request) {
         String viewId = request.getViewId() == null ? null : request.getViewId().toString();
         String objId = request.getObjId() == null ? null : request.getObjId().toString();
-        return new CommonResponse<>(dataQueryService.queryLegacyViewDataDetail(viewId, objId));
+        return new CommonResponse<>(dataQueryService.queryLegacyViewDataDetail(viewId, objId, request.getIdExp()));
     }
 
     @PostMapping("/initnew")
