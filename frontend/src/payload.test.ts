@@ -11,7 +11,6 @@ import {
   buildMakeReportRequest,
   buildInitNewRequest,
   buildQueryDataDetailRequest,
-  buildQueryRequest,
   buildRunOperationRequest,
   buildSaveObjRequest,
   buildSaveNewObjRequest,
@@ -167,81 +166,6 @@ describe("App defaults", () => {
     expect(nginxConfig).toContain("location /test");
   });
 
-});
-
-describe("buildQueryRequest", () => {
-  it("matches the Spring QueryDataRequest DTO shape", () => {
-    const request = buildQueryRequest({
-      token: "token-1",
-      viewName: "OrderList",
-      pageIndex: 2,
-      pageSize: 25,
-      filterJson: "{\"status\":{\"property\":\"status\",\"value\":\"0\"}}"
-    });
-
-    expect(request).toEqual({
-      token: "token-1",
-      viewName: "OrderList",
-      pageInfo: {
-        pageIndex: 2,
-        pageSize: 25
-      },
-      filter: {
-        status: {
-          property: "status",
-          value: "0"
-        }
-      }
-    });
-  });
-
-  it("builds visible equality and range filters as Spring QueryValue objects", () => {
-    const request = buildQueryRequest({
-      token: "token-1",
-      viewName: "OrderList",
-      pageIndex: 1,
-      pageSize: 20,
-      filterJson: "{\"state\":{\"property\":\"state\",\"value\":\"0\"}}",
-      visibleFilters: [
-        {
-          property: "symbol",
-          value: "BTC-USDT"
-        },
-        {
-          property: "orderId",
-          values: ["1001", "1002"]
-        }
-      ]
-    });
-
-    expect(request.filter).toEqual({
-      state: {
-        property: "state",
-        value: "0"
-      },
-      symbol: {
-        property: "symbol",
-        value: "BTC-USDT"
-      },
-      orderId: {
-        property: "orderId",
-        values: ["1001", "1002"]
-      }
-    });
-  });
-
-  it("trims and sends the legacy keyword filter", () => {
-    const request = buildQueryRequest({
-      token: "token-1",
-      viewName: "OrderList",
-      pageIndex: 1,
-      pageSize: 20,
-      filterJson: "{}",
-      keyword: "  USDT  "
-    });
-
-    expect(request.keyword).toBe("USDT");
-  });
 });
 
 describe("buildTokenRequest", () => {

@@ -92,6 +92,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: deleted the unused Vue `buildQueryRequest` helper and its
+  `QueryRequestInput` / `VisibleFilterInput` types. The frontend no longer
+  ships a request builder for the business-name `query-list` shortcut; active
+  data loading stays on the legacy view-id path (`getlistview` then
+  `querydata`), while lookup remains the legacy `inputquery` protocol keyed by
+  the selected View item.
 - 2026-07-04: accepted legacy Pascal request field names on the migrated
   `inputquery` protocol DTO: `Text`, `ViewName`, `ViewItemId`, `ModelID`,
   `ObjID`, `OwnerId`, and `IsAdded`. This keeps lookup requests at the

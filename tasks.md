@@ -48,6 +48,8 @@ explicitly named as authoritative for fool-service.
 - [x] Add a repository harness guard for oversized source files.
 - [x] Accept legacy Pascal `inputquery` request fields at the protocol DTO
       boundary without introducing concrete business DTO binding.
+- [x] Remove the unused Vue business-name `query-list` payload builder so the
+      frontend keeps a single view-id driven data-loading path.
 
 ## Backlog
 
