@@ -3,6 +3,7 @@ package org.fool.framework.view.service;
 import org.fool.framework.common.PropertyType;
 import org.fool.framework.dao.DaoService;
 import org.fool.framework.model.model.CommandsType;
+import org.fool.framework.model.model.Operation;
 import org.fool.framework.model.model.OperationBaseType;
 import org.fool.framework.model.model.OperationCommand;
 import org.fool.framework.model.model.Model;
@@ -130,6 +131,53 @@ public class ViewDataServiceTest {
         assertTrue(sql.getValue().contains("`SW_SYS_COMMAND_ARGID`"));
         assertTrue(sql.getValue().contains("`SW_SYS_COMMAND_PROPERTY_EXP`"));
         assertTrue(sql.getValue().contains("`SW_SYS_COMMAND_TEMPVALUE`"));
+    }
+
+    @Test
+    public void getViewDataHydratesLegacyOperationInvokeColumns() {
+        DaoService daoService = mock(DaoService.class);
+        ViewDataService service = new ViewDataService();
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+
+        View view = new View();
+        view.setId(100L);
+        view.setViewModel("Order");
+        PersistedViewOperation row = new PersistedViewOperation();
+        row.setName("反射");
+        row.setOperationId(7003L);
+        row.setOperationBaseType(OperationBaseType.ASSEBMLY);
+        row.setFilter("order_state='0'");
+        row.setArgModelId(200L);
+        row.setArgFilter("arg_id=.orderId");
+        row.setInvokeDll("Legacy.dll");
+        row.setInvokeClass("Legacy.Worker");
+        row.setInvokeMethod("Run");
+        row.setReturnModelId(300L);
+
+        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
+        when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(new Model());
+        when(daoService.selectList(eq(PersistedViewOperation.class), anyString(), eq(100L))).thenReturn(List.of(row));
+        when(daoService.selectList(eq(OperationCommand.class), anyString(), eq(7003L))).thenReturn(List.of());
+
+        View result = service.getViewData("100", "");
+
+        ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
+        verify(daoService).selectList(eq(PersistedViewOperation.class), sql.capture(), eq(100L));
+        Operation operation = result.getOperations().get(0).getOperation();
+        assertEquals("order_state='0'", operation.getFilter());
+        assertEquals(200L, operation.getArgModelId().longValue());
+        assertEquals("arg_id=.orderId", operation.getArgFilter());
+        assertEquals("Legacy.dll", operation.getInvokeDll());
+        assertEquals("Legacy.Worker", operation.getInvokeClass());
+        assertEquals("Run", operation.getInvokeMethod());
+        assertEquals(300L, operation.getReturnModelId().longValue());
+        assertTrue(sql.getValue().contains("op.`SW_MODEL_OPERATION_FILTER`"));
+        assertTrue(sql.getValue().contains("op.`SW_MODEL_OPERATION_ARGMODEL`"));
+        assertTrue(sql.getValue().contains("op.`SW_MODEL_OPERATION_ARGFILTER`"));
+        assertTrue(sql.getValue().contains("op.`SW_MODEL_OPERATION_INVOKEDLL`"));
+        assertTrue(sql.getValue().contains("op.`SW_MODEL_OPERATION_INVOKECLASS`"));
+        assertTrue(sql.getValue().contains("op.`SW_MODEL_OPERATION_INVOKEMETHOD`"));
+        assertTrue(sql.getValue().contains("op.`SW_MODEL_OPERATION_RETURNMODEL`"));
     }
 
     private static boolean hasField(Class<?> type, String name) {

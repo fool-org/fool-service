@@ -21,8 +21,22 @@ public class PersistedViewOperation {
     private Integer location;
     @Column("SW_VIEW_OPERATION_REQUIRESELECTB")
     private Boolean requireSelect;
+    @Column("SW_MODEL_OPERATION_FILTER")
+    private String filter;
     @Column("SW_MODEL_OPERATION_BASETYPE")
     private OperationBaseType operationBaseType;
+    @Column("SW_MODEL_OPERATION_ARGMODEL")
+    private Long argModelId;
+    @Column("SW_MODEL_OPERATION_ARGFILTER")
+    private String argFilter;
+    @Column("SW_MODEL_OPERATION_INVOKEDLL")
+    private String invokeDll;
+    @Column("SW_MODEL_OPERATION_INVOKECLASS")
+    private String invokeClass;
+    @Column("SW_MODEL_OPERATION_INVOKEMETHOD")
+    private String invokeMethod;
+    @Column("SW_MODEL_OPERATION_RETURNMODEL")
+    private Long returnModelId;
     @Column("SW_SYS_OPVIEW_SUCCESMSG")
     private String successMsg;
     @Column("SW_SYS_OPVIEW_ERRORMSG")
@@ -43,7 +57,14 @@ public class PersistedViewOperation {
             Operation operation = new Operation();
             operation.setId(operationId);
             operation.setName(name);
+            operation.setFilter(filter);
             operation.setBaseOperationType(operationBaseType);
+            operation.setArgModelId(argModelId);
+            operation.setArgFilter(argFilter);
+            operation.setInvokeDll(invokeDll);
+            operation.setInvokeClass(invokeClass);
+            operation.setInvokeMethod(invokeMethod);
+            operation.setReturnModelId(returnModelId);
             viewOperation.setOperation(operation);
         }
         if (resultViewId != null) {
