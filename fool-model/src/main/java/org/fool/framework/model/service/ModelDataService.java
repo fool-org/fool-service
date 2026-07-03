@@ -2,6 +2,7 @@ package org.fool.framework.model.service;
 
 
 import lombok.extern.slf4j.Slf4j;
+import org.fool.framework.common.PropertyType;
 import org.fool.framework.common.data.SubItemList;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.dao.*;
@@ -529,9 +530,16 @@ public class ModelDataService {
                 }
                 continue;
             }
-            addColumnValue(values, property.getColumn(), data.get(property.getName()), excludedColumn);
+            addColumnValue(values, property.getColumn(), columnValue(property, data.get(property.getName())), excludedColumn);
         }
         return values;
+    }
+
+    private Object columnValue(Property property, Object value) {
+        if (PropertyType.BusinessObject.equals(property.getPropertyType()) && value instanceof IDynamicData itemData) {
+            return dynamicId(itemData, dynamicModel(itemData, property.getPropertyModel()));
+        }
+        return value;
     }
 
     private void addColumnValue(Map<String, Object> values, String column, Object value, String excludedColumn) {

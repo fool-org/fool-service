@@ -38,6 +38,9 @@ explicitly named as authoritative for fool-service.
       of the newer business-name query shortcut.
 - [x] Hydrate legacy `SW_SYS_OPERATIONVIEW_ITEM` operation parameter metadata
       into View operation DTOs for both list-view and detail-view responses.
+- [x] Persist dynamic `BusinessObject` fields through their foreign-key ids so
+      legacy `runoperation` update saves stay metadata-driven and do not bind
+      to concrete business DTOs.
 
 ## Backlog
 
