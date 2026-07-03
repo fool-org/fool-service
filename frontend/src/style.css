@@ -290,6 +290,23 @@ label {
   overflow-wrap: anywhere;
 }
 
+.order-items-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.order-items-panel h3 {
+  font-size: 0.94rem;
+  margin: 0;
+}
+
+.item-add-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+}
+
 .lookup-panel {
   grid-column: 1 / -1;
 }
@@ -579,6 +596,7 @@ td {
   .button-row,
   .inline-fields,
   .workflow-toolbar,
+  .item-add-row,
   .summary-list {
     grid-template-columns: 1fr;
   }

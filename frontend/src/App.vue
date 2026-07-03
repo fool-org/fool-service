@@ -106,6 +106,8 @@ const selectedOrderId = ref("");
 const editableSymbol = ref("");
 const editableState = ref("0");
 const isCreatingOrder = ref(false);
+const newItemName = ref("New item");
+const savedOrderItems = ref<{ id: string; name: string }[]>([]);
 
 const loginResponse = ref<CommonResponse<LoginVo> | null>(null);
 const initAppResponse = ref<CommonResponse<LegacyInitAppResult> | null>(null);
@@ -695,6 +697,7 @@ async function selectOrder(row: ListDataItem) {
   detailObjId.value = orderId;
   saveObjId.value = orderId;
   operationObjectId.value = orderId;
+  savedOrderItems.value = [];
   await queryDetail();
 }
 
@@ -746,6 +749,44 @@ async function saveSelectedOrder() {
   isCreatingOrder.value = false;
   detailObjId.value = selectedOrderId.value;
   await queryData();
+  await queryDetail();
+}
+
+async function addOrderItem() {
+  if (!selectedOrder.value || isCreatingOrder.value) {
+    errorMessage.value = "Save the order before adding items.";
+    return;
+  }
+  const itemName = newItemName.value.trim();
+  if (!itemName) {
+    errorMessage.value = "Item name is required.";
+    return;
+  }
+  const itemId = String(Date.now());
+  saveObjId.value = selectedOrderId.value;
+  savePropertyiesJson.value = JSON.stringify([
+    { key: "symbol", value: editableSymbol.value },
+    { key: "state", value: editableState.value }
+  ]);
+  saveItempropertiesJson.value = JSON.stringify([
+    {
+      key: "items",
+      addedItems: [
+        {
+          itemId,
+          isExist: true,
+          propertyies: [{ key: "itemName", value: itemName }]
+        }
+      ]
+    }
+  ]);
+  const saved = await saveObj();
+  saveItempropertiesJson.value = "";
+  if (!saved) {
+    return;
+  }
+  savedOrderItems.value = [{ id: itemId, name: itemName }, ...savedOrderItems.value];
+  newItemName.value = "";
   await queryDetail();
 }
 
@@ -894,6 +935,23 @@ function formatValue(value: unknown) {
             <div v-for="item in detailRows" :key="item.prpId || item.prpShowName">
               <span>{{ item.prpShowName || item.prpId }}</span>
               <strong>{{ item.fmtValue }}</strong>
+            </div>
+          </div>
+
+          <div v-if="selectedOrder && !isCreatingOrder" class="order-items-panel">
+            <h3>Order Items</h3>
+            <div class="item-add-row">
+              <label>
+                Item name
+                <input v-model="newItemName" />
+              </label>
+              <button type="button" :disabled="Boolean(pendingAction)" @click="addOrderItem">Add Item</button>
+            </div>
+            <div class="detail-fields">
+              <div v-for="item in savedOrderItems" :key="item.id">
+                <span>{{ item.id }}</span>
+                <strong>{{ item.name }}</strong>
+              </div>
             </div>
           </div>
         </article>

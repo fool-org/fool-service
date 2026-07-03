@@ -90,6 +90,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-03: added the first Vue detail child-item write workflow for
+  `OrderList`. The default detail panel can now add an order item through the
+  legacy `saveobj.Itemproperties.AddedItems` payload, matching FoolFrame's
+  detail-page save path for in-place child additions. Full generated child
+  collection rendering/edit/delete remains future work.
 - 2026-07-03: extended the default Vue `OrderList` workflow with the legacy
   new-object path. The `New Order` action now initializes through
   `/api/v1/data/initnew`, creates through `/api/v1/data/savenewobj`, refreshes
@@ -561,6 +566,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - A default Vue `OrderList` create/edit workflow that initializes new rows with
   `initnew`, creates them with `savenewobj`, saves existing rows with `saveobj`,
   and renders formatted enum values from list-row `fmtValue`
+- A default Vue `OrderList` child-item add workflow that sends
+  `saveobj.Itemproperties.AddedItems` for the `items` collection
 - A Vue backend smoke panel that calls `/test` and renders the Docker seed rows
 - A migration-map strip showing current server module mapping
 - Vite and Nginx proxies for `/api/*` and `/test` to the backend service

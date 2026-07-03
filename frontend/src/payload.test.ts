@@ -28,6 +28,8 @@ describe("App defaults", () => {
     expect(appSource).toContain("Save Order");
     expect(appSource).toContain("async function selectOrder");
     expect(appSource).toContain("async function startNewOrder");
+    expect(appSource).toContain("async function addOrderItem");
+    expect(appSource).toContain("addedItems");
     expect(appSource).toContain("function getRowValue");
   });
 
