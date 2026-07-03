@@ -530,8 +530,9 @@ public class ModelDataService {
             for (Object item : items) {
                 if (item instanceof IDynamicData itemData) {
                     Object itemId = dynamicId(itemData, relation.getProperty().getPropertyModel());
-                    if (itemId != null) {
-                        insertRelationIfMissing(relation, parentId, itemId);
+                    if (itemId != null && !relationExists(relation, parentId, itemId)) {
+                        executePropertyItemTriggers(relation.getProperty(), itemData, PropertyTriggerType.ITEMS_ADD);
+                        insertRelation(relation, parentId, itemId);
                     }
                 }
             }
@@ -540,6 +541,7 @@ public class ModelDataService {
                     if (item instanceof IDynamicData itemData) {
                         Object itemId = dynamicId(itemData, relation.getProperty().getPropertyModel());
                         if (itemId != null) {
+                            executePropertyItemTriggers(relation.getProperty(), itemData, PropertyTriggerType.ITEMS_DELETE);
                             deleteRelation(relation, parentId, itemId);
                         }
                     }
@@ -556,6 +558,7 @@ public class ModelDataService {
                     if (dataExists(itemData, itemModel)) {
                         saveData(itemData, relation.getTargetColumn(), parentId, false);
                     } else {
+                        executePropertyItemTriggers(relation.getProperty(), itemData, PropertyTriggerType.ITEMS_ADD);
                         createData(itemData, relation.getTargetColumn(), parentId, false);
                     }
                 }
@@ -564,10 +567,21 @@ public class ModelDataService {
         if (value instanceof SubItemList<?> subItems) {
             for (Object item : subItems.getDeleteList()) {
                 if (item instanceof IDynamicData itemData) {
+                    executePropertyItemTriggers(relation.getProperty(), itemData, PropertyTriggerType.ITEMS_DELETE);
                     deleteData(itemData);
                 }
             }
         }
+    }
+
+    private void executePropertyItemTriggers(Property property, IDynamicData itemData, PropertyTriggerType triggerType) {
+        if (property == null || property.getTriggerList() == null || itemData == null) {
+            return;
+        }
+        Model itemModel = dynamicModel(itemData, property.getPropertyModel());
+        property.getTriggerList().stream()
+                .filter(trigger -> trigger != null && trigger.getTriggerType() == triggerType)
+                .forEach(trigger -> applySetValueCommands(itemModel, itemData, trigger.getCommands()));
     }
 
     private boolean isWritableOwnedRelation(Relation relation) {
@@ -647,7 +661,7 @@ public class ModelDataService {
         return data.getId();
     }
 
-    private void insertRelationIfMissing(Relation relation, Object parentId, Object itemId) {
+    private boolean relationExists(Relation relation, Object parentId, Object itemId) {
         Object propertyValue = relation.getRelationType() == RelationType.Recurve ? parentId : itemId;
         Object targetValue = relation.getRelationType() == RelationType.Recurve ? itemId : parentId;
         Integer count = jdbcTemplate.queryForObject(
@@ -656,13 +670,17 @@ public class ModelDataService {
                 Integer.class,
                 propertyValue,
                 targetValue);
-        if (count == null || count == 0) {
-            jdbcTemplate.update(
-                    "INSERT INTO `" + relation.getRelationTable() + "` (`"
-                            + relation.getPropertyColumn() + "`,`" + relation.getTargetColumn() + "`) VALUES (?,?)",
-                    propertyValue,
-                    targetValue);
-        }
+        return count != null && count > 0;
+    }
+
+    private void insertRelation(Relation relation, Object parentId, Object itemId) {
+        Object propertyValue = relation.getRelationType() == RelationType.Recurve ? parentId : itemId;
+        Object targetValue = relation.getRelationType() == RelationType.Recurve ? itemId : parentId;
+        jdbcTemplate.update(
+                "INSERT INTO `" + relation.getRelationTable() + "` (`"
+                        + relation.getPropertyColumn() + "`,`" + relation.getTargetColumn() + "`) VALUES (?,?)",
+                propertyValue,
+                targetValue);
     }
 
     private void deleteRelation(Relation relation, Object parentId, Object itemId) {

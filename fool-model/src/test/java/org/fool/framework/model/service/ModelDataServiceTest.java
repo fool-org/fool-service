@@ -747,6 +747,48 @@ public class ModelDataServiceTest {
     }
 
     @Test
+    public void saveDataExecutesLegacyCollectionItemTriggers() {
+        String orderTable = "runtime_collection_trigger_order";
+        String itemTable = "runtime_collection_trigger_order_item";
+        cleanupRuntimeOneToManyTables(orderTable, itemTable);
+        try {
+            createRuntimeOneToManyTables(orderTable, itemTable);
+            jdbcTemplate.update("INSERT INTO `" + orderTable + "` (`ORDER_ID`,`ORDER_NAME`) VALUES (?,?)", "9351", "Before save");
+            jdbcTemplate.update("INSERT INTO `" + itemTable + "` (`ITEM_ID`,`ITEM_NAME`,`ORDER_ID`) VALUES (?,?,?)", "D1", "Before delete", "9351");
+            Model order = oneToManyOrderModel(orderTable, itemTable);
+            Property items = order.getProperties().get(2);
+            Property itemName = items.getPropertyModel().getProperties().get(1);
+            itemName.setId(93503L);
+            items.setTriggerList(List.of(
+                    propertyTrigger(PropertyTriggerType.ITEMS_ADD, itemName.getId(), "$added-trigger"),
+                    propertyTrigger(PropertyTriggerType.ITEMS_DELETE, itemName.getId(), "$deleted-trigger")));
+
+            SubItemList<IDynamicData> itemList = new SubItemList<>();
+            itemList.add(orderItemData(order, "A1", "Before add"));
+            IDynamicData removed = orderItemData(order, "D1", "Before delete");
+            itemList.add(removed);
+            itemList.remove(removed);
+            DbMysqlDynamic data = oneToManyOrderData(order, "9351", "After save", itemList);
+
+            assertEquals(Boolean.TRUE, modelDataService.saveData(data));
+
+            String addedName = jdbcTemplate.queryForObject(
+                    "SELECT `ITEM_NAME` FROM `" + itemTable + "` WHERE `ITEM_ID` = ?",
+                    String.class,
+                    "A1");
+            Integer deletedCount = jdbcTemplate.queryForObject(
+                    "SELECT COUNT(*) FROM `" + itemTable + "` WHERE `ITEM_ID` = ?",
+                    Integer.class,
+                    "D1");
+            assertEquals("added-trigger", addedName);
+            assertEquals("deleted-trigger", removed.get("itemName"));
+            assertEquals(0, deletedCount.intValue());
+        } finally {
+            cleanupRuntimeOneToManyTables(orderTable, itemTable);
+        }
+    }
+
+    @Test
     public void initDataBuildsLegacySimpleDynamicDefaults() {
         Model model = new Model();
         model.setProperties(List.of(
@@ -958,6 +1000,18 @@ public class ModelDataServiceTest {
         item.set("itemId", itemId);
         item.set("itemName", itemName);
         return item;
+    }
+
+    private PropertyTrigger propertyTrigger(PropertyTriggerType type, Long propertyId, String expression) {
+        PropertyTrigger trigger = new PropertyTrigger();
+        trigger.setTriggerType(type);
+        OperationCommand command = new OperationCommand();
+        command.setCommandType(CommandsType.SET_VALUE);
+        command.setPropertyId(propertyId);
+        command.setExpression(expression);
+        command.setIndex(1);
+        trigger.setCommands(List.of(command));
+        return trigger;
     }
 
     private Property simpleProperty(String name, PropertyType type) {

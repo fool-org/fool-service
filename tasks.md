@@ -111,6 +111,8 @@ explicitly named as authoritative for fool-service.
 - [x] Execute legacy property `SET` trigger `SET_VALUE` side effects through
       dynamic `ModelDataService` create/save writes without introducing
       concrete business DTO binding.
+- [x] Execute legacy collection `ItemsAdd` / `ItemsDelete` property trigger
+      `SET_VALUE` side effects during dynamic collection writes.
 - [x] Accept legacy Pascal `querydatadetail` `ViewId` / `ObjId` fields at the
       generic detail-data protocol boundary and cover it in the Docker runtime
       doctor.
