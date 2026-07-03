@@ -221,8 +221,7 @@ const fieldEditorContext = computed(() => ({
   lookupDisabled: Boolean(pendingAction.value),
   objectId: selectedObjectId.value,
   token: token.value,
-  viewId: Number(currentViewId.value),
-  viewName: viewName.value
+  viewId: Number(currentViewId.value)
 }));
 
 const reportRows = computed(() => reportRowsFromCells(reportResponse.value?.data?.cells || []));
@@ -524,7 +523,6 @@ async function inputQuery() {
   const request = buildInputQueryRequest({
     token: token.value,
     viewId: Number(currentViewId.value),
-    viewName: viewName.value,
     viewItemId: inputQueryViewItemId.value,
     text: inputQueryText.value,
     objID: inputQueryObjId.value,
@@ -540,10 +538,10 @@ async function inputQuery() {
   }
 }
 
-async function queryDetail() {
+async function queryDetail(viewId = Number(detailViewId.value)) {
   const request = buildQueryDataDetailRequest({
     token: token.value,
-    viewId: Number(detailViewId.value),
+    viewId,
     objId: detailObjId.value,
     idExp: detailIdExp.value
   });
@@ -654,7 +652,7 @@ async function runViewOperation(operation: OperationInfo) {
   if (runOperationResponse.value?.data?.success) {
     await queryCurrentViewData();
     detailObjId.value = selectedObjectId.value;
-    await queryDetail();
+    await queryDetail(Number(currentViewId.value));
   }
 }
 
@@ -723,7 +721,7 @@ async function selectObject(row: ListDataItem) {
   detailObjId.value = objectId;
   saveObjId.value = objectId;
   operationObjectId.value = objectId;
-  await queryDetail();
+  await queryDetail(Number(currentViewId.value));
 }
 
 async function startNewObject() {
@@ -763,6 +761,7 @@ async function saveSelectedObject() {
     saved = await saveNewObj();
   } else {
     saveObjId.value = selectedObjectId.value;
+    saveViewId.value = String(currentViewId.value);
     savePropertyiesJson.value = propertyiesJson;
     saveItempropertiesJson.value = "";
     saved = await saveObj();
@@ -773,7 +772,7 @@ async function saveSelectedObject() {
   isCreatingObject.value = false;
   detailObjId.value = selectedObjectId.value;
   await queryCurrentViewData();
-  await queryDetail();
+  await queryDetail(Number(currentViewId.value));
 }
 
 async function addDetailItem(group: QueryDataDetailItemGroup) {
@@ -799,7 +798,7 @@ async function addDetailItem(group: QueryDataDetailItemGroup) {
     ...newChildDrafts.value,
     [key]: emptyGroupDraft(group)
   };
-  await queryDetail();
+  await queryDetail(Number(currentViewId.value));
 }
 
 async function loadExistingDetailItems(group: QueryDataDetailItemGroup) {
@@ -844,7 +843,7 @@ async function addExistingDetailItem(group: QueryDataDetailItemGroup, row: ListD
   const saved = await saveObj();
   saveItempropertiesJson.value = "";
   if (saved) {
-    await queryDetail();
+    await queryDetail(Number(currentViewId.value));
   }
 }
 
@@ -858,7 +857,7 @@ async function updateDetailItem(group: QueryDataDetailItemGroup, item: QueryData
   const saved = await saveObj();
   saveItempropertiesJson.value = "";
   if (saved) {
-    await queryDetail();
+    await queryDetail(Number(currentViewId.value));
   }
 }
 
@@ -874,7 +873,7 @@ async function deleteDetailItem(group: QueryDataDetailItemGroup, item: QueryData
   const saved = await saveObj();
   saveItempropertiesJson.value = "";
   if (saved) {
-    await queryDetail();
+    await queryDetail(Number(currentViewId.value));
   }
 }
 
@@ -1654,7 +1653,7 @@ function syncDetailDrafts() {
             ID Exp
             <input v-model="detailIdExp" />
           </label>
-          <button class="primary" type="button" :disabled="pendingAction === 'detail'" @click="queryDetail">
+          <button class="primary" type="button" :disabled="pendingAction === 'detail'" @click="queryDetail()">
             Load Detail
           </button>
 

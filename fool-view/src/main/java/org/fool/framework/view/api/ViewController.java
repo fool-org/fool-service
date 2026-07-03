@@ -24,7 +24,8 @@ public class ViewController {
     @PostMapping("/get-view")
     @ApiOperation("得到视图的定义")
     public CommonResponse<ListViewInfo> getViewData(@RequestBody ViewDataRequest request) {
-        return new CommonResponse<>(viewAdapter.getViewInfo(viewDataService.getViewData(request.getViewName(), request.getToken())));
+        String viewId = request.getViewId() == null ? request.getViewName() : request.getViewId().toString();
+        return new CommonResponse<>(viewAdapter.getViewInfo(viewDataService.getViewData(viewId, request.getToken())));
     }
 
     @ResponseBody

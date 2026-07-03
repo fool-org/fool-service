@@ -51,6 +51,9 @@ describe("App defaults", () => {
   it("keeps the Vue workspace on view-id driven legacy view and data APIs", () => {
     expect(appSource).toContain("/api/v1/view/getlistview");
     expect(appSource).toContain("/api/v1/data/querydata");
+    expect(appSource).toContain("await queryDetail(Number(currentViewId.value))");
+    expect(appSource).toContain("saveViewId.value = String(currentViewId.value)");
+    expect(appSource).not.toContain("viewName: viewName.value");
     expect(appSource).not.toContain("/api/v1/view/get-view");
     expect(appSource).not.toContain("/api/v1/data/query-list");
     expect(appSource).not.toContain("buildQueryRequest");

@@ -51,6 +51,30 @@ public class ViewControllerLegacyGetListViewTest {
         assertSame(expected, response.getData());
     }
 
+    @Test
+    public void getViewPrefersViewIdOverViewName() throws Exception {
+        ViewDataService viewDataService = mock(ViewDataService.class);
+        ViewAdapter viewAdapter = mock(ViewAdapter.class);
+        View view = new View();
+        ListViewInfo expected = new ListViewInfo();
+        when(viewDataService.getViewData("100", "token-1")).thenReturn(view);
+        when(viewAdapter.getViewInfo(view)).thenReturn(expected);
+
+        ViewController controller = new ViewController();
+        setField(controller, "viewDataService", viewDataService);
+        setField(controller, "viewAdapter", viewAdapter);
+        ViewDataRequest request = new ViewDataRequest();
+        request.setToken("token-1");
+        request.setViewId(100L);
+        request.setViewName("WrongBusinessViewName");
+
+        CommonResponse<ListViewInfo> response = controller.getViewData(request);
+
+        verify(viewDataService).getViewData("100", "token-1");
+        assertEquals(0, response.getCode());
+        assertSame(expected, response.getData());
+    }
+
     private static void setField(Object target, String name, Object value) throws Exception {
         Field field = target.getClass().getDeclaredField(name);
         field.setAccessible(true);

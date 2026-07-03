@@ -5,6 +5,7 @@ import org.fool.framework.dao.PageNavigator;
 import org.fool.framework.dto.CommonResponse;
 import org.fool.framework.view.dto.LegacyQueryDataRequest;
 import org.fool.framework.view.dto.ListViewResult;
+import org.fool.framework.view.dto.QueryDataRequest;
 import org.fool.framework.view.service.DataQueryService;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -58,6 +59,27 @@ public class DataControllerLegacyQueryDataTest {
         assertSame(expected, response.getData());
         assertEquals(20, pageCaptor.getValue().getPageSize());
         assertEquals(3, pageCaptor.getValue().getPageIndex());
+    }
+
+    @Test
+    public void queryListPrefersViewIdOverViewName() throws Exception {
+        DataQueryService dataQueryService = mock(DataQueryService.class);
+        ListViewResult expected = new ListViewResult();
+        when(dataQueryService.queryViewDataList(eq("42"), eq(null), eq(null), eq("USDT")))
+                .thenReturn(expected);
+
+        DataController controller = new DataController();
+        setField(controller, "dataQueryService", dataQueryService);
+        QueryDataRequest request = new QueryDataRequest();
+        request.setViewId(42L);
+        request.setViewName("WrongBusinessViewName");
+        request.setKeyword("USDT");
+
+        CommonResponse<ListViewResult> response = controller.queryViewDataList(request);
+
+        verify(dataQueryService).queryViewDataList("42", null, null, "USDT");
+        assertEquals(0, response.getCode());
+        assertSame(expected, response.getData());
     }
 
     private static void setField(Object target, String name, Object value) throws Exception {

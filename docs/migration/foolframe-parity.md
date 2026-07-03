@@ -97,6 +97,14 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: tightened the View-first runtime context after auditing the
+  rendered Vue page flow. Generic `get-view` and `query-list` now accept and
+  prefer `ViewId` before falling back to `ViewName`, and the Vue main
+  list/detail/save/lookup refresh paths now reuse the currently loaded View id
+  instead of leaking manual tool-panel ViewName/detail ViewId state into the
+  primary workflow. This keeps the intended order explicit: render View
+  metadata first, then query/save data through that View context, without
+  binding the migrated page to concrete business DTOs.
 - 2026-07-04: `inputquery` can now resolve the active View by legacy
   `ViewId` before falling back to `ViewName`. Vue metadata lookup editors pass
   the loaded View id from the current View workflow, so candidate lookup

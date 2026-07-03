@@ -85,6 +85,9 @@ explicitly named as authoritative for fool-service.
 - [x] Add a Docker runtime doctor for the stable Vue/View workflow so
       backend, frontend proxy, View metadata, data query, inputquery, and
       report model smoke checks are repeatable.
+- [x] Make generic `get-view` / `query-list` and the Vue main detail/save
+      refresh path prefer the loaded `ViewId`, keeping `ViewName` only as
+      compatibility fallback.
 
 ## Backlog
 

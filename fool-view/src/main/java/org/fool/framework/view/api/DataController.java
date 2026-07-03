@@ -45,7 +45,7 @@ public class DataController {
     public CommonResponse<ListViewResult> queryViewDataList(@RequestBody QueryDataRequest request) {
         return new CommonResponse<ListViewResult>(
                 dataQueryService.queryViewDataList(
-                        request.getViewName(),
+                        request.getViewId() == null ? request.getViewName() : request.getViewId().toString(),
                         request.getFilter(),
                         request.getPageInfo(),
                         request.getKeyword()));
