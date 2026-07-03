@@ -84,6 +84,29 @@ public class DataQueryServiceRunOperationTest {
     }
 
     @Test
+    public void runLegacyCreateOperationCreatesObjectAndReturnsSuccessMessage() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataService viewDataService = mock(ViewDataService.class);
+        DataQueryService service = service(daoService, modelDataService, viewDataService);
+        Model model = model();
+        View view = view(operation(7004L, OperationBaseType.CREATE, "创建成功"));
+        DbMysqlDynamic data = new DbMysqlDynamic(model);
+        data.set("orderId", "970733");
+        data.set("symbol", "SOL-USDT");
+        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(modelDataService.getModel("Order")).thenReturn(model);
+        when(modelDataService.getOneData("Order", "970733")).thenReturn(data);
+        when(modelDataService.createData(data)).thenReturn(true);
+
+        LegacyRunOperationResult result = service.runLegacyOperation(request("970733", 100L, 7004L));
+
+        verify(modelDataService).createData(data);
+        assertTrue(result.isSuccess());
+        assertEquals("创建成功", result.getReturnMsg());
+    }
+
+    @Test
     public void runLegacyUpdateOperationAppliesSetValueCommandsBeforeSave() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);

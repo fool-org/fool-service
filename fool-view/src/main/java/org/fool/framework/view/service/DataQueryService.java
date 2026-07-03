@@ -287,6 +287,8 @@ public class DataQueryService {
                 success = Boolean.TRUE.equals(modelDataService.deleteData(data));
             } else if (operationType == OperationBaseType.UPDATE) {
                 success = Boolean.TRUE.equals(modelDataService.saveData(data));
+            } else if (operationType == OperationBaseType.CREATE) {
+                success = Boolean.TRUE.equals(modelDataService.createData(data));
             } else {
                 return result;
             }
