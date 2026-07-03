@@ -77,6 +77,28 @@ public class DataQueryServiceRunOperationTest {
     }
 
     @Test
+    public void runLegacyOperationReturnsLegacyErrorMessageWhenExecutionFails() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataService viewDataService = mock(ViewDataService.class);
+        DataQueryService service = service(daoService, modelDataService, viewDataService);
+        Model model = model();
+        View view = view(operation(7002L, OperationBaseType.UPDATE, "保存成功", "保存失败"));
+        DbMysqlDynamic data = new DbMysqlDynamic(model);
+        data.set("orderId", "1001");
+        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(modelDataService.getModel("Order")).thenReturn(model);
+        when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
+        when(modelDataService.saveData(data)).thenThrow(new IllegalStateException("db down"));
+
+        LegacyRunOperationResult result = service.runLegacyOperation(request("1001", 100L, 7002L));
+
+        assertFalse(result.isSuccess());
+        assertTrue(result.getReturnMsg().startsWith("保存失败"));
+        assertTrue(result.getReturnMsg().contains("db down"));
+    }
+
+    @Test
     public void runLegacyOperationLeavesUnsupportedOperationUnexecuted() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
@@ -126,12 +148,17 @@ public class DataQueryServiceRunOperationTest {
     }
 
     private static ViewOperation operation(Long id, OperationBaseType type, String successMsg) {
+        return operation(id, type, successMsg, null);
+    }
+
+    private static ViewOperation operation(Long id, OperationBaseType type, String successMsg, String errorMsg) {
         Operation operation = new Operation();
         operation.setId(id);
         operation.setBaseOperationType(type);
         ViewOperation viewOperation = new ViewOperation();
         viewOperation.setOperation(operation);
         viewOperation.setSuccessMsg(successMsg);
+        viewOperation.setErrorMsg(errorMsg);
         return viewOperation;
     }
 

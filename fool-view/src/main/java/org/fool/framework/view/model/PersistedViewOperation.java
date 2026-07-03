@@ -25,6 +25,8 @@ public class PersistedViewOperation {
     private OperationBaseType operationBaseType;
     @Column("SW_SYS_OPVIEW_SUCCESMSG")
     private String successMsg;
+    @Column("SW_SYS_OPVIEW_ERRORMSG")
+    private String errorMsg;
     @Column("SW_SYS_OPVIEW_ConfirmMSG")
     private String confirmMsg;
 
@@ -35,6 +37,7 @@ public class PersistedViewOperation {
         viewOperation.setRequireSelect(Boolean.TRUE.equals(requireSelect));
         viewOperation.setType(operationId == null ? ViewOperationType.MODAL_DETAIL_VIEW : ViewOperationType.COMMAND);
         viewOperation.setSuccessMsg(successMsg);
+        viewOperation.setErrorMsg(errorMsg);
         viewOperation.setConfirmMsg(confirmMsg);
         if (operationId != null) {
             Operation operation = new Operation();

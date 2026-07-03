@@ -13,4 +13,5 @@ public class ViewOperation {
     private Operation operation;
     private String confirmMsg;
     private String successMsg;
+    private String errorMsg;
 }

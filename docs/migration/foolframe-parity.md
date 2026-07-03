@@ -88,6 +88,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-03: made legacy `runoperation` preserve the OperationView
+  `ErrorMsg` failure surface. Persisted operation metadata now hydrates
+  `SW_SYS_OPVIEW_ERRORMSG`, and DELETE/UPDATE execution exceptions return
+  `success=false` with the legacy error-message prefix instead of escaping as
+  a generic API error.
 - 2026-07-03: extended legacy `runoperation` from DELETE-only to UPDATE
   operations, mapping FoolFrame `BaseOperationType.Update` to the existing
   dynamic `saveData` path. Docker seed data now exposes operation `7002`.

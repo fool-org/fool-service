@@ -275,11 +275,17 @@ public class DataQueryService {
         OperationBaseType operationType = operation.getOperation().getBaseOperationType();
         IDynamicData data = modelDataService.getOneData(view.getViewModel(), request.getObjectId());
         boolean success;
-        if (operationType == OperationBaseType.DELETE) {
-            success = Boolean.TRUE.equals(modelDataService.deleteData(data));
-        } else if (operationType == OperationBaseType.UPDATE) {
-            success = Boolean.TRUE.equals(modelDataService.saveData(data));
-        } else {
+        try {
+            if (operationType == OperationBaseType.DELETE) {
+                success = Boolean.TRUE.equals(modelDataService.deleteData(data));
+            } else if (operationType == OperationBaseType.UPDATE) {
+                success = Boolean.TRUE.equals(modelDataService.saveData(data));
+            } else {
+                return result;
+            }
+        } catch (RuntimeException e) {
+            result.setSuccess(false);
+            result.setReturnMsg((operation.getErrorMsg() == null ? "" : operation.getErrorMsg()) + e);
             return result;
         }
         result.setSuccess(success);

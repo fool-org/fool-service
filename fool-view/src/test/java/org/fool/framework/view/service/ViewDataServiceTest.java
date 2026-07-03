@@ -65,6 +65,7 @@ public class ViewDataServiceTest {
         row.setLocation(2);
         row.setRequireSelect(true);
         row.setSuccessMsg("操作成功");
+        row.setErrorMsg("操作失败");
 
         when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
         when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(new Model());
@@ -77,6 +78,7 @@ public class ViewDataServiceTest {
         assertEquals(OperationBaseType.DELETE, result.getOperations().get(0).getOperation().getBaseOperationType());
         assertEquals(ViewOperationType.COMMAND, result.getOperations().get(0).getType());
         assertEquals("操作成功", result.getOperations().get(0).getSuccessMsg());
+        assertEquals("操作失败", result.getOperations().get(0).getErrorMsg());
     }
 
     private static Property itemProperty(ViewItem item) {
