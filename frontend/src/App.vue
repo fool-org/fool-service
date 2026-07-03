@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 import {
   type AuthItem,
   type CommonResponse,
+  type GetEnumResult,
   type InputQueryResult,
   type QueryDataDetailResult,
   type ListDataItem,
@@ -15,6 +16,7 @@ import {
   postApi
 } from "./api";
 import {
+  buildGetEnumRequest,
   buildInputQueryRequest,
   buildQueryDataDetailRequest,
   buildQueryRequest,
@@ -43,6 +45,7 @@ const inputQueryIsAdded = ref(false);
 const detailViewId = ref(100);
 const detailObjId = ref("1001");
 const detailIdExp = ref("");
+const enumModelId = ref("100");
 const saveViewId = ref("100");
 const saveObjId = ref("1001");
 const savePropertyiesJson = ref('[{"key":"symbol","value":"BTC-USDT"},{"key":"state","value":"OPEN"}]');
@@ -55,6 +58,7 @@ const menuResponse = ref<CommonResponse<TreeNode<AuthItem>[]> | null>(null);
 const viewResponse = ref<CommonResponse<ListViewInfo> | null>(null);
 const dataResponse = ref<CommonResponse<ListViewResult> | null>(null);
 const detailResponse = ref<CommonResponse<QueryDataDetailResult> | null>(null);
+const enumResponse = ref<CommonResponse<GetEnumResult> | null>(null);
 const inputQueryResponse = ref<CommonResponse<InputQueryResult> | null>(null);
 const saveObjResponse = ref<CommonResponse<void> | null>(null);
 const errorMessage = ref("");
@@ -241,6 +245,18 @@ async function queryDetail() {
   );
   if (response) {
     detailResponse.value = response;
+  }
+}
+
+async function loadEnums() {
+  const request = buildGetEnumRequest({
+    token: token.value,
+    modelId: enumModelId.value
+  });
+
+  const response = await runAction("getenums", () => postApi<GetEnumResult>("/api/v1/data/getenums", request));
+  if (response) {
+    enumResponse.value = response;
   }
 }
 
@@ -489,6 +505,38 @@ function formatValue(value: unknown) {
 
         <article class="panel lookup-panel">
           <div class="panel-heading">
+            <h2>Enum Values</h2>
+            <span>POST /api/v1/data/getenums</span>
+          </div>
+          <label>
+            Model ID
+            <input v-model="enumModelId" />
+          </label>
+          <button class="primary" type="button" :disabled="pendingAction === 'getenums'" @click="loadEnums">
+            Load Enums
+          </button>
+
+          <div class="table-wrap input-query-results">
+            <table v-if="enumResponse?.data?.enumValues?.length">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in enumResponse.data.enumValues" :key="`${item.name}-${item.value}`">
+                  <td>{{ item.name }}</td>
+                  <td>{{ item.value }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div v-else class="empty-state">No enums loaded.</div>
+          </div>
+        </article>
+
+        <article class="panel lookup-panel">
+          <div class="panel-heading">
             <h2>Input Query</h2>
             <span>POST /api/v1/data/inputquery</span>
           </div>
@@ -615,6 +663,7 @@ function formatValue(value: unknown) {
                 view: viewResponse,
                 data: dataResponse,
                 detail: detailResponse,
+                enums: enumResponse,
                 inputQuery: inputQueryResponse,
                 saveObj: saveObjResponse
               },

@@ -1,4 +1,5 @@
 import type {
+  GetEnumRequest,
   InputQueryRequest,
   LegacyQueryDataDetailRequest,
   SaveItemProperty,
@@ -49,6 +50,11 @@ export interface QueryDataDetailRequestInput {
   viewId: number;
   objId: string;
   idExp?: string;
+}
+
+export interface GetEnumRequestInput {
+  token: string;
+  modelId: string;
 }
 
 export interface QueryRequest {
@@ -131,6 +137,13 @@ export function buildQueryDataDetailRequest(input: QueryDataDetailRequestInput):
     request.idExp = idExp;
   }
   return request;
+}
+
+export function buildGetEnumRequest(input: GetEnumRequestInput): GetEnumRequest {
+  return {
+    token: input.token,
+    modelId: input.modelId.trim()
+  };
 }
 
 function parseFilter(filterJson: string): Record<string, unknown> {

@@ -25,6 +25,7 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `curl -H 'Content-Type: application/json' -d '{"viewName":"OrderList","pageInfo":{"pageSize":10,"pageIndex":1},"filter":{"orderId":{"values":["1001","1002"]}}}' http://localhost:8080/api/v1/data/query-list`
   `curl -H 'Content-Type: application/json' -d '{"viewId":100,"pageSize":10,"pageIndex":1,"queryFilter":"order_state=\"OPEN\""}' http://localhost:8080/api/v1/data/querydata`
   `curl -H 'Content-Type: application/json' -d '{"viewId":100,"objId":"1001"}' http://localhost:8080/api/v1/data/querydatadetail`
+  `curl -H 'Content-Type: application/json' -d '{"modelId":"100"}' http://localhost:8080/api/v1/data/getenums`
   `curl -H 'Content-Type: application/json' -d '{"viewName":"OrderList","viewItemId":"symbol","text":"BTC"}' http://localhost:8080/api/v1/data/inputquery`
   `curl -H 'Content-Type: application/json' -d '{"saveObj":{"id":"1001","viewID":"100","propertyies":[{"key":"symbol","value":"BTC-USDT"},{"key":"state","value":"OPEN"}]}}' http://localhost:8080/api/v1/data/saveobj`
   `curl -H 'Content-Type: application/json' -d '{"saveObj":{"id":"1001","viewID":"100","propertyies":[{"key":"symbol","value":"BTC-USDT"},{"key":"state","value":"OPEN"}],"itemproperties":[{"key":"items","items":[{"itemId":"2001","isExist":true,"propertyies":[{"key":"itemName","value":"Updated item"}]}],"addedItems":[{"itemId":"2003","isExist":true,"propertyies":[{"key":"itemName","value":"New item"}]}],"delteItems":[{"itemId":"2004","isExist":true,"propertyies":[]}]}]}}}' http://localhost:8080/api/v1/data/saveobj`
@@ -76,6 +77,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-03: exposed the migrated `querydatadetail` API in the Vue operator
   console with typed payload building, simple-data display, Docker runtime, and
   backend detail smoke coverage.
+- 2026-07-03: exposed the migrated `getenums` API in the Vue operator console
+  with typed payload building, enum-value display, Docker runtime, and backend
+  endpoint smoke coverage.
 
 ## Server Source Mapping
 
@@ -137,6 +141,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Vue API types for view operation names, IDs, operation locations, view operations, list row format, list-query columns, legacy view types/names/show types/temp files, default detail view IDs, and refresh metadata
 - Vue API types for legacy list-query row indexes, paging aliases, `Data` result alias, and row `Items`/`ObjValuePair` metadata
 - Vue API types for legacy `getenums` enum-value request/result payloads
+- A Vue enum-value panel that calls legacy `/api/v1/data/getenums` and renders
+  returned enum values
 - Vue API types for legacy `getlistview` view-id payloads
 - Vue API types for legacy `getreaditemview` read-item payloads
 - Vue API types for legacy `querydata` request payloads

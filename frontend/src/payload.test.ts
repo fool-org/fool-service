@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { buildInputQueryRequest, buildQueryDataDetailRequest, buildQueryRequest, buildSaveObjRequest } from "./payload";
+import {
+  buildGetEnumRequest,
+  buildInputQueryRequest,
+  buildQueryDataDetailRequest,
+  buildQueryRequest,
+  buildSaveObjRequest
+} from "./payload";
 
 describe("buildQueryRequest", () => {
   it("matches the Spring QueryDataRequest DTO shape", () => {
@@ -151,6 +157,20 @@ describe("buildQueryDataDetailRequest", () => {
       viewId: 100,
       objId: "1001",
       idExp: "order_id"
+    });
+  });
+});
+
+describe("buildGetEnumRequest", () => {
+  it("matches the legacy getenums DTO shape", () => {
+    const request = buildGetEnumRequest({
+      token: "token-1",
+      modelId: " 100 "
+    });
+
+    expect(request).toEqual({
+      token: "token-1",
+      modelId: "100"
     });
   });
 });
