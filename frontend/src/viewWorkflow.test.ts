@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   buildAddedItemProperty,
   buildDeletedItemProperty,
+  buildDraftsFromRow,
   buildFieldDrafts,
   buildSavePropertyies,
+  buildSelectedExistingItemProperty,
   buildUpdatedItemProperty,
   columnKey,
   itemKey,
@@ -91,6 +93,46 @@ describe("view workflow helpers", () => {
     expect(buildDeletedItemProperty(group, item)).toMatchObject({
       key: "items",
       delteItems: [{ itemId: "2001", isExist: true }]
+    });
+  });
+
+  it("maps a selected existing row into AddedItems by child fields", () => {
+    const group = {
+      prpId: "items",
+      properties: [
+        { prpId: "itemId", fmtValue: "" },
+        { prpId: "itemName", fmtValue: "" }
+      ]
+    };
+    const columns = [
+      { property: "id", title: "ID" },
+      { property: "name", title: "Name" }
+    ];
+    const row = {
+      id: "3001",
+      values: { id: "3001", name: "Existing item" },
+      items: [
+        { prpId: "id", objId: "3001", fmtValue: "3001" },
+        { prpId: "name", objId: "Existing item", fmtValue: "Existing item" }
+      ]
+    };
+
+    expect(buildDraftsFromRow(group.properties, row, columns)).toEqual({
+      itemId: "3001",
+      itemName: "Existing item"
+    });
+    expect(buildSelectedExistingItemProperty(group, row, columns)).toEqual({
+      key: "items",
+      addedItems: [
+        {
+          itemId: "3001",
+          isExist: true,
+          propertyies: [
+            { key: "itemId", value: "3001" },
+            { key: "itemName", value: "Existing item" }
+          ]
+        }
+      ]
     });
   });
 });

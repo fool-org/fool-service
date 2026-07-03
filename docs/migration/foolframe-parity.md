@@ -98,9 +98,15 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   current View field keys instead of binding to `symbol` / `state` business
   fields. Child collection add/update/delete controls now render from
   `querydatadetail.Items[].properties` and preserve the legacy
-  `Itemproperties.Items` / `AddedItems` / `DelteItems` payload names. Full
-  select-from-existing child collection parity and richer field-type widgets
-  remain future work.
+  `Itemproperties.Items` / `AddedItems` / `DelteItems` payload names. Richer
+  field-type widgets remain future work.
+- 2026-07-04: added the first Vue select-from-existing child collection path.
+  When `querydatadetail.Items[]` marks a group as `selectFromExists`, the
+  detail panel can load the configured `selectedView` / `listViewId` through
+  legacy `getlistview` + `querydata`, show candidate rows from that View
+  metadata, and add the selected row through legacy
+  `saveobj.Itemproperties.AddedItems`. Candidate search/pagination remains
+  future work.
 - 2026-07-03: added the first Vue detail child-item write workflow for
   `OrderList`. The default detail panel can now add an order item through the
   legacy `saveobj.Itemproperties.AddedItems` payload, matching FoolFrame's
@@ -590,6 +596,9 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - A default Vue child collection workflow that renders from
   `querydatadetail.Items[].properties` and sends legacy
   `saveobj.Itemproperties.Items`, `AddedItems`, and `DelteItems` payloads
+- A default Vue select-from-existing child collection path that loads
+  configured candidate Views and adds selected rows through legacy
+  `saveobj.Itemproperties.AddedItems`
 - A Vue backend smoke panel that calls `/test` and renders the Docker seed rows
 - A migration-map strip showing current server module mapping
 - Vite and Nginx proxies for `/api/*` and `/test` to the backend service

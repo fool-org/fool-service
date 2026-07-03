@@ -136,6 +136,29 @@ export function buildAddedItemProperty(
   };
 }
 
+export function buildDraftsFromRow(fields: ListDataValue[], row: ListDataItem, columns: TableColumnInfo[] = []) {
+  return fields.reduce<Record<string, string>>((drafts, field, index) => {
+    const key = fieldKey(field);
+    if (!key) {
+      return drafts;
+    }
+    const byKey = row.items?.find((item) => fieldKey(item) === key);
+    const byIndex = row.items?.[index];
+    const columnKeyAtIndex = columns[index] ? columnKey(columns[index]) : "";
+    drafts[key] = byKey?.objId || byKey?.fmtValue || (columnKeyAtIndex ? displayValue(row.values?.[columnKeyAtIndex]) : "") || byIndex?.objId || byIndex?.fmtValue || "";
+    return drafts;
+  }, {});
+}
+
+export function buildSelectedExistingItemProperty(
+  group: QueryDataDetailItemGroup,
+  row: ListDataItem,
+  columns: TableColumnInfo[] = []
+): SaveItemProperty {
+  const itemId = rowObjectId(row, columns);
+  return buildAddedItemProperty(group, itemId, buildDraftsFromRow(group.properties || [], row, columns));
+}
+
 export function displayValue(value: unknown) {
   if (value === null || value === undefined) {
     return "";

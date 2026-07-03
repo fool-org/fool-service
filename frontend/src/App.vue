@@ -38,6 +38,7 @@ import {
   buildFieldDrafts,
   buildItemDrafts,
   buildSavePropertyies,
+  buildSelectedExistingItemProperty,
   buildUpdatedItemProperty,
   columnKey,
   columnTitle,
@@ -128,6 +129,8 @@ const isCreatingObject = ref(false);
 const detailDrafts = ref<Record<string, string>>({});
 const childDrafts = ref<Record<string, Record<string, string>>>({});
 const newChildDrafts = ref<Record<string, Record<string, string>>>({});
+const childCandidateRows = ref<Record<string, ListDataItem[]>>({});
+const childCandidateColumns = ref<Record<string, TableColumnInfo[]>>({});
 
 const loginResponse = ref<CommonResponse<LoginVo> | null>(null);
 const initAppResponse = ref<CommonResponse<LegacyInitAppResult> | null>(null);
@@ -807,6 +810,54 @@ async function addDetailItem(group: QueryDataDetailItemGroup) {
   await queryDetail();
 }
 
+async function loadExistingDetailItems(group: QueryDataDetailItemGroup) {
+  const viewId = selectedChildViewId(group);
+  if (!viewId) {
+    errorMessage.value = "No selectable view configured.";
+    return;
+  }
+  const viewRequest = buildLegacyListViewRequest({
+    token: token.value,
+    viewId
+  });
+  const dataRequest = buildLegacyQueryDataRequest({
+    token: token.value,
+    viewId,
+    pageIndex: 1,
+    pageSize: 10
+  });
+  const view = await runAction("child-select-view", () => postApi<ListViewInfo>("/api/v1/view/getlistview", viewRequest));
+  if (!view) {
+    return;
+  }
+  const data = await runAction("child-select-data", () => postApi<ListViewResult>("/api/v1/data/querydata", dataRequest));
+  if (!data) {
+    return;
+  }
+  const key = groupKey(group);
+  childCandidateColumns.value = {
+    ...childCandidateColumns.value,
+    [key]: view.data?.tableColumn || []
+  };
+  childCandidateRows.value = {
+    ...childCandidateRows.value,
+    [key]: data.data?.items || data.data?.data || []
+  };
+}
+
+async function addExistingDetailItem(group: QueryDataDetailItemGroup, row: ListDataItem) {
+  if (!selectedObject.value || isCreatingObject.value) {
+    errorMessage.value = "Save the object before adding items.";
+    return;
+  }
+  setDetailItemSavePayload([buildSelectedExistingItemProperty(group, row, candidateColumns(group))]);
+  const saved = await saveObj();
+  saveItempropertiesJson.value = "";
+  if (saved) {
+    await queryDetail();
+  }
+}
+
 async function updateDetailItem(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) {
   if (!selectedObject.value || isCreatingObject.value || !item.dataId) {
     errorMessage.value = "Select a saved item first.";
@@ -849,6 +900,18 @@ function nextObjectId() {
 
 function groupKey(group: QueryDataDetailItemGroup) {
   return group.prpId || group.name || "items";
+}
+
+function selectedChildViewId(group: QueryDataDetailItemGroup) {
+  return group.selectedView || group.listViewId || 0;
+}
+
+function candidateRows(group: QueryDataDetailItemGroup) {
+  return childCandidateRows.value[groupKey(group)] || [];
+}
+
+function candidateColumns(group: QueryDataDetailItemGroup) {
+  return childCandidateColumns.value[groupKey(group)] || [];
 }
 
 function emptyGroupDraft(group: QueryDataDetailItemGroup) {
@@ -1008,6 +1071,37 @@ function syncDetailDrafts() {
                     <input v-model="newChildDrafts[groupKey(group)][fieldKey(field)]" />
                   </label>
                   <button type="button" :disabled="Boolean(pendingAction)" @click="addDetailItem(group)">Add</button>
+                </div>
+                <div v-if="group.selectFromExists" class="table-wrap">
+                  <button type="button" :disabled="Boolean(pendingAction)" @click="loadExistingDetailItems(group)">
+                    Load Existing
+                  </button>
+                  <table v-if="candidateRows(group).length">
+                    <thead>
+                      <tr>
+                        <th v-for="column in candidateColumns(group)" :key="columnKey(column)">
+                          {{ columnTitle(column) }}
+                        </th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="row in candidateRows(group)" :key="rowObjectId(row, candidateColumns(group))">
+                        <td v-for="column in candidateColumns(group)" :key="columnKey(column)">
+                          {{ rowValue(row, column) }}
+                        </td>
+                        <td>
+                          <button
+                            type="button"
+                            :disabled="Boolean(pendingAction)"
+                            @click="addExistingDetailItem(group, row)"
+                          >
+                            Select
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
                 <div
                   v-for="item in group.items || []"
