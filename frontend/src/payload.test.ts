@@ -58,6 +58,12 @@ describe("App defaults", () => {
     expect(listDataTableSource).toContain("operationTargetViewId(operation) <= 0");
   });
 
+  it("renders list paging from legacy querydata totals", () => {
+    expect(appSource).toContain("resultTotalItems");
+    expect(appSource).toContain("loadResultPage(resultPageIndex + 1)");
+    expect(appSource).toContain("Page {{ resultPageIndex }} / {{ resultTotalPages || 1 }}");
+  });
+
   it("keeps the Vue workspace on view-id driven legacy view and data APIs", () => {
     expect(appSource).toContain("/api/v1/view/getlistview");
     expect(appSource).toContain("/api/v1/data/querydata");

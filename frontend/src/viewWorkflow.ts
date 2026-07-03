@@ -1,6 +1,7 @@
 import type {
   ListDataItem,
   ListDataValue,
+  ListViewResult,
   OperationInfo,
   QueryDataDetailDataItem,
   QueryDataDetailItemGroup,
@@ -119,6 +120,18 @@ export function createOperations(operations: OperationInfo[] = []) {
 
 export function rowOperations(operations: OperationInfo[] = []) {
   return operations.filter((operation) => operation.requireSelect === true);
+}
+
+export function listTotalItems(result?: ListViewResult) {
+  return result?.totalItem || result?.pageInfo?.total || 0;
+}
+
+export function listTotalPages(result?: ListViewResult) {
+  return result?.totalPage || result?.pageInfo?.pageCount || 0;
+}
+
+export function listPageIndex(result: ListViewResult | undefined, fallback = 1) {
+  return result?.pageIndex || result?.pageInfo?.pageIndex || fallback;
 }
 
 export function reportRowsFromCells(cells: ReportCell[] = []) {

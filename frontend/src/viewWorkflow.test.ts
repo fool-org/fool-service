@@ -17,6 +17,9 @@ import {
   isLookupField,
   isReadonlyField,
   itemKey,
+  listPageIndex,
+  listTotalItems,
+  listTotalPages,
   reportRowsFromCells,
   recordColumns,
   recordRowKey,
@@ -194,6 +197,14 @@ describe("view workflow helpers", () => {
       { id: 2, name: "Open", requireSelect: true, viewId: 201 },
       { id: 3, name: "Delete", requireSelect: true, viewId: 0 }
     ]);
+  });
+
+  it("reads legacy list paging from direct totals or pageInfo", () => {
+    expect(listTotalItems({ totalItem: 8 })).toBe(8);
+    expect(listTotalItems({ pageInfo: { total: 5 } })).toBe(5);
+    expect(listTotalPages({ totalPage: 4 })).toBe(4);
+    expect(listTotalPages({ pageInfo: { pageCount: 3 } })).toBe(3);
+    expect(listPageIndex({ pageInfo: { pageIndex: 2 } }, 1)).toBe(2);
   });
 
   it("renders report cells as a matrix", () => {

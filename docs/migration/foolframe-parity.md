@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: the Vue View workflow now renders previous/next paging controls
+  from legacy `querydata` totals (`totalItem`, `totalPage`, `pageIndex`,
+  with `pageInfo` fallback), matching FoolFrame `querylistdata.js` updating
+  `NavbarController` from `TotalItem`, `pageSize`, and `currentPage`. Page
+  changes reuse the loaded View id and existing `querydata` path instead of a
+  business DTO list shortcut.
 - 2026-07-04: Vue list rows now keep `RequireSelect=true` operations even
   when the operation `ViewId` is `0`. This matches FoolFrame
   `querylistdata.js`, which still renders the operation name for the row but

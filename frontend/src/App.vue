@@ -58,6 +58,9 @@ import {
   isEnumField,
   itemKey,
   itemValue,
+  listPageIndex,
+  listTotalItems,
+  listTotalPages,
   recordColumns,
   recordRowKey,
   reportRowsFromCells,
@@ -209,6 +212,9 @@ const resultColumns = computed<TableColumnInfo[]>(() => {
 });
 
 const resultRows = computed<ListDataItem[]>(() => dataResponse.value?.data?.items || dataResponse.value?.data?.data || []);
+const resultPageIndex = computed(() => listPageIndex(dataResponse.value?.data, Number(pageIndex.value)));
+const resultTotalItems = computed(() => listTotalItems(dataResponse.value?.data));
+const resultTotalPages = computed(() => listTotalPages(dataResponse.value?.data));
 const selectedObject = computed(() => resultRows.value.find((row) => rowObjectId(row, resultColumns.value) === selectedObjectId.value));
 const detailRows = computed(() => detailResponse.value?.data?.data?.simpleData || []);
 const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() => detailResponse.value?.data?.data?.items || []);
@@ -463,6 +469,11 @@ async function queryCurrentViewData() {
   if (response) {
     dataResponse.value = response;
   }
+}
+
+async function loadResultPage(nextPage: number) {
+  pageIndex.value = Math.max(1, nextPage);
+  await queryCurrentViewData();
 }
 
 async function runReport(action: string, path: string) {
@@ -1012,6 +1023,23 @@ function syncDetailDrafts() {
               :selected-object-id="selectedObjectId"
               @select="selectObject"
             />
+          </div>
+          <div v-if="resultRows.length || resultTotalItems" class="button-row">
+            <button
+              type="button"
+              :disabled="Boolean(pendingAction) || resultPageIndex <= 1"
+              @click="loadResultPage(resultPageIndex - 1)"
+            >
+              Previous
+            </button>
+            <span>Page {{ resultPageIndex }} / {{ resultTotalPages || 1 }} · {{ resultTotalItems }} rows</span>
+            <button
+              type="button"
+              :disabled="Boolean(pendingAction) || resultTotalPages === 0 || resultPageIndex >= resultTotalPages"
+              @click="loadResultPage(resultPageIndex + 1)"
+            >
+              Next
+            </button>
           </div>
         </article>
 

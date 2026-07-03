@@ -123,6 +123,8 @@ explicitly named as authoritative for fool-service.
       load/save/lookup/operation execution bound to the active detail View.
 - [x] Render list row operations without a target `ViewId` as disabled
       metadata actions instead of dropping them from the View-rendered page.
+- [x] Render View workflow paging controls from legacy `querydata` totals and
+      keep page navigation on the loaded `ViewId`.
 
 ## Backlog
 
