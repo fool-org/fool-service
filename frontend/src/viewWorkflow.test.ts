@@ -10,6 +10,7 @@ import {
   buildSelectedExistingItemProperty,
   buildUpdatedItemProperty,
   columnKey,
+  columnsFromRowItems,
   createOperations,
   fieldModelId,
   groupKey,
@@ -27,7 +28,8 @@ import {
   rowObjectId,
   rowOperations,
   rowValue,
-  selectedChildViewId
+  selectedChildViewId,
+  viewDetailViewId
 } from "./viewWorkflow";
 
 describe("view workflow helpers", () => {
@@ -82,6 +84,37 @@ describe("view workflow helpers", () => {
     expect(isReadonlyField({ prpId: "id", readOnly: true })).toBe(true);
     expect(isReadonlyField({ prpId: "id", editType: "ReadOnly" })).toBe(true);
     expect(isReadonlyField({ prpId: "name", readOnly: false, editType: "TextBox" })).toBe(false);
+  });
+
+  it("derives fallback columns from row item metadata instead of DTO values", () => {
+    expect(columnsFromRowItems({
+      values: { dtoOnly: "ignored" },
+      items: [
+        { prpId: "recordId", prpShowName: "Record ID", prpType: "Long", readOnly: true },
+        { prpId: "name", prpShowName: "Name", prpType: "String" }
+      ]
+    })).toEqual([
+      {
+        property: "recordId",
+        propertyName: "recordId",
+        title: "Record ID",
+        name: "Record ID",
+        isReadOnly: true,
+        editType: undefined,
+        propertyType: "Long",
+        propertyModel: undefined
+      },
+      {
+        property: "name",
+        propertyName: "name",
+        title: "Name",
+        name: "Name",
+        isReadOnly: undefined,
+        editType: undefined,
+        propertyType: "String",
+        propertyModel: undefined
+      }
+    ]);
   });
 
   it("keeps legacy child collection add/update/delete payload names", () => {
@@ -205,6 +238,11 @@ describe("view workflow helpers", () => {
     expect(listTotalPages({ totalPage: 4 })).toBe(4);
     expect(listTotalPages({ pageInfo: { pageCount: 3 } })).toBe(3);
     expect(listPageIndex({ pageInfo: { pageIndex: 2 } }, 1)).toBe(2);
+  });
+
+  it("uses the rendered View detail id before falling back to the list id", () => {
+    expect(viewDetailViewId({ id: 100, detailViewId: 200 }, 100)).toBe(200);
+    expect(viewDetailViewId({ id: 100 }, 100)).toBe(100);
   });
 
   it("renders report cells as a matrix", () => {

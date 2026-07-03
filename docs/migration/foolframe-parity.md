@@ -97,6 +97,18 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: the Vue View workflow now resolves the default detail context
+  from the loaded `getlistview` metadata's `DetailViewId` before opening the
+  first row, the generic `Open` row action, or fallback `New Row`
+  initialization. This matches FoolFrame `view.jade`, which passes
+  `view.data.DetailViewId` into `querylistdata.js` before row data selection,
+  and keeps `querydatadetail` / save / lookup calls bound to the rendered View
+  context instead of reusing the list View id or a concrete business DTO.
+- 2026-07-04: the Vue main list no longer builds fallback columns from
+  `row.values` object keys. If `getlistview` returns no table columns, the
+  fallback now reads legacy row `Items` metadata (`PrpId` / `PrpShowName`) from
+  `querydata`, matching FoolFrame's View-item/value pair rendering model and
+  preventing concrete data DTO fields from defining the page structure.
 - 2026-07-04: the Vue main View workflow now resets `pageIndex` to `1` when
   the operator clicks `Load View` / search, matching FoolFrame
   `querylistdata.js` where `query()` sets `$scope.page = 1` before

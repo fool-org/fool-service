@@ -1,6 +1,7 @@
 import type {
   ListDataItem,
   ListDataValue,
+  ListViewInfo,
   ListViewResult,
   OperationInfo,
   QueryDataDetailDataItem,
@@ -41,6 +42,24 @@ export function fieldKey(field: ListDataValue) {
 
 export function fieldTitle(field: ListDataValue) {
   return field.prpShowName || field.prpId || "";
+}
+
+export function columnsFromRowItems(row: ListDataItem | undefined): TableColumnInfo[] {
+  return (row?.items || [])
+    .map((field) => {
+      const key = fieldKey(field);
+      return {
+        property: key,
+        propertyName: key,
+        title: fieldTitle(field),
+        name: fieldTitle(field),
+        isReadOnly: field.readOnly,
+        editType: field.editType,
+        propertyType: field.prpType,
+        propertyModel: field.prpModelId
+      };
+    })
+    .filter((column) => column.property || column.title);
 }
 
 export function fieldModelId(field: ListDataValue) {
@@ -132,6 +151,10 @@ export function listTotalPages(result?: ListViewResult) {
 
 export function listPageIndex(result: ListViewResult | undefined, fallback = 1) {
   return result?.pageIndex || result?.pageInfo?.pageIndex || fallback;
+}
+
+export function viewDetailViewId(view: ListViewInfo | undefined, fallback = 0) {
+  return Number(view?.detailViewId || fallback || 0);
 }
 
 export function reportRowsFromCells(cells: ReportCell[] = []) {

@@ -47,6 +47,7 @@ import {
   buildUpdatedItemProperty,
   columnKey,
   columnTitle,
+  columnsFromRowItems,
   createOperations,
   displayValue,
   emptyGroupDraft,
@@ -67,7 +68,8 @@ import {
   rowObjectId,
   rowOperations,
   rowValue,
-  selectedChildViewId
+  selectedChildViewId,
+  viewDetailViewId
 } from "./viewWorkflow";
 import {
   buildGetEnumRequest,
@@ -203,12 +205,8 @@ const resultColumns = computed<TableColumnInfo[]>(() => {
     return declared;
   }
 
-  const first = dataResponse.value?.data?.items?.[0]?.values;
-  if (!first) {
-    return [];
-  }
-
-  return Object.keys(first).map((property) => ({ property, title: property }));
+  const first = dataResponse.value?.data?.items?.[0] || dataResponse.value?.data?.data?.[0];
+  return columnsFromRowItems(first);
 });
 
 const resultRows = computed<ListDataItem[]>(() => dataResponse.value?.data?.items || dataResponse.value?.data?.data || []);
@@ -696,15 +694,16 @@ function applyLoadedView(view?: ListViewInfo) {
   }
   const loadedViewId = view?.id;
   if (loadedViewId) {
+    const loadedDetailViewId = viewDetailViewId(view, loadedViewId);
     legacyListViewId.value = loadedViewId;
     readItemViewId.value = loadedViewId;
     legacyQueryViewId.value = loadedViewId;
     reportViewId.value = loadedViewId;
-    detailViewId.value = loadedViewId;
-    initNewViewId.value = loadedViewId;
-    operationViewId.value = loadedViewId;
-    saveViewId.value = String(loadedViewId);
-    saveNewViewId.value = String(loadedViewId);
+    detailViewId.value = loadedDetailViewId;
+    initNewViewId.value = loadedDetailViewId;
+    operationViewId.value = loadedDetailViewId;
+    saveViewId.value = String(loadedDetailViewId);
+    saveNewViewId.value = String(loadedDetailViewId);
   }
 }
 
@@ -727,7 +726,7 @@ onMounted(() => {
   void loadViewWorkflow();
 });
 
-async function selectObject(row: ListDataItem, viewId = Number(currentViewId.value)) {
+async function selectObject(row: ListDataItem, viewId = Number(detailViewId.value)) {
   const objectId = rowObjectId(row, resultColumns.value);
   if (!objectId) {
     return;
@@ -741,7 +740,7 @@ async function selectObject(row: ListDataItem, viewId = Number(currentViewId.val
   await queryDetail(viewId);
 }
 
-async function startNewObject(viewId = Number(currentViewId.value)) {
+async function startNewObject(viewId = Number(detailViewId.value)) {
   initNewViewId.value = viewId;
   initNewParentObjId.value = "";
   const initialized = await initNew();

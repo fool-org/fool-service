@@ -127,6 +127,12 @@ explicitly named as authoritative for fool-service.
       keep page navigation on the loaded `ViewId`.
 - [x] Reset the main View workflow search/load action to page 1 before
       re-querying, matching FoolFrame list search behavior.
+- [x] Use the rendered View's `DetailViewId` for default Vue row open and
+      fallback new-row initialization, so detail data stays bound to the View
+      metadata context instead of the list View or a concrete business DTO.
+- [x] Stop deriving the main Vue list columns from row `values` DTO keys; when
+      View columns are absent, fallback columns now come from legacy row
+      `Items` metadata.
 
 ## Backlog
 
