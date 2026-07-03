@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -63,6 +64,36 @@ public class ReportControllerTest {
         assertCell(result.getCells().get(3), 1, 1, "Open");
     }
 
+    @Test
+    public void makeReportMapsLegacySimpleFilterExpToQueryFilter() throws Exception {
+        DataQueryService dataQueryService = mock(DataQueryService.class);
+        when(dataQueryService.queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), eq("`order_state`='0'")))
+                .thenReturn(new ListViewResult());
+
+        ReportController controller = new ReportController();
+        setField(controller, "dataQueryService", dataQueryService);
+
+        MakeReportRequest request = new MakeReportRequest();
+        request.setViewId(100L);
+        request.setCurrentPage(1);
+        request.setPageSize(10);
+        request.setFilterExp(filterExp("order_state", "1", "等于", "0", "Open"));
+
+        CommonResponse<ReportGridResult> response = controller.makeReport(request);
+
+        verify(dataQueryService).queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), eq("`order_state`='0'"));
+        assertEquals(0, response.getCode());
+    }
+
+    @Test
+    public void makeReportRejectsUnsupportedFilterExpInsteadOfIgnoringIt() throws Exception {
+        ReportController controller = new ReportController();
+        MakeReportRequest request = new MakeReportRequest();
+        request.setFilterExp(filterExp("order_state", "7", "包含", "0", "Open"));
+
+        assertThrows(IllegalArgumentException.class, () -> controller.makeReport(request));
+    }
+
     private static ListDataItem row() {
         ListDataItem row = new ListDataItem();
         row.setValues(Map.of("symbol", "BTC-USDT", "state", "Open"));
@@ -83,6 +114,20 @@ public class ReportControllerTest {
         col.setColName(name);
         col.setIndex(index);
         return col;
+    }
+
+    private static MakeReportRequest.BoolExp filterExp(String columnName, String compareId, String compareName, String value, String fmtValue) {
+        MakeReportRequest.QueryCol col = new MakeReportRequest.QueryCol();
+        col.setName(columnName);
+        MakeReportRequest.CompareOpItem compare = new MakeReportRequest.CompareOpItem();
+        compare.setId(compareId);
+        compare.setName(compareName);
+        MakeReportRequest.BoolExp exp = new MakeReportRequest.BoolExp();
+        exp.setCol(col);
+        exp.setCompareOp(compare);
+        exp.setValueExp(value);
+        exp.setValueFmt(fmtValue);
+        return exp;
     }
 
     private static void assertCell(ReportCell cell, int col, int row, String value) {

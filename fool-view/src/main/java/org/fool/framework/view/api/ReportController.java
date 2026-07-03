@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @RestController
@@ -40,7 +41,7 @@ public class ReportController {
         ListViewResult queryResult = dataQueryService.queryLegacyViewData(
                 request.getViewId() == null ? null : request.getViewId().toString(),
                 page,
-                request.getQueryFilter());
+                queryFilter(request));
         return new CommonResponse<>(renderer.render(
                 request.getViewId() == null ? 0 : request.getViewId().intValue(),
                 page.getPageIndex(),
@@ -49,6 +50,46 @@ public class ReportController {
                 queryResult.getTotalPage() == null ? 0 : queryResult.getTotalPage(),
                 columns(request, queryResult),
                 rows(queryResult)));
+    }
+
+    private String queryFilter(MakeReportRequest request) {
+        if (StringUtils.hasText(request.getQueryFilter())) {
+            return request.getQueryFilter();
+        }
+        return simpleFilterExp(request.getFilterExp());
+    }
+
+    private String simpleFilterExp(MakeReportRequest.BoolExp filterExp) {
+        if (filterExp == null) {
+            return null;
+        }
+        if (filterExp.getFirstExp() != null || !CollectionUtils.isEmpty(filterExp.getSequences())) {
+            throw new IllegalArgumentException("Only simple equality FilterExp is supported.");
+        }
+        String column = filterExp.getCol() == null ? null : filterExp.getCol().getName();
+        if (!StringUtils.hasText(column) && filterExp.getCol() != null) {
+            column = filterExp.getCol().getId();
+        }
+        if (!safeColumn(column) || !equalCompare(filterExp.getCompareOp())) {
+            throw new IllegalArgumentException("Only simple equality FilterExp is supported.");
+        }
+        String value = filterExp.getValueExp() == null ? "" : filterExp.getValueExp();
+        return "`" + column.trim() + "`='" + value.replace("'", "''") + "'";
+    }
+
+    private boolean safeColumn(String column) {
+        return StringUtils.hasText(column) && column.trim().matches("[A-Za-z_][A-Za-z0-9_]*");
+    }
+
+    private boolean equalCompare(MakeReportRequest.CompareOpItem compareOp) {
+        if (compareOp == null) {
+            return false;
+        }
+        if ("1".equals(compareOp.getId())) {
+            return true;
+        }
+        String name = compareOp.getName() == null ? "" : compareOp.getName().trim().toLowerCase(Locale.ROOT);
+        return "=".equals(name) || "==".equals(name) || "等于".equals(name) || "equal".equals(name);
     }
 
     private List<String> columns(MakeReportRequest request, ListViewResult queryResult) {
