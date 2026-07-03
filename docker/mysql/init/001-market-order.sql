@@ -32,3 +32,13 @@ CREATE TABLE IF NOT EXISTS `market_order` (
   KEY `order_plan_circle_id` (`order_plan_circle_id`),
   KEY `ix_order_id` (`order_id`)
 );
+
+CREATE TABLE IF NOT EXISTS `market_order_item` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `item_id` bigint NOT NULL DEFAULT '0',
+  `order_id` bigint NOT NULL DEFAULT '0',
+  `item_name` varchar(200) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_market_order_item_item_id` (`item_id`),
+  KEY `ix_market_order_item_order_id` (`order_id`)
+);

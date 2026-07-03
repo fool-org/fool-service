@@ -1,5 +1,6 @@
 package org.fool.framework.view.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -40,7 +41,8 @@ public class SaveObjRequest extends CommonRequest {
 
     @Data
     public static class Item {
-        private boolean isExist;
+        @JsonAlias("isExist")
+        private boolean exist;
         private String itemId;
         private List<SaveKeypair> propertyies = new ArrayList<>();
     }

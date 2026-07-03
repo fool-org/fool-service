@@ -23,6 +23,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 @Slf4j
@@ -92,6 +93,42 @@ public class ModelDataServiceTest {
                             .toList());
         } finally {
             cleanupRuntimeEnumModel(modelId, modelName);
+        }
+    }
+
+    @Test
+    public void getModelRehydratesLegacyRelationsForCollectionProperties() {
+        long orderModelId = 91501L;
+        long itemModelId = 91502L;
+        long orderIdPropertyId = 91503L;
+        long itemsPropertyId = 91504L;
+        long itemIdPropertyId = 91505L;
+        String orderModelName = "RuntimeRelationOrder";
+        String itemModelName = "RuntimeRelationItem";
+        cleanupRuntimeRelationModel(orderModelId, itemModelId, orderModelName, itemModelName);
+        try {
+            createRuntimeRelationModel(
+                    orderModelId,
+                    itemModelId,
+                    orderIdPropertyId,
+                    itemsPropertyId,
+                    itemIdPropertyId,
+                    orderModelName,
+                    itemModelName);
+
+            Model model = modelDataService.getModel(orderModelName);
+
+            assertNotNull(model);
+            assertNotNull(model.getRelations());
+            assertFalse(model.getRelations().isEmpty());
+            Relation relation = model.getRelations().get(0);
+            assertEquals(RelationType.One2Many, relation.getRelationType());
+            assertEquals("items", relation.getProperty().getName());
+            assertEquals("RuntimeRelationItem", relation.getProperty().getPropertyModel().getName());
+            assertEquals("runtime_relation_item", relation.getRelationTable());
+            assertEquals("ORDER_ID", relation.getTargetColumn());
+        } finally {
+            cleanupRuntimeRelationModel(orderModelId, itemModelId, orderModelName, itemModelName);
         }
     }
 
@@ -834,10 +871,109 @@ public class ModelDataServiceTest {
                 false);
     }
 
+    private void createRuntimeRelationModel(
+            long orderModelId,
+            long itemModelId,
+            long orderIdPropertyId,
+            long itemsPropertyId,
+            long itemIdPropertyId,
+            String orderModelName,
+            String itemModelName) {
+        jdbcTemplate.update(
+                "INSERT INTO `fool_sys_model` "
+                        + "(`id`,`name`,`text`,`remark`,`model_type`,`class_name`,`table_name`,`auto_sys_id`,`id_property`) "
+                        + "VALUES (?,?,?,?,?,?,?,?,?)",
+                orderModelId,
+                orderModelName,
+                orderModelName,
+                "runtime relation test",
+                ModelType.DYNAMIC.code(),
+                "example." + orderModelName,
+                "runtime_relation_order",
+                false,
+                orderIdPropertyId);
+        jdbcTemplate.update(
+                "INSERT INTO `fool_sys_model` "
+                        + "(`id`,`name`,`text`,`remark`,`model_type`,`class_name`,`table_name`,`auto_sys_id`,`id_property`) "
+                        + "VALUES (?,?,?,?,?,?,?,?,?)",
+                itemModelId,
+                itemModelName,
+                itemModelName,
+                "runtime relation item test",
+                ModelType.DYNAMIC.code(),
+                "example." + itemModelName,
+                "runtime_relation_item",
+                false,
+                itemIdPropertyId);
+        insertRuntimeProperty(orderIdPropertyId, "orderId", null, false, orderModelId, "ORDER_ID", PropertyType.String);
+        insertRuntimeProperty(itemsPropertyId, "items", itemModelId, true, orderModelId, null, PropertyType.BusinessObject);
+        insertRuntimeProperty(itemIdPropertyId, "itemId", null, false, itemModelId, "ITEM_ID", PropertyType.String);
+        jdbcTemplate.update(
+                "INSERT INTO `SW_SYS_RELATION` "
+                        + "(`SW_SYS_RELATION_TYPE`,`SW_SYS_RELATION_SOURCEPROPERTY`,`SW_SYS_RELATION_TARGETPROPERTY`,"
+                        + "`SW_SYS_RELATION_TABLE`,`SW_SYS_RELATION_SOURCECOL`,`SW_SYS_RELATION_TARGETCOL`,`SW_SYS_RELATION_CANBENULL`) "
+                        + "VALUES (?,?,?,?,?,?,?)",
+                RelationType.One2Many.code(),
+                itemsPropertyId,
+                itemIdPropertyId,
+                "runtime_relation_item",
+                "ITEM_ID",
+                "ORDER_ID",
+                false);
+    }
+
+    private void insertRuntimeProperty(
+            long propertyId,
+            String name,
+            Long propertyModelId,
+            boolean collection,
+            long ownerModelId,
+            String column,
+            PropertyType type) {
+        jdbcTemplate.update(
+                "INSERT INTO `fool_sys_model_property` "
+                        + "(`id`,`name`,`remark`,`property_model`,`is_collection`,`owner`,`filter`,`format`,`column`,"
+                        + "`property_type`,`allow_db_null`,`is_check`,`ix_group`,`multi_map`) "
+                        + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                propertyId,
+                name,
+                name,
+                propertyModelId,
+                collection,
+                ownerModelId,
+                null,
+                null,
+                column,
+                type.code(),
+                true,
+                false,
+                null,
+                false);
+    }
+
     private void cleanupRuntimeDetailModel(long modelId, String modelName, String tableName) {
         jdbcTemplate.update("DELETE FROM `fool_sys_model_property` WHERE `owner` = ?", modelId);
         jdbcTemplate.update("DELETE FROM `fool_sys_model` WHERE `id` = ? OR `name` = ?", modelId, modelName);
         jdbcTemplate.execute("DROP TABLE IF EXISTS `" + tableName + "`");
+    }
+
+    private void cleanupRuntimeRelationModel(
+            long orderModelId,
+            long itemModelId,
+            String orderModelName,
+            String itemModelName) {
+        jdbcTemplate.update(
+                "DELETE FROM `SW_SYS_RELATION` WHERE `SW_SYS_RELATION_SOURCEPROPERTY` IN "
+                        + "(SELECT `id` FROM `fool_sys_model_property` WHERE `owner` IN (?,?))",
+                orderModelId,
+                itemModelId);
+        jdbcTemplate.update("DELETE FROM `fool_sys_model_property` WHERE `owner` IN (?,?)", orderModelId, itemModelId);
+        jdbcTemplate.update(
+                "DELETE FROM `fool_sys_model` WHERE `id` IN (?,?) OR `name` IN (?,?)",
+                orderModelId,
+                itemModelId,
+                orderModelName,
+                itemModelName);
     }
 
     private void createRuntimeDbMapsTable(String tableName) {

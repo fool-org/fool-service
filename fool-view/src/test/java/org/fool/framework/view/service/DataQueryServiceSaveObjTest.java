@@ -37,7 +37,7 @@ public class DataQueryServiceSaveObjTest {
         view.setViewModel("Order");
         Model order = model();
         when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
-        when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(order);
+        when(modelDataService.getModel("Order")).thenReturn(order);
         when(modelDataService.saveData(any(IDynamicData.class))).thenReturn(true);
         SaveObjRequest request = new SaveObjRequest();
         SaveObjRequest.SaveObject saveObj = new SaveObjRequest.SaveObject();
@@ -72,7 +72,7 @@ public class DataQueryServiceSaveObjTest {
         view.setViewModel("Order");
         Model order = modelWithItems();
         when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
-        when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(order);
+        when(modelDataService.getModel("Order")).thenReturn(order);
         when(modelDataService.saveData(any(IDynamicData.class))).thenReturn(true);
         SaveObjRequest request = new SaveObjRequest();
         SaveObjRequest.SaveObject saveObj = new SaveObjRequest.SaveObject();
@@ -98,6 +98,38 @@ public class DataQueryServiceSaveObjTest {
         assertItem("I3", "New child", subItems.get(1));
         assertEquals(1, subItems.getDeleteList().size());
         assertItem("I4", null, subItems.getDeleteList().get(0));
+    }
+
+    @Test
+    public void saveLegacyObjectUsesModelServiceMetadataForItemProperties() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        DataQueryService service = new DataQueryService();
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+        ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
+        ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
+
+        View view = new View();
+        view.setViewModel("Order");
+        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
+        when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(model());
+        when(modelDataService.getModel("Order")).thenReturn(modelWithItems());
+        when(modelDataService.saveData(any(IDynamicData.class))).thenReturn(true);
+        SaveObjRequest request = new SaveObjRequest();
+        SaveObjRequest.SaveObject saveObj = new SaveObjRequest.SaveObject();
+        saveObj.setId("1001");
+        saveObj.setViewID("100");
+        SaveObjRequest.ItemProperty items = new SaveObjRequest.ItemProperty();
+        items.setKey("items");
+        items.setItems(List.of(item("I2", true, new SaveObjRequest.SaveKeypair("itemName", "After child"))));
+        saveObj.setItemproperties(List.of(items));
+        request.setSaveObj(saveObj);
+
+        service.saveLegacyObject(request);
+
+        ArgumentCaptor<IDynamicData> dataCaptor = ArgumentCaptor.forClass(IDynamicData.class);
+        verify(modelDataService).saveData(dataCaptor.capture());
+        assertTrue(dataCaptor.getValue().get("items") instanceof SubItemList<?>);
     }
 
     private static Model model() {

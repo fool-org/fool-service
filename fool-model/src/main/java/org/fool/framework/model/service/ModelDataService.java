@@ -59,7 +59,30 @@ public class ModelDataService {
      * @return
      */
     public Model getModel(String modelId) {
-        return daoService.getOneDetailByKey(Model.class, modelId);
+        Model model = daoService.getOneDetailByKey(Model.class, modelId);
+        hydrateRelations(model);
+        return model;
+    }
+
+    private void hydrateRelations(Model model) {
+        if (model == null || model.getProperties() == null || model.getProperties().isEmpty()) {
+            return;
+        }
+        List<Long> propertyIds = model.getProperties().stream()
+                .map(Property::getId)
+                .filter(id -> id != null)
+                .toList();
+        if (propertyIds.isEmpty()) {
+            return;
+        }
+        String placeholders = propertyIds.stream().map(id -> "?").collect(Collectors.joining(","));
+        model.setRelations(daoService.selectList(
+                Relation.class,
+                "SELECT `SW_SYS_RELATION_TYPE`,`SW_SYS_RELATION_SOURCEPROPERTY`,`SW_SYS_RELATION_TARGETPROPERTY`,"
+                        + "`SW_SYS_RELATION_TABLE`,`SW_SYS_RELATION_SOURCECOL`,`SW_SYS_RELATION_TARGETCOL`,"
+                        + "`SW_SYS_RELATION_CANBENULL` FROM `SW_SYS_RELATION` "
+                        + "WHERE `SW_SYS_RELATION_SOURCEPROPERTY` IN (" + placeholders + ")",
+                propertyIds.toArray()));
     }
 
     public IDynamicData getOneData(String modelId, String dataId) {

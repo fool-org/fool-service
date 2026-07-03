@@ -128,7 +128,7 @@ public class DataQueryService {
         if (view == null) {
             throw new CommonException(ErrorCode.VIEW_NOT_FOUND, "没有查到视图");
         }
-        Model model = daoService.getOneDetailByKey(Model.class, view.getViewModel());
+        Model model = modelDataService.getModel(view.getViewModel());
         if (model == null) {
             throw new CommonException(ErrorCode.MODEL_NOT_FOUND, "没有查到元数据定义");
         }

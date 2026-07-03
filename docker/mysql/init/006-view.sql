@@ -316,6 +316,15 @@ SET `auto_sys_id` = 0,
     `id_property` = 1001
 WHERE `name` = 'Order';
 
+INSERT INTO `fool_sys_model` (`id`, `name`, `text`, `remark`, `model_type`, `class_name`, `table_name`, `auto_sys_id`, `id_property`)
+SELECT 101, 'OrderItem', 'OrderItem', 'Market order item smoke model', 0, 'org.fool.framework.market.OrderItem', 'market_order_item', 0, 1011
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_model` WHERE `name` = 'OrderItem');
+
+UPDATE `fool_sys_model`
+SET `auto_sys_id` = 0,
+    `id_property` = 1011
+WHERE `name` = 'OrderItem';
+
 INSERT INTO `fool_sys_model_property` (`id`, `name`, `remark`, `property_model`, `is_collection`, `owner`, `filter`, `format`, `column`, `property_type`, `allow_db_null`, `is_check`, `ix_group`, `multi_map`)
 SELECT 1001, 'orderId', 'Order ID', NULL, 0, 100, NULL, NULL, 'order_id', 3, 0, 1, '', 0
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_model_property` WHERE `owner` = 100 AND `name` = 'orderId');
@@ -351,6 +360,58 @@ SET `property_type` = 11,
     `ix_group` = NULL,
     `multi_map` = 0
 WHERE `owner` = 100 AND `name` = 'state';
+
+INSERT INTO `fool_sys_model_property` (`id`, `name`, `remark`, `property_model`, `is_collection`, `owner`, `filter`, `format`, `column`, `property_type`, `allow_db_null`, `is_check`, `ix_group`, `multi_map`)
+SELECT 1011, 'itemId', 'Item ID', NULL, 0, 101, NULL, NULL, 'item_id', 3, 0, 1, '', 0
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_model_property` WHERE `owner` = 101 AND `name` = 'itemId');
+
+UPDATE `fool_sys_model_property`
+SET `property_type` = 3,
+    `allow_db_null` = 0,
+    `is_check` = 1,
+    `ix_group` = '',
+    `multi_map` = 0
+WHERE `owner` = 101 AND `name` = 'itemId';
+
+INSERT INTO `fool_sys_model_property` (`id`, `name`, `remark`, `property_model`, `is_collection`, `owner`, `filter`, `format`, `column`, `property_type`, `allow_db_null`, `is_check`, `ix_group`, `multi_map`)
+SELECT 1012, 'itemName', 'Item Name', NULL, 0, 101, NULL, NULL, 'item_name', 11, 0, 0, NULL, 0
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_model_property` WHERE `owner` = 101 AND `name` = 'itemName');
+
+UPDATE `fool_sys_model_property`
+SET `property_type` = 11,
+    `allow_db_null` = 0,
+    `is_check` = 0,
+    `ix_group` = NULL,
+    `multi_map` = 0
+WHERE `owner` = 101 AND `name` = 'itemName';
+
+INSERT INTO `fool_sys_model_property` (`id`, `name`, `remark`, `property_model`, `is_collection`, `owner`, `filter`, `format`, `column`, `property_type`, `allow_db_null`, `is_check`, `ix_group`, `multi_map`)
+SELECT 1004, 'items', 'Items', 101, 1, 100, NULL, NULL, NULL, 16, 1, 0, NULL, 0
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_model_property` WHERE `owner` = 100 AND `name` = 'items');
+
+UPDATE `fool_sys_model_property`
+SET `property_model` = 101,
+    `is_collection` = 1,
+    `column` = NULL,
+    `property_type` = 16,
+    `allow_db_null` = 1,
+    `is_check` = 0,
+    `ix_group` = NULL,
+    `multi_map` = 0
+WHERE `owner` = 100 AND `name` = 'items';
+
+INSERT INTO `SW_SYS_RELATION` (`SW_SYS_RELATION_TYPE`, `SW_SYS_RELATION_SOURCEPROPERTY`, `SW_SYS_RELATION_TARGETPROPERTY`, `SW_SYS_RELATION_TABLE`, `SW_SYS_RELATION_SOURCECOL`, `SW_SYS_RELATION_TARGETCOL`, `SW_SYS_RELATION_CANBENULL`)
+SELECT 0, 1004, 1011, 'market_order_item', 'item_id', 'order_id', 0
+WHERE NOT EXISTS (SELECT 1 FROM `SW_SYS_RELATION` WHERE `SW_SYS_RELATION_SOURCEPROPERTY` = 1004);
+
+UPDATE `SW_SYS_RELATION`
+SET `SW_SYS_RELATION_TYPE` = 0,
+    `SW_SYS_RELATION_TARGETPROPERTY` = 1011,
+    `SW_SYS_RELATION_TABLE` = 'market_order_item',
+    `SW_SYS_RELATION_SOURCECOL` = 'item_id',
+    `SW_SYS_RELATION_TARGETCOL` = 'order_id',
+    `SW_SYS_RELATION_CANBENULL` = 0
+WHERE `SW_SYS_RELATION_SOURCEPROPERTY` = 1004;
 
 INSERT INTO `fool_sys_view` (`id`, `view_name`, `view_text`, `view_remark`, `view_title`, `view_type`, `view_model`, `filter`, `auto_fresh_interval`, `view_model_class`)
 SELECT 100, 'OrderList', 'OrderList', 'Seeded Docker smoke view', 'Order List', 0, 'Order', '', 0, 'org.fool.framework.market.Order'
@@ -391,3 +452,13 @@ INSERT INTO `market_order` (
 )
 SELECT 1002, 'ETH-USDT', 1.5000000000, 3450.0000000000, 'LIMIT', 'FILLED', 1, 1, 1
 WHERE NOT EXISTS (SELECT 1 FROM `market_order` WHERE `order_id` = 1002);
+
+INSERT INTO `market_order_item` (`item_id`, `order_id`, `item_name`)
+VALUES (2001, 1001, 'Legacy item')
+ON DUPLICATE KEY UPDATE `order_id` = VALUES(`order_id`), `item_name` = VALUES(`item_name`);
+
+INSERT INTO `market_order_item` (`item_id`, `order_id`, `item_name`)
+VALUES (2004, 1001, 'Delete me')
+ON DUPLICATE KEY UPDATE `order_id` = VALUES(`order_id`), `item_name` = VALUES(`item_name`);
+
+DELETE FROM `market_order_item` WHERE `item_id` = 2003;
