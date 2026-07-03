@@ -31,6 +31,7 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"ParentObjId":"5001"}' http://localhost:8081/api/v1/data/initnew`
   `curl -H 'Content-Type: application/json' -d '{"modelId":"102"}' http://localhost:8080/api/v1/data/getenums`
   `curl -H 'Content-Type: application/json' -d '{"viewName":"OrderList","viewItemId":"symbol","text":"BTC"}' http://localhost:8080/api/v1/data/inputquery`
+  `curl -H 'Content-Type: application/json' -d '{"Text":"Ada","ViewName":"OrderList","ViewItemId":"Customer","ModelID":"103","ObjID":"1001","OwnerId":"5001","IsAdded":false}' http://localhost:8080/api/v1/data/inputquery`
   `curl -H 'Content-Type: application/json' -d '{"saveObj":{"id":"1001","viewID":"100","propertyies":[{"key":"symbol","value":"BTC-USDT"},{"key":"state","value":"0"}]}}' http://localhost:8080/api/v1/data/saveobj`
   `curl -H 'Content-Type: application/json' -d '{"saveObj":{"id":"1001","viewID":"100","propertyies":[{"key":"symbol","value":"BTC-USDT"},{"key":"state","value":"0"}],"itemproperties":[{"key":"items","items":[{"itemId":"2001","isExist":true,"propertyies":[{"key":"itemName","value":"Updated item"}]}],"addedItems":[{"itemId":"2003","isExist":true,"propertyies":[{"key":"itemName","value":"New item"}]}],"delteItems":[{"itemId":"2004","isExist":true,"propertyies":[]}]}]}}}' http://localhost:8080/api/v1/data/saveobj`
   `curl -H 'Content-Type: application/json' -d '{"SaveObj":{"id":"930001","viewID":"100","propertyies":[{"key":"symbol","value":"SOL-USDT"},{"key":"state","value":"0"}],"itemproperties":[]}}' http://localhost:8080/api/v1/data/savenewobj`
@@ -91,6 +92,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: accepted legacy Pascal request field names on the migrated
+  `inputquery` protocol DTO: `Text`, `ViewName`, `ViewItemId`, `ModelID`,
+  `ObjID`, `OwnerId`, and `IsAdded`. This keeps lookup requests at the
+  view/data protocol boundary: the frontend first renders from View metadata,
+  then sends the selected View item to `inputquery`, without binding the flow
+  to a concrete business DTO. Docker proof covers both Pascal legacy payloads
+  and the existing camel-style Vue payload returning `Ada Capital`.
 - 2026-07-04: removed the visible Vue workspace shortcuts for the newer
   business-name `/api/v1/view/get-view` and `/api/v1/data/query-list` routes.
   The first-screen workflow and API tools now steer users through legacy

@@ -1,5 +1,6 @@
 package org.fool.framework.view.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.fool.framework.dto.CommonResponse;
 import org.fool.framework.view.dto.InputQueryRequest;
 import org.fool.framework.view.dto.InputQueryResult;
@@ -16,6 +17,21 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DataControllerInputQueryTest {
+    @Test
+    public void inputQueryAcceptsLegacyPascalRequestAliases() throws Exception {
+        InputQueryRequest request = new ObjectMapper().readValue(
+                "{\"Text\":\"Ad\",\"ViewName\":\"OrderList\",\"ViewItemId\":\"customer\",\"ModelID\":\"103\",\"ObjID\":\"1001\",\"OwnerId\":\"5001\",\"IsAdded\":true}",
+                InputQueryRequest.class);
+
+        assertEquals("Ad", request.getText());
+        assertEquals("OrderList", request.getViewName());
+        assertEquals("customer", request.getViewItemId());
+        assertEquals("103", request.getModelID());
+        assertEquals("1001", request.getObjID());
+        assertEquals("5001", request.getOwnerId());
+        assertEquals(true, request.isAdded());
+    }
+
     @Test
     public void inputQueryPassesLegacyRequestToService() throws Exception {
         DataQueryService dataQueryService = mock(DataQueryService.class);

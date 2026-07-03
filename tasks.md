@@ -46,6 +46,8 @@ explicitly named as authoritative for fool-service.
 - [x] Remove the Vue workspace's visible business-name `get-view/query-list`
       shortcuts so View rendering and data loading stay `viewId` driven.
 - [x] Add a repository harness guard for oversized source files.
+- [x] Accept legacy Pascal `inputquery` request fields at the protocol DTO
+      boundary without introducing concrete business DTO binding.
 
 ## Backlog
 
