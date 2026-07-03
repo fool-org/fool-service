@@ -12,6 +12,7 @@ import org.fool.framework.model.model.DbMysqlDynamic;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.MultiDbMap;
 import org.fool.framework.model.model.Property;
+import org.fool.framework.model.model.Relation;
 import org.fool.framework.model.service.ModelDataService;
 import org.fool.framework.query.BetweenFilter;
 import org.fool.framework.query.CompareFilter;
@@ -22,6 +23,7 @@ import org.fool.framework.view.adapter.ViewDataAdapter;
 import org.fool.framework.view.common.ErrorCode;
 import org.fool.framework.view.dto.InputQueryRequest;
 import org.fool.framework.view.dto.InputQueryResult;
+import org.fool.framework.view.dto.LegacySaveNewObjRequest;
 import org.fool.framework.view.dto.ListViewResult;
 import org.fool.framework.view.dto.QueryDataDetailResult;
 import org.fool.framework.view.dto.QueryValue;
@@ -230,7 +232,28 @@ public class DataQueryService {
     }
 
     public void saveLegacyObject(SaveObjRequest request) {
-        SaveObjRequest.SaveObject saveObj = request.getSaveObj();
+        modelDataService.saveData(legacyObjectData(request.getSaveObj()));
+    }
+
+    public void saveLegacyNewObject(LegacySaveNewObjRequest request) {
+        DbMysqlDynamic data = legacyObjectData(request.getSaveObj());
+        if (StringUtils.hasText(request.getOwnerViewId())) {
+            View ownerView = daoService.getOneDetailByKey(View.class, request.getOwnerViewId());
+            if (ownerView == null) {
+                throw new CommonException(ErrorCode.VIEW_NOT_FOUND, "没有查到视图");
+            }
+            Model ownerModel = modelDataService.getModel(ownerView.getViewModel());
+            Relation relation = ownerRelation(ownerModel, request.getProperty());
+            if (relation == null || !StringUtils.hasText(relation.getTargetColumn())) {
+                throw new CommonException(ErrorCode.VIEW_MODEL_NOT_FOUND, "没有查到视图字段");
+            }
+            modelDataService.createData(data, relation.getTargetColumn(), request.getOwnerId());
+            return;
+        }
+        modelDataService.createData(data);
+    }
+
+    private DbMysqlDynamic legacyObjectData(SaveObjRequest.SaveObject saveObj) {
         View view = daoService.getOneDetailByKey(View.class, saveObj.getViewID());
         if (view == null) {
             throw new CommonException(ErrorCode.VIEW_NOT_FOUND, "没有查到视图");
@@ -266,7 +289,18 @@ public class DataQueryService {
             }
             data.set(itemProperty.getKey(), items);
         }
-        modelDataService.saveData(data);
+        return data;
+    }
+
+    private Relation ownerRelation(Model model, String propertyName) {
+        if (model == null || model.getRelations() == null || !StringUtils.hasText(propertyName)) {
+            return null;
+        }
+        return model.getRelations().stream()
+                .filter(relation -> relation.getProperty() != null)
+                .filter(relation -> Objects.equals(relation.getProperty().getName(), propertyName))
+                .findFirst()
+                .orElse(null);
     }
 
     private Property collectionProperty(Model model, String name) {

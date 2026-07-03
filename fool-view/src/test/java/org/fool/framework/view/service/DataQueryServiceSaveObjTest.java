@@ -6,8 +6,11 @@ import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.dao.DaoService;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
+import org.fool.framework.model.model.Relation;
+import org.fool.framework.model.model.RelationType;
 import org.fool.framework.model.service.ModelDataService;
 import org.fool.framework.view.adapter.ViewDataAdapter;
+import org.fool.framework.view.dto.LegacySaveNewObjRequest;
 import org.fool.framework.view.dto.SaveObjRequest;
 import org.fool.framework.view.model.View;
 import org.junit.Test;
@@ -19,6 +22,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -132,6 +136,69 @@ public class DataQueryServiceSaveObjTest {
         assertTrue(dataCaptor.getValue().get("items") instanceof SubItemList<?>);
     }
 
+    @Test
+    public void saveLegacyNewObjectCreatesSimpleObject() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        DataQueryService service = new DataQueryService();
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+        ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
+        ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
+
+        View view = new View();
+        view.setViewModel("Order");
+        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
+        when(modelDataService.getModel("Order")).thenReturn(model());
+        LegacySaveNewObjRequest request = new LegacySaveNewObjRequest();
+        SaveObjRequest.SaveObject saveObj = new SaveObjRequest.SaveObject();
+        saveObj.setId("1003");
+        saveObj.setViewID("100");
+        saveObj.setPropertyies(List.of(new SaveObjRequest.SaveKeypair("symbol", "SOL-USDT")));
+        request.setSaveObj(saveObj);
+
+        service.saveLegacyNewObject(request);
+
+        ArgumentCaptor<IDynamicData> dataCaptor = ArgumentCaptor.forClass(IDynamicData.class);
+        verify(modelDataService).createData(dataCaptor.capture());
+        assertEquals("1003", dataCaptor.getValue().getId());
+        assertEquals("SOL-USDT", dataCaptor.getValue().get("symbol"));
+    }
+
+    @Test
+    public void saveLegacyNewObjectCreatesOwnedCollectionItem() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        DataQueryService service = new DataQueryService();
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+        ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
+        ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
+
+        View childView = new View();
+        childView.setViewModel("OrderItem");
+        View ownerView = new View();
+        ownerView.setViewModel("Order");
+        when(daoService.getOneDetailByKey(View.class, "200")).thenReturn(childView);
+        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(ownerView);
+        when(modelDataService.getModel("OrderItem")).thenReturn(itemModel());
+        when(modelDataService.getModel("Order")).thenReturn(modelWithItems());
+        LegacySaveNewObjRequest request = new LegacySaveNewObjRequest();
+        request.setOwnerViewId("100");
+        request.setOwnerId("1001");
+        request.setProperty("items");
+        SaveObjRequest.SaveObject saveObj = new SaveObjRequest.SaveObject();
+        saveObj.setId("2009");
+        saveObj.setViewID("200");
+        saveObj.setPropertyies(List.of(new SaveObjRequest.SaveKeypair("itemName", "New child")));
+        request.setSaveObj(saveObj);
+
+        service.saveLegacyNewObject(request);
+
+        ArgumentCaptor<IDynamicData> dataCaptor = ArgumentCaptor.forClass(IDynamicData.class);
+        verify(modelDataService).createData(dataCaptor.capture(), eq("order_id"), eq("1001"));
+        assertEquals("2009", dataCaptor.getValue().getId());
+        assertEquals("New child", dataCaptor.getValue().get("itemName"));
+    }
+
     private static Model model() {
         Model model = new Model();
         model.setName("Order");
@@ -146,6 +213,25 @@ public class DataQueryServiceSaveObjTest {
     }
 
     private static Model modelWithItems() {
+        Model item = itemModel();
+        Model order = model();
+        Property items = property("items", null, PropertyType.BusinessObject);
+        items.setIsCollection(true);
+        items.setPropertyModel(item);
+        Relation relation = new Relation();
+        relation.setRelationType(RelationType.One2Many);
+        relation.setProperty(items);
+        relation.setTargetColumn("order_id");
+        order.setProperties(List.of(
+                order.getProperties().get(0),
+                order.getProperties().get(1),
+                order.getProperties().get(2),
+                items));
+        order.setRelations(List.of(relation));
+        return order;
+    }
+
+    private static Model itemModel() {
         Model item = new Model();
         item.setName("OrderItem");
         item.setTableName("market_order_item");
@@ -154,17 +240,7 @@ public class DataQueryServiceSaveObjTest {
         item.setProperties(List.of(
                 itemId,
                 property("itemName", "item_name", PropertyType.String)));
-
-        Model order = model();
-        Property items = property("items", null, PropertyType.BusinessObject);
-        items.setIsCollection(true);
-        items.setPropertyModel(item);
-        order.setProperties(List.of(
-                order.getProperties().get(0),
-                order.getProperties().get(1),
-                order.getProperties().get(2),
-                items));
-        return order;
+        return item;
     }
 
     private static Property property(String name, String column, PropertyType type) {

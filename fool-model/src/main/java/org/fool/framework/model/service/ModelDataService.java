@@ -286,6 +286,10 @@ public class ModelDataService {
         return createData(data, null, null, true);
     }
 
+    public Boolean createData(IDynamicData data, String extraColumn, Object extraValue) {
+        return createData(data, extraColumn, extraValue, false);
+    }
+
     private Boolean createData(IDynamicData data, String extraColumn, Object extraValue, boolean writeCollections) {
         if (!(data instanceof DbMysqlDynamic dynamicData)) {
             return false;

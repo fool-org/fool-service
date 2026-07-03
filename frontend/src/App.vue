@@ -31,6 +31,7 @@ import {
   buildQueryDataDetailRequest,
   buildQueryRequest,
   buildSaveObjRequest,
+  buildSaveNewObjRequest,
   buildTokenRequest,
   type VisibleFilterInput
 } from "./payload";
@@ -75,6 +76,12 @@ const saveViewId = ref("100");
 const saveObjId = ref("1001");
 const savePropertyiesJson = ref('[{"key":"symbol","value":"BTC-USDT"},{"key":"state","value":"0"}]');
 const saveItempropertiesJson = ref("");
+const saveNewViewId = ref("100");
+const saveNewObjId = ref("9001");
+const saveNewPropertyiesJson = ref('[{"key":"symbol","value":"SOL-USDT"},{"key":"state","value":"0"}]');
+const saveNewOwnerViewId = ref("");
+const saveNewOwnerId = ref("");
+const saveNewProperty = ref("items");
 const activeSection = ref("auth");
 
 const loginResponse = ref<CommonResponse<LoginVo> | null>(null);
@@ -89,6 +96,7 @@ const initNewResponse = ref<CommonResponse<QueryDataDetailResult> | null>(null);
 const enumResponse = ref<CommonResponse<GetEnumResult> | null>(null);
 const inputQueryResponse = ref<CommonResponse<InputQueryResult> | null>(null);
 const saveObjResponse = ref<CommonResponse<void> | null>(null);
+const saveNewObjResponse = ref<CommonResponse<void> | null>(null);
 const reportResponse = ref<CommonResponse<ReportGridResult> | null>(null);
 const reportModelResponse = ref<CommonResponse<ReportModelResult> | null>(null);
 const saveReportResponse = ref<CommonResponse<void> | null>(null);
@@ -452,6 +460,23 @@ async function saveObj() {
   const response = await runAction("saveobj", () => postApi<void>("/api/v1/data/saveobj", request));
   if (response) {
     saveObjResponse.value = response;
+  }
+}
+
+async function saveNewObj() {
+  const request = buildSaveNewObjRequest({
+    token: token.value,
+    id: saveNewObjId.value,
+    viewID: saveNewViewId.value,
+    propertyiesJson: saveNewPropertyiesJson.value,
+    ownerViewId: saveNewOwnerViewId.value,
+    ownerId: saveNewOwnerId.value,
+    property: saveNewProperty.value
+  });
+
+  const response = await runAction("savenewobj", () => postApi<void>("/api/v1/data/savenewobj", request));
+  if (response) {
+    saveNewObjResponse.value = response;
   }
 }
 
@@ -1142,6 +1167,44 @@ function formatValue(value: unknown) {
             Save Object
           </button>
         </article>
+
+        <article class="panel lookup-panel">
+          <div class="panel-heading">
+            <h2>Save New Object</h2>
+            <span>POST /api/v1/data/savenewobj</span>
+          </div>
+          <div class="inline-fields">
+            <label>
+              View ID
+              <input v-model="saveNewViewId" />
+            </label>
+            <label>
+              Object ID
+              <input v-model="saveNewObjId" />
+            </label>
+          </div>
+          <div class="inline-fields">
+            <label>
+              Owner View
+              <input v-model="saveNewOwnerViewId" />
+            </label>
+            <label>
+              Owner ID
+              <input v-model="saveNewOwnerId" />
+            </label>
+            <label>
+              Property
+              <input v-model="saveNewProperty" />
+            </label>
+          </div>
+          <label>
+            Propertyies JSON
+            <textarea v-model="saveNewPropertyiesJson" rows="4" spellcheck="false"></textarea>
+          </label>
+          <button class="primary" type="button" :disabled="pendingAction === 'savenewobj'" @click="saveNewObj">
+            Save New
+          </button>
+        </article>
       </section>
 
       <section class="panel results-panel" aria-label="Results">
@@ -1197,6 +1260,7 @@ function formatValue(value: unknown) {
                 enums: enumResponse,
                 inputQuery: inputQueryResponse,
                 saveObj: saveObjResponse,
+                saveNewObj: saveNewObjResponse,
                 reportModel: reportModelResponse,
                 report: reportResponse,
                 saveReport: saveReportResponse,

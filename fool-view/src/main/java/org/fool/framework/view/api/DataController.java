@@ -13,6 +13,7 @@ import org.fool.framework.view.dto.InputQueryResult;
 import org.fool.framework.view.dto.LegacyInitNewRequest;
 import org.fool.framework.view.dto.LegacyQueryDataRequest;
 import org.fool.framework.view.dto.LegacyQueryDataDetailRequest;
+import org.fool.framework.view.dto.LegacySaveNewObjRequest;
 import org.fool.framework.view.dto.ListViewResult;
 import org.fool.framework.view.dto.QueryDataDetailResult;
 import org.fool.framework.view.dto.QueryDataRequest;
@@ -97,6 +98,13 @@ public class DataController {
     @ResponseBody
     public CommonResponse<Void> saveObj(@RequestBody SaveObjRequest request) {
         dataQueryService.saveLegacyObject(request);
+        return new CommonResponse<>((Void) null);
+    }
+
+    @PostMapping("/savenewobj")
+    @ResponseBody
+    public CommonResponse<Void> saveNewObj(@RequestBody LegacySaveNewObjRequest request) {
+        dataQueryService.saveLegacyNewObject(request);
         return new CommonResponse<>((Void) null);
     }
 

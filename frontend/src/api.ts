@@ -350,6 +350,12 @@ export interface SaveObjRequest {
   saveObj?: SaveObject;
 }
 
+export interface LegacySaveNewObjRequest extends SaveObjRequest {
+  ownerViewId?: string;
+  ownerId?: string;
+  property?: string;
+}
+
 export async function postApi<T>(path: string, payload: unknown): Promise<CommonResponse<T>> {
   const response = await fetch(path, {
     method: "POST",

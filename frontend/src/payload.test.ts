@@ -13,6 +13,7 @@ import {
   buildQueryDataDetailRequest,
   buildQueryRequest,
   buildSaveObjRequest,
+  buildSaveNewObjRequest,
   buildTokenRequest
 } from "./payload";
 
@@ -63,6 +64,12 @@ describe("App defaults", () => {
     expect(appSource).toContain("Init New Object");
     expect(appSource).toContain("/api/v1/data/initnew");
     expect(appSource).toContain("initNewResponse");
+  });
+
+  it("exposes the legacy savenewobj route in the Vue console", () => {
+    expect(appSource).toContain("Save New Object");
+    expect(appSource).toContain("/api/v1/data/savenewobj");
+    expect(appSource).toContain("saveNewObjResponse");
   });
 
   it("proxies the backend smoke route in local and Compose frontends", () => {
@@ -213,6 +220,33 @@ describe("buildSaveObjRequest", () => {
           }
         ]
       }
+    });
+  });
+});
+
+describe("buildSaveNewObjRequest", () => {
+  it("matches the legacy savenewobj DTO shape", () => {
+    const request = buildSaveNewObjRequest({
+      token: "token-1",
+      id: " 2009 ",
+      viewID: " 200 ",
+      propertyiesJson: "[{\"key\":\"itemName\",\"value\":\"New child\"}]",
+      ownerViewId: " 100 ",
+      ownerId: " 1001 ",
+      property: " items "
+    });
+
+    expect(request).toEqual({
+      token: "token-1",
+      saveObj: {
+        id: "2009",
+        viewID: "200",
+        propertyies: [{ key: "itemName", value: "New child" }],
+        itemproperties: []
+      },
+      ownerViewId: "100",
+      ownerId: "1001",
+      property: "items"
     });
   });
 });
