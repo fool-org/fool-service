@@ -89,6 +89,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-03: exposed the migrated legacy `querydata` API in the Vue operator
   console with typed payload building, raw `QueryFilter` input, shared result
   table display, Docker runtime, and backend endpoint smoke coverage.
+- 2026-07-03: exposed auth logout in the Vue operator console with a typed
+  token-only payload builder, local token clearing, Docker runtime, and backend
+  token-invalidation smoke coverage.
 
 ## Server Source Mapping
 

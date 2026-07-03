@@ -1,4 +1,5 @@
 import type {
+  CommonRequest,
   GetEnumRequest,
   InputQueryRequest,
   LegacyQueryDataRequest,
@@ -106,6 +107,12 @@ export function buildQueryRequest(input: QueryRequestInput): QueryRequest {
     request.keyword = keyword;
   }
   return request;
+}
+
+export function buildTokenRequest(token: string): CommonRequest {
+  return {
+    token: token.trim()
+  };
 }
 
 export function buildInputQueryRequest(input: InputQueryRequestInput): InputQueryRequest {

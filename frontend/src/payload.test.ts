@@ -7,7 +7,8 @@ import {
   buildLegacyReadItemViewRequest,
   buildQueryDataDetailRequest,
   buildQueryRequest,
-  buildSaveObjRequest
+  buildSaveObjRequest,
+  buildTokenRequest
 } from "./payload";
 
 describe("buildQueryRequest", () => {
@@ -82,6 +83,16 @@ describe("buildQueryRequest", () => {
     });
 
     expect(request.keyword).toBe("USDT");
+  });
+});
+
+describe("buildTokenRequest", () => {
+  it("matches the common token-only request DTO shape", () => {
+    const request = buildTokenRequest(" token-1 ");
+
+    expect(request).toEqual({
+      token: "token-1"
+    });
   });
 });
 

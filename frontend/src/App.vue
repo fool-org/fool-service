@@ -25,6 +25,7 @@ import {
   buildQueryDataDetailRequest,
   buildQueryRequest,
   buildSaveObjRequest,
+  buildTokenRequest,
   type VisibleFilterInput
 } from "./payload";
 
@@ -64,6 +65,7 @@ const activeSection = ref("auth");
 
 const loginResponse = ref<CommonResponse<LoginVo> | null>(null);
 const profileResponse = ref<CommonResponse<UserDTO> | null>(null);
+const logoutResponse = ref<CommonResponse<void> | null>(null);
 const menuResponse = ref<CommonResponse<TreeNode<AuthItem>[]> | null>(null);
 const viewResponse = ref<CommonResponse<ListViewInfo> | null>(null);
 const readItemViewResponse = ref<CommonResponse<ReadItemViewInfo> | null>(null);
@@ -192,6 +194,15 @@ async function loadMenus() {
   );
   if (response) {
     menuResponse.value = response;
+  }
+}
+
+async function logout() {
+  const response = await runAction("logout", () => postApi<void>("/api/v1/auth/logout", buildTokenRequest(token.value)));
+  if (response) {
+    logoutResponse.value = response;
+    token.value = "";
+    localStorage.removeItem("fool-service-token");
   }
 }
 
@@ -416,6 +427,7 @@ function formatValue(value: unknown) {
           <div class="button-row">
             <button type="button" :disabled="pendingAction === 'profile'" @click="loadProfile">Profile</button>
             <button type="button" :disabled="pendingAction === 'menus'" @click="loadMenus">Menus</button>
+            <button type="button" :disabled="pendingAction === 'logout'" @click="logout">Logout</button>
           </div>
         </article>
       </section>
@@ -786,6 +798,7 @@ function formatValue(value: unknown) {
               {
                 login: loginResponse,
                 profile: profileResponse,
+                logout: logoutResponse,
                 menus: menuResponse,
                 view: viewResponse,
                 readItemView: readItemViewResponse,
