@@ -430,9 +430,11 @@ async function loadReadItemView() {
 }
 
 async function queryLegacyData() {
+  legacyListViewId.value = Number(legacyQueryViewId.value);
+  if (!(await loadLegacyListView())) return;
   const request = buildLegacyQueryDataRequest({
     token: token.value,
-    viewId: Number(legacyQueryViewId.value),
+    viewId: Number(currentViewId.value),
     pageIndex: Number(legacyQueryPageIndex.value),
     pageSize: Number(legacyQueryPageSize.value),
     queryFilter: legacyQueryFilter.value

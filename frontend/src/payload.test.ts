@@ -65,6 +65,18 @@ describe("App defaults", () => {
     expect(metadataFieldEditorSource).not.toContain("viewName");
   });
 
+  it("loads the View definition before the API-tool data query", () => {
+    const querySource = appSource.slice(
+      appSource.indexOf("async function queryLegacyData"),
+      appSource.indexOf("async function queryCurrentViewData")
+    );
+
+    expect(querySource.indexOf("await loadLegacyListView()")).toBeGreaterThanOrEqual(0);
+    expect(querySource.indexOf("await loadLegacyListView()")).toBeLessThan(querySource.indexOf("/api/v1/data/querydata"));
+    expect(querySource).toContain("viewId: Number(currentViewId.value)");
+    expect(querySource).not.toContain("viewId: Number(legacyQueryViewId.value)");
+  });
+
   it("does not prefill business-specific data DTO fields by default", () => {
     expect(appSource).toContain('const enumModelId = ref("102")');
     expect(appSource).toContain('const legacyQueryFilter = ref("")');

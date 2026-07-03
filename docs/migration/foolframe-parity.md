@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: the Vue API-tools `Query Data` action now loads
+  `getlistview(ViewId)` before calling `querydata` and sends the query through
+  the loaded `currentViewId`. This keeps the shared row/table state aligned
+  with the rendered View definition even when the operator uses the tool panel,
+  and prevents data from one View being rendered under another View's columns
+  or any concrete business DTO shortcut.
 - 2026-07-04: `ModelDataService` now executes hydrated legacy model triggers
   for CREATE/SAVE/DELETE write paths, with `SET_VALUE` commands applied in
   legacy index order and persisted through the trigger `OperationBaseType`
