@@ -34,6 +34,8 @@ public class ViewItem {
     private Integer showIndex = 0;
     @Column("width")
     private Integer width = 0;
+    @Column("source_expression")
+    private String sourceExpression;
     @Column(noMap = true)
     private transient Property property;
     @Column(noMap = true)

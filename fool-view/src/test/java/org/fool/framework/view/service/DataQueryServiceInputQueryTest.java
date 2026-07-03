@@ -153,6 +153,53 @@ public class DataQueryServiceInputQueryTest {
                 eq(true));
     }
 
+    @Test
+    public void inputQueryUsesViewItemSourceExpressionBeforePropertySource() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        DataQueryService service = new DataQueryService();
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+        ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
+        ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
+
+        Model customer = model("Customer", "customer", "customerId", "customer_id", "customerName", "customer_name");
+        Property customerProperty = property("customer", "customer_id");
+        customerProperty.setPropertyType(PropertyType.BusinessObject);
+        customerProperty.setPropertyModel(customer);
+        customerProperty.setSource("propertyCustomers");
+        Model order = model("Order", "market_order", "orderId", "order_id", "orderId", "order_id");
+        order.setProperties(List.of(order.getIdProperty(), customerProperty));
+        ViewItem customerItem = viewItem("Customer", "customer");
+        customerItem.setSourceExpression("viewCustomers");
+        View view = new View();
+        view.setViewName("OrderList");
+        view.setViewModel("Order");
+        view.setListItems(List.of(customerItem));
+        IDynamicData owner = mock(IDynamicData.class);
+        IDynamicData alice = dynamic("1001", "Alice");
+        IDynamicData bob = dynamic("1002", "Bob");
+        IDynamicData alina = dynamic("1003", "ALINA");
+        when(owner.get("viewCustomers")).thenReturn(List.of(alice, alina));
+        when(owner.get("propertyCustomers")).thenReturn(List.of(bob));
+        when(daoService.getOneDetailByKey(View.class, "OrderList")).thenReturn(view);
+        when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(order);
+        when(modelDataService.getDataList(eq("Order"), any(IQueryFilter.class), eq(order.getProperties())))
+                .thenReturn(List.of(owner));
+        InputQueryRequest request = new InputQueryRequest();
+        request.setViewName("OrderList");
+        request.setViewItemId("Customer");
+        request.setObjID("5001");
+        request.setText("ali");
+
+        InputQueryResult result = service.inputQuery(request);
+
+        assertEquals(2, result.getItems().size());
+        assertEquals("1001", result.getItems().get(0).getId());
+        assertEquals("1003", result.getItems().get(1).getId());
+        verify(owner).get("viewCustomers");
+        verify(owner, never()).get("propertyCustomers");
+    }
+
     private static ViewItem viewItem(String itemName, String modelProperty) {
         ViewItem item = new ViewItem();
         item.setItemName(itemName);

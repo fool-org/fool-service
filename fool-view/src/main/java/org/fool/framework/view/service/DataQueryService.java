@@ -105,7 +105,7 @@ public class DataQueryService {
         }
         Property idProperty = targetModel.getIdProperty();
         Property showProperty = showProperty(targetModel);
-        InputQueryResult sourceResult = inputQueryFromSourceList(request, view.getViewModel(), model, property, showProperty);
+        InputQueryResult sourceResult = inputQueryFromSourceList(request, view.getViewModel(), model, item, property, showProperty);
         if (sourceResult != null) {
             return sourceResult;
         }
@@ -132,11 +132,12 @@ public class DataQueryService {
             InputQueryRequest request,
             String modelId,
             Model model,
+            ViewItem viewItem,
             Property property,
             Property showProperty) {
+        String sourceExpression = sourceExpression(viewItem, property);
         if (!StringUtils.hasText(request.getObjID())
-                || property == null
-                || !StringUtils.hasText(property.getSource())
+                || !StringUtils.hasText(sourceExpression)
                 || showProperty == null
                 || model.getIdProperty() == null
                 || !StringUtils.hasText(model.getIdProperty().getColumn())) {
@@ -149,7 +150,7 @@ public class DataQueryService {
         if (owners.isEmpty()) {
             return null;
         }
-        Object source = owners.get(0).get(property.getSource());
+        Object source = owners.get(0).get(sourceExpression);
         if (!(source instanceof Iterable<?> items)) {
             return null;
         }
@@ -165,6 +166,13 @@ public class DataQueryService {
             }
         }
         return result;
+    }
+
+    private String sourceExpression(ViewItem item, Property property) {
+        if (item != null && StringUtils.hasText(item.getSourceExpression())) {
+            return item.getSourceExpression();
+        }
+        return property == null ? null : property.getSource();
     }
 
     public void saveLegacyObject(SaveObjRequest request) {

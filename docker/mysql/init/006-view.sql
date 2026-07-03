@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS `fool_sys_view_item` (
   `edit_type` int DEFAULT 0,
   `show_index` int NOT NULL DEFAULT 0,
   `width` int NOT NULL DEFAULT 0,
+  `source_expression` text,
   `view_id` bigint DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `ix_fool_sys_view_item_view_id` (`view_id`),
@@ -61,6 +62,17 @@ SET @ddl = (
 PREPARE stmt FROM @ddl;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
+
+SET @add_view_item_source_expression = (
+  SELECT IF(COUNT(*) = 0, 'ALTER TABLE `fool_sys_view_item` ADD COLUMN `source_expression` text AFTER `width`', 'SELECT 1')
+  FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'fool_sys_view_item'
+    AND COLUMN_NAME = 'source_expression'
+);
+PREPARE add_view_item_source_expression_stmt FROM @add_view_item_source_expression;
+EXECUTE add_view_item_source_expression_stmt;
+DEALLOCATE PREPARE add_view_item_source_expression_stmt;
 
 CREATE TABLE IF NOT EXISTS `SW_SYS_VIEW` (
   `VIEW_ID` bigint NOT NULL AUTO_INCREMENT,

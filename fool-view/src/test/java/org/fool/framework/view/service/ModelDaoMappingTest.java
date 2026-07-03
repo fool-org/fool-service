@@ -5,6 +5,7 @@ import org.fool.framework.dao.QueryAndArgs;
 import org.fool.framework.dao.SqlScriptGenerator;
 import org.fool.framework.model.model.EnumValue;
 import org.fool.framework.model.model.Model;
+import org.fool.framework.view.model.ViewItem;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -43,5 +44,14 @@ public class ModelDaoMappingTest {
                 "SELECT `name`,`value`,`remark`,`owner` FROM `fool_sys_model_enum` WHERE 1=1  AND `owner`=?",
                 query.getSql());
         assertEquals(42L, query.getArgs()[0]);
+    }
+
+    @Test
+    public void viewItemMapsLegacySourceExpressionMetadata() {
+        Mapper<ViewItem> mapper = new Mapper<>(ViewItem.class);
+
+        assertTrue(mapper.getMapFields().stream()
+                .anyMatch(field -> field.getField().getName().equals("sourceExpression")
+                        && "source_expression".equals(field.getColumnName())));
     }
 }
