@@ -9,6 +9,7 @@ the heaviest runtime path for every edit.
 | Change type | Minimum check | Escalation |
 | --- | --- | --- |
 | Harness, standards, docs, task state | `python scripts/check_repo_harness.py` | Run JSON/JUnit output when wiring CI or artifacts |
+| Harness script changes | `python scripts/check_repo_harness_test.py && python scripts/check_repo_harness.py` | Add one stdlib unittest for each new harness rule |
 | Backend Java module | `docker run --rm --network fool-service_default -v "$PWD":/workspace -v "$HOME/.m2":/root/.m2 -w /workspace maven:3.9-eclipse-temurin-17 mvn -DfailIfNoTests=false test` after `docker compose up -d` | Focus with `-pl <module> -am` when the scope is isolated |
 | Frontend Vue workflow | `cd frontend && npm test && npm run build` | Browser smoke through Docker when API contracts or runtime routing changes |
 | Docker/runtime stack | `docker compose up -d --build`, `docker compose ps`, `curl http://localhost:8080/test` | Capture logs and add an artifact bundle under `artifacts/runs/<run_id>/` |
@@ -17,6 +18,7 @@ the heaviest runtime path for every edit.
 ## Command Surface
 
 - `python scripts/check_repo_harness.py`
+- `python scripts/check_repo_harness_test.py`
 - `python scripts/check_repo_harness.py --report-json artifacts/runs/<run_id>/repo-harness.json`
 - `python scripts/check_repo_harness.py --junit-out artifacts/runs/<run_id>/repo-harness.xml`
 - `docker run --rm --network fool-service_default -v "$PWD":/workspace -v "$HOME/.m2":/root/.m2 -w /workspace maven:3.9-eclipse-temurin-17 mvn -DfailIfNoTests=false test`
@@ -30,6 +32,7 @@ the heaviest runtime path for every edit.
 - JSON reports use `--report-json` and include `status`, `root`,
   `checked_files`, `standards`, `errors`, and `warnings`.
 - JUnit reports use `--junit-out` for CI systems that aggregate XML.
+- Source file size checks fail source files over 2200 lines.
 - Runtime evidence should use `artifacts/runs/<run_id>/` when a browser,
   Docker, log, or HTTP observation is decisive.
 

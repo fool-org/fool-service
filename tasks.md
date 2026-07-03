@@ -43,11 +43,11 @@ explicitly named as authoritative for fool-service.
       to concrete business DTOs.
 - [x] Render View metadata operation buttons in the main Vue workflow and
       execute them through legacy `runoperation`.
+- [x] Add a repository harness guard for oversized source files.
 
 ## Backlog
 
 - [ ] Add focused Maven module profiles once module boundaries are cleaned up.
-- [ ] Add contract checks for oversized files, package boundaries, and migration
-      drift.
+- [ ] Add contract checks for package boundaries and migration drift.
 - [ ] Add a browser/runtime doctor when the frontend and backend API workflow
       becomes stable enough for repeatable smoke automation.

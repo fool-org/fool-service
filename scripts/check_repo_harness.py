@@ -28,6 +28,9 @@ STANDARD_HEADINGS = (
     "## Repair Path",
     "## Revision Trigger",
 )
+SOURCE_FILE_LINE_LIMIT = 2200
+SOURCE_FILE_EXTENSIONS = frozenset((".java", ".ts", ".vue"))
+SOURCE_FILE_SKIP_DIRS = frozenset((".git", "node_modules", "target", "dist"))
 
 
 @dataclass(frozen=True)
@@ -230,6 +233,24 @@ def check_readme_discovery(root: Path, report: HarnessReport) -> None:
             report.errors.append(f"README.md does not link harness marker '{marker}'")
 
 
+def check_source_file_sizes(root: Path, report: HarnessReport) -> None:
+    for path in root.rglob("*"):
+        if not path.is_file() or path.suffix not in SOURCE_FILE_EXTENSIONS:
+            continue
+        relative = path.relative_to(root)
+        if any(part in SOURCE_FILE_SKIP_DIRS for part in relative.parts):
+            continue
+        with path.open(encoding="utf-8", errors="ignore") as source:
+            line_count = sum(1 for _ in source)
+        relative_path = relative.as_posix()
+        report.add_checked(relative_path)
+        if line_count > SOURCE_FILE_LINE_LIMIT:
+            report.errors.append(
+                f"Oversized source file: {relative_path} has {line_count} lines "
+                f"(limit {SOURCE_FILE_LINE_LIMIT})"
+            )
+
+
 def validate_repo(root: Path | str = ROOT) -> HarnessReport:
     repo_root = Path(root).resolve()
     report = HarnessReport(root=repo_root)
@@ -237,6 +258,7 @@ def validate_repo(root: Path | str = ROOT) -> HarnessReport:
     check_standard_docs(repo_root, report)
     check_existing_command_surfaces(repo_root, report)
     check_readme_discovery(repo_root, report)
+    check_source_file_sizes(repo_root, report)
     return report
 
 
