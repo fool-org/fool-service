@@ -11,13 +11,15 @@ explicitly named as authoritative for fool-service.
       Docker stack stabilizes.
 - [x] Render persisted `Order Items` in the Vue `OrderList` detail workflow via
       backend `querydatadetail` collection rows.
+- [x] Replace the hand-shaped Vue `OrderList` screen with View metadata-driven
+      list/detail/child-row rendering.
 
 ## Backlog
 
-- [ ] Replace the current hand-shaped `OrderList` workflow with metadata-driven
-      FoolFrame list/detail rendering.
-- [ ] Complete child collection edit/delete/select-from-existing parity in the
-      Vue detail workflow.
+- [ ] Complete select-from-existing child collection parity in the Vue detail
+      workflow.
+- [ ] Add richer metadata-specific editors for enum, readonly, lookup, and
+      formatted field types.
 - [ ] Add focused Maven module profiles once module boundaries are cleaned up.
 - [ ] Add contract checks for oversized files, package boundaries, and migration
       drift.

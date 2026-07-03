@@ -90,6 +90,17 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: replaced the hand-shaped default Vue `OrderList` screen with a
+  metadata-driven View workflow. The first screen now loads View metadata via
+  `/api/v1/view/get-view`, queries rows via `/api/v1/data/query-list`, renders
+  list columns from `tableColumn`, renders detail fields from
+  `querydatadetail.simpleData`, and builds `saveobj` `Propertyies` from the
+  current View field keys instead of binding to `symbol` / `state` business
+  fields. Child collection add/update/delete controls now render from
+  `querydatadetail.Items[].properties` and preserve the legacy
+  `Itemproperties.Items` / `AddedItems` / `DelteItems` payload names. Full
+  select-from-existing child collection parity and richer field-type widgets
+  remain future work.
 - 2026-07-03: added the first Vue detail child-item write workflow for
   `OrderList`. The default detail panel can now add an order item through the
   legacy `saveobj.Itemproperties.AddedItems` payload, matching FoolFrame's
@@ -572,11 +583,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Legacy-style keyword filtering over BusinessObject show-property list columns
 - Legacy-style default ordering over BusinessObject show-property list columns
 - Seeded `OrderList` metadata and rows for Docker smoke coverage
-- A default Vue `OrderList` create/edit workflow that initializes new rows with
-  `initnew`, creates them with `savenewobj`, saves existing rows with `saveobj`,
-  and renders formatted enum values from list-row `fmtValue`
-- A default Vue `OrderList` child-item add workflow that sends
-  `saveobj.Itemproperties.AddedItems` for the `items` collection
+- A default Vue View workflow that loads View metadata first, queries rows by
+  view name, renders columns from `tableColumn`, renders detail fields from
+  `querydatadetail.simpleData`, initializes new rows with `initnew`, creates
+  them with `savenewobj`, and saves existing rows with `saveobj`
+- A default Vue child collection workflow that renders from
+  `querydatadetail.Items[].properties` and sends legacy
+  `saveobj.Itemproperties.Items`, `AddedItems`, and `DelteItems` payloads
 - A Vue backend smoke panel that calls `/test` and renders the Docker seed rows
 - A migration-map strip showing current server module mapping
 - Vite and Nginx proxies for `/api/*` and `/test` to the backend service

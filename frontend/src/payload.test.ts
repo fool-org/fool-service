@@ -19,18 +19,22 @@ import {
 } from "./payload";
 
 describe("App defaults", () => {
-  it("opens with a real OrderList workflow before API tools", () => {
+  it("opens with a metadata-driven view workflow before API tools", () => {
     expect(appSource).toContain('const activeSection = ref("orders")');
-    expect(appSource).toContain("OrderList workflow");
-    expect(appSource).toContain("Load Orders");
-    expect(appSource).toContain("New Order");
-    expect(appSource).toContain("Create Order");
-    expect(appSource).toContain("Save Order");
-    expect(appSource).toContain("async function selectOrder");
-    expect(appSource).toContain("async function startNewOrder");
-    expect(appSource).toContain("async function addOrderItem");
-    expect(appSource).toContain("addedItems");
-    expect(appSource).toContain("function getRowValue");
+    expect(appSource).toContain("View workflow");
+    expect(appSource).toContain("Load View");
+    expect(appSource).toContain("New Row");
+    expect(appSource).toContain("Create Row");
+    expect(appSource).toContain("Save Row");
+    expect(appSource).toContain("async function selectObject");
+    expect(appSource).toContain("async function startNewObject");
+    expect(appSource).toContain("async function addDetailItem");
+    expect(appSource).toContain("async function updateDetailItem");
+    expect(appSource).toContain("async function deleteDetailItem");
+    expect(appSource).toContain("resultColumns");
+    expect(appSource).toContain("detailDrafts");
+    expect(appSource).toContain("childDrafts");
+    expect(appSource).toContain("rowValue(row, column)");
   });
 
   it("loads the seeded order-state enum model by default", () => {
@@ -142,6 +146,7 @@ describe("App defaults", () => {
     expect(viteConfig).toContain('"/test"');
     expect(nginxConfig).toContain("location /test");
   });
+
 });
 
 describe("buildQueryRequest", () => {
@@ -288,6 +293,7 @@ describe("buildSaveObjRequest", () => {
       }
     });
   });
+
 });
 
 describe("buildSaveNewObjRequest", () => {

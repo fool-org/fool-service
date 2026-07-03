@@ -26,11 +26,30 @@ import {
   type ReadItemViewInfo,
   type ReportGridResult,
   type ReportModelResult,
+  type SaveItemProperty,
   type TableColumnInfo,
   type TreeNode,
   type UserDTO,
   postApi
 } from "./api";
+import {
+  buildAddedItemProperty,
+  buildDeletedItemProperty,
+  buildFieldDrafts,
+  buildItemDrafts,
+  buildSavePropertyies,
+  buildUpdatedItemProperty,
+  columnKey,
+  columnTitle,
+  displayValue,
+  fieldKey,
+  fieldTitle,
+  groupColumns,
+  itemKey,
+  itemValue,
+  rowObjectId,
+  rowValue
+} from "./viewWorkflow";
 import {
   buildGetEnumRequest,
   buildInitNewRequest,
@@ -61,7 +80,7 @@ const pageIndex = ref(1);
 const pageSize = ref(20);
 const filterJson = ref("{}");
 const keyword = ref("");
-const quickFilterProperty = ref("orderId");
+const quickFilterProperty = ref("");
 const quickFilterMode = ref<"equals" | "range">("range");
 const quickFilterValue = ref("");
 const quickFilterFrom = ref("");
@@ -104,11 +123,11 @@ const checkCodeKey = ref("");
 const checkCodeValue = ref("");
 const subMenuParentAuthCode = ref("");
 const activeSection = ref("orders");
-const selectedOrderId = ref("");
-const editableSymbol = ref("");
-const editableState = ref("0");
-const isCreatingOrder = ref(false);
-const newItemName = ref("New item");
+const selectedObjectId = ref("");
+const isCreatingObject = ref(false);
+const detailDrafts = ref<Record<string, string>>({});
+const childDrafts = ref<Record<string, Record<string, string>>>({});
+const newChildDrafts = ref<Record<string, Record<string, string>>>({});
 
 const loginResponse = ref<CommonResponse<LoginVo> | null>(null);
 const initAppResponse = ref<CommonResponse<LegacyInitAppResult> | null>(null);
@@ -148,10 +167,15 @@ const services = computed(() => [
 ]);
 
 const navItems = [
-  { id: "orders", label: "Orders" },
+  { id: "orders", label: "Views" },
   { id: "tools", label: "API Tools" },
   { id: "migration", label: "Migration" }
 ];
+
+const currentViewId = computed(() => viewResponse.value?.data?.id || legacyListViewId.value);
+const viewTitle = computed(
+  () => viewResponse.value?.data?.viewTitle || viewResponse.value?.data?.name || viewResponse.value?.data?.viewName || viewName.value
+);
 
 const resultColumns = computed<TableColumnInfo[]>(() => {
   const declared = viewResponse.value?.data?.tableColumn || [];
@@ -167,21 +191,13 @@ const resultColumns = computed<TableColumnInfo[]>(() => {
   return Object.keys(first).map((property) => ({ property, title: property }));
 });
 
-const resultRows = computed<ListDataItem[]>(() => dataResponse.value?.data?.items || []);
-const selectedOrder = computed(() => resultRows.value.find((row) => getOrderId(row) === selectedOrderId.value));
+const resultRows = computed<ListDataItem[]>(() => dataResponse.value?.data?.items || dataResponse.value?.data?.data || []);
+const selectedObject = computed(() =>
+  resultRows.value.find((row) => rowObjectId(row, resultColumns.value) === selectedObjectId.value)
+);
 const detailRows = computed(() => detailResponse.value?.data?.data?.simpleData || []);
 const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() => detailResponse.value?.data?.data?.items || []);
-const orderCanEdit = computed(() => Boolean(selectedOrder.value || isCreatingOrder.value));
-const orderStateOptions = computed(() => {
-  const enums = enumResponse.value?.data?.enumValues || [];
-  if (enums.length > 0) {
-    return enums.map((item) => ({ label: item.name || String(item.value), value: String(item.value ?? "") }));
-  }
-  return [
-    { label: "Open", value: "0" },
-    { label: "Filled", value: "1" }
-  ];
-});
+const viewCanEdit = computed(() => Boolean(selectedObject.value || isCreatingObject.value));
 
 const reportRows = computed(() => {
   const cells = reportResponse.value?.data?.cells || [];
@@ -199,15 +215,10 @@ const reportRows = computed(() => {
 
 const quickFilterOptions = computed(() => {
   const declared = viewResponse.value?.data?.tableColumn || [];
-  const defaults = [
-    { property: "orderId", title: "Order ID" },
-    { property: "symbol", title: "Symbol" },
-    { property: "state", title: "State" }
-  ];
   const seen = new Set<string>();
 
-  return [...declared, ...defaults].filter((column) => {
-    const property = column.property || "";
+  return declared.filter((column) => {
+    const property = columnKey(column);
     if (!property || seen.has(property)) {
       return false;
     }
@@ -418,6 +429,7 @@ async function loadView() {
   );
   if (response) {
     viewResponse.value = response;
+    applyLoadedView(response.data);
   }
 }
 
@@ -430,6 +442,7 @@ async function loadLegacyListView() {
   const response = await runAction("legacy-list-view", () => postApi<ListViewInfo>("/api/v1/view/getlistview", request));
   if (response) {
     viewResponse.value = response;
+    applyLoadedView(response.data);
   }
 }
 
@@ -566,6 +579,7 @@ async function queryDetail() {
   );
   if (response) {
     detailResponse.value = response;
+    syncDetailDrafts();
   }
   return response;
 }
@@ -677,34 +691,49 @@ function clearQuickFilter() {
   quickFilterTo.value = "";
 }
 
-async function loadOrdersWorkflow() {
-  await loadLegacyListView();
-  await loadEnums();
-  await queryData();
-  const firstOrder = resultRows.value[0];
-  if (firstOrder) {
-    await selectOrder(firstOrder);
+function applyLoadedView(view?: ListViewInfo) {
+  const loadedViewId = view?.id;
+  if (loadedViewId) {
+    legacyListViewId.value = loadedViewId;
+    readItemViewId.value = loadedViewId;
+    legacyQueryViewId.value = loadedViewId;
+    reportViewId.value = loadedViewId;
+    detailViewId.value = loadedViewId;
+    initNewViewId.value = loadedViewId;
+    operationViewId.value = loadedViewId;
+    saveViewId.value = String(loadedViewId);
+    saveNewViewId.value = String(loadedViewId);
+  }
+  const firstFilter = view?.tableColumn?.[0];
+  if (!quickFilterProperty.value && firstFilter) {
+    quickFilterProperty.value = columnKey(firstFilter);
   }
 }
 
-async function selectOrder(row: ListDataItem) {
-  const orderId = getOrderId(row);
-  if (!orderId) {
+async function loadViewWorkflow() {
+  await loadView();
+  await queryData();
+  const firstRow = resultRows.value[0];
+  if (firstRow) {
+    await selectObject(firstRow);
+  }
+}
+
+async function selectObject(row: ListDataItem) {
+  const objectId = rowObjectId(row, resultColumns.value);
+  if (!objectId) {
     return;
   }
-  isCreatingOrder.value = false;
-  selectedOrderId.value = orderId;
-  editableSymbol.value = formatValue(row.values?.symbol);
-  editableState.value = formatValue(row.values?.state) || "0";
-  detailObjId.value = orderId;
-  saveObjId.value = orderId;
-  operationObjectId.value = orderId;
+  isCreatingObject.value = false;
+  selectedObjectId.value = objectId;
+  detailObjId.value = objectId;
+  saveObjId.value = objectId;
+  operationObjectId.value = objectId;
   await queryDetail();
 }
 
-async function startNewOrder() {
-  await loadEnums();
-  initNewViewId.value = detailViewId.value;
+async function startNewObject() {
+  initNewViewId.value = currentViewId.value;
   initNewParentObjId.value = "";
   const initialized = await initNew();
   if (!initialized) {
@@ -713,111 +742,137 @@ async function startNewOrder() {
   if (!resultRows.value.length) {
     await queryData();
   }
-  selectedOrderId.value = nextOrderId();
-  editableSymbol.value = "NEW-USDT";
-  editableState.value = "0";
-  detailObjId.value = selectedOrderId.value;
-  operationObjectId.value = selectedOrderId.value;
-  isCreatingOrder.value = true;
+  detailResponse.value = initialized;
+  selectedObjectId.value = nextObjectId();
+  detailObjId.value = selectedObjectId.value;
+  saveObjId.value = selectedObjectId.value;
+  operationObjectId.value = selectedObjectId.value;
+  isCreatingObject.value = true;
+  syncDetailDrafts();
 }
 
-async function saveSelectedOrder() {
-  if (!selectedOrderId.value) {
-    errorMessage.value = "Select an order first.";
+async function saveSelectedObject() {
+  if (!selectedObjectId.value) {
+    errorMessage.value = "Select an object first.";
     return;
   }
-  const propertyiesJson = JSON.stringify([
-    { key: "symbol", value: editableSymbol.value },
-    { key: "state", value: editableState.value }
-  ]);
+  const propertyiesJson = JSON.stringify(buildSavePropertyies(detailRows.value, detailDrafts.value));
   let saved = false;
-  if (isCreatingOrder.value) {
-    saveNewObjId.value = selectedOrderId.value;
-    saveNewViewId.value = String(detailViewId.value);
+  if (isCreatingObject.value) {
+    saveNewObjId.value = selectedObjectId.value;
+    saveNewViewId.value = String(currentViewId.value);
     saveNewPropertyiesJson.value = propertyiesJson;
     saveNewOwnerViewId.value = "";
     saveNewOwnerId.value = "";
     saveNewProperty.value = "";
     saved = await saveNewObj();
   } else {
-    saveObjId.value = selectedOrderId.value;
+    saveObjId.value = selectedObjectId.value;
     savePropertyiesJson.value = propertyiesJson;
+    saveItempropertiesJson.value = "";
     saved = await saveObj();
   }
   if (!saved) {
     return;
   }
-  isCreatingOrder.value = false;
-  detailObjId.value = selectedOrderId.value;
+  isCreatingObject.value = false;
+  detailObjId.value = selectedObjectId.value;
   await queryData();
   await queryDetail();
 }
 
-async function addOrderItem() {
-  if (!selectedOrder.value || isCreatingOrder.value) {
-    errorMessage.value = "Save the order before adding items.";
+async function addDetailItem(group: QueryDataDetailItemGroup) {
+  if (!selectedObject.value || isCreatingObject.value) {
+    errorMessage.value = "Save the object before adding items.";
     return;
   }
-  const itemName = newItemName.value.trim();
-  if (!itemName) {
-    errorMessage.value = "Item name is required.";
-    return;
+  const key = groupKey(group);
+  const drafts = { ...(newChildDrafts.value[key] || {}) };
+  const firstField = groupColumns(group)[0];
+  const firstFieldKey = firstField ? fieldKey(firstField) : "";
+  const itemId = firstFieldKey && drafts[firstFieldKey] ? drafts[firstFieldKey] : nextObjectId();
+  if (firstFieldKey && !drafts[firstFieldKey]) {
+    drafts[firstFieldKey] = itemId;
   }
-  const itemId = String(Date.now());
-  saveObjId.value = selectedOrderId.value;
-  savePropertyiesJson.value = JSON.stringify([
-    { key: "symbol", value: editableSymbol.value },
-    { key: "state", value: editableState.value }
-  ]);
-  saveItempropertiesJson.value = JSON.stringify([
-    {
-      key: "items",
-      addedItems: [
-        {
-          itemId,
-          isExist: true,
-          propertyies: [{ key: "itemName", value: itemName }]
-        }
-      ]
-    }
-  ]);
+  setDetailItemSavePayload([buildAddedItemProperty(group, itemId, drafts)]);
   const saved = await saveObj();
   saveItempropertiesJson.value = "";
   if (!saved) {
     return;
   }
-  newItemName.value = "";
+  newChildDrafts.value = {
+    ...newChildDrafts.value,
+    [key]: emptyGroupDraft(group)
+  };
   await queryDetail();
 }
 
-function nextOrderId() {
+async function updateDetailItem(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) {
+  if (!selectedObject.value || isCreatingObject.value || !item.dataId) {
+    errorMessage.value = "Select a saved item first.";
+    return;
+  }
+  const drafts = childDrafts.value[itemKey(group, item)] || buildFieldDrafts(item.values || []);
+  setDetailItemSavePayload([buildUpdatedItemProperty(group, item, drafts)]);
+  const saved = await saveObj();
+  saveItempropertiesJson.value = "";
+  if (saved) {
+    await queryDetail();
+  }
+}
+
+async function deleteDetailItem(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) {
+  if (!selectedObject.value || isCreatingObject.value || !item.dataId) {
+    errorMessage.value = "Select a saved item first.";
+    return;
+  }
+  if (!window.confirm(`Delete ${item.dataId}?`)) {
+    return;
+  }
+  setDetailItemSavePayload([buildDeletedItemProperty(group, item)]);
+  const saved = await saveObj();
+  saveItempropertiesJson.value = "";
+  if (saved) {
+    await queryDetail();
+  }
+}
+
+function setDetailItemSavePayload(itemproperties: SaveItemProperty[]) {
+  saveObjId.value = selectedObjectId.value;
+  savePropertyiesJson.value = JSON.stringify(buildSavePropertyies(detailRows.value, detailDrafts.value));
+  saveItempropertiesJson.value = JSON.stringify(itemproperties);
+}
+
+function nextObjectId() {
   return String(Date.now());
 }
 
-function getRowValue(row: ListDataItem, property: string) {
-  return row.items?.find((item) => item.prpId === property)?.fmtValue || formatValue(row.values?.[property]);
+function groupKey(group: QueryDataDetailItemGroup) {
+  return group.prpId || group.name || "items";
 }
 
-function getOrderId(row: ListDataItem) {
-  return formatValue(row.values?.orderId || row.id);
+function emptyGroupDraft(group: QueryDataDetailItemGroup) {
+  return groupColumns(group).reduce<Record<string, string>>((drafts, field) => {
+    const key = fieldKey(field);
+    if (key) {
+      drafts[key] = "";
+    }
+    return drafts;
+  }, {});
 }
 
 function formatValue(value: unknown) {
-  if (value === null || value === undefined) {
-    return "";
-  }
-
-  if (typeof value === "object") {
-    return JSON.stringify(value);
-  }
-
-  return String(value);
+  return displayValue(value);
 }
 
-function detailItemTitle(item: QueryDataDetailDataItem) {
-  const itemName = item.values?.find((value) => value.prpId === "itemName")?.fmtValue;
-  const firstValue = item.values?.find((value) => value.fmtValue)?.fmtValue;
-  return itemName || firstValue || item.dataId || "";
+function syncDetailDrafts() {
+  detailDrafts.value = buildFieldDrafts(detailRows.value);
+  childDrafts.value = buildItemDrafts(detailItemGroups.value);
+  newChildDrafts.value = detailItemGroups.value.reduce<Record<string, Record<string, string>>>((drafts, group) => {
+    const key = groupKey(group);
+    drafts[key] = newChildDrafts.value[key] || emptyGroupDraft(group);
+    return drafts;
+  }, {});
 }
 </script>
 
@@ -848,8 +903,8 @@ function detailItemTitle(item: QueryDataDetailDataItem) {
     <main class="workspace">
       <header class="topbar">
         <div>
-          <h1>OrderList</h1>
-          <p>Work with the Docker-seeded order view.</p>
+          <h1>{{ viewTitle }}</h1>
+          <p>{{ viewResponse?.data?.viewName || viewName }}</p>
         </div>
         <div class="status-strip">
           <div v-for="service in services" :key="service.label" class="status-item">
@@ -860,25 +915,29 @@ function detailItemTitle(item: QueryDataDetailDataItem) {
         </div>
       </header>
 
-      <section v-if="activeSection === 'orders'" class="order-workflow" aria-label="OrderList workflow">
+      <section v-if="activeSection === 'orders'" class="order-workflow" aria-label="View workflow">
         <article class="panel order-list-panel">
           <div class="panel-heading">
-            <h2>Orders</h2>
-            <span>OrderList</span>
+            <h2>{{ viewTitle }}</h2>
+            <span>{{ viewName }}</span>
           </div>
           <div class="workflow-toolbar">
             <label>
+              View
+              <input v-model="viewName" />
+            </label>
+            <label>
               Keyword
-              <input v-model="keyword" placeholder="symbol or visible text" />
+              <input v-model="keyword" />
             </label>
             <label>
               Page size
               <input v-model.number="pageSize" min="1" type="number" />
             </label>
-            <button class="primary" type="button" :disabled="Boolean(pendingAction)" @click="loadOrdersWorkflow">
-              Load Orders
+            <button class="primary" type="button" :disabled="Boolean(pendingAction)" @click="loadViewWorkflow">
+              Load View
             </button>
-            <button type="button" :disabled="Boolean(pendingAction)" @click="startNewOrder">New Order</button>
+            <button type="button" :disabled="Boolean(pendingAction)" @click="startNewObject">New Row</button>
           </div>
 
           <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
@@ -887,85 +946,92 @@ function detailItemTitle(item: QueryDataDetailDataItem) {
             <table v-if="resultRows.length">
               <thead>
                 <tr>
-                  <th>Order ID</th>
-                  <th>Symbol</th>
-                  <th>State</th>
+                  <th v-for="column in resultColumns" :key="columnKey(column)">
+                    {{ columnTitle(column) }}
+                  </th>
                   <th></th>
                 </tr>
               </thead>
               <tbody>
                 <tr
                   v-for="row in resultRows"
-                  :key="getOrderId(row)"
-                  :class="{ selected: getOrderId(row) === selectedOrderId }"
+                  :key="rowObjectId(row, resultColumns)"
+                  :class="{ selected: rowObjectId(row, resultColumns) === selectedObjectId }"
                 >
-                  <td>{{ getRowValue(row, "orderId") }}</td>
-                  <td>{{ getRowValue(row, "symbol") }}</td>
-                  <td>{{ getRowValue(row, "state") }}</td>
+                  <td v-for="column in resultColumns" :key="columnKey(column)">
+                    {{ rowValue(row, column) }}
+                  </td>
                   <td>
-                    <button type="button" :disabled="Boolean(pendingAction)" @click="selectOrder(row)">Open</button>
+                    <button type="button" :disabled="Boolean(pendingAction)" @click="selectObject(row)">Open</button>
                   </td>
                 </tr>
               </tbody>
             </table>
-            <div v-else class="empty-state">Load orders to start.</div>
+            <div v-else class="empty-state">Load a view to start.</div>
           </div>
         </article>
 
         <article class="panel order-detail-panel">
           <div class="panel-heading">
-            <h2>Order Detail</h2>
-            <span>{{ selectedOrderId || "No order selected" }}</span>
+            <h2>Detail</h2>
+            <span>{{ selectedObjectId || "No row selected" }}</span>
           </div>
 
-          <div v-if="orderCanEdit" class="order-edit-grid">
-            <label>
-              Symbol
-              <input v-model="editableSymbol" />
+          <div v-if="viewCanEdit" class="order-edit-grid">
+            <label v-for="field in detailRows" :key="fieldKey(field)">
+              {{ fieldTitle(field) }}
+              <input v-model="detailDrafts[fieldKey(field)]" />
             </label>
-            <label>
-              State
-              <select v-model="editableState">
-                <option v-for="state in orderStateOptions" :key="state.value" :value="state.value">
-                  {{ state.label }}
-                </option>
-              </select>
-            </label>
-            <button class="primary" type="button" :disabled="Boolean(pendingAction)" @click="saveSelectedOrder">
-              {{ isCreatingOrder ? "Create Order" : "Save Order" }}
+            <button class="primary" type="button" :disabled="Boolean(pendingAction)" @click="saveSelectedObject">
+              {{ isCreatingObject ? "Create Row" : "Save Row" }}
             </button>
           </div>
-          <div v-else class="empty-state compact">Select an order from the list.</div>
+          <div v-else class="empty-state compact">Select a row from the list.</div>
 
           <div class="detail-fields">
             <div v-for="item in detailRows" :key="item.prpId || item.prpShowName">
-              <span>{{ item.prpShowName || item.prpId }}</span>
+              <span>{{ fieldTitle(item) }}</span>
               <strong>{{ item.fmtValue }}</strong>
             </div>
           </div>
 
-          <div v-if="selectedOrder && !isCreatingOrder" class="order-items-panel">
-            <h3>Order Items</h3>
-            <div class="item-add-row">
-              <label>
-                Item name
-                <input v-model="newItemName" />
-              </label>
-              <button type="button" :disabled="Boolean(pendingAction)" @click="addOrderItem">Add Item</button>
-            </div>
+          <div v-if="selectedObject && !isCreatingObject" class="order-items-panel">
             <div v-if="detailItemGroups.length" class="detail-fields">
               <template v-for="group in detailItemGroups" :key="group.prpId || group.name">
                 <div>
                   <span>{{ group.itemName || group.name || group.prpId }}</span>
                   <strong>{{ group.items?.length || 0 }} rows</strong>
                 </div>
-                <div v-for="item in group.items || []" :key="`${group.prpId || group.name}-${item.dataId}`">
+                <div class="item-add-row">
+                  <label v-for="field in groupColumns(group)" :key="fieldKey(field)">
+                    {{ fieldTitle(field) }}
+                    <input v-model="newChildDrafts[groupKey(group)][fieldKey(field)]" />
+                  </label>
+                  <button type="button" :disabled="Boolean(pendingAction)" @click="addDetailItem(group)">Add</button>
+                </div>
+                <div
+                  v-for="item in group.items || []"
+                  :key="`${group.prpId || group.name}-${item.dataId}`"
+                  class="detail-item-row"
+                >
                   <span>{{ item.dataId }}</span>
-                  <strong>{{ detailItemTitle(item) }}</strong>
+                  <label v-for="field in groupColumns(group)" :key="fieldKey(field)">
+                    {{ fieldTitle(field) }}
+                    <input
+                      v-model="childDrafts[itemKey(group, item)][fieldKey(field)]"
+                      :placeholder="itemValue(item, field)"
+                    />
+                  </label>
+                  <button type="button" :disabled="Boolean(pendingAction)" @click="updateDetailItem(group, item)">
+                    Save
+                  </button>
+                  <button type="button" :disabled="Boolean(pendingAction)" @click="deleteDetailItem(group, item)">
+                    Delete
+                  </button>
                 </div>
               </template>
             </div>
-            <div v-else class="empty-state compact">No order items loaded.</div>
+            <div v-else class="empty-state compact">No child rows loaded.</div>
           </div>
         </article>
       </section>

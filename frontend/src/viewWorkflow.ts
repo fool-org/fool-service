@@ -1,0 +1,147 @@
+import type {
+  ListDataItem,
+  ListDataValue,
+  QueryDataDetailDataItem,
+  QueryDataDetailItemGroup,
+  SaveItemProperty,
+  SaveKeypair,
+  TableColumnInfo
+} from "./api";
+
+export function columnKey(column: TableColumnInfo) {
+  return column.property || column.propertyName || column.name || String(column.id || "");
+}
+
+export function columnTitle(column: TableColumnInfo) {
+  return column.title || column.name || column.propertyName || column.property || String(column.id || "");
+}
+
+export function rowObjectId(row: ListDataItem, columns: TableColumnInfo[] = []) {
+  const firstColumnKey = columns[0] ? columnKey(columns[0]) : "";
+  return displayValue(row.id || (firstColumnKey ? row.values?.[firstColumnKey] : "") || row.items?.[0]?.objId || row.rowIndex);
+}
+
+export function rowValue(row: ListDataItem, column: TableColumnInfo) {
+  const key = columnKey(column);
+  return row.items?.find((item) => item.prpId === key)?.fmtValue || displayValue(row.values?.[key]);
+}
+
+export function fieldKey(field: ListDataValue) {
+  return field.prpId || field.prpShowName || "";
+}
+
+export function fieldTitle(field: ListDataValue) {
+  return field.prpShowName || field.prpId || "";
+}
+
+export function fieldDraftValue(field: ListDataValue) {
+  const value = field.objId === undefined || field.objId === null || field.objId === "" ? field.fmtValue : field.objId;
+  return displayValue(value);
+}
+
+export function buildFieldDrafts(fields: ListDataValue[]) {
+  return fields.reduce<Record<string, string>>((drafts, field) => {
+    const key = fieldKey(field);
+    if (key) {
+      drafts[key] = fieldDraftValue(field);
+    }
+    return drafts;
+  }, {});
+}
+
+export function buildSavePropertyies(fields: ListDataValue[], drafts: Record<string, string>): SaveKeypair[] {
+  return fields
+    .map((field) => fieldKey(field))
+    .filter(Boolean)
+    .map((key) => ({ key, value: drafts[key] ?? "" }));
+}
+
+export function buildItemDrafts(groups: QueryDataDetailItemGroup[]) {
+  const drafts: Record<string, Record<string, string>> = {};
+  for (const group of groups) {
+    for (const item of group.items || []) {
+      drafts[itemKey(group, item)] = buildFieldDrafts(item.values || []);
+    }
+  }
+  return drafts;
+}
+
+export function itemKey(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) {
+  return `${group.prpId || group.name || "items"}:${item.dataId || ""}`;
+}
+
+export function groupColumns(group: QueryDataDetailItemGroup) {
+  return group.properties?.length ? group.properties : group.items?.[0]?.values || [];
+}
+
+export function itemValue(item: QueryDataDetailDataItem, field: ListDataValue) {
+  const key = fieldKey(field);
+  return item.values?.find((value) => fieldKey(value) === key)?.fmtValue || "";
+}
+
+export function buildItemPropertyies(fields: ListDataValue[], drafts: Record<string, string>): SaveKeypair[] {
+  return fields
+    .map((field) => fieldKey(field))
+    .filter(Boolean)
+    .map((key) => ({ key, value: drafts[key] ?? "" }));
+}
+
+export function buildUpdatedItemProperty(
+  group: QueryDataDetailItemGroup,
+  item: QueryDataDetailDataItem,
+  drafts: Record<string, string>
+): SaveItemProperty {
+  return {
+    key: group.prpId || "items",
+    items: [
+      {
+        itemId: item.dataId,
+        isExist: true,
+        propertyies: buildItemPropertyies(item.values || [], drafts)
+      }
+    ]
+  };
+}
+
+export function buildDeletedItemProperty(
+  group: QueryDataDetailItemGroup,
+  item: QueryDataDetailDataItem
+): SaveItemProperty {
+  return {
+    key: group.prpId || "items",
+    delteItems: [
+      {
+        itemId: item.dataId,
+        isExist: true,
+        propertyies: buildItemPropertyies(item.values || [], buildFieldDrafts(item.values || []))
+      }
+    ]
+  };
+}
+
+export function buildAddedItemProperty(
+  group: QueryDataDetailItemGroup,
+  itemId: string,
+  drafts: Record<string, string>
+): SaveItemProperty {
+  return {
+    key: group.prpId || "items",
+    addedItems: [
+      {
+        itemId,
+        isExist: true,
+        propertyies: buildItemPropertyies(group.properties || [], drafts)
+      }
+    ]
+  };
+}
+
+export function displayValue(value: unknown) {
+  if (value === null || value === undefined) {
+    return "";
+  }
+  if (typeof value === "object") {
+    return JSON.stringify(value);
+  }
+  return String(value);
+}

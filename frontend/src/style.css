@@ -290,6 +290,16 @@ label {
   overflow-wrap: anywhere;
 }
 
+.detail-fields .detail-item-row {
+  grid-template-columns: minmax(72px, 0.35fr) minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-item-row input {
+  min-width: 0;
+}
+
 .order-items-panel {
   display: grid;
   gap: 10px;
