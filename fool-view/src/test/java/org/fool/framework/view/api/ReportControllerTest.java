@@ -1,13 +1,17 @@
 package org.fool.framework.view.api;
 
 import org.fool.framework.dao.PageNavigator;
+import org.fool.framework.dao.DaoService;
 import org.fool.framework.dto.CommonResponse;
+import org.fool.framework.model.model.Model;
+import org.fool.framework.model.model.Property;
 import org.fool.framework.report.ReportCell;
 import org.fool.framework.report.ReportGridResult;
 import org.fool.framework.view.dto.ListDataItem;
 import org.fool.framework.view.dto.ListDataValue;
 import org.fool.framework.view.dto.ListViewResult;
 import org.fool.framework.view.dto.MakeReportRequest;
+import org.fool.framework.view.model.View;
 import org.fool.framework.view.service.DataQueryService;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -86,10 +90,56 @@ public class ReportControllerTest {
     }
 
     @Test
-    public void makeReportRejectsUnsupportedFilterExpInsteadOfIgnoringIt() throws Exception {
+    public void makeReportMapsLegacyContainsFilterExpToQueryFilter() throws Exception {
+        DataQueryService dataQueryService = mock(DataQueryService.class);
+        DaoService daoService = mock(DaoService.class);
+        when(daoService.getOneDetailByKey(eq(View.class), eq("100"))).thenReturn(view("100"));
+        when(daoService.getOneDetailByKey(eq(Model.class), eq("100"))).thenReturn(model(property("symbol", "order_symbol")));
+        when(dataQueryService.queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), eq("`order_symbol` LIKE '%BTC%'")))
+                .thenReturn(new ListViewResult());
+
+        ReportController controller = new ReportController();
+        setField(controller, "dataQueryService", dataQueryService);
+        setField(controller, "daoService", daoService);
+
+        MakeReportRequest request = new MakeReportRequest();
+        request.setViewId(100L);
+        request.setFilterExp(filterExp("symbol", "7", "包含", "BTC", "BTC"));
+
+        CommonResponse<ReportGridResult> response = controller.makeReport(request);
+
+        verify(dataQueryService).queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), eq("`order_symbol` LIKE '%BTC%'"));
+        assertEquals(0, response.getCode());
+    }
+
+    @Test
+    public void makeReportMapsLegacyFilterExpColumnIdToModelColumn() throws Exception {
+        DataQueryService dataQueryService = mock(DataQueryService.class);
+        DaoService daoService = mock(DaoService.class);
+        when(daoService.getOneDetailByKey(eq(View.class), eq("100"))).thenReturn(view("100"));
+        when(daoService.getOneDetailByKey(eq(Model.class), eq("100"))).thenReturn(model(property(11L, "price", "order_price")));
+        when(dataQueryService.queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), eq("`order_price`>'100'")))
+                .thenReturn(new ListViewResult());
+
+        ReportController controller = new ReportController();
+        setField(controller, "dataQueryService", dataQueryService);
+        setField(controller, "daoService", daoService);
+
+        MakeReportRequest request = new MakeReportRequest();
+        request.setViewId(100L);
+        request.setFilterExp(filterExpById("11", "3", "大于", "100", "100"));
+
+        CommonResponse<ReportGridResult> response = controller.makeReport(request);
+
+        verify(dataQueryService).queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), eq("`order_price`>'100'"));
+        assertEquals(0, response.getCode());
+    }
+
+    @Test
+    public void makeReportRejectsUnknownFilterExpInsteadOfIgnoringIt() throws Exception {
         ReportController controller = new ReportController();
         MakeReportRequest request = new MakeReportRequest();
-        request.setFilterExp(filterExp("order_state", "7", "包含", "0", "Open"));
+        request.setFilterExp(filterExp("order_state", "99", "自定义", "0", "Open"));
 
         assertThrows(IllegalArgumentException.class, () -> controller.makeReport(request));
     }
@@ -128,6 +178,45 @@ public class ReportControllerTest {
         exp.setValueExp(value);
         exp.setValueFmt(fmtValue);
         return exp;
+    }
+
+    private static MakeReportRequest.BoolExp filterExpById(String columnId, String compareId, String compareName, String value, String fmtValue) {
+        MakeReportRequest.QueryCol col = new MakeReportRequest.QueryCol();
+        col.setId(columnId);
+        MakeReportRequest.CompareOpItem compare = new MakeReportRequest.CompareOpItem();
+        compare.setId(compareId);
+        compare.setName(compareName);
+        MakeReportRequest.BoolExp exp = new MakeReportRequest.BoolExp();
+        exp.setCol(col);
+        exp.setCompareOp(compare);
+        exp.setValueExp(value);
+        exp.setValueFmt(fmtValue);
+        return exp;
+    }
+
+    private static View view(String modelId) {
+        View view = new View();
+        view.setViewModel(modelId);
+        return view;
+    }
+
+    private static Model model(Property... properties) {
+        Model model = new Model();
+        model.setProperties(List.of(properties));
+        return model;
+    }
+
+    private static Property property(String name, String column) {
+        Property property = new Property();
+        property.setName(name);
+        property.setColumn(column);
+        return property;
+    }
+
+    private static Property property(Long id, String name, String column) {
+        Property property = property(name, column);
+        property.setId(id);
+        return property;
     }
 
     private static void assertCell(ReportCell cell, int col, int row, String value) {

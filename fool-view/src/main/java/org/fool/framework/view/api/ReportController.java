@@ -1,13 +1,17 @@
 package org.fool.framework.view.api;
 
+import org.fool.framework.dao.DaoService;
 import org.fool.framework.dao.PageNavigator;
 import org.fool.framework.dto.CommonResponse;
+import org.fool.framework.model.model.Model;
+import org.fool.framework.model.model.Property;
 import org.fool.framework.report.ReportGridRenderer;
 import org.fool.framework.report.ReportGridResult;
 import org.fool.framework.view.dto.ListDataItem;
 import org.fool.framework.view.dto.ListDataValue;
 import org.fool.framework.view.dto.ListViewResult;
 import org.fool.framework.view.dto.MakeReportRequest;
+import org.fool.framework.view.model.View;
 import org.fool.framework.view.service.DataQueryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -23,12 +27,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1/report")
 public class ReportController {
     @Autowired
     private DataQueryService dataQueryService;
+    @Autowired
+    private DaoService daoService;
 
     private final ReportGridRenderer renderer = new ReportGridRenderer();
 
@@ -56,40 +63,126 @@ public class ReportController {
         if (StringUtils.hasText(request.getQueryFilter())) {
             return request.getQueryFilter();
         }
-        return simpleFilterExp(request.getFilterExp());
+        return simpleFilterExp(request, request.getFilterExp());
     }
 
-    private String simpleFilterExp(MakeReportRequest.BoolExp filterExp) {
+    private String simpleFilterExp(MakeReportRequest request, MakeReportRequest.BoolExp filterExp) {
         if (filterExp == null) {
             return null;
         }
         if (filterExp.getFirstExp() != null || !CollectionUtils.isEmpty(filterExp.getSequences())) {
-            throw new IllegalArgumentException("Only simple equality FilterExp is supported.");
+            throw new IllegalArgumentException("Only simple FilterExp compare types are supported.");
         }
+        String column = filterColumn(request, filterExp);
+        String op = compareSql(filterExp.getCompareOp());
+        if (!safeColumn(column) || op == null) {
+            throw new IllegalArgumentException("Only simple FilterExp compare types are supported.");
+        }
+        String value = filterExp.getValueExp() == null ? "" : filterExp.getValueExp();
+        return "`" + column.trim() + "`" + op + "'" + filterValue(op, value) + "'";
+    }
+
+    private String filterColumn(MakeReportRequest request, MakeReportRequest.BoolExp filterExp) {
         String column = filterExp.getCol() == null ? null : filterExp.getCol().getName();
         if (!StringUtils.hasText(column) && filterExp.getCol() != null) {
             column = filterExp.getCol().getId();
         }
-        if (!safeColumn(column) || !equalCompare(filterExp.getCompareOp())) {
-            throw new IllegalArgumentException("Only simple equality FilterExp is supported.");
+        String mappedColumn = mappedColumn(request, column);
+        return StringUtils.hasText(mappedColumn) ? mappedColumn : column;
+    }
+
+    private String mappedColumn(MakeReportRequest request, String column) {
+        if (daoService == null || request.getViewId() == null || !safePropertyToken(column)) {
+            return null;
         }
-        String value = filterExp.getValueExp() == null ? "" : filterExp.getValueExp();
-        return "`" + column.trim() + "`='" + value.replace("'", "''") + "'";
+        View view = daoService.getOneDetailByKey(View.class, request.getViewId().toString());
+        if (view == null || !StringUtils.hasText(view.getViewModel())) {
+            return null;
+        }
+        Model model = daoService.getOneDetailByKey(Model.class, view.getViewModel());
+        if (model == null || CollectionUtils.isEmpty(model.getProperties())) {
+            return null;
+        }
+        String token = column.trim();
+        return model.getProperties().stream()
+                .filter(property -> matchesProperty(property, token))
+                .map(Property::getColumn)
+                .filter(StringUtils::hasText)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private boolean matchesProperty(Property property, String token) {
+        return Objects.equals(property.getName(), token)
+                || Objects.equals(property.getColumn(), token)
+                || (property.getId() != null && Objects.equals(property.getId().toString(), token));
     }
 
     private boolean safeColumn(String column) {
         return StringUtils.hasText(column) && column.trim().matches("[A-Za-z_][A-Za-z0-9_]*");
     }
 
-    private boolean equalCompare(MakeReportRequest.CompareOpItem compareOp) {
+    private boolean safePropertyToken(String token) {
+        return safeColumn(token) || (StringUtils.hasText(token) && token.trim().matches("\\d+"));
+    }
+
+    private String compareSql(MakeReportRequest.CompareOpItem compareOp) {
         if (compareOp == null) {
-            return false;
+            return null;
         }
-        if ("1".equals(compareOp.getId())) {
-            return true;
+        switch (compareOp.getId() == null ? "" : compareOp.getId().trim()) {
+            case "1":
+                return "=";
+            case "2":
+                return "<>";
+            case "3":
+                return ">";
+            case "4":
+                return ">=";
+            case "5":
+                return "<";
+            case "6":
+                return "<=";
+            case "7":
+                return " LIKE ";
+            default:
+                break;
         }
         String name = compareOp.getName() == null ? "" : compareOp.getName().trim().toLowerCase(Locale.ROOT);
-        return "=".equals(name) || "==".equals(name) || "等于".equals(name) || "equal".equals(name);
+        switch (name) {
+            case "=":
+            case "==":
+            case "等于":
+            case "equal":
+                return "=";
+            case "!=":
+            case "<>":
+            case "不等于":
+                return "<>";
+            case ">":
+            case "大于":
+                return ">";
+            case ">=":
+            case "大于等于":
+                return ">=";
+            case "<":
+            case "小于":
+                return "<";
+            case "<=":
+            case "小于等于":
+                return "<=";
+            case "包含":
+            case "like":
+            case "contains":
+                return " LIKE ";
+            default:
+                return null;
+        }
+    }
+
+    private String filterValue(String op, String value) {
+        String escaped = value.replace("'", "''");
+        return " LIKE ".equals(op) ? "%" + escaped + "%" : escaped;
     }
 
     private List<String> columns(MakeReportRequest request, ListViewResult queryResult) {
