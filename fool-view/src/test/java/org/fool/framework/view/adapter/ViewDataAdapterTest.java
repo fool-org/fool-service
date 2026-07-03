@@ -314,6 +314,44 @@ public class ViewDataAdapterTest {
     }
 
     @Test
+    public void detailResultSerializesLegacyPascalAliases() throws Exception {
+        QueryDataDetailResult result = new QueryDataDetailResult();
+        result.setAutoFreshTime(15);
+        result.setCanEdit(true);
+        QueryDataDetailResult.DataDetail detail = new QueryDataDetailResult.DataDetail();
+        detail.setObjId("1001");
+        detail.setName("OrderDetail");
+        detail.setModel("Order");
+        ListDataValue symbol = new ListDataValue();
+        symbol.setObjId("BTC-USDT");
+        symbol.setPrpId("symbol");
+        symbol.setFmtValue("BTC-USDT");
+        symbol.setPrpShowName("Symbol");
+        detail.setSimpleData(List.of(symbol));
+        QueryDataDetailResult.PropertyDataItems group = new QueryDataDetailResult.PropertyDataItems();
+        group.setName("OrderItem");
+        group.setPrpId("items");
+        group.setListViewId(101L);
+        QueryDataDetailResult.DataItem item = new QueryDataDetailResult.DataItem();
+        item.setDataId("2001");
+        item.setValues(List.of(symbol));
+        group.setItems(List.of(item));
+        detail.setItems(List.of(group));
+        result.setData(detail);
+
+        String json = new ObjectMapper().writeValueAsString(result);
+
+        assertTrue(json.contains("\"data\""));
+        assertTrue(json.contains("\"Data\""));
+        assertTrue(json.contains("\"simpleData\""));
+        assertTrue(json.contains("\"SimpleData\""));
+        assertTrue(json.contains("\"prpId\":\"symbol\""));
+        assertTrue(json.contains("\"PrpId\":\"symbol\""));
+        assertTrue(json.contains("\"DataID\":\"2001\""));
+        assertTrue(json.contains("\"Values\""));
+    }
+
+    @Test
     public void detailResultIncludesLegacyCollectionItems() {
         Property itemId = property("itemId", PropertyType.Long);
         itemId.setRemark("Item ID");

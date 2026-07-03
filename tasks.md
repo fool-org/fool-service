@@ -95,6 +95,8 @@ explicitly named as authoritative for fool-service.
       proxy forms without changing the enum lookup contract.
 - [x] Expose legacy `getenums` response aliases (`EnumValues`, `Name`,
       `Value`) while keeping the Vue camel-case enum contract.
+- [x] Expose legacy `querydatadetail` response aliases for detail payloads
+      while keeping the Vue camel-case detail contract.
 
 ## Backlog
 

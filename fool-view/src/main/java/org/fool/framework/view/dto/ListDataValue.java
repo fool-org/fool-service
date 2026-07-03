@@ -1,5 +1,6 @@
 package org.fool.framework.view.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.fool.framework.common.PropertyType;
@@ -23,4 +24,44 @@ public class ListDataValue {
     private Boolean readOnly;
     @ApiModelProperty("legacy 编辑类型")
     private ItemEditType editType;
+
+    @JsonProperty("ObjId")
+    public String getLegacyObjId() {
+        return objId;
+    }
+
+    @JsonProperty("PrpId")
+    public String getLegacyPrpId() {
+        return prpId;
+    }
+
+    @JsonProperty("FmtValue")
+    public String getLegacyFmtValue() {
+        return fmtValue;
+    }
+
+    @JsonProperty("PrpShowName")
+    public String getLegacyPrpShowName() {
+        return prpShowName;
+    }
+
+    @JsonProperty("PrpType")
+    public PropertyType getLegacyPrpType() {
+        return prpType;
+    }
+
+    @JsonProperty("PrpModelId")
+    public Long getLegacyPrpModelId() {
+        return prpModelId;
+    }
+
+    @JsonProperty("ReadOnly")
+    public Boolean getLegacyReadOnly() {
+        return readOnly;
+    }
+
+    @JsonProperty("EditType")
+    public ItemEditType getLegacyEditType() {
+        return editType;
+    }
 }

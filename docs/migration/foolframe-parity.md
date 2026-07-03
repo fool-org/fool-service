@@ -97,6 +97,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: `querydatadetail` responses now carry FoolFrame's Pascal detail
+  aliases in addition to the Vue camel-case contract: `Data`,
+  `AutoFreshTime`, `CanEdit`, `Operations`, detail `ObjId` / `SimpleData` /
+  `Items`, collection `Properties` / `ListViewId` / `SelectFromExists`, child
+  `DataID` / `Values`, and value `ObjId` / `PrpId` / `FmtValue` fields. This
+  matches `ResultDataDetail`, `DataDetail`, `PropertyDataItems`, `DataItem`,
+  and `ObjValuePair` without changing the View-first data lookup path.
 - 2026-07-04: `getenums` responses now carry FoolFrame's legacy
   `EnumValues[].Name` / `EnumValues[].Value` aliases in addition to the Vue
   camel-case `enumValues[].name` / `enumValues[].value` contract. This matches
