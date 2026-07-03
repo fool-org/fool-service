@@ -24,6 +24,7 @@ public class Property {
     @ToString.Exclude
     private Model owner;
     private String filter;
+    private String source;
     private String format;
     private String column;
     private PropertyType propertyType;

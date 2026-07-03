@@ -77,6 +77,7 @@ public class AppInstalledProperty {
         property.setCanGet(true);
         property.setCanSet(true);
         property.setFilter(source.getFilter());
+        property.setSource(source.getSource());
         property.setFormat(source.getFormat());
         property.setPropertySqlCon(connection);
         property.setOwnerModelId(owner.getModelId());

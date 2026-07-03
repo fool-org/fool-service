@@ -1228,6 +1228,27 @@ public class AppManageMigrationTest {
     }
 
     @Test
+    public void appInstalledPropertyPreservesLegacyPropertySource() throws Exception {
+        Property property = legacyProperty("customer", "CUSTOMER_ID", PropertyType.BusinessObject);
+        try {
+            Property.class.getMethod("setSource", String.class).invoke(property, "availableCustomers");
+        } catch (NoSuchMethodException e) {
+            throw new AssertionError("Property should expose legacy PROPERTY_SOURCE metadata", e);
+        }
+        AppInstalledModel owner = new AppInstalledModel();
+        owner.setModelId(42L);
+
+        AppInstalledProperty installed = AppInstalledProperty.fromProperty(
+                property,
+                owner,
+                7L,
+                AppInstalledModel.CONNECTION_TYPE_CURRENT,
+                "work-con");
+
+        assertEquals("availableCustomers", installed.getSource());
+    }
+
+    @Test
     public void daoAppInstallGatewayPersistsLegacyMultiDbMaps() {
         RecordingDaoService daoService = new RecordingDaoService();
         DaoAppInstallGateway gateway = new DaoAppInstallGateway(daoService);

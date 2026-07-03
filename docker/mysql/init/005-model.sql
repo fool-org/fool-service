@@ -387,6 +387,7 @@ CREATE TABLE IF NOT EXISTS `fool_sys_model_property` (
   `is_collection` tinyint(1) DEFAULT NULL,
   `owner` bigint DEFAULT NULL,
   `filter` text,
+  `source` text,
   `format` text,
   `column` varchar(255) DEFAULT NULL,
   `property_type` int DEFAULT NULL,
@@ -413,6 +414,21 @@ SET @ddl = (
   WHERE TABLE_SCHEMA = DATABASE()
     AND TABLE_NAME = 'fool_sys_model_property'
     AND COLUMN_NAME = 'property_type'
+);
+PREPARE stmt FROM @ddl;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @ddl = (
+  SELECT IF(
+    COUNT(*) = 0,
+    'ALTER TABLE `fool_sys_model_property` ADD COLUMN `source` text AFTER `filter`',
+    'SELECT 1'
+  )
+  FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'fool_sys_model_property'
+    AND COLUMN_NAME = 'source'
 );
 PREPARE stmt FROM @ddl;
 EXECUTE stmt;

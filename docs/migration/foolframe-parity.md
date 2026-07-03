@@ -42,6 +42,14 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   activation syntax instead of the deprecated `spring.profiles` document
   selector.
 
+## Recent Parity Increments
+
+- 2026-07-03: migrated legacy `PROPERTY_SOURCE` metadata onto
+  `Property.source`, app-install property persistence, and
+  `fool_sys_model_property.source`; the running Docker MySQL volume was
+  patched with the same column. `inputquery` source-list/owner-context
+  execution remains open.
+
 ## Server Source Mapping
 
 | FoolFrame project | C# files | fool-service target | Java main files | Status |
