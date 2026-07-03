@@ -7,6 +7,7 @@ import org.fool.framework.dao.QueryAndArgs;
 import org.fool.framework.dto.CommonException;
 import org.fool.framework.common.PropertyType;
 import org.fool.framework.common.data.SubItemList;
+import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.model.model.DbMysqlDynamic;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.MultiDbMap;
@@ -36,6 +37,7 @@ import org.springframework.util.StringUtils;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -103,10 +105,14 @@ public class DataQueryService {
         }
         Property idProperty = targetModel.getIdProperty();
         Property showProperty = showProperty(targetModel);
+        InputQueryResult sourceResult = inputQueryFromSourceList(request, view.getViewModel(), model, property, showProperty);
+        if (sourceResult != null) {
+            return sourceResult;
+        }
         PageNavigator page = new PageNavigator();
         page.setPageIndex(1);
         page.setPageSize(5);
-        PageResult<org.fool.framework.common.dynamic.IDynamicData> pageResult = modelDataService.getDataListWithPageInfo(
+        PageResult<IDynamicData> pageResult = modelDataService.getDataListWithPageInfo(
                 targetModel.getName(),
                 likeFilter(showProperty, request.getText()),
                 List.of(idProperty, showProperty),
@@ -118,6 +124,45 @@ public class DataQueryService {
             result.setItems(pageResult.getItems().stream()
                     .map(data -> new InputQueryResult.QueryItem(data.getId(), formatRow(data.get(showProperty.getName()))))
                     .toList());
+        }
+        return result;
+    }
+
+    private InputQueryResult inputQueryFromSourceList(
+            InputQueryRequest request,
+            String modelId,
+            Model model,
+            Property property,
+            Property showProperty) {
+        if (!StringUtils.hasText(request.getObjID())
+                || property == null
+                || !StringUtils.hasText(property.getSource())
+                || showProperty == null
+                || model.getIdProperty() == null
+                || !StringUtils.hasText(model.getIdProperty().getColumn())) {
+            return null;
+        }
+        List<IDynamicData> owners = modelDataService.getDataList(
+                modelId,
+                new CompareFilter(model.getIdProperty().getColumn(), CompareOp.EQUAL, request.getObjID()),
+                model.getProperties());
+        if (owners.isEmpty()) {
+            return null;
+        }
+        Object source = owners.get(0).get(property.getSource());
+        if (!(source instanceof Iterable<?> items)) {
+            return null;
+        }
+        String needle = (request.getText() == null ? "" : request.getText().trim()).toUpperCase(Locale.ROOT);
+        InputQueryResult result = new InputQueryResult();
+        result.setItems(new LinkedList<>());
+        for (Object item : items) {
+            if (item instanceof IDynamicData data) {
+                String text = formatRow(data.get(showProperty.getName()));
+                if (text.trim().toUpperCase(Locale.ROOT).contains(needle)) {
+                    result.getItems().add(new InputQueryResult.QueryItem(data.getId(), text));
+                }
+            }
         }
         return result;
     }
