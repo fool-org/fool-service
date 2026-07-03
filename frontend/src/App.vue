@@ -13,6 +13,7 @@ import {
   type LegacyInitAppResult,
   type LegacyLoginResult,
   type LegacyMainResult,
+  type LegacyRunOperationResult,
   type LegacySubMenuResult,
   type LegacyUserInfoResult,
   type QueryDataDetailResult,
@@ -38,6 +39,7 @@ import {
   buildMakeReportRequest,
   buildQueryDataDetailRequest,
   buildQueryRequest,
+  buildRunOperationRequest,
   buildSaveObjRequest,
   buildSaveNewObjRequest,
   buildTokenRequest,
@@ -93,6 +95,9 @@ const saveNewPropertyiesJson = ref('[{"key":"symbol","value":"SOL-USDT"},{"key":
 const saveNewOwnerViewId = ref("");
 const saveNewOwnerId = ref("");
 const saveNewProperty = ref("items");
+const operationObjectId = ref("1001");
+const operationViewId = ref(100);
+const operationId = ref(7001);
 const checkCodeKey = ref("");
 const checkCodeValue = ref("");
 const subMenuParentAuthCode = ref("");
@@ -119,6 +124,7 @@ const enumResponse = ref<CommonResponse<GetEnumResult> | null>(null);
 const inputQueryResponse = ref<CommonResponse<InputQueryResult> | null>(null);
 const saveObjResponse = ref<CommonResponse<void> | null>(null);
 const saveNewObjResponse = ref<CommonResponse<void> | null>(null);
+const runOperationResponse = ref<CommonResponse<LegacyRunOperationResult> | null>(null);
 const reportResponse = ref<CommonResponse<ReportGridResult> | null>(null);
 const reportModelResponse = ref<CommonResponse<ReportModelResult> | null>(null);
 const saveReportResponse = ref<CommonResponse<void> | null>(null);
@@ -600,6 +606,22 @@ async function saveNewObj() {
   const response = await runAction("savenewobj", () => postApi<void>("/api/v1/data/savenewobj", request));
   if (response) {
     saveNewObjResponse.value = response;
+  }
+}
+
+async function runOperation() {
+  const request = buildRunOperationRequest({
+    token: token.value,
+    objectId: operationObjectId.value,
+    viewId: Number(operationViewId.value),
+    operationId: Number(operationId.value)
+  });
+
+  const response = await runAction("runoperation", () =>
+    postApi<LegacyRunOperationResult>("/api/v1/data/runoperation", request)
+  );
+  if (response) {
+    runOperationResponse.value = response;
   }
 }
 
@@ -1418,6 +1440,30 @@ function formatValue(value: unknown) {
             Save New
           </button>
         </article>
+
+        <article class="panel lookup-panel">
+          <div class="panel-heading">
+            <h2>Run Operation</h2>
+            <span>POST /api/v1/data/runoperation</span>
+          </div>
+          <div class="inline-fields">
+            <label>
+              View ID
+              <input v-model.number="operationViewId" min="1" type="number" />
+            </label>
+            <label>
+              Operation ID
+              <input v-model.number="operationId" min="1" type="number" />
+            </label>
+            <label>
+              Object ID
+              <input v-model="operationObjectId" />
+            </label>
+          </div>
+          <button class="primary" type="button" :disabled="pendingAction === 'runoperation'" @click="runOperation">
+            Run Operation
+          </button>
+        </article>
       </section>
 
       <section class="panel results-panel" aria-label="Results">
@@ -1482,6 +1528,7 @@ function formatValue(value: unknown) {
                 inputQuery: inputQueryResponse,
                 saveObj: saveObjResponse,
                 saveNewObj: saveNewObjResponse,
+                runOperation: runOperationResponse,
                 reportModel: reportModelResponse,
                 report: reportResponse,
                 saveReport: saveReportResponse,

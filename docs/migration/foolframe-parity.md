@@ -33,6 +33,8 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `curl -H 'Content-Type: application/json' -d '{"saveObj":{"id":"1001","viewID":"100","propertyies":[{"key":"symbol","value":"BTC-USDT"},{"key":"state","value":"0"}],"itemproperties":[{"key":"items","items":[{"itemId":"2001","isExist":true,"propertyies":[{"key":"itemName","value":"Updated item"}]}],"addedItems":[{"itemId":"2003","isExist":true,"propertyies":[{"key":"itemName","value":"New item"}]}],"delteItems":[{"itemId":"2004","isExist":true,"propertyies":[]}]}]}}}' http://localhost:8080/api/v1/data/saveobj`
   `curl -H 'Content-Type: application/json' -d '{"SaveObj":{"id":"930001","viewID":"100","propertyies":[{"key":"symbol","value":"SOL-USDT"},{"key":"state","value":"0"}],"itemproperties":[]}}' http://localhost:8080/api/v1/data/savenewobj`
   `curl -H 'Content-Type: application/json' -d '{"SaveObj":{"id":"930002","viewID":"100","propertyies":[{"key":"symbol","value":"SOL-USDT"},{"key":"state","value":"0"}],"itemproperties":[]}}' http://localhost:8081/api/v1/data/savenewobj`
+  `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"ObjectId":"970731","OperationId":7001}' http://localhost:8080/api/v1/data/runoperation`
+  `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"ObjectId":"970732","OperationId":7001}' http://localhost:8081/api/v1/data/runoperation`
   `curl -H 'Content-Type: application/json' -d '{"viewId":100,"currentPage":1,"pageSize":10,"queryFilter":"order_state=\"0\"","reportCols":[{"colName":"Symbol","index":1},{"colName":"State","index":2}]}' http://localhost:8080/api/v1/report/makereport`
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"CurrentPage":1,"PageSize":10,"FilterExp":{"Col":{"Name":"order_state"},"CompareOp":{"ID":"1","Name":"等于"},"ValueExp":"0","ValueFmt":"Open"},"ReportCols":[{"ColName":"Symbol","Index":1},{"ColName":"State","Index":2}]}' http://localhost:8080/api/v1/report/makereport`
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"CurrentPage":1,"PageSize":10,"FilterExp":{"Col":{"Name":"symbol"},"CompareOp":{"ID":"7","Name":"包含"},"ValueExp":"BTC","ValueFmt":"BTC"},"ReportCols":[{"ColName":"Symbol","Index":1},{"ColName":"State","Index":2}]}' http://localhost:8080/api/v1/report/makereport`
@@ -86,6 +88,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-03: exposed legacy `runoperation` at
+  `/api/v1/data/runoperation` and in the Vue operator console. It hydrates
+  persisted view-operation rows, supports the Docker-seeded DELETE operation
+  `7001` through the existing dynamic delete path, and is smoke-covered
+  through both backend and Vue proxy routes. Arbitrary command/reflection/WCF
+  operation execution and trigger side effects remain future work.
 - 2026-07-03: exposed legacy `getrpt` at `/api/v1/report/getrpt`
   and in the Vue operator console. It reuses the migrated `makereport`
   flat-grid report path, accepts the legacy `MakeReportOption` request shape,
@@ -288,6 +296,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 | `SWRPT01-Soway.Report` | 31 | `fool-report` | 31 | Report definitions and params, legacy `ReportFactory`/`IReportSource` empty shells, legacy unsupported getter/no-op setter surfaces for `Param`, `ParamInput`, report result/source/audit fields plus `ReportResult`, `ReportResultTable`, and `ReportResultTableColumn`, table/value/static formats, legacy report enum codes, matrix cells, legacy `MatrixHeader` comparison and `StaticCellValue` helper shape, source-row matrix construction, row/column static subtotal calculation cells, nested row/column static subtotal sibling-scope behavior, deep shared-ancestor subtotal scope behavior, legacy cell ordering, `TableHeader` unsupported getter/no-op setter surface, `MatrixResult.Add` unsupported surface, and legacy report grid rendering including flat-row column coordinates wired through `/api/v1/report/makereport` migrated |
 | `SCPB07.TESTS` | 2 | module tests | varies | No direct parity target |
 
+Mapping note: the 2026-07-03 `runoperation` slice adds persisted
+view-operation hydration in `fool-view` and wires the legacy `Soway.Server`
+DELETE command surface to the migrated simple dynamic delete path.
+
 ## fool-service Module Status
 
 | Module | Java main files | Reactor wired | Notes |
@@ -369,6 +381,9 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Vue API types for legacy `savenewobj` request payloads
 - A Vue save-new-object panel that calls legacy `/api/v1/data/savenewobj` with
   view ID, object ID, simple `Propertyies`, and optional owner collection fields
+- Vue API types for legacy `runoperation` request/result payloads
+- A Vue run-operation panel that calls legacy `/api/v1/data/runoperation` with
+  view ID, operation ID, and object ID
 - Vue API types for legacy `makereport` request/result payloads
 - A Vue report-grid panel that calls legacy `/api/v1/report/makereport` with
   view ID, page, `QueryFilter`, and report column JSON payloads, then renders
@@ -401,7 +416,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 ## Remaining Migration Work
 
 - Complete concrete `AppInstallGateway` side-effect parity beyond application creation, creator authorized-user creation, app-system view preparation, root module/model installation records, menu/role record creation, menu/role relation creation, the model/relation DDL execution hook, configured model/static/reflective module-source schema wiring, static module-source dependency ordering, connection-aware metadata/DDL routing, connection-string `DaoService`/`JdbcTemplate` factory including legacy `SqlCon.ToString()` SQL Server string parsing and routed connection reuse, module-source module/model/property/relation metadata persistence, default auto-view hook wiring, reflective model-reference package traversal, basic reflective collection `One2Many` relation generation, self-collection `Recurve` relation generation, bidirectional collection `Many2Many` relation generation, `ReferToProperyAttrbute`, `MultiTypeAttribute`, legacy `ObjectWithSubItem<>` parent target-property relation generation, legacy `ColumnAttribute` key-group/key-nullability/identity/generation/generation-expression/default-value/format/encryption/no-map/multi-column DBMaps/table column-prefix metadata, and legacy `SW_SYS_EMUNVALUE` enum metadata persistence: transaction boundaries for routed connection strings, deeper DBMaps query/runtime behavior beyond same-row dynamic loading and list-query alias mapping, and arbitrary classpath dependency enumeration beyond model-type references remain.
-- Complete remaining `SCPB05-Soway.Model` runtime data mutations beyond simple dynamic row create/update/delete, simple batch saves, DBMaps create/update writes, One2Many child-row create/update/delete-list sync, Many2Many/Recurve relation-table create/update/delete-list sync, old-id dynamic save lookup, legacy `saveobj` `Itemproperties` request mapping, and legacy `savenewobj` new-object/owner-relation request mapping: richer collection state parity, operation-trigger side effects, and routed-connection transaction behavior remain.
+- Complete remaining `SCPB05-Soway.Model` runtime data mutations beyond simple dynamic row create/update/delete, simple DELETE `runoperation`, simple batch saves, DBMaps create/update writes, One2Many child-row create/update/delete-list sync, Many2Many/Recurve relation-table create/update/delete-list sync, old-id dynamic save lookup, legacy `saveobj` `Itemproperties` request mapping, and legacy `savenewobj` new-object/owner-relation request mapping: richer collection state parity, non-DELETE operation execution, operation-trigger side effects, and routed-connection transaction behavior remain.
 - Complete remaining `SWDQ01-Soway.Query` behavior: saved-query/report execution surfaces and richer query-to-view integration beyond the current compare/between/in/composite/report filter SQL, selected-table compare-column simple bool-expression path, bool-expression factory create/add orchestration, compare-operation/select-type catalogs, selected column/table state and collection surfaces, selected table join-add/result contract, query instance parameter/result container including the `QueryResult.GetData` current-page data surface, query report definition contract, report-parameter refresh orchestration and named binding, `QueryFactory` table/column/state-value dictionary surface, base/paged SQL builder, JDBC paged executor, `QueryContext` add/clear/CanJoinSelected/connection-string-routed/getSql/getResult orchestration, enum state-value hydration surfaces, and richer input-query expression evaluation beyond added-item `#.` owner source lists.
 - Complete remaining `SCPB09-SOWAY.EVENT` runtime behavior: fuller dynamic object-query parity beyond the current raw DefModel filter SQL, null-model empty result, zero-row empty result, table, explicit/auto-`SYSID` ID-column, case-insensitive ID-column matching, missing key-column validation, and matched-row value capture.
 - Complete remaining `SWRPT01-Soway.Report` behavior: table source adapters, saved report metadata persistence, saved-report execution, and export integration around the rendered report grid. The flat `makereport` REST path now reuses migrated list-query data and `ReportGridRenderer`, with simple and composite `FilterExp` request mapping; the report model candidate-column lookup is exposed through `getmkqview`/`mkqview` with compare/select catalogs and enum states; the legacy `saverpt` no-op success surface is exposed; Matrix static subtotal parity covers nested row/column sibling scope, deep shared-ancestor scope, flat-row grid column coordinates, and the legacy `MatrixHeader`/`StaticCellValue` helper surface; `ReportFactory`/`IReportSource` empty shell parity is covered, but broader report persistence/execution/export wiring remains open.

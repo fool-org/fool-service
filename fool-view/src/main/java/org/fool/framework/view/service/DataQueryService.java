@@ -10,6 +10,7 @@ import org.fool.framework.common.data.SubItemList;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.model.model.DbMysqlDynamic;
 import org.fool.framework.model.model.Model;
+import org.fool.framework.model.model.OperationBaseType;
 import org.fool.framework.model.model.MultiDbMap;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.model.model.Relation;
@@ -23,6 +24,8 @@ import org.fool.framework.view.adapter.ViewDataAdapter;
 import org.fool.framework.view.common.ErrorCode;
 import org.fool.framework.view.dto.InputQueryRequest;
 import org.fool.framework.view.dto.InputQueryResult;
+import org.fool.framework.view.dto.LegacyRunOperationRequest;
+import org.fool.framework.view.dto.LegacyRunOperationResult;
 import org.fool.framework.view.dto.LegacySaveNewObjRequest;
 import org.fool.framework.view.dto.ListViewResult;
 import org.fool.framework.view.dto.QueryDataDetailResult;
@@ -31,6 +34,7 @@ import org.fool.framework.view.dto.SaveObjRequest;
 import org.fool.framework.view.model.InputType;
 import org.fool.framework.view.model.View;
 import org.fool.framework.view.model.ViewItem;
+import org.fool.framework.view.model.ViewOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -52,6 +56,8 @@ public class DataQueryService {
     private ViewDataAdapter viewAdapter;
     @Autowired
     private ModelDataService modelDataService;
+    @Autowired
+    private ViewDataService viewDataService;
 
     /**
      * 得到视图信息
@@ -251,6 +257,43 @@ public class DataQueryService {
             return;
         }
         modelDataService.createData(data);
+    }
+
+    public LegacyRunOperationResult runLegacyOperation(LegacyRunOperationRequest request) {
+        LegacyRunOperationResult result = new LegacyRunOperationResult();
+        String viewId = request.getViewId() == null ? null : request.getViewId().toString();
+        View view = viewDataService.getViewData(viewId, request.getToken());
+        if (view == null) {
+            throw new CommonException(ErrorCode.VIEW_NOT_FOUND, "没有查到视图");
+        }
+        Model model = modelDataService.getModel(view.getViewModel());
+        if (model == null) {
+            throw new CommonException(ErrorCode.MODEL_NOT_FOUND, "没有查到元数据定义");
+        }
+        ViewOperation operation = findOperation(view, request.getOperationId());
+        if (operation == null
+                || operation.getOperation() == null
+                || operation.getOperation().getBaseOperationType() != OperationBaseType.DELETE) {
+            return result;
+        }
+        IDynamicData data = modelDataService.getOneData(view.getViewModel(), request.getObjectId());
+        boolean deleted = Boolean.TRUE.equals(modelDataService.deleteData(data));
+        result.setSuccess(deleted);
+        if (deleted) {
+            result.setReturnMsg(operation.getSuccessMsg() == null ? "" : operation.getSuccessMsg());
+        }
+        return result;
+    }
+
+    private ViewOperation findOperation(View view, Long operationId) {
+        if (operationId == null || CollectionUtils.isEmpty(view.getOperations())) {
+            return null;
+        }
+        return view.getOperations().stream()
+                .filter(operation -> operation != null && operation.getOperation() != null)
+                .filter(operation -> Objects.equals(operationId, operation.getOperation().getId()))
+                .findFirst()
+                .orElse(null);
     }
 
     private DbMysqlDynamic legacyObjectData(SaveObjRequest.SaveObject saveObj) {

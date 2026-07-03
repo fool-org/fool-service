@@ -3,6 +3,7 @@ import type {
   GetEnumRequest,
   InputQueryRequest,
   LegacyInitNewRequest,
+  LegacyRunOperationRequest,
   LegacySaveNewObjRequest,
   LegacyQueryDataRequest,
   LegacyQueryDataDetailRequest,
@@ -56,6 +57,13 @@ export interface SaveNewObjRequestInput extends SaveObjRequestInput {
   ownerViewId?: string;
   ownerId?: string;
   property?: string;
+}
+
+export interface RunOperationRequestInput {
+  token: string;
+  objectId: string;
+  viewId: number;
+  operationId: number;
 }
 
 export interface QueryDataDetailRequestInput {
@@ -191,6 +199,15 @@ export function buildSaveNewObjRequest(input: SaveNewObjRequestInput): LegacySav
     request.property = property;
   }
   return request;
+}
+
+export function buildRunOperationRequest(input: RunOperationRequestInput): LegacyRunOperationRequest {
+  return {
+    token: input.token,
+    objectId: input.objectId.trim(),
+    viewId: input.viewId,
+    operationId: input.operationId
+  };
 }
 
 export function buildQueryDataDetailRequest(input: QueryDataDetailRequestInput): LegacyQueryDataDetailRequest {

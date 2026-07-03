@@ -453,6 +453,21 @@ export interface LegacySaveNewObjRequest extends SaveObjRequest {
   property?: string;
 }
 
+export interface LegacyRunOperationRequest {
+  token?: string;
+  objectId?: string;
+  operationId?: number;
+  viewId?: number;
+}
+
+export interface LegacyRunOperationResult {
+  value?: ListDataValue[];
+  success?: boolean;
+  returnObjId?: string;
+  returnViewId?: number;
+  returnMsg?: string;
+}
+
 export async function postApi<T>(path: string, payload: unknown): Promise<CommonResponse<T>> {
   const response = await fetch(path, {
     method: "POST",

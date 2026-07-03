@@ -12,6 +12,7 @@ import {
   buildInitNewRequest,
   buildQueryDataDetailRequest,
   buildQueryRequest,
+  buildRunOperationRequest,
   buildSaveObjRequest,
   buildSaveNewObjRequest,
   buildTokenRequest
@@ -115,6 +116,12 @@ describe("App defaults", () => {
     expect(appSource).toContain("Save New Object");
     expect(appSource).toContain("/api/v1/data/savenewobj");
     expect(appSource).toContain("saveNewObjResponse");
+  });
+
+  it("exposes the legacy runoperation route in the Vue console", () => {
+    expect(appSource).toContain("Run Operation");
+    expect(appSource).toContain("/api/v1/data/runoperation");
+    expect(appSource).toContain("runOperationResponse");
   });
 
   it("proxies the backend smoke route in local and Compose frontends", () => {
@@ -292,6 +299,24 @@ describe("buildSaveNewObjRequest", () => {
       ownerViewId: "100",
       ownerId: "1001",
       property: "items"
+    });
+  });
+});
+
+describe("buildRunOperationRequest", () => {
+  it("matches the legacy runoperation DTO shape", () => {
+    const request = buildRunOperationRequest({
+      token: "token-1",
+      objectId: " 1001 ",
+      viewId: 100,
+      operationId: 7001
+    });
+
+    expect(request).toEqual({
+      token: "token-1",
+      objectId: "1001",
+      viewId: 100,
+      operationId: 7001
     });
   });
 });
