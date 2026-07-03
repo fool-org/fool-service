@@ -105,6 +105,7 @@ const activeSection = ref("orders");
 const selectedOrderId = ref("");
 const editableSymbol = ref("");
 const editableState = ref("0");
+const isCreatingOrder = ref(false);
 
 const loginResponse = ref<CommonResponse<LoginVo> | null>(null);
 const initAppResponse = ref<CommonResponse<LegacyInitAppResult> | null>(null);
@@ -166,6 +167,7 @@ const resultColumns = computed<TableColumnInfo[]>(() => {
 const resultRows = computed<ListDataItem[]>(() => dataResponse.value?.data?.items || []);
 const selectedOrder = computed(() => resultRows.value.find((row) => getOrderId(row) === selectedOrderId.value));
 const detailRows = computed(() => detailResponse.value?.data?.data?.simpleData || []);
+const orderCanEdit = computed(() => Boolean(selectedOrder.value || isCreatingOrder.value));
 const orderStateOptions = computed(() => {
   const enums = enumResponse.value?.data?.enumValues || [];
   if (enums.length > 0) {
@@ -561,6 +563,7 @@ async function queryDetail() {
   if (response) {
     detailResponse.value = response;
   }
+  return response;
 }
 
 async function initNew() {
@@ -576,6 +579,7 @@ async function initNew() {
   if (response) {
     initNewResponse.value = response;
   }
+  return response;
 }
 
 async function loadEnums() {
@@ -602,7 +606,9 @@ async function saveObj() {
   const response = await runAction("saveobj", () => postApi<void>("/api/v1/data/saveobj", request));
   if (response) {
     saveObjResponse.value = response;
+    return true;
   }
+  return false;
 }
 
 async function saveNewObj() {
@@ -619,7 +625,9 @@ async function saveNewObj() {
   const response = await runAction("savenewobj", () => postApi<void>("/api/v1/data/savenewobj", request));
   if (response) {
     saveNewObjResponse.value = response;
+    return true;
   }
+  return false;
 }
 
 async function runOperation() {
@@ -680,6 +688,7 @@ async function selectOrder(row: ListDataItem) {
   if (!orderId) {
     return;
   }
+  isCreatingOrder.value = false;
   selectedOrderId.value = orderId;
   editableSymbol.value = formatValue(row.values?.symbol);
   editableState.value = formatValue(row.values?.state) || "0";
@@ -689,19 +698,63 @@ async function selectOrder(row: ListDataItem) {
   await queryDetail();
 }
 
+async function startNewOrder() {
+  await loadEnums();
+  initNewViewId.value = detailViewId.value;
+  initNewParentObjId.value = "";
+  const initialized = await initNew();
+  if (!initialized) {
+    return;
+  }
+  if (!resultRows.value.length) {
+    await queryData();
+  }
+  selectedOrderId.value = nextOrderId();
+  editableSymbol.value = "NEW-USDT";
+  editableState.value = "0";
+  detailObjId.value = selectedOrderId.value;
+  operationObjectId.value = selectedOrderId.value;
+  isCreatingOrder.value = true;
+}
+
 async function saveSelectedOrder() {
   if (!selectedOrderId.value) {
     errorMessage.value = "Select an order first.";
     return;
   }
-  saveObjId.value = selectedOrderId.value;
-  savePropertyiesJson.value = JSON.stringify([
+  const propertyiesJson = JSON.stringify([
     { key: "symbol", value: editableSymbol.value },
     { key: "state", value: editableState.value }
   ]);
-  await saveObj();
+  let saved = false;
+  if (isCreatingOrder.value) {
+    saveNewObjId.value = selectedOrderId.value;
+    saveNewViewId.value = String(detailViewId.value);
+    saveNewPropertyiesJson.value = propertyiesJson;
+    saveNewOwnerViewId.value = "";
+    saveNewOwnerId.value = "";
+    saveNewProperty.value = "";
+    saved = await saveNewObj();
+  } else {
+    saveObjId.value = selectedOrderId.value;
+    savePropertyiesJson.value = propertyiesJson;
+    saved = await saveObj();
+  }
+  if (!saved) {
+    return;
+  }
+  isCreatingOrder.value = false;
+  detailObjId.value = selectedOrderId.value;
   await queryData();
   await queryDetail();
+}
+
+function nextOrderId() {
+  return String(Date.now());
+}
+
+function getRowValue(row: ListDataItem, property: string) {
+  return row.items?.find((item) => item.prpId === property)?.fmtValue || formatValue(row.values?.[property]);
 }
 
 function getOrderId(row: ListDataItem) {
@@ -778,6 +831,7 @@ function formatValue(value: unknown) {
             <button class="primary" type="button" :disabled="Boolean(pendingAction)" @click="loadOrdersWorkflow">
               Load Orders
             </button>
+            <button type="button" :disabled="Boolean(pendingAction)" @click="startNewOrder">New Order</button>
           </div>
 
           <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
@@ -798,9 +852,9 @@ function formatValue(value: unknown) {
                   :key="getOrderId(row)"
                   :class="{ selected: getOrderId(row) === selectedOrderId }"
                 >
-                  <td>{{ formatValue(row.values?.orderId) }}</td>
-                  <td>{{ formatValue(row.values?.symbol) }}</td>
-                  <td>{{ formatValue(row.values?.state) }}</td>
+                  <td>{{ getRowValue(row, "orderId") }}</td>
+                  <td>{{ getRowValue(row, "symbol") }}</td>
+                  <td>{{ getRowValue(row, "state") }}</td>
                   <td>
                     <button type="button" :disabled="Boolean(pendingAction)" @click="selectOrder(row)">Open</button>
                   </td>
@@ -817,7 +871,7 @@ function formatValue(value: unknown) {
             <span>{{ selectedOrderId || "No order selected" }}</span>
           </div>
 
-          <div v-if="selectedOrder" class="order-edit-grid">
+          <div v-if="orderCanEdit" class="order-edit-grid">
             <label>
               Symbol
               <input v-model="editableSymbol" />
@@ -831,7 +885,7 @@ function formatValue(value: unknown) {
               </select>
             </label>
             <button class="primary" type="button" :disabled="Boolean(pendingAction)" @click="saveSelectedOrder">
-              Save Order
+              {{ isCreatingOrder ? "Create Order" : "Save Order" }}
             </button>
           </div>
           <div v-else class="empty-state compact">Select an order from the list.</div>

@@ -245,7 +245,7 @@ label {
 
 .workflow-toolbar {
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) minmax(110px, 0.35fr) auto;
+  grid-template-columns: minmax(220px, 1fr) minmax(110px, 0.35fr) auto auto;
   gap: 10px;
   align-items: end;
 }

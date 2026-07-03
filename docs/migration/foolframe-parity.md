@@ -90,6 +90,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-03: extended the default Vue `OrderList` workflow with the legacy
+  new-object path. The `New Order` action now initializes through
+  `/api/v1/data/initnew`, creates through `/api/v1/data/savenewobj`, refreshes
+  the list/detail view, and renders list cells from legacy `fmtValue` so enum
+  states show as `Open` / `Filled` instead of raw codes.
 - 2026-07-03: changed the default Vue surface from a raw API operator console
   to a focused `OrderList` workflow. The first screen now loads Docker-seeded
   order rows, supports row selection, renders detail fields, and saves the
@@ -553,6 +558,9 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Legacy-style keyword filtering over BusinessObject show-property list columns
 - Legacy-style default ordering over BusinessObject show-property list columns
 - Seeded `OrderList` metadata and rows for Docker smoke coverage
+- A default Vue `OrderList` create/edit workflow that initializes new rows with
+  `initnew`, creates them with `savenewobj`, saves existing rows with `saveobj`,
+  and renders formatted enum values from list-row `fmtValue`
 - A Vue backend smoke panel that calls `/test` and renders the Docker seed rows
 - A migration-map strip showing current server module mapping
 - Vite and Nginx proxies for `/api/*` and `/test` to the backend service

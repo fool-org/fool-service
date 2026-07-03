@@ -23,8 +23,12 @@ describe("App defaults", () => {
     expect(appSource).toContain('const activeSection = ref("orders")');
     expect(appSource).toContain("OrderList workflow");
     expect(appSource).toContain("Load Orders");
+    expect(appSource).toContain("New Order");
+    expect(appSource).toContain("Create Order");
     expect(appSource).toContain("Save Order");
     expect(appSource).toContain("async function selectOrder");
+    expect(appSource).toContain("async function startNewOrder");
+    expect(appSource).toContain("function getRowValue");
   });
 
   it("loads the seeded order-state enum model by default", () => {
