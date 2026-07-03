@@ -34,6 +34,13 @@ public class MessageController {
         return new CommonResponse<>(new GetMessageResult(messages.stream().map(this::toInfo).toList()));
     }
 
+    @PostMapping("/getnotify")
+    public CommonResponse<GetNotifyResult> getNotify(@RequestBody CommonRequest request) {
+        // ponytail: legacy DataService.GetNotify throws NotImplementedException; keep the migrated shell empty.
+        authService.getInfoByToken(request.getToken());
+        return new CommonResponse<>(new GetNotifyResult(List.of()));
+    }
+
     private MessageInfo toInfo(EventMessage message) {
         MessageInfo info = new MessageInfo();
         info.setMessageID(String.valueOf(message.getMessageId()));
@@ -56,6 +63,17 @@ public class MessageController {
     @Data
     public static class GetMessageResult {
         private final List<MessageInfo> messages;
+    }
+
+    @Data
+    public static class GetNotifyResult {
+        private final List<NotifyInfo> notifies;
+    }
+
+    @Data
+    public static class NotifyInfo {
+        private int count;
+        private String authNo;
     }
 
     @Data

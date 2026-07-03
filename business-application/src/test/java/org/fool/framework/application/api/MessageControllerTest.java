@@ -50,8 +50,23 @@ public class MessageControllerTest {
         assertFalse(info.isTimeOut());
     }
 
+    @Test
+    public void getnotifyReturnsEmptyLegacyNotifyList() {
+        StubAuthService authService = new StubAuthService("admin");
+        MessageController controller = new MessageController(authService, new CapturingMessageRepository(List.of()));
+        CommonRequest request = new CommonRequest();
+        request.setToken("token-1");
+
+        CommonResponse<MessageController.GetNotifyResult> response = controller.getNotify(request);
+
+        assertEquals(0, response.getCode());
+        assertEquals(List.of("token-1"), authService.tokens);
+        assertEquals(0, response.getData().getNotifies().size());
+    }
+
     private static final class StubAuthService extends AuthService {
         private final String userId;
+        private final List<String> tokens = new ArrayList<>();
 
         private StubAuthService(String userId) {
             this.userId = userId;
@@ -59,6 +74,7 @@ public class MessageControllerTest {
 
         @Override
         public UserDTO getInfoByToken(String token) {
+            tokens.add(token);
             UserDTO user = new UserDTO();
             user.setId(userId);
             return user;

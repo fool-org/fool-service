@@ -211,6 +211,15 @@ export interface GetMessageResult {
   messages?: MessageInfo[];
 }
 
+export interface NotifyInfo {
+  count?: number;
+  authNo?: string;
+}
+
+export interface GetNotifyResult {
+  notifies?: NotifyInfo[];
+}
+
 export interface LegacyQueryDataRequest {
   token?: string;
   viewId?: number;

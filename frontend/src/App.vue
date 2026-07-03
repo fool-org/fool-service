@@ -5,6 +5,7 @@ import {
   type CommonResponse,
   type GetEnumResult,
   type GetMessageResult,
+  type GetNotifyResult,
   type InputQueryResult,
   type QueryDataDetailResult,
   type ListDataItem,
@@ -88,6 +89,7 @@ const reportResponse = ref<CommonResponse<ReportGridResult> | null>(null);
 const reportModelResponse = ref<CommonResponse<ReportModelResult> | null>(null);
 const saveReportResponse = ref<CommonResponse<void> | null>(null);
 const messageResponse = ref<CommonResponse<GetMessageResult> | null>(null);
+const notifyResponse = ref<CommonResponse<GetNotifyResult> | null>(null);
 const backendSmokeResponse = ref<CommonResponse<Record<string, unknown>[]> | null>(null);
 const errorMessage = ref("");
 const pendingAction = ref("");
@@ -232,6 +234,15 @@ async function loadMessages() {
   );
   if (response) {
     messageResponse.value = response;
+  }
+}
+
+async function loadNotify() {
+  const response = await runAction("notify", () =>
+    postApi<GetNotifyResult>("/api/v1/message/getnotify", buildTokenRequest(token.value))
+  );
+  if (response) {
+    notifyResponse.value = response;
   }
 }
 
@@ -568,6 +579,34 @@ function formatValue(value: unknown) {
               </tbody>
             </table>
             <div v-else class="empty-state">No generated messages loaded.</div>
+          </div>
+        </article>
+
+        <article class="panel lookup-panel">
+          <div class="panel-heading">
+            <h2>Notify Counts</h2>
+            <span>POST /api/v1/message/getnotify</span>
+          </div>
+          <button class="primary" type="button" :disabled="pendingAction === 'notify'" @click="loadNotify">
+            Load Notify Counts
+          </button>
+
+          <div class="table-wrap input-query-results">
+            <table v-if="notifyResponse?.data?.notifies?.length">
+              <thead>
+                <tr>
+                  <th>Auth</th>
+                  <th>Count</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in notifyResponse.data.notifies" :key="item.authNo || item.count">
+                  <td>{{ item.authNo }}</td>
+                  <td>{{ item.count }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div v-else class="empty-state">No notify counts loaded.</div>
           </div>
         </article>
 
@@ -1104,6 +1143,7 @@ function formatValue(value: unknown) {
                 report: reportResponse,
                 saveReport: saveReportResponse,
                 messages: messageResponse,
+                notify: notifyResponse,
                 backendSmoke: backendSmokeResponse
               },
               null,

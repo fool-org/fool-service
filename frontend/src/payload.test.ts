@@ -52,6 +52,12 @@ describe("App defaults", () => {
     expect(appSource).toContain("messageResponse");
   });
 
+  it("exposes the legacy notify count route in the Vue console", () => {
+    expect(appSource).toContain("Notify Counts");
+    expect(appSource).toContain("/api/v1/message/getnotify");
+    expect(appSource).toContain("notifyResponse");
+  });
+
   it("proxies the backend smoke route in local and Compose frontends", () => {
     expect(viteConfig).toContain('"/test"');
     expect(nginxConfig).toContain("location /test");
