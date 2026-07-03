@@ -97,6 +97,14 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: the Vue detail panel now renders operation buttons from the
+  loaded `querydatadetail` `operations` payload instead of reusing the main
+  `getlistview` metadata. This matches FoolFrame's detail page, where
+  `detailView.jade` renders `view.Operations` and `detailview.js` executes
+  `runoperation(viewid, obj.Id, opid)` from the loaded detail View context.
+  The main page still follows the View-first flow: load View metadata, query
+  rows for that View, then load detail data for the selected object without
+  binding operation rendering to a concrete business DTO.
 - 2026-07-04: `querydatadetail` now accepts legacy Pascal `ViewId` and
   `ObjId` request fields in addition to the Vue camel-case fields. This keeps
   the generic detail-data route aligned with FoolFrame Web payloads and

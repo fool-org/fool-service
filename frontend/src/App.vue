@@ -1059,11 +1059,11 @@ function syncDetailDrafts() {
             </div>
           </div>
 
-          <div v-if="selectedObject && !isCreatingObject && viewResponse?.data?.operations?.length" class="view-operations">
+          <div v-if="selectedObject && !isCreatingObject && detailResponse?.data?.operations?.length" class="view-operations">
             <h3>View Operations</h3>
             <div class="button-row">
               <button
-                v-for="operation in viewResponse?.data?.operations || []"
+                v-for="operation in detailResponse?.data?.operations || []"
                 :key="operation.id || operation.name"
                 type="button"
                 :disabled="Boolean(pendingAction)"
@@ -1072,7 +1072,7 @@ function syncDetailDrafts() {
                 {{ operation.text || operation.name || `Operation ${operation.id}` }}
               </button>
             </div>
-            <div v-for="operation in viewResponse?.data?.operations || []" :key="`params-${operation.id}`">
+            <div v-for="operation in detailResponse?.data?.operations || []" :key="`params-${operation.id}`">
               <span v-for="param in operation.params || []" :key="param.id || param.paramId" class="operation-param">
                 {{ param.paramName || param.name }}
               </span>

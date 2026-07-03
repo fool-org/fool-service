@@ -42,9 +42,9 @@ describe("App defaults", () => {
     expect(appSource).toContain("rowValue(row, column)");
   });
 
-  it("renders View operations in the main metadata workflow", () => {
+  it("renders detail View operations from the loaded detail payload", () => {
     expect(appSource).toContain("View Operations");
-    expect(appSource).toContain("viewResponse?.data?.operations");
+    expect(appSource).toContain("detailResponse?.data?.operations");
     expect(appSource).toContain("runViewOperation(operation)");
     expect(appSource).toContain("operation.params");
   });
