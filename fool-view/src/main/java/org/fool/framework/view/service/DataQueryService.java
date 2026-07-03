@@ -98,12 +98,24 @@ public class DataQueryService {
             throw new CommonException(ErrorCode.MODEL_NOT_FOUND, "没有查到元数据定义");
         }
         return viewAdapter.getDetailViewResult(view,
-                modelDataService.getOneData(view.getViewModel(), legacyDetailObjectId(dataId, idExp)));
+                modelDataService.getOneData(view.getViewModel(), legacyDetailObjectId(dataId, idExp, view, model)));
     }
 
-    private String legacyDetailObjectId(String dataId, String idExp) {
-        if (StringUtils.hasText(dataId) || !StringUtils.hasText(idExp)) {
+    private String legacyDetailObjectId(String dataId, String idExp, View view, Model model) {
+        if (StringUtils.hasText(dataId)) {
             return dataId;
+        }
+        if (!StringUtils.hasText(idExp)) {
+            PageNavigator page = new PageNavigator();
+            page.setPageIndex(1);
+            page.setPageSize(10);
+            PageResult<IDynamicData> result = modelDataService.getDataListWithPageInfo(
+                    view.getViewModel(), IQueryFilter.init(),
+                    model.getProperties() == null ? List.of() : model.getProperties(),
+                    page);
+            return result == null || CollectionUtils.isEmpty(result.getItems())
+                    ? dataId
+                    : result.getItems().get(0).getId();
         }
         String expression = idExp.trim();
         // ponytail: only static IdExp is real here; add auth/context expressions when fool-view owns auth context.
