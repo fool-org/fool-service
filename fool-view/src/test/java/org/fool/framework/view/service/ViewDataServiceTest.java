@@ -101,6 +101,32 @@ public class ViewDataServiceTest {
     }
 
     @Test
+    public void getViewDataHydratesLegacyDefaultDetailView() {
+        DaoService daoService = mock(DaoService.class);
+        ViewDataService service = new ViewDataService();
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+
+        View view = new View();
+        view.setId(100L);
+        view.setViewModel("Order");
+        ViewDataService.DefaultDetailViewRow row = new ViewDataService.DefaultDetailViewRow();
+        row.viewId = 102L;
+
+        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
+        when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(new Model());
+        when(daoService.selectList(eq(ViewDataService.DefaultDetailViewRow.class), anyString(), eq(100L)))
+                .thenReturn(List.of(row));
+
+        View result = service.getViewData("100", "");
+
+        assertEquals(Long.valueOf(102L), result.getDefaultDetailView().getId());
+        ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
+        verify(daoService).selectList(eq(ViewDataService.DefaultDetailViewRow.class), sql.capture(), eq(100L));
+        assertTrue(sql.getValue().contains("`VIEW_DEFAULT`"));
+        assertTrue(sql.getValue().contains("`SW_SYS_VIEW`"));
+    }
+
+    @Test
     public void getViewDataHydratesLegacyOperationViewParams() {
         DaoService daoService = mock(DaoService.class);
         ViewDataService service = new ViewDataService();

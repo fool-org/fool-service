@@ -97,6 +97,15 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: persisted View loading now hydrates FoolFrame's
+  `SW_SYS_VIEW.VIEW_DEFAULT` into `getlistview.DetailViewId`, matching
+  `HandlerGetListView` returning `view.DefaultDetailView.ID`. Docker seed data
+  defines a real detail View for the default smoke View, and
+  `runtime_doctor` now proves the same sequence as the page: call
+  `getlistview(ViewId)`, read the returned `DetailViewId`, then call
+  `querydatadetail` with that loaded View id. The doctor no longer hard-codes
+  the detail id, keeping the runtime check View-metadata driven rather than
+  tied to a concrete business DTO.
 - 2026-07-04: the Vue View workflow now resolves the default detail context
   from the loaded `getlistview` metadata's `DetailViewId` before opening the
   first row, the generic `Open` row action, or fallback `New Row`

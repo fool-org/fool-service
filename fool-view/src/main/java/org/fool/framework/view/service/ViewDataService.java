@@ -1,6 +1,7 @@
 package org.fool.framework.view.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.fool.framework.common.annotation.Column;
 import org.fool.framework.dao.DaoService;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.OperationCommand;
@@ -52,6 +53,9 @@ public class ViewDataService {
             + "LEFT JOIN `SW_SYS_OPERATION_PARAM` op ON op.`SysId` = ovi.`SW_SYS_OPVIEWITEM_PARAM` "
             + "WHERE ovi.`SW_SYS_OPERATIONVIEW_ParamsSysId` = ? "
             + "ORDER BY ovi.`SW_SYS_OPVIEWITEM_INDEX`, ovi.`SysId`";
+    private static final String DEFAULT_DETAIL_VIEW_SQL = "SELECT `VIEW_DEFAULT` "
+            + "FROM `SW_SYS_VIEW` "
+            + "WHERE `VIEW_ID` = ? AND `VIEW_DEFAULT` IS NOT NULL";
 
     @Autowired
     private DaoService daoService;
@@ -59,8 +63,23 @@ public class ViewDataService {
     public View getViewData(String viewName, String token) {
         var view = daoService.getOneDetailByKey(View.class, viewName);
         attachProperties(view);
+        attachDefaultDetailView(view);
         attachOperations(view);
         return view;
+    }
+
+    private void attachDefaultDetailView(View view) {
+        if (view == null || view.getId() == null) {
+            return;
+        }
+        List<DefaultDetailViewRow> rows = daoService.selectList(
+                DefaultDetailViewRow.class, DEFAULT_DETAIL_VIEW_SQL, view.getId());
+        if (CollectionUtils.isEmpty(rows) || rows.get(0).viewId == null) {
+            return;
+        }
+        View detailView = new View();
+        detailView.setId(rows.get(0).viewId);
+        view.setDefaultDetailView(detailView);
     }
 
     private void attachOperations(View view) {
@@ -103,5 +122,10 @@ public class ViewDataService {
                         && item.getModelProperty().equals(property.getName()))
                 .findFirst()
                 .ifPresent(item::setProperty));
+    }
+
+    public static final class DefaultDetailViewRow {
+        @Column("VIEW_DEFAULT")
+        public Long viewId;
     }
 }

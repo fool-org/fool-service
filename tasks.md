@@ -133,6 +133,9 @@ explicitly named as authoritative for fool-service.
 - [x] Stop deriving the main Vue list columns from row `values` DTO keys; when
       View columns are absent, fallback columns now come from legacy row
       `Items` metadata.
+- [x] Hydrate persisted legacy `SW_SYS_VIEW.VIEW_DEFAULT` into
+      `getlistview.DetailViewId` and prove runtime detail loading uses that
+      loaded View metadata instead of a fixed business DTO/detail id.
 
 ## Backlog
 

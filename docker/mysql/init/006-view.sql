@@ -625,6 +625,10 @@ INSERT INTO `fool_sys_view` (`id`, `view_name`, `view_text`, `view_remark`, `vie
 SELECT 101, 'OrderItemList', 'OrderItemList', 'Seeded Docker child item view', 'Order Item List', 0, 'OrderItem', '', 0, 'org.fool.framework.market.OrderItem'
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view` WHERE `view_name` = 'OrderItemList');
 
+INSERT INTO `fool_sys_view` (`id`, `view_name`, `view_text`, `view_remark`, `view_title`, `view_type`, `view_model`, `filter`, `auto_fresh_interval`, `view_model_class`)
+SELECT 102, 'OrderDetail', 'OrderDetail', 'Seeded Docker detail view', 'Order Detail', 1, 'Order', '', 0, 'org.fool.framework.market.Order'
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view` WHERE `view_name` = 'OrderDetail');
+
 INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `show_index`, `view_id`)
 SELECT 1001, 'Order ID', 'Order ID', 'Order ID', 'orderId', 0, 0, NULL, NULL, NULL, 0, 1, 100
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 100 AND `model_property` = 'orderId');
@@ -685,13 +689,34 @@ UPDATE `fool_sys_view_item`
 SET `show_index` = 2
 WHERE `view_id` = 101 AND `model_property` = 'itemName';
 
+INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `show_index`, `view_id`)
+SELECT 1201, 'Order ID', 'Order ID', 'Order ID', 'orderId', 0, 0, NULL, NULL, NULL, 0, 1, 102
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 102 AND `model_property` = 'orderId');
+
+INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `show_index`, `view_id`)
+SELECT 1202, 'Symbol', 'Symbol', 'Symbol', 'symbol', 0, 1, NULL, NULL, NULL, 1, 2, 102
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 102 AND `model_property` = 'symbol');
+
+INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `show_index`, `view_id`)
+SELECT 1205, 'Customer', 'Customer', 'Customer', 'customer', 0, 1, NULL, NULL, NULL, 1, 3, 102
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 102 AND `model_property` = 'customer');
+
+INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `show_index`, `view_id`)
+SELECT 1203, 'State', 'State', 'State', 'state', 0, 1, NULL, NULL, NULL, 1, 4, 102
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 102 AND `model_property` = 'state');
+
+INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `show_index`, `list_view_id`, `selected_view_id`, `view_id`)
+SELECT 1204, 'Items', 'Items', 'Items', 'items', 0, 0, NULL, NULL, NULL, 0, 5, 101, 101, 102
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 102 AND `model_property` = 'items');
+
 INSERT INTO `SW_SYS_VIEW` (
   `VIEW_ID`, `VIEW_MODEL`, `VIEW_NAME`, `VIEW_FILTER`, `VIEW_DEFAULT`, `VIEW_TYPE`,
   `VIEW_CONTYPE`, `VIEW_FILE`, `VIEW_CHECKAUTH`, `VIEW_AUTOFRESHINTERVAL`, `VIEW_CANEDIT`
 )
 VALUES
-  (100, 100, 'OrderList', '', NULL, 0, 3, NULL, 0, 0, 0),
-  (101, 101, 'OrderItemList', '', NULL, 0, 3, NULL, 0, 0, 0)
+  (100, 100, 'OrderList', '', 102, 0, 3, NULL, 0, 0, 0),
+  (101, 101, 'OrderItemList', '', NULL, 0, 3, NULL, 0, 0, 0),
+  (102, 100, 'OrderDetail', '', NULL, 1, 3, NULL, 0, 0, 1)
 ON DUPLICATE KEY UPDATE
   `VIEW_MODEL` = VALUES(`VIEW_MODEL`),
   `VIEW_NAME` = VALUES(`VIEW_NAME`),

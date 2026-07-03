@@ -101,7 +101,35 @@ def detail_response_ok(payload: dict[str, Any]) -> bool:
     return isinstance(detail, dict) and bool(detail.get("simpleData"))
 
 
+def detail_view_id(payload: dict[str, Any]) -> int:
+    if not common_response_ok(payload):
+        return 0
+    value = payload["data"].get("detailViewId")
+    return value if isinstance(value, int) else 0
+
+
 def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[CheckResult]:
+    view_state: dict[str, int] = {}
+
+    def get_list_view() -> bool:
+        payload = post_json(
+            f"{frontend_url}/api/v1/view/getlistview",
+            {"ViewId": 100},
+            timeout,
+        )
+        view_state["detailViewId"] = detail_view_id(payload)
+        return view_state["detailViewId"] > 0
+
+    def query_detail_from_loaded_view() -> bool:
+        view_id = view_state.get("detailViewId")
+        if not view_id:
+            return False
+        return detail_response_ok(post_json(
+            f"{frontend_url}/api/v1/data/querydatadetail",
+            {"ViewId": view_id, "ObjId": "1001"},
+            timeout,
+        ))
+
     checks = (
         (
             "backend:test",
@@ -110,12 +138,8 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         ),
         (
             "view:getlistview",
-            lambda: common_response_ok(post_json(
-                f"{frontend_url}/api/v1/view/getlistview",
-                {"ViewId": 100},
-                timeout,
-            )),
-            "POST /api/v1/view/getlistview ViewId=100",
+            get_list_view,
+            "POST /api/v1/view/getlistview ViewId=100 returns DetailViewId",
         ),
         (
             "data:querydata",
@@ -128,12 +152,8 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         ),
         (
             "data:querydatadetail",
-            lambda: detail_response_ok(post_json(
-                f"{frontend_url}/api/v1/data/querydatadetail",
-                {"ViewId": 100, "ObjId": "1001"},
-                timeout,
-            )),
-            "POST /api/v1/data/querydatadetail ViewId=100 ObjId=1001",
+            query_detail_from_loaded_view,
+            "POST /api/v1/data/querydatadetail uses loaded DetailViewId",
         ),
         (
             "data:inputquery",
