@@ -40,6 +40,7 @@ import {
   buildDeletedItemProperty,
   buildFieldDrafts,
   buildItemDrafts,
+  buildReportColsFromModel,
   buildSavePropertyies,
   buildSelectedExistingItemProperty,
   buildUpdatedItemProperty,
@@ -497,6 +498,7 @@ async function loadReportColumns() {
   );
   if (response) {
     reportModelResponse.value = response;
+    reportColsJson.value = JSON.stringify(buildReportColsFromModel(response.data?.cols || []));
   }
 }
 

@@ -4,6 +4,8 @@ import type {
   QueryDataDetailDataItem,
   QueryDataDetailItemGroup,
   ReportCell,
+  ReportCol,
+  ReportModelColumn,
   SaveItemProperty,
   SaveKeypair,
   TableColumnInfo
@@ -121,6 +123,23 @@ export function reportRowsFromCells(cells: ReportCell[] = []) {
   return Array.from({ length: maxRow + 1 }, (_, row) =>
     Array.from({ length: maxCol + 1 }, (_, col) => byPosition.get(`${row}:${col}`) || "")
   );
+}
+
+export function buildReportColsFromModel(cols: ReportModelColumn[] = []): ReportCol[] {
+  return cols
+    .map((col, index) => {
+      const queryType = col.queryTypes?.[0];
+      const name = col.name || col.id || "";
+      const queryName = queryType?.name || queryType?.id || "";
+      return {
+        colName: queryName ? `${name}[${queryName}]` : name,
+        colId: col.id,
+        selectedTypeId: queryType?.id,
+        index,
+        orderType: "2"
+      };
+    })
+    .filter((col) => col.colName || col.colId);
 }
 
 export function recordColumns(rows: Record<string, unknown>[] = []) {

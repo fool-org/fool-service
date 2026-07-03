@@ -72,6 +72,9 @@ explicitly named as authoritative for fool-service.
 - [x] Support Docker-seeded single-argument `SE_SELECTEDEXP` query select-type
       expressions so report `SelectedTypeId` execution can reuse the shared
       query SQL builder instead of controller-side special cases.
+- [x] Auto-fill Vue report `ReportCols` JSON from `getmkqview` metadata so the
+      report tool can run from loaded View columns instead of hand-written
+      column DTOs.
 
 ## Backlog
 

@@ -3,6 +3,7 @@ import {
   buildAddedItemProperty,
   buildDeletedItemProperty,
   buildDraftsFromRow,
+  buildReportColsFromModel,
   emptyGroupDraft,
   buildFieldDrafts,
   buildSavePropertyies,
@@ -187,6 +188,16 @@ describe("view workflow helpers", () => {
     ])).toEqual([
       ["Symbol", "State"],
       ["Sample", ""]
+    ]);
+  });
+
+  it("builds default report columns from loaded report model metadata", () => {
+    expect(buildReportColsFromModel([
+      { id: "1002", name: "Symbol", queryTypes: [{ id: "1", name: "原值" }] },
+      { id: "1003", name: "State", queryTypes: [{ id: "2", name: "计数" }] }
+    ])).toEqual([
+      { colName: "Symbol[原值]", colId: "1002", selectedTypeId: "1", index: 0, orderType: "2" },
+      { colName: "State[计数]", colId: "1003", selectedTypeId: "2", index: 1, orderType: "2" }
     ]);
   });
 

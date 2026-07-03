@@ -94,6 +94,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: the Vue report workflow now converts loaded `getmkqview`
+  candidate columns into FoolFrame-style `ReportCols` payload JSON. Loading
+  report columns fills `ColName`, `ColId`, first `SelectedTypeId`, `Index`, and
+  default `OrderType=2`, matching the legacy `mkreport.js` add-column shape
+  and reducing hand-written report DTO work in the migrated Vue tool.
 - 2026-07-04: query SQL generation now supports both FoolFrame-style
   two-argument select-type expressions such as `[{0}].[{1}]` and the current
   Docker-seeded single-argument `SE_SELECTEDEXP` expressions such as `{0}` and
@@ -746,6 +751,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Vue API types for legacy `getmkqview` report model candidate payloads
 - A Vue report-column panel that calls `/api/v1/report/getmkqview` by view ID
   and renders candidate columns, compare/select catalogs, and enum states
+- The Vue report-column panel auto-fills the report request `ReportCols` JSON
+  from loaded View metadata using the first available selected-type option
 - Vue report-definition save payload support for legacy `ReportName`
 - A Vue save-report-definition panel that calls `/api/v1/report/saverpt` with
   view ID, report columns, `QueryFilter`, and report name

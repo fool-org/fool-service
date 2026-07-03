@@ -84,6 +84,8 @@ describe("App defaults", () => {
     expect(appSource).toContain("Report Columns");
     expect(appSource).toContain("/api/v1/report/getmkqview");
     expect(appSource).toContain("reportModelResponse");
+    expect(appSource).toContain("buildReportColsFromModel");
+    expect(appSource).toContain("reportColsJson.value = JSON.stringify");
   });
 
   it("exposes the legacy save report definition route in the Vue console", () => {
