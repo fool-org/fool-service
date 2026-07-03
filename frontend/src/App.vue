@@ -62,8 +62,8 @@ const keyword = ref("");
 const quickFilterProperty = ref("orderId");
 const quickFilterMode = ref<"equals" | "range">("range");
 const quickFilterValue = ref("");
-const quickFilterFrom = ref("1001");
-const quickFilterTo = ref("1002");
+const quickFilterFrom = ref("");
+const quickFilterTo = ref("");
 const legacyQueryViewId = ref(100);
 const legacyQueryPageIndex = ref(1);
 const legacyQueryPageSize = ref(10);
@@ -101,7 +101,10 @@ const operationId = ref(7001);
 const checkCodeKey = ref("");
 const checkCodeValue = ref("");
 const subMenuParentAuthCode = ref("");
-const activeSection = ref("auth");
+const activeSection = ref("orders");
+const selectedOrderId = ref("");
+const editableSymbol = ref("");
+const editableState = ref("0");
 
 const loginResponse = ref<CommonResponse<LoginVo> | null>(null);
 const initAppResponse = ref<CommonResponse<LegacyInitAppResult> | null>(null);
@@ -141,11 +144,9 @@ const services = computed(() => [
 ]);
 
 const navItems = [
-  { id: "auth", label: "Auth" },
-  { id: "menus", label: "Menus" },
-  { id: "views", label: "Views" },
-  { id: "data", label: "Data Query" },
-  { id: "migration", label: "Migration Map" }
+  { id: "orders", label: "Orders" },
+  { id: "tools", label: "API Tools" },
+  { id: "migration", label: "Migration" }
 ];
 
 const resultColumns = computed<TableColumnInfo[]>(() => {
@@ -163,6 +164,18 @@ const resultColumns = computed<TableColumnInfo[]>(() => {
 });
 
 const resultRows = computed<ListDataItem[]>(() => dataResponse.value?.data?.items || []);
+const selectedOrder = computed(() => resultRows.value.find((row) => getOrderId(row) === selectedOrderId.value));
+const detailRows = computed(() => detailResponse.value?.data?.data?.simpleData || []);
+const orderStateOptions = computed(() => {
+  const enums = enumResponse.value?.data?.enumValues || [];
+  if (enums.length > 0) {
+    return enums.map((item) => ({ label: item.name || String(item.value), value: String(item.value ?? "") }));
+  }
+  return [
+    { label: "Open", value: "0" },
+    { label: "Filled", value: "1" }
+  ];
+});
 
 const reportRows = computed(() => {
   const cells = reportResponse.value?.data?.cells || [];
@@ -652,6 +665,49 @@ function clearQuickFilter() {
   quickFilterTo.value = "";
 }
 
+async function loadOrdersWorkflow() {
+  await loadLegacyListView();
+  await loadEnums();
+  await queryData();
+  const firstOrder = resultRows.value[0];
+  if (firstOrder) {
+    await selectOrder(firstOrder);
+  }
+}
+
+async function selectOrder(row: ListDataItem) {
+  const orderId = getOrderId(row);
+  if (!orderId) {
+    return;
+  }
+  selectedOrderId.value = orderId;
+  editableSymbol.value = formatValue(row.values?.symbol);
+  editableState.value = formatValue(row.values?.state) || "0";
+  detailObjId.value = orderId;
+  saveObjId.value = orderId;
+  operationObjectId.value = orderId;
+  await queryDetail();
+}
+
+async function saveSelectedOrder() {
+  if (!selectedOrderId.value) {
+    errorMessage.value = "Select an order first.";
+    return;
+  }
+  saveObjId.value = selectedOrderId.value;
+  savePropertyiesJson.value = JSON.stringify([
+    { key: "symbol", value: editableSymbol.value },
+    { key: "state", value: editableState.value }
+  ]);
+  await saveObj();
+  await queryData();
+  await queryDetail();
+}
+
+function getOrderId(row: ListDataItem) {
+  return formatValue(row.values?.orderId || row.id);
+}
+
 function formatValue(value: unknown) {
   if (value === null || value === undefined) {
     return "";
@@ -692,8 +748,8 @@ function formatValue(value: unknown) {
     <main class="workspace">
       <header class="topbar">
         <div>
-          <h1>Migration Console</h1>
-          <p>Vue operator surface for the migrated Spring APIs.</p>
+          <h1>OrderList</h1>
+          <p>Work with the Docker-seeded order view.</p>
         </div>
         <div class="status-strip">
           <div v-for="service in services" :key="service.label" class="status-item">
@@ -704,7 +760,92 @@ function formatValue(value: unknown) {
         </div>
       </header>
 
-      <section class="grid auth-grid" aria-labelledby="auth-heading">
+      <section v-if="activeSection === 'orders'" class="order-workflow" aria-label="OrderList workflow">
+        <article class="panel order-list-panel">
+          <div class="panel-heading">
+            <h2>Orders</h2>
+            <span>OrderList</span>
+          </div>
+          <div class="workflow-toolbar">
+            <label>
+              Keyword
+              <input v-model="keyword" placeholder="symbol or visible text" />
+            </label>
+            <label>
+              Page size
+              <input v-model.number="pageSize" min="1" type="number" />
+            </label>
+            <button class="primary" type="button" :disabled="Boolean(pendingAction)" @click="loadOrdersWorkflow">
+              Load Orders
+            </button>
+          </div>
+
+          <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+
+          <div class="table-wrap orders-table">
+            <table v-if="resultRows.length">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Symbol</th>
+                  <th>State</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="row in resultRows"
+                  :key="getOrderId(row)"
+                  :class="{ selected: getOrderId(row) === selectedOrderId }"
+                >
+                  <td>{{ formatValue(row.values?.orderId) }}</td>
+                  <td>{{ formatValue(row.values?.symbol) }}</td>
+                  <td>{{ formatValue(row.values?.state) }}</td>
+                  <td>
+                    <button type="button" :disabled="Boolean(pendingAction)" @click="selectOrder(row)">Open</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div v-else class="empty-state">Load orders to start.</div>
+          </div>
+        </article>
+
+        <article class="panel order-detail-panel">
+          <div class="panel-heading">
+            <h2>Order Detail</h2>
+            <span>{{ selectedOrderId || "No order selected" }}</span>
+          </div>
+
+          <div v-if="selectedOrder" class="order-edit-grid">
+            <label>
+              Symbol
+              <input v-model="editableSymbol" />
+            </label>
+            <label>
+              State
+              <select v-model="editableState">
+                <option v-for="state in orderStateOptions" :key="state.value" :value="state.value">
+                  {{ state.label }}
+                </option>
+              </select>
+            </label>
+            <button class="primary" type="button" :disabled="Boolean(pendingAction)" @click="saveSelectedOrder">
+              Save Order
+            </button>
+          </div>
+          <div v-else class="empty-state compact">Select an order from the list.</div>
+
+          <div class="detail-fields">
+            <div v-for="item in detailRows" :key="item.prpId || item.prpShowName">
+              <span>{{ item.prpShowName || item.prpId }}</span>
+              <strong>{{ item.fmtValue }}</strong>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section v-if="activeSection === 'tools'" class="grid auth-grid" aria-labelledby="auth-heading">
         <article class="panel">
           <div class="panel-heading">
             <h2 id="auth-heading">Auth Session</h2>
@@ -915,7 +1056,7 @@ function formatValue(value: unknown) {
         </article>
       </section>
 
-      <section class="grid work-grid" aria-label="View and data tools">
+      <section v-if="activeSection === 'tools'" class="grid work-grid" aria-label="View and data tools">
         <article class="panel">
           <div class="panel-heading">
             <h2>View Definition</h2>
@@ -1466,7 +1607,7 @@ function formatValue(value: unknown) {
         </article>
       </section>
 
-      <section class="panel results-panel" aria-label="Results">
+      <section v-if="activeSection === 'tools'" class="panel results-panel" aria-label="Results">
         <div class="panel-heading">
           <h2>Response & Result Set</h2>
           <span v-if="pendingAction">Running {{ pendingAction }}...</span>
@@ -1543,7 +1684,7 @@ function formatValue(value: unknown) {
         </div>
       </section>
 
-      <section class="migration-band" aria-label="Migration map">
+      <section v-if="activeSection === 'migration'" class="migration-band" aria-label="Migration map">
         <div>
           <strong>SCPB01-Soway.Data</strong>
           <span>fool-common</span>

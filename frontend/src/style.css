@@ -237,6 +237,59 @@ label {
   grid-template-columns: minmax(300px, 0.88fr) minmax(360px, 1.12fr);
 }
 
+.order-workflow {
+  display: grid;
+  grid-template-columns: minmax(420px, 1.35fr) minmax(320px, 0.65fr);
+  gap: 18px;
+}
+
+.workflow-toolbar {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(110px, 0.35fr) auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.orders-table {
+  min-height: 420px;
+}
+
+.orders-table tr.selected td {
+  background: #ecfeff;
+}
+
+.orders-table td:last-child {
+  width: 96px;
+}
+
+.order-edit-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.detail-fields {
+  display: grid;
+  gap: 8px;
+}
+
+.detail-fields div {
+  display: grid;
+  gap: 3px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 10px 11px;
+}
+
+.detail-fields span {
+  color: #647484;
+  font-size: 0.76rem;
+  font-weight: 750;
+}
+
+.detail-fields strong {
+  overflow-wrap: anywhere;
+}
+
 .lookup-panel {
   grid-column: 1 / -1;
 }
@@ -413,6 +466,10 @@ td {
   color: #647484;
 }
 
+.empty-state.compact {
+  min-height: 128px;
+}
+
 .input-query-results {
   min-height: 128px;
   max-height: 260px;
@@ -491,6 +548,7 @@ td {
 
   .auth-grid,
   .work-grid,
+  .order-workflow,
   .result-layout,
   .migration-band {
     grid-template-columns: 1fr;
@@ -520,6 +578,7 @@ td {
 
   .button-row,
   .inline-fields,
+  .workflow-toolbar,
   .summary-list {
     grid-template-columns: 1fr;
   }

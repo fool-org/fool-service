@@ -90,6 +90,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-03: changed the default Vue surface from a raw API operator console
+  to a focused `OrderList` workflow. The first screen now loads Docker-seeded
+  order rows, supports row selection, renders detail fields, and saves the
+  selected order symbol/state through the migrated legacy data APIs. The older
+  endpoint panels remain available under `API Tools`.
 - 2026-07-03: hydrated legacy runtime model-trigger metadata from
   `SW_SYS_MODEL_TRIGGER` and `SW_SYS_MODEL_TRIGGER_COMMANDS` onto
   `Model.triggers`. Runtime `ModelDataService.getModel` now carries trigger

@@ -19,6 +19,14 @@ import {
 } from "./payload";
 
 describe("App defaults", () => {
+  it("opens with a real OrderList workflow before API tools", () => {
+    expect(appSource).toContain('const activeSection = ref("orders")');
+    expect(appSource).toContain("OrderList workflow");
+    expect(appSource).toContain("Load Orders");
+    expect(appSource).toContain("Save Order");
+    expect(appSource).toContain("async function selectOrder");
+  });
+
   it("loads the seeded order-state enum model by default", () => {
     expect(appSource).toContain('const enumModelId = ref("102")');
     expect(appSource).toContain('const legacyQueryFilter = ref(\'order_state="0"\')');
