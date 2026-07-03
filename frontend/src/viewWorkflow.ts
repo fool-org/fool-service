@@ -1,6 +1,7 @@
 import type {
   ListDataItem,
   ListDataValue,
+  OperationInfo,
   QueryDataDetailDataItem,
   QueryDataDetailItemGroup,
   ReportCell,
@@ -110,6 +111,10 @@ export function groupKey(group: QueryDataDetailItemGroup) {
 
 export function selectedChildViewId(group: QueryDataDetailItemGroup) {
   return group.selectedView || group.listViewId || 0;
+}
+
+export function createOperations(operations: OperationInfo[] = []) {
+  return operations.filter((operation) => operation.requireSelect === false && Number(operation.viewId || 0) > 0);
 }
 
 export function reportRowsFromCells(cells: ReportCell[] = []) {

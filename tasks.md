@@ -117,6 +117,8 @@ explicitly named as authoritative for fool-service.
 - [x] Render detail View operation buttons from the loaded `querydatadetail`
       operations payload instead of the list View metadata, keeping detail
       actions bound to the rendered detail View context.
+- [x] Render list View create operations from metadata and use their target
+      `ViewId` for the Vue `initnew` / `savenewobj` flow.
 
 ## Backlog
 

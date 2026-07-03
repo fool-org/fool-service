@@ -46,6 +46,7 @@ import {
   buildUpdatedItemProperty,
   columnKey,
   columnTitle,
+  createOperations,
   displayValue,
   emptyGroupDraft,
   fieldKey,
@@ -190,9 +191,7 @@ const navItems = [
 ];
 
 const currentViewId = computed(() => viewResponse.value?.data?.id || legacyListViewId.value);
-const viewTitle = computed(
-  () => viewResponse.value?.data?.viewTitle || viewResponse.value?.data?.name || viewResponse.value?.data?.viewName || viewName.value || `View ${legacyListViewId.value}`
-);
+const viewTitle = computed(() => viewResponse.value?.data?.viewTitle || viewResponse.value?.data?.name || viewResponse.value?.data?.viewName || viewName.value || `View ${legacyListViewId.value}`);
 
 const resultColumns = computed<TableColumnInfo[]>(() => {
   const declared = viewResponse.value?.data?.tableColumn || [];
@@ -209,11 +208,10 @@ const resultColumns = computed<TableColumnInfo[]>(() => {
 });
 
 const resultRows = computed<ListDataItem[]>(() => dataResponse.value?.data?.items || dataResponse.value?.data?.data || []);
-const selectedObject = computed(() =>
-  resultRows.value.find((row) => rowObjectId(row, resultColumns.value) === selectedObjectId.value)
-);
+const selectedObject = computed(() => resultRows.value.find((row) => rowObjectId(row, resultColumns.value) === selectedObjectId.value));
 const detailRows = computed(() => detailResponse.value?.data?.data?.simpleData || []);
 const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() => detailResponse.value?.data?.data?.items || []);
+const listCreateOperations = computed(() => createOperations(viewResponse.value?.data?.operations));
 const backendSmokeColumns = computed(() => recordColumns(backendSmokeResponse.value?.data || []));
 const viewCanEdit = computed(() => Boolean(selectedObject.value || isCreatingObject.value));
 const fieldEditorContext = computed(() => ({
@@ -726,8 +724,8 @@ async function selectObject(row: ListDataItem) {
   await queryDetail(Number(currentViewId.value));
 }
 
-async function startNewObject() {
-  initNewViewId.value = currentViewId.value;
+async function startNewObject(viewId = Number(currentViewId.value)) {
+  initNewViewId.value = viewId;
   initNewParentObjId.value = "";
   const initialized = await initNew();
   if (!initialized) {
@@ -755,7 +753,7 @@ async function saveSelectedObject() {
   let saved = false;
   if (isCreatingObject.value) {
     saveNewObjId.value = selectedObjectId.value;
-    saveNewViewId.value = String(currentViewId.value);
+    saveNewViewId.value = String(initNewViewId.value);
     saveNewPropertyiesJson.value = propertyiesJson;
     saveNewOwnerViewId.value = "";
     saveNewOwnerId.value = "";
@@ -995,7 +993,8 @@ function syncDetailDrafts() {
             <button class="primary" type="button" :disabled="Boolean(pendingAction)" @click="loadViewWorkflow">
               Load View
             </button>
-            <button type="button" :disabled="Boolean(pendingAction)" @click="startNewObject">New Row</button>
+            <button v-for="operation in listCreateOperations" :key="operation.id || operation.name" type="button" :disabled="Boolean(pendingAction)" @click="startNewObject(operation.viewId || currentViewId)">{{ operation.text || operation.name || `New ${operation.viewId}` }}</button>
+            <button v-if="!listCreateOperations.length" type="button" :disabled="Boolean(pendingAction)" @click="startNewObject()">New Row</button>
           </div>
 
           <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>

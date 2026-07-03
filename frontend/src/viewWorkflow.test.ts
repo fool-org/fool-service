@@ -10,6 +10,7 @@ import {
   buildSelectedExistingItemProperty,
   buildUpdatedItemProperty,
   columnKey,
+  createOperations,
   fieldModelId,
   groupKey,
   isEnumField,
@@ -178,6 +179,14 @@ describe("view workflow helpers", () => {
       itemId: "",
       itemName: ""
     });
+  });
+
+  it("keeps only legacy list create operations", () => {
+    expect(createOperations([
+      { id: 1, name: "Create", requireSelect: false, viewId: 200 },
+      { id: 2, name: "Open", requireSelect: true, viewId: 201 },
+      { id: 3, name: "No target", requireSelect: false, viewId: 0 }
+    ])).toEqual([{ id: 1, name: "Create", requireSelect: false, viewId: 200 }]);
   });
 
   it("renders report cells as a matrix", () => {

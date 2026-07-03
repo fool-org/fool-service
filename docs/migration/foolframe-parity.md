@@ -97,6 +97,14 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: the Vue main View toolbar now renders list-level create
+  operations from `getlistview` metadata when `RequireSelect=false` and the
+  operation has a target `ViewId`. This matches FoolFrame `view.jade`, which
+  renders those operations as `new{ViewID}` links before row data is selected.
+  The Vue flow reuses the existing `initnew` / `savenewobj` path and saves new
+  objects with the same target View id used for initialization, so create
+  actions stay View-driven instead of being hard-coded to the current list
+  View or a business DTO.
 - 2026-07-04: the Vue detail panel now renders operation buttons from the
   loaded `querydatadetail` `operations` payload instead of reusing the main
   `getlistview` metadata. This matches FoolFrame's detail page, where
