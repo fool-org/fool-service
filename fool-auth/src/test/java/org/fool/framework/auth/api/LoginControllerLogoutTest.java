@@ -88,6 +88,43 @@ public class LoginControllerLogoutTest {
     }
 
     @Test
+    public void loginV2ReturnsLegacyTokenUserAndApp() throws Exception {
+        AuthService authService = mock(AuthService.class);
+        CheckCodeService checkCodeService = mock(CheckCodeService.class);
+        LoginController controller = new LoginController();
+        setField(controller, "authService", authService);
+        setField(controller, "checkCodeService", checkCodeService);
+        LoginController.LegacyLoginRequest request = new LoginController.LegacyLoginRequest();
+        request.setUserId("42");
+        request.setPassWord("pwd");
+        request.setAppId("fool-service");
+        request.setAppKey("fool-service");
+        request.setDbId("car_wash");
+        request.setCheckCodeKey("key-1");
+        request.setCheckCode("A2BC");
+        AuthService.LegacyAppInfo app = new AuthService.LegacyAppInfo();
+        app.setAppName("Fool Service");
+        UserDTO user = new UserDTO();
+        user.setId("42");
+        user.setName("Admin");
+        org.fool.framework.auth.dto.LoginVo login = new org.fool.framework.auth.dto.LoginVo();
+        login.setToken("token-1");
+        login.setUser(user);
+        when(checkCodeService.validate(org.mockito.ArgumentMatchers.any())).thenReturn(true);
+        when(authService.getLegacyAppInfo("fool-service", "fool-service")).thenReturn(app);
+        when(authService.hasLegacyStoreDatabase("fool-service", "car_wash")).thenReturn(true);
+        when(authService.login("42", "pwd")).thenReturn(login);
+
+        CommonResponse<LoginController.LegacyLoginResult> response = controller.loginV2(request);
+
+        assertEquals(0, response.getCode());
+        assertEquals("token-1", response.getData().getToken());
+        assertEquals(true, response.getData().isLoginSucess());
+        assertEquals("Fool Service", response.getData().getApp().getAppName());
+        assertEquals("Admin", response.getData().getUser().getUserName());
+    }
+
+    @Test
     public void getSubMenuReturnsLegacyAuthItems() throws Exception {
         AuthService authService = mock(AuthService.class);
         LoginController controller = new LoginController();

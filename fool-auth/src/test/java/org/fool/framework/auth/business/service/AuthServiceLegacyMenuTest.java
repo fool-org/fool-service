@@ -3,6 +3,7 @@ package org.fool.framework.auth.business.service;
 import org.fool.framework.auth.foolframework.auth.MenuItem;
 import org.fool.framework.app.AppFacade;
 import org.fool.framework.app.ApplicationDefinition;
+import org.fool.framework.app.StoreDatabase;
 import org.fool.framework.dao.DaoService;
 import org.junit.Test;
 
@@ -78,6 +79,17 @@ public class AuthServiceLegacyMenuTest {
         assertEquals("/logo.png", info.getAppLogoUrl());
         assertEquals(100L, info.getDefaultViewId());
         assertEquals("fool-service", info.getAppId());
+    }
+
+    @Test
+    public void hasLegacyStoreDatabaseChecksAppDatabaseRelation() throws Exception {
+        DaoService daoService = mock(DaoService.class);
+        AuthService service = new AuthService();
+        setField(service, "daoService", daoService);
+        when(daoService.selectList(eq(StoreDatabase.class), anyString(), eq("fool-service"), eq("car_wash")))
+                .thenReturn(List.of(new StoreDatabase()));
+
+        assertEquals(true, service.hasLegacyStoreDatabase("fool-service", "car_wash"));
     }
 
     private static MenuItem menu(Long id, String text, Long viewId, Integer index) {

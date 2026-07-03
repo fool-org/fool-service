@@ -10,6 +10,7 @@ import {
   type GetNotifyResult,
   type InputQueryResult,
   type LegacyAppResult,
+  type LegacyLoginResult,
   type LegacyMainResult,
   type LegacySubMenuResult,
   type LegacyUserInfoResult,
@@ -45,6 +46,9 @@ import {
 const token = ref(localStorage.getItem("fool-service-token") || "");
 const userId = ref("admin");
 const password = ref("");
+const legacyAppId = ref("fool-service");
+const legacyAppKey = ref("fool-service");
+const legacyDbId = ref("car_wash");
 const viewName = ref("OrderList");
 const legacyListViewId = ref(100);
 const readItemViewId = ref(100);
@@ -94,6 +98,7 @@ const subMenuParentAuthCode = ref("");
 const activeSection = ref("auth");
 
 const loginResponse = ref<CommonResponse<LoginVo> | null>(null);
+const legacyLoginResponse = ref<CommonResponse<LegacyLoginResult> | null>(null);
 const profileResponse = ref<CommonResponse<UserDTO> | null>(null);
 const legacyUserInfoResponse = ref<CommonResponse<LegacyUserInfoResult> | null>(null);
 const mainInfoResponse = ref<CommonResponse<LegacyMainResult> | null>(null);
@@ -226,6 +231,28 @@ async function login() {
 
   if (response) {
     loginResponse.value = response;
+    token.value = response.data?.token || token.value;
+    if (token.value) {
+      localStorage.setItem("fool-service-token", token.value);
+    }
+  }
+}
+
+async function loginV2() {
+  const response = await runAction("loginv2", () =>
+    postApi<LegacyLoginResult>("/api/v1/auth/loginv2", {
+      UserId: userId.value,
+      PassWord: password.value,
+      DbId: legacyDbId.value,
+      CheckCode: checkCodeValue.value,
+      AppId: legacyAppId.value,
+      AppKey: legacyAppKey.value,
+      CheckCodeKey: checkCodeKey.value
+    })
+  );
+
+  if (response) {
+    legacyLoginResponse.value = response;
     token.value = response.data?.token || token.value;
     if (token.value) {
       localStorage.setItem("fool-service-token", token.value);
@@ -645,9 +672,24 @@ function formatValue(value: unknown) {
             Password
             <input v-model="password" type="password" autocomplete="current-password" />
           </label>
+          <div class="inline-fields">
+            <label>
+              App ID
+              <input v-model="legacyAppId" />
+            </label>
+            <label>
+              App Key
+              <input v-model="legacyAppKey" />
+            </label>
+            <label>
+              DB ID
+              <input v-model="legacyDbId" />
+            </label>
+          </div>
           <button class="primary" type="button" :disabled="pendingAction === 'login'" @click="login">
             Login
           </button>
+          <button type="button" :disabled="pendingAction === 'loginv2'" @click="loginV2">Legacy Login V2</button>
         </article>
 
         <article class="panel">
@@ -1392,6 +1434,7 @@ function formatValue(value: unknown) {
             JSON.stringify(
               {
                 login: loginResponse,
+                legacyLogin: legacyLoginResponse,
                 profile: profileResponse,
                 legacyUserInfo: legacyUserInfoResponse,
                 mainInfo: mainInfoResponse,

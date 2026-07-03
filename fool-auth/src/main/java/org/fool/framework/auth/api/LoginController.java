@@ -39,6 +39,30 @@ public class LoginController {
 
     }
 
+    @ApiOperation("旧版登录V2")
+    @PostMapping("/loginv2")
+    @ResponseBody
+    public CommonResponse<LegacyLoginResult> loginV2(@RequestBody LegacyLoginRequest request) {
+        CheckCodeService.CheckCodeRequest checkCode = new CheckCodeService.CheckCodeRequest(
+                request.getCheckCodeKey(), request.getCheckCode(), null);
+        if (!checkCodeService.validate(checkCode)) {
+            return new CommonResponse<>(LegacyLoginResult.error(
+                    10006, "Check code error."));
+        }
+        AuthService.LegacyAppInfo app = authService.getLegacyAppInfo(request.getAppId(), request.getAppKey());
+        if (app == null) {
+            return new CommonResponse<>(LegacyLoginResult.error(
+                    10003, "Wrong application sec."));
+        }
+        if (!authService.hasLegacyStoreDatabase(request.getAppId(), request.getDbId())) {
+            return new CommonResponse<>(LegacyLoginResult.error(
+                    10007, "Unauthorized DataBase ."));
+        }
+        LoginVo login = authService.login(request.getUserId(), request.getPassWord());
+        return new CommonResponse<>(LegacyLoginResult.success(
+                login.getToken(), legacyUser(login.getUser()), app));
+    }
+
     @ApiOperation("得到旧版验证码")
     @PostMapping("/getcheckcode")
     @ResponseBody
@@ -156,6 +180,47 @@ public class LoginController {
         private String companyName = "";
         private String departmentName = "";
         private String userAvtarUrl = "";
+    }
+
+    @Data
+    public static class LegacyLoginRequest {
+        @JsonAlias("UserId")
+        private String userId;
+        @JsonAlias("PassWord")
+        private String passWord;
+        @JsonAlias("DbId")
+        private String dbId;
+        @JsonAlias("CheckCode")
+        private String checkCode;
+        @JsonAlias("AppId")
+        private String appId;
+        @JsonAlias("AppKey")
+        private String appKey;
+        @JsonAlias("CheckCodeKey")
+        private String checkCodeKey;
+    }
+
+    @Data
+    public static class LegacyLoginResult {
+        private final String token;
+        private final boolean loginSucess;
+        private final LegacyUserInfo user;
+        private final AuthService.LegacyAppInfo app;
+        private final LegacyError error;
+
+        static LegacyLoginResult success(String token, LegacyUserInfo user, AuthService.LegacyAppInfo app) {
+            return new LegacyLoginResult(token, true, user, app, null);
+        }
+
+        static LegacyLoginResult error(int code, String message) {
+            return new LegacyLoginResult(null, false, null, null, new LegacyError(code, message));
+        }
+    }
+
+    @Data
+    public static class LegacyError {
+        private final int code;
+        private final String message;
     }
 
     @Data

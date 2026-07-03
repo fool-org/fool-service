@@ -85,6 +85,17 @@ export interface LoginVo {
   token?: string;
 }
 
+export interface LegacyLoginResult {
+  token?: string;
+  loginSucess?: boolean;
+  user?: LegacyUserInfo;
+  app?: LegacyAppInfo;
+  error?: {
+    code?: number;
+    message?: string;
+  };
+}
+
 export interface TreeNode<T> {
   data?: T;
   item?: T;

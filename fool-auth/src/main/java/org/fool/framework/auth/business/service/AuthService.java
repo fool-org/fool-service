@@ -8,6 +8,7 @@ import org.fool.framework.auth.dto.LoginVo;
 import org.fool.framework.auth.dto.UserDTO;
 import org.fool.framework.app.AppFacade;
 import org.fool.framework.app.ApplicationDefinition;
+import org.fool.framework.app.StoreDatabase;
 import org.fool.framework.common.data.tree.ITreeFactory;
 import org.fool.framework.common.data.tree.TreeNode;
 import org.fool.framework.common.data.tree.TreeNodeCompareResult;
@@ -165,6 +166,23 @@ public class AuthService {
         // ponytail: loginv2 app session is not migrated yet; use the seeded default app until tokens carry app context.
         ApplicationDefinition app = appFacade.getApps().stream().findFirst().orElse(null);
         return legacyAppInfo(app);
+    }
+
+    public LegacyAppInfo getLegacyAppInfo(String appId, String appKey) {
+        ApplicationDefinition app = appFacade.getApp(appId, appKey);
+        return app == null ? null : legacyAppInfo(app);
+    }
+
+    public boolean hasLegacyStoreDatabase(String appId, String dbId) {
+        if (!StringUtils.hasText(appId) || !StringUtils.hasText(dbId)) {
+            return false;
+        }
+        String sql = """
+                select db.* from SW_STOREDB db
+                join SW_APPLICATION_SW_STOREDB rel on rel.SW_STOREDB_ID = db.SW_STORE_STOREID
+                where rel.SW_APPLICATION_ID = ? and db.SW_STORE_STOREID = ?
+                """;
+        return !daoService.selectList(StoreDatabase.class, sql, appId, dbId).isEmpty();
     }
 
     private LegacyAuthItem legacyAuthItem(MenuItem menu) {

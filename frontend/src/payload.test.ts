@@ -73,6 +73,12 @@ describe("App defaults", () => {
     expect(appSource).toContain("checkCodeResponse");
   });
 
+  it("exposes the legacy loginv2 route in the Vue console", () => {
+    expect(appSource).toContain("Legacy Login V2");
+    expect(appSource).toContain("/api/v1/auth/loginv2");
+    expect(appSource).toContain("legacyLoginResponse");
+  });
+
   it("exposes the legacy submenu route in the Vue console", () => {
     expect(appSource).toContain("Sub Menu");
     expect(appSource).toContain("/api/v1/auth/getsubmenu");
