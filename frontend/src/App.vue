@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 import {
   type AuthItem,
   type CommonResponse,
+  type InputQueryResult,
   type ListDataItem,
   type ListViewInfo,
   type ListViewResult,
@@ -12,7 +13,7 @@ import {
   type UserDTO,
   postApi
 } from "./api";
-import { buildQueryRequest, type VisibleFilterInput } from "./payload";
+import { buildInputQueryRequest, buildQueryRequest, type VisibleFilterInput } from "./payload";
 
 const token = ref(localStorage.getItem("fool-service-token") || "");
 const userId = ref("admin");
@@ -27,6 +28,11 @@ const quickFilterMode = ref<"equals" | "range">("range");
 const quickFilterValue = ref("");
 const quickFilterFrom = ref("1001");
 const quickFilterTo = ref("1002");
+const inputQueryViewItemId = ref("symbol");
+const inputQueryText = ref("BTC");
+const inputQueryObjId = ref("");
+const inputQueryOwnerId = ref("");
+const inputQueryIsAdded = ref(false);
 const activeSection = ref("auth");
 
 const loginResponse = ref<CommonResponse<LoginVo> | null>(null);
@@ -34,6 +40,7 @@ const profileResponse = ref<CommonResponse<UserDTO> | null>(null);
 const menuResponse = ref<CommonResponse<TreeNode<AuthItem>[]> | null>(null);
 const viewResponse = ref<CommonResponse<ListViewInfo> | null>(null);
 const dataResponse = ref<CommonResponse<ListViewResult> | null>(null);
+const inputQueryResponse = ref<CommonResponse<InputQueryResult> | null>(null);
 const errorMessage = ref("");
 const pendingAction = ref("");
 
@@ -183,6 +190,25 @@ async function queryData() {
   const response = await runAction("query", () => postApi<ListViewResult>("/api/v1/data/query-list", request));
   if (response) {
     dataResponse.value = response;
+  }
+}
+
+async function inputQuery() {
+  const request = buildInputQueryRequest({
+    token: token.value,
+    viewName: viewName.value,
+    viewItemId: inputQueryViewItemId.value,
+    text: inputQueryText.value,
+    objID: inputQueryObjId.value,
+    ownerId: inputQueryOwnerId.value,
+    isAdded: inputQueryIsAdded.value
+  });
+
+  const response = await runAction("inputquery", () =>
+    postApi<InputQueryResult>("/api/v1/data/inputquery", request)
+  );
+  if (response) {
+    inputQueryResponse.value = response;
   }
 }
 
@@ -371,6 +397,58 @@ function formatValue(value: unknown) {
             Query Data
           </button>
         </article>
+
+        <article class="panel lookup-panel">
+          <div class="panel-heading">
+            <h2>Input Query</h2>
+            <span>POST /api/v1/data/inputquery</span>
+          </div>
+          <div class="inline-fields">
+            <label>
+              View Item
+              <input v-model="inputQueryViewItemId" />
+            </label>
+            <label>
+              Text
+              <input v-model="inputQueryText" />
+            </label>
+          </div>
+          <div class="inline-fields">
+            <label>
+              Obj ID
+              <input v-model="inputQueryObjId" />
+            </label>
+            <label>
+              Owner ID
+              <input v-model="inputQueryOwnerId" />
+            </label>
+          </div>
+          <label class="checkbox-row">
+            <input v-model="inputQueryIsAdded" type="checkbox" />
+            Added item
+          </label>
+          <button class="primary" type="button" :disabled="pendingAction === 'inputquery'" @click="inputQuery">
+            Query Candidates
+          </button>
+
+          <div class="table-wrap input-query-results">
+            <table v-if="inputQueryResponse?.data?.items?.length">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Text</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in inputQueryResponse.data.items" :key="item.id || item.text">
+                  <td>{{ item.id }}</td>
+                  <td>{{ item.text }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div v-else class="empty-state">No candidates loaded.</div>
+          </div>
+        </article>
       </section>
 
       <section class="panel results-panel" aria-label="Results">
@@ -418,7 +496,8 @@ function formatValue(value: unknown) {
                 profile: profileResponse,
                 menus: menuResponse,
                 view: viewResponse,
-                data: dataResponse
+                data: dataResponse,
+                inputQuery: inputQueryResponse
               },
               null,
               2

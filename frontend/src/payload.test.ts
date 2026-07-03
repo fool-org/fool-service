@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildQueryRequest } from "./payload";
+import { buildInputQueryRequest, buildQueryRequest } from "./payload";
 
 describe("buildQueryRequest", () => {
   it("matches the Spring QueryDataRequest DTO shape", () => {
@@ -73,5 +73,29 @@ describe("buildQueryRequest", () => {
     });
 
     expect(request.keyword).toBe("USDT");
+  });
+});
+
+describe("buildInputQueryRequest", () => {
+  it("matches the legacy inputquery DTO shape", () => {
+    const request = buildInputQueryRequest({
+      token: "token-1",
+      viewName: "OrderList",
+      viewItemId: "symbol",
+      text: "  BTC  ",
+      objID: "1001",
+      ownerId: "5001",
+      isAdded: true
+    });
+
+    expect(request).toEqual({
+      token: "token-1",
+      viewName: "OrderList",
+      viewItemId: "symbol",
+      text: "BTC",
+      objID: "1001",
+      ownerId: "5001",
+      isAdded: true
+    });
   });
 });

@@ -237,6 +237,10 @@ label {
   grid-template-columns: minmax(300px, 0.88fr) minmax(360px, 1.12fr);
 }
 
+.lookup-panel {
+  grid-column: 1 / -1;
+}
+
 .panel {
   display: grid;
   gap: 14px;
@@ -315,6 +319,16 @@ label {
 .mode-toggle button.active {
   background: #0f766e;
   color: #ffffff;
+}
+
+.checkbox-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.checkbox-row input {
+  width: auto;
 }
 
 .summary-list {
@@ -397,6 +411,15 @@ td {
   min-height: 280px;
   place-items: center;
   color: #647484;
+}
+
+.input-query-results {
+  min-height: 128px;
+  max-height: 260px;
+}
+
+.input-query-results .empty-state {
+  min-height: 128px;
 }
 
 .json-output {

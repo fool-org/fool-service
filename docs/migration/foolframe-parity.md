@@ -67,6 +67,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-03: tightened app-install default-owner parity by backfilling
   `MODEL_DEFAULTOWNER` after newly installed module-source models receive their
   generated `MODEL_ID` values.
+- 2026-07-03: exposed the migrated `inputquery` candidate lookup in the Vue
+  operator console with a typed payload builder and Docker frontend smoke
+  coverage.
 
 ## Server Source Mapping
 
@@ -133,6 +136,9 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Vue API types for legacy `querydata` request payloads
 - Vue API types for legacy `querydatadetail` request/result payloads
 - Vue API types for legacy `inputquery` request/result payloads
+- A Vue input candidate lookup panel that calls legacy `/api/v1/data/inputquery`
+  with view item, text, existing-object ID, added-item owner ID, and added-item
+  mode fields
 - Vue API types for legacy `saveobj` request payloads
 - Vue API types for legacy view-item `ID`, `Name`, `PropertyName`, `ShowIndex`, `Width`, `Format`, `IsReadOnly`, `EditType`, `PropertyId`, `EditViewId`, `EditExp`, linked-list-view defaults, `PropertyType`, and `PropertyModel` metadata
 - Vue API types for legacy view-item `ViewFile` metadata

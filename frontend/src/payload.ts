@@ -1,3 +1,5 @@
+import type { InputQueryRequest } from "./api";
+
 export interface QueryRequestInput {
   token: string;
   viewName: string;
@@ -12,6 +14,17 @@ export interface VisibleFilterInput {
   property: string;
   value?: string;
   values?: string[];
+}
+
+export interface InputQueryRequestInput {
+  token: string;
+  viewName: string;
+  viewItemId: string;
+  text?: string;
+  modelID?: string;
+  objID?: string;
+  isAdded?: boolean;
+  ownerId?: string;
 }
 
 export interface QueryRequest {
@@ -45,6 +58,20 @@ export function buildQueryRequest(input: QueryRequestInput): QueryRequest {
   if (keyword) {
     request.keyword = keyword;
   }
+  return request;
+}
+
+export function buildInputQueryRequest(input: InputQueryRequestInput): InputQueryRequest {
+  const request: InputQueryRequest = {
+    token: input.token,
+    viewName: input.viewName.trim(),
+    viewItemId: input.viewItemId.trim(),
+    text: input.text?.trim() || "",
+    isAdded: Boolean(input.isAdded)
+  };
+  addOptional(request, "modelID", input.modelID);
+  addOptional(request, "objID", input.objID);
+  addOptional(request, "ownerId", input.ownerId);
   return request;
 }
 
@@ -92,4 +119,11 @@ function buildVisibleFilter(filters: VisibleFilterInput[]): Record<string, unkno
 
 function compactValues(values: string[]): string[] {
   return values.map((value) => value.trim()).filter(Boolean);
+}
+
+function addOptional(request: InputQueryRequest, key: "modelID" | "objID" | "ownerId", value?: string) {
+  const trimmed = value?.trim();
+  if (trimmed) {
+    request[key] = trimmed;
+  }
 }
