@@ -357,9 +357,16 @@ public class DataQueryService {
         if (data == null || property == null || !StringUtils.hasText(methodName)) {
             return;
         }
+        String method = methodName.trim();
         Object target = data.get(property.getName());
         if (target instanceof IDynamicData dynamicData) {
-            dynamicData.invoke(methodName.trim());
+            dynamicData.invoke(method);
+        } else if (Boolean.TRUE.equals(property.getIsCollection()) && target instanceof Iterable<?> items) {
+            items.forEach(item -> {
+                if (item instanceof IDynamicData dynamicData) {
+                    dynamicData.invoke(method);
+                }
+            });
         }
     }
 

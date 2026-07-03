@@ -347,6 +347,33 @@ public class DataQueryServiceRunOperationTest {
     }
 
     @Test
+    public void runLegacyUpdateOperationInvokesPropertyModelMethodForEachCollectionItem() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataService viewDataService = mock(ViewDataService.class);
+        DataQueryService service = service(daoService, modelDataService, viewDataService);
+        Model model = model();
+        View view = view(operationWithCommand(7002L, OperationBaseType.UPDATE, "保存成功",
+                command(CommandsType.EXUTE_PROPRTY_MODEL_METHOD, 1013L, "Close", 1)));
+        DbMysqlDynamic data = new DbMysqlDynamic(model);
+        IDynamicData firstItem = mock(IDynamicData.class);
+        IDynamicData secondItem = mock(IDynamicData.class);
+        data.set("orderId", "1001");
+        data.set("items", List.of(firstItem, secondItem));
+        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(modelDataService.getModel("Order")).thenReturn(model);
+        when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
+        when(modelDataService.saveData(data)).thenReturn(true);
+
+        LegacyRunOperationResult result = service.runLegacyOperation(request("1001", 100L, 7002L));
+
+        verify(firstItem).invoke("Close");
+        verify(secondItem).invoke("Close");
+        verify(modelDataService).saveData(data);
+        assertTrue(result.isSuccess());
+    }
+
+    @Test
     public void runLegacyOperationReturnsLegacyErrorMessageWhenExecutionFails() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
@@ -515,9 +542,15 @@ public class DataQueryServiceRunOperationTest {
         customer.setName("customer");
         customer.setColumn("customer_id");
         customer.setPropertyType(PropertyType.BusinessObject);
+        Property items = new Property();
+        items.setId(1013L);
+        items.setName("items");
+        items.setColumn("order_items_list");
+        items.setPropertyType(PropertyType.BusinessObject);
+        items.setIsCollection(true);
         model.setIdProperty(orderId);
         model.setProperties(List.of(orderId, symbol, state, retryCount, confirmed,
-                byteCode, marker, longCode, amount, ratio, startsAt, customer));
+                byteCode, marker, longCode, amount, ratio, startsAt, customer, items));
         return model;
     }
 }
