@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: the Vue main View workflow now keeps loaded View rows and
+  `querydatadetail` detail fields visible in the first desktop screen, with
+  narrow screens using table scrolling instead of squeezing row action buttons.
+  This keeps the frontend on the View metadata -> data -> detail path rather
+  than introducing business DTO-specific rendering.
 - 2026-07-04: `querydatadetail` responses now carry FoolFrame's Pascal detail
   aliases in addition to the Vue camel-case contract: `Data`,
   `AutoFreshTime`, `CanEdit`, `Operations`, detail `ObjId` / `SimpleData` /

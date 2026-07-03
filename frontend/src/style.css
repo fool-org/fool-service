@@ -280,12 +280,17 @@ label {
   min-height: 420px;
 }
 
+.view-table table {
+  min-width: 640px;
+}
+
 .view-table tr.selected td {
   background: #ecfeff;
 }
 
 .view-table td:last-child {
   width: 96px;
+  min-width: 96px;
 }
 
 .view-edit-grid {
@@ -350,6 +355,7 @@ label {
 .panel {
   display: grid;
   gap: 14px;
+  align-content: start;
   min-width: 0;
   border: 1px solid #d7e0e8;
   border-radius: 8px;
