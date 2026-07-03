@@ -63,15 +63,24 @@ public class ReportController {
         if (StringUtils.hasText(request.getQueryFilter())) {
             return request.getQueryFilter();
         }
-        return simpleFilterExp(request, request.getFilterExp());
+        return filterExpSql(request, request.getFilterExp());
     }
 
-    private String simpleFilterExp(MakeReportRequest request, MakeReportRequest.BoolExp filterExp) {
+    private String filterExpSql(MakeReportRequest request, MakeReportRequest.BoolExp filterExp) {
         if (filterExp == null) {
             return null;
         }
-        if (filterExp.getFirstExp() != null || !CollectionUtils.isEmpty(filterExp.getSequences())) {
-            throw new IllegalArgumentException("Only simple FilterExp compare types are supported.");
+        if (filterExp.getFirstExp() != null) {
+            String result = "(" + filterExpSql(request, filterExp.getFirstExp()) + ")";
+            if (filterExp.getSequences() != null) {
+                for (MakeReportRequest.AddBoolExp sequence : filterExp.getSequences()) {
+                    result += boolSql(sequence.getBoolOp()) + "(" + filterExpSql(request, sequence.getAddedExp()) + ")";
+                }
+            }
+            return result;
+        }
+        if (!CollectionUtils.isEmpty(filterExp.getSequences())) {
+            throw new IllegalArgumentException("Only simple or FirstExp composite FilterExp compare types are supported.");
         }
         String column = filterColumn(request, filterExp);
         String op = compareSql(filterExp.getCompareOp());
@@ -183,6 +192,26 @@ public class ReportController {
     private String filterValue(String op, String value) {
         String escaped = value.replace("'", "''");
         return " LIKE ".equals(op) ? "%" + escaped + "%" : escaped;
+    }
+
+    private String boolSql(MakeReportRequest.BoolOp boolOp) {
+        String raw = "";
+        if (boolOp != null) {
+            raw = StringUtils.hasText(boolOp.getDbName()) ? boolOp.getDbName() : Objects.toString(boolOp.getShowName(), "");
+        }
+        String token = raw.trim().toLowerCase(Locale.ROOT);
+        switch (token) {
+            case "and":
+            case "与":
+            case "并且":
+                return " And ";
+            case "or":
+            case "或":
+            case "或者":
+                return " OR ";
+            default:
+                throw new IllegalArgumentException("Only AND/OR composite FilterExp bool operators are supported.");
+        }
     }
 
     private List<String> columns(MakeReportRequest request, ListViewResult queryResult) {

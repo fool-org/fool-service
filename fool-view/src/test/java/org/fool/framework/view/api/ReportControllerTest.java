@@ -136,12 +136,58 @@ public class ReportControllerTest {
     }
 
     @Test
+    public void makeReportMapsLegacyCompositeFilterExpToQueryFilter() throws Exception {
+        DataQueryService dataQueryService = mock(DataQueryService.class);
+        DaoService daoService = mock(DaoService.class);
+        when(daoService.getOneDetailByKey(eq(View.class), eq("100"))).thenReturn(view("100"));
+        when(daoService.getOneDetailByKey(eq(Model.class), eq("100"))).thenReturn(model(property("symbol", "order_symbol")));
+        when(dataQueryService.queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class),
+                eq("(`order_state`='0') And (`order_symbol` LIKE '%BTC%') OR (`order_price`>'100')")))
+                .thenReturn(new ListViewResult());
+
+        ReportController controller = new ReportController();
+        setField(controller, "dataQueryService", dataQueryService);
+        setField(controller, "daoService", daoService);
+
+        MakeReportRequest request = new MakeReportRequest();
+        request.setViewId(100L);
+        request.setFilterExp(compositeFilterExp(
+                filterExp("order_state", "1", "等于", "0", "Open"),
+                seq("and", "与", filterExp("symbol", "7", "包含", "BTC", "BTC")),
+                seq("or", "或", filterExp("order_price", "3", "大于", "100", "100"))));
+
+        CommonResponse<ReportGridResult> response = controller.makeReport(request);
+
+        verify(dataQueryService).queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class),
+                eq("(`order_state`='0') And (`order_symbol` LIKE '%BTC%') OR (`order_price`>'100')"));
+        assertEquals(0, response.getCode());
+    }
+
+    @Test
     public void makeReportRejectsUnknownFilterExpInsteadOfIgnoringIt() throws Exception {
         ReportController controller = new ReportController();
         MakeReportRequest request = new MakeReportRequest();
         request.setFilterExp(filterExp("order_state", "99", "自定义", "0", "Open"));
 
         assertThrows(IllegalArgumentException.class, () -> controller.makeReport(request));
+    }
+
+    @Test
+    public void makeReportRejectsUnknownCompositeBoolOp() throws Exception {
+        ReportController controller = new ReportController();
+        MakeReportRequest request = new MakeReportRequest();
+        request.setFilterExp(compositeFilterExp(
+                filterExp("order_state", "1", "等于", "0", "Open"),
+                seq("or 1=1", "or 1=1", filterExp("symbol", "7", "包含", "BTC", "BTC"))));
+
+        assertThrows(IllegalArgumentException.class, () -> controller.makeReport(request));
+
+        MakeReportRequest emptyBoolOpRequest = new MakeReportRequest();
+        emptyBoolOpRequest.setFilterExp(compositeFilterExp(
+                filterExp("order_state", "1", "等于", "0", "Open"),
+                seq(null, null, filterExp("symbol", "7", "包含", "BTC", "BTC"))));
+
+        assertThrows(IllegalArgumentException.class, () -> controller.makeReport(emptyBoolOpRequest));
     }
 
     private static ListDataItem row() {
@@ -178,6 +224,23 @@ public class ReportControllerTest {
         exp.setValueExp(value);
         exp.setValueFmt(fmtValue);
         return exp;
+    }
+
+    private static MakeReportRequest.BoolExp compositeFilterExp(MakeReportRequest.BoolExp first, MakeReportRequest.AddBoolExp... sequences) {
+        MakeReportRequest.BoolExp exp = new MakeReportRequest.BoolExp();
+        exp.setFirstExp(first);
+        exp.setSequences(List.of(sequences));
+        return exp;
+    }
+
+    private static MakeReportRequest.AddBoolExp seq(String dbName, String showName, MakeReportRequest.BoolExp addedExp) {
+        MakeReportRequest.BoolOp boolOp = new MakeReportRequest.BoolOp();
+        boolOp.setDbName(dbName);
+        boolOp.setShowName(showName);
+        MakeReportRequest.AddBoolExp seq = new MakeReportRequest.AddBoolExp();
+        seq.setBoolOp(boolOp);
+        seq.setAddedExp(addedExp);
+        return seq;
     }
 
     private static MakeReportRequest.BoolExp filterExpById(String columnId, String compareId, String compareName, String value, String fmtValue) {
