@@ -47,6 +47,15 @@ public class ModelDaoMappingTest {
     }
 
     @Test
+    public void modelMapsLegacyDefaultOwnerMetadata() {
+        Mapper<Model> mapper = new Mapper<>(Model.class);
+
+        assertTrue(mapper.getMapFields().stream()
+                .anyMatch(field -> field.getField().getName().equals("owner")
+                        && "default_owner".equals(field.getColumnName())));
+    }
+
+    @Test
     public void viewItemMapsLegacySourceExpressionMetadata() {
         Mapper<ViewItem> mapper = new Mapper<>(ViewItem.class);
 

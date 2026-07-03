@@ -151,6 +151,7 @@ public class AppManageMigrationTest {
         assertColumn(AppInstalledModel.class, "moduleName", "MODEL_MODULE", false);
         assertColumn(AppInstalledModel.class, "autoSysId", "MODEL_AUTOID", false);
         assertColumn(AppInstalledModel.class, "connection", "MODEL_CON", false);
+        assertColumn(AppInstalledModel.class, "defaultOwnerId", "MODEL_DEFAULTOWNER", false);
 
         assertEquals("SW_SYS_PROPERTY", tableName(AppInstalledProperty.class));
         assertColumn(AppInstalledProperty.class, "propertyId", "SysId", true);
@@ -1246,6 +1247,22 @@ public class AppManageMigrationTest {
                 "work-con");
 
         assertEquals("availableCustomers", installed.getSource());
+    }
+
+    @Test
+    public void appInstalledModelPreservesLegacyDefaultOwner() {
+        Model owner = legacyModel("Order", "SW_ORDER");
+        owner.setId(42L);
+        Model item = legacyModel("OrderItem", "SW_ORDER_ITEM");
+        item.setOwner(owner);
+
+        AppInstalledModel installed = AppInstalledModel.fromModel(
+                item,
+                "MKT01",
+                AppInstalledModel.CONNECTION_TYPE_CURRENT,
+                "work-con");
+
+        assertEquals(Long.valueOf(42L), installed.getDefaultOwnerId());
     }
 
     @Test

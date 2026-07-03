@@ -368,7 +368,7 @@ public class DaoAppInstallGateway implements AppInstallGateway {
         List<AppInstalledModel> models = daoService.selectList(
                 AppInstalledModel.class,
                 "SELECT `MODEL_ID`,`MODEL_NAME`,`MODEL_CLASS`,`MODEL_CONTYPE`,`MODEL_DATABASETABLE`,"
-                        + "`MODEL_MODULE`,`MODEL_AUTOID`,`MODEL_CON` "
+                        + "`MODEL_MODULE`,`MODEL_AUTOID`,`MODEL_CON`,`MODEL_DEFAULTOWNER` "
                         + "FROM `SW_SYS_MODEL` WHERE `MODEL_CLASS` = ?",
                 model.getClassName());
         if (!models.isEmpty()) {

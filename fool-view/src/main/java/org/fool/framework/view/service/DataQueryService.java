@@ -136,21 +136,16 @@ public class DataQueryService {
             Property property,
             Property showProperty) {
         String sourceExpression = sourceExpression(viewItem, property);
-        if (!StringUtils.hasText(request.getObjID())
-                || !StringUtils.hasText(sourceExpression)
+        if (!StringUtils.hasText(sourceExpression)
                 || showProperty == null
-                || model.getIdProperty() == null
-                || !StringUtils.hasText(model.getIdProperty().getColumn())) {
+                || !StringUtils.hasText(sourceKey(sourceExpression, request.isAdded()))) {
             return null;
         }
-        List<IDynamicData> owners = modelDataService.getDataList(
-                modelId,
-                new CompareFilter(model.getIdProperty().getColumn(), CompareOp.EQUAL, request.getObjID()),
-                model.getProperties());
+        List<IDynamicData> owners = sourceOwners(request, modelId, model, sourceExpression);
         if (owners.isEmpty()) {
             return null;
         }
-        Object source = owners.get(0).get(sourceExpression);
+        Object source = owners.get(0).get(sourceKey(sourceExpression, request.isAdded()));
         if (!(source instanceof Iterable<?> items)) {
             return null;
         }
@@ -166,6 +161,48 @@ public class DataQueryService {
             }
         }
         return result;
+    }
+
+    private List<IDynamicData> sourceOwners(
+            InputQueryRequest request,
+            String modelId,
+            Model model,
+            String sourceExpression) {
+        if (request.isAdded()) {
+            Model ownerModel = model.getOwner();
+            if (!StringUtils.hasText(request.getOwnerId())
+                    || ownerModel == null
+                    || !sourceExpression.trim().startsWith("#.")
+                    || ownerModel.getIdProperty() == null
+                    || !StringUtils.hasText(ownerModel.getIdProperty().getColumn())
+                    || ownerModel.getProperties() == null) {
+                return List.of();
+            }
+            return modelDataService.getDataList(
+                    ownerModel.getName(),
+                    new CompareFilter(ownerModel.getIdProperty().getColumn(), CompareOp.EQUAL, request.getOwnerId()),
+                    ownerModel.getProperties());
+        }
+        if (!StringUtils.hasText(request.getObjID())
+                || model.getIdProperty() == null
+                || !StringUtils.hasText(model.getIdProperty().getColumn())) {
+            return List.of();
+        }
+        return modelDataService.getDataList(
+                modelId,
+                new CompareFilter(model.getIdProperty().getColumn(), CompareOp.EQUAL, request.getObjID()),
+                model.getProperties());
+    }
+
+    private String sourceKey(String sourceExpression, boolean ownerContext) {
+        String expression = sourceExpression == null ? "" : sourceExpression.trim();
+        if (ownerContext && expression.startsWith("#.")) {
+            return expression.substring(2);
+        }
+        if (expression.startsWith(".")) {
+            return expression.substring(1);
+        }
+        return expression;
     }
 
     private String sourceExpression(ViewItem item, Property property) {

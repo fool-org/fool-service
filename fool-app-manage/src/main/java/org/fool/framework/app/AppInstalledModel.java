@@ -32,6 +32,8 @@ public class AppInstalledModel {
     private Boolean autoSysId;
     @Column("MODEL_CON")
     private String connection;
+    @Column("MODEL_DEFAULTOWNER")
+    private Long defaultOwnerId;
 
     public static AppInstalledModel legacyRootModel(
             String modelName,
@@ -64,6 +66,7 @@ public class AppInstalledModel {
         model.setConnectionType(connectionType);
         model.setAutoSysId(Boolean.TRUE.equals(source.getAutoSysId()));
         model.setConnection(connection);
+        model.setDefaultOwnerId(source.getOwner() == null ? null : source.getOwner().getId());
         return model;
     }
 }

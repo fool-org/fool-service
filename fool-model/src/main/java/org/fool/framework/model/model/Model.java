@@ -1,6 +1,7 @@
 package org.fool.framework.model.model;
 
 import lombok.Data;
+import lombok.ToString;
 import org.fool.framework.common.annotation.*;
 
 import java.util.ArrayList;
@@ -21,6 +22,9 @@ public class Model {
     private String tableName;
     private Boolean autoSysId = false;
     private transient Model baseModel;
+    @ToString.Exclude
+    @Column("default_owner")
+    private Model owner;
     @Column("owner")
     private List<Property> properties;
     private Property idProperty;

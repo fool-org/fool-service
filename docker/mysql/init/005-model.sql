@@ -9,10 +9,12 @@ CREATE TABLE IF NOT EXISTS `SW_SYS_MODEL` (
   `MODEL_MODULE` varchar(255) DEFAULT NULL,
   `MODEL_AUTOID` tinyint(1) NOT NULL DEFAULT '0',
   `MODEL_CON` text,
+  `MODEL_DEFAULTOWNER` bigint DEFAULT NULL,
   PRIMARY KEY (`MODEL_ID`),
   KEY `ix_sw_sys_model_class` (`MODEL_CLASS`),
   KEY `ix_sw_sys_model_name_class` (`MODEL_NAME`, `MODEL_CLASS`),
-  KEY `ix_sw_sys_model_module` (`MODEL_MODULE`)
+  KEY `ix_sw_sys_model_module` (`MODEL_MODULE`),
+  KEY `ix_sw_sys_model_default_owner` (`MODEL_DEFAULTOWNER`)
 );
 
 CREATE TABLE IF NOT EXISTS `SW_SYS_CON` (
@@ -47,10 +49,12 @@ CREATE TABLE IF NOT EXISTS `fool_sys_model` (
   `table_name` varchar(255) DEFAULT NULL,
   `auto_sys_id` tinyint(1) NOT NULL DEFAULT '0',
   `id_property` bigint DEFAULT NULL,
+  `default_owner` bigint DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_fool_sys_model_name` (`name`),
   KEY `ix_fool_sys_model_table_name` (`table_name`),
-  KEY `ix_fool_sys_model_id_property` (`id_property`)
+  KEY `ix_fool_sys_model_id_property` (`id_property`),
+  KEY `ix_fool_sys_model_default_owner` (`default_owner`)
 );
 
 CREATE TABLE IF NOT EXISTS `fool_sys_model_enum` (
@@ -80,6 +84,21 @@ DEALLOCATE PREPARE stmt;
 SET @ddl = (
   SELECT IF(
     COUNT(*) = 0,
+    'ALTER TABLE `SW_SYS_MODEL` ADD COLUMN `MODEL_DEFAULTOWNER` bigint DEFAULT NULL AFTER `MODEL_CON`, ADD KEY `ix_sw_sys_model_default_owner` (`MODEL_DEFAULTOWNER`)',
+    'SELECT 1'
+  )
+  FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'SW_SYS_MODEL'
+    AND COLUMN_NAME = 'MODEL_DEFAULTOWNER'
+);
+PREPARE stmt FROM @ddl;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @ddl = (
+  SELECT IF(
+    COUNT(*) = 0,
     'ALTER TABLE `fool_sys_model` ADD COLUMN `auto_sys_id` tinyint(1) NOT NULL DEFAULT ''0'' AFTER `table_name`',
     'SELECT 1'
   )
@@ -87,6 +106,21 @@ SET @ddl = (
   WHERE TABLE_SCHEMA = DATABASE()
     AND TABLE_NAME = 'fool_sys_model'
     AND COLUMN_NAME = 'auto_sys_id'
+);
+PREPARE stmt FROM @ddl;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @ddl = (
+  SELECT IF(
+    COUNT(*) = 0,
+    'ALTER TABLE `fool_sys_model` ADD COLUMN `default_owner` bigint DEFAULT NULL AFTER `id_property`, ADD KEY `ix_fool_sys_model_default_owner` (`default_owner`)',
+    'SELECT 1'
+  )
+  FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'fool_sys_model'
+    AND COLUMN_NAME = 'default_owner'
 );
 PREPARE stmt FROM @ddl;
 EXECUTE stmt;
