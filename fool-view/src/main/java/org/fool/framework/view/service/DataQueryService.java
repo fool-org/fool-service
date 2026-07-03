@@ -6,6 +6,7 @@ import org.fool.framework.dao.PageResult;
 import org.fool.framework.dao.QueryAndArgs;
 import org.fool.framework.dto.CommonException;
 import org.fool.framework.common.PropertyType;
+import org.fool.framework.common.data.SubItemList;
 import org.fool.framework.model.model.DbMysqlDynamic;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.MultiDbMap;
@@ -139,7 +140,49 @@ public class DataQueryService {
         for (SaveObjRequest.SaveKeypair pair : saveObj.getPropertyies()) {
             data.set(pair.getKey(), pair.getValue());
         }
+        for (SaveObjRequest.ItemProperty itemProperty : saveObj.getItemproperties()) {
+            Property property = collectionProperty(model, itemProperty.getKey());
+            if (property == null || property.getPropertyModel() == null) {
+                continue;
+            }
+            SubItemList<DbMysqlDynamic> items = new SubItemList<>();
+            for (SaveObjRequest.Item item : itemProperty.getItems()) {
+                items.add(itemData(property.getPropertyModel(), item, true));
+            }
+            for (SaveObjRequest.Item item : itemProperty.getAddedItems()) {
+                items.add(itemData(property.getPropertyModel(), item, item.isExist()));
+            }
+            for (SaveObjRequest.Item item : itemProperty.getDelteItems()) {
+                DbMysqlDynamic deleted = itemData(property.getPropertyModel(), item, true);
+                items.add(deleted);
+                items.remove(deleted);
+            }
+            data.set(itemProperty.getKey(), items);
+        }
         modelDataService.saveData(data);
+    }
+
+    private Property collectionProperty(Model model, String name) {
+        if (model.getProperties() == null) {
+            return null;
+        }
+        return model.getProperties().stream()
+                .filter(property -> Boolean.TRUE.equals(property.getIsCollection()))
+                .filter(property -> Objects.equals(property.getName(), name))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private DbMysqlDynamic itemData(Model model, SaveObjRequest.Item item, boolean keepId) {
+        DbMysqlDynamic data = new DbMysqlDynamic(model);
+        Property idProperty = model.getIdProperty();
+        if (keepId && idProperty != null && idProperty.getName() != null) {
+            data.set(idProperty.getName(), item.getItemId());
+        }
+        for (SaveObjRequest.SaveKeypair pair : item.getPropertyies()) {
+            data.set(pair.getKey(), pair.getValue());
+        }
+        return data;
     }
 
     private ListViewResult queryViewDataList(String viewName, Map<String, QueryValue> filter, PageNavigator pageInfo, String keyword, String legacyQueryFilter) {
