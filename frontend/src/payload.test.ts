@@ -49,6 +49,14 @@ describe("App defaults", () => {
     expect(appSource).toContain("operation.params");
   });
 
+  it("keeps the Vue workspace on view-id driven legacy view and data APIs", () => {
+    expect(appSource).toContain("/api/v1/view/getlistview");
+    expect(appSource).toContain("/api/v1/data/querydata");
+    expect(appSource).not.toContain("/api/v1/view/get-view");
+    expect(appSource).not.toContain("/api/v1/data/query-list");
+    expect(appSource).not.toContain("buildQueryRequest");
+  });
+
   it("loads the seeded order-state enum model by default", () => {
     expect(appSource).toContain('const enumModelId = ref("102")');
     expect(appSource).toContain('const legacyQueryFilter = ref(\'order_state="0"\')');

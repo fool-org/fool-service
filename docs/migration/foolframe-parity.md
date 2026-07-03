@@ -91,6 +91,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: removed the visible Vue workspace shortcuts for the newer
+  business-name `/api/v1/view/get-view` and `/api/v1/data/query-list` routes.
+  The first-screen workflow and API tools now steer users through legacy
+  `getlistview(viewId)` first and then `querydata(viewId)`, with result table
+  cells rendered through the shared View-data row helpers instead of direct
+  `row.values[column.property]` access. Frontend tests guard that `App.vue`
+  no longer contains the old view-name routes or `buildQueryRequest`.
 - 2026-07-04: rendered legacy View operations in the primary Vue View
   workflow. The page now uses `getlistview(viewId)` metadata to show operation
   buttons beside the selected detail row, executes them through the existing

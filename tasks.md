@@ -43,6 +43,8 @@ explicitly named as authoritative for fool-service.
       to concrete business DTOs.
 - [x] Render View metadata operation buttons in the main Vue workflow and
       execute them through legacy `runoperation`.
+- [x] Remove the Vue workspace's visible business-name `get-view/query-list`
+      shortcuts so View rendering and data loading stay `viewId` driven.
 - [x] Add a repository harness guard for oversized source files.
 
 ## Backlog

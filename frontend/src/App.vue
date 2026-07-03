@@ -66,12 +66,10 @@ import {
   buildLegacyReadItemViewRequest,
   buildMakeReportRequest,
   buildQueryDataDetailRequest,
-  buildQueryRequest,
   buildRunOperationRequest,
   buildSaveObjRequest,
   buildSaveNewObjRequest,
-  buildTokenRequest,
-  type VisibleFilterInput
+  buildTokenRequest
 } from "./payload";
 
 const token = ref(localStorage.getItem("fool-service-token") || "");
@@ -85,13 +83,7 @@ const legacyListViewId = ref(100);
 const readItemViewId = ref(100);
 const pageIndex = ref(1);
 const pageSize = ref(20);
-const filterJson = ref("{}");
 const keyword = ref("");
-const quickFilterProperty = ref("");
-const quickFilterMode = ref<"equals" | "range">("range");
-const quickFilterValue = ref("");
-const quickFilterFrom = ref("");
-const quickFilterTo = ref("");
 const legacyQueryViewId = ref(100);
 const legacyQueryPageIndex = ref(1);
 const legacyQueryPageSize = ref(10);
@@ -236,38 +228,6 @@ const reportRows = computed(() => {
   return Array.from({ length: maxRow + 1 }, (_, row) =>
     Array.from({ length: maxCol + 1 }, (_, col) => byPosition.get(`${row}:${col}`) || "")
   );
-});
-
-const quickFilterOptions = computed(() => {
-  const declared = viewResponse.value?.data?.tableColumn || [];
-  const seen = new Set<string>();
-
-  return declared.filter((column) => {
-    const property = columnKey(column);
-    if (!property || seen.has(property)) {
-      return false;
-    }
-    seen.add(property);
-    return true;
-  });
-});
-
-const visibleFilters = computed<VisibleFilterInput[]>(() => {
-  if (quickFilterMode.value === "range") {
-    return [
-      {
-        property: quickFilterProperty.value,
-        values: [quickFilterFrom.value, quickFilterTo.value]
-      }
-    ];
-  }
-
-  return [
-    {
-      property: quickFilterProperty.value,
-      value: quickFilterValue.value
-    }
-  ];
 });
 
 async function runAction<T>(label: string, action: () => Promise<CommonResponse<T>>) {
@@ -445,20 +405,6 @@ async function logout() {
   }
 }
 
-async function loadView() {
-  const response = await runAction("view", () =>
-    postApi<ListViewInfo>("/api/v1/view/get-view", {
-      token: token.value,
-      viewName: viewName.value
-    })
-  );
-  if (response) {
-    viewResponse.value = response;
-    applyLoadedView(response.data);
-  }
-  return response;
-}
-
 async function loadLegacyListView() {
   const request = buildLegacyListViewRequest({
     token: token.value,
@@ -484,23 +430,6 @@ async function loadReadItemView() {
   );
   if (response) {
     readItemViewResponse.value = response;
-  }
-}
-
-async function queryData() {
-  const request = buildQueryRequest({
-    token: token.value,
-    viewName: viewName.value,
-    pageIndex: Number(pageIndex.value),
-    pageSize: Number(pageSize.value),
-    filterJson: filterJson.value,
-    keyword: keyword.value,
-    visibleFilters: visibleFilters.value
-  });
-
-  const response = await runAction("query", () => postApi<ListViewResult>("/api/v1/data/query-list", request));
-  if (response) {
-    dataResponse.value = response;
   }
 }
 
@@ -751,12 +680,6 @@ async function loadBackendSmoke() {
   }
 }
 
-function clearQuickFilter() {
-  quickFilterValue.value = "";
-  quickFilterFrom.value = "";
-  quickFilterTo.value = "";
-}
-
 function applyLoadedView(view?: ListViewInfo) {
   if (view?.viewName) {
     viewName.value = view.viewName;
@@ -772,10 +695,6 @@ function applyLoadedView(view?: ListViewInfo) {
     operationViewId.value = loadedViewId;
     saveViewId.value = String(loadedViewId);
     saveNewViewId.value = String(loadedViewId);
-  }
-  const firstFilter = view?.tableColumn?.[0];
-  if (!quickFilterProperty.value && firstFilter) {
-    quickFilterProperty.value = columnKey(firstFilter);
   }
 }
 
@@ -1524,12 +1443,8 @@ function syncDetailDrafts() {
         <article class="panel">
           <div class="panel-heading">
             <h2>View Definition</h2>
-            <span>POST /api/v1/view/get-view</span>
+            <span>POST /api/v1/view/getlistview</span>
           </div>
-          <label>
-            View Name
-            <input v-model="viewName" />
-          </label>
           <div class="inline-fields">
             <label>
               View ID
@@ -1537,9 +1452,8 @@ function syncDetailDrafts() {
             </label>
           </div>
           <div class="button-row">
-            <button type="button" :disabled="pendingAction === 'view'" @click="loadView">Load View</button>
             <button type="button" :disabled="pendingAction === 'legacy-list-view'" @click="loadLegacyListView">
-              Legacy List View
+              Load View
             </button>
           </div>
 
@@ -1587,82 +1501,9 @@ function syncDetailDrafts() {
           </div>
         </article>
 
-        <article class="panel">
-          <div class="panel-heading">
-            <h2>Data Query</h2>
-            <span>POST /api/v1/data/query-list</span>
-          </div>
-          <div class="inline-fields">
-            <label>
-              Page
-              <input v-model.number="pageIndex" min="1" type="number" />
-            </label>
-            <label>
-              Size
-              <input v-model.number="pageSize" min="1" type="number" />
-            </label>
-          </div>
-          <div class="filter-builder">
-            <div class="filter-toolbar">
-              <label>
-                Keyword
-                <input v-model="keyword" />
-              </label>
-              <label>
-                Property
-                <select v-model="quickFilterProperty">
-                  <option v-for="column in quickFilterOptions" :key="column.property" :value="column.property">
-                    {{ column.title || column.property }}
-                  </option>
-                </select>
-              </label>
-              <div class="mode-toggle" aria-label="Filter mode">
-                <button
-                  type="button"
-                  :class="{ active: quickFilterMode === 'equals' }"
-                  @click="quickFilterMode = 'equals'"
-                >
-                  Equals
-                </button>
-                <button
-                  type="button"
-                  :class="{ active: quickFilterMode === 'range' }"
-                  @click="quickFilterMode = 'range'"
-                >
-                  Range
-                </button>
-              </div>
-            </div>
-            <div v-if="quickFilterMode === 'equals'" class="inline-fields">
-              <label>
-                Value
-                <input v-model="quickFilterValue" />
-              </label>
-              <button type="button" @click="clearQuickFilter">Clear</button>
-            </div>
-            <div v-else class="inline-fields">
-              <label>
-                From
-                <input v-model="quickFilterFrom" />
-              </label>
-              <label>
-                To
-                <input v-model="quickFilterTo" />
-              </label>
-            </div>
-          </div>
-          <label>
-            Filter JSON
-            <textarea v-model="filterJson" rows="6" spellcheck="false"></textarea>
-          </label>
-          <button class="primary" type="button" :disabled="pendingAction === 'query'" @click="queryData">
-            Query Data
-          </button>
-        </article>
-
         <article class="panel lookup-panel">
           <div class="panel-heading">
-            <h2>Legacy Query Data</h2>
+            <h2>Query Data</h2>
             <span>POST /api/v1/data/querydata</span>
           </div>
           <div class="inline-fields">
@@ -1684,7 +1525,7 @@ function syncDetailDrafts() {
             <input v-model="legacyQueryFilter" />
           </label>
           <button class="primary" type="button" :disabled="pendingAction === 'legacy-query'" @click="queryLegacyData">
-            Legacy Query Data
+            Query Data
           </button>
         </article>
 
@@ -2101,7 +1942,7 @@ function syncDetailDrafts() {
                     :key="column.property || column.title"
                     :style="{ width: column.width ? `${column.width}px` : undefined }"
                   >
-                    {{ formatValue(row.values?.[column.property || ""]) }}
+                    {{ rowValue(row, column) }}
                   </td>
                 </tr>
               </tbody>
