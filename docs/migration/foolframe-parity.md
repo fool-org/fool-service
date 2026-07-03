@@ -103,6 +103,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-03: seeded legacy `SW_SYS_VIEW` and `SW_SYS_VIEW_ITEM` rows for the
   Docker `OrderList` smoke list view, linked to the legacy model/property
   metadata.
+- 2026-07-03: seeded legacy admin auth/menu rows for the Docker `OrderList`
+  smoke workflow, including `SW_AUTH_USER`, `SW_APP_AUTH_USER`,
+  `SW_APP_AUTH_ROLE`, `SW_APP_AUTH_MENU`, submenu, role-user, and role-menu
+  relations.
 
 ## Server Source Mapping
 
