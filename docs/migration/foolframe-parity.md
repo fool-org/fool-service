@@ -100,6 +100,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-03: seeded legacy `SW_SYS_PROPERTY` rows for the Docker `Order` and
   `OrderItem` smoke models, including the enum and collection property links
   used by the existing legacy relation row.
+- 2026-07-03: seeded legacy `SW_SYS_VIEW` and `SW_SYS_VIEW_ITEM` rows for the
+  Docker `OrderList` smoke list view, linked to the legacy model/property
+  metadata.
 
 ## Server Source Mapping
 
