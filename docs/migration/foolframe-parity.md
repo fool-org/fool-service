@@ -20,10 +20,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `curl http://localhost:8080/test`
   `curl -H 'Content-Type: application/json' -d '{"viewName":"OrderList"}' http://localhost:8080/api/v1/view/get-view`
   `curl -H 'Content-Type: application/json' -d '{"viewId":100}' http://localhost:8080/api/v1/view/getlistview`
+  `curl -H 'Content-Type: application/json' -d '{"Token":"token-1","ViewId":100}' http://localhost:8080/api/v1/view/getlistview`
   `curl -H 'Content-Type: application/json' -d '{"viewId":100}' http://localhost:8080/api/v1/view/getreaditemview`
   `curl -H 'Content-Type: application/json' -d '{"viewName":"OrderList","pageInfo":{"pageSize":10,"pageIndex":1},"filter":null}' http://localhost:8080/api/v1/data/query-list`
   `curl -H 'Content-Type: application/json' -d '{"viewName":"OrderList","pageInfo":{"pageSize":10,"pageIndex":1},"filter":{"orderId":{"values":["1001","1002"]}}}' http://localhost:8080/api/v1/data/query-list`
   `curl -H 'Content-Type: application/json' -d '{"viewId":100,"pageSize":10,"pageIndex":1,"queryFilter":"order_state=\"0\""}' http://localhost:8080/api/v1/data/querydata`
+  `curl -H 'Content-Type: application/json' -d '{"Token":"token-1","ViewId":100,"PageSize":2,"PageIndex":1,"QueryFilter":"order_state=\"0\"","OrderByItem":0,"OrderByType":0}' http://localhost:8080/api/v1/data/querydata`
   `curl -H 'Content-Type: application/json' -d '{"viewId":100,"objId":"1001"}' http://localhost:8080/api/v1/data/querydatadetail`
   `curl -H 'Content-Type: application/json' -d '{"viewId":100,"objId":"","IdExp":"$1001"}' http://localhost:8081/api/v1/data/querydatadetail`
   `curl -H 'Content-Type: application/json' -d '{"viewId":100,"objId":"","IdExp":""}' http://localhost:8081/api/v1/data/querydatadetail`
@@ -92,6 +94,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: accepted FoolFrame Pascal request field names on the generic
+  legacy `getlistview` and `querydata` protocol DTOs: `ViewId`, `PageSize`,
+  `PageIndex`, `QueryFilter`, `OrderByItem`, and `OrderByType`. This fixes
+  the legacy boundary without introducing `Order` or other concrete business
+  DTO binding: the migrated flow still renders the page from View metadata
+  first, then queries View-shaped data rows by the same View id. Runtime proof
+  uses the same Pascal payloads emitted by `../FoolFrame/src/Web/Cloud-Social/soway.js`.
 - 2026-07-04: tightened the repository source-size guard from 2200 to 2100
   lines now that the Vue workflow is below 2000 lines. The current largest
   source file remains under the new limit, and the harness still runs as the

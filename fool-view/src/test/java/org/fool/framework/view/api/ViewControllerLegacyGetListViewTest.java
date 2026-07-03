@@ -1,5 +1,6 @@
 package org.fool.framework.view.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.fool.framework.dto.CommonResponse;
 import org.fool.framework.view.adapter.ViewAdapter;
 import org.fool.framework.view.dto.ListViewInfo;
@@ -17,6 +18,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ViewControllerLegacyGetListViewTest {
+    @Test
+    public void viewDataRequestAcceptsLegacyPascalViewId() throws Exception {
+        ViewDataRequest request = new ObjectMapper().readValue(
+                "{\"Token\":\"token-1\",\"ViewId\":100}",
+                ViewDataRequest.class);
+
+        assertEquals("token-1", request.getToken());
+        assertEquals(Long.valueOf(100), request.getViewId());
+    }
+
     @Test
     public void getListViewMapsLegacyViewIdPayload() throws Exception {
         ViewDataService viewDataService = mock(ViewDataService.class);

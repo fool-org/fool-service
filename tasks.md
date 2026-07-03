@@ -55,6 +55,8 @@ explicitly named as authoritative for fool-service.
 - [x] Move report-grid cell matrix rendering into a tested Vue workflow helper
       and keep `App.vue` below 2000 lines.
 - [x] Tighten the repository source-size harness limit from 2200 to 2100 lines.
+- [x] Accept FoolFrame Pascal `getlistview` / `querydata` request fields at
+      the generic View/data protocol boundary without binding to business DTOs.
 
 ## Backlog
 

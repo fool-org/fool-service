@@ -1,5 +1,6 @@
 package org.fool.framework.view.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.fool.framework.dao.PageNavigator;
 import org.fool.framework.dto.CommonResponse;
 import org.fool.framework.view.dto.LegacyQueryDataRequest;
@@ -18,6 +19,21 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DataControllerLegacyQueryDataTest {
+    @Test
+    public void queryDataRequestAcceptsLegacyPascalFields() throws Exception {
+        LegacyQueryDataRequest request = new ObjectMapper().readValue(
+                "{\"Token\":\"token-1\",\"ViewId\":42,\"PageSize\":20,\"PageIndex\":3,\"QueryFilter\":\"state=0\",\"OrderByItem\":2,\"OrderByType\":1}",
+                LegacyQueryDataRequest.class);
+
+        assertEquals("token-1", request.getToken());
+        assertEquals(Long.valueOf(42), request.getViewId());
+        assertEquals(Integer.valueOf(20), request.getPageSize());
+        assertEquals(Integer.valueOf(3), request.getPageIndex());
+        assertEquals("state=0", request.getQueryFilter());
+        assertEquals(Integer.valueOf(2), request.getOrderByItem());
+        assertEquals(Integer.valueOf(1), request.getOrderByType());
+    }
+
     @Test
     public void queryDataMapsLegacyViewIdPagingAndFilter() throws Exception {
         DataQueryService dataQueryService = mock(DataQueryService.class);
