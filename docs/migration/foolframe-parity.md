@@ -88,6 +88,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-03: extended legacy `runoperation` from DELETE-only to UPDATE
+  operations, mapping FoolFrame `BaseOperationType.Update` to the existing
+  dynamic `saveData` path. Docker seed data now exposes operation `7002`.
 - 2026-07-03: made legacy `querydatadetail` and `initnew` reuse the hydrated
   `ViewDataService` path, so detail payloads include persisted view-operation
   metadata instead of only list-view definitions exposing operations.

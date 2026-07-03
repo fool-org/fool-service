@@ -269,15 +269,21 @@ public class DataQueryService {
             throw new CommonException(ErrorCode.MODEL_NOT_FOUND, "没有查到元数据定义");
         }
         ViewOperation operation = findOperation(view, request.getOperationId());
-        if (operation == null
-                || operation.getOperation() == null
-                || operation.getOperation().getBaseOperationType() != OperationBaseType.DELETE) {
+        if (operation == null || operation.getOperation() == null) {
             return result;
         }
+        OperationBaseType operationType = operation.getOperation().getBaseOperationType();
         IDynamicData data = modelDataService.getOneData(view.getViewModel(), request.getObjectId());
-        boolean deleted = Boolean.TRUE.equals(modelDataService.deleteData(data));
-        result.setSuccess(deleted);
-        if (deleted) {
+        boolean success;
+        if (operationType == OperationBaseType.DELETE) {
+            success = Boolean.TRUE.equals(modelDataService.deleteData(data));
+        } else if (operationType == OperationBaseType.UPDATE) {
+            success = Boolean.TRUE.equals(modelDataService.saveData(data));
+        } else {
+            return result;
+        }
+        result.setSuccess(success);
+        if (success) {
             result.setReturnMsg(operation.getSuccessMsg() == null ? "" : operation.getSuccessMsg());
         }
         return result;
