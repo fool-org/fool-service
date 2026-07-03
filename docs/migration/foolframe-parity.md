@@ -97,6 +97,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: Vue list rows now render `RequireSelect=true` operations that
+  have a target `ViewId`, matching FoolFrame `querylistdata.js`, which calls
+  `setselect(operation.ViewId, row.Id, rowIndex)` for row-level operation
+  links. Selecting through one of those buttons loads `querydatadetail` with
+  the operation target View id, and subsequent detail save, lookup, child-item
+  refresh, and detail operation execution reuse that active detail View id
+  instead of silently falling back to the main list View.
 - 2026-07-04: the Vue main View toolbar now renders list-level create
   operations from `getlistview` metadata when `RequireSelect=false` and the
   operation has a target `ViewId`. This matches FoolFrame `view.jade`, which

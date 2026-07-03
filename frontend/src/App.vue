@@ -33,6 +33,7 @@ import {
   type UserDTO,
   postApi
 } from "./api";
+import ListDataTable from "./ListDataTable.vue";
 import MetadataFieldEditor from "./MetadataFieldEditor.vue";
 import { useChildCandidates } from "./useChildCandidates";
 import {
@@ -60,8 +61,8 @@ import {
   recordColumns,
   recordRowKey,
   reportRowsFromCells,
-  rowFormatClass,
   rowObjectId,
+  rowOperations,
   rowValue,
   selectedChildViewId
 } from "./viewWorkflow";
@@ -212,6 +213,7 @@ const selectedObject = computed(() => resultRows.value.find((row) => rowObjectId
 const detailRows = computed(() => detailResponse.value?.data?.data?.simpleData || []);
 const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() => detailResponse.value?.data?.data?.items || []);
 const listCreateOperations = computed(() => createOperations(viewResponse.value?.data?.operations));
+const listRowOperations = computed(() => rowOperations(viewResponse.value?.data?.operations));
 const backendSmokeColumns = computed(() => recordColumns(backendSmokeResponse.value?.data || []));
 const viewCanEdit = computed(() => Boolean(selectedObject.value || isCreatingObject.value));
 const fieldEditorContext = computed(() => ({
@@ -219,7 +221,7 @@ const fieldEditorContext = computed(() => ({
   lookupDisabled: Boolean(pendingAction.value),
   objectId: selectedObjectId.value,
   token: token.value,
-  viewId: Number(currentViewId.value)
+  viewId: Number(detailViewId.value)
 }));
 
 const reportRows = computed(() => reportRowsFromCells(reportResponse.value?.data?.cells || []));
@@ -646,13 +648,13 @@ async function runViewOperation(operation: OperationInfo) {
     return;
   }
   operationObjectId.value = selectedObjectId.value;
-  operationViewId.value = Number(currentViewId.value);
+  operationViewId.value = Number(detailViewId.value);
   operationId.value = operation.id;
   await runOperation();
   if (runOperationResponse.value?.data?.success) {
     await queryCurrentViewData();
     detailObjId.value = selectedObjectId.value;
-    await queryDetail(Number(currentViewId.value));
+    await queryDetail(Number(detailViewId.value));
   }
 }
 
@@ -711,17 +713,18 @@ onMounted(() => {
   void loadViewWorkflow();
 });
 
-async function selectObject(row: ListDataItem) {
+async function selectObject(row: ListDataItem, viewId = Number(currentViewId.value)) {
   const objectId = rowObjectId(row, resultColumns.value);
   if (!objectId) {
     return;
   }
   isCreatingObject.value = false;
   selectedObjectId.value = objectId;
+  detailViewId.value = viewId;
   detailObjId.value = objectId;
   saveObjId.value = objectId;
   operationObjectId.value = objectId;
-  await queryDetail(Number(currentViewId.value));
+  await queryDetail(viewId);
 }
 
 async function startNewObject(viewId = Number(currentViewId.value)) {
@@ -761,7 +764,7 @@ async function saveSelectedObject() {
     saved = await saveNewObj();
   } else {
     saveObjId.value = selectedObjectId.value;
-    saveViewId.value = String(currentViewId.value);
+    saveViewId.value = String(detailViewId.value);
     savePropertyiesJson.value = propertyiesJson;
     saveItempropertiesJson.value = "";
     saved = await saveObj();
@@ -772,7 +775,7 @@ async function saveSelectedObject() {
   isCreatingObject.value = false;
   detailObjId.value = selectedObjectId.value;
   await queryCurrentViewData();
-  await queryDetail(Number(currentViewId.value));
+  await queryDetail(Number(detailViewId.value));
 }
 
 async function addDetailItem(group: QueryDataDetailItemGroup) {
@@ -798,7 +801,7 @@ async function addDetailItem(group: QueryDataDetailItemGroup) {
     ...newChildDrafts.value,
     [key]: emptyGroupDraft(group)
   };
-  await queryDetail(Number(currentViewId.value));
+  await queryDetail(Number(detailViewId.value));
 }
 
 async function loadExistingDetailItems(group: QueryDataDetailItemGroup) {
@@ -843,7 +846,7 @@ async function addExistingDetailItem(group: QueryDataDetailItemGroup, row: ListD
   const saved = await saveObj();
   saveItempropertiesJson.value = "";
   if (saved) {
-    await queryDetail(Number(currentViewId.value));
+    await queryDetail(Number(detailViewId.value));
   }
 }
 
@@ -857,7 +860,7 @@ async function updateDetailItem(group: QueryDataDetailItemGroup, item: QueryData
   const saved = await saveObj();
   saveItempropertiesJson.value = "";
   if (saved) {
-    await queryDetail(Number(currentViewId.value));
+    await queryDetail(Number(detailViewId.value));
   }
 }
 
@@ -873,12 +876,13 @@ async function deleteDetailItem(group: QueryDataDetailItemGroup, item: QueryData
   const saved = await saveObj();
   saveItempropertiesJson.value = "";
   if (saved) {
-    await queryDetail(Number(currentViewId.value));
+    await queryDetail(Number(detailViewId.value));
   }
 }
 
 function setDetailItemSavePayload(itemproperties: SaveItemProperty[]) {
   saveObjId.value = selectedObjectId.value;
+  saveViewId.value = String(detailViewId.value);
   savePropertyiesJson.value = JSON.stringify(buildSavePropertyies(detailRows.value, detailDrafts.value));
   saveItempropertiesJson.value = JSON.stringify(itemproperties);
 }
@@ -1000,31 +1004,14 @@ function syncDetailDrafts() {
           <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
 
           <div class="table-wrap view-table">
-            <table v-if="resultRows.length">
-              <thead>
-                <tr>
-                  <th v-for="column in resultColumns" :key="columnKey(column)">
-                    {{ columnTitle(column) }}
-                  </th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="row in resultRows"
-                  :key="rowObjectId(row, resultColumns)"
-                  :class="[{ selected: rowObjectId(row, resultColumns) === selectedObjectId }, rowFormatClass(row)]"
-                >
-                  <td v-for="column in resultColumns" :key="columnKey(column)">
-                    {{ rowValue(row, column) }}
-                  </td>
-                  <td>
-                    <button type="button" :disabled="Boolean(pendingAction)" @click="selectObject(row)">Open</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <div v-else class="empty-state">Load a view to start.</div>
+            <ListDataTable
+              :columns="resultColumns"
+              :disabled="Boolean(pendingAction)"
+              :row-operations="listRowOperations"
+              :rows="resultRows"
+              :selected-object-id="selectedObjectId"
+              @select="selectObject"
+            />
           </div>
         </article>
 

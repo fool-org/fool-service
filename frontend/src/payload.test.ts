@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import nginxConfig from "../nginx.conf?raw";
 import viteConfig from "../vite.config.ts?raw";
 import appSource from "./App.vue?raw";
+import listDataTableSource from "./ListDataTable.vue?raw";
 import metadataFieldEditorSource from "./MetadataFieldEditor.vue?raw";
 import {
   buildGetEnumRequest,
@@ -49,11 +50,18 @@ describe("App defaults", () => {
     expect(appSource).toContain("operation.params");
   });
 
+  it("renders row operations through their target detail View id", () => {
+    expect(appSource).toContain("listRowOperations");
+    expect(appSource).toContain(':row-operations="listRowOperations"');
+    expect(listDataTableSource).toContain("rowOperations");
+    expect(listDataTableSource).toContain("emit('select', row, operation.viewId)");
+  });
+
   it("keeps the Vue workspace on view-id driven legacy view and data APIs", () => {
     expect(appSource).toContain("/api/v1/view/getlistview");
     expect(appSource).toContain("/api/v1/data/querydata");
-    expect(appSource).toContain("await queryDetail(Number(currentViewId.value))");
-    expect(appSource).toContain("saveViewId.value = String(currentViewId.value)");
+    expect(appSource).toContain("await queryDetail(Number(detailViewId.value))");
+    expect(appSource).toContain("saveViewId.value = String(detailViewId.value)");
     expect(appSource).not.toContain("viewName: viewName.value");
     expect(appSource).not.toContain("/api/v1/view/get-view");
     expect(appSource).not.toContain("/api/v1/data/query-list");

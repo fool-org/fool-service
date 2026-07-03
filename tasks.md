@@ -119,6 +119,8 @@ explicitly named as authoritative for fool-service.
       actions bound to the rendered detail View context.
 - [x] Render list View create operations from metadata and use their target
       `ViewId` for the Vue `initnew` / `savenewobj` flow.
+- [x] Render list row operations with target `ViewId` and keep selected detail
+      load/save/lookup/operation execution bound to the active detail View.
 
 ## Backlog
 

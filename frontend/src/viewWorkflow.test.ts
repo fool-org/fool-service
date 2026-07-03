@@ -22,6 +22,7 @@ import {
   recordRowKey,
   rowFormatClass,
   rowObjectId,
+  rowOperations,
   rowValue,
   selectedChildViewId
 } from "./viewWorkflow";
@@ -181,12 +182,14 @@ describe("view workflow helpers", () => {
     });
   });
 
-  it("keeps only legacy list create operations", () => {
-    expect(createOperations([
+  it("splits legacy list create and row operations", () => {
+    const operations = [
       { id: 1, name: "Create", requireSelect: false, viewId: 200 },
       { id: 2, name: "Open", requireSelect: true, viewId: 201 },
       { id: 3, name: "No target", requireSelect: false, viewId: 0 }
-    ])).toEqual([{ id: 1, name: "Create", requireSelect: false, viewId: 200 }]);
+    ];
+    expect(createOperations(operations)).toEqual([{ id: 1, name: "Create", requireSelect: false, viewId: 200 }]);
+    expect(rowOperations(operations)).toEqual([{ id: 2, name: "Open", requireSelect: true, viewId: 201 }]);
   });
 
   it("renders report cells as a matrix", () => {

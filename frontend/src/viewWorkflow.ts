@@ -117,6 +117,10 @@ export function createOperations(operations: OperationInfo[] = []) {
   return operations.filter((operation) => operation.requireSelect === false && Number(operation.viewId || 0) > 0);
 }
 
+export function rowOperations(operations: OperationInfo[] = []) {
+  return operations.filter((operation) => operation.requireSelect === true && Number(operation.viewId || 0) > 0);
+}
+
 export function reportRowsFromCells(cells: ReportCell[] = []) {
   const maxRow = cells.reduce((max, cell) => Math.max(max, cell.row), -1);
   const maxCol = cells.reduce((max, cell) => Math.max(max, cell.col), -1);
