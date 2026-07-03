@@ -94,6 +94,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: cleaned the Vue first-screen View workflow so it no longer
+  presents itself as an `OrderList` / trading DTO screen. The page still
+  auto-loads Docker seed `ViewId=100`, but rendering begins with legacy
+  `getlistview(viewId)`, data loading follows with `querydata(viewId)`, tool
+  defaults no longer prefill order/trading filters or save payload fields, and
+  the backend smoke table derives columns from returned record keys instead of
+  binding to `order_price`.
 - 2026-07-04: accepted FoolFrame Pascal request field names on the generic
   legacy `getlistview` and `querydata` protocol DTOs: `ViewId`, `PageSize`,
   `PageIndex`, `QueryFilter`, `OrderByItem`, and `OrderByType`. This fixes

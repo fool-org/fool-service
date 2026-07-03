@@ -55,6 +55,8 @@ import {
   isEnumField,
   itemKey,
   itemValue,
+  recordColumns,
+  recordRowKey,
   reportRowsFromCells,
   rowFormatClass,
   rowObjectId,
@@ -82,7 +84,7 @@ const password = ref("");
 const legacyAppId = ref("fool-service");
 const legacyAppKey = ref("fool-service");
 const legacyDbId = ref("car_wash");
-const viewName = ref("OrderList");
+const viewName = ref("");
 const legacyListViewId = ref(100);
 const readItemViewId = ref(100);
 const pageIndex = ref(1);
@@ -91,15 +93,15 @@ const keyword = ref("");
 const legacyQueryViewId = ref(100);
 const legacyQueryPageIndex = ref(1);
 const legacyQueryPageSize = ref(10);
-const legacyQueryFilter = ref('order_state="0"');
+const legacyQueryFilter = ref("");
 const reportViewId = ref(100);
 const reportCurrentPage = ref(1);
 const reportPageSize = ref(10);
-const reportQueryFilter = ref('order_state="0"');
-const reportColsJson = ref('[{"colName":"Symbol","index":1},{"colName":"State","index":2}]');
-const reportName = ref("Order Daily");
-const inputQueryViewItemId = ref("symbol");
-const inputQueryText = ref("BTC");
+const reportQueryFilter = ref("");
+const reportColsJson = ref("[]");
+const reportName = ref("Saved View Report");
+const inputQueryViewItemId = ref("");
+const inputQueryText = ref("");
 const inputQueryObjId = ref("");
 const inputQueryOwnerId = ref("");
 const inputQueryIsAdded = ref(false);
@@ -111,21 +113,21 @@ const initNewParentObjId = ref("");
 const enumModelId = ref("102");
 const saveViewId = ref("100");
 const saveObjId = ref("1001");
-const savePropertyiesJson = ref('[{"key":"symbol","value":"BTC-USDT"},{"key":"state","value":"0"}]');
+const savePropertyiesJson = ref("[]");
 const saveItempropertiesJson = ref("");
 const saveNewViewId = ref("100");
 const saveNewObjId = ref("9001");
-const saveNewPropertyiesJson = ref('[{"key":"symbol","value":"SOL-USDT"},{"key":"state","value":"0"}]');
+const saveNewPropertyiesJson = ref("[]");
 const saveNewOwnerViewId = ref("");
 const saveNewOwnerId = ref("");
-const saveNewProperty = ref("items");
+const saveNewProperty = ref("");
 const operationObjectId = ref("1001");
 const operationViewId = ref(100);
 const operationId = ref(7001);
 const checkCodeKey = ref("");
 const checkCodeValue = ref("");
 const subMenuParentAuthCode = ref("");
-const activeSection = ref("orders");
+const activeSection = ref("views");
 const selectedObjectId = ref("");
 const isCreatingObject = ref(false);
 const detailDrafts = ref<Record<string, string>>({});
@@ -181,14 +183,14 @@ const services = computed(() => [
 ]);
 
 const navItems = [
-  { id: "orders", label: "Views" },
+  { id: "views", label: "Views" },
   { id: "tools", label: "API Tools" },
   { id: "migration", label: "Migration" }
 ];
 
 const currentViewId = computed(() => viewResponse.value?.data?.id || legacyListViewId.value);
 const viewTitle = computed(
-  () => viewResponse.value?.data?.viewTitle || viewResponse.value?.data?.name || viewResponse.value?.data?.viewName || viewName.value
+  () => viewResponse.value?.data?.viewTitle || viewResponse.value?.data?.name || viewResponse.value?.data?.viewName || viewName.value || `View ${legacyListViewId.value}`
 );
 
 const resultColumns = computed<TableColumnInfo[]>(() => {
@@ -211,6 +213,7 @@ const selectedObject = computed(() =>
 );
 const detailRows = computed(() => detailResponse.value?.data?.data?.simpleData || []);
 const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() => detailResponse.value?.data?.data?.items || []);
+const backendSmokeColumns = computed(() => recordColumns(backendSmokeResponse.value?.data || []));
 const viewCanEdit = computed(() => Boolean(selectedObject.value || isCreatingObject.value));
 const fieldEditorContext = computed(() => ({
   isAdded: isCreatingObject.value,
@@ -965,8 +968,8 @@ function syncDetailDrafts() {
         </div>
       </header>
 
-      <section v-if="activeSection === 'orders'" class="order-workflow" aria-label="View workflow">
-        <article class="panel order-list-panel">
+      <section v-if="activeSection === 'views'" class="view-workflow" aria-label="View workflow">
+        <article class="panel view-list-panel">
           <div class="panel-heading">
             <h2>{{ viewTitle }}</h2>
             <span>{{ viewName }}</span>
@@ -992,7 +995,7 @@ function syncDetailDrafts() {
 
           <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
 
-          <div class="table-wrap orders-table">
+          <div class="table-wrap view-table">
             <table v-if="resultRows.length">
               <thead>
                 <tr>
@@ -1021,13 +1024,13 @@ function syncDetailDrafts() {
           </div>
         </article>
 
-        <article class="panel order-detail-panel">
+        <article class="panel view-detail-panel">
           <div class="panel-heading">
             <h2>Detail</h2>
             <span>{{ selectedObjectId || "No row selected" }}</span>
           </div>
 
-          <div v-if="viewCanEdit" class="order-edit-grid">
+          <div v-if="viewCanEdit" class="view-edit-grid">
             <label v-for="field in detailRows" :key="fieldKey(field)">
               {{ fieldTitle(field) }}
               <MetadataFieldEditor
@@ -1071,7 +1074,7 @@ function syncDetailDrafts() {
             </div>
           </div>
 
-          <div v-if="selectedObject && !isCreatingObject" class="order-items-panel">
+          <div v-if="selectedObject && !isCreatingObject" class="view-items-panel">
             <div v-if="detailItemGroups.length" class="detail-fields">
               <template v-for="group in detailItemGroups" :key="group.prpId || group.name">
                 <div>
@@ -1393,14 +1396,15 @@ function syncDetailDrafts() {
             <table v-if="backendSmokeResponse?.data?.length">
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Order Price</th>
+                  <th v-for="column in backendSmokeColumns" :key="column">{{ column }}</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in backendSmokeResponse.data" :key="String(row.id || row.order_price)">
-                  <td>{{ displayValue(row.id) }}</td>
-                  <td>{{ displayValue(row.order_price) }}</td>
+                <tr
+                  v-for="(row, rowIndex) in backendSmokeResponse.data"
+                  :key="recordRowKey(row, backendSmokeColumns, rowIndex)"
+                >
+                  <td v-for="column in backendSmokeColumns" :key="column">{{ displayValue(row[column]) }}</td>
                 </tr>
               </tbody>
             </table>

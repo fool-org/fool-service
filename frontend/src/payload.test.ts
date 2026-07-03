@@ -19,7 +19,7 @@ import {
 
 describe("App defaults", () => {
   it("opens with a metadata-driven view workflow before API tools", () => {
-    expect(appSource).toContain('const activeSection = ref("orders")');
+    expect(appSource).toContain('const activeSection = ref("views")');
     expect(appSource).toContain("onMounted");
     expect(appSource).toContain("void loadViewWorkflow()");
     expect(appSource).toContain("View workflow");
@@ -56,10 +56,14 @@ describe("App defaults", () => {
     expect(appSource).not.toContain("buildQueryRequest");
   });
 
-  it("loads the seeded order-state enum model by default", () => {
+  it("does not prefill business-specific data DTO fields by default", () => {
     expect(appSource).toContain('const enumModelId = ref("102")');
-    expect(appSource).toContain('const legacyQueryFilter = ref(\'order_state="0"\')');
-    expect(appSource).toContain('{"key":"state","value":"0"}');
+    expect(appSource).toContain('const legacyQueryFilter = ref("")');
+    expect(appSource).toContain('const savePropertyiesJson = ref("[]")');
+    expect(appSource).toContain('const saveNewPropertyiesJson = ref("[]")');
+    expect(appSource).toContain("recordColumns");
+    expect(appSource).not.toContain('order_state="0"');
+    expect(appSource).not.toContain("BTC-USDT");
   });
 
   it("exposes the Docker backend smoke route in the Vue console", () => {
@@ -182,9 +186,9 @@ describe("buildInputQueryRequest", () => {
   it("matches the legacy inputquery DTO shape", () => {
     const request = buildInputQueryRequest({
       token: "token-1",
-      viewName: "OrderList",
-      viewItemId: "symbol",
-      text: "  BTC  ",
+      viewName: "RecordView",
+      viewItemId: "name",
+      text: "  Ada  ",
       objID: "1001",
       ownerId: "5001",
       isAdded: true
@@ -192,9 +196,9 @@ describe("buildInputQueryRequest", () => {
 
     expect(request).toEqual({
       token: "token-1",
-      viewName: "OrderList",
-      viewItemId: "symbol",
-      text: "BTC",
+      viewName: "RecordView",
+      viewItemId: "name",
+      text: "Ada",
       objID: "1001",
       ownerId: "5001",
       isAdded: true
@@ -208,9 +212,9 @@ describe("buildSaveObjRequest", () => {
       token: "token-1",
       id: " 1001 ",
       viewID: " 100 ",
-      propertyiesJson: "[{\"key\":\"symbol\",\"value\":\"BTC-USDT\"},{\"key\":\"state\",\"value\":\"0\"}]",
+      propertyiesJson: "[{\"key\":\"name\",\"value\":\"Sample\"},{\"key\":\"state\",\"value\":\"0\"}]",
       itempropertiesJson:
-        "[{\"key\":\"items\",\"items\":[{\"itemId\":\"2001\",\"isExist\":true,\"propertyies\":[{\"key\":\"itemName\",\"value\":\"Updated item\"}]}]}]"
+        "[{\"key\":\"children\",\"items\":[{\"itemId\":\"2001\",\"isExist\":true,\"propertyies\":[{\"key\":\"childName\",\"value\":\"Updated child\"}]}]}]"
     });
 
     expect(request).toEqual({
@@ -219,17 +223,17 @@ describe("buildSaveObjRequest", () => {
         id: "1001",
         viewID: "100",
         propertyies: [
-          { key: "symbol", value: "BTC-USDT" },
+          { key: "name", value: "Sample" },
           { key: "state", value: "0" }
         ],
         itemproperties: [
           {
-            key: "items",
+            key: "children",
             items: [
               {
                 itemId: "2001",
                 isExist: true,
-                propertyies: [{ key: "itemName", value: "Updated item" }]
+                propertyies: [{ key: "childName", value: "Updated child" }]
               }
             ]
           }
@@ -291,14 +295,14 @@ describe("buildQueryDataDetailRequest", () => {
       token: "token-1",
       viewId: 100,
       objId: " 1001 ",
-      idExp: " order_id "
+      idExp: " record_id "
     });
 
     expect(request).toEqual({
       token: "token-1",
       viewId: 100,
       objId: "1001",
-      idExp: "order_id"
+      idExp: "record_id"
     });
   });
 });
@@ -368,8 +372,8 @@ describe("buildLegacyQueryDataRequest", () => {
       viewId: 100,
       pageSize: 10,
       pageIndex: 2,
-      queryFilter: " order_state=\"0\" ",
-      keyword: "  USDT  ",
+      queryFilter: " record_state=\"0\" ",
+      keyword: "  Ada  ",
       orderByItem: 1001,
       orderByType: 1
     });
@@ -379,8 +383,8 @@ describe("buildLegacyQueryDataRequest", () => {
       viewId: 100,
       pageSize: 10,
       pageIndex: 2,
-      queryFilter: "order_state=\"0\"",
-      keyword: "USDT",
+      queryFilter: "record_state=\"0\"",
+      keyword: "Ada",
       orderByItem: 1001,
       orderByType: 1
     });
@@ -394,9 +398,9 @@ describe("buildMakeReportRequest", () => {
       viewId: 100,
       currentPage: 2,
       pageSize: 10,
-      queryFilter: " order_state=\"0\" ",
-      reportColsJson: "[{\"colName\":\"State\",\"index\":2},{\"colName\":\"Symbol\",\"index\":1}]",
-      reportName: " Order Daily "
+      queryFilter: " record_state=\"0\" ",
+      reportColsJson: "[{\"colName\":\"State\",\"index\":2},{\"colName\":\"Name\",\"index\":1}]",
+      reportName: " View Daily "
     });
 
     expect(request).toEqual({
@@ -404,11 +408,11 @@ describe("buildMakeReportRequest", () => {
       viewId: 100,
       currentPage: 2,
       pageSize: 10,
-      queryFilter: "order_state=\"0\"",
-      reportName: "Order Daily",
+      queryFilter: "record_state=\"0\"",
+      reportName: "View Daily",
       reportCols: [
         { colName: "State", index: 2 },
-        { colName: "Symbol", index: 1 }
+        { colName: "Name", index: 1 }
       ]
     });
   });

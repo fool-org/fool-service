@@ -123,6 +123,29 @@ export function reportRowsFromCells(cells: ReportCell[] = []) {
   );
 }
 
+export function recordColumns(rows: Record<string, unknown>[] = []) {
+  const columns: string[] = [];
+  const seen = new Set<string>();
+  for (const row of rows) {
+    for (const key of Object.keys(row)) {
+      if (!seen.has(key)) {
+        seen.add(key);
+        columns.push(key);
+      }
+    }
+  }
+  return columns;
+}
+
+export function recordRowKey(row: Record<string, unknown>, columns: string[] = [], index = 0) {
+  const id = row.id ?? row.ID ?? row.Id;
+  if (id !== undefined && id !== null && id !== "") {
+    return displayValue(id);
+  }
+  const firstValue = columns.map((column) => row[column]).find((value) => value !== undefined && value !== null && value !== "");
+  return firstValue === undefined ? String(index) : displayValue(firstValue);
+}
+
 export function emptyGroupDraft(group: QueryDataDetailItemGroup) {
   return groupColumns(group).reduce<Record<string, string>>((drafts, field) => {
     const key = fieldKey(field);

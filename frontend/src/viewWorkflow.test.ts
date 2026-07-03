@@ -16,6 +16,8 @@ import {
   isReadonlyField,
   itemKey,
   reportRowsFromCells,
+  recordColumns,
+  recordRowKey,
   rowFormatClass,
   rowObjectId,
   rowValue,
@@ -25,19 +27,19 @@ import {
 describe("view workflow helpers", () => {
   it("renders rows from view columns and row data", () => {
     const columns = [
-      { property: "orderId", title: "Order ID" },
+      { property: "recordId", title: "Record ID" },
       { property: "state", title: "State" }
     ];
     const row = {
       id: "1001",
-      values: { orderId: 1001, state: "0" },
+      values: { recordId: 1001, state: "0" },
       items: [
-        { prpId: "orderId", fmtValue: "1001" },
+        { prpId: "recordId", fmtValue: "1001" },
         { prpId: "state", fmtValue: "Open" }
       ]
     };
 
-    expect(columnKey(columns[0])).toBe("orderId");
+    expect(columnKey(columns[0])).toBe("recordId");
     expect(rowObjectId(row, columns)).toBe("1001");
     expect(rowValue(row, columns[1])).toBe("Open");
     expect(rowFormatClass({ ...row, rowFmt: "warning-row " })).toBe("warning-row");
@@ -45,15 +47,15 @@ describe("view workflow helpers", () => {
 
   it("builds generic save propertyies from detail fields", () => {
     const fields = [
-      { prpId: "orderId", objId: "1001", fmtValue: "1001", readOnly: true },
-      { prpId: "symbol", objId: "BTC-USDT", fmtValue: "BTC-USDT" },
+      { prpId: "recordId", objId: "1001", fmtValue: "1001", readOnly: true },
+      { prpId: "name", objId: "Sample", fmtValue: "Sample" },
       { prpId: "state", objId: "0", fmtValue: "Open" }
     ];
     const drafts = buildFieldDrafts(fields);
-    drafts.symbol = "ETH-USDT";
+    drafts.name = "Updated";
 
     expect(buildSavePropertyies(fields, drafts)).toEqual([
-      { key: "symbol", value: "ETH-USDT" },
+      { key: "name", value: "Updated" },
       { key: "state", value: "0" }
     ]);
   });
@@ -73,7 +75,7 @@ describe("view workflow helpers", () => {
   it("identifies readonly fields by metadata", () => {
     expect(isReadonlyField({ prpId: "id", readOnly: true })).toBe(true);
     expect(isReadonlyField({ prpId: "id", editType: "ReadOnly" })).toBe(true);
-    expect(isReadonlyField({ prpId: "symbol", readOnly: false, editType: "TextBox" })).toBe(false);
+    expect(isReadonlyField({ prpId: "name", readOnly: false, editType: "TextBox" })).toBe(false);
   });
 
   it("keeps legacy child collection add/update/delete payload names", () => {
@@ -181,10 +183,22 @@ describe("view workflow helpers", () => {
     expect(reportRowsFromCells([
       { row: 0, col: 0, rowSpan: 1, colSpan: 1, fmtValue: "Symbol" },
       { row: 0, col: 1, rowSpan: 1, colSpan: 1, fmtValue: "State" },
-      { row: 1, col: 0, rowSpan: 1, colSpan: 1, fmtValue: "BTC-USDT" }
+      { row: 1, col: 0, rowSpan: 1, colSpan: 1, fmtValue: "Sample" }
     ])).toEqual([
       ["Symbol", "State"],
-      ["BTC-USDT", ""]
+      ["Sample", ""]
     ]);
+  });
+
+  it("derives generic record columns without business keys", () => {
+    const rows = [
+      { id: 1, amount: 120, state: "Open" },
+      { id: 2, operator: "Ada" }
+    ];
+
+    expect(recordColumns(rows)).toEqual(["id", "amount", "state", "operator"]);
+    expect(recordRowKey(rows[0], ["id", "amount"], 0)).toBe("1");
+    expect(recordRowKey({ amount: 120 }, ["id", "amount"], 3)).toBe("120");
+    expect(recordRowKey({}, [], 4)).toBe("4");
   });
 });
