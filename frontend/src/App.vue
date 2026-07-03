@@ -708,7 +708,10 @@ function applyLoadedView(view?: ListViewInfo) {
   }
 }
 
-async function loadViewWorkflow() {
+async function loadViewWorkflow(resetPage = false) {
+  if (resetPage) {
+    pageIndex.value = 1;
+  }
   const loadedView = await loadLegacyListView();
   if (!loadedView) {
     return;
@@ -1005,7 +1008,7 @@ function syncDetailDrafts() {
               Page size
               <input v-model.number="pageSize" min="1" type="number" />
             </label>
-            <button class="primary" type="button" :disabled="Boolean(pendingAction)" @click="loadViewWorkflow">
+            <button class="primary" type="button" :disabled="Boolean(pendingAction)" @click="loadViewWorkflow(true)">
               Load View
             </button>
             <button v-for="operation in listCreateOperations" :key="operation.id || operation.name" type="button" :disabled="Boolean(pendingAction)" @click="startNewObject(operation.viewId || currentViewId)">{{ operation.text || operation.name || `New ${operation.viewId}` }}</button>

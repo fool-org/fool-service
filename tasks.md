@@ -125,6 +125,8 @@ explicitly named as authoritative for fool-service.
       metadata actions instead of dropping them from the View-rendered page.
 - [x] Render View workflow paging controls from legacy `querydata` totals and
       keep page navigation on the loaded `ViewId`.
+- [x] Reset the main View workflow search/load action to page 1 before
+      re-querying, matching FoolFrame list search behavior.
 
 ## Backlog
 

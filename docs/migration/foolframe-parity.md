@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: the Vue main View workflow now resets `pageIndex` to `1` when
+  the operator clicks `Load View` / search, matching FoolFrame
+  `querylistdata.js` where `query()` sets `$scope.page = 1` before
+  `querydata()`. Pagination buttons still keep their explicit target page and
+  reuse the loaded View id.
 - 2026-07-04: the Vue View workflow now renders previous/next paging controls
   from legacy `querydata` totals (`totalItem`, `totalPage`, `pageIndex`,
   with `pageInfo` fallback), matching FoolFrame `querylistdata.js` updating

@@ -64,6 +64,12 @@ describe("App defaults", () => {
     expect(appSource).toContain("Page {{ resultPageIndex }} / {{ resultTotalPages || 1 }}");
   });
 
+  it("resets the main View search to the first page", () => {
+    expect(appSource).toContain("async function loadViewWorkflow(resetPage = false)");
+    expect(appSource).toContain("pageIndex.value = 1");
+    expect(appSource).toContain('@click="loadViewWorkflow(true)"');
+  });
+
   it("keeps the Vue workspace on view-id driven legacy view and data APIs", () => {
     expect(appSource).toContain("/api/v1/view/getlistview");
     expect(appSource).toContain("/api/v1/data/querydata");
