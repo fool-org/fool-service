@@ -48,18 +48,17 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-03: migrated legacy `PROPERTY_SOURCE` metadata onto
   `Property.source`, app-install property persistence, and
   `fool_sys_model_property.source`; the running Docker MySQL volume was
-  patched with the same column. `inputquery` source-list/owner-context
-  execution remains open.
+  patched with the same column. `inputquery` source-list execution was closed
+  by the following parity increments.
 - 2026-07-03: migrated the legacy `inputquery` existing-object
   `Property.Source` source-list branch. When `ObjID` is present and the
   selected property has a source collection, candidates are filtered from that
-  collection before falling back to target-model SQL lookup. Owner-context and
-  view-item source-expression branches remained open at that point.
+  collection before falling back to target-model SQL lookup.
 - 2026-07-03: migrated runtime `ViewItem.sourceExpression` metadata onto
   `fool_sys_view_item.source_expression` and made `inputquery` prefer the
   view-item source expression before `Property.source` when resolving an
   existing-object source list. Added the same column to the running Docker
-  MySQL volume. The added-item owner-context branch remains open.
+  MySQL volume.
 - 2026-07-03: migrated runtime `Model.owner` / legacy
   `MODEL_DEFAULTOWNER` metadata onto `fool_sys_model.default_owner` and
   `SW_SYS_MODEL.MODEL_DEFAULTOWNER`, including the running Docker MySQL volume.
