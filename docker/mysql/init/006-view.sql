@@ -337,12 +337,25 @@ SET `auto_sys_id` = 0,
     `id_property` = 1011
 WHERE `name` = 'OrderItem';
 
+INSERT INTO `SW_SYS_MODULE` (
+  `MODULE_NAME`, `MODULE_REMARK`, `MODULE_ASSEMBLY`, `MODULE_FILENAME`,
+  `MODULE_VERSION`, `MODULE_GENERATIONCODE`, `MODULE_CON`
+)
+VALUES ('Market', 'Docker market smoke module', 'Market', 'Market.dll', '1.0.0', 1, NULL)
+ON DUPLICATE KEY UPDATE
+  `MODULE_REMARK` = VALUES(`MODULE_REMARK`),
+  `MODULE_ASSEMBLY` = VALUES(`MODULE_ASSEMBLY`),
+  `MODULE_FILENAME` = VALUES(`MODULE_FILENAME`),
+  `MODULE_VERSION` = VALUES(`MODULE_VERSION`),
+  `MODULE_GENERATIONCODE` = VALUES(`MODULE_GENERATIONCODE`),
+  `MODULE_CON` = VALUES(`MODULE_CON`);
+
 INSERT INTO `SW_SYS_MODEL` (`MODEL_ID`, `MODEL_NAME`, `MODEL_CLASS`, `MODEL_CONTYPE`, `MODEL_DATABASETABLE`, `MODEL_MODULE`, `MODEL_AUTOID`, `MODEL_CON`, `MODEL_DEFAULTOWNER`)
-SELECT 100, 'Order', 'org.fool.framework.market.Order', 3, 'market_order', NULL, 0, NULL, NULL
+SELECT 100, 'Order', 'org.fool.framework.market.Order', 3, 'market_order', 'Market', 0, NULL, NULL
 WHERE NOT EXISTS (SELECT 1 FROM `SW_SYS_MODEL` WHERE `MODEL_ID` = 100);
 
 INSERT INTO `SW_SYS_MODEL` (`MODEL_ID`, `MODEL_NAME`, `MODEL_CLASS`, `MODEL_CONTYPE`, `MODEL_DATABASETABLE`, `MODEL_MODULE`, `MODEL_AUTOID`, `MODEL_CON`, `MODEL_DEFAULTOWNER`)
-SELECT 101, 'OrderItem', 'org.fool.framework.market.OrderItem', 3, 'market_order_item', NULL, 0, NULL, NULL
+SELECT 101, 'OrderItem', 'org.fool.framework.market.OrderItem', 3, 'market_order_item', 'Market', 0, NULL, NULL
 WHERE NOT EXISTS (SELECT 1 FROM `SW_SYS_MODEL` WHERE `MODEL_ID` = 101);
 
 INSERT INTO `fool_sys_model` (`id`, `name`, `text`, `remark`, `model_type`, `class_name`, `table_name`, `auto_sys_id`, `id_property`)
@@ -374,8 +387,12 @@ SET `value` = '1'
 WHERE `owner` = 102 AND `value` = 'FILLED';
 
 INSERT INTO `SW_SYS_MODEL` (`MODEL_ID`, `MODEL_NAME`, `MODEL_CLASS`, `MODEL_CONTYPE`, `MODEL_DATABASETABLE`, `MODEL_MODULE`, `MODEL_AUTOID`, `MODEL_CON`, `MODEL_DEFAULTOWNER`)
-SELECT 102, 'OrderState', 'org.fool.framework.market.OrderState', NULL, NULL, NULL, 0, NULL, NULL
+SELECT 102, 'OrderState', 'org.fool.framework.market.OrderState', NULL, NULL, 'Market', 0, NULL, NULL
 WHERE NOT EXISTS (SELECT 1 FROM `SW_SYS_MODEL` WHERE `MODEL_ID` = 102);
+
+UPDATE `SW_SYS_MODEL`
+SET `MODEL_MODULE` = 'Market'
+WHERE `MODEL_ID` IN (100, 101, 102);
 
 INSERT INTO `SW_SYS_EMUNVALUE` (`EMUN_STR`, `EMUN_VALUE`, `SW_SYS_MODEL_EnumValuesMODEL_ID`)
 SELECT 'Open', 0, 102

@@ -107,6 +107,8 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   smoke workflow, including `SW_AUTH_USER`, `SW_APP_AUTH_USER`,
   `SW_APP_AUTH_ROLE`, `SW_APP_AUTH_MENU`, submenu, role-user, and role-menu
   relations.
+- 2026-07-03: seeded the legacy `SW_SYS_MODULE` record for the Docker market
+  smoke metadata and linked the seeded legacy model shells to that module.
 
 ## Server Source Mapping
 
