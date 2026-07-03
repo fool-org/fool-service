@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildInputQueryRequest, buildQueryRequest } from "./payload";
+import { buildInputQueryRequest, buildQueryRequest, buildSaveObjRequest } from "./payload";
 
 describe("buildQueryRequest", () => {
   it("matches the Spring QueryDataRequest DTO shape", () => {
@@ -96,6 +96,43 @@ describe("buildInputQueryRequest", () => {
       objID: "1001",
       ownerId: "5001",
       isAdded: true
+    });
+  });
+});
+
+describe("buildSaveObjRequest", () => {
+  it("matches the legacy saveobj DTO shape", () => {
+    const request = buildSaveObjRequest({
+      token: "token-1",
+      id: " 1001 ",
+      viewID: " 100 ",
+      propertyiesJson: "[{\"key\":\"symbol\",\"value\":\"BTC-USDT\"},{\"key\":\"state\",\"value\":\"OPEN\"}]",
+      itempropertiesJson:
+        "[{\"key\":\"items\",\"items\":[{\"itemId\":\"2001\",\"isExist\":true,\"propertyies\":[{\"key\":\"itemName\",\"value\":\"Updated item\"}]}]}]"
+    });
+
+    expect(request).toEqual({
+      token: "token-1",
+      saveObj: {
+        id: "1001",
+        viewID: "100",
+        propertyies: [
+          { key: "symbol", value: "BTC-USDT" },
+          { key: "state", value: "OPEN" }
+        ],
+        itemproperties: [
+          {
+            key: "items",
+            items: [
+              {
+                itemId: "2001",
+                isExist: true,
+                propertyies: [{ key: "itemName", value: "Updated item" }]
+              }
+            ]
+          }
+        ]
+      }
     });
   });
 });

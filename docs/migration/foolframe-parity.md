@@ -70,6 +70,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-03: exposed the migrated `inputquery` candidate lookup in the Vue
   operator console with a typed payload builder and Docker frontend smoke
   coverage.
+- 2026-07-03: exposed the migrated `saveobj` writeback API in the Vue operator
+  console with typed payload building for simple properties and itemproperties,
+  plus Docker runtime and MySQL writeback smoke coverage.
 
 ## Server Source Mapping
 
@@ -140,6 +143,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   with view item, text, existing-object ID, added-item owner ID, and added-item
   mode fields
 - Vue API types for legacy `saveobj` request payloads
+- A Vue save-object panel that calls legacy `/api/v1/data/saveobj` with view ID,
+  object ID, simple `Propertyies`, and `Itemproperties` JSON payloads
 - Vue API types for legacy view-item `ID`, `Name`, `PropertyName`, `ShowIndex`, `Width`, `Format`, `IsReadOnly`, `EditType`, `PropertyId`, `EditViewId`, `EditExp`, linked-list-view defaults, `PropertyType`, and `PropertyModel` metadata
 - Vue API types for legacy view-item `ViewFile` metadata
 - Structured visible equality/range filters that emit Spring `QueryValue` payloads, plus advanced JSON filters

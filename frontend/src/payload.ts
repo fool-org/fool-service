@@ -1,4 +1,4 @@
-import type { InputQueryRequest } from "./api";
+import type { InputQueryRequest, SaveItemProperty, SaveKeypair, SaveObject, SaveObjRequest } from "./api";
 
 export interface QueryRequestInput {
   token: string;
@@ -25,6 +25,16 @@ export interface InputQueryRequestInput {
   objID?: string;
   isAdded?: boolean;
   ownerId?: string;
+}
+
+export interface SaveObjRequestInput {
+  token: string;
+  id: string;
+  viewID: string;
+  propertyiesJson: string;
+  itempropertiesJson?: string;
+  parentId?: string;
+  model?: string;
 }
 
 export interface QueryRequest {
@@ -73,6 +83,27 @@ export function buildInputQueryRequest(input: InputQueryRequestInput): InputQuer
   addOptional(request, "objID", input.objID);
   addOptional(request, "ownerId", input.ownerId);
   return request;
+}
+
+export function buildSaveObjRequest(input: SaveObjRequestInput): SaveObjRequest {
+  const saveObj: SaveObject = {
+    id: input.id.trim(),
+    viewID: input.viewID.trim(),
+    propertyies: parseJsonArray<SaveKeypair>(input.propertyiesJson, "Propertyies JSON"),
+    itemproperties: parseJsonArray<SaveItemProperty>(input.itempropertiesJson || "", "Itemproperties JSON")
+  };
+  const parentId = input.parentId?.trim();
+  const model = input.model?.trim();
+  if (parentId) {
+    saveObj.parentId = parentId;
+  }
+  if (model) {
+    saveObj.model = model;
+  }
+  return {
+    token: input.token,
+    saveObj
+  };
 }
 
 function parseFilter(filterJson: string): Record<string, unknown> {
@@ -126,4 +157,16 @@ function addOptional(request: InputQueryRequest, key: "modelID" | "objID" | "own
   if (trimmed) {
     request[key] = trimmed;
   }
+}
+
+function parseJsonArray<T>(json: string, label: string): T[] {
+  const trimmed = json.trim();
+  if (!trimmed) {
+    return [];
+  }
+  const parsed = JSON.parse(trimmed) as unknown;
+  if (!Array.isArray(parsed)) {
+    throw new Error(`${label} must be an array.`);
+  }
+  return parsed as T[];
 }

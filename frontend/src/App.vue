@@ -13,7 +13,7 @@ import {
   type UserDTO,
   postApi
 } from "./api";
-import { buildInputQueryRequest, buildQueryRequest, type VisibleFilterInput } from "./payload";
+import { buildInputQueryRequest, buildQueryRequest, buildSaveObjRequest, type VisibleFilterInput } from "./payload";
 
 const token = ref(localStorage.getItem("fool-service-token") || "");
 const userId = ref("admin");
@@ -33,6 +33,10 @@ const inputQueryText = ref("BTC");
 const inputQueryObjId = ref("");
 const inputQueryOwnerId = ref("");
 const inputQueryIsAdded = ref(false);
+const saveViewId = ref("100");
+const saveObjId = ref("1001");
+const savePropertyiesJson = ref('[{"key":"symbol","value":"BTC-USDT"},{"key":"state","value":"OPEN"}]');
+const saveItempropertiesJson = ref("");
 const activeSection = ref("auth");
 
 const loginResponse = ref<CommonResponse<LoginVo> | null>(null);
@@ -41,6 +45,7 @@ const menuResponse = ref<CommonResponse<TreeNode<AuthItem>[]> | null>(null);
 const viewResponse = ref<CommonResponse<ListViewInfo> | null>(null);
 const dataResponse = ref<CommonResponse<ListViewResult> | null>(null);
 const inputQueryResponse = ref<CommonResponse<InputQueryResult> | null>(null);
+const saveObjResponse = ref<CommonResponse<void> | null>(null);
 const errorMessage = ref("");
 const pendingAction = ref("");
 
@@ -209,6 +214,21 @@ async function inputQuery() {
   );
   if (response) {
     inputQueryResponse.value = response;
+  }
+}
+
+async function saveObj() {
+  const request = buildSaveObjRequest({
+    token: token.value,
+    id: saveObjId.value,
+    viewID: saveViewId.value,
+    propertyiesJson: savePropertyiesJson.value,
+    itempropertiesJson: saveItempropertiesJson.value
+  });
+
+  const response = await runAction("saveobj", () => postApi<void>("/api/v1/data/saveobj", request));
+  if (response) {
+    saveObjResponse.value = response;
   }
 }
 
@@ -449,6 +469,34 @@ function formatValue(value: unknown) {
             <div v-else class="empty-state">No candidates loaded.</div>
           </div>
         </article>
+
+        <article class="panel lookup-panel">
+          <div class="panel-heading">
+            <h2>Save Object</h2>
+            <span>POST /api/v1/data/saveobj</span>
+          </div>
+          <div class="inline-fields">
+            <label>
+              View ID
+              <input v-model="saveViewId" />
+            </label>
+            <label>
+              Object ID
+              <input v-model="saveObjId" />
+            </label>
+          </div>
+          <label>
+            Propertyies JSON
+            <textarea v-model="savePropertyiesJson" rows="4" spellcheck="false"></textarea>
+          </label>
+          <label>
+            Itemproperties JSON
+            <textarea v-model="saveItempropertiesJson" rows="4" spellcheck="false"></textarea>
+          </label>
+          <button class="primary" type="button" :disabled="pendingAction === 'saveobj'" @click="saveObj">
+            Save Object
+          </button>
+        </article>
       </section>
 
       <section class="panel results-panel" aria-label="Results">
@@ -497,7 +545,8 @@ function formatValue(value: unknown) {
                 menus: menuResponse,
                 view: viewResponse,
                 data: dataResponse,
-                inputQuery: inputQueryResponse
+                inputQuery: inputQueryResponse,
+                saveObj: saveObjResponse
               },
               null,
               2
