@@ -14,6 +14,8 @@ import org.fool.framework.model.model.MultiDbMap;
 import org.fool.framework.model.model.OperationBaseType;
 import org.fool.framework.model.model.OperationCommand;
 import org.fool.framework.model.model.Property;
+import org.fool.framework.model.model.PropertyTrigger;
+import org.fool.framework.model.model.PropertyTriggerType;
 import org.fool.framework.model.model.Relation;
 import org.fool.framework.model.model.RelationType;
 import org.fool.framework.model.model.Trigger;
@@ -265,6 +267,71 @@ public class ModelDataServiceTest {
             assertEquals("triggered", name);
         } finally {
             cleanupRuntimeTriggerModel(modelId, modelName, tableName);
+        }
+    }
+
+    @Test
+    public void saveDataExecutesLegacyPropertySetTriggerSetValue() {
+        long modelId = 92701L;
+        long idPropertyId = 92702L;
+        long namePropertyId = 92703L;
+        long triggerId = 92704L;
+        long commandId = 92705L;
+        String modelName = "RuntimePropertyTriggerOrder";
+        String tableName = "runtime_property_trigger_order";
+        cleanupRuntimePropertyTriggerModel(modelId, modelName, tableName);
+        try {
+            createRuntimeDetailModel(modelId, idPropertyId, namePropertyId, modelName, tableName);
+            jdbcTemplate.update(
+                    "INSERT INTO `" + tableName + "` (`ORDER_ID`,`ORDER_NAME`) VALUES (?,?)",
+                    "2001",
+                    "before trigger");
+            jdbcTemplate.update(
+                    "INSERT INTO `SW_SYS_PROPERTY_TRIGGER` "
+                            + "(`SysId`,`SW_SYS_PROPERTY_TriggersSysId`,`SW_PROPERTY_TRIGGER_TYPE`,"
+                            + "`SW_PROPERTY_TRIGGER_NAME`,`SW_PROPERTY_TRIGGER_PROPERTY`,"
+                            + "`SW_PROPERTY_TRIGGER_BASETYPE`) VALUES (?,?,?,?,?,?)",
+                    triggerId,
+                    namePropertyId,
+                    PropertyTriggerType.SET.code(),
+                    "set orderName",
+                    namePropertyId,
+                    OperationBaseType.NULL.code());
+            jdbcTemplate.update(
+                    "INSERT INTO `SW_SYS_PROPERTY_TRIGGER_COMMANDS` "
+                            + "(`SysId`,`SW_SYS_PROPERTY_TRIGGER_CommandsSysId`,`SW_SYS_COMMAND_TYPE`,"
+                            + "`SW_SYS_COMMAND_PROPERTY`,`SW_SYS_COMMAND_EXP`,`SW_SYS_COMMAND_INDEX`) "
+                            + "VALUES (?,?,?,?,?,?)",
+                    commandId,
+                    triggerId,
+                    CommandsType.SET_VALUE.code(),
+                    namePropertyId,
+                    "$property-triggered",
+                    1);
+
+            Model model = modelDataService.getModel(modelName);
+            Property nameProperty = model.getProperties().stream()
+                    .filter(property -> "orderName".equals(property.getName()))
+                    .findFirst()
+                    .orElseThrow();
+            assertEquals(1, nameProperty.getTriggerList().size());
+            PropertyTrigger trigger = nameProperty.getTriggerList().get(0);
+            assertEquals(Long.valueOf(triggerId), trigger.getId());
+            assertEquals(PropertyTriggerType.SET, trigger.getTriggerType());
+            assertEquals(1, trigger.getCommands().size());
+
+            IDynamicData data = modelDataService.getOneData(modelName, "2001");
+            data.set("orderName", "manual save");
+
+            assertEquals(Boolean.TRUE, modelDataService.saveData(data));
+
+            String name = jdbcTemplate.queryForObject(
+                    "SELECT `ORDER_NAME` FROM `" + tableName + "` WHERE `ORDER_ID` = ?",
+                    String.class,
+                    "2001");
+            assertEquals("property-triggered", name);
+        } finally {
+            cleanupRuntimePropertyTriggerModel(modelId, modelName, tableName);
         }
     }
 
@@ -1075,6 +1142,20 @@ public class ModelDataServiceTest {
                 modelId);
         jdbcTemplate.update("DELETE FROM `SW_SYS_MODEL_TRIGGER` WHERE `SW_SYS_MODEL_TriggersMODEL_ID` = ?", modelId);
         cleanupRuntimeDetailModel(modelId, modelName, tableName);
+    }
+
+    private void cleanupRuntimePropertyTriggerModel(long modelId, String modelName, String tableName) {
+        jdbcTemplate.update(
+                "DELETE FROM `SW_SYS_PROPERTY_TRIGGER_COMMANDS` WHERE `SW_SYS_PROPERTY_TRIGGER_CommandsSysId` IN "
+                        + "(SELECT `SysId` FROM `SW_SYS_PROPERTY_TRIGGER` WHERE "
+                        + "`SW_SYS_PROPERTY_TriggersSysId` IN "
+                        + "(SELECT `id` FROM `fool_sys_model_property` WHERE `owner` = ?))",
+                modelId);
+        jdbcTemplate.update(
+                "DELETE FROM `SW_SYS_PROPERTY_TRIGGER` WHERE `SW_SYS_PROPERTY_TriggersSysId` IN "
+                        + "(SELECT `id` FROM `fool_sys_model_property` WHERE `owner` = ?)",
+                modelId);
+        cleanupRuntimeTriggerModel(modelId, modelName, tableName);
     }
 
     private void cleanupRuntimeRelationModel(

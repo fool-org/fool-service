@@ -108,6 +108,9 @@ explicitly named as authoritative for fool-service.
 - [x] Make the Vue API-tools `Query Data` path load the selected View
       definition before calling `querydata`, so shared row state stays bound to
       the rendered View context instead of a standalone business DTO shortcut.
+- [x] Execute legacy property `SET` trigger `SET_VALUE` side effects through
+      dynamic `ModelDataService` create/save writes without introducing
+      concrete business DTO binding.
 
 ## Backlog
 

@@ -14,6 +14,8 @@ import org.fool.framework.model.model.MultiDbMap;
 import org.fool.framework.model.model.OperationBaseType;
 import org.fool.framework.model.model.OperationCommand;
 import org.fool.framework.model.model.Property;
+import org.fool.framework.model.model.PropertyTrigger;
+import org.fool.framework.model.model.PropertyTriggerType;
 import org.fool.framework.model.model.Relation;
 import org.fool.framework.model.model.RelationType;
 import org.fool.framework.model.model.Trigger;
@@ -71,6 +73,7 @@ public class ModelDataService {
     public Model getModel(String modelId) {
         Model model = daoService.getOneDetailByKey(Model.class, modelId);
         hydrateRelations(model);
+        hydratePropertyTriggers(model);
         hydrateModelTriggers(model);
         return model;
     }
@@ -123,6 +126,46 @@ public class ModelDataService {
                     trigger.getId()));
         }
         model.setTriggers(triggers);
+    }
+
+    private void hydratePropertyTriggers(Model model) {
+        if (model == null || model.getProperties() == null || model.getProperties().isEmpty()) {
+            return;
+        }
+        List<Long> propertyIds = model.getProperties().stream()
+                .map(Property::getId)
+                .filter(Objects::nonNull)
+                .toList();
+        if (propertyIds.isEmpty()) {
+            return;
+        }
+        String placeholders = propertyIds.stream().map(id -> "?").collect(Collectors.joining(","));
+        List<PropertyTrigger> triggers = daoService.selectList(
+                PropertyTrigger.class,
+                "SELECT `SysId`,`SW_SYS_PROPERTY_TriggersSysId`,`SW_PROPERTY_TRIGGER_ARGFILTER`,"
+                        + "`SW_PROPERTY_TRIGGER_ARGMODEL`,`SW_PROPERTY_TRIGGER_FILTER`,"
+                        + "`SW_PROPERTY_TRIGGER_TYPE`,`SW_PROPERTY_TRIGGER_NAME`,"
+                        + "`SW_PROPERTY_TRIGGER_PROPERTY`,`SW_PROPERTY_TRIGGER_BASETYPE`,"
+                        + "`SW_MODEL_TRIGGER_INVOKEDLL`,`SW_MODEL_TRIGGER_INVOKECLASS`,"
+                        + "`SW_MODEL_TRIGGER_INVOKEMETHOD` FROM `SW_SYS_PROPERTY_TRIGGER` "
+                        + "WHERE `SW_SYS_PROPERTY_TriggersSysId` IN (" + placeholders + ") ORDER BY `SysId`",
+                propertyIds.toArray());
+        for (PropertyTrigger trigger : triggers) {
+            trigger.setCommands(daoService.selectList(
+                    OperationCommand.class,
+                    "SELECT `SysId`,`SW_SYS_PROPERTY_TRIGGER_CommandsSysId` AS `SW_SYS_OPERATION_CommandsSysId`,"
+                            + "`SW_SYS_COMMAND_TYPE`,`SW_SYS_COMMAND_PROPERTY`,`SW_SYS_COMMAND_EXP`,"
+                            + "`SW_SYS_COMMAND_ARGMODEL`,`SW_SYS_COMMAND_ARGEXP`,`SW_SYS_COMMAND_ARGID`,"
+                            + "`SW_SYS_COMMAND_INDEX`,`SW_SYS_COMMAND_PROPERTY_EXP`,"
+                            + "`SW_SYS_COMMAND_TEMPVALUE` FROM `SW_SYS_PROPERTY_TRIGGER_COMMANDS` "
+                            + "WHERE `SW_SYS_PROPERTY_TRIGGER_CommandsSysId` = ? "
+                            + "ORDER BY `SW_SYS_COMMAND_INDEX`, `SysId`",
+                    trigger.getId()));
+        }
+        Map<Long, List<PropertyTrigger>> byProperty = triggers.stream()
+                .collect(Collectors.groupingBy(PropertyTrigger::getOwnerPropertyId));
+        model.getProperties().forEach(property ->
+                property.setTriggerList(byProperty.getOrDefault(property.getId(), List.of())));
     }
 
     public IDynamicData getOneData(String modelId, String dataId) {
@@ -266,6 +309,7 @@ public class ModelDataService {
                 || model.getProperties() == null) {
             return false;
         }
+        hydratePropertyTriggers(model);
         hydrateModelTriggers(model);
         Property idProperty = model.getIdProperty();
         String idColumn = idProperty != null && idProperty.getColumn() != null && !idProperty.getColumn().isBlank()
@@ -274,6 +318,9 @@ public class ModelDataService {
         Object idValue = lookupIdValue(dynamicData, idProperty);
         if (idValue == null) {
             return false;
+        }
+        if (runTriggers) {
+            executePropertySetTriggers(model, dynamicData, false);
         }
         Map<String, Object> columnValues = writableColumnValues(model, data, idColumn);
         addColumnValue(columnValues, extraColumn, extraValue, idColumn);
@@ -363,7 +410,11 @@ public class ModelDataService {
                 || model.getProperties() == null) {
             return false;
         }
+        hydratePropertyTriggers(model);
         hydrateModelTriggers(model);
+        if (runTriggers) {
+            executePropertySetTriggers(model, dynamicData, true);
+        }
         Map<String, Object> columnValues = writableColumnValues(model, data, null);
         addColumnValue(columnValues, extraColumn, extraValue, null);
         if (columnValues.isEmpty()) {
@@ -396,15 +447,7 @@ public class ModelDataService {
     }
 
     private void executeModelTrigger(Model model, IDynamicData data, Trigger trigger) {
-        if (trigger.getCommands() != null) {
-            trigger.getCommands().stream()
-                    .filter(command -> command != null && command.getCommandType() == CommandsType.SET_VALUE)
-                    .sorted(Comparator.comparing(command -> command.getIndex() == null ? 0 : command.getIndex()))
-                    .forEach(command -> property(model, command.getPropertyId())
-                            .ifPresent(property -> data.set(
-                                    property.getName(),
-                                    triggerCommandValue(property, data, command.getExpression()))));
-        }
+        applySetValueCommands(model, data, trigger.getCommands());
         OperationBaseType type = trigger.getBaseOperationType();
         if (type == OperationBaseType.UPDATE) {
             saveData(data, null, null, false, false);
@@ -413,6 +456,34 @@ public class ModelDataService {
         } else if (type == OperationBaseType.DELETE) {
             deleteData(data, false);
         }
+    }
+
+    private void executePropertySetTriggers(Model model, DbMysqlDynamic data, boolean creating) {
+        model.getProperties().stream()
+                .filter(property -> property != null && propertyTouched(data, property, creating))
+                .flatMap(property -> property.getTriggerList().stream())
+                .filter(trigger -> trigger != null && trigger.getTriggerType() == PropertyTriggerType.SET)
+                .forEach(trigger -> applySetValueCommands(model, data, trigger.getCommands()));
+    }
+
+    private boolean propertyTouched(DbMysqlDynamic data, Property property, boolean creating) {
+        if (property.getName() == null || property.getName().isBlank()) {
+            return false;
+        }
+        return creating ? data.toMap().containsKey(property.getName()) : data.hasOld(property.getName());
+    }
+
+    private void applySetValueCommands(Model model, IDynamicData data, List<OperationCommand> commands) {
+        if (commands == null) {
+            return;
+        }
+        commands.stream()
+                .filter(command -> command != null && command.getCommandType() == CommandsType.SET_VALUE)
+                .sorted(Comparator.comparing(command -> command.getIndex() == null ? 0 : command.getIndex()))
+                .forEach(command -> property(model, command.getPropertyId())
+                        .ifPresent(property -> data.set(
+                                property.getName(),
+                                triggerCommandValue(property, data, command.getExpression()))));
     }
 
     private java.util.Optional<Property> property(Model model, Long propertyId) {

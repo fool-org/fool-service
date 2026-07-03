@@ -41,7 +41,7 @@ public class Property {
     @Column("SW_SYS_PROPERTY_DBMapsSysId")
     private List<MultiDbMap> dbMaps = new ArrayList<>();
     @Column(noMap = true)
-    private List<Trigger> triggerList;
+    private List<PropertyTrigger> triggerList = new ArrayList<>();
 
 
 }
