@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import nginxConfig from "../nginx.conf?raw";
 import viteConfig from "../vite.config.ts?raw";
 import appSource from "./App.vue?raw";
+import metadataFieldEditorSource from "./MetadataFieldEditor.vue?raw";
 import {
   buildGetEnumRequest,
   buildInputQueryRequest,
@@ -57,6 +58,11 @@ describe("App defaults", () => {
     expect(appSource).not.toContain("/api/v1/view/get-view");
     expect(appSource).not.toContain("/api/v1/data/query-list");
     expect(appSource).not.toContain("buildQueryRequest");
+  });
+
+  it("keeps metadata lookup tied to the rendered view id", () => {
+    expect(metadataFieldEditorSource).toContain("viewId: props.viewId");
+    expect(metadataFieldEditorSource).not.toContain("viewName");
   });
 
   it("does not prefill business-specific data DTO fields by default", () => {

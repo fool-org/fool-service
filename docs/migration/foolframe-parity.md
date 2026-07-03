@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: Vue metadata lookup editors no longer accept or forward a
+  `viewName` fallback. BusinessObject candidate search now builds `inputquery`
+  from the already rendered View id plus ViewItem id, keeping the page flow on
+  FoolFrame's sequence: render View metadata first, then query data and lookup
+  candidates through that View context. The backend still accepts `ViewName`
+  for protocol compatibility, but the frontend main workflow does not use it.
 - 2026-07-04: the Vue main View workflow now keeps loaded View rows and
   `querydatadetail` detail fields visible in the first desktop screen, with
   narrow screens using table scrolling instead of squeezing row action buttons.
