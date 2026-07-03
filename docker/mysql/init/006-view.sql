@@ -337,6 +337,15 @@ SET `auto_sys_id` = 0,
     `id_property` = 1011
 WHERE `name` = 'OrderItem';
 
+INSERT INTO `fool_sys_model` (`id`, `name`, `text`, `remark`, `model_type`, `class_name`, `table_name`, `auto_sys_id`, `id_property`)
+SELECT 103, 'Customer', 'Customer', 'Market customer lookup smoke model', 0, 'org.fool.framework.market.Customer', 'market_customer', 0, 1031
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_model` WHERE `name` = 'Customer');
+
+UPDATE `fool_sys_model`
+SET `auto_sys_id` = 0,
+    `id_property` = 1031
+WHERE `name` = 'Customer';
+
 INSERT INTO `SW_SYS_MODULE` (
   `MODULE_NAME`, `MODULE_REMARK`, `MODULE_ASSEMBLY`, `MODULE_FILENAME`,
   `MODULE_VERSION`, `MODULE_GENERATIONCODE`, `MODULE_CON`
@@ -357,6 +366,10 @@ WHERE NOT EXISTS (SELECT 1 FROM `SW_SYS_MODEL` WHERE `MODEL_ID` = 100);
 INSERT INTO `SW_SYS_MODEL` (`MODEL_ID`, `MODEL_NAME`, `MODEL_CLASS`, `MODEL_CONTYPE`, `MODEL_DATABASETABLE`, `MODEL_MODULE`, `MODEL_AUTOID`, `MODEL_CON`, `MODEL_DEFAULTOWNER`)
 SELECT 101, 'OrderItem', 'org.fool.framework.market.OrderItem', 3, 'market_order_item', 'Market', 0, NULL, NULL
 WHERE NOT EXISTS (SELECT 1 FROM `SW_SYS_MODEL` WHERE `MODEL_ID` = 101);
+
+INSERT INTO `SW_SYS_MODEL` (`MODEL_ID`, `MODEL_NAME`, `MODEL_CLASS`, `MODEL_CONTYPE`, `MODEL_DATABASETABLE`, `MODEL_MODULE`, `MODEL_AUTOID`, `MODEL_CON`, `MODEL_DEFAULTOWNER`)
+SELECT 103, 'Customer', 'org.fool.framework.market.Customer', 3, 'market_customer', 'Market', 0, NULL, NULL
+WHERE NOT EXISTS (SELECT 1 FROM `SW_SYS_MODEL` WHERE `MODEL_ID` = 103);
 
 INSERT INTO `fool_sys_model` (`id`, `name`, `text`, `remark`, `model_type`, `class_name`, `table_name`, `auto_sys_id`, `id_property`)
 SELECT 102, 'OrderState', 'Order State', 'Market order state enum', 2, 'org.fool.framework.market.OrderState', NULL, 0, NULL
@@ -392,7 +405,7 @@ WHERE NOT EXISTS (SELECT 1 FROM `SW_SYS_MODEL` WHERE `MODEL_ID` = 102);
 
 UPDATE `SW_SYS_MODEL`
 SET `MODEL_MODULE` = 'Market'
-WHERE `MODEL_ID` IN (100, 101, 102);
+WHERE `MODEL_ID` IN (100, 101, 102, 103);
 
 INSERT INTO `SW_SYS_EMUNVALUE` (`EMUN_STR`, `EMUN_VALUE`, `SW_SYS_MODEL_EnumValuesMODEL_ID`)
 SELECT 'Open', 0, 102
@@ -440,6 +453,21 @@ SET `property_model` = 102,
 WHERE `owner` = 100 AND `name` = 'state';
 
 INSERT INTO `fool_sys_model_property` (`id`, `name`, `remark`, `property_model`, `is_collection`, `owner`, `filter`, `format`, `column`, `property_type`, `allow_db_null`, `is_check`, `ix_group`, `multi_map`)
+SELECT 1005, 'customer', 'Customer', 103, 0, 100, NULL, NULL, 'order_customer_id', 16, 1, 0, NULL, 0
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_model_property` WHERE `owner` = 100 AND `name` = 'customer');
+
+UPDATE `fool_sys_model_property`
+SET `property_model` = 103,
+    `is_collection` = 0,
+    `column` = 'order_customer_id',
+    `property_type` = 16,
+    `allow_db_null` = 1,
+    `is_check` = 0,
+    `ix_group` = NULL,
+    `multi_map` = 0
+WHERE `owner` = 100 AND `name` = 'customer';
+
+INSERT INTO `fool_sys_model_property` (`id`, `name`, `remark`, `property_model`, `is_collection`, `owner`, `filter`, `format`, `column`, `property_type`, `allow_db_null`, `is_check`, `ix_group`, `multi_map`)
 SELECT 1011, 'itemId', 'Item ID', NULL, 0, 101, NULL, NULL, 'item_id', 3, 0, 1, '', 0
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_model_property` WHERE `owner` = 101 AND `name` = 'itemId');
 
@@ -462,6 +490,30 @@ SET `property_type` = 11,
     `ix_group` = NULL,
     `multi_map` = 0
 WHERE `owner` = 101 AND `name` = 'itemName';
+
+INSERT INTO `fool_sys_model_property` (`id`, `name`, `remark`, `property_model`, `is_collection`, `owner`, `filter`, `format`, `column`, `property_type`, `allow_db_null`, `is_check`, `ix_group`, `multi_map`)
+SELECT 1031, 'customerId', 'Customer ID', NULL, 0, 103, NULL, NULL, 'customer_id', 3, 0, 1, '', 0
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_model_property` WHERE `owner` = 103 AND `name` = 'customerId');
+
+UPDATE `fool_sys_model_property`
+SET `property_type` = 3,
+    `allow_db_null` = 0,
+    `is_check` = 1,
+    `ix_group` = '',
+    `multi_map` = 0
+WHERE `owner` = 103 AND `name` = 'customerId';
+
+INSERT INTO `fool_sys_model_property` (`id`, `name`, `remark`, `property_model`, `is_collection`, `owner`, `filter`, `format`, `column`, `property_type`, `allow_db_null`, `is_check`, `ix_group`, `multi_map`)
+SELECT 1032, 'displayName', 'Display Name', NULL, 0, 103, NULL, NULL, 'display_name', 11, 0, 0, NULL, 0
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_model_property` WHERE `owner` = 103 AND `name` = 'displayName');
+
+UPDATE `fool_sys_model_property`
+SET `property_type` = 11,
+    `allow_db_null` = 0,
+    `is_check` = 0,
+    `ix_group` = NULL,
+    `multi_map` = 0
+WHERE `owner` = 103 AND `name` = 'displayName';
 
 INSERT INTO `fool_sys_model_property` (`id`, `name`, `remark`, `property_model`, `is_collection`, `owner`, `filter`, `format`, `column`, `property_type`, `allow_db_null`, `is_check`, `ix_group`, `multi_map`)
 SELECT 1004, 'items', 'Items', 101, 1, 100, NULL, NULL, NULL, 16, 1, 0, NULL, 0
@@ -490,8 +542,11 @@ VALUES
   (1002, 11, 3, 'symbol', NULL, 0, 'order_symbol', 'symbol', 0, NULL, 0, NULL, 0, 1, 1, NULL, NULL, NULL, NULL, 100),
   (1003, 15, 3, 'state', 102, 0, 'order_state', 'state', 0, NULL, 0, NULL, 1, 1, 1, NULL, NULL, NULL, NULL, 100),
   (1004, 16, 3, 'items', 101, 1, NULL, 'items', 0, NULL, 0, NULL, 1, 1, 1, NULL, NULL, NULL, NULL, 100),
+  (1005, 16, 3, 'customer', 103, 0, 'order_customer_id', 'customer', 0, NULL, 0, NULL, 1, 1, 1, NULL, NULL, NULL, NULL, 100),
   (1011, 3, 3, 'itemId', NULL, 0, 'item_id', 'itemId', 0, '', 1, NULL, 0, 1, 1, NULL, NULL, NULL, NULL, 101),
-  (1012, 11, 3, 'itemName', NULL, 0, 'item_name', 'itemName', 0, NULL, 0, NULL, 0, 1, 1, NULL, NULL, NULL, NULL, 101)
+  (1012, 11, 3, 'itemName', NULL, 0, 'item_name', 'itemName', 0, NULL, 0, NULL, 0, 1, 1, NULL, NULL, NULL, NULL, 101),
+  (1031, 3, 3, 'customerId', NULL, 0, 'customer_id', 'customerId', 0, '', 1, NULL, 0, 1, 1, NULL, NULL, NULL, NULL, 103),
+  (1032, 11, 3, 'displayName', NULL, 0, 'display_name', 'displayName', 0, NULL, 0, NULL, 0, 1, 1, NULL, NULL, NULL, NULL, 103)
 ON DUPLICATE KEY UPDATE
   `PROPERTY_TYPE` = VALUES(`PROPERTY_TYPE`),
   `PROPERTY_CONTYPE` = VALUES(`PROPERTY_CONTYPE`),
@@ -551,15 +606,25 @@ SELECT 1003, 'State', 'State', 'State', 'state', 0, 0, NULL, NULL, NULL, 0, 3, 1
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 100 AND `model_property` = 'state');
 
 UPDATE `fool_sys_view_item`
-SET `show_index` = 3
+SET `show_index` = 4
 WHERE `view_id` = 100 AND `model_property` = 'state';
+
+INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `show_index`, `view_id`)
+SELECT 1005, 'Customer', 'Customer', 'Customer', 'customer', 0, 1, NULL, NULL, NULL, 1, 3, 100
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 100 AND `model_property` = 'customer');
+
+UPDATE `fool_sys_view_item`
+SET `show_index` = 3,
+    `can_edit` = 1,
+    `edit_type` = 1
+WHERE `view_id` = 100 AND `model_property` = 'customer';
 
 INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `show_index`, `view_id`)
 SELECT 1004, 'Items', 'Items', 'Items', 'items', 0, 0, NULL, NULL, NULL, 0, 4, 100
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 100 AND `model_property` = 'items');
 
 UPDATE `fool_sys_view_item`
-SET `show_index` = 4
+SET `show_index` = 5
 WHERE `view_id` = 100 AND `model_property` = 'items';
 
 INSERT INTO `SW_SYS_VIEW` (
@@ -589,8 +654,9 @@ INSERT INTO `SW_SYS_VIEW_ITEM` (
 VALUES
   (1001, 100, 'Order ID', 'Order ID', NULL, 1001, NULL, NULL, 1, 1, NULL, NULL, NULL, 0, 1, NULL, 0, NULL),
   (1002, 100, 'Symbol', 'Symbol', NULL, 1002, NULL, NULL, 1, 2, NULL, NULL, NULL, 0, 1, NULL, 0, NULL),
-  (1003, 100, 'State', 'State', NULL, 1003, NULL, NULL, 1, 3, NULL, NULL, NULL, 0, 1, NULL, 0, NULL),
-  (1004, 100, 'Items', 'Items', NULL, 1004, NULL, NULL, 1, 4, NULL, NULL, NULL, 0, 1, NULL, 0, NULL)
+  (1005, 100, 'Customer', 'Customer', NULL, 1005, NULL, NULL, 0, 3, NULL, NULL, NULL, 0, 1, NULL, 1, NULL),
+  (1003, 100, 'State', 'State', NULL, 1003, NULL, NULL, 1, 4, NULL, NULL, NULL, 0, 1, NULL, 0, NULL),
+  (1004, 100, 'Items', 'Items', NULL, 1004, NULL, NULL, 1, 5, NULL, NULL, NULL, 0, 1, NULL, 0, NULL)
 ON DUPLICATE KEY UPDATE
   `SW_SYS_VIEW_ItemsVIEW_ID` = VALUES(`SW_SYS_VIEW_ItemsVIEW_ID`),
   `VIEW_ITEM_NAME` = VALUES(`VIEW_ITEM_NAME`),
@@ -682,24 +748,32 @@ ON DUPLICATE KEY UPDATE
   `SW_SYS_OPVIEW_SHOW` = VALUES(`SW_SYS_OPVIEW_SHOW`),
   `SW_SYS_OPVIEW_ConfirmMSG` = VALUES(`SW_SYS_OPVIEW_ConfirmMSG`);
 
+INSERT INTO `market_customer` (`customer_id`, `display_name`)
+VALUES
+  (3001, 'Ada Capital'),
+  (3002, 'Grace Trading')
+ON DUPLICATE KEY UPDATE `display_name` = VALUES(`display_name`);
+
 INSERT INTO `market_order` (
-  `order_id`, `order_symbol`, `order_amount`, `order_price`, `order_type`, `order_state`, `order_user_id`, `order_auth_id`, `status`
+  `order_id`, `order_symbol`, `order_amount`, `order_price`, `order_type`, `order_state`, `order_user_id`, `order_customer_id`, `order_auth_id`, `status`
 )
-SELECT 1001, 'BTC-USDT', 0.2500000000, 62500.0000000000, 'LIMIT', '0', 1, 1, 0
+SELECT 1001, 'BTC-USDT', 0.2500000000, 62500.0000000000, 'LIMIT', '0', 1, 3001, 1, 0
 WHERE NOT EXISTS (SELECT 1 FROM `market_order` WHERE `order_id` = 1001);
 
 INSERT INTO `market_order` (
-  `order_id`, `order_symbol`, `order_amount`, `order_price`, `order_type`, `order_state`, `order_user_id`, `order_auth_id`, `status`
+  `order_id`, `order_symbol`, `order_amount`, `order_price`, `order_type`, `order_state`, `order_user_id`, `order_customer_id`, `order_auth_id`, `status`
 )
-SELECT 1002, 'ETH-USDT', 1.5000000000, 3450.0000000000, 'LIMIT', '1', 1, 1, 1
+SELECT 1002, 'ETH-USDT', 1.5000000000, 3450.0000000000, 'LIMIT', '1', 1, 3002, 1, 1
 WHERE NOT EXISTS (SELECT 1 FROM `market_order` WHERE `order_id` = 1002);
 
 UPDATE `market_order`
-SET `order_state` = '0'
+SET `order_state` = '0',
+    `order_customer_id` = 3001
 WHERE `order_id` = 1001;
 
 UPDATE `market_order`
-SET `order_state` = '1'
+SET `order_state` = '1',
+    `order_customer_id` = 3002
 WHERE `order_id` = 1002;
 
 INSERT INTO `market_order_item` (`item_id`, `order_id`, `item_name`)

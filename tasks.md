@@ -22,6 +22,8 @@ explicitly named as authoritative for fool-service.
 - [x] Apply legacy formatted row classes from View data in the Vue View
       workflow.
 - [x] Add metadata-driven lookup editors for BusinessObject fields.
+- [x] Seed and prove a live BusinessObject lookup path for the Vue View
+      workflow.
 
 ## Backlog
 

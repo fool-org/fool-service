@@ -18,6 +18,7 @@ import org.fool.framework.model.model.OperationCommand;
 import org.fool.framework.model.model.MultiDbMap;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.model.model.Relation;
+import org.fool.framework.model.service.ModelDisplayProperties;
 import org.fool.framework.model.service.ModelDataService;
 import org.fool.framework.query.BetweenFilter;
 import org.fool.framework.query.CompareFilter;
@@ -165,7 +166,7 @@ public class DataQueryService {
             return new InputQueryResult();
         }
         Property idProperty = targetModel.getIdProperty();
-        Property showProperty = showProperty(targetModel);
+        Property showProperty = ModelDisplayProperties.displayProperty(targetModel);
         InputQueryResult sourceResult = inputQueryFromSourceList(request, view.getViewModel(), model, item, property, showProperty);
         if (sourceResult != null) {
             return sourceResult;
@@ -863,7 +864,7 @@ public class DataQueryService {
         if (targetModel == null) {
             return null;
         }
-        Property showProperty = showProperty(targetModel);
+        Property showProperty = ModelDisplayProperties.displayProperty(targetModel);
         if (showProperty == null) {
             return null;
         }
@@ -877,7 +878,7 @@ public class DataQueryService {
                     .map(column -> "`" + column + "`")
                     .orElse(null);
         }
-        if (showProperty == targetModel.getIdProperty()) {
+        if (ModelDisplayProperties.sameProperty(showProperty, targetModel.getIdProperty())) {
             return StringUtils.hasText(property.getColumn()) ? "`" + property.getColumn() + "`" : null;
         }
         return StringUtils.hasText(showProperty.getColumn())
@@ -893,7 +894,7 @@ public class DataQueryService {
         if (targetModel == null) {
             return property.getColumn();
         }
-        Property showProperty = showProperty(targetModel);
+        Property showProperty = ModelDisplayProperties.displayProperty(targetModel);
         if (showProperty == null) {
             return property.getColumn();
         }
@@ -906,16 +907,12 @@ public class DataQueryService {
                     .findFirst()
                     .orElse(property.getColumn());
         }
-        if (showProperty == targetModel.getIdProperty()) {
+        if (ModelDisplayProperties.sameProperty(showProperty, targetModel.getIdProperty())) {
             return property.getColumn();
         }
         return StringUtils.hasText(showProperty.getColumn())
                 ? "`" + property.getName() + "`.`" + showProperty.getColumn() + "`"
                 : property.getColumn();
-    }
-
-    private Property showProperty(Model model) {
-        return model.getShowProperty() == null ? model.getIdProperty() : model.getShowProperty();
     }
 
     private String formatRow(Object value) {

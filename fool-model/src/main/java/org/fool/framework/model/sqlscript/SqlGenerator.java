@@ -11,6 +11,7 @@ import org.fool.framework.model.model.MultiDbMap;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.model.model.Relation;
 import org.fool.framework.model.model.RelationType;
+import org.fool.framework.model.service.ModelDisplayProperties;
 import org.fool.framework.query.IQueryFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -108,7 +109,7 @@ public class SqlGenerator {
         if (joinsBusinessObject(property)) {
             List<String> expressions = new ArrayList<>();
             addBusinessObjectSelect(expressions, property, property.getPropertyModel().getIdProperty());
-            addBusinessObjectSelect(expressions, property, showProperty(property.getPropertyModel()));
+            addBusinessObjectSelect(expressions, property, ModelDisplayProperties.displayProperty(property.getPropertyModel()));
             return expressions;
         }
         if (PropertyType.BusinessObject.equals(property.getPropertyType())
@@ -149,19 +150,18 @@ public class SqlGenerator {
     }
 
     private boolean joinsBusinessObject(Property property) {
+        Property displayProperty = property.getPropertyModel() == null
+                ? null
+                : ModelDisplayProperties.displayProperty(property.getPropertyModel());
         return PropertyType.BusinessObject.equals(property.getPropertyType())
                 && !Boolean.TRUE.equals(property.getMultiMap())
                 && !Boolean.TRUE.equals(property.getIsCollection())
                 && property.getPropertyModel() != null
                 && property.getPropertyModel().getIdProperty() != null
-                && showProperty(property.getPropertyModel()) != null
-                && showProperty(property.getPropertyModel()) != property.getPropertyModel().getIdProperty()
+                && displayProperty != null
+                && !ModelDisplayProperties.sameProperty(displayProperty, property.getPropertyModel().getIdProperty())
                 && StringUtils.hasText(property.getColumn())
                 && StringUtils.hasText(property.getPropertyModel().getTableName());
-    }
-
-    private Property showProperty(Model model) {
-        return model.getShowProperty() == null ? model.getIdProperty() : model.getShowProperty();
     }
 
     private String baseColumn(Model model, String column) {

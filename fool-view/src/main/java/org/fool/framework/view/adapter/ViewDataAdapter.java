@@ -9,6 +9,7 @@ import org.fool.framework.dao.PageResult;
 import org.fool.framework.model.model.EnumValue;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
+import org.fool.framework.model.service.ModelDisplayProperties;
 import org.fool.framework.view.dto.ListDataItem;
 import org.fool.framework.view.dto.ListDataValue;
 import org.fool.framework.view.dto.ListViewResult;
@@ -75,8 +76,9 @@ public class ViewDataAdapter {
                         continue;
                     }
                     Object formattedValue = getFormat(viewItem.getFormatRegx(), rawValue);
-                    dataItem.getValues().put(viewItem.getModelProperty(), formattedValue);
-                    dataItem.getItems().add(legacyValueItem(viewItem, rawValue, formattedValue));
+                    ListDataValue valueItem = legacyValueItem(viewItem, rawValue, formattedValue);
+                    dataItem.getValues().put(viewItem.getModelProperty(), listCellValue(viewItem, formattedValue, valueItem));
+                    dataItem.getItems().add(valueItem);
                 }
                 dataItem.setId(p.getId());
                 result.getItems().add(dataItem);
@@ -182,6 +184,14 @@ public class ViewDataAdapter {
                 viewItem.getEditType(),
                 rawValue,
                 formattedValue);
+    }
+
+    private Object listCellValue(ViewItem viewItem, Object formattedValue, ListDataValue valueItem) {
+        Property property = viewItem.getProperty();
+        if (property != null && PropertyType.BusinessObject.equals(property.getPropertyType())) {
+            return valueItem.getFmtValue();
+        }
+        return formattedValue;
     }
 
     private ListDataValue legacyValueProperty(
@@ -351,7 +361,7 @@ public class ViewDataAdapter {
     private String formatBusinessObject(Property property, Object value) {
         if (value instanceof IDynamicData data) {
             Model model = property == null ? null : property.getPropertyModel();
-            Property showProperty = model == null ? null : model.getShowProperty();
+            Property showProperty = ModelDisplayProperties.displayProperty(model);
             if (showProperty != null && showProperty.getName() != null) {
                 return formatRow(data.get(showProperty.getName()));
             }

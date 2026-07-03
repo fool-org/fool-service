@@ -90,6 +90,14 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: seeded and proved a live BusinessObject lookup path for the Vue
+  metadata workflow. Docker MySQL now includes `Customer` model metadata,
+  `market_customer` rows, and an editable `Order.customer` View item. The
+  model/query/view pipeline now shares the same display-property fallback
+  logic: explicit `showProperty`, then the first non-ID string property, then
+  ID. `query-list` joins and maps the display field, `inputquery` searches the
+  same field, and the backend emits flattened `values.customer` /
+  legacy `items[].fmtValue` display text instead of raw dynamic DTO objects.
 - 2026-07-04: replaced the hand-shaped default Vue `OrderList` screen with a
   metadata-driven View workflow. The first screen now loads View metadata via
   `/api/v1/view/get-view`, queries rows via `/api/v1/data/query-list`, renders

@@ -126,7 +126,11 @@ public class Mapper extends AbstratMapper<IDynamicData> {
         DbMysqlDynamic target = new DbMysqlDynamic(targetModel);
         boolean mapped = false;
         mapped = mapAliasedBusinessObjectProperty(target, property, targetModel.getIdProperty(), resultSet) || mapped;
-        mapped = mapAliasedBusinessObjectProperty(target, property, showProperty(targetModel), resultSet) || mapped;
+        mapped = mapAliasedBusinessObjectProperty(
+                target,
+                property,
+                ModelDisplayProperties.displayProperty(targetModel),
+                resultSet) || mapped;
         if (mapped) {
             owner.set(property.getName(), target);
         }
@@ -150,10 +154,6 @@ public class Mapper extends AbstratMapper<IDynamicData> {
         } catch (SQLException ex) {
             return false;
         }
-    }
-
-    private Property showProperty(Model model) {
-        return model.getShowProperty() == null ? model.getIdProperty() : model.getShowProperty();
     }
 
     private Property mappedProperty(Model model, String propertyName) {

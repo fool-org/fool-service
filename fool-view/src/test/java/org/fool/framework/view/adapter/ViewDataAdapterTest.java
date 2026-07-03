@@ -199,9 +199,11 @@ public class ViewDataAdapterTest {
         state.setItemName("State");
         setProperty(state, stateProperty);
 
+        Property customerId = property("customerId", PropertyType.Long);
         Property customerName = property("name", PropertyType.String);
         Model customerModel = new Model();
-        customerModel.setShowProperty(customerName);
+        customerModel.setIdProperty(customerId);
+        customerModel.setProperties(List.of(customerId, customerName));
         Property customerProperty = property("customer", PropertyType.BusinessObject);
         customerProperty.setPropertyModel(customerModel);
         ViewItem customer = viewItem("customer", ItemEditType.ReadOnly);
@@ -219,7 +221,8 @@ public class ViewDataAdapterTest {
         PageResult<IDynamicData> page = new PageResult<>();
         page.setItems(List.of(new MapDynamicData("order-1", values)));
 
-        List<ListDataValue> items = new ViewDataAdapter().getListViewResult(view, page).getItems().get(0).getItems();
+        ListDataItem row = new ViewDataAdapter().getListViewResult(view, page).getItems().get(0);
+        List<ListDataValue> items = row.getItems();
 
         assertEquals("2026-07-03", items.get(0).getFmtValue());
         assertEquals("09:05:06", items.get(1).getFmtValue());
@@ -227,6 +230,7 @@ public class ViewDataAdapterTest {
         assertEquals("Closed", items.get(2).getFmtValue());
         assertEquals("C-7", items.get(3).getObjId());
         assertEquals("Alice", items.get(3).getFmtValue());
+        assertEquals("Alice", row.getValues().get("customer"));
     }
 
     @Test

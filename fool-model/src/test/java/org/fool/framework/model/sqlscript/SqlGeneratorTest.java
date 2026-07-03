@@ -74,6 +74,36 @@ public class SqlGeneratorTest {
     }
 
     @Test
+    public void generateSelectUsesFirstStringPropertyWhenShowPropertyIsMissing() {
+        Model customer = model("Customer", "customer");
+        Property customerId = property("customerId", "customer_id");
+        Property displayName = property("displayName", "display_name");
+        customer.setIdProperty(customerId);
+        customer.setProperties(List.of(customerId, displayName));
+
+        Model order = model("Order", "market_order");
+        Property orderId = property("orderId", "order_id");
+        Property customerProperty = property("customer", "order_customer_id");
+        customerProperty.setPropertyType(PropertyType.BusinessObject);
+        customerProperty.setPropertyModel(customer);
+
+        QueryAndArgs query = new SqlGenerator().generateSelect(
+                order,
+                List.of(orderId, customerProperty),
+                IQueryFilter.init());
+
+        assertEquals(
+                "SELECT `market_order`.`order_id` AS `order_id`,"
+                        + "`customer`.`customer_id` AS `customer_customer_id`,"
+                        + "`customer`.`display_name` AS `customer_display_name`"
+                        + " FROM `market_order` LEFT OUTER JOIN `customer` AS `customer`"
+                        + " ON `customer`.`customer_id`=`market_order`.`order_customer_id`"
+                        + " WHERE 1=1  AND  1=1 ",
+                query.getSql());
+        assertArrayEquals(new Object[]{}, query.getArgs());
+    }
+
+    @Test
     public void generateSelectOrdersByLegacyJoinedBusinessObjectShowProperty() {
         Model customer = model("Customer", "customer");
         Property customerId = property("customerId", "customer_id");
