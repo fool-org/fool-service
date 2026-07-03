@@ -11,6 +11,7 @@ import org.fool.framework.dto.CommonRequest;
 import org.fool.framework.dto.CommonResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,5 +56,44 @@ public class LoginController {
     public CommonResponse<Void> logout(@RequestBody CommonRequest request) {
         authService.logout(request.getToken());
         return new CommonResponse<>((Void) null);
+    }
+
+    @ApiOperation("得到旧版用户信息")
+    @PostMapping("/getuserinfo")
+    @ResponseBody
+    public CommonResponse<LegacyUserInfoResult> getUserInfo(@RequestBody CommonRequest request) {
+        UserDTO user = authService.getInfoByToken(request.getToken());
+        LegacyUserInfo legacyUser = new LegacyUserInfo();
+        legacyUser.setLoginName(user.getId());
+        legacyUser.setUserName(user.getName());
+        legacyUser.setUserId(longOrZero(user.getId()));
+        return new CommonResponse<>(new LegacyUserInfoResult(request.getToken(), legacyUser));
+    }
+
+    private static long longOrZero(String value) {
+        if (value == null || value.isBlank()) {
+            return 0;
+        }
+        try {
+            return Long.parseLong(value);
+        } catch (NumberFormatException ignored) {
+            return 0;
+        }
+    }
+
+    @Data
+    public static class LegacyUserInfoResult {
+        private final String token;
+        private final LegacyUserInfo user;
+    }
+
+    @Data
+    public static class LegacyUserInfo {
+        private String loginName;
+        private String userName;
+        private long userId;
+        private String companyName = "";
+        private String departmentName = "";
+        private String userAvtarUrl = "";
     }
 }

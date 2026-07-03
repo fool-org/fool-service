@@ -7,6 +7,7 @@ import {
   type GetMessageResult,
   type GetNotifyResult,
   type InputQueryResult,
+  type LegacyUserInfoResult,
   type QueryDataDetailResult,
   type ListDataItem,
   type ListViewInfo,
@@ -86,6 +87,7 @@ const activeSection = ref("auth");
 
 const loginResponse = ref<CommonResponse<LoginVo> | null>(null);
 const profileResponse = ref<CommonResponse<UserDTO> | null>(null);
+const legacyUserInfoResponse = ref<CommonResponse<LegacyUserInfoResult> | null>(null);
 const logoutResponse = ref<CommonResponse<void> | null>(null);
 const menuResponse = ref<CommonResponse<TreeNode<AuthItem>[]> | null>(null);
 const viewResponse = ref<CommonResponse<ListViewInfo> | null>(null);
@@ -226,6 +228,15 @@ async function loadProfile() {
   );
   if (response) {
     profileResponse.value = response;
+  }
+}
+
+async function loadLegacyUserInfo() {
+  const response = await runAction("getuserinfo", () =>
+    postApi<LegacyUserInfoResult>("/api/v1/auth/getuserinfo", buildTokenRequest(token.value))
+  );
+  if (response) {
+    legacyUserInfoResponse.value = response;
   }
 }
 
@@ -589,6 +600,9 @@ function formatValue(value: unknown) {
           </label>
           <div class="button-row">
             <button type="button" :disabled="pendingAction === 'profile'" @click="loadProfile">Profile</button>
+            <button type="button" :disabled="pendingAction === 'getuserinfo'" @click="loadLegacyUserInfo">
+              Legacy User Info
+            </button>
             <button type="button" :disabled="pendingAction === 'menus'" @click="loadMenus">Menus</button>
             <button type="button" :disabled="pendingAction === 'logout'" @click="logout">Logout</button>
           </div>
@@ -1250,6 +1264,7 @@ function formatValue(value: unknown) {
               {
                 login: loginResponse,
                 profile: profileResponse,
+                legacyUserInfo: legacyUserInfoResponse,
                 logout: logoutResponse,
                 menus: menuResponse,
                 view: viewResponse,

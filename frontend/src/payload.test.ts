@@ -60,6 +60,12 @@ describe("App defaults", () => {
     expect(appSource).toContain("notifyResponse");
   });
 
+  it("exposes the legacy user info route in the Vue console", () => {
+    expect(appSource).toContain("Legacy User Info");
+    expect(appSource).toContain("/api/v1/auth/getuserinfo");
+    expect(appSource).toContain("legacyUserInfoResponse");
+  });
+
   it("exposes the legacy initnew route in the Vue console", () => {
     expect(appSource).toContain("Init New Object");
     expect(appSource).toContain("/api/v1/data/initnew");

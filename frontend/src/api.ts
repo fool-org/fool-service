@@ -14,6 +14,20 @@ export interface UserDTO {
   mobile?: string;
 }
 
+export interface LegacyUserInfo {
+  loginName?: string;
+  userName?: string;
+  userId?: number;
+  companyName?: string;
+  departmentName?: string;
+  userAvtarUrl?: string;
+}
+
+export interface LegacyUserInfoResult {
+  token?: string;
+  user?: LegacyUserInfo;
+}
+
 export interface LoginVo {
   user?: UserDTO;
   token?: string;
