@@ -133,6 +133,7 @@ public class ModelDataService {
                 model.getProperties(),
                 new CompareFilter(idColumn, CompareOp.EQUAL, dataId));
         var items = this.jdbcTemplate.query(queryAndArgs.getSql(), queryAndArgs.getArgs(), mapper);
+        loadCollectionProperties(model, model.getProperties(), items);
         return items.isEmpty() ? null : items.get(0);
     }
 
@@ -148,31 +149,7 @@ public class ModelDataService {
         var mapper = getMapper(modelId);
         QueryAndArgs queryAndArgs = sqlGenerator.generateSelect(mapper.getModel(), properties, filter);
         var items = this.jdbcTemplate.query(queryAndArgs.getSql(), queryAndArgs.getArgs(), mapper);
-        if (items.size() > 0) {
-            var ids = items.stream().map(IDynamicData::getId).collect(Collectors.toList());
-            for (var property : properties.stream().filter(p -> p.getIsCollection()).collect(Collectors.toList())) {
-                Map<String, List> infos = new LinkedHashMap<>();
-                for (var id : ids) {
-                    infos.put(id, new LinkedList());
-                }
-                QueryAndArgs propertyArgs = sqlGenerator.generateItems(mapper.getModel(), property, ids);
-                var itemsMapper = getMapper(property.getPropertyModel().getId().toString());
-                this.jdbcTemplate.query(propertyArgs.getSql(), propertyArgs.getArgs(), new RowMapper<IDynamicData>() {
-                    @Override
-                    public IDynamicData mapRow(ResultSet resultSet, int i) throws SQLException {
-                        var item = itemsMapper.mapRow(resultSet, i);
-                        var id = resultSet.getString(SqlGenerator.ITEM_PARENT_ID_COLUMN);
-                        if (infos.containsKey(id)) {
-                            infos.get(id).add(item);
-                        }
-                        return item;
-                    }
-                });
-                for (var item : items) {
-                    item.set(property.getName(), infos.get(item.getId()));
-                }
-            }
-        }
+        loadCollectionProperties(mapper.getModel(), properties, items);
 
         return items;
     }
@@ -203,31 +180,7 @@ public class ModelDataService {
                 mapper.getModel(), properties, filter, pageNavigator, orderColumn, orderDescending);
         PageResult<IDynamicData> result = new PageResult<>();
         var items = this.jdbcTemplate.query(queryAndArgs.getSql(), queryAndArgs.getArgs(), mapper);
-        if (items.size() > 0) {
-            var ids = items.stream().map(IDynamicData::getId).collect(Collectors.toList());
-            for (var property : properties.stream().filter(p -> p.getIsCollection()).collect(Collectors.toList())) {
-                Map<String, List> infos = new LinkedHashMap<>();
-                for (var id : ids) {
-                    infos.put(id, new LinkedList());
-                }
-                QueryAndArgs propertyArgs = sqlGenerator.generateItems(mapper.getModel(), property, ids);
-                var itemsMapper = getMapper(property.getPropertyModel().getId().toString());
-                this.jdbcTemplate.query(propertyArgs.getSql(), propertyArgs.getArgs(), new RowMapper<IDynamicData>() {
-                    @Override
-                    public IDynamicData mapRow(ResultSet resultSet, int i) throws SQLException {
-                        var item = itemsMapper.mapRow(resultSet, i);
-                        var id = resultSet.getString(SqlGenerator.ITEM_PARENT_ID_COLUMN);
-                        if (infos.containsKey(id)) {
-                            infos.get(id).add(item);
-                        }
-                        return item;
-                    }
-                });
-                for (var item : items) {
-                    item.set(property.getName(), infos.get(item.getId()));
-                }
-            }
-        }
+        loadCollectionProperties(mapper.getModel(), properties, items);
         result.setItems(items);
         result.setPageInfo(new PageNavigatorResult());
         result.getPageInfo().setPageSize(pageNavigator.getPageSize());
@@ -240,6 +193,47 @@ public class ModelDataService {
             result.getPageInfo().setPageCount(result.getPageInfo().getTotal() / result.getPageInfo().getPageSize() + (result.getPageInfo().getTotal() % result.getPageInfo().getPageSize() > 0 ? 1 : 0));
         }
         return result;
+    }
+
+    private void loadCollectionProperties(Model model, List<Property> properties, List<IDynamicData> items) {
+        if (model == null || properties == null || items == null || items.isEmpty()) {
+            return;
+        }
+        hydrateRelations(model);
+        var ids = items.stream()
+                .map(IDynamicData::getId)
+                .filter(id -> id != null && !id.isBlank())
+                .collect(Collectors.toList());
+        if (ids.isEmpty()) {
+            return;
+        }
+        for (var property : properties.stream()
+                .filter(p -> Boolean.TRUE.equals(p.getIsCollection()))
+                .collect(Collectors.toList())) {
+            if (property.getPropertyModel() == null || property.getPropertyModel().getId() == null) {
+                continue;
+            }
+            Map<String, List<IDynamicData>> infos = new LinkedHashMap<>();
+            for (var id : ids) {
+                infos.put(id, new LinkedList<>());
+            }
+            QueryAndArgs propertyArgs = sqlGenerator.generateItems(model, property, ids);
+            var itemsMapper = getMapper(property.getPropertyModel().getId().toString());
+            this.jdbcTemplate.query(propertyArgs.getSql(), propertyArgs.getArgs(), new RowMapper<IDynamicData>() {
+                @Override
+                public IDynamicData mapRow(ResultSet resultSet, int i) throws SQLException {
+                    var item = itemsMapper.mapRow(resultSet, i);
+                    var id = resultSet.getString(SqlGenerator.ITEM_PARENT_ID_COLUMN);
+                    if (infos.containsKey(id)) {
+                        infos.get(id).add(item);
+                    }
+                    return item;
+                }
+            });
+            for (var item : items) {
+                item.set(property.getName(), infos.getOrDefault(item.getId(), new LinkedList<>()));
+            }
+        }
     }
 
     public Boolean saveData(IDynamicData data) {

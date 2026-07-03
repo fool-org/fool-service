@@ -554,6 +554,14 @@ UPDATE `fool_sys_view_item`
 SET `show_index` = 3
 WHERE `view_id` = 100 AND `model_property` = 'state';
 
+INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `show_index`, `view_id`)
+SELECT 1004, 'Items', 'Items', 'Items', 'items', 0, 0, NULL, NULL, NULL, 0, 4, 100
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 100 AND `model_property` = 'items');
+
+UPDATE `fool_sys_view_item`
+SET `show_index` = 4
+WHERE `view_id` = 100 AND `model_property` = 'items';
+
 INSERT INTO `SW_SYS_VIEW` (
   `VIEW_ID`, `VIEW_MODEL`, `VIEW_NAME`, `VIEW_FILTER`, `VIEW_DEFAULT`, `VIEW_TYPE`,
   `VIEW_CONTYPE`, `VIEW_FILE`, `VIEW_CHECKAUTH`, `VIEW_AUTOFRESHINTERVAL`, `VIEW_CANEDIT`
@@ -581,7 +589,8 @@ INSERT INTO `SW_SYS_VIEW_ITEM` (
 VALUES
   (1001, 100, 'Order ID', 'Order ID', NULL, 1001, NULL, NULL, 1, 1, NULL, NULL, NULL, 0, 1, NULL, 0, NULL),
   (1002, 100, 'Symbol', 'Symbol', NULL, 1002, NULL, NULL, 1, 2, NULL, NULL, NULL, 0, 1, NULL, 0, NULL),
-  (1003, 100, 'State', 'State', NULL, 1003, NULL, NULL, 1, 3, NULL, NULL, NULL, 0, 1, NULL, 0, NULL)
+  (1003, 100, 'State', 'State', NULL, 1003, NULL, NULL, 1, 3, NULL, NULL, NULL, 0, 1, NULL, 0, NULL),
+  (1004, 100, 'Items', 'Items', NULL, 1004, NULL, NULL, 1, 4, NULL, NULL, NULL, 0, 1, NULL, 0, NULL)
 ON DUPLICATE KEY UPDATE
   `SW_SYS_VIEW_ItemsVIEW_ID` = VALUES(`SW_SYS_VIEW_ItemsVIEW_ID`),
   `VIEW_ITEM_NAME` = VALUES(`VIEW_ITEM_NAME`),

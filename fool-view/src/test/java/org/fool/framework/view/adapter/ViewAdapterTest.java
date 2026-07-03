@@ -68,6 +68,32 @@ public class ViewAdapterTest {
     }
 
     @Test
+    public void collectionViewItemsAreExcludedFromLegacyListColumnsAndInputs() {
+        ViewItem symbol = viewItem("symbol", "Symbol", ItemEditType.ReadOnly);
+        Property symbolProperty = new Property();
+        symbolProperty.setName("symbol");
+        symbolProperty.setPropertyType(PropertyType.String);
+        setProperty(symbol, symbolProperty);
+
+        ViewItem items = viewItem("items", "Items", ItemEditType.TextBox);
+        items.setInputType(InputType.TEXT_BOX);
+        Property itemsProperty = new Property();
+        itemsProperty.setName("items");
+        itemsProperty.setPropertyType(PropertyType.BusinessObject);
+        itemsProperty.setIsCollection(true);
+        setProperty(items, itemsProperty);
+
+        View view = new View();
+        view.setListItems(List.of(symbol, items));
+
+        ListViewInfo info = new ViewAdapter().getViewInfo(view);
+
+        assertEquals(1, info.getTableColumn().size());
+        assertEquals("symbol", info.getTableColumn().get(0).getProperty());
+        assertEquals(0, info.getInputInfo().size());
+    }
+
+    @Test
     public void viewOperationsAreMappedToLegacyOperationInfo() {
         View detailView = new View();
         detailView.setId(200L);

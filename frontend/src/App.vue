@@ -17,6 +17,8 @@ import {
   type LegacySubMenuResult,
   type LegacyUserInfoResult,
   type QueryDataDetailResult,
+  type QueryDataDetailDataItem,
+  type QueryDataDetailItemGroup,
   type ListDataItem,
   type ListViewInfo,
   type ListViewResult,
@@ -107,7 +109,6 @@ const editableSymbol = ref("");
 const editableState = ref("0");
 const isCreatingOrder = ref(false);
 const newItemName = ref("New item");
-const savedOrderItems = ref<{ id: string; name: string }[]>([]);
 
 const loginResponse = ref<CommonResponse<LoginVo> | null>(null);
 const initAppResponse = ref<CommonResponse<LegacyInitAppResult> | null>(null);
@@ -169,6 +170,7 @@ const resultColumns = computed<TableColumnInfo[]>(() => {
 const resultRows = computed<ListDataItem[]>(() => dataResponse.value?.data?.items || []);
 const selectedOrder = computed(() => resultRows.value.find((row) => getOrderId(row) === selectedOrderId.value));
 const detailRows = computed(() => detailResponse.value?.data?.data?.simpleData || []);
+const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() => detailResponse.value?.data?.data?.items || []);
 const orderCanEdit = computed(() => Boolean(selectedOrder.value || isCreatingOrder.value));
 const orderStateOptions = computed(() => {
   const enums = enumResponse.value?.data?.enumValues || [];
@@ -697,7 +699,6 @@ async function selectOrder(row: ListDataItem) {
   detailObjId.value = orderId;
   saveObjId.value = orderId;
   operationObjectId.value = orderId;
-  savedOrderItems.value = [];
   await queryDetail();
 }
 
@@ -785,7 +786,6 @@ async function addOrderItem() {
   if (!saved) {
     return;
   }
-  savedOrderItems.value = [{ id: itemId, name: itemName }, ...savedOrderItems.value];
   newItemName.value = "";
   await queryDetail();
 }
@@ -812,6 +812,12 @@ function formatValue(value: unknown) {
   }
 
   return String(value);
+}
+
+function detailItemTitle(item: QueryDataDetailDataItem) {
+  const itemName = item.values?.find((value) => value.prpId === "itemName")?.fmtValue;
+  const firstValue = item.values?.find((value) => value.fmtValue)?.fmtValue;
+  return itemName || firstValue || item.dataId || "";
 }
 </script>
 
@@ -947,12 +953,19 @@ function formatValue(value: unknown) {
               </label>
               <button type="button" :disabled="Boolean(pendingAction)" @click="addOrderItem">Add Item</button>
             </div>
-            <div class="detail-fields">
-              <div v-for="item in savedOrderItems" :key="item.id">
-                <span>{{ item.id }}</span>
-                <strong>{{ item.name }}</strong>
-              </div>
+            <div v-if="detailItemGroups.length" class="detail-fields">
+              <template v-for="group in detailItemGroups" :key="group.prpId || group.name">
+                <div>
+                  <span>{{ group.itemName || group.name || group.prpId }}</span>
+                  <strong>{{ group.items?.length || 0 }} rows</strong>
+                </div>
+                <div v-for="item in group.items || []" :key="`${group.prpId || group.name}-${item.dataId}`">
+                  <span>{{ item.dataId }}</span>
+                  <strong>{{ detailItemTitle(item) }}</strong>
+                </div>
+              </template>
             </div>
+            <div v-else class="empty-state compact">No order items loaded.</div>
           </div>
         </article>
       </section>

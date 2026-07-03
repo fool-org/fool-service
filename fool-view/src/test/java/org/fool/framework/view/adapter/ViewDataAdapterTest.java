@@ -74,6 +74,36 @@ public class ViewDataAdapterTest {
     }
 
     @Test
+    public void listResultExcludesLegacyCollectionItems() {
+        ViewItem symbol = viewItem("symbol", ItemEditType.ReadOnly);
+        symbol.setItemName("Symbol");
+        setProperty(symbol, property("symbol", PropertyType.String));
+
+        Property itemsProperty = property("items", PropertyType.BusinessObject);
+        itemsProperty.setIsCollection(true);
+        ViewItem items = viewItem("items", ItemEditType.ReadOnly);
+        items.setItemName("Items");
+        setProperty(items, itemsProperty);
+
+        View view = new View();
+        view.setListItems(List.of(symbol, items));
+
+        PageResult<IDynamicData> page = new PageResult<>();
+        page.setItems(List.of(new MapDynamicData("order-1", new LinkedHashMap<>(Map.of(
+                "symbol", "BTC-USDT",
+                "items", List.of(new MapDynamicData("2001", new LinkedHashMap<>(Map.of("itemName", "Updated item")))))))));
+
+        ListViewResult result = new ViewDataAdapter().getListViewResult(view, page);
+        ListDataItem row = result.getItems().get(0);
+
+        assertEquals(List.of("Symbol"), result.getCols());
+        assertEquals("BTC-USDT", row.getValues().get("symbol"));
+        assertFalse(row.getValues().containsKey("items"));
+        assertEquals(1, row.getItems().size());
+        assertEquals("symbol", row.getItems().get(0).getPrpId());
+    }
+
+    @Test
     public void listRowsExposeLegacyRowIndexFromPageOffset() {
         View view = new View();
         view.setListItems(List.of(viewItem("orderId", ItemEditType.ReadOnly)));
@@ -268,6 +298,59 @@ public class ViewDataAdapterTest {
         assertEquals("Edit", result.getOperations().get(0).getName());
         assertEquals(Long.valueOf(300L), result.getOperations().get(0).getId());
         assertEquals(Long.valueOf(200L), result.getOperations().get(0).getViewId());
+    }
+
+    @Test
+    public void detailResultIncludesLegacyCollectionItems() {
+        Property itemId = property("itemId", PropertyType.Long);
+        itemId.setRemark("Item ID");
+        Property itemName = property("itemName", PropertyType.String);
+        itemName.setRemark("Item Name");
+        Model itemModel = new Model();
+        itemModel.setId(101L);
+        itemModel.setName("OrderItem");
+        itemModel.setIdProperty(itemId);
+        itemModel.setProperties(List.of(itemId, itemName));
+
+        Property itemsProperty = property("items", PropertyType.BusinessObject);
+        itemsProperty.setIsCollection(true);
+        itemsProperty.setPropertyModel(itemModel);
+        ViewItem items = viewItem("items", ItemEditType.ReadOnly);
+        items.setItemName("Items");
+        setProperty(items, itemsProperty);
+
+        ViewItem symbol = viewItem("symbol", ItemEditType.ReadOnly);
+        symbol.setItemName("Symbol");
+        setProperty(symbol, property("symbol", PropertyType.String));
+
+        View view = new View();
+        view.setViewName("OrderDetail");
+        view.setViewModel("Order");
+        view.setListItems(List.of(symbol, items));
+
+        Map<String, Object> childValues = new LinkedHashMap<>();
+        childValues.put("itemId", 2001L);
+        childValues.put("itemName", "Updated item");
+        Map<String, Object> values = new LinkedHashMap<>();
+        values.put("symbol", "BTC-USDT");
+        values.put("items", List.of(new MapDynamicData("2001", childValues)));
+
+        QueryDataDetailResult result = new ViewDataAdapter().getDetailViewResult(
+                view,
+                new MapDynamicData("1001", values));
+
+        assertEquals(1, result.getData().getSimpleData().size());
+        assertEquals("symbol", result.getData().getSimpleData().get(0).getPrpId());
+        assertEquals(1, result.getData().getItems().size());
+        QueryDataDetailResult.PropertyDataItems group = result.getData().getItems().get(0);
+        assertEquals("OrderItem", group.getName());
+        assertEquals("items", group.getPrpId());
+        assertEquals("Items", group.getItemName());
+        assertEquals(2, group.getProperties().size());
+        assertEquals("Item Name", group.getProperties().get(1).getPrpShowName());
+        assertEquals(1, group.getItems().size());
+        assertEquals("2001", group.getItems().get(0).getDataId());
+        assertEquals("Updated item", group.getItems().get(0).getValues().get(1).getFmtValue());
     }
 
     private static ViewItem viewItem(String modelProperty, ItemEditType editType) {

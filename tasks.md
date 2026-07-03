@@ -9,9 +9,15 @@ explicitly named as authoritative for fool-service.
 - [x] Add a repo-local validation matrix and checker.
 - [x] Add runtime evidence bundles for Docker/browser smoke checks after the
       Docker stack stabilizes.
+- [x] Render persisted `Order Items` in the Vue `OrderList` detail workflow via
+      backend `querydatadetail` collection rows.
 
 ## Backlog
 
+- [ ] Replace the current hand-shaped `OrderList` workflow with metadata-driven
+      FoolFrame list/detail rendering.
+- [ ] Complete child collection edit/delete/select-from-existing parity in the
+      Vue detail workflow.
 - [ ] Add focused Maven module profiles once module boundaries are cleaned up.
 - [ ] Add contract checks for oversized files, package boundaries, and migration
       drift.

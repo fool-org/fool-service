@@ -403,9 +403,26 @@ export interface QueryDataDetail {
   objId?: string;
   name?: string;
   simpleData?: ListDataValue[];
-  items?: unknown[];
+  items?: QueryDataDetailItemGroup[];
   model?: string;
   parentId?: string;
+}
+
+export interface QueryDataDetailItemGroup {
+  properties?: ListDataValue[];
+  items?: QueryDataDetailDataItem[];
+  listViewId?: number;
+  detailViewId?: number;
+  name?: string;
+  prpId?: string;
+  selectFromExists?: boolean;
+  itemName?: string;
+  selectedView?: number;
+}
+
+export interface QueryDataDetailDataItem {
+  dataId?: string;
+  values?: ListDataValue[];
 }
 
 export interface QueryDataDetailResult {

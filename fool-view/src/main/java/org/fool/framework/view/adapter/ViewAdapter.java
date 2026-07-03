@@ -43,7 +43,7 @@ public class ViewAdapter {
         result.setDetailViewId(safeDetailViewId(view));
         result.setAutoFreshTime(safeAutoFreshTime(view));
         result.setTableColumn(new LinkedList<>());
-        orderedListItems(view).stream().filter(p -> p.getEditType() != ItemEditType.Format).forEach(p -> {
+        orderedListScalarItems(view).stream().filter(p -> p.getEditType() != ItemEditType.Format).forEach(p -> {
             result.getTableColumn().add(
                     TableColumnInfo.builder().id(p.getId())
                             .name(p.getItemName())
@@ -66,7 +66,7 @@ public class ViewAdapter {
                             .build());
         });
         result.setInputInfo(new LinkedList<>());
-        orderedListItems(view).stream()
+        orderedListScalarItems(view).stream()
                 .filter(p -> p.getEditType() != ItemEditType.Format)
                 .filter(p -> p.getInputType() != InputType.READ_ONLY)
                 .forEach(p -> {
@@ -100,6 +100,12 @@ public class ViewAdapter {
     private List<ViewItem> orderedListItems(View view) {
         return view.getListItems().stream()
                 .sorted(Comparator.comparingInt(this::safeShowIndex))
+                .toList();
+    }
+
+    private List<ViewItem> orderedListScalarItems(View view) {
+        return orderedListItems(view).stream()
+                .filter(item -> !safeIsCollection(item))
                 .toList();
     }
 

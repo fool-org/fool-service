@@ -385,6 +385,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-03: exposed the migrated legacy `querydata` API in the Vue operator
   console with typed payload building, raw `QueryFilter` input, shared result
   table display, Docker runtime, and backend endpoint smoke coverage.
+- 2026-07-03: hydrated legacy `querydatadetail` collection items for the Docker
+  `OrderList` view. `getOneData` now loads relation-backed collection rows,
+  `querydatadetail` returns child `Items` groups, list/get-view metadata keeps
+  collection fields out of scalar columns, and the Vue `Order Items` panel
+  renders persisted backend rows instead of session-only additions.
 - 2026-07-03: exposed auth logout in the Vue operator console with a typed
   token-only payload builder, local token clearing, Docker runtime, and backend
   token-invalidation smoke coverage.
@@ -522,6 +527,10 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Vue API types for legacy `querydatadetail` request/result payloads
 - A Vue detail-data panel that calls legacy `/api/v1/data/querydatadetail` and
   renders returned `SimpleData` rows
+- Vue API types for legacy `querydatadetail` collection `Items` groups and child
+  `DataItem` rows
+- The default Vue `OrderList` detail panel renders persisted `Order Items`
+  returned by backend `querydatadetail`
 - Vue API types for legacy `initnew` request/result payloads
 - A Vue init-new-object panel that calls legacy `/api/v1/data/initnew` and
   renders the empty editable `SimpleData` rows
