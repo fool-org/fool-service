@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: Vue list rows now keep `RequireSelect=true` operations even
+  when the operation `ViewId` is `0`. This matches FoolFrame
+  `querylistdata.js`, which still renders the operation name for the row but
+  does not attach a `setselect(...)` target. Vue shows those metadata actions
+  as disabled buttons, so the rendered page reflects the View metadata without
+  inventing a concrete business DTO action or a fake detail View transition.
 - 2026-07-04: Vue list rows now render `RequireSelect=true` operations that
   have a target `ViewId`, matching FoolFrame `querylistdata.js`, which calls
   `setselect(operation.ViewId, row.Id, rowIndex)` for row-level operation

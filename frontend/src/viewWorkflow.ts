@@ -118,7 +118,7 @@ export function createOperations(operations: OperationInfo[] = []) {
 }
 
 export function rowOperations(operations: OperationInfo[] = []) {
-  return operations.filter((operation) => operation.requireSelect === true && Number(operation.viewId || 0) > 0);
+  return operations.filter((operation) => operation.requireSelect === true);
 }
 
 export function reportRowsFromCells(cells: ReportCell[] = []) {

@@ -121,6 +121,8 @@ explicitly named as authoritative for fool-service.
       `ViewId` for the Vue `initnew` / `savenewobj` flow.
 - [x] Render list row operations with target `ViewId` and keep selected detail
       load/save/lookup/operation execution bound to the active detail View.
+- [x] Render list row operations without a target `ViewId` as disabled
+      metadata actions instead of dropping them from the View-rendered page.
 
 ## Backlog
 

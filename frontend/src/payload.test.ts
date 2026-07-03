@@ -54,7 +54,8 @@ describe("App defaults", () => {
     expect(appSource).toContain("listRowOperations");
     expect(appSource).toContain(':row-operations="listRowOperations"');
     expect(listDataTableSource).toContain("rowOperations");
-    expect(listDataTableSource).toContain("emit('select', row, operation.viewId)");
+    expect(listDataTableSource).toContain("emit('select', row, operationTargetViewId(operation))");
+    expect(listDataTableSource).toContain("operationTargetViewId(operation) <= 0");
   });
 
   it("keeps the Vue workspace on view-id driven legacy view and data APIs", () => {

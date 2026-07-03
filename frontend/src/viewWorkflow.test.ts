@@ -186,10 +186,14 @@ describe("view workflow helpers", () => {
     const operations = [
       { id: 1, name: "Create", requireSelect: false, viewId: 200 },
       { id: 2, name: "Open", requireSelect: true, viewId: 201 },
-      { id: 3, name: "No target", requireSelect: false, viewId: 0 }
+      { id: 3, name: "Delete", requireSelect: true, viewId: 0 },
+      { id: 4, name: "No target", requireSelect: false, viewId: 0 }
     ];
     expect(createOperations(operations)).toEqual([{ id: 1, name: "Create", requireSelect: false, viewId: 200 }]);
-    expect(rowOperations(operations)).toEqual([{ id: 2, name: "Open", requireSelect: true, viewId: 201 }]);
+    expect(rowOperations(operations)).toEqual([
+      { id: 2, name: "Open", requireSelect: true, viewId: 201 },
+      { id: 3, name: "Delete", requireSelect: true, viewId: 0 }
+    ]);
   });
 
   it("renders report cells as a matrix", () => {

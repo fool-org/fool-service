@@ -21,6 +21,10 @@ function operationKey(operation: OperationInfo) {
 function operationLabel(operation: OperationInfo) {
   return operation.text || operation.name || `Open ${operation.viewId}`;
 }
+
+function operationTargetViewId(operation: OperationInfo) {
+  return Number(operation.viewId || 0);
+}
 </script>
 
 <template>
@@ -47,8 +51,8 @@ function operationLabel(operation: OperationInfo) {
             v-for="operation in rowOperations"
             :key="operationKey(operation)"
             type="button"
-            :disabled="disabled"
-            @click="emit('select', row, operation.viewId)"
+            :disabled="disabled || operationTargetViewId(operation) <= 0"
+            @click="emit('select', row, operationTargetViewId(operation))"
           >
             {{ operationLabel(operation) }}
           </button>
