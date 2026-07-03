@@ -36,6 +36,12 @@ public class ViewItem {
     private Integer width = 0;
     @Column("source_expression")
     private String sourceExpression;
+    @Column("list_view_id")
+    private Long listViewId;
+    @Column("edit_view_id")
+    private Long editViewId;
+    @Column("selected_view_id")
+    private Long selectedViewId;
     @Column(noMap = true)
     private transient Property property;
     @Column(noMap = true)

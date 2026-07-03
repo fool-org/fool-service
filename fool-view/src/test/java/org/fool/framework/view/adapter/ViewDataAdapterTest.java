@@ -357,6 +357,40 @@ public class ViewDataAdapterTest {
         assertEquals("Updated item", group.getItems().get(0).getValues().get(1).getFmtValue());
     }
 
+    @Test
+    public void detailCollectionItemsExposeConfiguredLegacyChildViews() {
+        Property itemId = property("itemId", PropertyType.Long);
+        Model itemModel = new Model();
+        itemModel.setName("OrderItem");
+        itemModel.setIdProperty(itemId);
+        itemModel.setProperties(List.of(itemId));
+
+        Property itemsProperty = property("items", PropertyType.BusinessObject);
+        itemsProperty.setIsCollection(true);
+        itemsProperty.setPropertyModel(itemModel);
+        ViewItem items = viewItem("items", ItemEditType.ReadOnly);
+        items.setItemName("Items");
+        items.setListViewId(101L);
+        items.setEditViewId(102L);
+        items.setSelectedViewId(103L);
+        setProperty(items, itemsProperty);
+
+        View view = new View();
+        view.setViewName("OrderDetail");
+        view.setViewModel("Order");
+        view.setListItems(List.of(items));
+
+        QueryDataDetailResult result = new ViewDataAdapter().getDetailViewResult(
+                view,
+                new MapDynamicData("1001", new LinkedHashMap<>(Map.of("items", List.of()))));
+
+        QueryDataDetailResult.PropertyDataItems group = result.getData().getItems().get(0);
+        assertEquals(Long.valueOf(101L), group.getListViewId());
+        assertEquals(Long.valueOf(102L), group.getDetailViewId());
+        assertEquals(Long.valueOf(103L), group.getSelectedView());
+        assertEquals(Boolean.TRUE, group.getSelectFromExists());
+    }
+
     private static ViewItem viewItem(String modelProperty, ItemEditType editType) {
         ViewItem item = new ViewItem();
         item.setModelProperty(modelProperty);

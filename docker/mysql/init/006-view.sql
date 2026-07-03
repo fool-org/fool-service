@@ -46,6 +46,9 @@ CREATE TABLE IF NOT EXISTS `fool_sys_view_item` (
   `show_index` int NOT NULL DEFAULT 0,
   `width` int NOT NULL DEFAULT 0,
   `source_expression` text,
+  `list_view_id` bigint DEFAULT NULL,
+  `edit_view_id` bigint DEFAULT NULL,
+  `selected_view_id` bigint DEFAULT NULL,
   `view_id` bigint DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `ix_fool_sys_view_item_view_id` (`view_id`),
@@ -73,6 +76,39 @@ SET @add_view_item_source_expression = (
 PREPARE add_view_item_source_expression_stmt FROM @add_view_item_source_expression;
 EXECUTE add_view_item_source_expression_stmt;
 DEALLOCATE PREPARE add_view_item_source_expression_stmt;
+
+SET @add_view_item_list_view_id = (
+  SELECT IF(COUNT(*) = 0, 'ALTER TABLE `fool_sys_view_item` ADD COLUMN `list_view_id` bigint DEFAULT NULL AFTER `source_expression`', 'SELECT 1')
+  FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'fool_sys_view_item'
+    AND COLUMN_NAME = 'list_view_id'
+);
+PREPARE add_view_item_list_view_id_stmt FROM @add_view_item_list_view_id;
+EXECUTE add_view_item_list_view_id_stmt;
+DEALLOCATE PREPARE add_view_item_list_view_id_stmt;
+
+SET @add_view_item_edit_view_id = (
+  SELECT IF(COUNT(*) = 0, 'ALTER TABLE `fool_sys_view_item` ADD COLUMN `edit_view_id` bigint DEFAULT NULL AFTER `list_view_id`', 'SELECT 1')
+  FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'fool_sys_view_item'
+    AND COLUMN_NAME = 'edit_view_id'
+);
+PREPARE add_view_item_edit_view_id_stmt FROM @add_view_item_edit_view_id;
+EXECUTE add_view_item_edit_view_id_stmt;
+DEALLOCATE PREPARE add_view_item_edit_view_id_stmt;
+
+SET @add_view_item_selected_view_id = (
+  SELECT IF(COUNT(*) = 0, 'ALTER TABLE `fool_sys_view_item` ADD COLUMN `selected_view_id` bigint DEFAULT NULL AFTER `edit_view_id`', 'SELECT 1')
+  FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'fool_sys_view_item'
+    AND COLUMN_NAME = 'selected_view_id'
+);
+PREPARE add_view_item_selected_view_id_stmt FROM @add_view_item_selected_view_id;
+EXECUTE add_view_item_selected_view_id_stmt;
+DEALLOCATE PREPARE add_view_item_selected_view_id_stmt;
 
 CREATE TABLE IF NOT EXISTS `SW_SYS_VIEW` (
   `VIEW_ID` bigint NOT NULL AUTO_INCREMENT,
@@ -585,6 +621,10 @@ INSERT INTO `fool_sys_view` (`id`, `view_name`, `view_text`, `view_remark`, `vie
 SELECT 100, 'OrderList', 'OrderList', 'Seeded Docker smoke view', 'Order List', 0, 'Order', '', 0, 'org.fool.framework.market.Order'
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view` WHERE `view_name` = 'OrderList');
 
+INSERT INTO `fool_sys_view` (`id`, `view_name`, `view_text`, `view_remark`, `view_title`, `view_type`, `view_model`, `filter`, `auto_fresh_interval`, `view_model_class`)
+SELECT 101, 'OrderItemList', 'OrderItemList', 'Seeded Docker child item view', 'Order Item List', 0, 'OrderItem', '', 0, 'org.fool.framework.market.OrderItem'
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view` WHERE `view_name` = 'OrderItemList');
+
 INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `show_index`, `view_id`)
 SELECT 1001, 'Order ID', 'Order ID', 'Order ID', 'orderId', 0, 0, NULL, NULL, NULL, 0, 1, 100
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 100 AND `model_property` = 'orderId');
@@ -619,19 +659,39 @@ SET `show_index` = 3,
     `edit_type` = 1
 WHERE `view_id` = 100 AND `model_property` = 'customer';
 
-INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `show_index`, `view_id`)
-SELECT 1004, 'Items', 'Items', 'Items', 'items', 0, 0, NULL, NULL, NULL, 0, 4, 100
+INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `show_index`, `list_view_id`, `selected_view_id`, `view_id`)
+SELECT 1004, 'Items', 'Items', 'Items', 'items', 0, 0, NULL, NULL, NULL, 0, 4, 101, 101, 100
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 100 AND `model_property` = 'items');
 
 UPDATE `fool_sys_view_item`
-SET `show_index` = 5
+SET `show_index` = 5,
+    `list_view_id` = 101,
+    `selected_view_id` = 101
 WHERE `view_id` = 100 AND `model_property` = 'items';
+
+INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `show_index`, `view_id`)
+SELECT 1101, 'Item ID', 'Item ID', 'Item ID', 'itemId', 0, 0, NULL, NULL, NULL, 0, 1, 101
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 101 AND `model_property` = 'itemId');
+
+UPDATE `fool_sys_view_item`
+SET `show_index` = 1
+WHERE `view_id` = 101 AND `model_property` = 'itemId';
+
+INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `show_index`, `view_id`)
+SELECT 1102, 'Item Name', 'Item Name', 'Item Name', 'itemName', 0, 0, NULL, NULL, NULL, 0, 2, 101
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 101 AND `model_property` = 'itemName');
+
+UPDATE `fool_sys_view_item`
+SET `show_index` = 2
+WHERE `view_id` = 101 AND `model_property` = 'itemName';
 
 INSERT INTO `SW_SYS_VIEW` (
   `VIEW_ID`, `VIEW_MODEL`, `VIEW_NAME`, `VIEW_FILTER`, `VIEW_DEFAULT`, `VIEW_TYPE`,
   `VIEW_CONTYPE`, `VIEW_FILE`, `VIEW_CHECKAUTH`, `VIEW_AUTOFRESHINTERVAL`, `VIEW_CANEDIT`
 )
-VALUES (100, 100, 'OrderList', '', NULL, 0, 3, NULL, 0, 0, 0)
+VALUES
+  (100, 100, 'OrderList', '', NULL, 0, 3, NULL, 0, 0, 0),
+  (101, 101, 'OrderItemList', '', NULL, 0, 3, NULL, 0, 0, 0)
 ON DUPLICATE KEY UPDATE
   `VIEW_MODEL` = VALUES(`VIEW_MODEL`),
   `VIEW_NAME` = VALUES(`VIEW_NAME`),
@@ -656,7 +716,9 @@ VALUES
   (1002, 100, 'Symbol', 'Symbol', NULL, 1002, NULL, NULL, 1, 2, NULL, NULL, NULL, 0, 1, NULL, 0, NULL),
   (1005, 100, 'Customer', 'Customer', NULL, 1005, NULL, NULL, 0, 3, NULL, NULL, NULL, 0, 1, NULL, 1, NULL),
   (1003, 100, 'State', 'State', NULL, 1003, NULL, NULL, 1, 4, NULL, NULL, NULL, 0, 1, NULL, 0, NULL),
-  (1004, 100, 'Items', 'Items', NULL, 1004, NULL, NULL, 1, 5, NULL, NULL, NULL, 0, 1, NULL, 0, NULL)
+  (1004, 100, 'Items', 'Items', NULL, 1004, NULL, NULL, 1, 5, 101, NULL, 101, 0, 1, NULL, 0, NULL),
+  (1101, 101, 'Item ID', 'Item ID', NULL, 1011, NULL, NULL, 1, 1, NULL, NULL, NULL, 0, 1, NULL, 0, NULL),
+  (1102, 101, 'Item Name', 'Item Name', NULL, 1012, NULL, NULL, 1, 2, NULL, NULL, NULL, 0, 1, NULL, 0, NULL)
 ON DUPLICATE KEY UPDATE
   `SW_SYS_VIEW_ItemsVIEW_ID` = VALUES(`SW_SYS_VIEW_ItemsVIEW_ID`),
   `VIEW_ITEM_NAME` = VALUES(`VIEW_ITEM_NAME`),

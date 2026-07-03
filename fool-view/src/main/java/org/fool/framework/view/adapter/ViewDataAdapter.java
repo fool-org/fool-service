@@ -241,14 +241,18 @@ public class ViewDataAdapter {
                         null))
                 .toList());
         result.setItems(collectionDataItems(itemModel, collectionValue(item, property, data)));
-        result.setListViewId(0L);
-        result.setDetailViewId(0L);
+        result.setListViewId(safeViewId(item.getListViewId()));
+        result.setDetailViewId(safeViewId(item.getEditViewId()));
         result.setName(itemModel == null || itemModel.getName() == null ? columnName(item) : itemModel.getName());
         result.setPrpId(property == null || property.getName() == null ? item.getModelProperty() : property.getName());
-        result.setSelectFromExists(false);
+        result.setSelectFromExists(safeViewId(item.getSelectedViewId()) > 0L);
         result.setItemName(columnName(item));
-        result.setSelectedView(0L);
+        result.setSelectedView(safeViewId(item.getSelectedViewId()));
         return result;
+    }
+
+    private long safeViewId(Long viewId) {
+        return viewId == null ? 0L : viewId;
     }
 
     private Object collectionValue(ViewItem item, Property property, IDynamicData data) {

@@ -28,6 +28,9 @@ explicitly named as authoritative for fool-service.
       without opening API tools or pressing a setup button.
 - [x] Add candidate search/pagination for select-from-existing child collection
       dialogs without frontend SQL/filter construction.
+- [x] Expose configured child list/select View IDs from backend View metadata
+      and prove the Docker Vue detail workflow uses them for existing-item
+      candidates.
 
 ## Backlog
 

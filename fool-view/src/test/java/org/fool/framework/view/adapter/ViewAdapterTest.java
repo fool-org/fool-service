@@ -290,6 +290,21 @@ public class ViewAdapterTest {
     }
 
     @Test
+    public void viewInfoIncludesConfiguredLegacyLinkedViewIds() {
+        ViewItem customer = viewItem("customer", "Customer", ItemEditType.TextBox);
+        customer.setListViewId(201L);
+        customer.setEditViewId(202L);
+
+        View view = new View();
+        view.setListItems(List.of(customer));
+
+        Object column = new ViewAdapter().getViewInfo(view).getTableColumn().get(0);
+
+        assertEquals(Long.valueOf(201L), columnListViewId(column));
+        assertEquals(Long.valueOf(202L), columnEditViewId(column));
+    }
+
+    @Test
     public void viewInfoIncludesLegacyColumnPropertyTypeAndModel() {
         Model customer = new Model();
         customer.setId(700L);

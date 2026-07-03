@@ -90,6 +90,18 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: exposed configured child View metadata for
+  select-from-existing detail groups. The migration now maps `ViewItem`
+  `listViewId`, `editViewId`, and `selectedViewId` from persisted View
+  metadata into both legacy list-column DTOs and `querydatadetail`
+  collection groups, matching FoolFrame's `ListView` / `EditView` /
+  `SelectedView` contract for detail child items. Docker seed data now includes
+  an `OrderItemList` View (`viewId=101`) and configures `Order.items` to use it
+  for list and selected candidates. Runtime proof: `querydatadetail` for
+  `OrderList` object `1001` returns `items.listViewId=101`,
+  `items.selectedView=101`, and `items.selectFromExists=true`; Vue then loads
+  `getlistview(101)` before `querydata(101, keyword=Legacy)` and renders the
+  `2001 / Legacy item` candidate row.
 - 2026-07-04: added candidate search/pagination state for select-from-existing
   child collection dialogs while keeping the page View-driven. The Vue detail
   panel still loads candidate View metadata first through legacy `getlistview`,

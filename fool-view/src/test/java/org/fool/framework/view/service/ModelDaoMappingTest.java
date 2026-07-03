@@ -62,5 +62,14 @@ public class ModelDaoMappingTest {
         assertTrue(mapper.getMapFields().stream()
                 .anyMatch(field -> field.getField().getName().equals("sourceExpression")
                         && "source_expression".equals(field.getColumnName())));
+        assertTrue(mapper.getMapFields().stream()
+                .anyMatch(field -> field.getField().getName().equals("listViewId")
+                        && "list_view_id".equals(field.getColumnName())));
+        assertTrue(mapper.getMapFields().stream()
+                .anyMatch(field -> field.getField().getName().equals("editViewId")
+                        && "edit_view_id".equals(field.getColumnName())));
+        assertTrue(mapper.getMapFields().stream()
+                .anyMatch(field -> field.getField().getName().equals("selectedViewId")
+                        && "selected_view_id".equals(field.getColumnName())));
     }
 }

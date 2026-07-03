@@ -56,9 +56,9 @@ public class ViewAdapter {
                             .isReadOnly(!p.isCanEdit())
                             .editType(p.getEditType())
                             .propertyId(0L)
-                            .listViewId(0L)
+                            .listViewId(safeViewId(p.getListViewId()))
                             .listViewType(0)
-                            .editViewId(0L)
+                            .editViewId(safeViewId(p.getEditViewId()))
                             .editExp(0L)
                             .propertyType(safePropertyType(p))
                             .propertyModel(safePropertyModel(p))
@@ -138,6 +138,10 @@ public class ViewAdapter {
         Property property = item.getProperty();
         Model model = property == null ? null : property.getPropertyModel();
         return model == null || model.getId() == null ? 0L : model.getId();
+    }
+
+    private long safeViewId(Long viewId) {
+        return viewId == null ? 0L : viewId;
     }
 
     private String safePropertyName(ViewItem item) {
