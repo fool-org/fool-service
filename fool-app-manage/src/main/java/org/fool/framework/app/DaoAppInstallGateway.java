@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -157,6 +158,14 @@ public class DaoAppInstallGateway implements AppInstallGateway {
                 if (result.created) {
                     installed.add(model.getName());
                 }
+            }
+        }
+        for (AppModuleDefinition module : modules) {
+            if (module == null || module.getName() == null) {
+                continue;
+            }
+            for (Model model : source.getModels(module)) {
+                updateDefaultOwner(metadataDao, model, installedModels);
             }
         }
         for (AppModuleDefinition module : modules) {
@@ -378,6 +387,23 @@ public class DaoAppInstallGateway implements AppInstallGateway {
         AppInstalledModel installedModel = AppInstalledModel.fromModel(model, moduleName, connectionType, connection);
         daoService.create(installedModel);
         return new InstalledModelResult(installedModel, true);
+    }
+
+    private void updateDefaultOwner(
+            DaoService daoService,
+            Model model,
+            Map<Model, AppInstalledModel> installedModels) {
+        if (model == null || model.getOwner() == null) {
+            return;
+        }
+        AppInstalledModel installedModel = installedModels.get(model);
+        AppInstalledModel ownerModel = installedModels.get(model.getOwner());
+        if (installedModel == null || ownerModel == null || ownerModel.getModelId() == null
+                || Objects.equals(installedModel.getDefaultOwnerId(), ownerModel.getModelId())) {
+            return;
+        }
+        installedModel.setDefaultOwnerId(ownerModel.getModelId());
+        daoService.save(installedModel);
     }
 
     private void installProperties(

@@ -1143,6 +1143,30 @@ public class AppManageMigrationTest {
     }
 
     @Test
+    public void daoAppInstallGatewayBackfillsLegacyDefaultOwnerAfterModelIdsExist() {
+        RecordingDaoService daoService = new RecordingDaoService();
+        DaoAppInstallGateway gateway = new DaoAppInstallGateway(daoService);
+        Model order = legacyModel("Order", "SW_ORDER");
+        Model orderLine = legacyModel("OrderLine", "SW_ORDER_LINE");
+        orderLine.setOwner(order);
+        AppModuleDefinition module = AppModuleDefinition.legacy(
+                "MKT01",
+                "example.OrderModule",
+                "2.0.0",
+                List.of(order, orderLine));
+
+        gateway.installModuleSource(
+                "sys-con",
+                "work-con",
+                new StaticAppModuleSource(List.of(module)));
+
+        AppInstalledModel orderModel = (AppInstalledModel) daoService.created.get(1);
+        AppInstalledModel orderLineModel = (AppInstalledModel) daoService.created.get(2);
+        assertEquals(orderModel.getModelId(), orderLineModel.getDefaultOwnerId());
+        assertEquals(List.of(orderLineModel), daoService.saved);
+    }
+
+    @Test
     public void daoAppInstallGatewayPersistsLegacyEnumValuesWithEnumModels() throws Exception {
         RecordingDaoService daoService = new RecordingDaoService();
         DaoAppInstallGateway gateway = new DaoAppInstallGateway(daoService);
@@ -1903,6 +1927,7 @@ public class AppManageMigrationTest {
 
     private static final class RecordingDaoService extends DaoService {
         private final List<Object> created = new ArrayList<>();
+        private final List<Object> saved = new ArrayList<>();
         private final List<String> executedSql = new ArrayList<>();
         private long nextAuthorizedUserId = 1000;
         private long nextMenuId = 2000;
@@ -1932,6 +1957,12 @@ public class AppManageMigrationTest {
                 property.setPropertyId(nextPropertyId++);
             }
             created.add(object);
+        }
+
+        @Override
+        public <T> boolean save(T object) {
+            saved.add(object);
+            return true;
         }
 
         @Override
