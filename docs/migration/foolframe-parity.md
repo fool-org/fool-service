@@ -97,6 +97,14 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: `ModelDataService` now executes hydrated legacy model triggers
+  for CREATE/SAVE/DELETE write paths, with `SET_VALUE` commands applied in
+  legacy index order and persisted through the trigger `OperationBaseType`
+  without recursive trigger execution. The command value parser is shared with
+  `DataQueryService` runoperation handling, so `$` literals, current-field
+  expressions, time context, math expressions, and BusinessObject lookups do
+  not fork into a second parser. Focused MySQL proof covers a SAVE trigger
+  updating a dynamic row; broader command grammar remains backlog.
 - 2026-07-04: Vue metadata lookup editors no longer accept or forward a
   `viewName` fallback. BusinessObject candidate search now builds `inputquery`
   from the already rendered View id plus ViewItem id, keeping the page flow on

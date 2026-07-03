@@ -217,6 +217,58 @@ public class ModelDataServiceTest {
     }
 
     @Test
+    public void saveDataExecutesLegacySaveTriggerSetValue() {
+        long modelId = 92601L;
+        long idPropertyId = 92602L;
+        long namePropertyId = 92603L;
+        long triggerId = 92604L;
+        long commandId = 92605L;
+        String modelName = "RuntimeSaveTriggerOrder";
+        String tableName = "runtime_save_trigger_order";
+        cleanupRuntimeTriggerModel(modelId, modelName, tableName);
+        try {
+            createRuntimeDetailModel(modelId, idPropertyId, namePropertyId, modelName, tableName);
+            jdbcTemplate.update(
+                    "INSERT INTO `" + tableName + "` (`ORDER_ID`,`ORDER_NAME`) VALUES (?,?)",
+                    "2001",
+                    "before trigger");
+            jdbcTemplate.update(
+                    "INSERT INTO `SW_SYS_MODEL_TRIGGER` "
+                            + "(`SysId`,`SW_SYS_MODEL_TriggersMODEL_ID`,`SW_MODEL_TRIGGER_TYPE`,"
+                            + "`SW_MODEL_TRIGGER_OPERATIONTYPE`) VALUES (?,?,?,?)",
+                    triggerId,
+                    modelId,
+                    ModelTriggerType.SAVE.code(),
+                    OperationBaseType.UPDATE.code());
+            jdbcTemplate.update(
+                    "INSERT INTO `SW_SYS_MODEL_TRIGGER_COMMANDS` "
+                            + "(`SysId`,`SW_SYS_MODEL_TRIGGER_CommandsSysId`,`SW_SYS_COMMAND_TYPE`,"
+                            + "`SW_SYS_COMMAND_PROPERTY`,`SW_SYS_COMMAND_EXP`,`SW_SYS_COMMAND_Index`) "
+                            + "VALUES (?,?,?,?,?,?)",
+                    commandId,
+                    triggerId,
+                    CommandsType.SET_VALUE.code(),
+                    namePropertyId,
+                    "$triggered",
+                    1);
+            Model model = modelDataService.getModel(modelName);
+            DbMysqlDynamic data = new DbMysqlDynamic(model);
+            data.set("orderId", "2001");
+            data.set("orderName", "manual save");
+
+            assertEquals(Boolean.TRUE, modelDataService.saveData(data));
+
+            String name = jdbcTemplate.queryForObject(
+                    "SELECT `ORDER_NAME` FROM `" + tableName + "` WHERE `ORDER_ID` = ?",
+                    String.class,
+                    "2001");
+            assertEquals("triggered", name);
+        } finally {
+            cleanupRuntimeTriggerModel(modelId, modelName, tableName);
+        }
+    }
+
+    @Test
     public void createDataInsertsLegacySimpleDynamicRow() {
         long modelId = 93001L;
         long idPropertyId = 93002L;

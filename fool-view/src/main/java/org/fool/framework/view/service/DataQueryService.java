@@ -7,7 +7,6 @@ import org.fool.framework.dao.QueryAndArgs;
 import org.fool.framework.dto.CommonException;
 import org.fool.framework.common.PropertyType;
 import org.fool.framework.common.data.SubItemList;
-import org.fool.framework.common.data.math.MathExpression;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.model.model.DbMysqlDynamic;
 import org.fool.framework.model.model.Model;
@@ -20,6 +19,7 @@ import org.fool.framework.model.model.Property;
 import org.fool.framework.model.model.Relation;
 import org.fool.framework.model.service.ModelDisplayProperties;
 import org.fool.framework.model.service.ModelDataService;
+import org.fool.framework.model.service.OperationCommandValueResolver;
 import org.fool.framework.query.BetweenFilter;
 import org.fool.framework.query.CompareFilter;
 import org.fool.framework.query.CompareOp;
@@ -49,8 +49,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -71,6 +69,8 @@ public class DataQueryService {
     private ModelDataService modelDataService;
     @Autowired
     private ViewDataService viewDataService;
+
+    private final OperationCommandValueResolver commandValueResolver = new OperationCommandValueResolver();
 
     /**
      * 得到视图信息
@@ -609,73 +609,14 @@ public class DataQueryService {
     }
 
     private Object commandValue(Property property, IDynamicData data, String expression) {
-        String value = expression == null ? "" : expression.trim();
-        if (isCompositeMathExpression(value)) {
-            String result = new MathExpression().calculateParenthesesExpression(
-                    value,
-                    part -> String.valueOf(commandValue(property, data, part)));
-            return staticValue(property, result);
-        }
-        if (value.startsWith("$")) {
-            return staticValue(property, value.substring(1));
-        }
-        if (value.startsWith(".")) {
-            return value.length() == 1 ? null : data.get(value.substring(1));
-        }
-        if (value.startsWith("#.")) {
-            return data.get(value.substring(2));
-        }
-        if (value.startsWith("@")) {
-            return contextValue(value.substring(1));
-        }
-        // ponytail: literal/current field/math/time-context only; add auth/owner context when commands need it.
-        return "";
+        return commandValueResolver.resolve(property, data, expression, this::businessObjectValue);
     }
 
-    private Object contextValue(String expression) {
-        return switch ((expression == null ? "" : expression.trim()).toLowerCase(Locale.ROOT)) {
-            case "datetime", "time" -> LocalDateTime.now();
-            case "date" -> LocalDateTime.now().toLocalDate().atStartOfDay();
-            default -> "";
-        };
-    }
-
-    private boolean isCompositeMathExpression(String value) {
-        if (!MathExpression.isMathExpression(value)) {
-            return false;
-        }
-        if (value.indexOf('+') >= 0 || value.indexOf('*') >= 0 || value.indexOf('/') >= 0
-                || value.indexOf('(') >= 0 || value.indexOf(')') >= 0) {
-            return true;
-        }
-        int minusIndex = value.indexOf('-', 1);
-        while (minusIndex >= 0 && minusIndex + 1 < value.length()) {
-            if ("$.#@".indexOf(value.charAt(minusIndex + 1)) >= 0) {
-                return true;
-            }
-            minusIndex = value.indexOf('-', minusIndex + 1);
-        }
-        return false;
-    }
-
-    private Object staticValue(Property property, String value) {
-        if (property == null || property.getPropertyType() == null) {
-            return value;
-        }
-        return switch (property.getPropertyType()) {
-            case Boolean -> Boolean.valueOf(value);
-            case Byte -> Byte.valueOf(value);
-            case Char -> value.charAt(0);
-            case DateTime -> LocalDateTime.parse(value.replace(' ', 'T'));
-            case Int, UInt, Long, ULong -> Integer.valueOf(value);
-            case Decimal -> new BigDecimal(value);
-            case Double, Float -> Double.valueOf(value);
-            case BusinessObject -> property.getPropertyModel() == null
-                    || !StringUtils.hasText(property.getPropertyModel().getName())
-                    ? value
-                    : modelDataService.getOneData(property.getPropertyModel().getName(), value);
-            default -> value;
-        };
+    private Object businessObjectValue(Property property, String value) {
+        return property.getPropertyModel() == null
+                || !StringUtils.hasText(property.getPropertyModel().getName())
+                ? value
+                : modelDataService.getOneData(property.getPropertyModel().getName(), value);
     }
 
     private static class OperationCommandValues {

@@ -7,8 +7,11 @@ import org.fool.framework.common.data.SubItemList;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.dao.*;
 import org.fool.framework.model.model.DbMysqlDynamic;
+import org.fool.framework.model.model.CommandsType;
 import org.fool.framework.model.model.Model;
+import org.fool.framework.model.model.ModelTriggerType;
 import org.fool.framework.model.model.MultiDbMap;
+import org.fool.framework.model.model.OperationBaseType;
 import org.fool.framework.model.model.OperationCommand;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.model.model.Relation;
@@ -25,10 +28,12 @@ import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -46,6 +51,8 @@ public class ModelDataService {
     private DaoService daoService;
     @Autowired
     private SqlGenerator sqlGenerator;
+
+    private final OperationCommandValueResolver commandValueResolver = new OperationCommandValueResolver();
 
     private Mapper getMapper(String modelId) {
         if (!concurrentHashMap.containsKey(modelId)) {
@@ -238,10 +245,19 @@ public class ModelDataService {
     }
 
     public Boolean saveData(IDynamicData data) {
-        return saveData(data, null, null, true);
+        return saveData(data, null, null, true, true);
     }
 
     private Boolean saveData(IDynamicData data, String extraColumn, Object extraValue, boolean writeCollections) {
+        return saveData(data, extraColumn, extraValue, writeCollections, true);
+    }
+
+    private Boolean saveData(
+            IDynamicData data,
+            String extraColumn,
+            Object extraValue,
+            boolean writeCollections,
+            boolean runTriggers) {
         if (!(data instanceof DbMysqlDynamic dynamicData)) {
             return false;
         }
@@ -250,6 +266,7 @@ public class ModelDataService {
                 || model.getProperties() == null) {
             return false;
         }
+        hydrateModelTriggers(model);
         Property idProperty = model.getIdProperty();
         String idColumn = idProperty != null && idProperty.getColumn() != null && !idProperty.getColumn().isBlank()
                 ? idProperty.getColumn()
@@ -274,6 +291,9 @@ public class ModelDataService {
         if (saved && writeCollections) {
             writeCollectionRelations(model, data);
         }
+        if (saved && runTriggers) {
+            executeModelTriggers(model, data, ModelTriggerType.SAVE);
+        }
         return saved;
     }
 
@@ -290,6 +310,10 @@ public class ModelDataService {
     }
 
     public Boolean deleteData(IDynamicData data) {
+        return deleteData(data, true);
+    }
+
+    private Boolean deleteData(IDynamicData data, boolean runTriggers) {
         if (!(data instanceof DbMysqlDynamic dynamicData)) {
             return false;
         }
@@ -297,6 +321,7 @@ public class ModelDataService {
         if (model == null || model.getTableName() == null || model.getTableName().isBlank()) {
             return false;
         }
+        hydrateModelTriggers(model);
         Property idProperty = model.getIdProperty();
         String idColumn = idProperty != null && idProperty.getColumn() != null && !idProperty.getColumn().isBlank()
                 ? idProperty.getColumn()
@@ -305,19 +330,31 @@ public class ModelDataService {
         if (idValue == null) {
             return false;
         }
+        if (runTriggers) {
+            executeModelTriggers(model, data, ModelTriggerType.DELETE);
+        }
         String sql = "DELETE FROM `" + model.getTableName() + "` WHERE `" + idColumn + "` = ?";
         return jdbcTemplate.update(sql, idValue) > 0;
     }
 
     public Boolean createData(IDynamicData data) {
-        return createData(data, null, null, true);
+        return createData(data, null, null, true, true);
     }
 
     public Boolean createData(IDynamicData data, String extraColumn, Object extraValue) {
-        return createData(data, extraColumn, extraValue, false);
+        return createData(data, extraColumn, extraValue, false, true);
     }
 
     private Boolean createData(IDynamicData data, String extraColumn, Object extraValue, boolean writeCollections) {
+        return createData(data, extraColumn, extraValue, writeCollections, true);
+    }
+
+    private Boolean createData(
+            IDynamicData data,
+            String extraColumn,
+            Object extraValue,
+            boolean writeCollections,
+            boolean runTriggers) {
         if (!(data instanceof DbMysqlDynamic dynamicData)) {
             return false;
         }
@@ -326,6 +363,7 @@ public class ModelDataService {
                 || model.getProperties() == null) {
             return false;
         }
+        hydrateModelTriggers(model);
         Map<String, Object> columnValues = writableColumnValues(model, data, null);
         addColumnValue(columnValues, extraColumn, extraValue, null);
         if (columnValues.isEmpty()) {
@@ -342,7 +380,60 @@ public class ModelDataService {
         if (created && writeCollections) {
             writeCollectionRelations(model, data);
         }
+        if (created && runTriggers) {
+            executeModelTriggers(model, data, ModelTriggerType.CREATE);
+        }
         return created;
+    }
+
+    private void executeModelTriggers(Model model, IDynamicData data, ModelTriggerType triggerType) {
+        if (model.getTriggers() == null || model.getTriggers().isEmpty()) {
+            return;
+        }
+        model.getTriggers().stream()
+                .filter(trigger -> trigger != null && trigger.getTriggerType() == triggerType)
+                .forEach(trigger -> executeModelTrigger(model, data, trigger));
+    }
+
+    private void executeModelTrigger(Model model, IDynamicData data, Trigger trigger) {
+        if (trigger.getCommands() != null) {
+            trigger.getCommands().stream()
+                    .filter(command -> command != null && command.getCommandType() == CommandsType.SET_VALUE)
+                    .sorted(Comparator.comparing(command -> command.getIndex() == null ? 0 : command.getIndex()))
+                    .forEach(command -> property(model, command.getPropertyId())
+                            .ifPresent(property -> data.set(
+                                    property.getName(),
+                                    triggerCommandValue(property, data, command.getExpression()))));
+        }
+        OperationBaseType type = trigger.getBaseOperationType();
+        if (type == OperationBaseType.UPDATE) {
+            saveData(data, null, null, false, false);
+        } else if (type == OperationBaseType.CREATE) {
+            createData(data, null, null, false, false);
+        } else if (type == OperationBaseType.DELETE) {
+            deleteData(data, false);
+        }
+    }
+
+    private java.util.Optional<Property> property(Model model, Long propertyId) {
+        if (model == null || model.getProperties() == null || propertyId == null) {
+            return java.util.Optional.empty();
+        }
+        return model.getProperties().stream()
+                .filter(property -> Objects.equals(propertyId, property.getId()))
+                .findFirst();
+    }
+
+    private Object triggerCommandValue(Property property, IDynamicData data, String expression) {
+        return commandValueResolver.resolve(property, data, expression, this::businessObjectValue);
+    }
+
+    private Object businessObjectValue(Property property, String value) {
+        return property.getPropertyModel() == null
+                || property.getPropertyModel().getName() == null
+                || property.getPropertyModel().getName().isBlank()
+                ? value
+                : getOneData(property.getPropertyModel().getName(), value);
     }
 
     private void writeCollectionRelations(Model model, IDynamicData data) {

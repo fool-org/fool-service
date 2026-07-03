@@ -1,0 +1,91 @@
+package org.fool.framework.model.service;
+
+import org.fool.framework.common.data.math.MathExpression;
+import org.fool.framework.common.dynamic.IDynamicData;
+import org.fool.framework.model.model.Property;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Locale;
+
+public class OperationCommandValueResolver {
+    @FunctionalInterface
+    public interface BusinessObjectLoader {
+        Object load(Property property, String value);
+    }
+
+    public Object resolve(
+            Property property,
+            IDynamicData data,
+            String expression,
+            BusinessObjectLoader businessObjectLoader) {
+        String value = expression == null ? "" : expression.trim();
+        if (isCompositeMathExpression(value)) {
+            String result = new MathExpression().calculateParenthesesExpression(
+                    value,
+                    part -> String.valueOf(resolve(property, data, part, businessObjectLoader)));
+            return staticValue(property, result, businessObjectLoader);
+        }
+        if (value.startsWith("$")) {
+            return staticValue(property, value.substring(1), businessObjectLoader);
+        }
+        if (value.startsWith(".")) {
+            return value.length() == 1 || data == null ? null : data.get(value.substring(1));
+        }
+        if (value.startsWith("#.")) {
+            return data == null ? null : data.get(value.substring(2));
+        }
+        if (value.startsWith("@")) {
+            return contextValue(value.substring(1));
+        }
+        return "";
+    }
+
+    private Object contextValue(String expression) {
+        return switch ((expression == null ? "" : expression.trim()).toLowerCase(Locale.ROOT)) {
+            case "datetime", "time" -> LocalDateTime.now();
+            case "date" -> LocalDateTime.now().toLocalDate().atStartOfDay();
+            default -> "";
+        };
+    }
+
+    private boolean isCompositeMathExpression(String value) {
+        if (!MathExpression.isMathExpression(value)) {
+            return false;
+        }
+        if (value.indexOf('+') >= 0 || value.indexOf('*') >= 0 || value.indexOf('/') >= 0
+                || value.indexOf('(') >= 0 || value.indexOf(')') >= 0) {
+            return true;
+        }
+        int minusIndex = value.indexOf('-', 1);
+        while (minusIndex >= 0 && minusIndex + 1 < value.length()) {
+            if ("$.#@".indexOf(value.charAt(minusIndex + 1)) >= 0) {
+                return true;
+            }
+            minusIndex = value.indexOf('-', minusIndex + 1);
+        }
+        return false;
+    }
+
+    private Object staticValue(
+            Property property,
+            String value,
+            BusinessObjectLoader businessObjectLoader) {
+        if (property == null || property.getPropertyType() == null) {
+            return value;
+        }
+        return switch (property.getPropertyType()) {
+            case Boolean -> Boolean.valueOf(value);
+            case Byte -> Byte.valueOf(value);
+            case Char -> value.charAt(0);
+            case DateTime -> LocalDateTime.parse(value.replace(' ', 'T'));
+            case Int, UInt, Long, ULong -> Integer.valueOf(value);
+            case Decimal -> new BigDecimal(value);
+            case Double, Float -> Double.valueOf(value);
+            case BusinessObject -> businessObjectLoader == null
+                    ? value
+                    : businessObjectLoader.load(property, value);
+            default -> value;
+        };
+    }
+}

@@ -102,6 +102,9 @@ explicitly named as authoritative for fool-service.
 - [x] Tighten the Vue main View workflow layout so loaded View rows and
       `querydatadetail` detail fields render in the first usable screen on
       desktop and remain scrollable on narrow screens.
+- [x] Execute legacy model SAVE trigger `SET_VALUE` side effects through
+      `ModelDataService` writes, reusing the shared operation command value
+      resolver instead of adding a second expression parser.
 
 ## Backlog
 
