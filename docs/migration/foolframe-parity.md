@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: the Vue View workflow no longer reads `row.values` for rendered
+  row identity, table cells, or selected-existing child save drafts. Rows now
+  render from loaded View columns matched to legacy `querydata.Items`, and
+  object selection only uses the protocol row id or legacy item id. Separate
+  render keys prevent fallback row indexes from being sent as object ids.
 - 2026-07-04: `ModelDataService` now executes collection property
   `ItemsAdd` / `ItemsDelete` triggers while writing dynamic collection
   relations, matching FoolFrame `ModelBindingList` running add triggers before

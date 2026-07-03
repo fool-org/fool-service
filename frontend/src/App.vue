@@ -67,6 +67,7 @@ import {
   reportRowsFromCells,
   rowObjectId,
   rowOperations,
+  rowRenderKey,
   rowValue,
   selectedChildViewId,
   viewDetailViewId
@@ -1175,7 +1176,7 @@ function syncDetailDrafts() {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="row in candidateRows(group)" :key="rowObjectId(row, candidateColumns(group))">
+                      <tr v-for="(row, rowIndex) in candidateRows(group)" :key="rowRenderKey(row, rowIndex)">
                         <td v-for="column in candidateColumns(group)" :key="columnKey(column)">
                           {{ rowValue(row, column) }}
                         </td>
@@ -1931,7 +1932,7 @@ function syncDetailDrafts() {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in resultRows" :key="rowObjectId(row, resultColumns)">
+                <tr v-for="(row, rowIndex) in resultRows" :key="rowRenderKey(row, rowIndex)">
                   <td
                     v-for="column in resultColumns"
                     :key="column.property || column.title"

@@ -22,20 +22,18 @@ export function columnTitle(column: TableColumnInfo) {
   return column.title || column.name || column.propertyName || column.property || String(column.id || "");
 }
 
-export function rowObjectId(row: ListDataItem, columns: TableColumnInfo[] = []) {
-  const firstColumnKey = columns[0] ? columnKey(columns[0]) : "";
-  return displayValue(
-    row.id
-      || row.items?.[0]?.objId
-      || row.items?.[0]?.fmtValue
-      || (firstColumnKey ? row.values?.[firstColumnKey] : "")
-      || row.rowIndex
-  );
+export function rowObjectId(row: ListDataItem, _columns: TableColumnInfo[] = []) {
+  const firstItemWithId = row.items?.find((item) => displayValue(item.objId));
+  return firstDisplayValue([row.id, firstItemWithId?.objId, row.items?.[0]?.fmtValue]);
+}
+
+export function rowRenderKey(row: ListDataItem, index = 0) {
+  return rowObjectId(row) || firstDisplayValue([row.rowIndex]) || String(index);
 }
 
 export function rowValue(row: ListDataItem, column: TableColumnInfo) {
-  const key = columnKey(column);
-  return row.items?.find((item) => item.prpId === key)?.fmtValue || displayValue(row.values?.[key]);
+  const item = rowItemForColumn(row, column);
+  return firstDisplayValue([item?.fmtValue, item?.objId]);
 }
 
 export function rowFormatClass(row: ListDataItem) {
@@ -296,13 +294,16 @@ export function buildDraftsFromRow(fields: ListDataValue[], row: ListDataItem, c
       return drafts;
     }
     const byKey = row.items?.find((item) => fieldKey(item) === key);
+    const byColumn = columns[index] ? rowItemForColumn(row, columns[index]) : undefined;
     const byIndex = row.items?.[index];
-    const columnKeyAtIndex = columns[index] ? columnKey(columns[index]) : "";
-    drafts[key] = byKey?.objId
-      || byKey?.fmtValue
-      || byIndex?.objId
-      || byIndex?.fmtValue
-      || (columnKeyAtIndex ? displayValue(row.values?.[columnKeyAtIndex]) : "");
+    drafts[key] = firstDisplayValue([
+      byKey?.objId,
+      byKey?.fmtValue,
+      byColumn?.objId,
+      byColumn?.fmtValue,
+      byIndex?.objId,
+      byIndex?.fmtValue
+    ]);
     return drafts;
   }, {});
 }
@@ -324,4 +325,29 @@ export function displayValue(value: unknown) {
     return JSON.stringify(value);
   }
   return String(value);
+}
+
+function rowItemForColumn(row: ListDataItem, column: TableColumnInfo) {
+  const keys = new Set(columnMatchKeys(column));
+  return row.items?.find((item) => rowItemKeys(item).some((key) => keys.has(key)));
+}
+
+function columnMatchKeys(column: TableColumnInfo) {
+  return [
+    column.propertyName,
+    column.property,
+    column.name,
+    column.title,
+    column.propertyId,
+    column.id
+  ].map(displayValue).filter(Boolean);
+}
+
+function rowItemKeys(item: ListDataValue) {
+  return [item.prpId, item.prpShowName].map(displayValue).filter(Boolean);
+}
+
+function firstDisplayValue(values: unknown[]) {
+  const value = values.find((item) => displayValue(item) !== "");
+  return displayValue(value);
 }

@@ -140,6 +140,9 @@ explicitly named as authoritative for fool-service.
       loaded View metadata instead of a fixed business DTO/detail id.
 - [x] Prefer legacy row `Items` metadata over `row.values` DTO fallbacks for
       Vue row identity and selected-existing child item payloads.
+- [x] Remove `row.values` from Vue View row identity, cell rendering, and
+      selected-existing child save mapping so rendered pages stay View/Items
+      driven instead of business DTO driven.
 
 ## Backlog
 

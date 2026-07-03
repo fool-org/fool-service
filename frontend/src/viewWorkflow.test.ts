@@ -27,6 +27,7 @@ import {
   rowFormatClass,
   rowObjectId,
   rowOperations,
+  rowRenderKey,
   rowValue,
   selectedChildViewId,
   viewDetailViewId
@@ -35,19 +36,19 @@ import {
 describe("view workflow helpers", () => {
   it("renders rows from view columns and row data", () => {
     const columns = [
-      { property: "recordId", title: "Record ID" },
-      { property: "state", title: "State" }
+      { property: "record_id", propertyName: "recordId", title: "Record ID" },
+      { property: "record_state", propertyName: "state", title: "State" }
     ];
     const row = {
       id: "1001",
-      values: { recordId: 1001, state: "0" },
+      values: { record_id: "wrong-id", record_state: "Wrong" },
       items: [
         { prpId: "recordId", fmtValue: "1001" },
         { prpId: "state", fmtValue: "Open" }
       ]
     };
 
-    expect(columnKey(columns[0])).toBe("recordId");
+    expect(columnKey(columns[0])).toBe("record_id");
     expect(rowObjectId(row, columns)).toBe("1001");
     expect(rowValue(row, columns[1])).toBe("Open");
     expect(rowFormatClass({ ...row, rowFmt: "warning-row " })).toBe("warning-row");
@@ -117,7 +118,7 @@ describe("view workflow helpers", () => {
     ]);
   });
 
-  it("uses legacy row item metadata before values DTO fallbacks", () => {
+  it("does not use values DTO fields for view row identity or cells", () => {
     const columns = [{ property: "recordId", title: "Record ID" }];
     const row = {
       values: { recordId: "dto-id" },
@@ -125,6 +126,10 @@ describe("view workflow helpers", () => {
     };
 
     expect(rowObjectId(row, columns)).toBe("item-id");
+    expect(rowValue(row, columns[0])).toBe("Item ID");
+    expect(rowObjectId({ values: { recordId: "dto-id" }, rowIndex: 4 }, columns)).toBe("");
+    expect(rowValue({ values: { recordId: "dto-id" } }, columns[0])).toBe("");
+    expect(rowRenderKey({ values: { recordId: "dto-id" }, rowIndex: 4 }, 7)).toBe("4");
   });
 
   it("keeps legacy child collection add/update/delete payload names", () => {

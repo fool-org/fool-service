@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ListDataItem, OperationInfo, TableColumnInfo } from "./api";
-import { columnKey, columnTitle, rowFormatClass, rowObjectId, rowValue } from "./viewWorkflow";
+import { columnKey, columnTitle, rowFormatClass, rowObjectId, rowRenderKey, rowValue } from "./viewWorkflow";
 
 defineProps<{
   columns: TableColumnInfo[];
@@ -39,8 +39,8 @@ function operationTargetViewId(operation: OperationInfo) {
     </thead>
     <tbody>
       <tr
-        v-for="row in rows"
-        :key="rowObjectId(row, columns)"
+        v-for="(row, rowIndex) in rows"
+        :key="rowRenderKey(row, rowIndex)"
         :class="[{ selected: rowObjectId(row, columns) === selectedObjectId }, rowFormatClass(row)]"
       >
         <td v-for="column in columns" :key="columnKey(column)">
