@@ -20,10 +20,11 @@ public class DataControllerInputQueryTest {
     @Test
     public void inputQueryAcceptsLegacyPascalRequestAliases() throws Exception {
         InputQueryRequest request = new ObjectMapper().readValue(
-                "{\"Text\":\"Ad\",\"ViewName\":\"OrderList\",\"ViewItemId\":\"customer\",\"ModelID\":\"103\",\"ObjID\":\"1001\",\"OwnerId\":\"5001\",\"IsAdded\":true}",
+                "{\"Text\":\"Ad\",\"ViewId\":100,\"ViewName\":\"OrderList\",\"ViewItemId\":\"customer\",\"ModelID\":\"103\",\"ObjID\":\"1001\",\"OwnerId\":\"5001\",\"IsAdded\":true}",
                 InputQueryRequest.class);
 
         assertEquals("Ad", request.getText());
+        assertEquals(Long.valueOf(100), request.getViewId());
         assertEquals("OrderList", request.getViewName());
         assertEquals("customer", request.getViewItemId());
         assertEquals("103", request.getModelID());

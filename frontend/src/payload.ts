@@ -18,7 +18,8 @@ import type {
 
 export interface InputQueryRequestInput {
   token: string;
-  viewName: string;
+  viewId?: number;
+  viewName?: string;
   viewItemId: string;
   text?: string;
   modelID?: string;
@@ -103,11 +104,17 @@ export function buildTokenRequest(token: string): CommonRequest {
 export function buildInputQueryRequest(input: InputQueryRequestInput): InputQueryRequest {
   const request: InputQueryRequest = {
     token: input.token,
-    viewName: input.viewName.trim(),
     viewItemId: input.viewItemId.trim(),
     text: input.text?.trim() || "",
     isAdded: Boolean(input.isAdded)
   };
+  if (input.viewId) {
+    request.viewId = input.viewId;
+  }
+  const viewName = input.viewName?.trim();
+  if (viewName) {
+    request.viewName = viewName;
+  }
   addOptional(request, "modelID", input.modelID);
   addOptional(request, "objID", input.objID);
   addOptional(request, "ownerId", input.ownerId);

@@ -206,6 +206,24 @@ describe("buildInputQueryRequest", () => {
       isAdded: true
     });
   });
+
+  it("includes the current view id for view-driven lookup", () => {
+    const request = buildInputQueryRequest({
+      token: "token-1",
+      viewId: 100,
+      viewName: " ",
+      viewItemId: "customer",
+      text: "Ad"
+    });
+
+    expect(request).toEqual({
+      token: "token-1",
+      viewId: 100,
+      viewItemId: "customer",
+      text: "Ad",
+      isAdded: false
+    });
+  });
 });
 
 describe("buildSaveObjRequest", () => {

@@ -150,7 +150,7 @@ public class DataQueryService {
     }
 
     public InputQueryResult inputQuery(InputQueryRequest request) {
-        View view = daoService.getOneDetailByKey(View.class, request.getViewName());
+        View view = inputQueryView(request);
         if (view == null) {
             throw new CommonException(ErrorCode.VIEW_NOT_FOUND, "没有查到视图");
         }
@@ -192,6 +192,13 @@ public class DataQueryService {
                     .toList());
         }
         return result;
+    }
+
+    private View inputQueryView(InputQueryRequest request) {
+        if (request.getViewId() != null) {
+            return daoService.getOneDetailByKey(View.class, request.getViewId().toString());
+        }
+        return daoService.getOneDetailByKey(View.class, request.getViewName());
     }
 
     private InputQueryResult inputQueryFromSourceList(

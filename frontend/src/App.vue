@@ -221,6 +221,7 @@ const fieldEditorContext = computed(() => ({
   lookupDisabled: Boolean(pendingAction.value),
   objectId: selectedObjectId.value,
   token: token.value,
+  viewId: Number(currentViewId.value),
   viewName: viewName.value
 }));
 
@@ -522,6 +523,7 @@ async function saveReport() {
 async function inputQuery() {
   const request = buildInputQueryRequest({
     token: token.value,
+    viewId: Number(currentViewId.value),
     viewName: viewName.value,
     viewItemId: inputQueryViewItemId.value,
     text: inputQueryText.value,

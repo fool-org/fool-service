@@ -89,6 +89,36 @@ public class DataQueryServiceInputQueryTest {
     }
 
     @Test
+    public void inputQueryResolvesLegacyViewIdBeforeViewName() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        DataQueryService service = new DataQueryService();
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+        ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
+        ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
+
+        Property customerProperty = property("customer", "customer_id");
+        Model order = new Model();
+        order.setName("Order");
+        order.setProperties(List.of(customerProperty));
+        View view = new View();
+        view.setViewName("OrderList");
+        view.setViewModel("Order");
+        view.setListItems(List.of(viewItem("Customer", "customer")));
+        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
+        when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(order);
+        InputQueryRequest request = new InputQueryRequest();
+        request.setViewId(100L);
+        request.setViewName("WrongViewName");
+        request.setViewItemId("Customer");
+
+        service.inputQuery(request);
+
+        verify(daoService).getOneDetailByKey(View.class, "100");
+        verify(daoService, never()).getOneDetailByKey(View.class, "WrongViewName");
+    }
+
+    @Test
     public void inputQueryUsesFirstStringPropertyWhenShowPropertyIsMissing() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);

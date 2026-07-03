@@ -33,6 +33,7 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"ParentObjId":"5001"}' http://localhost:8081/api/v1/data/initnew`
   `curl -H 'Content-Type: application/json' -d '{"modelId":"102"}' http://localhost:8080/api/v1/data/getenums`
   `curl -H 'Content-Type: application/json' -d '{"viewName":"OrderList","viewItemId":"symbol","text":"BTC"}' http://localhost:8080/api/v1/data/inputquery`
+  `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"ViewItemId":"Customer","Text":"Ada","IsAdded":false}' http://localhost:8080/api/v1/data/inputquery`
   `curl -H 'Content-Type: application/json' -d '{"Text":"Ada","ViewName":"OrderList","ViewItemId":"Customer","ModelID":"103","ObjID":"1001","OwnerId":"5001","IsAdded":false}' http://localhost:8080/api/v1/data/inputquery`
   `curl -H 'Content-Type: application/json' -d '{"saveObj":{"id":"1001","viewID":"100","propertyies":[{"key":"symbol","value":"BTC-USDT"},{"key":"state","value":"0"}]}}' http://localhost:8080/api/v1/data/saveobj`
   `curl -H 'Content-Type: application/json' -d '{"saveObj":{"id":"1001","viewID":"100","propertyies":[{"key":"symbol","value":"BTC-USDT"},{"key":"state","value":"0"}],"itemproperties":[{"key":"items","items":[{"itemId":"2001","isExist":true,"propertyies":[{"key":"itemName","value":"Updated item"}]}],"addedItems":[{"itemId":"2003","isExist":true,"propertyies":[{"key":"itemName","value":"New item"}]}],"delteItems":[{"itemId":"2004","isExist":true,"propertyies":[]}]}]}}}' http://localhost:8080/api/v1/data/saveobj`
@@ -94,6 +95,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: `inputquery` can now resolve the active View by legacy
+  `ViewId` before falling back to `ViewName`. Vue metadata lookup editors pass
+  the loaded View id from the current View workflow, so candidate lookup
+  follows the same sequence as the rendered page: `getlistview(ViewId)` first,
+  then data/lookup requests by that View context. `ViewName` remains accepted
+  only as protocol compatibility.
 - 2026-07-04: report column identity now follows FoolFrame's
   `QueryFactory.GetQueryModel(view)` shape more closely. `getmkqview` derives
   candidate columns from the loaded View metadata and emits View/property keys
