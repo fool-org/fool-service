@@ -11,17 +11,21 @@ import org.fool.framework.view.model.PersistedViewOperation;
 import org.fool.framework.view.model.View;
 import org.fool.framework.view.model.ViewItem;
 import org.fool.framework.view.model.ViewOperationType;
+import org.mockito.ArgumentCaptor;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ViewDataServiceTest {
@@ -92,6 +96,44 @@ public class ViewDataServiceTest {
                 result.getOperations().get(0).getOperation().getCommands().get(0).getCommandType());
         assertEquals(1003L,
                 result.getOperations().get(0).getOperation().getCommands().get(0).getPropertyId().longValue());
+    }
+
+    @Test
+    public void getViewDataHydratesLegacyOperationCommandArgColumns() {
+        DaoService daoService = mock(DaoService.class);
+        ViewDataService service = new ViewDataService();
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+
+        View view = new View();
+        view.setId(100L);
+        view.setViewModel("Order");
+        PersistedViewOperation row = new PersistedViewOperation();
+        row.setOperationId(7001L);
+        row.setOperationBaseType(OperationBaseType.UPDATE);
+
+        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
+        when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(new Model());
+        when(daoService.selectList(eq(PersistedViewOperation.class), anyString(), eq(100L))).thenReturn(List.of(row));
+        when(daoService.selectList(eq(OperationCommand.class), anyString(), eq(7001L))).thenReturn(List.of());
+
+        service.getViewData("100", "");
+
+        ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
+        verify(daoService).selectList(eq(OperationCommand.class), sql.capture(), eq(7001L));
+        assertTrue(hasField(OperationCommand.class, "argModelId"));
+        assertTrue(hasField(OperationCommand.class, "argExpression"));
+        assertTrue(hasField(OperationCommand.class, "argSourceIdExpression"));
+        assertTrue(hasField(OperationCommand.class, "propertyExpression"));
+        assertTrue(hasField(OperationCommand.class, "tempValue"));
+        assertTrue(sql.getValue().contains("`SW_SYS_COMMAND_ARGMODEL`"));
+        assertTrue(sql.getValue().contains("`SW_SYS_COMMAND_ARGEXP`"));
+        assertTrue(sql.getValue().contains("`SW_SYS_COMMAND_ARGID`"));
+        assertTrue(sql.getValue().contains("`SW_SYS_COMMAND_PROPERTY_EXP`"));
+        assertTrue(sql.getValue().contains("`SW_SYS_COMMAND_TEMPVALUE`"));
+    }
+
+    private static boolean hasField(Class<?> type, String name) {
+        return Arrays.stream(type.getDeclaredFields()).anyMatch(field -> name.equals(field.getName()));
     }
 
     private static Property itemProperty(ViewItem item) {

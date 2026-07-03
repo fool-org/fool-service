@@ -19,6 +19,16 @@ public class OperationCommand {
     private Long propertyId;
     @Column("SW_SYS_COMMAND_EXP")
     private String expression;
+    @Column("SW_SYS_COMMAND_ARGMODEL")
+    private Long argModelId;
+    @Column("SW_SYS_COMMAND_ARGEXP")
+    private String argExpression;
+    @Column("SW_SYS_COMMAND_ARGID")
+    private String argSourceIdExpression;
     @Column("SW_SYS_COMMAND_INDEX")
     private Integer index;
+    @Column("SW_SYS_COMMAND_PROPERTY_EXP")
+    private String propertyExpression;
+    @Column("SW_SYS_COMMAND_TEMPVALUE")
+    private String tempValue;
 }

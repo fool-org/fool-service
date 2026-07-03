@@ -282,7 +282,7 @@ public class DataQueryService {
         IDynamicData data = modelDataService.getOneData(view.getViewModel(), request.getObjectId());
         boolean success;
         try {
-            applySetValueCommands(operation.getOperation(), model, data);
+            applyOperationCommands(operation.getOperation(), model, data);
             if (operationType == OperationBaseType.DELETE) {
                 success = Boolean.TRUE.equals(modelDataService.deleteData(data));
             } else if (operationType == OperationBaseType.UPDATE) {
@@ -302,16 +302,40 @@ public class DataQueryService {
         return result;
     }
 
-    private void applySetValueCommands(Operation operation, Model model, IDynamicData data) {
+    private void applyOperationCommands(Operation operation, Model model, IDynamicData data) {
         if (operation == null || CollectionUtils.isEmpty(operation.getCommands()) || data == null) {
             return;
         }
         operation.getCommands().stream()
-                .filter(command -> command != null && command.getCommandType() == CommandsType.SET_VALUE)
+                .filter(command -> command != null)
                 .sorted(Comparator.comparing(command -> command.getIndex() == null ? 0 : command.getIndex()))
-                .forEach(command -> property(model, command.getPropertyId())
-                        .ifPresent(property -> data.set(property.getName(),
-                                commandValue(property, data, command.getExpression()))));
+                .forEach(command -> applyOperationCommand(model, data, command));
+    }
+
+    private void applyOperationCommand(Model model, IDynamicData data, OperationCommand command) {
+        if (command.getCommandType() == CommandsType.SET_VALUE) {
+            property(model, command.getPropertyId())
+                    .ifPresent(property -> data.set(property.getName(),
+                            commandValue(property, data, command.getExpression())));
+        } else if (command.getCommandType() == CommandsType.FILTER) {
+            checkFilterCommand(model, data, command);
+        }
+    }
+
+    private void checkFilterCommand(Model model, IDynamicData data, OperationCommand command) {
+        if (model == null || !StringUtils.hasText(command.getExpression())) {
+            return;
+        }
+        IQueryFilter filter = rawFilter(command.getExpression());
+        Property idProperty = model.getIdProperty();
+        if (idProperty != null && StringUtils.hasText(idProperty.getColumn()) && data.getId() != null) {
+            filter = new CompareFilter(idProperty.getColumn(), CompareOp.EQUAL, data.getId()).and(filter);
+        }
+        List<IDynamicData> matched = modelDataService.getDataList(
+                model.getName(), filter, model.getProperties() == null ? List.of() : model.getProperties());
+        if (matched.isEmpty()) {
+            throw new IllegalStateException(command.getPropertyExpression() == null ? "" : command.getPropertyExpression());
+        }
     }
 
     private java.util.Optional<Property> property(Model model, Long propertyId) {

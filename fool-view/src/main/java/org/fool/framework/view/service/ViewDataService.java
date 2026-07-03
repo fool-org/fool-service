@@ -29,7 +29,9 @@ public class ViewDataService {
             + "ORDER BY vo.`SW_VIEW_OPERATION_INDEX`, vo.`SysId`";
     private static final String OPERATION_COMMAND_SQL = "SELECT "
             + "`SysId`, `SW_SYS_OPERATION_CommandsSysId`, `SW_SYS_COMMAND_TYPE`, "
-            + "`SW_SYS_COMMAND_PROPERTY`, `SW_SYS_COMMAND_EXP`, `SW_SYS_COMMAND_INDEX` "
+            + "`SW_SYS_COMMAND_PROPERTY`, `SW_SYS_COMMAND_EXP`, `SW_SYS_COMMAND_ARGMODEL`, "
+            + "`SW_SYS_COMMAND_ARGEXP`, `SW_SYS_COMMAND_ARGID`, `SW_SYS_COMMAND_INDEX`, "
+            + "`SW_SYS_COMMAND_PROPERTY_EXP`, `SW_SYS_COMMAND_TEMPVALUE` "
             + "FROM `SW_SYS_COMMANDS` "
             + "WHERE `SW_SYS_OPERATION_CommandsSysId` = ? "
             + "ORDER BY `SW_SYS_COMMAND_INDEX`, `SysId`";

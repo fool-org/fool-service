@@ -10,6 +10,7 @@ import org.fool.framework.model.model.Operation;
 import org.fool.framework.model.model.OperationCommand;
 import org.fool.framework.model.model.OperationBaseType;
 import org.fool.framework.model.model.Property;
+import org.fool.framework.query.IQueryFilter;
 import org.fool.framework.model.service.ModelDataService;
 import org.fool.framework.view.adapter.ViewDataAdapter;
 import org.fool.framework.view.dto.LegacyRunOperationRequest;
@@ -31,6 +32,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 
 public class DataQueryServiceRunOperationTest {
     @Test
@@ -264,6 +267,35 @@ public class DataQueryServiceRunOperationTest {
         verify(modelDataService).saveData(data);
         assertTrue(result.isSuccess());
         assertEquals("BTC-USDT", data.get("state"));
+    }
+
+    @Test
+    public void runLegacyUpdateOperationStopsWhenFilterCommandRejectsObject() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataService viewDataService = mock(ViewDataService.class);
+        DataQueryService service = service(daoService, modelDataService, viewDataService);
+        Model model = model();
+        OperationCommand filter = command(CommandsType.FILTER, null, "`order_state`='1'", 1);
+        filter.setPropertyExpression("状态不允许");
+        ViewOperation operation = operation(7002L, OperationBaseType.UPDATE, "保存成功", "保存失败");
+        operation.getOperation().setCommands(List.of(filter));
+        View view = view(operation);
+        DbMysqlDynamic data = new DbMysqlDynamic(model);
+        data.set("orderId", "1001");
+        data.set("state", "0");
+        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(modelDataService.getModel("Order")).thenReturn(model);
+        when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
+        when(modelDataService.getDataList(eq("Order"), any(IQueryFilter.class), eq(model.getProperties())))
+                .thenReturn(List.of());
+
+        LegacyRunOperationResult result = service.runLegacyOperation(request("1001", 100L, 7002L));
+
+        verify(modelDataService, never()).saveData(data);
+        assertFalse(result.isSuccess());
+        assertTrue(result.getReturnMsg().startsWith("保存失败"));
+        assertTrue(result.getReturnMsg().contains("状态不允许"));
     }
 
     @Test
