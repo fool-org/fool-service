@@ -54,6 +54,7 @@ explicitly named as authoritative for fool-service.
       into `viewWorkflow.ts`.
 - [x] Move report-grid cell matrix rendering into a tested Vue workflow helper
       and keep `App.vue` below 2000 lines.
+- [x] Tighten the repository source-size harness limit from 2200 to 2100 lines.
 
 ## Backlog
 

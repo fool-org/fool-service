@@ -16,15 +16,15 @@ class SourceFileSizeContractTest(unittest.TestCase):
             root = Path(temp_dir)
             source = root / "frontend" / "src" / "Big.vue"
             source.parent.mkdir(parents=True)
-            source.write_text("x\n" * 2201, encoding="utf-8")
+            source.write_text("x\n" * 2101, encoding="utf-8")
             report = HarnessReport(root=root)
 
             check_source_file_sizes(root, report)
 
             self.assertEqual(
                 [
-                    "Oversized source file: frontend/src/Big.vue has 2201 lines "
-                    "(limit 2200)"
+                    "Oversized source file: frontend/src/Big.vue has 2101 lines "
+                    "(limit 2100)"
                 ],
                 report.errors,
             )

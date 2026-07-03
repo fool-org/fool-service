@@ -10,7 +10,7 @@
 
 - Added a small source-size contract to the existing repo harness.
 - The harness now checks `.java`, `.ts`, and `.vue` source files and fails any
-  file over 2200 lines.
+  file over 2100 lines.
 - Skips generated/build/dependency directories: `.git`, `node_modules`,
   `target`, and `dist`.
 - Added one stdlib unittest that proves an oversized source file is reported.
@@ -50,5 +50,5 @@
 
 ## Risks
 
-- The 2200-line limit is a pragmatic hard stop above the current largest file.
+- The 2100-line limit is a pragmatic hard stop above the current largest file.
   It prevents further growth but does not refactor the existing large Vue file.

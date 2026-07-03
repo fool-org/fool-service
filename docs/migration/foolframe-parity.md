@@ -92,6 +92,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: tightened the repository source-size guard from 2200 to 2100
+  lines now that the Vue workflow is below 2000 lines. The current largest
+  source file remains under the new limit, and the harness still runs as the
+  cheap CI/local backstop before future migration work grows large files again.
 - 2026-07-04: moved the Vue report-grid cell matrix calculation from
   `App.vue` into the tested `viewWorkflow.ts` helper set. `App.vue` now stays
   below 2000 lines while report rendering still uses the same sparse

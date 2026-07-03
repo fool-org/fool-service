@@ -28,7 +28,7 @@ STANDARD_HEADINGS = (
     "## Repair Path",
     "## Revision Trigger",
 )
-SOURCE_FILE_LINE_LIMIT = 2200
+SOURCE_FILE_LINE_LIMIT = 2100
 SOURCE_FILE_EXTENSIONS = frozenset((".java", ".ts", ".vue"))
 SOURCE_FILE_SKIP_DIRS = frozenset((".git", "node_modules", "target", "dist"))
 
