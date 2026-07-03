@@ -111,6 +111,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   smoke metadata and linked the seeded legacy model shells to that module.
 - 2026-07-03: seeded legacy `SW_SYS_CON` current-database connection metadata
   for the Docker `car_wash` MySQL service.
+- 2026-07-03: seeded legacy app-management records for the Docker smoke
+  workflow, including `SW_APPLICATION`, `SW_STOREDB`, and the
+  `SW_APPLICATION_SW_STOREDB` application/store-db relation.
 
 ## Server Source Mapping
 
