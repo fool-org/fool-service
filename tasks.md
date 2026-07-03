@@ -93,6 +93,8 @@ explicitly named as authoritative for fool-service.
       business DTOs.
 - [x] Accept legacy `getenums` model-id spellings from both FoolFrame Web
       proxy forms without changing the enum lookup contract.
+- [x] Expose legacy `getenums` response aliases (`EnumValues`, `Name`,
+      `Value`) while keeping the Vue camel-case enum contract.
 
 ## Backlog
 

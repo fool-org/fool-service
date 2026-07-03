@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: `getenums` responses now carry FoolFrame's legacy
+  `EnumValues[].Name` / `EnumValues[].Value` aliases in addition to the Vue
+  camel-case `enumValues[].name` / `enumValues[].value` contract. This matches
+  `Soway.Server/Enum/GetEnumResult.cs` and `EnumValues.cs` without changing
+  the generic enum lookup path.
 - 2026-07-04: `getenums` now accepts the legacy model-id request spellings
   used around FoolFrame Web: `ModelId` from `Cloud-Social/soway.js`,
   `modelid` from the web route proxy, and `ModelID` for the existing legacy

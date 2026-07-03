@@ -13,6 +13,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -24,6 +25,21 @@ public class DataControllerEnumTest {
         assertEquals("state", mapper.readValue("{\"ModelId\":\"state\"}", GetEnumRequest.class).getModelId());
         assertEquals("state", mapper.readValue("{\"ModelID\":\"state\"}", GetEnumRequest.class).getModelId());
         assertEquals("state", mapper.readValue("{\"modelid\":\"state\"}", GetEnumRequest.class).getModelId());
+    }
+
+    @Test
+    public void getEnumResultWritesLegacyEnumValuesFields() throws Exception {
+        GetEnumResult result = new GetEnumResult();
+        result.setEnumValues(List.of(GetEnumResult.Value.from(enumValue("Open", "1"))));
+
+        String json = new ObjectMapper().writeValueAsString(result);
+
+        assertTrue(json.contains("\"enumValues\""));
+        assertTrue(json.contains("\"EnumValues\""));
+        assertTrue(json.contains("\"name\":\"Open\""));
+        assertTrue(json.contains("\"Name\":\"Open\""));
+        assertTrue(json.contains("\"value\":1"));
+        assertTrue(json.contains("\"Value\":1"));
     }
 
     @Test
