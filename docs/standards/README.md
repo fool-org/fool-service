@@ -29,8 +29,10 @@ Every standard defines:
 ## Runtime Entry Points
 
 - `python scripts/check_repo_harness.py`
+- `python scripts/runtime_doctor.py`
 - `python scripts/standard_engine.py`
 
 `check_repo_harness.py` validates the required standard docs and command
-surfaces. `standard_engine.py` emits the machine-readable standard catalog used
-by reports and future contract checks.
+surfaces. `runtime_doctor.py` checks the Docker-backed Vue/View workflow after
+the stack is running. `standard_engine.py` emits the machine-readable standard
+catalog used by reports and future contract checks.

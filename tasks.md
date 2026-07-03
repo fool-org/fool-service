@@ -82,10 +82,11 @@ explicitly named as authoritative for fool-service.
 - [x] Let lookup `inputquery` resolve the current View by `ViewId` before
       falling back to legacy `ViewName`, and have Vue metadata editors pass
       the loaded View id so lookup follows the rendered View context.
+- [x] Add a Docker runtime doctor for the stable Vue/View workflow so
+      backend, frontend proxy, View metadata, data query, inputquery, and
+      report model smoke checks are repeatable.
 
 ## Backlog
 
 - [ ] Add focused Maven module profiles once module boundaries are cleaned up.
 - [ ] Add contract checks for package boundaries and migration drift.
-- [ ] Add a browser/runtime doctor when the frontend and backend API workflow
-      becomes stable enough for repeatable smoke automation.

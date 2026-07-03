@@ -12,6 +12,8 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `docker compose build backend`
 - Full Compose stack starts backend, frontend, MySQL, and Redis:
   `docker compose up -d --build`
+- Docker runtime smoke is repeatable through:
+  `python scripts/runtime_doctor.py`
 - Full backend Maven tests run inside the Compose network without datasource
   command-line overrides:
   `docker run --rm --network fool-service_default -v "$PWD":/workspace -v "$HOME/.m2":/root/.m2 -w /workspace maven:3.9-eclipse-temurin-17 mvn -DfailIfNoTests=false test`
@@ -101,6 +103,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   follows the same sequence as the rendered page: `getlistview(ViewId)` first,
   then data/lookup requests by that View context. `ViewName` remains accepted
   only as protocol compatibility.
+- 2026-07-04: added `scripts/runtime_doctor.py` as a repeatable Docker smoke
+  for the current Vue/View workflow. It checks compose service state plus
+  backend `/test`, frontend-proxied `getlistview(ViewId)`,
+  `querydata(ViewId)`, `inputquery(ViewId)`, and `getmkqview(ViewId)` so
+  runtime evidence no longer depends on hand-copied curl commands.
 - 2026-07-04: report column identity now follows FoolFrame's
   `QueryFactory.GetQueryModel(view)` shape more closely. `getmkqview` derives
   candidate columns from the loaded View metadata and emits View/property keys

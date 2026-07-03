@@ -12,7 +12,7 @@ the heaviest runtime path for every edit.
 | Harness script changes | `python scripts/check_repo_harness_test.py && python scripts/check_repo_harness.py` | Add one stdlib unittest for each new harness rule |
 | Backend Java module | `docker run --rm --network fool-service_default -v "$PWD":/workspace -v "$HOME/.m2":/root/.m2 -w /workspace maven:3.9-eclipse-temurin-17 mvn -DfailIfNoTests=false test` after `docker compose up -d` | Focus with `-pl <module> -am` when the scope is isolated |
 | Frontend Vue workflow | `cd frontend && npm test && npm run build` | Browser smoke through Docker when API contracts or runtime routing changes |
-| Docker/runtime stack | `docker compose up -d --build`, `docker compose ps`, `curl http://localhost:8080/test` | Capture logs and add an artifact bundle under `artifacts/runs/<run_id>/` |
+| Docker/runtime stack | `docker compose up -d --build`, then `python scripts/runtime_doctor.py` | Capture logs and add an artifact bundle under `artifacts/runs/<run_id>/` |
 | FoolFrame migration parity | Update `docs/migration/foolframe-parity.md` plus focused backend/frontend tests | Docker smoke when a migrated workflow crosses frontend, backend, database, or runtime wiring |
 
 ## Command Surface
@@ -24,7 +24,8 @@ the heaviest runtime path for every edit.
 - `docker run --rm --network fool-service_default -v "$PWD":/workspace -v "$HOME/.m2":/root/.m2 -w /workspace maven:3.9-eclipse-temurin-17 mvn -DfailIfNoTests=false test`
 - `cd frontend && npm test && npm run build`
 - `docker compose up -d --build`
-- `curl http://localhost:8080/test`
+- `python scripts/runtime_doctor.py`
+- `python scripts/runtime_doctor_test.py`
 
 ## Report Outputs
 
