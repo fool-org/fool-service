@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import nginxConfig from "../nginx.conf?raw";
+import viteConfig from "../vite.config.ts?raw";
 import appSource from "./App.vue?raw";
 import {
   buildGetEnumRequest,
@@ -17,6 +19,17 @@ describe("App defaults", () => {
     expect(appSource).toContain('const enumModelId = ref("102")');
     expect(appSource).toContain('const legacyQueryFilter = ref(\'order_state="0"\')');
     expect(appSource).toContain('{"key":"state","value":"0"}');
+  });
+
+  it("exposes the Docker backend smoke route in the Vue console", () => {
+    expect(appSource).toContain("Backend Smoke");
+    expect(appSource).toContain('fetch("/test")');
+    expect(appSource).toContain("backendSmokeResponse");
+  });
+
+  it("proxies the backend smoke route in local and Compose frontends", () => {
+    expect(viteConfig).toContain('"/test"');
+    expect(nginxConfig).toContain("location /test");
   });
 });
 

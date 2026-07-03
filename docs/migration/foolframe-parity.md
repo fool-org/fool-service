@@ -49,6 +49,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-03: exposed the Docker backend `/test` seed-data smoke route in the
+  Vue operator console, including Vite dev-server and Compose Nginx proxy
+  coverage for the same route.
 - 2026-07-03: migrated legacy `PROPERTY_SOURCE` metadata onto
   `Property.source`, app-install property persistence, and
   `fool_sys_model_property.source`; the running Docker MySQL volume was
@@ -222,8 +225,9 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Legacy-style keyword filtering over BusinessObject show-property list columns
 - Legacy-style default ordering over BusinessObject show-property list columns
 - Seeded `OrderList` metadata and rows for Docker smoke coverage
+- A Vue backend smoke panel that calls `/test` and renders the Docker seed rows
 - A migration-map strip showing current server module mapping
-- Nginx proxy for `/api/*` to the backend service in Compose
+- Vite and Nginx proxies for `/api/*` and `/test` to the backend service
 
 ## Remaining Migration Work
 

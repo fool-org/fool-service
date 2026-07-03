@@ -74,6 +74,7 @@ const detailResponse = ref<CommonResponse<QueryDataDetailResult> | null>(null);
 const enumResponse = ref<CommonResponse<GetEnumResult> | null>(null);
 const inputQueryResponse = ref<CommonResponse<InputQueryResult> | null>(null);
 const saveObjResponse = ref<CommonResponse<void> | null>(null);
+const backendSmokeResponse = ref<CommonResponse<Record<string, unknown>[]> | null>(null);
 const errorMessage = ref("");
 const pendingAction = ref("");
 
@@ -338,6 +339,27 @@ async function saveObj() {
   }
 }
 
+async function loadBackendSmoke() {
+  const response = await runAction("backend-smoke", async () => {
+    const backendResponse = await fetch("/test");
+    const data = (await backendResponse.json().catch(() => null)) as Record<string, unknown>[] | null;
+    if (!backendResponse.ok) {
+      throw new Error(`GET /test failed with HTTP ${backendResponse.status}`);
+    }
+    if (!Array.isArray(data)) {
+      throw new Error("GET /test returned an unexpected payload.");
+    }
+    return {
+      code: 0,
+      message: "OK",
+      data
+    };
+  });
+  if (response) {
+    backendSmokeResponse.value = response;
+  }
+}
+
 function clearQuickFilter() {
   quickFilterValue.value = "";
   quickFilterFrom.value = "";
@@ -428,6 +450,34 @@ function formatValue(value: unknown) {
             <button type="button" :disabled="pendingAction === 'profile'" @click="loadProfile">Profile</button>
             <button type="button" :disabled="pendingAction === 'menus'" @click="loadMenus">Menus</button>
             <button type="button" :disabled="pendingAction === 'logout'" @click="logout">Logout</button>
+          </div>
+        </article>
+
+        <article class="panel lookup-panel">
+          <div class="panel-heading">
+            <h2>Backend Smoke</h2>
+            <span>GET /test</span>
+          </div>
+          <button class="primary" type="button" :disabled="pendingAction === 'backend-smoke'" @click="loadBackendSmoke">
+            Load Seed Data
+          </button>
+
+          <div class="table-wrap input-query-results">
+            <table v-if="backendSmokeResponse?.data?.length">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Order Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="row in backendSmokeResponse.data" :key="String(row.id || row.order_price)">
+                  <td>{{ formatValue(row.id) }}</td>
+                  <td>{{ formatValue(row.order_price) }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div v-else class="empty-state">No backend smoke rows loaded.</div>
           </div>
         </article>
       </section>
@@ -806,7 +856,8 @@ function formatValue(value: unknown) {
                 detail: detailResponse,
                 enums: enumResponse,
                 inputQuery: inputQueryResponse,
-                saveObj: saveObjResponse
+                saveObj: saveObjResponse,
+                backendSmoke: backendSmokeResponse
               },
               null,
               2
