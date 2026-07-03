@@ -2,6 +2,7 @@ import type {
   CommonRequest,
   GetEnumRequest,
   InputQueryRequest,
+  LegacyInitNewRequest,
   LegacyQueryDataRequest,
   LegacyQueryDataDetailRequest,
   MakeReportRequest,
@@ -55,6 +56,12 @@ export interface QueryDataDetailRequestInput {
   viewId: number;
   objId: string;
   idExp?: string;
+}
+
+export interface InitNewRequestInput {
+  token: string;
+  viewId: number;
+  parentObjId?: string;
 }
 
 export interface GetEnumRequestInput {
@@ -171,6 +178,18 @@ export function buildQueryDataDetailRequest(input: QueryDataDetailRequestInput):
   const idExp = input.idExp?.trim();
   if (idExp) {
     request.idExp = idExp;
+  }
+  return request;
+}
+
+export function buildInitNewRequest(input: InitNewRequestInput): LegacyInitNewRequest {
+  const request: LegacyInitNewRequest = {
+    token: input.token,
+    viewId: input.viewId
+  };
+  const parentObjId = input.parentObjId?.trim();
+  if (parentObjId) {
+    request.parentObjId = parentObjId;
   }
   return request;
 }

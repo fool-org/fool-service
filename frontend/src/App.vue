@@ -22,6 +22,7 @@ import {
 } from "./api";
 import {
   buildGetEnumRequest,
+  buildInitNewRequest,
   buildInputQueryRequest,
   buildLegacyListViewRequest,
   buildLegacyQueryDataRequest,
@@ -67,6 +68,8 @@ const inputQueryIsAdded = ref(false);
 const detailViewId = ref(100);
 const detailObjId = ref("1001");
 const detailIdExp = ref("");
+const initNewViewId = ref(100);
+const initNewParentObjId = ref("");
 const enumModelId = ref("102");
 const saveViewId = ref("100");
 const saveObjId = ref("1001");
@@ -82,6 +85,7 @@ const viewResponse = ref<CommonResponse<ListViewInfo> | null>(null);
 const readItemViewResponse = ref<CommonResponse<ReadItemViewInfo> | null>(null);
 const dataResponse = ref<CommonResponse<ListViewResult> | null>(null);
 const detailResponse = ref<CommonResponse<QueryDataDetailResult> | null>(null);
+const initNewResponse = ref<CommonResponse<QueryDataDetailResult> | null>(null);
 const enumResponse = ref<CommonResponse<GetEnumResult> | null>(null);
 const inputQueryResponse = ref<CommonResponse<InputQueryResult> | null>(null);
 const saveObjResponse = ref<CommonResponse<void> | null>(null);
@@ -406,6 +410,21 @@ async function queryDetail() {
   );
   if (response) {
     detailResponse.value = response;
+  }
+}
+
+async function initNew() {
+  const request = buildInitNewRequest({
+    token: token.value,
+    viewId: Number(initNewViewId.value),
+    parentObjId: initNewParentObjId.value
+  });
+
+  const response = await runAction("initnew", () =>
+    postApi<QueryDataDetailResult>("/api/v1/data/initnew", request)
+  );
+  if (response) {
+    initNewResponse.value = response;
   }
 }
 
@@ -976,6 +995,44 @@ function formatValue(value: unknown) {
 
         <article class="panel lookup-panel">
           <div class="panel-heading">
+            <h2>Init New Object</h2>
+            <span>POST /api/v1/data/initnew</span>
+          </div>
+          <div class="inline-fields">
+            <label>
+              View ID
+              <input v-model.number="initNewViewId" min="1" type="number" />
+            </label>
+            <label>
+              Parent ID
+              <input v-model="initNewParentObjId" />
+            </label>
+          </div>
+          <button class="primary" type="button" :disabled="pendingAction === 'initnew'" @click="initNew">
+            Init New
+          </button>
+
+          <div class="table-wrap input-query-results">
+            <table v-if="initNewResponse?.data?.data?.simpleData?.length">
+              <thead>
+                <tr>
+                  <th>Property</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in initNewResponse.data.data.simpleData" :key="item.prpId || item.prpShowName">
+                  <td>{{ item.prpShowName || item.prpId }}</td>
+                  <td>{{ item.fmtValue }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div v-else class="empty-state">No new object initialized.</div>
+          </div>
+        </article>
+
+        <article class="panel lookup-panel">
+          <div class="panel-heading">
             <h2>Enum Values</h2>
             <span>POST /api/v1/data/getenums</span>
           </div>
@@ -1136,6 +1193,7 @@ function formatValue(value: unknown) {
                 readItemView: readItemViewResponse,
                 data: dataResponse,
                 detail: detailResponse,
+                initNew: initNewResponse,
                 enums: enumResponse,
                 inputQuery: inputQueryResponse,
                 saveObj: saveObjResponse,

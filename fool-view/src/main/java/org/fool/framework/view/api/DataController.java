@@ -10,6 +10,7 @@ import org.fool.framework.view.dto.GetEnumRequest;
 import org.fool.framework.view.dto.GetEnumResult;
 import org.fool.framework.view.dto.InputQueryRequest;
 import org.fool.framework.view.dto.InputQueryResult;
+import org.fool.framework.view.dto.LegacyInitNewRequest;
 import org.fool.framework.view.dto.LegacyQueryDataRequest;
 import org.fool.framework.view.dto.LegacyQueryDataDetailRequest;
 import org.fool.framework.view.dto.ListViewResult;
@@ -63,6 +64,13 @@ public class DataController {
         String viewId = request.getViewId() == null ? null : request.getViewId().toString();
         String objId = request.getObjId() == null ? null : request.getObjId().toString();
         return new CommonResponse<>(dataQueryService.queryLegacyViewDataDetail(viewId, objId));
+    }
+
+    @PostMapping("/initnew")
+    @ResponseBody
+    public CommonResponse<QueryDataDetailResult> initNew(@RequestBody LegacyInitNewRequest request) {
+        String viewId = request.getViewId() == null ? null : request.getViewId().toString();
+        return new CommonResponse<>(dataQueryService.initLegacyNewObject(viewId, request.getParentObjId()));
     }
 
     @PostMapping("/getenums")

@@ -83,6 +83,23 @@ public class DataQueryService {
         return viewAdapter.getDetailViewResult(view, modelDataService.getOneData(view.getViewModel(), dataId));
     }
 
+    public QueryDataDetailResult initLegacyNewObject(String viewId, String parentObjId) {
+        View view = daoService.getOneDetailByKey(View.class, viewId);
+        if (view == null) {
+            throw new CommonException(ErrorCode.VIEW_NOT_FOUND, "没有查到视图");
+        }
+        Model model = daoService.getOneDetailByKey(Model.class, view.getViewModel());
+        if (model == null) {
+            throw new CommonException(ErrorCode.MODEL_NOT_FOUND, "没有查到元数据定义");
+        }
+        attachProperties(view, model);
+        QueryDataDetailResult result = viewAdapter.getDetailViewResult(view, null);
+        if (result.getData() != null && parentObjId != null && !parentObjId.isEmpty()) {
+            result.getData().setParentId(parentObjId);
+        }
+        return result;
+    }
+
     public InputQueryResult inputQuery(InputQueryRequest request) {
         View view = daoService.getOneDetailByKey(View.class, request.getViewName());
         if (view == null) {

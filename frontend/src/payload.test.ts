@@ -9,6 +9,7 @@ import {
   buildLegacyQueryDataRequest,
   buildLegacyReadItemViewRequest,
   buildMakeReportRequest,
+  buildInitNewRequest,
   buildQueryDataDetailRequest,
   buildQueryRequest,
   buildSaveObjRequest,
@@ -56,6 +57,12 @@ describe("App defaults", () => {
     expect(appSource).toContain("Notify Counts");
     expect(appSource).toContain("/api/v1/message/getnotify");
     expect(appSource).toContain("notifyResponse");
+  });
+
+  it("exposes the legacy initnew route in the Vue console", () => {
+    expect(appSource).toContain("Init New Object");
+    expect(appSource).toContain("/api/v1/data/initnew");
+    expect(appSource).toContain("initNewResponse");
   });
 
   it("proxies the backend smoke route in local and Compose frontends", () => {
@@ -224,6 +231,22 @@ describe("buildQueryDataDetailRequest", () => {
       viewId: 100,
       objId: "1001",
       idExp: "order_id"
+    });
+  });
+});
+
+describe("buildInitNewRequest", () => {
+  it("matches the legacy initnew DTO shape", () => {
+    const request = buildInitNewRequest({
+      token: "token-1",
+      viewId: 100,
+      parentObjId: " 5001 "
+    });
+
+    expect(request).toEqual({
+      token: "token-1",
+      viewId: 100,
+      parentObjId: "5001"
     });
   });
 });

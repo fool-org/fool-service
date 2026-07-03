@@ -296,6 +296,12 @@ export interface LegacyQueryDataDetailRequest {
   idExp?: string;
 }
 
+export interface LegacyInitNewRequest {
+  token?: string;
+  viewId?: number;
+  parentObjId?: string;
+}
+
 export interface QueryDataDetail {
   objId?: string;
   name?: string;
