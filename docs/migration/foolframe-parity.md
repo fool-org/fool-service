@@ -94,6 +94,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: query SQL generation now supports both FoolFrame-style
+  two-argument select-type expressions such as `[{0}].[{1}]` and the current
+  Docker-seeded single-argument `SE_SELECTEDEXP` expressions such as `{0}` and
+  `SUM({0})`. Single-argument expressions now receive the full selected column
+  expression, keeping future report `SelectedTypeId` execution on the shared
+  query builder path instead of adding report-controller special cases.
 - 2026-07-04: report `getmkqview` candidate columns now come from configured
   View items when the View provides them, matching FoolFrame's
   `QueryFactory.GetQueryModel(view)` path. The endpoint uses View item names as

@@ -69,6 +69,9 @@ explicitly named as authoritative for fool-service.
 - [x] Build report `getmkqview` candidate columns from configured View items
       when present, so report column selection follows the rendered View
       ordering instead of exposing every Model property.
+- [x] Support Docker-seeded single-argument `SE_SELECTEDEXP` query select-type
+      expressions so report `SelectedTypeId` execution can reuse the shared
+      query SQL builder instead of controller-side special cases.
 
 ## Backlog
 

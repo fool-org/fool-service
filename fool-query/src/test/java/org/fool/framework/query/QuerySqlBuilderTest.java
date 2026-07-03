@@ -41,6 +41,19 @@ public class QuerySqlBuilderTest {
     }
 
     @Test
+    public void selectedColumnSqlSupportsSeededSingleArgumentSelectExpressions() {
+        SelectedColumn column = selectedColumn(
+                selectedTable("Orders", "orders", "o"),
+                "订单号",
+                "ORDER_ID",
+                PropertyType.Long,
+                "order_id",
+                selectType("{0}", false));
+
+        assertEquals(" [o].[ORDER_ID]  AS [order_id]", QuerySqlBuilder.selectedColumnSql(column));
+    }
+
+    @Test
     public void sqlBuilderDoesNotDoubleWrapLegacyBracketedIdentifiers() {
         SelectedTable orders = selectedTable("Orders", "[orders]", "[o]");
         SelectedTables selectedTables = new SelectedTables(

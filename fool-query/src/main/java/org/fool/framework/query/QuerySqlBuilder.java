@@ -263,10 +263,13 @@ public final class QuerySqlBuilder {
     }
 
     private static String columnExpression(SelectedColumn column) {
-        return formatCSharp(
-                column.getSelectType().getDbExp(),
-                identifier(column.getSelectedTable().getSelectedTableName()),
-                identifier(column.getDataColumn().getDbName()));
+        String tableName = identifier(column.getSelectedTable().getSelectedTableName());
+        String columnName = identifier(column.getDataColumn().getDbName());
+        String template = column.getSelectType().getDbExp();
+        if (template.contains("{1}")) {
+            return formatCSharp(template, tableName, columnName);
+        }
+        return formatCSharp(template, "[" + tableName + "].[" + columnName + "]");
     }
 
     static String identifier(String value) {
