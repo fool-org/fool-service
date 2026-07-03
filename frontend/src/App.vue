@@ -55,6 +55,7 @@ import {
   isEnumField,
   itemKey,
   itemValue,
+  reportRowsFromCells,
   rowFormatClass,
   rowObjectId,
   rowValue,
@@ -219,19 +220,7 @@ const fieldEditorContext = computed(() => ({
   viewName: viewName.value
 }));
 
-const reportRows = computed(() => {
-  const cells = reportResponse.value?.data?.cells || [];
-  const maxRow = cells.reduce((max, cell) => Math.max(max, cell.row), -1);
-  const maxCol = cells.reduce((max, cell) => Math.max(max, cell.col), -1);
-  if (maxRow < 0 || maxCol < 0) {
-    return [];
-  }
-
-  const byPosition = new Map(cells.map((cell) => [`${cell.row}:${cell.col}`, cell.fmtValue || ""]));
-  return Array.from({ length: maxRow + 1 }, (_, row) =>
-    Array.from({ length: maxCol + 1 }, (_, col) => byPosition.get(`${row}:${col}`) || "")
-  );
-});
+const reportRows = computed(() => reportRowsFromCells(reportResponse.value?.data?.cells || []));
 
 async function runAction<T>(label: string, action: () => Promise<CommonResponse<T>>) {
   pendingAction.value = label;

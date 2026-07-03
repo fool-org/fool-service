@@ -15,6 +15,7 @@ import {
   isLookupField,
   isReadonlyField,
   itemKey,
+  reportRowsFromCells,
   rowFormatClass,
   rowObjectId,
   rowValue,
@@ -174,5 +175,16 @@ describe("view workflow helpers", () => {
       itemId: "",
       itemName: ""
     });
+  });
+
+  it("renders report cells as a matrix", () => {
+    expect(reportRowsFromCells([
+      { row: 0, col: 0, rowSpan: 1, colSpan: 1, fmtValue: "Symbol" },
+      { row: 0, col: 1, rowSpan: 1, colSpan: 1, fmtValue: "State" },
+      { row: 1, col: 0, rowSpan: 1, colSpan: 1, fmtValue: "BTC-USDT" }
+    ])).toEqual([
+      ["Symbol", "State"],
+      ["BTC-USDT", ""]
+    ]);
   });
 });

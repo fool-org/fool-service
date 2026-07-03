@@ -52,6 +52,8 @@ explicitly named as authoritative for fool-service.
       frontend keeps a single view-id driven data-loading path.
 - [x] Move reusable Vue child-group View workflow helpers out of `App.vue`
       into `viewWorkflow.ts`.
+- [x] Move report-grid cell matrix rendering into a tested Vue workflow helper
+      and keep `App.vue` below 2000 lines.
 
 ## Backlog
 

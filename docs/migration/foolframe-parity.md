@@ -92,6 +92,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: moved the Vue report-grid cell matrix calculation from
+  `App.vue` into the tested `viewWorkflow.ts` helper set. `App.vue` now stays
+  below 2000 lines while report rendering still uses the same sparse
+  `ReportCell(row,col,fmtValue)` contract from the migrated report API.
 - 2026-07-04: moved reusable Vue child-group metadata helpers out of
   `App.vue` and into `viewWorkflow.ts`: child group keys, selected child View
   IDs, and empty child drafts are now shared tested helpers. `App.vue` dropped

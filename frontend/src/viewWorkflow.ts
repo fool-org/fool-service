@@ -3,6 +3,7 @@ import type {
   ListDataValue,
   QueryDataDetailDataItem,
   QueryDataDetailItemGroup,
+  ReportCell,
   SaveItemProperty,
   SaveKeypair,
   TableColumnInfo
@@ -107,6 +108,19 @@ export function groupKey(group: QueryDataDetailItemGroup) {
 
 export function selectedChildViewId(group: QueryDataDetailItemGroup) {
   return group.selectedView || group.listViewId || 0;
+}
+
+export function reportRowsFromCells(cells: ReportCell[] = []) {
+  const maxRow = cells.reduce((max, cell) => Math.max(max, cell.row), -1);
+  const maxCol = cells.reduce((max, cell) => Math.max(max, cell.col), -1);
+  if (maxRow < 0 || maxCol < 0) {
+    return [];
+  }
+
+  const byPosition = new Map(cells.map((cell) => [`${cell.row}:${cell.col}`, cell.fmtValue || ""]));
+  return Array.from({ length: maxRow + 1 }, (_, row) =>
+    Array.from({ length: maxCol + 1 }, (_, col) => byPosition.get(`${row}:${col}`) || "")
+  );
 }
 
 export function emptyGroupDraft(group: QueryDataDetailItemGroup) {
