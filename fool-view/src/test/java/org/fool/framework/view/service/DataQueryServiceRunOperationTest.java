@@ -432,6 +432,43 @@ public class DataQueryServiceRunOperationTest {
     }
 
     @Test
+    public void runLegacyUpdateOperationExecutesOutModelCommandAndMapsResult() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataService viewDataService = mock(ViewDataService.class);
+        DataQueryService service = service(daoService, modelDataService, viewDataService);
+        Model model = model();
+        Model shipmentModel = shipmentModel();
+        OperationCommand outCommand = command(CommandsType.EXUTE_OUT_MODEL_METHOD, 1012L, "Close", 1);
+        outCommand.setArgModelId(200L);
+        outCommand.setArgSourceIdExpression(".customer");
+        outCommand.setArgExpression(".status");
+        View view = view(operationWithCommand(7002L, OperationBaseType.UPDATE, "保存成功", outCommand));
+        DbMysqlDynamic data = new DbMysqlDynamic(model);
+        data.set("orderId", "1001");
+        data.set("symbol", "BTC-USDT");
+        data.set("customer", "S001");
+        DbMysqlDynamic shipment = new DbMysqlDynamic(shipmentModel);
+        shipment.set("shipmentId", "S001");
+        shipment.set("status", "pending");
+        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(modelDataService.getModel("Order")).thenReturn(model);
+        when(modelDataService.getModel("200")).thenReturn(shipmentModel);
+        when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
+        when(modelDataService.getOneData("Shipment", "S001")).thenReturn(shipment);
+        when(modelDataService.saveData(shipment)).thenReturn(true);
+        when(modelDataService.saveData(data)).thenReturn(true);
+
+        LegacyRunOperationResult result = service.runLegacyOperation(request("1001", 100L, 7002L));
+
+        assertTrue(result.isSuccess());
+        assertEquals("BTC-USDT", shipment.get("status"));
+        assertEquals("BTC-USDT", data.get("customer"));
+        verify(modelDataService).saveData(shipment);
+        verify(modelDataService).saveData(data);
+    }
+
+    @Test
     public void runLegacyOperationReturnsLegacyErrorMessageWhenExecutionFails() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
@@ -609,6 +646,31 @@ public class DataQueryServiceRunOperationTest {
         model.setIdProperty(orderId);
         model.setProperties(List.of(orderId, symbol, state, retryCount, confirmed,
                 byteCode, marker, longCode, amount, ratio, startsAt, customer, items));
+        return model;
+    }
+
+    private static Model shipmentModel() {
+        Model model = new Model();
+        model.setId(200L);
+        model.setName("Shipment");
+        model.setTableName("shipment");
+        Property shipmentId = new Property();
+        shipmentId.setId(2001L);
+        shipmentId.setName("shipmentId");
+        shipmentId.setColumn("shipment_id");
+        shipmentId.setPropertyType(PropertyType.String);
+        Property status = new Property();
+        status.setId(2002L);
+        status.setName("status");
+        status.setColumn("status");
+        status.setPropertyType(PropertyType.String);
+        Operation close = new Operation();
+        close.setName("Close");
+        close.setBaseOperationType(OperationBaseType.UPDATE);
+        close.setCommands(List.of(command(CommandsType.SET_VALUE, 2002L, ".symbol", 1)));
+        model.setIdProperty(shipmentId);
+        model.setProperties(List.of(shipmentId, status));
+        model.setOperations(List.of(close));
         return model;
     }
 
