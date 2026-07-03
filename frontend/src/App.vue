@@ -2,6 +2,8 @@
 import { computed, ref } from "vue";
 import {
   type AuthItem,
+  type CheckCodeRequest,
+  type CheckCodeResult,
   type CommonResponse,
   type GetEnumResult,
   type GetMessageResult,
@@ -83,11 +85,15 @@ const saveNewPropertyiesJson = ref('[{"key":"symbol","value":"SOL-USDT"},{"key":
 const saveNewOwnerViewId = ref("");
 const saveNewOwnerId = ref("");
 const saveNewProperty = ref("items");
+const checkCodeKey = ref("");
+const checkCodeValue = ref("");
 const activeSection = ref("auth");
 
 const loginResponse = ref<CommonResponse<LoginVo> | null>(null);
 const profileResponse = ref<CommonResponse<UserDTO> | null>(null);
 const legacyUserInfoResponse = ref<CommonResponse<LegacyUserInfoResult> | null>(null);
+const checkCodeResponse = ref<CommonResponse<CheckCodeResult> | null>(null);
+const checkCodeValidationResponse = ref<CommonResponse<boolean> | null>(null);
 const logoutResponse = ref<CommonResponse<void> | null>(null);
 const menuResponse = ref<CommonResponse<TreeNode<AuthItem>[]> | null>(null);
 const viewResponse = ref<CommonResponse<ListViewInfo> | null>(null);
@@ -237,6 +243,26 @@ async function loadLegacyUserInfo() {
   );
   if (response) {
     legacyUserInfoResponse.value = response;
+  }
+}
+
+async function loadCheckCode() {
+  const response = await runAction("getcheckcode", () => postApi<CheckCodeResult>("/api/v1/auth/getcheckcode", {}));
+  if (response) {
+    checkCodeResponse.value = response;
+    checkCodeKey.value = response.data?.key || "";
+    checkCodeValue.value = response.data?.code || "";
+  }
+}
+
+async function validateCheckCode() {
+  const request: CheckCodeRequest = {
+    key: checkCodeKey.value,
+    code: checkCodeValue.value
+  };
+  const response = await runAction("checkcode", () => postApi<boolean>("/api/v1/auth/checkcode", request));
+  if (response) {
+    checkCodeValidationResponse.value = response;
   }
 }
 
@@ -605,6 +631,36 @@ function formatValue(value: unknown) {
             </button>
             <button type="button" :disabled="pendingAction === 'menus'" @click="loadMenus">Menus</button>
             <button type="button" :disabled="pendingAction === 'logout'" @click="logout">Logout</button>
+          </div>
+        </article>
+
+        <article class="panel lookup-panel">
+          <div class="panel-heading">
+            <h2>Check Code</h2>
+            <span>POST /api/v1/auth/getcheckcode</span>
+          </div>
+          <div class="inline-fields">
+            <label>
+              Key
+              <input v-model="checkCodeKey" />
+            </label>
+            <label>
+              Code
+              <input v-model="checkCodeValue" />
+            </label>
+          </div>
+          <div class="button-row">
+            <button type="button" :disabled="pendingAction === 'getcheckcode'" @click="loadCheckCode">
+              Load Check Code
+            </button>
+            <button type="button" :disabled="pendingAction === 'checkcode'" @click="validateCheckCode">
+              Validate Code
+            </button>
+          </div>
+
+          <div v-if="checkCodeResponse?.data" class="summary-list">
+            <div><span>Image bytes</span><strong>{{ checkCodeResponse.data.chkCodeImg?.length || 0 }}</strong></div>
+            <div><span>Valid</span><strong>{{ checkCodeValidationResponse?.data ?? "-" }}</strong></div>
           </div>
         </article>
 
@@ -1265,6 +1321,8 @@ function formatValue(value: unknown) {
                 login: loginResponse,
                 profile: profileResponse,
                 legacyUserInfo: legacyUserInfoResponse,
+                checkCode: checkCodeResponse,
+                checkCodeValidation: checkCodeValidationResponse,
                 logout: logoutResponse,
                 menus: menuResponse,
                 view: viewResponse,

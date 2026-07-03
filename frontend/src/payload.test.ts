@@ -66,6 +66,13 @@ describe("App defaults", () => {
     expect(appSource).toContain("legacyUserInfoResponse");
   });
 
+  it("exposes the legacy checkcode routes in the Vue console", () => {
+    expect(appSource).toContain("Check Code");
+    expect(appSource).toContain("/api/v1/auth/getcheckcode");
+    expect(appSource).toContain("/api/v1/auth/checkcode");
+    expect(appSource).toContain("checkCodeResponse");
+  });
+
   it("exposes the legacy initnew route in the Vue console", () => {
     expect(appSource).toContain("Init New Object");
     expect(appSource).toContain("/api/v1/data/initnew");

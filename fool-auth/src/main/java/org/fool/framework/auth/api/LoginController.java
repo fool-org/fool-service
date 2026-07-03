@@ -3,6 +3,7 @@ package org.fool.framework.auth.api;
 
 import org.fool.framework.auth.business.model.Auth;
 import org.fool.framework.auth.business.service.AuthService;
+import org.fool.framework.auth.business.service.CheckCodeService;
 import org.fool.framework.auth.dto.LoginDTO;
 import org.fool.framework.auth.dto.LoginVo;
 import org.fool.framework.auth.dto.UserDTO;
@@ -25,6 +26,8 @@ public class LoginController {
 
     @Autowired
     private AuthService authService;
+    @Autowired
+    private CheckCodeService checkCodeService;
 
     @ApiOperation("登录")
     @PostMapping("/login")
@@ -33,6 +36,20 @@ public class LoginController {
         var user = authService.login(loginDTO.getUserId(), loginDTO.getPassword());
         return new CommonResponse<LoginVo>(user);
 
+    }
+
+    @ApiOperation("得到旧版验证码")
+    @PostMapping("/getcheckcode")
+    @ResponseBody
+    public CommonResponse<CheckCodeService.CheckCodeResult> getCheckCode() {
+        return new CommonResponse<>(checkCodeService.create());
+    }
+
+    @ApiOperation("校验旧版验证码")
+    @PostMapping("/checkcode")
+    @ResponseBody
+    public CommonResponse<Boolean> checkCode(@RequestBody CheckCodeService.CheckCodeRequest request) {
+        return new CommonResponse<>(checkCodeService.validate(request));
     }
 
     @ApiOperation("得到用户配置信息")

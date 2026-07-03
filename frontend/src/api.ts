@@ -28,6 +28,18 @@ export interface LegacyUserInfoResult {
   user?: LegacyUserInfo;
 }
 
+export interface CheckCodeResult {
+  key?: string;
+  code?: string;
+  chkCodeImg?: string;
+}
+
+export interface CheckCodeRequest {
+  key?: string;
+  code?: string;
+  chkCodeImg?: string;
+}
+
 export interface LoginVo {
   user?: UserDTO;
   token?: string;

@@ -1,6 +1,7 @@
 package org.fool.framework.auth.api;
 
 import org.fool.framework.auth.business.service.AuthService;
+import org.fool.framework.auth.business.service.CheckCodeService;
 import org.fool.framework.auth.dto.UserDTO;
 import org.fool.framework.dto.CommonRequest;
 import org.fool.framework.dto.CommonResponse;
@@ -49,6 +50,39 @@ public class LoginControllerLogoutTest {
         assertEquals(42L, response.getData().getUser().getUserId());
         assertEquals("42", response.getData().getUser().getLoginName());
         assertEquals("Admin", response.getData().getUser().getUserName());
+    }
+
+    @Test
+    public void getCheckCodeReturnsGeneratedLegacyPayload() throws Exception {
+        CheckCodeService checkCodeService = mock(CheckCodeService.class);
+        LoginController controller = new LoginController();
+        setField(controller, "checkCodeService", checkCodeService);
+        CheckCodeService.CheckCodeResult result = new CheckCodeService.CheckCodeResult("key-1", "A2BC", "image");
+        when(checkCodeService.create()).thenReturn(result);
+
+        CommonResponse<CheckCodeService.CheckCodeResult> response = controller.getCheckCode();
+
+        assertEquals(0, response.getCode());
+        assertEquals("key-1", response.getData().getKey());
+        assertEquals("A2BC", response.getData().getCode());
+        verify(checkCodeService).create();
+    }
+
+    @Test
+    public void checkCodeReturnsLegacyValidationBoolean() throws Exception {
+        CheckCodeService checkCodeService = mock(CheckCodeService.class);
+        LoginController controller = new LoginController();
+        setField(controller, "checkCodeService", checkCodeService);
+        CheckCodeService.CheckCodeRequest request = new CheckCodeService.CheckCodeRequest();
+        request.setKey("key-1");
+        request.setCode("A2BC");
+        when(checkCodeService.validate(request)).thenReturn(true);
+
+        CommonResponse<Boolean> response = controller.checkCode(request);
+
+        assertEquals(0, response.getCode());
+        assertEquals(Boolean.TRUE, response.getData());
+        verify(checkCodeService).validate(request);
     }
 
     private static void setField(Object target, String name, Object value) throws Exception {
