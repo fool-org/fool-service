@@ -31,7 +31,7 @@ public class Model {
     private transient Property showProperty;
     private transient List<Relation> relations;
     private transient List<Operation> operations;
+    private transient List<Trigger> triggers;
     @Column("owner")
     private List<EnumValue> enumValues = new ArrayList<>();
-//    private List<Trigger> triggers;
 }

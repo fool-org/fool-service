@@ -8,9 +8,11 @@ import org.fool.framework.dao.*;
 import org.fool.framework.model.model.DbMysqlDynamic;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.MultiDbMap;
+import org.fool.framework.model.model.OperationCommand;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.model.model.Relation;
 import org.fool.framework.model.model.RelationType;
+import org.fool.framework.model.model.Trigger;
 import org.fool.framework.model.sqlscript.SqlGenerator;
 import org.fool.framework.query.CompareFilter;
 import org.fool.framework.query.CompareOp;
@@ -61,6 +63,7 @@ public class ModelDataService {
     public Model getModel(String modelId) {
         Model model = daoService.getOneDetailByKey(Model.class, modelId);
         hydrateRelations(model);
+        hydrateModelTriggers(model);
         return model;
     }
 
@@ -83,6 +86,35 @@ public class ModelDataService {
                         + "`SW_SYS_RELATION_CANBENULL` FROM `SW_SYS_RELATION` "
                         + "WHERE `SW_SYS_RELATION_SOURCEPROPERTY` IN (" + placeholders + ")",
                 propertyIds.toArray()));
+    }
+
+    private void hydrateModelTriggers(Model model) {
+        if (model == null || model.getId() == null) {
+            return;
+        }
+        List<Trigger> triggers = daoService.selectList(
+                Trigger.class,
+                "SELECT `SysId`,`SW_MODEL_TRIGGER_ARGMODEL`,`SW_MODEL_TRIGGER_TYPE`,"
+                        + "`SW_MODEL_TRIGGER_FILTER`,`SW_MODEL_TRIGGER_ARGFILTER`,"
+                        + "`SW_MODEL_TRIGGER_OPERATIONTYPE`,`SW_MODEL_TRIGGER_INVOKEDLL`,"
+                        + "`SW_MODEL_TRIGGER_INVOKECLASS`,`SW_MODEL_TRIGGER_INVOKEMETHOD` "
+                        + "FROM `SW_SYS_MODEL_TRIGGER` "
+                        + "WHERE `SW_SYS_MODEL_TriggersMODEL_ID` = ? ORDER BY `SysId`",
+                model.getId());
+        for (Trigger trigger : triggers) {
+            trigger.setCommands(daoService.selectList(
+                    OperationCommand.class,
+                    "SELECT `SysId`,`SW_SYS_MODEL_TRIGGER_CommandsSysId` AS `SW_SYS_OPERATION_CommandsSysId`,"
+                            + "`SW_SYS_COMMAND_TYPE`,`SW_SYS_COMMAND_PROPERTY`,`SW_SYS_COMMAND_EXP`,"
+                            + "`SW_SYS_COMMAND_ARGMODEL`,`SW_SYS_COMMAND_ARGEXP`,`SW_SYS_COMMAND_ARGID`,"
+                            + "`SW_SYS_COMMAND_Index` AS `SW_SYS_COMMAND_INDEX`,"
+                            + "`SW_SYS_COMMAND_PROPERTY_EXP`,`SW_SYS_COMMAND_TEMPVALUE` "
+                            + "FROM `SW_SYS_MODEL_TRIGGER_COMMANDS` "
+                            + "WHERE `SW_SYS_MODEL_TRIGGER_CommandsSysId` = ? "
+                            + "ORDER BY `SW_SYS_COMMAND_Index`, `SysId`",
+                    trigger.getId()));
+        }
+        model.setTriggers(triggers);
     }
 
     public IDynamicData getOneData(String modelId, String dataId) {

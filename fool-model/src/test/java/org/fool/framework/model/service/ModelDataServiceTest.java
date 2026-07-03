@@ -5,13 +5,18 @@ import org.fool.framework.common.PropertyType;
 import org.fool.framework.common.data.SubItemList;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.model.Application;
+import org.fool.framework.model.model.CommandsType;
 import org.fool.framework.model.model.DbMysqlDynamic;
 import org.fool.framework.model.model.Model;
+import org.fool.framework.model.model.ModelTriggerType;
 import org.fool.framework.model.model.ModelType;
 import org.fool.framework.model.model.MultiDbMap;
+import org.fool.framework.model.model.OperationBaseType;
+import org.fool.framework.model.model.OperationCommand;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.model.model.Relation;
 import org.fool.framework.model.model.RelationType;
+import org.fool.framework.model.model.Trigger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -154,6 +159,60 @@ public class ModelDataServiceTest {
             assertEquals("Legacy detail", data.get("orderName"));
         } finally {
             cleanupRuntimeDetailModel(modelId, modelName, tableName);
+        }
+    }
+
+    @Test
+    public void getModelRehydratesLegacyModelTriggersWithCommands() {
+        long modelId = 92501L;
+        long idPropertyId = 92502L;
+        long namePropertyId = 92503L;
+        long triggerId = 92504L;
+        long commandId = 92505L;
+        String modelName = "RuntimeTriggerOrder";
+        String tableName = "runtime_trigger_order";
+        cleanupRuntimeTriggerModel(modelId, modelName, tableName);
+        try {
+            createRuntimeDetailModel(modelId, idPropertyId, namePropertyId, modelName, tableName);
+            jdbcTemplate.update(
+                    "INSERT INTO `SW_SYS_MODEL_TRIGGER` "
+                            + "(`SysId`,`SW_SYS_MODEL_TriggersMODEL_ID`,`SW_MODEL_TRIGGER_TYPE`,"
+                            + "`SW_MODEL_TRIGGER_FILTER`,`SW_MODEL_TRIGGER_OPERATIONTYPE`) "
+                            + "VALUES (?,?,?,?,?)",
+                    triggerId,
+                    modelId,
+                    ModelTriggerType.SAVE.code(),
+                    "`ORDER_NAME` IS NOT NULL",
+                    OperationBaseType.UPDATE.code());
+            jdbcTemplate.update(
+                    "INSERT INTO `SW_SYS_MODEL_TRIGGER_COMMANDS` "
+                            + "(`SysId`,`SW_SYS_MODEL_TRIGGER_CommandsSysId`,`SW_SYS_COMMAND_TYPE`,"
+                            + "`SW_SYS_COMMAND_PROPERTY`,`SW_SYS_COMMAND_EXP`,`SW_SYS_COMMAND_Index`) "
+                            + "VALUES (?,?,?,?,?,?)",
+                    commandId,
+                    triggerId,
+                    CommandsType.SET_VALUE.code(),
+                    namePropertyId,
+                    "$triggered",
+                    1);
+
+            Model model = modelDataService.getModel(modelName);
+
+            assertNotNull(model.getTriggers());
+            assertEquals(1, model.getTriggers().size());
+            Trigger trigger = model.getTriggers().get(0);
+            assertEquals(Long.valueOf(triggerId), trigger.getId());
+            assertEquals(ModelTriggerType.SAVE, trigger.getTriggerType());
+            assertEquals("`ORDER_NAME` IS NOT NULL", trigger.getFilter());
+            assertEquals(OperationBaseType.UPDATE, trigger.getBaseOperationType());
+            assertEquals(1, trigger.getCommands().size());
+            OperationCommand command = trigger.getCommands().get(0);
+            assertEquals(Long.valueOf(commandId), command.getId());
+            assertEquals(CommandsType.SET_VALUE, command.getCommandType());
+            assertEquals(Long.valueOf(namePropertyId), command.getPropertyId());
+            assertEquals("$triggered", command.getExpression());
+        } finally {
+            cleanupRuntimeTriggerModel(modelId, modelName, tableName);
         }
     }
 
@@ -955,6 +1014,15 @@ public class ModelDataServiceTest {
         jdbcTemplate.update("DELETE FROM `fool_sys_model_property` WHERE `owner` = ?", modelId);
         jdbcTemplate.update("DELETE FROM `fool_sys_model` WHERE `id` = ? OR `name` = ?", modelId, modelName);
         jdbcTemplate.execute("DROP TABLE IF EXISTS `" + tableName + "`");
+    }
+
+    private void cleanupRuntimeTriggerModel(long modelId, String modelName, String tableName) {
+        jdbcTemplate.update(
+                "DELETE FROM `SW_SYS_MODEL_TRIGGER_COMMANDS` WHERE `SW_SYS_MODEL_TRIGGER_CommandsSysId` IN "
+                        + "(SELECT `SysId` FROM `SW_SYS_MODEL_TRIGGER` WHERE `SW_SYS_MODEL_TriggersMODEL_ID` = ?)",
+                modelId);
+        jdbcTemplate.update("DELETE FROM `SW_SYS_MODEL_TRIGGER` WHERE `SW_SYS_MODEL_TriggersMODEL_ID` = ?", modelId);
+        cleanupRuntimeDetailModel(modelId, modelName, tableName);
     }
 
     private void cleanupRuntimeRelationModel(
