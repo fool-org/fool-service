@@ -80,6 +80,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-03: exposed the migrated `getenums` API in the Vue operator console
   with typed payload building, enum-value display, Docker runtime, and backend
   endpoint smoke coverage.
+- 2026-07-03: exposed the migrated `getlistview` view-id API in the Vue
+  operator console with typed payload building, shared view-definition display,
+  Docker runtime, and backend endpoint smoke coverage.
 
 ## Server Source Mapping
 
@@ -144,6 +147,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - A Vue enum-value panel that calls legacy `/api/v1/data/getenums` and renders
   returned enum values
 - Vue API types for legacy `getlistview` view-id payloads
+- A Vue legacy list-view lookup control that calls `/api/v1/view/getlistview`
+  by view ID and reuses the view-definition summary display
 - Vue API types for legacy `getreaditemview` read-item payloads
 - Vue API types for legacy `querydata` request payloads
 - Vue API types for legacy `querydatadetail` request/result payloads

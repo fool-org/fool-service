@@ -18,6 +18,7 @@ import {
 import {
   buildGetEnumRequest,
   buildInputQueryRequest,
+  buildLegacyListViewRequest,
   buildQueryDataDetailRequest,
   buildQueryRequest,
   buildSaveObjRequest,
@@ -28,6 +29,7 @@ const token = ref(localStorage.getItem("fool-service-token") || "");
 const userId = ref("admin");
 const password = ref("");
 const viewName = ref("OrderList");
+const legacyListViewId = ref(100);
 const pageIndex = ref(1);
 const pageSize = ref(20);
 const filterJson = ref("{}");
@@ -191,6 +193,18 @@ async function loadView() {
       viewName: viewName.value
     })
   );
+  if (response) {
+    viewResponse.value = response;
+  }
+}
+
+async function loadLegacyListView() {
+  const request = buildLegacyListViewRequest({
+    token: token.value,
+    viewId: Number(legacyListViewId.value)
+  });
+
+  const response = await runAction("legacy-list-view", () => postApi<ListViewInfo>("/api/v1/view/getlistview", request));
   if (response) {
     viewResponse.value = response;
   }
@@ -378,7 +392,18 @@ function formatValue(value: unknown) {
             View Name
             <input v-model="viewName" />
           </label>
-          <button type="button" :disabled="pendingAction === 'view'" @click="loadView">Load View</button>
+          <div class="inline-fields">
+            <label>
+              View ID
+              <input v-model.number="legacyListViewId" min="1" type="number" />
+            </label>
+          </div>
+          <div class="button-row">
+            <button type="button" :disabled="pendingAction === 'view'" @click="loadView">Load View</button>
+            <button type="button" :disabled="pendingAction === 'legacy-list-view'" @click="loadLegacyListView">
+              Legacy List View
+            </button>
+          </div>
 
           <div v-if="viewResponse?.data" class="summary-list">
             <div><span>Title</span><strong>{{ viewResponse.data.viewTitle || "-" }}</strong></div>

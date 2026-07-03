@@ -5,7 +5,8 @@ import type {
   SaveItemProperty,
   SaveKeypair,
   SaveObject,
-  SaveObjRequest
+  SaveObjRequest,
+  ViewDataRequest
 } from "./api";
 
 export interface QueryRequestInput {
@@ -55,6 +56,11 @@ export interface QueryDataDetailRequestInput {
 export interface GetEnumRequestInput {
   token: string;
   modelId: string;
+}
+
+export interface LegacyListViewRequestInput {
+  token: string;
+  viewId: number;
 }
 
 export interface QueryRequest {
@@ -143,6 +149,13 @@ export function buildGetEnumRequest(input: GetEnumRequestInput): GetEnumRequest 
   return {
     token: input.token,
     modelId: input.modelId.trim()
+  };
+}
+
+export function buildLegacyListViewRequest(input: LegacyListViewRequestInput): ViewDataRequest {
+  return {
+    token: input.token,
+    viewId: input.viewId
   };
 }
 

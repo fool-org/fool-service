@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildGetEnumRequest,
   buildInputQueryRequest,
+  buildLegacyListViewRequest,
   buildQueryDataDetailRequest,
   buildQueryRequest,
   buildSaveObjRequest
@@ -171,6 +172,20 @@ describe("buildGetEnumRequest", () => {
     expect(request).toEqual({
       token: "token-1",
       modelId: "100"
+    });
+  });
+});
+
+describe("buildLegacyListViewRequest", () => {
+  it("matches the legacy getlistview DTO shape", () => {
+    const request = buildLegacyListViewRequest({
+      token: "token-1",
+      viewId: 100
+    });
+
+    expect(request).toEqual({
+      token: "token-1",
+      viewId: 100
     });
   });
 });
