@@ -88,6 +88,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-03: extended legacy `runoperation` `SetValue` expression parity.
+  FoolFrame-style current-object property expressions such as `.symbol` now
+  read from the target object before UPDATE save, and static `$...` values are
+  converted for `Int`/`UInt` target properties before assignment. Math,
+  context values, owner traversal, business-object loading, and other command
+  types remain future work.
 - 2026-07-03: migrated the first legacy `runoperation` command execution
   slice. Persisted `SW_SYS_COMMANDS` rows now hydrate onto operations,
   `CommandsType.SetValue` literal expressions such as `$1` are applied before

@@ -307,7 +307,8 @@ public class DataQueryService {
                 .filter(command -> command != null && command.getCommandType() == CommandsType.SET_VALUE)
                 .sorted(Comparator.comparing(command -> command.getIndex() == null ? 0 : command.getIndex()))
                 .forEach(command -> property(model, command.getPropertyId())
-                        .ifPresent(property -> data.set(property.getName(), commandValue(data, command.getExpression()))));
+                        .ifPresent(property -> data.set(property.getName(),
+                                commandValue(property, data, command.getExpression()))));
     }
 
     private java.util.Optional<Property> property(Model model, Long propertyId) {
@@ -319,16 +320,27 @@ public class DataQueryService {
                 .findFirst();
     }
 
-    private Object commandValue(IDynamicData data, String expression) {
+    private Object commandValue(Property property, IDynamicData data, String expression) {
         String value = expression == null ? "" : expression.trim();
         if (value.startsWith("$")) {
-            return value.substring(1);
+            return staticValue(property, value.substring(1));
+        }
+        if (value.startsWith(".")) {
+            return value.length() == 1 ? null : data.get(value.substring(1));
         }
         if (value.startsWith("#.")) {
             return data.get(value.substring(2));
         }
-        // ponytail: only literal and #.field; add full GetValueExpression grammar when commands need it.
+        // ponytail: only literal/current field expressions; add full GetValueExpression grammar when commands need it.
         return "";
+    }
+
+    private Object staticValue(Property property, String value) {
+        if (property != null && (property.getPropertyType() == PropertyType.Int
+                || property.getPropertyType() == PropertyType.UInt)) {
+            return Integer.valueOf(value);
+        }
+        return value;
     }
 
     private ViewOperation findOperation(View view, Long operationId) {
