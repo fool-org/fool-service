@@ -95,6 +95,8 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-03: seeded the Docker `OrderState` enum model in runtime and legacy
   metadata tables, linked `Order.state` to that enum, and defaulted the Vue
   enum/query/save panels to the numeric enum codes.
+- 2026-07-03: seeded legacy `SW_SYS_MODEL` shell records for the Docker
+  `Order` and `OrderItem` smoke models.
 
 ## Server Source Mapping
 
