@@ -10,6 +10,7 @@ import {
   type GetNotifyResult,
   type InputQueryResult,
   type LegacyAppResult,
+  type LegacyInitAppResult,
   type LegacyLoginResult,
   type LegacyMainResult,
   type LegacySubMenuResult,
@@ -98,6 +99,7 @@ const subMenuParentAuthCode = ref("");
 const activeSection = ref("auth");
 
 const loginResponse = ref<CommonResponse<LoginVo> | null>(null);
+const initAppResponse = ref<CommonResponse<LegacyInitAppResult> | null>(null);
 const legacyLoginResponse = ref<CommonResponse<LegacyLoginResult> | null>(null);
 const profileResponse = ref<CommonResponse<UserDTO> | null>(null);
 const legacyUserInfoResponse = ref<CommonResponse<LegacyUserInfoResult> | null>(null);
@@ -235,6 +237,22 @@ async function login() {
     if (token.value) {
       localStorage.setItem("fool-service-token", token.value);
     }
+  }
+}
+
+async function initApp() {
+  const response = await runAction("initapp", () =>
+    postApi<LegacyInitAppResult>("/api/v1/auth/initapp", {
+      AppId: legacyAppId.value,
+      AppKey: legacyAppKey.value
+    })
+  );
+
+  if (response) {
+    initAppResponse.value = response;
+    checkCodeKey.value = response.data?.checkCode?.key || checkCodeKey.value;
+    checkCodeValue.value = response.data?.checkCode?.code || checkCodeValue.value;
+    legacyDbId.value = response.data?.dbs?.[0]?.dbId || legacyDbId.value;
   }
 }
 
@@ -689,6 +707,7 @@ function formatValue(value: unknown) {
           <button class="primary" type="button" :disabled="pendingAction === 'login'" @click="login">
             Login
           </button>
+          <button type="button" :disabled="pendingAction === 'initapp'" @click="initApp">Init App</button>
           <button type="button" :disabled="pendingAction === 'loginv2'" @click="loginV2">Legacy Login V2</button>
         </article>
 
@@ -1434,6 +1453,7 @@ function formatValue(value: unknown) {
             JSON.stringify(
               {
                 login: loginResponse,
+                initApp: initAppResponse,
                 legacyLogin: legacyLoginResponse,
                 profile: profileResponse,
                 legacyUserInfo: legacyUserInfoResponse,

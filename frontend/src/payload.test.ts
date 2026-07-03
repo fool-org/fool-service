@@ -79,6 +79,12 @@ describe("App defaults", () => {
     expect(appSource).toContain("legacyLoginResponse");
   });
 
+  it("exposes the legacy initapp route in the Vue console", () => {
+    expect(appSource).toContain("Init App");
+    expect(appSource).toContain("/api/v1/auth/initapp");
+    expect(appSource).toContain("initAppResponse");
+  });
+
   it("exposes the legacy submenu route in the Vue console", () => {
     expect(appSource).toContain("Sub Menu");
     expect(appSource).toContain("/api/v1/auth/getsubmenu");

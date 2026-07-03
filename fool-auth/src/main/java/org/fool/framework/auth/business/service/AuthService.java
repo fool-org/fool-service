@@ -173,16 +173,39 @@ public class AuthService {
         return app == null ? null : legacyAppInfo(app);
     }
 
+    public LegacyInitAppInfo getLegacyInitAppInfo(String appId, String appKey) {
+        ApplicationDefinition app = appFacade.getApp(appId, appKey);
+        if (app == null) {
+            return null;
+        }
+        LegacyInitAppInfo info = new LegacyInitAppInfo();
+        info.setAppTitle(empty(app.getName()));
+        info.setAppName(empty(app.getName()));
+        info.setAppImg(empty(app.getInitImage()));
+        info.setAppVersion(empty(app.getVersion()));
+        info.setAppPowerBy(empty(app.getCompany()));
+        info.setAppUrl(empty(app.getUrl()));
+        info.setDbs(getLegacyStoreDatabases(appId));
+        return info;
+    }
+
     public boolean hasLegacyStoreDatabase(String appId, String dbId) {
         if (!StringUtils.hasText(appId) || !StringUtils.hasText(dbId)) {
             return false;
         }
+        return getLegacyStoreDatabases(appId).stream()
+                .anyMatch(db -> dbId.equalsIgnoreCase(db.getDbId()));
+    }
+
+    private List<LegacyStoreBaseInfo> getLegacyStoreDatabases(String appId) {
         String sql = """
                 select db.* from SW_STOREDB db
                 join SW_APPLICATION_SW_STOREDB rel on rel.SW_STOREDB_ID = db.SW_STORE_STOREID
-                where rel.SW_APPLICATION_ID = ? and db.SW_STORE_STOREID = ?
+                where rel.SW_APPLICATION_ID = ?
                 """;
-        return !daoService.selectList(StoreDatabase.class, sql, appId, dbId).isEmpty();
+        return daoService.selectList(StoreDatabase.class, sql, appId).stream()
+                .map(this::legacyStoreBaseInfo)
+                .toList();
     }
 
     private LegacyAuthItem legacyAuthItem(MenuItem menu) {
@@ -211,6 +234,13 @@ public class AuthService {
         info.setAppLogoUrl(empty(app.getAvatar()));
         info.setDefaultViewId(app.getDefaultView() == null ? 0L : app.getDefaultView());
         info.setAppId(empty(app.getAppId()));
+        return info;
+    }
+
+    private LegacyStoreBaseInfo legacyStoreBaseInfo(StoreDatabase db) {
+        LegacyStoreBaseInfo info = new LegacyStoreBaseInfo();
+        info.setDbId(empty(db.getStoreBaseId()));
+        info.setDbName(empty(db.getName()));
         return info;
     }
 
@@ -257,5 +287,22 @@ public class AuthService {
         private String appLogoUrl = "";
         private long defaultViewId;
         private String appId = "";
+    }
+
+    @Data
+    public static class LegacyInitAppInfo {
+        private String appTitle = "";
+        private String appName = "";
+        private String appImg = "";
+        private String appVersion = "";
+        private String appPowerBy = "";
+        private String appUrl = "";
+        private List<LegacyStoreBaseInfo> dbs = List.of();
+    }
+
+    @Data
+    public static class LegacyStoreBaseInfo {
+        private String dbId = "";
+        private String dbName = "";
     }
 }

@@ -80,6 +80,26 @@ export interface CheckCodeRequest {
   chkCodeImg?: string;
 }
 
+export interface LegacyStoreBaseInfo {
+  dbId?: string;
+  dbName?: string;
+}
+
+export interface LegacyInitAppResult {
+  appTitle?: string;
+  appName?: string;
+  appImg?: string;
+  appVersion?: string;
+  appPowerBy?: string;
+  appUrl?: string;
+  checkCode?: CheckCodeResult;
+  dbs?: LegacyStoreBaseInfo[];
+  error?: {
+    code?: number;
+    message?: string;
+  };
+}
+
 export interface LoginVo {
   user?: UserDTO;
   token?: string;

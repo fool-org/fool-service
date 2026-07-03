@@ -71,6 +71,37 @@ public class LoginControllerLogoutTest {
     }
 
     @Test
+    public void initAppReturnsLegacyAppDbsAndCheckCode() throws Exception {
+        AuthService authService = mock(AuthService.class);
+        CheckCodeService checkCodeService = mock(CheckCodeService.class);
+        LoginController controller = new LoginController();
+        setField(controller, "authService", authService);
+        setField(controller, "checkCodeService", checkCodeService);
+        LoginController.LegacyInitAppRequest request = new LoginController.LegacyInitAppRequest();
+        request.setAppId("fool-service");
+        request.setAppKey("fool-service");
+        AuthService.LegacyInitAppInfo app = new AuthService.LegacyInitAppInfo();
+        app.setAppTitle("Fool Service");
+        app.setAppName("Fool Service");
+        app.setAppVersion("1.0.0");
+        AuthService.LegacyStoreBaseInfo db = new AuthService.LegacyStoreBaseInfo();
+        db.setDbId("car_wash");
+        db.setDbName("car_wash");
+        app.setDbs(List.of(db));
+        CheckCodeService.CheckCodeResult checkCode = new CheckCodeService.CheckCodeResult("key-1", "A2BC", "image");
+        when(authService.getLegacyInitAppInfo("fool-service", "fool-service")).thenReturn(app);
+        when(checkCodeService.create()).thenReturn(checkCode);
+
+        CommonResponse<LoginController.LegacyInitAppResult> response = controller.initApp(request);
+
+        assertEquals(0, response.getCode());
+        assertEquals("Fool Service", response.getData().getAppTitle());
+        assertEquals("1.0.0", response.getData().getAppVersion());
+        assertEquals("key-1", response.getData().getCheckCode().getKey());
+        assertEquals("car_wash", response.getData().getDbs().get(0).getDbId());
+    }
+
+    @Test
     public void checkCodeReturnsLegacyValidationBoolean() throws Exception {
         CheckCodeService checkCodeService = mock(CheckCodeService.class);
         LoginController controller = new LoginController();

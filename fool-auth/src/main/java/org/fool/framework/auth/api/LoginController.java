@@ -39,6 +39,18 @@ public class LoginController {
 
     }
 
+    @ApiOperation("旧版初始化应用")
+    @PostMapping("/initapp")
+    @ResponseBody
+    public CommonResponse<LegacyInitAppResult> initApp(@RequestBody LegacyInitAppRequest request) {
+        AuthService.LegacyInitAppInfo app = authService.getLegacyInitAppInfo(request.getAppId(), request.getAppKey());
+        if (app == null) {
+            return new CommonResponse<>(LegacyInitAppResult.error(
+                    10003, "Wrong application sec."));
+        }
+        return new CommonResponse<>(LegacyInitAppResult.success(app, checkCodeService.create()));
+    }
+
     @ApiOperation("旧版登录V2")
     @PostMapping("/loginv2")
     @ResponseBody
@@ -180,6 +192,46 @@ public class LoginController {
         private String companyName = "";
         private String departmentName = "";
         private String userAvtarUrl = "";
+    }
+
+    @Data
+    public static class LegacyInitAppRequest {
+        @JsonAlias("AppId")
+        private String appId;
+        @JsonAlias("AppKey")
+        private String appKey;
+    }
+
+    @Data
+    public static class LegacyInitAppResult {
+        private final String appTitle;
+        private final String appName;
+        private final String appImg;
+        private final String appVersion;
+        private final String appPowerBy;
+        private final String appUrl;
+        private final CheckCodeService.CheckCodeResult checkCode;
+        private final List<AuthService.LegacyStoreBaseInfo> dbs;
+        private final LegacyError error;
+
+        static LegacyInitAppResult success(
+                AuthService.LegacyInitAppInfo app, CheckCodeService.CheckCodeResult checkCode) {
+            return new LegacyInitAppResult(
+                    app.getAppTitle(),
+                    app.getAppName(),
+                    app.getAppImg(),
+                    app.getAppVersion(),
+                    app.getAppPowerBy(),
+                    app.getAppUrl(),
+                    checkCode,
+                    app.getDbs(),
+                    null);
+        }
+
+        static LegacyInitAppResult error(int code, String message) {
+            return new LegacyInitAppResult("", "", "", "", "", "", null, List.of(),
+                    new LegacyError(code, message));
+        }
     }
 
     @Data

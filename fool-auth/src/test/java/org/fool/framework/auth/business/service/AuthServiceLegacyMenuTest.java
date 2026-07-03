@@ -82,12 +82,47 @@ public class AuthServiceLegacyMenuTest {
     }
 
     @Test
+    public void getLegacyInitAppInfoMapsApplicationAndDatabases() throws Exception {
+        DaoService daoService = mock(DaoService.class);
+        AppFacade appFacade = mock(AppFacade.class);
+        AuthService service = new AuthService();
+        setField(service, "daoService", daoService);
+        setField(service, "appFacade", appFacade);
+        ApplicationDefinition app = new ApplicationDefinition();
+        app.setAppId("fool-service");
+        app.setName("Fool Service");
+        app.setVersion("1.0.0");
+        app.setInitImage("/init.png");
+        app.setCompany("YFGE");
+        app.setUrl("https://example.com");
+        StoreDatabase db = new StoreDatabase();
+        db.setStoreBaseId("car_wash");
+        db.setName("car_wash");
+        when(appFacade.getApp("fool-service", "fool-service")).thenReturn(app);
+        when(daoService.selectList(eq(StoreDatabase.class), anyString(), eq("fool-service")))
+                .thenReturn(List.of(db));
+
+        AuthService.LegacyInitAppInfo info = service.getLegacyInitAppInfo("fool-service", "fool-service");
+
+        assertEquals("Fool Service", info.getAppTitle());
+        assertEquals("Fool Service", info.getAppName());
+        assertEquals("1.0.0", info.getAppVersion());
+        assertEquals("/init.png", info.getAppImg());
+        assertEquals("YFGE", info.getAppPowerBy());
+        assertEquals("https://example.com", info.getAppUrl());
+        assertEquals("car_wash", info.getDbs().get(0).getDbId());
+        assertEquals("car_wash", info.getDbs().get(0).getDbName());
+    }
+
+    @Test
     public void hasLegacyStoreDatabaseChecksAppDatabaseRelation() throws Exception {
         DaoService daoService = mock(DaoService.class);
         AuthService service = new AuthService();
         setField(service, "daoService", daoService);
-        when(daoService.selectList(eq(StoreDatabase.class), anyString(), eq("fool-service"), eq("car_wash")))
-                .thenReturn(List.of(new StoreDatabase()));
+        StoreDatabase db = new StoreDatabase();
+        db.setStoreBaseId("car_wash");
+        when(daoService.selectList(eq(StoreDatabase.class), anyString(), eq("fool-service")))
+                .thenReturn(List.of(db));
 
         assertEquals(true, service.hasLegacyStoreDatabase("fool-service", "car_wash"));
     }
