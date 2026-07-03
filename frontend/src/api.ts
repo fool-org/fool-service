@@ -325,6 +325,7 @@ export interface LegacyQueryDataRequest {
   orderByItem?: number;
   orderByType?: number;
   queryFilter?: string;
+  keyword?: string;
 }
 
 export interface ReportCol {

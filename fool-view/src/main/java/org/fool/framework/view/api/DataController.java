@@ -58,7 +58,11 @@ public class DataController {
         pageInfo.setPageSize(request.getPageSize() == null ? 0 : request.getPageSize());
         pageInfo.setPageIndex(request.getPageIndex() == null ? 0 : request.getPageIndex());
         String viewId = request.getViewId() == null ? null : request.getViewId().toString();
-        return new CommonResponse<>(dataQueryService.queryLegacyViewData(viewId, pageInfo, request.getQueryFilter()));
+        return new CommonResponse<>(dataQueryService.queryLegacyViewData(
+                viewId,
+                pageInfo,
+                request.getQueryFilter(),
+                request.getKeyword()));
     }
 
     @PostMapping("/querydatadetail")

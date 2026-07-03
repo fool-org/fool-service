@@ -95,6 +95,7 @@ export interface LegacyQueryDataRequestInput {
   pageSize: number;
   pageIndex: number;
   queryFilter?: string;
+  keyword?: string;
   orderByItem?: number;
   orderByType?: number;
 }
@@ -263,6 +264,10 @@ export function buildLegacyQueryDataRequest(input: LegacyQueryDataRequestInput):
   const queryFilter = input.queryFilter?.trim();
   if (queryFilter) {
     request.queryFilter = queryFilter;
+  }
+  const keyword = input.keyword?.trim();
+  if (keyword) {
+    request.keyword = keyword;
   }
   if (input.orderByItem !== undefined) {
     request.orderByItem = input.orderByItem;

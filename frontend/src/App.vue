@@ -33,6 +33,7 @@ import {
   postApi
 } from "./api";
 import MetadataFieldEditor from "./MetadataFieldEditor.vue";
+import { useChildCandidates } from "./useChildCandidates";
 import {
   buildAddedItemProperty,
   buildDeletedItemProperty,
@@ -133,9 +134,17 @@ const isCreatingObject = ref(false);
 const detailDrafts = ref<Record<string, string>>({});
 const childDrafts = ref<Record<string, Record<string, string>>>({});
 const newChildDrafts = ref<Record<string, Record<string, string>>>({});
-const childCandidateRows = ref<Record<string, ListDataItem[]>>({});
-const childCandidateColumns = ref<Record<string, TableColumnInfo[]>>({});
 const enumOptions = ref<Record<string, { label: string; value: string }[]>>({});
+const {
+  candidateColumns,
+  candidateRows,
+  candidateState,
+  setCandidateResults,
+  setCandidateState,
+  updateCandidateKeyword,
+  updateCandidatePage,
+  updateCandidatePageSize
+} = useChildCandidates(groupKey);
 
 const loginResponse = ref<CommonResponse<LoginVo> | null>(null);
 const initAppResponse = ref<CommonResponse<LegacyInitAppResult> | null>(null);
@@ -838,29 +847,27 @@ async function loadExistingDetailItems(group: QueryDataDetailItemGroup) {
     token: token.value,
     viewId
   });
-  const dataRequest = buildLegacyQueryDataRequest({
-    token: token.value,
-    viewId,
-    pageIndex: 1,
-    pageSize: 10
-  });
   const view = await runAction("child-select-view", () => postApi<ListViewInfo>("/api/v1/view/getlistview", viewRequest));
   if (!view) {
     return;
   }
+  const columns = view.data?.tableColumn || [];
+  const state = candidateState(group);
+  const dataRequest = buildLegacyQueryDataRequest({
+    token: token.value,
+    viewId,
+    pageIndex: state.pageIndex,
+    pageSize: state.pageSize,
+    keyword: state.keyword
+  });
   const data = await runAction("child-select-data", () => postApi<ListViewResult>("/api/v1/data/querydata", dataRequest));
   if (!data) {
     return;
   }
-  const key = groupKey(group);
-  childCandidateColumns.value = {
-    ...childCandidateColumns.value,
-    [key]: view.data?.tableColumn || []
-  };
-  childCandidateRows.value = {
-    ...childCandidateRows.value,
-    [key]: data.data?.items || data.data?.data || []
-  };
+  setCandidateResults(group, columns, data.data?.items || data.data?.data || [], {
+    totalItem: data.data?.totalItem || data.data?.pageInfo?.total || 0,
+    totalPage: data.data?.totalPage || data.data?.pageInfo?.pageCount || 0
+  });
 }
 
 async function addExistingDetailItem(group: QueryDataDetailItemGroup, row: ListDataItem) {
@@ -953,12 +960,9 @@ async function loadFieldEnums() {
   }
 }
 
-function candidateRows(group: QueryDataDetailItemGroup) {
-  return childCandidateRows.value[groupKey(group)] || [];
-}
-
-function candidateColumns(group: QueryDataDetailItemGroup) {
-  return childCandidateColumns.value[groupKey(group)] || [];
+async function loadCandidatePage(group: QueryDataDetailItemGroup, pageIndex: number) {
+  setCandidateState(group, { pageIndex: Math.max(1, pageIndex) });
+  await loadExistingDetailItems(group);
 }
 
 function emptyGroupDraft(group: QueryDataDetailItemGroup) {
@@ -1131,9 +1135,56 @@ function syncDetailDrafts() {
                   <button type="button" :disabled="Boolean(pendingAction)" @click="addDetailItem(group)">Add</button>
                 </div>
                 <div v-if="group.selectFromExists" class="table-wrap">
-                  <button type="button" :disabled="Boolean(pendingAction)" @click="loadExistingDetailItems(group)">
-                    Load Existing
-                  </button>
+                  <div class="inline-fields">
+                    <label>
+                      Search
+                      <input :value="candidateState(group).keyword" @input="updateCandidateKeyword(group, $event)" />
+                    </label>
+                    <label>
+                      Page
+                      <input
+                        min="1"
+                        type="number"
+                        :value="candidateState(group).pageIndex"
+                        @input="updateCandidatePage(group, $event)"
+                      />
+                    </label>
+                    <label>
+                      Page size
+                      <input
+                        min="1"
+                        type="number"
+                        :value="candidateState(group).pageSize"
+                        @input="updateCandidatePageSize(group, $event)"
+                      />
+                    </label>
+                    <button type="button" :disabled="Boolean(pendingAction)" @click="loadExistingDetailItems(group)">
+                      Load Existing
+                    </button>
+                  </div>
+                  <div v-if="candidateRows(group).length || candidateState(group).totalPage" class="button-row">
+                    <button
+                      type="button"
+                      :disabled="Boolean(pendingAction) || candidateState(group).pageIndex <= 1"
+                      @click="loadCandidatePage(group, candidateState(group).pageIndex - 1)"
+                    >
+                      Previous
+                    </button>
+                    <span>
+                      Page {{ candidateState(group).pageIndex }} / {{ candidateState(group).totalPage || 1 }}
+                    </span>
+                    <button
+                      type="button"
+                      :disabled="
+                        Boolean(pendingAction) ||
+                        candidateState(group).totalPage === 0 ||
+                        candidateState(group).pageIndex >= candidateState(group).totalPage
+                      "
+                      @click="loadCandidatePage(group, candidateState(group).pageIndex + 1)"
+                    >
+                      Next
+                    </button>
+                  </div>
                   <table v-if="candidateRows(group).length">
                     <thead>
                       <tr>

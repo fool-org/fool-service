@@ -26,11 +26,11 @@ explicitly named as authoritative for fool-service.
       workflow.
 - [x] Auto-load the default Vue View workflow so the first screen is usable
       without opening API tools or pressing a setup button.
+- [x] Add candidate search/pagination for select-from-existing child collection
+      dialogs without frontend SQL/filter construction.
 
 ## Backlog
 
-- [ ] Add candidate search/pagination for select-from-existing child collection
-      dialogs.
 - [ ] Add focused Maven module profiles once module boundaries are cleaned up.
 - [ ] Add contract checks for oversized files, package boundaries, and migration
       drift.

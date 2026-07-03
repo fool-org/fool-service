@@ -88,7 +88,11 @@ public class DataQueryService {
     }
 
     public ListViewResult queryLegacyViewData(String viewId, PageNavigator pageInfo, String queryFilter) {
-        return queryViewDataList(viewId, null, pageInfo, null, queryFilter);
+        return queryLegacyViewData(viewId, pageInfo, queryFilter, null);
+    }
+
+    public ListViewResult queryLegacyViewData(String viewId, PageNavigator pageInfo, String queryFilter, String keyword) {
+        return queryViewDataList(viewId, null, pageInfo, keyword, queryFilter);
     }
 
     public QueryDataDetailResult queryLegacyViewDataDetail(String viewId, String dataId) {

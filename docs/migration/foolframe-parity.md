@@ -90,6 +90,15 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: added candidate search/pagination state for select-from-existing
+  child collection dialogs while keeping the page View-driven. The Vue detail
+  panel still loads candidate View metadata first through legacy `getlistview`,
+  then requests candidate rows through legacy `querydata`; keyword search is
+  sent as `keyword` instead of a frontend-built SQL `queryFilter`, and the
+  backend legacy query path now reuses the existing View/model keyword filter
+  logic to map visible View items to real model columns. Raw `queryFilter`
+  remains available for API tool/report compatibility. Candidate state is
+  isolated in `useChildCandidates` instead of expanding `App.vue`.
 - 2026-07-04: made the default Vue View workflow load itself on first render.
   The app now uses Vue's native `onMounted` hook to call the existing
   `loadViewWorkflow()` path, so the first screen shows the Docker-seeded

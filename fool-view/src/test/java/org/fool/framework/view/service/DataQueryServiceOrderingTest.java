@@ -237,6 +237,54 @@ public class DataQueryServiceOrderingTest {
     }
 
     @Test
+    public void queryLegacyViewDataAppliesKeywordThroughViewMetadata() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
+        DataQueryService service = new DataQueryService();
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+        ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
+        ReflectionTestUtils.setField(service, "viewAdapter", viewAdapter);
+
+        View view = new View();
+        view.setViewName("CandidateList");
+        view.setViewModel("Candidate");
+        view.setListItems(List.of(
+                viewItem("candidateId", 10, InputType.TEXT_BOX, true),
+                viewItem("displayName", 20, InputType.READ_ONLY, false)));
+        Model model = model("Candidate", List.of(
+                property("candidateId", "candidate_id"),
+                property("displayName", "display_name")));
+        PageNavigator pageNavigator = new PageNavigator();
+        PageResult<IDynamicData> pageResult = new PageResult<>();
+        when(daoService.getOneDetailByKey(View.class, "101")).thenReturn(view);
+        when(daoService.getOneDetailByKey(Model.class, "Candidate")).thenReturn(model);
+        when(modelDataService.getDataListWithPageInfo(
+                eq("Candidate"),
+                any(IQueryFilter.class),
+                anyList(),
+                eq(pageNavigator),
+                eq("candidate_id"),
+                eq(true)))
+                .thenReturn(pageResult);
+        when(viewAdapter.getListViewResult(eq(view), eq(pageResult))).thenReturn(new ListViewResult());
+
+        service.queryLegacyViewData("101", pageNavigator, null, "Ada");
+
+        ArgumentCaptor<IQueryFilter> filterCaptor = ArgumentCaptor.forClass(IQueryFilter.class);
+        verify(modelDataService).getDataListWithPageInfo(
+                eq("Candidate"),
+                filterCaptor.capture(),
+                anyList(),
+                eq(pageNavigator),
+                eq("candidate_id"),
+                eq(true));
+        var sql = filterCaptor.getValue().generateSql();
+        assertEquals("( 1=1 ) And (`display_name` LIKE ?)", sql.getSql());
+        assertArrayEquals(new Object[]{"%Ada%"}, sql.getArgs());
+    }
+
+    @Test
     public void queryViewDataListAppliesLegacyKeywordToReadOnlyItems() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);

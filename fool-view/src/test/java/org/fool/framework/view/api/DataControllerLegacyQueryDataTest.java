@@ -22,7 +22,7 @@ public class DataControllerLegacyQueryDataTest {
     public void queryDataMapsLegacyViewIdPagingAndFilter() throws Exception {
         DataQueryService dataQueryService = mock(DataQueryService.class);
         ListViewResult expected = new ListViewResult();
-        when(dataQueryService.queryLegacyViewData(eq("42"), org.mockito.ArgumentMatchers.any(PageNavigator.class), eq("`order_state`='OPEN'")))
+        when(dataQueryService.queryLegacyViewData(eq("42"), org.mockito.ArgumentMatchers.any(PageNavigator.class), eq("`order_state`='OPEN'"), eq("USDT")))
                 .thenReturn(expected);
 
         DataController controller = new DataController();
@@ -32,11 +32,12 @@ public class DataControllerLegacyQueryDataTest {
         request.setPageSize(20);
         request.setPageIndex(3);
         request.setQueryFilter("`order_state`='OPEN'");
+        request.setKeyword("USDT");
 
         CommonResponse<ListViewResult> response = controller.queryData(request);
 
         ArgumentCaptor<PageNavigator> pageCaptor = ArgumentCaptor.forClass(PageNavigator.class);
-        verify(dataQueryService).queryLegacyViewData(eq("42"), pageCaptor.capture(), eq("`order_state`='OPEN'"));
+        verify(dataQueryService).queryLegacyViewData(eq("42"), pageCaptor.capture(), eq("`order_state`='OPEN'"), eq("USDT"));
         assertEquals(0, response.getCode());
         assertSame(expected, response.getData());
         assertEquals(20, pageCaptor.getValue().getPageSize());

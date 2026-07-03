@@ -11,4 +11,5 @@ public class LegacyQueryDataRequest extends CommonRequest {
     private Integer orderByItem;
     private Integer orderByType;
     private String queryFilter;
+    private String keyword;
 }

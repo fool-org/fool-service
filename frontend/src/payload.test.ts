@@ -427,6 +427,7 @@ describe("buildLegacyQueryDataRequest", () => {
       pageSize: 10,
       pageIndex: 2,
       queryFilter: " order_state=\"0\" ",
+      keyword: "  USDT  ",
       orderByItem: 1001,
       orderByType: 1
     });
@@ -437,6 +438,7 @@ describe("buildLegacyQueryDataRequest", () => {
       pageSize: 10,
       pageIndex: 2,
       queryFilter: "order_state=\"0\"",
+      keyword: "USDT",
       orderByItem: 1001,
       orderByType: 1
     });
