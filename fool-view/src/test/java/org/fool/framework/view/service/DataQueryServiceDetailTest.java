@@ -21,10 +21,12 @@ public class DataQueryServiceDetailTest {
     public void queryLegacyViewDataDetailLoadsViewObjectAndFormatsDetail() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataService viewDataService = mock(ViewDataService.class);
         ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
         DataQueryService service = new DataQueryService();
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
+        ReflectionTestUtils.setField(service, "viewDataService", viewDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", viewAdapter);
 
         View view = new View();
@@ -32,14 +34,15 @@ public class DataQueryServiceDetailTest {
         Model model = new Model();
         IDynamicData data = mock(IDynamicData.class);
         QueryDataDetailResult expected = new QueryDataDetailResult();
-        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
-        when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(model);
+        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(modelDataService.getModel("Order")).thenReturn(model);
         when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
         when(viewAdapter.getDetailViewResult(view, data)).thenReturn(expected);
 
         QueryDataDetailResult actual = service.queryLegacyViewDataDetail("100", "1001");
 
         assertSame(expected, actual);
+        verify(viewDataService).getViewData("100", null);
         verify(viewAdapter).getDetailViewResult(view, data);
     }
 
@@ -47,10 +50,12 @@ public class DataQueryServiceDetailTest {
     public void initLegacyNewObjectFormatsEmptyDetailAndKeepsParentId() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataService viewDataService = mock(ViewDataService.class);
         ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
         DataQueryService service = new DataQueryService();
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
+        ReflectionTestUtils.setField(service, "viewDataService", viewDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", viewAdapter);
 
         View view = new View();
@@ -59,14 +64,15 @@ public class DataQueryServiceDetailTest {
         QueryDataDetailResult expected = new QueryDataDetailResult();
         QueryDataDetailResult.DataDetail detail = new QueryDataDetailResult.DataDetail();
         expected.setData(detail);
-        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
-        when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(model);
+        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(modelDataService.getModel("Order")).thenReturn(model);
         when(viewAdapter.getDetailViewResult(view, null)).thenReturn(expected);
 
         QueryDataDetailResult actual = service.initLegacyNewObject("100", "5001");
 
         assertSame(expected, actual);
         assertEquals("5001", actual.getData().getParentId());
+        verify(viewDataService).getViewData("100", null);
         verify(viewAdapter).getDetailViewResult(view, null);
     }
 }

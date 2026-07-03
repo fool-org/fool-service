@@ -79,28 +79,26 @@ public class DataQueryService {
     }
 
     public QueryDataDetailResult queryLegacyViewDataDetail(String viewId, String dataId) {
-        View view = daoService.getOneDetailByKey(View.class, viewId);
+        View view = viewDataService.getViewData(viewId, null);
         if (view == null) {
             throw new CommonException(ErrorCode.VIEW_NOT_FOUND, "没有查到视图");
         }
-        Model model = daoService.getOneDetailByKey(Model.class, view.getViewModel());
+        Model model = modelDataService.getModel(view.getViewModel());
         if (model == null) {
             throw new CommonException(ErrorCode.MODEL_NOT_FOUND, "没有查到元数据定义");
         }
-        attachProperties(view, model);
         return viewAdapter.getDetailViewResult(view, modelDataService.getOneData(view.getViewModel(), dataId));
     }
 
     public QueryDataDetailResult initLegacyNewObject(String viewId, String parentObjId) {
-        View view = daoService.getOneDetailByKey(View.class, viewId);
+        View view = viewDataService.getViewData(viewId, null);
         if (view == null) {
             throw new CommonException(ErrorCode.VIEW_NOT_FOUND, "没有查到视图");
         }
-        Model model = daoService.getOneDetailByKey(Model.class, view.getViewModel());
+        Model model = modelDataService.getModel(view.getViewModel());
         if (model == null) {
             throw new CommonException(ErrorCode.MODEL_NOT_FOUND, "没有查到元数据定义");
         }
-        attachProperties(view, model);
         QueryDataDetailResult result = viewAdapter.getDetailViewResult(view, null);
         if (result.getData() != null && parentObjId != null && !parentObjId.isEmpty()) {
             result.getData().setParentId(parentObjId);

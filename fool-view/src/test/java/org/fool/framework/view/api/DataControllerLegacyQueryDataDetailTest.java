@@ -1,5 +1,6 @@
 package org.fool.framework.view.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.fool.framework.dto.CommonResponse;
 import org.fool.framework.view.dto.LegacyQueryDataDetailRequest;
 import org.fool.framework.view.dto.QueryDataDetailResult;
@@ -32,6 +33,17 @@ public class DataControllerLegacyQueryDataDetailTest {
         verify(dataQueryService).queryLegacyViewDataDetail("100", "1001");
         assertEquals(0, response.getCode());
         assertSame(expected, response.getData());
+    }
+
+    @Test
+    public void queryDataDetailAcceptsLegacyIdExpressionAlias() throws Exception {
+        LegacyQueryDataDetailRequest request = new ObjectMapper().readValue(
+                "{\"viewId\":100,\"objId\":\"1001\",\"IdExp\":\"#.id\"}",
+                LegacyQueryDataDetailRequest.class);
+
+        assertEquals(Long.valueOf(100L), request.getViewId());
+        assertEquals("1001", request.getObjId());
+        assertEquals("#.id", request.getIdExp());
     }
 
     private static void setField(Object target, String name, Object value) throws Exception {

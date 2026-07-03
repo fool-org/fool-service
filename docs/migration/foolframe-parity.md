@@ -88,6 +88,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-03: made legacy `querydatadetail` and `initnew` reuse the hydrated
+  `ViewDataService` path, so detail payloads include persisted view-operation
+  metadata instead of only list-view definitions exposing operations.
 - 2026-07-03: exposed legacy `runoperation` at
   `/api/v1/data/runoperation` and in the Vue operator console. It hydrates
   persisted view-operation rows, supports the Docker-seeded DELETE operation
