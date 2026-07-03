@@ -88,6 +88,9 @@ explicitly named as authoritative for fool-service.
 - [x] Make generic `get-view` / `query-list` and the Vue main detail/save
       refresh path prefer the loaded `ViewId`, keeping `ViewName` only as
       compatibility fallback.
+- [x] Accept FoolFrame Pascal `SaveObj` and nested save payload fields at the
+      generic legacy `saveobj` DTO boundary without binding saves to concrete
+      business DTOs.
 
 ## Backlog
 

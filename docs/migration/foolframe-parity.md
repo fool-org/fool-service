@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: `/saveobj` now accepts FoolFrame Web's Pascal/mixed generic
+  save payload: top-level `SaveObj` plus nested `Id`, `ViewID`, `ParentId`,
+  `Model`, `Propertyies`, `Itemproperties`, `Items`, `AddedItems`,
+  `DelteItems`, `IsExist`, `ItemId`, `Key`, and `Value`. This matches
+  `Cloud-Social/soway.js` and `detailview.js` object shapes while keeping the
+  save flow View-driven and free of concrete business DTO binding.
 - 2026-07-04: tightened the View-first runtime context after auditing the
   rendered Vue page flow. Generic `get-view` and `query-list` now accept and
   prefer `ViewId` before falling back to `ViewName`, and the Vue main
