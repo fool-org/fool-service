@@ -4,6 +4,7 @@ import org.fool.framework.common.PropertyType;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -114,6 +115,18 @@ public class QueryContextTest {
     }
 
     @Test
+    public void getResultWithoutExecutorOrConnectionStringKeepsRequiredExecutorError() {
+        QueryContext context = new QueryContext((table, joinType) -> List.of(), (JdbcQueryExecutor) null);
+
+        try {
+            context.getResult(20);
+            fail("expected missing executor to keep the legacy runtime error");
+        } catch (IllegalStateException ex) {
+            assertEquals("JdbcQueryExecutor is required to execute a QueryContext", ex.getMessage());
+        }
+    }
+
+    @Test
     public void getResultKeepsLegacyConnectionStringOverload() {
         RecordingJdbcTemplate jdbcTemplate = new RecordingJdbcTemplate(
                 1L,
@@ -133,6 +146,34 @@ public class QueryContextTest {
         assertEquals(15, result.getPageSize());
         assertEquals("Server=default;Database=car_wash", context.getQueryConnectionString());
         assertArrayEquals(new Object[]{1, 15, 1, 15}, jdbcTemplate.pageArgs);
+    }
+
+    @Test
+    public void getResultConnectionStringOverloadUsesRuntimeConnectionFactory() {
+        RecordingJdbcTemplate defaultTemplate = new RecordingJdbcTemplate(
+                1L,
+                List.of(Map.of("order_id", "default")));
+        RecordingJdbcTemplate runtimeTemplate = new RecordingJdbcTemplate(
+                1L,
+                List.of(Map.of("order_id", "runtime")));
+        List<String> usedConnections = new ArrayList<>();
+        QueryContext context = new QueryContext(
+                (table, joinType) -> List.of(),
+                connectionString -> {
+                    usedConnections.add(connectionString);
+                    return new JdbcQueryExecutor("runtime".equals(connectionString) ? runtimeTemplate : defaultTemplate);
+                },
+                "default");
+        QueryTable orders = new QueryTable("Orders", "orders");
+        context.add(orders);
+        SelectedTable selectedOrders = context.getInstance().getSelectedTables().getTables().get(0);
+        context.getInstance().getSelectedColumns().add(selectedColumn(selectedOrders));
+
+        QueryResult result = context.getResult("runtime", 15);
+
+        assertEquals(List.of("runtime"), usedConnections);
+        assertEquals(List.of(Map.of("order_id", "runtime")), result.getRows());
+        assertEquals(null, defaultTemplate.pageArgs);
     }
 
     @Test

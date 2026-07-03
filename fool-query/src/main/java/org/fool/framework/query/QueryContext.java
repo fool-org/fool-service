@@ -4,29 +4,34 @@ import org.fool.framework.common.PropertyType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 public class QueryContext {
     private final QueryFactory factory;
-    private final JdbcQueryExecutor executor;
+    private final Function<String, JdbcQueryExecutor> executorFactory;
     private final String queryConnectionString;
     private boolean canJoinSelected;
     private QueryInstance instance;
 
     public QueryContext(QueryFactory factory) {
-        this(factory, (JdbcQueryExecutor) null, null);
+        this(factory, (Function<String, JdbcQueryExecutor>) null, null);
     }
 
     public QueryContext(QueryFactory factory, JdbcQueryExecutor executor) {
-        this(factory, executor, null);
+        this(factory, ignored -> executor, null);
     }
 
     public QueryContext(QueryFactory factory, String queryConnectionString) {
-        this(factory, null, queryConnectionString);
+        this(factory, (Function<String, JdbcQueryExecutor>) null, queryConnectionString);
     }
 
     public QueryContext(QueryFactory factory, JdbcQueryExecutor executor, String queryConnectionString) {
+        this(factory, ignored -> executor, queryConnectionString);
+    }
+
+    QueryContext(QueryFactory factory, Function<String, JdbcQueryExecutor> executorFactory, String queryConnectionString) {
         this.factory = factory;
-        this.executor = executor;
+        this.executorFactory = executorFactory;
         this.queryConnectionString = queryConnectionString;
         this.instance = new QueryInstance();
     }
@@ -92,15 +97,26 @@ public class QueryContext {
     }
 
     public QueryResult getResult(String connectionString, int pageSize, int startPage) {
-        return getResult(pageSize, startPage);
+        JdbcQueryExecutor runtimeExecutor = executorFor(connectionString);
+        populateEnumStateValues();
+        return runtimeExecutor.execute(instance, pageSize, startPage);
     }
 
     public QueryResult getResult(int pageSize, int startPage) {
-        if (executor == null) {
+        return getResult(queryConnectionString, pageSize, startPage);
+    }
+
+    private JdbcQueryExecutor executorFor(String connectionString) {
+        if (executorFactory != null) {
+            JdbcQueryExecutor executor = executorFactory.apply(connectionString);
+            if (executor != null) {
+                return executor;
+            }
+        }
+        if (connectionString == null || connectionString.isBlank()) {
             throw new IllegalStateException("JdbcQueryExecutor is required to execute a QueryContext");
         }
-        populateEnumStateValues();
-        return executor.execute(instance, pageSize, startPage);
+        return new JdbcQueryExecutor(connectionString);
     }
 
     private void populateEnumStateValues() {

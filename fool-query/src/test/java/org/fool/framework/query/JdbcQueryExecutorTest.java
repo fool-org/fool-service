@@ -37,6 +37,17 @@ public class JdbcQueryExecutorTest {
         assertArrayEquals(new Object[]{"1001", 2, 10, 2, 10}, jdbcTemplate.pageArgs);
     }
 
+    @Test
+    public void parsesLegacyConnectionStringsForRuntimeExecutors() {
+        JdbcQueryExecutor.ConnectionSettings settings = JdbcQueryExecutor.parse(
+                "Data Source=legacy-db;Initial Catalog=LegacyApp;User ID=app_user;Password=secret");
+
+        assertEquals("jdbc:sqlserver://legacy-db;databaseName=LegacyApp", settings.url());
+        assertEquals("app_user", settings.username());
+        assertEquals("secret", settings.password());
+        assertEquals(null, settings.driverClassName());
+    }
+
     private QueryInstance queryInstance() {
         SelectedTable orders = new SelectedTable(new QueryTable("Orders", "orders"), "o");
         SelectedTables selectedTables = new SelectedTables(orders, (table, joinType) -> List.of());
