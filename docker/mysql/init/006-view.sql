@@ -843,6 +843,10 @@ VALUES (2001, 1001, 'Legacy item')
 ON DUPLICATE KEY UPDATE `order_id` = VALUES(`order_id`), `item_name` = VALUES(`item_name`);
 
 INSERT INTO `market_order_item` (`item_id`, `order_id`, `item_name`)
+VALUES (2002, 1002, 'Existing fee')
+ON DUPLICATE KEY UPDATE `order_id` = VALUES(`order_id`), `item_name` = VALUES(`item_name`);
+
+INSERT INTO `market_order_item` (`item_id`, `order_id`, `item_name`)
 VALUES (2004, 1001, 'Delete me')
 ON DUPLICATE KEY UPDATE `order_id` = VALUES(`order_id`), `item_name` = VALUES(`item_name`);
 

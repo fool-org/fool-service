@@ -101,9 +101,13 @@ export function itemValue(item: QueryDataDetailDataItem, field: ListDataValue) {
   return item.values?.find((value) => fieldKey(value) === key)?.fmtValue || "";
 }
 
-export function buildItemPropertyies(fields: ListDataValue[], drafts: Record<string, string>): SaveKeypair[] {
+export function buildItemPropertyies(
+  fields: ListDataValue[],
+  drafts: Record<string, string>,
+  includeReadonly = false
+): SaveKeypair[] {
   return fields
-    .filter((field) => !isReadonlyField(field))
+    .filter((field) => includeReadonly || !isReadonlyField(field))
     .map((field) => fieldKey(field))
     .filter(Boolean)
     .map((key) => ({ key, value: drafts[key] ?? "" }));
@@ -145,7 +149,8 @@ export function buildDeletedItemProperty(
 export function buildAddedItemProperty(
   group: QueryDataDetailItemGroup,
   itemId: string,
-  drafts: Record<string, string>
+  drafts: Record<string, string>,
+  includeReadonly = false
 ): SaveItemProperty {
   return {
     key: group.prpId || "items",
@@ -153,7 +158,7 @@ export function buildAddedItemProperty(
       {
         itemId,
         isExist: true,
-        propertyies: buildItemPropertyies(group.properties || [], drafts)
+        propertyies: buildItemPropertyies(group.properties || [], drafts, includeReadonly)
       }
     ]
   };
@@ -179,7 +184,7 @@ export function buildSelectedExistingItemProperty(
   columns: TableColumnInfo[] = []
 ): SaveItemProperty {
   const itemId = rowObjectId(row, columns);
-  return buildAddedItemProperty(group, itemId, buildDraftsFromRow(group.properties || [], row, columns));
+  return buildAddedItemProperty(group, itemId, buildDraftsFromRow(group.properties || [], row, columns), true);
 }
 
 export function displayValue(value: unknown) {

@@ -119,8 +119,8 @@ describe("view workflow helpers", () => {
     const group = {
       prpId: "items",
       properties: [
-        { prpId: "itemId", fmtValue: "" },
-        { prpId: "itemName", fmtValue: "" }
+        { prpId: "itemId", fmtValue: "", editType: "ReadOnly" },
+        { prpId: "itemName", fmtValue: "", editType: "ReadOnly" }
       ]
     };
     const columns = [

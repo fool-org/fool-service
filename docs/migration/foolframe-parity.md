@@ -90,6 +90,19 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: completed the Docker proof for select-existing child saves.
+  FoolFrame saves existing objects by loading the current object first
+  (`GetDetail`), applying posted fields (`ObjUpdateToProxy`), then saving; the
+  migrated `saveobj` path now does the same by loading existing dynamic data
+  before applying partial `Propertyies` / `Itemproperties`, so readonly fields
+  omitted by the Vue metadata form do not get written back as `NULL`. The Vue
+  selected-existing payload now keeps readonly candidate fields in
+  `AddedItems.Propertyies`, matching FoolFrame's selected-row behavior while
+  ordinary child add/update still skips readonly form fields. Docker seed data
+  includes `2002 / 1002 / Existing fee` as a reusable candidate; browser proof
+  selected it into order `1001`, observed `Items 4 rows`, verified
+  `market_order_item.order_id=1001`, then reapplied the idempotent seed to
+  restore `2002` to order `1002`.
 - 2026-07-04: exposed configured child View metadata for
   select-from-existing detail groups. The migration now maps `ViewItem`
   `listViewId`, `editViewId`, and `selectedViewId` from persisted View

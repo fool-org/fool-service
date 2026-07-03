@@ -4,6 +4,7 @@ import org.fool.framework.common.PropertyType;
 import org.fool.framework.common.data.SubItemList;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.dao.DaoService;
+import org.fool.framework.model.model.DbMysqlDynamic;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.model.model.Relation;
@@ -102,6 +103,47 @@ public class DataQueryServiceSaveObjTest {
         assertItem("I3", "New child", subItems.get(1));
         assertEquals(1, subItems.getDeleteList().size());
         assertItem("I4", null, subItems.getDeleteList().get(0));
+    }
+
+    @Test
+    public void saveLegacyObjectPreservesUnpostedExistingProperties() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        DataQueryService service = new DataQueryService();
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+        ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
+        ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
+
+        View view = new View();
+        view.setViewModel("Order");
+        Model order = modelWithItems();
+        DbMysqlDynamic existing = new DbMysqlDynamic(order);
+        existing.set("orderId", "1001");
+        existing.set("symbol", "BTC-USDT");
+        existing.set("state", "OPEN");
+        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
+        when(modelDataService.getModel("Order")).thenReturn(order);
+        when(modelDataService.getOneData("Order", "1001")).thenReturn(existing);
+        when(modelDataService.saveData(any(IDynamicData.class))).thenReturn(true);
+        SaveObjRequest request = new SaveObjRequest();
+        SaveObjRequest.SaveObject saveObj = new SaveObjRequest.SaveObject();
+        saveObj.setId("1001");
+        saveObj.setViewID("100");
+        saveObj.setPropertyies(List.of(new SaveObjRequest.SaveKeypair("state", "FILLED")));
+        SaveObjRequest.ItemProperty items = new SaveObjRequest.ItemProperty();
+        items.setKey("items");
+        items.setAddedItems(List.of(item("I3", true, new SaveObjRequest.SaveKeypair("itemName", "New child"))));
+        saveObj.setItemproperties(List.of(items));
+        request.setSaveObj(saveObj);
+
+        service.saveLegacyObject(request);
+
+        ArgumentCaptor<IDynamicData> dataCaptor = ArgumentCaptor.forClass(IDynamicData.class);
+        verify(modelDataService).saveData(dataCaptor.capture());
+        IDynamicData data = dataCaptor.getValue();
+        assertEquals("BTC-USDT", data.get("symbol"));
+        assertEquals("FILLED", data.get("state"));
+        assertTrue(data.get("items") instanceof SubItemList<?>);
     }
 
     @Test

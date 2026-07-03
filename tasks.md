@@ -31,6 +31,8 @@ explicitly named as authoritative for fool-service.
 - [x] Expose configured child list/select View IDs from backend View metadata
       and prove the Docker Vue detail workflow uses them for existing-item
       candidates.
+- [x] Preserve existing object state during legacy partial `saveobj` and prove
+      Vue select-existing child rows save through `AddedItems`.
 
 ## Backlog
 

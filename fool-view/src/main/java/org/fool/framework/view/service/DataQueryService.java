@@ -696,7 +696,7 @@ public class DataQueryService {
         if (model == null) {
             throw new CommonException(ErrorCode.MODEL_NOT_FOUND, "没有查到元数据定义");
         }
-        DbMysqlDynamic data = new DbMysqlDynamic(model);
+        DbMysqlDynamic data = legacySaveData(view.getViewModel(), saveObj, model);
         Property idProperty = model.getIdProperty();
         if (idProperty != null && idProperty.getName() != null) {
             data.set(idProperty.getName(), saveObj.getId());
@@ -724,6 +724,16 @@ public class DataQueryService {
             data.set(itemProperty.getKey(), items);
         }
         return data;
+    }
+
+    private DbMysqlDynamic legacySaveData(String modelId, SaveObjRequest.SaveObject saveObj, Model model) {
+        if (StringUtils.hasText(saveObj.getId())) {
+            IDynamicData existing = modelDataService.getOneData(modelId, saveObj.getId());
+            if (existing instanceof DbMysqlDynamic dynamicData) {
+                return dynamicData;
+            }
+        }
+        return new DbMysqlDynamic(model);
     }
 
     private Relation ownerRelation(Model model, String propertyName) {
