@@ -11,6 +11,7 @@ import {
   type ListViewResult,
   type LoginVo,
   type ReadItemViewInfo,
+  type ReportGridResult,
   type TableColumnInfo,
   type TreeNode,
   type UserDTO,
@@ -22,6 +23,7 @@ import {
   buildLegacyListViewRequest,
   buildLegacyQueryDataRequest,
   buildLegacyReadItemViewRequest,
+  buildMakeReportRequest,
   buildQueryDataDetailRequest,
   buildQueryRequest,
   buildSaveObjRequest,
@@ -48,6 +50,11 @@ const legacyQueryViewId = ref(100);
 const legacyQueryPageIndex = ref(1);
 const legacyQueryPageSize = ref(10);
 const legacyQueryFilter = ref('order_state="0"');
+const reportViewId = ref(100);
+const reportCurrentPage = ref(1);
+const reportPageSize = ref(10);
+const reportQueryFilter = ref('order_state="0"');
+const reportColsJson = ref('[{"colName":"Symbol","index":1},{"colName":"State","index":2}]');
 const inputQueryViewItemId = ref("symbol");
 const inputQueryText = ref("BTC");
 const inputQueryObjId = ref("");
@@ -74,6 +81,7 @@ const detailResponse = ref<CommonResponse<QueryDataDetailResult> | null>(null);
 const enumResponse = ref<CommonResponse<GetEnumResult> | null>(null);
 const inputQueryResponse = ref<CommonResponse<InputQueryResult> | null>(null);
 const saveObjResponse = ref<CommonResponse<void> | null>(null);
+const reportResponse = ref<CommonResponse<ReportGridResult> | null>(null);
 const backendSmokeResponse = ref<CommonResponse<Record<string, unknown>[]> | null>(null);
 const errorMessage = ref("");
 const pendingAction = ref("");
@@ -107,6 +115,20 @@ const resultColumns = computed<TableColumnInfo[]>(() => {
 });
 
 const resultRows = computed<ListDataItem[]>(() => dataResponse.value?.data?.items || []);
+
+const reportRows = computed(() => {
+  const cells = reportResponse.value?.data?.cells || [];
+  const maxRow = cells.reduce((max, cell) => Math.max(max, cell.row), -1);
+  const maxCol = cells.reduce((max, cell) => Math.max(max, cell.col), -1);
+  if (maxRow < 0 || maxCol < 0) {
+    return [];
+  }
+
+  const byPosition = new Map(cells.map((cell) => [`${cell.row}:${cell.col}`, cell.fmtValue || ""]));
+  return Array.from({ length: maxRow + 1 }, (_, row) =>
+    Array.from({ length: maxCol + 1 }, (_, col) => byPosition.get(`${row}:${col}`) || "")
+  );
+});
 
 const quickFilterOptions = computed(() => {
   const declared = viewResponse.value?.data?.tableColumn || [];
@@ -274,6 +296,24 @@ async function queryLegacyData() {
   const response = await runAction("legacy-query", () => postApi<ListViewResult>("/api/v1/data/querydata", request));
   if (response) {
     dataResponse.value = response;
+  }
+}
+
+async function makeReport() {
+  const request = buildMakeReportRequest({
+    token: token.value,
+    viewId: Number(reportViewId.value),
+    currentPage: Number(reportCurrentPage.value),
+    pageSize: Number(reportPageSize.value),
+    queryFilter: reportQueryFilter.value,
+    reportColsJson: reportColsJson.value
+  });
+
+  const response = await runAction("makereport", () =>
+    postApi<ReportGridResult>("/api/v1/report/makereport", request)
+  );
+  if (response) {
+    reportResponse.value = response;
   }
 }
 
@@ -652,6 +692,58 @@ function formatValue(value: unknown) {
 
         <article class="panel lookup-panel">
           <div class="panel-heading">
+            <h2>Report Grid</h2>
+            <span>POST /api/v1/report/makereport</span>
+          </div>
+          <div class="inline-fields">
+            <label>
+              View ID
+              <input v-model.number="reportViewId" min="1" type="number" />
+            </label>
+            <label>
+              Page
+              <input v-model.number="reportCurrentPage" min="1" type="number" />
+            </label>
+            <label>
+              Size
+              <input v-model.number="reportPageSize" min="1" type="number" />
+            </label>
+          </div>
+          <label>
+            QueryFilter
+            <input v-model="reportQueryFilter" />
+          </label>
+          <label>
+            Report Columns JSON
+            <textarea v-model="reportColsJson" rows="3" spellcheck="false"></textarea>
+          </label>
+          <button class="primary" type="button" :disabled="pendingAction === 'makereport'" @click="makeReport">
+            Make Report
+          </button>
+
+          <div class="table-wrap input-query-results">
+            <table v-if="reportRows.length">
+              <thead>
+                <tr>
+                  <th v-for="(cell, index) in reportRows[0]" :key="`report-head-${index}`">
+                    {{ cell }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(row, rowIndex) in reportRows.slice(1)" :key="`report-row-${rowIndex}`">
+                  <td v-for="(cell, colIndex) in row" :key="`report-cell-${rowIndex}-${colIndex}`">
+                    {{ cell }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div v-else class="empty-state">No report cells loaded.</div>
+          </div>
+        </article>
+
+        <article class="panel lookup-panel">
+          <div class="panel-heading">
             <h2>Detail Data</h2>
             <span>POST /api/v1/data/querydatadetail</span>
           </div>
@@ -857,6 +949,7 @@ function formatValue(value: unknown) {
                 enums: enumResponse,
                 inputQuery: inputQueryResponse,
                 saveObj: saveObjResponse,
+                report: reportResponse,
                 backendSmoke: backendSmokeResponse
               },
               null,

@@ -204,6 +204,40 @@ export interface LegacyQueryDataRequest {
   queryFilter?: string;
 }
 
+export interface ReportCol {
+  colName?: string;
+  colId?: string;
+  selectedTypeId?: string;
+  index?: number;
+  orderType?: string;
+}
+
+export interface MakeReportRequest {
+  token?: string;
+  viewId?: number;
+  reportCols?: ReportCol[];
+  currentPage?: number;
+  pageSize?: number;
+  queryFilter?: string;
+}
+
+export interface ReportCell {
+  col: number;
+  row: number;
+  colSpan: number;
+  rowSpan: number;
+  fmtValue?: string;
+}
+
+export interface ReportGridResult {
+  viewId: number;
+  currentPage: number;
+  pageSize: number;
+  totalRecords: number;
+  totalPages: number;
+  cells: ReportCell[];
+}
+
 export interface LegacyQueryDataDetailRequest {
   token?: string;
   viewId?: number;

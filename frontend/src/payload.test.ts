@@ -8,6 +8,7 @@ import {
   buildLegacyListViewRequest,
   buildLegacyQueryDataRequest,
   buildLegacyReadItemViewRequest,
+  buildMakeReportRequest,
   buildQueryDataDetailRequest,
   buildQueryRequest,
   buildSaveObjRequest,
@@ -25,6 +26,12 @@ describe("App defaults", () => {
     expect(appSource).toContain("Backend Smoke");
     expect(appSource).toContain('fetch("/test")');
     expect(appSource).toContain("backendSmokeResponse");
+  });
+
+  it("exposes the legacy report grid route in the Vue console", () => {
+    expect(appSource).toContain("Report Grid");
+    expect(appSource).toContain("/api/v1/report/makereport");
+    expect(appSource).toContain("reportResponse");
   });
 
   it("proxies the backend smoke route in local and Compose frontends", () => {
@@ -259,6 +266,31 @@ describe("buildLegacyQueryDataRequest", () => {
       queryFilter: "order_state=\"0\"",
       orderByItem: 1001,
       orderByType: 1
+    });
+  });
+});
+
+describe("buildMakeReportRequest", () => {
+  it("matches the legacy makereport DTO shape", () => {
+    const request = buildMakeReportRequest({
+      token: "token-1",
+      viewId: 100,
+      currentPage: 2,
+      pageSize: 10,
+      queryFilter: " order_state=\"0\" ",
+      reportColsJson: "[{\"colName\":\"State\",\"index\":2},{\"colName\":\"Symbol\",\"index\":1}]"
+    });
+
+    expect(request).toEqual({
+      token: "token-1",
+      viewId: 100,
+      currentPage: 2,
+      pageSize: 10,
+      queryFilter: "order_state=\"0\"",
+      reportCols: [
+        { colName: "State", index: 2 },
+        { colName: "Symbol", index: 1 }
+      ]
     });
   });
 });

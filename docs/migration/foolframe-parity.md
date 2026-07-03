@@ -50,6 +50,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-03: exposed the migrated legacy `makereport` grid in the Vue
+  operator console with typed payload building, default Docker `OrderList`
+  report columns, rendered cells, Compose frontend rebuild, and `/api`
+  proxy smoke coverage.
 - 2026-07-03: exposed a migrated legacy `makereport` REST slice at
   `/api/v1/report/makereport`, reusing legacy `querydata` paging/filtering and
   `ReportGridRenderer` to return flat report cells for Docker `OrderList`
@@ -223,6 +227,10 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Vue API types for legacy `saveobj` request payloads
 - A Vue save-object panel that calls legacy `/api/v1/data/saveobj` with view ID,
   object ID, simple `Propertyies`, and `Itemproperties` JSON payloads
+- Vue API types for legacy `makereport` request/result payloads
+- A Vue report-grid panel that calls legacy `/api/v1/report/makereport` with
+  view ID, page, `QueryFilter`, and report column JSON payloads, then renders
+  returned report cells
 - Vue API types for legacy view-item `ID`, `Name`, `PropertyName`, `ShowIndex`, `Width`, `Format`, `IsReadOnly`, `EditType`, `PropertyId`, `EditViewId`, `EditExp`, linked-list-view defaults, `PropertyType`, and `PropertyModel` metadata
 - Vue API types for legacy view-item `ViewFile` metadata
 - Structured visible equality/range filters that emit Spring `QueryValue` payloads, plus advanced JSON filters

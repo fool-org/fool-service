@@ -4,6 +4,8 @@ import type {
   InputQueryRequest,
   LegacyQueryDataRequest,
   LegacyQueryDataDetailRequest,
+  MakeReportRequest,
+  ReportCol,
   SaveItemProperty,
   SaveKeypair,
   SaveObject,
@@ -73,6 +75,15 @@ export interface LegacyQueryDataRequestInput {
   queryFilter?: string;
   orderByItem?: number;
   orderByType?: number;
+}
+
+export interface MakeReportRequestInput {
+  token: string;
+  viewId: number;
+  currentPage: number;
+  pageSize: number;
+  queryFilter?: string;
+  reportColsJson: string;
 }
 
 export interface QueryRequest {
@@ -197,6 +208,21 @@ export function buildLegacyQueryDataRequest(input: LegacyQueryDataRequestInput):
   }
   if (input.orderByType !== undefined) {
     request.orderByType = input.orderByType;
+  }
+  return request;
+}
+
+export function buildMakeReportRequest(input: MakeReportRequestInput): MakeReportRequest {
+  const request: MakeReportRequest = {
+    token: input.token,
+    viewId: input.viewId,
+    currentPage: input.currentPage,
+    pageSize: input.pageSize,
+    reportCols: parseJsonArray<ReportCol>(input.reportColsJson, "Report columns JSON")
+  };
+  const queryFilter = input.queryFilter?.trim();
+  if (queryFilter) {
+    request.queryFilter = queryFilter;
   }
   return request;
 }
