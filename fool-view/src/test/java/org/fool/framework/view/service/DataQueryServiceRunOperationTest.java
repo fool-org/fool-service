@@ -22,6 +22,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -374,6 +375,31 @@ public class DataQueryServiceRunOperationTest {
     }
 
     @Test
+    public void runLegacyUpdateOperationInvokesListMethodCommandOnCollectionObject() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataService viewDataService = mock(ViewDataService.class);
+        DataQueryService service = service(daoService, modelDataService, viewDataService);
+        Model model = model();
+        View view = view(operationWithCommand(7002L, OperationBaseType.UPDATE, "保存成功",
+                command(CommandsType.EXUTE_LIST_METHOD, 1013L, "CloseAll", 1)));
+        DbMysqlDynamic data = new DbMysqlDynamic(model);
+        RecordingItemList items = new RecordingItemList();
+        data.set("orderId", "1001");
+        data.set("items", items);
+        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(modelDataService.getModel("Order")).thenReturn(model);
+        when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
+        when(modelDataService.saveData(data)).thenReturn(true);
+
+        LegacyRunOperationResult result = service.runLegacyOperation(request("1001", 100L, 7002L));
+
+        assertTrue(items.closed);
+        verify(modelDataService).saveData(data);
+        assertTrue(result.isSuccess());
+    }
+
+    @Test
     public void runLegacyOperationReturnsLegacyErrorMessageWhenExecutionFails() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
@@ -552,5 +578,13 @@ public class DataQueryServiceRunOperationTest {
         model.setProperties(List.of(orderId, symbol, state, retryCount, confirmed,
                 byteCode, marker, longCode, amount, ratio, startsAt, customer, items));
         return model;
+    }
+
+    public static class RecordingItemList extends ArrayList<IDynamicData> {
+        private boolean closed;
+
+        public void CloseAll() {
+            closed = true;
+        }
     }
 }

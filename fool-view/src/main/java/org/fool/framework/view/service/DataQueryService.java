@@ -44,6 +44,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -350,6 +351,36 @@ public class DataQueryService {
         } else if (command.getCommandType() == CommandsType.EXUTE_PROPRTY_MODEL_METHOD) {
             property(model, command.getPropertyId())
                     .ifPresent(property -> invokePropertyModelMethod(data, property, command.getExpression()));
+        } else if (command.getCommandType() == CommandsType.EXUTE_LIST_METHOD) {
+            property(model, command.getPropertyId())
+                    .ifPresent(property -> invokeListMethod(data, property, command.getExpression()));
+        }
+    }
+
+    private void invokeListMethod(IDynamicData data, Property property, String methodName) {
+        if (data == null || property == null || !StringUtils.hasText(methodName)) {
+            return;
+        }
+        String method = methodName.trim();
+        Object target = data.get(property.getName());
+        if (target == null) {
+            return;
+        }
+        if (target instanceof IDynamicData dynamicData) {
+            dynamicData.invoke(method);
+            return;
+        }
+        try {
+            target.getClass().getMethod(method).invoke(target);
+        } catch (NoSuchMethodException ignored) {
+            // ponytail: no Java list proxy yet; missing list method stays a no-op until a proxy exists.
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException(e);
+        } catch (InvocationTargetException e) {
+            if (e.getCause() instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            throw new IllegalStateException(e.getCause());
         }
     }
 
