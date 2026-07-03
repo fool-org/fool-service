@@ -97,6 +97,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: `scripts/runtime_doctor.py` now proves the Docker frontend proxy
+  `querydata` route with a legacy `QueryFilter`, then verifies returned legacy
+  row `Items` carry `state.objId=0`. This covers the main Vue workflow's
+  View-loaded filter path with runtime evidence instead of only source tests.
 - 2026-07-04: the main Vue View workflow now sends its list filter through
   legacy `querydata.QueryFilter` instead of the newer `keyword` helper path.
   This matches FoolFrame `view.jade` / `querylistdata.js`, where the filter

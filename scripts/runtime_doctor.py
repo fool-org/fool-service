@@ -108,6 +108,16 @@ def detail_view_id(payload: dict[str, Any]) -> int:
     return value if isinstance(value, int) else 0
 
 
+def list_row_item(row: dict[str, Any], key: str) -> dict[str, Any] | None:
+    items = row.get("items")
+    if not isinstance(items, list):
+        return None
+    return next((
+        item for item in items
+        if isinstance(item, dict) and (item.get("prpId") == key or item.get("PrpId") == key)
+    ), None)
+
+
 def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[CheckResult]:
     view_state: dict[str, int] = {}
 
@@ -130,6 +140,25 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             timeout,
         ))
 
+    def querydata_filter_ok() -> bool:
+        payload = post_json(
+            f"{frontend_url}/api/v1/data/querydata",
+            {"ViewId": 100, "PageSize": 5, "PageIndex": 1, "QueryFilter": "order_state=\"0\""},
+            timeout,
+        )
+        if not common_response_ok(payload):
+            return False
+        rows = payload["data"].get("items")
+        if not isinstance(rows, list) or not rows:
+            return False
+        for row in rows:
+            if not isinstance(row, dict):
+                return False
+            state = list_row_item(row, "state") or {}
+            if str(state.get("objId") or state.get("ObjId") or "") != "0":
+                return False
+        return True
+
     checks = (
         (
             "backend:test",
@@ -149,6 +178,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
                 timeout,
             )),
             "POST /api/v1/data/querydata ViewId=100",
+        ),
+        (
+            "data:querydata-filter",
+            querydata_filter_ok,
+            "POST /api/v1/data/querydata QueryFilter keeps State=0 rows",
         ),
         (
             "data:querydatadetail",

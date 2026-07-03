@@ -145,6 +145,8 @@ explicitly named as authoritative for fool-service.
       driven instead of business DTO driven.
 - [x] Send the main Vue View workflow search text as legacy
       `querydata.QueryFilter`, matching FoolFrame's list page filter box.
+- [x] Extend the Docker runtime doctor to prove `querydata.QueryFilter`
+      returns filtered legacy row `Items`.
 
 ## Backlog
 
