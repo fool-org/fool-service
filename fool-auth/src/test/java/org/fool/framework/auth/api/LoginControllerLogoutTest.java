@@ -119,7 +119,11 @@ public class LoginControllerLogoutTest {
         AuthService.LegacyAuthItem menu = new AuthService.LegacyAuthItem();
         menu.setAuthNo("1");
         menu.setText("Views");
+        AuthService.LegacyAppInfo app = new AuthService.LegacyAppInfo();
+        app.setAppName("Fool Service");
+        app.setDefaultViewId(100L);
         when(authService.getInfoByToken("token-1")).thenReturn(user);
+        when(authService.getLegacyAppInfo("token-1")).thenReturn(app);
         when(authService.getLegacySubMenus("token-1", "")).thenReturn(List.of(menu));
 
         CommonResponse<LoginController.LegacyMainResult> response = controller.getMain("token-1");
@@ -128,7 +132,27 @@ public class LoginControllerLogoutTest {
         assertEquals("token-1", response.getData().getToken());
         assertEquals(42L, response.getData().getUser().getUserId());
         assertEquals("Views", response.getData().getTopMenu().get(0).getText());
-        assertEquals(0L, response.getData().getApp().getDefaultViewId());
+        assertEquals("Fool Service", response.getData().getApp().getAppName());
+        assertEquals(100L, response.getData().getApp().getDefaultViewId());
+    }
+
+    @Test
+    public void getAppReturnsLegacyAppInfo() throws Exception {
+        AuthService authService = mock(AuthService.class);
+        LoginController controller = new LoginController();
+        setField(controller, "authService", authService);
+        CommonRequest request = new CommonRequest();
+        request.setToken("token-1");
+        AuthService.LegacyAppInfo app = new AuthService.LegacyAppInfo();
+        app.setAppName("Fool Service");
+        app.setAppId("fool-service");
+        when(authService.getLegacyAppInfo("token-1")).thenReturn(app);
+
+        CommonResponse<LoginController.LegacyAppResult> response = controller.getApp(request);
+
+        assertEquals(0, response.getCode());
+        assertEquals("token-1", response.getData().getToken());
+        assertEquals("Fool Service", response.getData().getApp().getAppName());
     }
 
     @Test

@@ -63,6 +63,11 @@ export interface LegacyMainResult {
   topMenu?: LegacyAuthItem[];
 }
 
+export interface LegacyAppResult {
+  token?: string;
+  app?: LegacyAppInfo;
+}
+
 export interface CheckCodeResult {
   key?: string;
   code?: string;

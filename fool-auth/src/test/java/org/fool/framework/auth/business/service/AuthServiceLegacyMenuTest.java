@@ -1,6 +1,8 @@
 package org.fool.framework.auth.business.service;
 
 import org.fool.framework.auth.foolframework.auth.MenuItem;
+import org.fool.framework.app.AppFacade;
+import org.fool.framework.app.ApplicationDefinition;
 import org.fool.framework.dao.DaoService;
 import org.junit.Test;
 
@@ -47,6 +49,35 @@ public class AuthServiceLegacyMenuTest {
         service.getLegacySubMenus("token-1", "1");
 
         verify(daoService).selectList(eq(MenuItem.class), anyString(), eq("admin"), eq(1L));
+    }
+
+    @Test
+    public void getLegacyAppInfoMapsDefaultApplication() throws Exception {
+        TokenService tokenService = mock(TokenService.class);
+        AppFacade appFacade = mock(AppFacade.class);
+        AuthService service = new AuthService();
+        setField(service, "tokenService", tokenService);
+        setField(service, "appFacade", appFacade);
+        ApplicationDefinition app = new ApplicationDefinition();
+        app.setAppId("fool-service");
+        app.setName("Fool Service");
+        app.setVersion("1.0.0");
+        app.setCompany("YFGE");
+        app.setUrl("https://example.com");
+        app.setAvatar("/logo.png");
+        app.setDefaultView(100L);
+        when(tokenService.getUidByToken("token-1")).thenReturn("admin");
+        when(appFacade.getApps()).thenReturn(List.of(app));
+
+        AuthService.LegacyAppInfo info = service.getLegacyAppInfo("token-1");
+
+        assertEquals("Fool Service", info.getAppName());
+        assertEquals("1.0.0", info.getAppVer());
+        assertEquals("YFGE", info.getAppPowerBy());
+        assertEquals("https://example.com", info.getAppPowerUrl());
+        assertEquals("/logo.png", info.getAppLogoUrl());
+        assertEquals(100L, info.getDefaultViewId());
+        assertEquals("fool-service", info.getAppId());
     }
 
     private static MenuItem menu(Long id, String text, Long viewId, Integer index) {

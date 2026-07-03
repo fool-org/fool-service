@@ -86,8 +86,17 @@ public class LoginController {
         return new CommonResponse<>(new LegacyMainResult(
                 normalizedToken,
                 legacyUser(user),
-                new LegacyAppInfo(),
+                authService.getLegacyAppInfo(normalizedToken),
                 authService.getLegacySubMenus(normalizedToken, "")));
+    }
+
+    @ApiOperation("得到旧版应用信息")
+    @PostMapping("/getapp")
+    @ResponseBody
+    public CommonResponse<LegacyAppResult> getApp(@RequestBody CommonRequest request) {
+        return new CommonResponse<>(new LegacyAppResult(
+                request.getToken(),
+                authService.getLegacyAppInfo(request.getToken())));
     }
 
     @ApiOperation("登出")
@@ -165,19 +174,13 @@ public class LoginController {
     public static class LegacyMainResult {
         private final String token;
         private final LegacyUserInfo user;
-        private final LegacyAppInfo app;
+        private final AuthService.LegacyAppInfo app;
         private final List<AuthService.LegacyAuthItem> topMenu;
     }
 
     @Data
-    public static class LegacyAppInfo {
-        private String appName = "";
-        private String appVer = "";
-        private String appNote = "";
-        private String appPowerBy = "";
-        private String appPowerUrl = "";
-        private String appLogoUrl = "";
-        private long defaultViewId;
-        private String appId = "";
+    public static class LegacyAppResult {
+        private final String token;
+        private final AuthService.LegacyAppInfo app;
     }
 }

@@ -9,6 +9,7 @@ import {
   type GetMessageResult,
   type GetNotifyResult,
   type InputQueryResult,
+  type LegacyAppResult,
   type LegacyMainResult,
   type LegacySubMenuResult,
   type LegacyUserInfoResult,
@@ -96,6 +97,7 @@ const loginResponse = ref<CommonResponse<LoginVo> | null>(null);
 const profileResponse = ref<CommonResponse<UserDTO> | null>(null);
 const legacyUserInfoResponse = ref<CommonResponse<LegacyUserInfoResult> | null>(null);
 const mainInfoResponse = ref<CommonResponse<LegacyMainResult> | null>(null);
+const appInfoResponse = ref<CommonResponse<LegacyAppResult> | null>(null);
 const checkCodeResponse = ref<CommonResponse<CheckCodeResult> | null>(null);
 const checkCodeValidationResponse = ref<CommonResponse<boolean> | null>(null);
 const subMenuResponse = ref<CommonResponse<LegacySubMenuResult> | null>(null);
@@ -255,6 +257,15 @@ async function loadMainInfo() {
   const response = await runAction("getmain", () => postApi<LegacyMainResult>("/api/v1/auth/getmain", token.value));
   if (response) {
     mainInfoResponse.value = response;
+  }
+}
+
+async function loadAppInfo() {
+  const response = await runAction("getapp", () =>
+    postApi<LegacyAppResult>("/api/v1/auth/getapp", buildTokenRequest(token.value))
+  );
+  if (response) {
+    appInfoResponse.value = response;
   }
 }
 
@@ -654,6 +665,7 @@ function formatValue(value: unknown) {
               Legacy User Info
             </button>
             <button type="button" :disabled="pendingAction === 'getmain'" @click="loadMainInfo">Main Info</button>
+            <button type="button" :disabled="pendingAction === 'getapp'" @click="loadAppInfo">App Info</button>
             <button type="button" :disabled="pendingAction === 'menus'" @click="loadMenus">Menus</button>
             <button type="button" :disabled="pendingAction === 'logout'" @click="logout">Logout</button>
           </div>
@@ -1383,6 +1395,7 @@ function formatValue(value: unknown) {
                 profile: profileResponse,
                 legacyUserInfo: legacyUserInfoResponse,
                 mainInfo: mainInfoResponse,
+                appInfo: appInfoResponse,
                 checkCode: checkCodeResponse,
                 checkCodeValidation: checkCodeValidationResponse,
                 subMenu: subMenuResponse,

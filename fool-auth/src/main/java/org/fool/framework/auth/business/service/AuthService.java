@@ -6,6 +6,8 @@ import org.fool.framework.auth.business.model.User;
 import org.fool.framework.auth.foolframework.auth.MenuItem;
 import org.fool.framework.auth.dto.LoginVo;
 import org.fool.framework.auth.dto.UserDTO;
+import org.fool.framework.app.AppFacade;
+import org.fool.framework.app.ApplicationDefinition;
 import org.fool.framework.common.data.tree.ITreeFactory;
 import org.fool.framework.common.data.tree.TreeNode;
 import org.fool.framework.common.data.tree.TreeNodeCompareResult;
@@ -54,6 +56,9 @@ public class AuthService {
 
     @Autowired
     private TokenService tokenService;
+
+    @Autowired
+    private AppFacade appFacade;
 
 
     /**
@@ -155,6 +160,13 @@ public class AuthService {
         return items.stream().map(this::legacyAuthItem).toList();
     }
 
+    public LegacyAppInfo getLegacyAppInfo(String token) {
+        tokenService.getUidByToken(token);
+        // ponytail: loginv2 app session is not migrated yet; use the seeded default app until tokens carry app context.
+        ApplicationDefinition app = appFacade.getApps().stream().findFirst().orElse(null);
+        return legacyAppInfo(app);
+    }
+
     private LegacyAuthItem legacyAuthItem(MenuItem menu) {
         LegacyAuthItem item = new LegacyAuthItem();
         item.setText(menu.getText());
@@ -166,6 +178,26 @@ public class AuthService {
         item.setIndex(menu.getIndex() == null ? 0 : menu.getIndex());
         item.setAuthNo(menu.getId() == null ? "" : menu.getId().toString());
         return item;
+    }
+
+    private LegacyAppInfo legacyAppInfo(ApplicationDefinition app) {
+        LegacyAppInfo info = new LegacyAppInfo();
+        if (app == null) {
+            return info;
+        }
+        info.setAppName(empty(app.getName()));
+        info.setAppVer(empty(app.getVersion()));
+        info.setAppNote(empty(app.getNote()));
+        info.setAppPowerBy(empty(app.getCompany()));
+        info.setAppPowerUrl(empty(app.getUrl()));
+        info.setAppLogoUrl(empty(app.getAvatar()));
+        info.setDefaultViewId(app.getDefaultView() == null ? 0L : app.getDefaultView());
+        info.setAppId(empty(app.getAppId()));
+        return info;
+    }
+
+    private static String empty(String value) {
+        return value == null ? "" : value;
     }
 
     /**
@@ -195,5 +227,17 @@ public class AuthService {
         private int viewType;
         private int index;
         private String authNo;
+    }
+
+    @Data
+    public static class LegacyAppInfo {
+        private String appName = "";
+        private String appVer = "";
+        private String appNote = "";
+        private String appPowerBy = "";
+        private String appPowerUrl = "";
+        private String appLogoUrl = "";
+        private long defaultViewId;
+        private String appId = "";
     }
 }
