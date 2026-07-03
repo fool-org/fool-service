@@ -66,6 +66,9 @@ explicitly named as authoritative for fool-service.
 - [x] Project report `ReportCols[].ColId` values into custom `ColName` aliases
       so selected report columns render data even when the output header differs
       from the View property name.
+- [x] Build report `getmkqview` candidate columns from configured View items
+      when present, so report column selection follows the rendered View
+      ordering instead of exposing every Model property.
 
 ## Backlog
 

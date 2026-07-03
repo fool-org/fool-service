@@ -19,6 +19,7 @@ import org.fool.framework.view.dto.ListViewResult;
 import org.fool.framework.view.dto.MakeReportRequest;
 import org.fool.framework.view.dto.ReportModelResult;
 import org.fool.framework.view.model.View;
+import org.fool.framework.view.model.ViewItem;
 import org.fool.framework.view.service.DataQueryService;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -76,6 +77,54 @@ public class ReportControllerTest {
         assertEquals(Long.valueOf(102L), stateCol.getModelId());
         assertEquals("Open", stateCol.getStates().get(0).getShowName());
         assertEquals("0", stateCol.getStates().get(0).getDbName());
+    }
+
+    @Test
+    public void getReportModelUsesConfiguredViewItemsInsteadOfAllModelProperties() throws Exception {
+        DaoService daoService = mock(DaoService.class);
+        JdbcCompareOpCatalog compareOpCatalog = mock(JdbcCompareOpCatalog.class);
+        JdbcSelectTypeCatalog selectTypeCatalog = mock(JdbcSelectTypeCatalog.class);
+        Property symbol = property(1002L, "symbol", "order_symbol", PropertyType.String);
+        Property state = property(1003L, "state", "order_state", PropertyType.Enum);
+        when(daoService.getOneDetailByKey(eq(View.class), eq("100"))).thenReturn(view("100", viewItem("Pair", "symbol")));
+        when(daoService.getOneDetailByKey(eq(Model.class), eq("100"))).thenReturn(model(symbol, state));
+        when(compareOpCatalog.listFor(PropertyType.String)).thenReturn(List.of(compareOp(1, "等于")));
+        when(selectTypeCatalog.listFor(PropertyType.String)).thenReturn(List.of(selectType(1, "原值")));
+
+        ReportController controller = new ReportController();
+        setField(controller, "daoService", daoService);
+        setField(controller, "compareOpCatalog", compareOpCatalog);
+        setField(controller, "selectTypeCatalog", selectTypeCatalog);
+        MakeReportRequest request = new MakeReportRequest();
+        request.setViewId(100L);
+
+        CommonResponse<ReportModelResult> response = controller.getReportModel(request);
+
+        assertEquals(0, response.getCode());
+        assertEquals(1, response.getData().getCols().size());
+        assertEquals("1002", response.getData().getCols().get(0).getId());
+        assertEquals("Pair", response.getData().getCols().get(0).getName());
+    }
+
+    @Test
+    public void getReportModelOrdersConfiguredViewItemsByShowIndex() throws Exception {
+        DaoService daoService = mock(DaoService.class);
+        Property symbol = property(1002L, "symbol", "order_symbol", PropertyType.String);
+        Property state = property(1003L, "state", "order_state", PropertyType.String);
+        when(daoService.getOneDetailByKey(eq(View.class), eq("100"))).thenReturn(view("100",
+                viewItem("State", "state", 20),
+                viewItem("Symbol", "symbol", 10)));
+        when(daoService.getOneDetailByKey(eq(Model.class), eq("100"))).thenReturn(model(symbol, state));
+
+        ReportController controller = new ReportController();
+        setField(controller, "daoService", daoService);
+        MakeReportRequest request = new MakeReportRequest();
+        request.setViewId(100L);
+
+        CommonResponse<ReportModelResult> response = controller.getReportModel(request);
+
+        assertEquals("Symbol", response.getData().getCols().get(0).getName());
+        assertEquals("State", response.getData().getCols().get(1).getName());
     }
 
     @Test
@@ -407,6 +456,25 @@ public class ReportControllerTest {
         View view = new View();
         view.setViewModel(modelId);
         return view;
+    }
+
+    private static View view(String modelId, ViewItem... items) {
+        View view = view(modelId);
+        view.setListItems(List.of(items));
+        return view;
+    }
+
+    private static ViewItem viewItem(String itemName, String modelProperty) {
+        ViewItem item = new ViewItem();
+        item.setItemName(itemName);
+        item.setModelProperty(modelProperty);
+        return item;
+    }
+
+    private static ViewItem viewItem(String itemName, String modelProperty, int showIndex) {
+        ViewItem item = viewItem(itemName, modelProperty);
+        item.setShowIndex(showIndex);
+        return item;
     }
 
     private static Model model(Property... properties) {

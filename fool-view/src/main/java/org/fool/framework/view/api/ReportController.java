@@ -17,6 +17,7 @@ import org.fool.framework.view.dto.ListViewResult;
 import org.fool.framework.view.dto.MakeReportRequest;
 import org.fool.framework.view.dto.ReportModelResult;
 import org.fool.framework.view.model.View;
+import org.fool.framework.view.model.ViewItem;
 import org.fool.framework.view.service.DataQueryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -60,11 +61,7 @@ public class ReportController {
         if (model == null || CollectionUtils.isEmpty(model.getProperties())) {
             return new CommonResponse<>(result);
         }
-        result.setCols(model.getProperties().stream()
-                .filter(property -> !Boolean.TRUE.equals(property.getIsCollection()))
-                .filter(property -> property.getPropertyType() != null)
-                .map(this::reportModelCol)
-                .toList());
+        result.setCols(reportModelCols(view, model));
         return new CommonResponse<>(result);
     }
 
@@ -94,11 +91,45 @@ public class ReportController {
         return new CommonResponse<>((Void) null);
     }
 
-    private ReportModelResult.QueryCol reportModelCol(Property property) {
+    private List<ReportModelResult.QueryCol> reportModelCols(View view, Model model) {
+        if (!CollectionUtils.isEmpty(view.getListItems())) {
+            return view.getListItems().stream()
+                    .sorted(Comparator.comparingInt(this::safeShowIndex))
+                    .map(item -> reportModelCol(propertyForItem(model, item), item.getItemName()))
+                    .filter(Objects::nonNull)
+                    .toList();
+        }
+        return model.getProperties().stream()
+                .map(property -> reportModelCol(property, null))
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    private int safeShowIndex(ViewItem item) {
+        return item.getShowIndex() == null ? 0 : item.getShowIndex();
+    }
+
+    private Property propertyForItem(Model model, ViewItem item) {
+        if (item.getProperty() != null) {
+            return item.getProperty();
+        }
+        if (!StringUtils.hasText(item.getModelProperty()) || CollectionUtils.isEmpty(model.getProperties())) {
+            return null;
+        }
+        return model.getProperties().stream()
+                .filter(property -> Objects.equals(property.getName(), item.getModelProperty()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private ReportModelResult.QueryCol reportModelCol(Property property, String name) {
+        if (property == null || Boolean.TRUE.equals(property.getIsCollection()) || property.getPropertyType() == null) {
+            return null;
+        }
         ReportModelResult.QueryCol col = new ReportModelResult.QueryCol();
         PropertyType type = property.getPropertyType();
         col.setId(property.getId() == null ? property.getName() : property.getId().toString());
-        col.setName(StringUtils.hasText(property.getRemark()) ? property.getRemark() : property.getName());
+        col.setName(StringUtils.hasText(name) ? name : propertyShowName(property));
         col.setPrpType(type.code());
         col.setModelId(property.getPropertyModel() == null ? null : property.getPropertyModel().getId());
         col.setStates(states(property.getPropertyModel()));
@@ -109,6 +140,10 @@ public class ReportController {
                 .map(typeItem -> new ReportModelResult.Option(typeItem.getId() + "", typeItem.getShow()))
                 .toList());
         return col;
+    }
+
+    private String propertyShowName(Property property) {
+        return StringUtils.hasText(property.getRemark()) ? property.getRemark() : property.getName();
     }
 
     private List<ReportModelResult.StateValue> states(Model model) {

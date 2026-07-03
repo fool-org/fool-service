@@ -94,6 +94,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: report `getmkqview` candidate columns now come from configured
+  View items when the View provides them, matching FoolFrame's
+  `QueryFactory.GetQueryModel(view)` path. The endpoint uses View item names as
+  the report column display names, orders them by View item `showIndex`, and
+  falls back to Model properties only when a View has no item metadata.
 - 2026-07-04: report `getrpt` now projects selected `ReportCols[].ColId`
   values into the requested `ColName` alias before rendering cells. This
   matches the FoolFrame report path where `ColName` becomes the selected query
