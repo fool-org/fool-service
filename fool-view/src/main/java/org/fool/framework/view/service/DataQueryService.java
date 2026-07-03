@@ -340,8 +340,19 @@ public class DataQueryService {
         if (value.startsWith("#.")) {
             return data.get(value.substring(2));
         }
-        // ponytail: literal/current field/math only; add context/owner/business-object grammar when commands need it.
+        if (value.startsWith("@")) {
+            return contextValue(value.substring(1));
+        }
+        // ponytail: literal/current field/math/time-context only; add auth/owner context when commands need it.
         return "";
+    }
+
+    private Object contextValue(String expression) {
+        return switch ((expression == null ? "" : expression.trim()).toLowerCase(Locale.ROOT)) {
+            case "datetime", "time" -> LocalDateTime.now();
+            case "date" -> LocalDateTime.now().toLocalDate().atStartOfDay();
+            default -> "";
+        };
     }
 
     private boolean isCompositeMathExpression(String value) {
