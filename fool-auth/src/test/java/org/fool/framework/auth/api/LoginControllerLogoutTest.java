@@ -109,6 +109,29 @@ public class LoginControllerLogoutTest {
     }
 
     @Test
+    public void getMainReturnsLegacyUserAndTopMenus() throws Exception {
+        AuthService authService = mock(AuthService.class);
+        LoginController controller = new LoginController();
+        setField(controller, "authService", authService);
+        UserDTO user = new UserDTO();
+        user.setId("42");
+        user.setName("Admin");
+        AuthService.LegacyAuthItem menu = new AuthService.LegacyAuthItem();
+        menu.setAuthNo("1");
+        menu.setText("Views");
+        when(authService.getInfoByToken("token-1")).thenReturn(user);
+        when(authService.getLegacySubMenus("token-1", "")).thenReturn(List.of(menu));
+
+        CommonResponse<LoginController.LegacyMainResult> response = controller.getMain("token-1");
+
+        assertEquals(0, response.getCode());
+        assertEquals("token-1", response.getData().getToken());
+        assertEquals(42L, response.getData().getUser().getUserId());
+        assertEquals("Views", response.getData().getTopMenu().get(0).getText());
+        assertEquals(0L, response.getData().getApp().getDefaultViewId());
+    }
+
+    @Test
     public void subMenuRequestAcceptsLegacyParentAuthCode() throws Exception {
         LoginController.LegacySubMenuRequest request = new ObjectMapper().readValue(
                 "{\"Token\":\"token-1\",\"ParentAuthCode\":\"1\"}",

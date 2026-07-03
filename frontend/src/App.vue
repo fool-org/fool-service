@@ -9,6 +9,7 @@ import {
   type GetMessageResult,
   type GetNotifyResult,
   type InputQueryResult,
+  type LegacyMainResult,
   type LegacySubMenuResult,
   type LegacyUserInfoResult,
   type QueryDataDetailResult,
@@ -94,6 +95,7 @@ const activeSection = ref("auth");
 const loginResponse = ref<CommonResponse<LoginVo> | null>(null);
 const profileResponse = ref<CommonResponse<UserDTO> | null>(null);
 const legacyUserInfoResponse = ref<CommonResponse<LegacyUserInfoResult> | null>(null);
+const mainInfoResponse = ref<CommonResponse<LegacyMainResult> | null>(null);
 const checkCodeResponse = ref<CommonResponse<CheckCodeResult> | null>(null);
 const checkCodeValidationResponse = ref<CommonResponse<boolean> | null>(null);
 const subMenuResponse = ref<CommonResponse<LegacySubMenuResult> | null>(null);
@@ -246,6 +248,13 @@ async function loadLegacyUserInfo() {
   );
   if (response) {
     legacyUserInfoResponse.value = response;
+  }
+}
+
+async function loadMainInfo() {
+  const response = await runAction("getmain", () => postApi<LegacyMainResult>("/api/v1/auth/getmain", token.value));
+  if (response) {
+    mainInfoResponse.value = response;
   }
 }
 
@@ -644,6 +653,7 @@ function formatValue(value: unknown) {
             <button type="button" :disabled="pendingAction === 'getuserinfo'" @click="loadLegacyUserInfo">
               Legacy User Info
             </button>
+            <button type="button" :disabled="pendingAction === 'getmain'" @click="loadMainInfo">Main Info</button>
             <button type="button" :disabled="pendingAction === 'menus'" @click="loadMenus">Menus</button>
             <button type="button" :disabled="pendingAction === 'logout'" @click="logout">Logout</button>
           </div>
@@ -1372,6 +1382,7 @@ function formatValue(value: unknown) {
                 login: loginResponse,
                 profile: profileResponse,
                 legacyUserInfo: legacyUserInfoResponse,
+                mainInfo: mainInfoResponse,
                 checkCode: checkCodeResponse,
                 checkCodeValidation: checkCodeValidationResponse,
                 subMenu: subMenuResponse,

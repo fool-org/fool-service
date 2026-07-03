@@ -45,6 +45,24 @@ export interface LegacySubMenuResult {
   items?: LegacyAuthItem[];
 }
 
+export interface LegacyAppInfo {
+  appName?: string;
+  appVer?: string;
+  appNote?: string;
+  appPowerBy?: string;
+  appPowerUrl?: string;
+  appLogoUrl?: string;
+  defaultViewId?: number;
+  appId?: string;
+}
+
+export interface LegacyMainResult {
+  token?: string;
+  user?: LegacyUserInfo;
+  app?: LegacyAppInfo;
+  topMenu?: LegacyAuthItem[];
+}
+
 export interface CheckCodeResult {
   key?: string;
   code?: string;

@@ -77,6 +77,19 @@ public class LoginController {
                         authService.getLegacySubMenus(request.getToken(), request.getParentAuthCode())));
     }
 
+    @ApiOperation("得到旧版主界面信息")
+    @PostMapping("/getmain")
+    @ResponseBody
+    public CommonResponse<LegacyMainResult> getMain(@RequestBody String token) {
+        String normalizedToken = legacyRawToken(token);
+        UserDTO user = authService.getInfoByToken(normalizedToken);
+        return new CommonResponse<>(new LegacyMainResult(
+                normalizedToken,
+                legacyUser(user),
+                new LegacyAppInfo(),
+                authService.getLegacySubMenus(normalizedToken, "")));
+    }
+
     @ApiOperation("登出")
     @PostMapping("/logout")
     @ResponseBody
@@ -90,11 +103,23 @@ public class LoginController {
     @ResponseBody
     public CommonResponse<LegacyUserInfoResult> getUserInfo(@RequestBody CommonRequest request) {
         UserDTO user = authService.getInfoByToken(request.getToken());
+        return new CommonResponse<>(new LegacyUserInfoResult(request.getToken(), legacyUser(user)));
+    }
+
+    private static LegacyUserInfo legacyUser(UserDTO user) {
         LegacyUserInfo legacyUser = new LegacyUserInfo();
         legacyUser.setLoginName(user.getId());
         legacyUser.setUserName(user.getName());
         legacyUser.setUserId(longOrZero(user.getId()));
-        return new CommonResponse<>(new LegacyUserInfoResult(request.getToken(), legacyUser));
+        return legacyUser;
+    }
+
+    private static String legacyRawToken(String token) {
+        String value = token == null ? "" : token.trim();
+        if (value.length() >= 2 && value.startsWith("\"") && value.endsWith("\"")) {
+            return value.substring(1, value.length() - 1);
+        }
+        return value;
     }
 
     private static long longOrZero(String value) {
@@ -134,5 +159,25 @@ public class LoginController {
     public static class LegacySubMenuResult {
         private final String token;
         private final List<AuthService.LegacyAuthItem> items;
+    }
+
+    @Data
+    public static class LegacyMainResult {
+        private final String token;
+        private final LegacyUserInfo user;
+        private final LegacyAppInfo app;
+        private final List<AuthService.LegacyAuthItem> topMenu;
+    }
+
+    @Data
+    public static class LegacyAppInfo {
+        private String appName = "";
+        private String appVer = "";
+        private String appNote = "";
+        private String appPowerBy = "";
+        private String appPowerUrl = "";
+        private String appLogoUrl = "";
+        private long defaultViewId;
+        private String appId = "";
     }
 }
