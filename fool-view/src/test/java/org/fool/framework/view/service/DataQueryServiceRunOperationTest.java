@@ -3,9 +3,11 @@ package org.fool.framework.view.service;
 import org.fool.framework.common.PropertyType;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.dao.DaoService;
+import org.fool.framework.model.model.CommandsType;
 import org.fool.framework.model.model.DbMysqlDynamic;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Operation;
+import org.fool.framework.model.model.OperationCommand;
 import org.fool.framework.model.model.OperationBaseType;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.model.service.ModelDataService;
@@ -74,6 +76,30 @@ public class DataQueryServiceRunOperationTest {
         verify(modelDataService).saveData(data);
         assertTrue(result.isSuccess());
         assertEquals("保存成功", result.getReturnMsg());
+    }
+
+    @Test
+    public void runLegacyUpdateOperationAppliesSetValueCommandsBeforeSave() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataService viewDataService = mock(ViewDataService.class);
+        DataQueryService service = service(daoService, modelDataService, viewDataService);
+        Model model = model();
+        View view = view(operationWithCommand(7002L, OperationBaseType.UPDATE, "保存成功",
+                command(CommandsType.SET_VALUE, 1003L, "$1", 1)));
+        DbMysqlDynamic data = new DbMysqlDynamic(model);
+        data.set("orderId", "1001");
+        data.set("state", "0");
+        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(modelDataService.getModel("Order")).thenReturn(model);
+        when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
+        when(modelDataService.saveData(data)).thenReturn(true);
+
+        LegacyRunOperationResult result = service.runLegacyOperation(request("1001", 100L, 7002L));
+
+        verify(modelDataService).saveData(data);
+        assertTrue(result.isSuccess());
+        assertEquals("1", data.get("state"));
     }
 
     @Test
@@ -162,16 +188,41 @@ public class DataQueryServiceRunOperationTest {
         return viewOperation;
     }
 
+    private static ViewOperation operationWithCommand(
+            Long id,
+            OperationBaseType type,
+            String successMsg,
+            OperationCommand command) {
+        ViewOperation viewOperation = operation(id, type, successMsg);
+        viewOperation.getOperation().setCommands(List.of(command));
+        return viewOperation;
+    }
+
+    private static OperationCommand command(CommandsType type, Long propertyId, String expression, int index) {
+        OperationCommand command = new OperationCommand();
+        command.setCommandType(type);
+        command.setPropertyId(propertyId);
+        command.setExpression(expression);
+        command.setIndex(index);
+        return command;
+    }
+
     private static Model model() {
         Model model = new Model();
         model.setName("Order");
         model.setTableName("market_order");
         Property orderId = new Property();
+        orderId.setId(1001L);
         orderId.setName("orderId");
         orderId.setColumn("order_id");
         orderId.setPropertyType(PropertyType.Long);
+        Property state = new Property();
+        state.setId(1003L);
+        state.setName("state");
+        state.setColumn("order_state");
+        state.setPropertyType(PropertyType.String);
         model.setIdProperty(orderId);
-        model.setProperties(List.of(orderId));
+        model.setProperties(List.of(orderId, state));
         return model;
     }
 }

@@ -3,11 +3,14 @@ package org.fool.framework.view.service;
 import lombok.extern.slf4j.Slf4j;
 import org.fool.framework.dao.DaoService;
 import org.fool.framework.model.model.Model;
+import org.fool.framework.model.model.OperationCommand;
 import org.fool.framework.view.model.PersistedViewOperation;
 import org.fool.framework.view.model.View;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+
+import java.util.List;
 
 
 @Slf4j
@@ -24,6 +27,12 @@ public class ViewDataService {
             + "LEFT JOIN `SW_SYS_OPERATIONVIEW` opv ON opv.`SW_SYS_OPVIEW_OPREATION` = vo.`SW_VIEW_OPERATION_MODELOPERATION` "
             + "WHERE vo.`SW_SYS_VIEW_OperationsVIEW_ID` = ? "
             + "ORDER BY vo.`SW_VIEW_OPERATION_INDEX`, vo.`SysId`";
+    private static final String OPERATION_COMMAND_SQL = "SELECT "
+            + "`SysId`, `SW_SYS_OPERATION_CommandsSysId`, `SW_SYS_COMMAND_TYPE`, "
+            + "`SW_SYS_COMMAND_PROPERTY`, `SW_SYS_COMMAND_EXP`, `SW_SYS_COMMAND_INDEX` "
+            + "FROM `SW_SYS_COMMANDS` "
+            + "WHERE `SW_SYS_OPERATION_CommandsSysId` = ? "
+            + "ORDER BY `SW_SYS_COMMAND_INDEX`, `SysId`";
 
     @Autowired
     private DaoService daoService;
@@ -39,9 +48,19 @@ public class ViewDataService {
         if (view == null || view.getId() == null) {
             return;
         }
-        view.setOperations(daoService.selectList(PersistedViewOperation.class, VIEW_OPERATION_SQL, view.getId()).stream()
+        var operations = daoService.selectList(PersistedViewOperation.class, VIEW_OPERATION_SQL, view.getId()).stream()
                 .map(PersistedViewOperation::toViewOperation)
-                .toList());
+                .toList();
+        operations.stream()
+                .filter(operation -> operation.getOperation() != null && operation.getOperation().getId() != null)
+                .forEach(operation -> {
+                    List<OperationCommand> commands = daoService.selectList(
+                            OperationCommand.class, OPERATION_COMMAND_SQL, operation.getOperation().getId());
+                    if (!CollectionUtils.isEmpty(commands)) {
+                        operation.getOperation().setCommands(commands);
+                    }
+                });
+        view.setOperations(operations);
     }
 
     private void attachProperties(View view) {

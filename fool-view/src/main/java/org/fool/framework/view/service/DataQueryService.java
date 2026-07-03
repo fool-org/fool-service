@@ -10,7 +10,10 @@ import org.fool.framework.common.data.SubItemList;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.model.model.DbMysqlDynamic;
 import org.fool.framework.model.model.Model;
+import org.fool.framework.model.model.CommandsType;
+import org.fool.framework.model.model.Operation;
 import org.fool.framework.model.model.OperationBaseType;
+import org.fool.framework.model.model.OperationCommand;
 import org.fool.framework.model.model.MultiDbMap;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.model.model.Relation;
@@ -276,6 +279,7 @@ public class DataQueryService {
         IDynamicData data = modelDataService.getOneData(view.getViewModel(), request.getObjectId());
         boolean success;
         try {
+            applySetValueCommands(operation.getOperation(), model, data);
             if (operationType == OperationBaseType.DELETE) {
                 success = Boolean.TRUE.equals(modelDataService.deleteData(data));
             } else if (operationType == OperationBaseType.UPDATE) {
@@ -293,6 +297,38 @@ public class DataQueryService {
             result.setReturnMsg(operation.getSuccessMsg() == null ? "" : operation.getSuccessMsg());
         }
         return result;
+    }
+
+    private void applySetValueCommands(Operation operation, Model model, IDynamicData data) {
+        if (operation == null || CollectionUtils.isEmpty(operation.getCommands()) || data == null) {
+            return;
+        }
+        operation.getCommands().stream()
+                .filter(command -> command != null && command.getCommandType() == CommandsType.SET_VALUE)
+                .sorted(Comparator.comparing(command -> command.getIndex() == null ? 0 : command.getIndex()))
+                .forEach(command -> property(model, command.getPropertyId())
+                        .ifPresent(property -> data.set(property.getName(), commandValue(data, command.getExpression()))));
+    }
+
+    private java.util.Optional<Property> property(Model model, Long propertyId) {
+        if (model == null || CollectionUtils.isEmpty(model.getProperties()) || propertyId == null) {
+            return java.util.Optional.empty();
+        }
+        return model.getProperties().stream()
+                .filter(property -> Objects.equals(propertyId, property.getId()))
+                .findFirst();
+    }
+
+    private Object commandValue(IDynamicData data, String expression) {
+        String value = expression == null ? "" : expression.trim();
+        if (value.startsWith("$")) {
+            return value.substring(1);
+        }
+        if (value.startsWith("#.")) {
+            return data.get(value.substring(2));
+        }
+        // ponytail: only literal and #.field; add full GetValueExpression grammar when commands need it.
+        return "";
     }
 
     private ViewOperation findOperation(View view, Long operationId) {

@@ -2,7 +2,9 @@ package org.fool.framework.view.service;
 
 import org.fool.framework.common.PropertyType;
 import org.fool.framework.dao.DaoService;
+import org.fool.framework.model.model.CommandsType;
 import org.fool.framework.model.model.OperationBaseType;
+import org.fool.framework.model.model.OperationCommand;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.view.model.PersistedViewOperation;
@@ -66,10 +68,16 @@ public class ViewDataServiceTest {
         row.setRequireSelect(true);
         row.setSuccessMsg("操作成功");
         row.setErrorMsg("操作失败");
+        OperationCommand command = new OperationCommand();
+        command.setCommandType(CommandsType.SET_VALUE);
+        command.setPropertyId(1003L);
+        command.setExpression("$1");
+        command.setIndex(1);
 
         when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
         when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(new Model());
         when(daoService.selectList(eq(PersistedViewOperation.class), anyString(), eq(100L))).thenReturn(List.of(row));
+        when(daoService.selectList(eq(OperationCommand.class), anyString(), eq(7001L))).thenReturn(List.of(command));
 
         View result = service.getViewData("100", "");
 
@@ -79,6 +87,11 @@ public class ViewDataServiceTest {
         assertEquals(ViewOperationType.COMMAND, result.getOperations().get(0).getType());
         assertEquals("操作成功", result.getOperations().get(0).getSuccessMsg());
         assertEquals("操作失败", result.getOperations().get(0).getErrorMsg());
+        assertEquals(1, result.getOperations().get(0).getOperation().getCommands().size());
+        assertEquals(CommandsType.SET_VALUE,
+                result.getOperations().get(0).getOperation().getCommands().get(0).getCommandType());
+        assertEquals(1003L,
+                result.getOperations().get(0).getOperation().getCommands().get(0).getPropertyId().longValue());
     }
 
     private static Property itemProperty(ViewItem item) {
