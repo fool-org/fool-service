@@ -86,6 +86,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-03: exposed the migrated `getreaditemview` API in the Vue operator
   console with typed payload building, read-item field display, Docker runtime,
   and backend endpoint smoke coverage.
+- 2026-07-03: exposed the migrated legacy `querydata` API in the Vue operator
+  console with typed payload building, raw `QueryFilter` input, shared result
+  table display, Docker runtime, and backend endpoint smoke coverage.
 
 ## Server Source Mapping
 
@@ -156,6 +159,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - A Vue read-item view panel that calls `/api/v1/view/getreaditemview` by view
   ID and renders returned field metadata
 - Vue API types for legacy `querydata` request payloads
+- A Vue legacy query-data panel that calls `/api/v1/data/querydata` by view ID
+  with raw `QueryFilter` text and reuses the result-set table display
 - Vue API types for legacy `querydatadetail` request/result payloads
 - A Vue detail-data panel that calls legacy `/api/v1/data/querydatadetail` and
   renders returned `SimpleData` rows

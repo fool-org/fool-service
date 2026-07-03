@@ -1,6 +1,7 @@
 import type {
   GetEnumRequest,
   InputQueryRequest,
+  LegacyQueryDataRequest,
   LegacyQueryDataDetailRequest,
   SaveItemProperty,
   SaveKeypair,
@@ -61,6 +62,16 @@ export interface GetEnumRequestInput {
 export interface LegacyListViewRequestInput {
   token: string;
   viewId: number;
+}
+
+export interface LegacyQueryDataRequestInput {
+  token: string;
+  viewId: number;
+  pageSize: number;
+  pageIndex: number;
+  queryFilter?: string;
+  orderByItem?: number;
+  orderByType?: number;
 }
 
 export interface QueryRequest {
@@ -161,6 +172,26 @@ export function buildLegacyListViewRequest(input: LegacyListViewRequestInput): V
 
 export function buildLegacyReadItemViewRequest(input: LegacyListViewRequestInput): ViewDataRequest {
   return buildLegacyListViewRequest(input);
+}
+
+export function buildLegacyQueryDataRequest(input: LegacyQueryDataRequestInput): LegacyQueryDataRequest {
+  const request: LegacyQueryDataRequest = {
+    token: input.token,
+    viewId: input.viewId,
+    pageSize: input.pageSize,
+    pageIndex: input.pageIndex
+  };
+  const queryFilter = input.queryFilter?.trim();
+  if (queryFilter) {
+    request.queryFilter = queryFilter;
+  }
+  if (input.orderByItem !== undefined) {
+    request.orderByItem = input.orderByItem;
+  }
+  if (input.orderByType !== undefined) {
+    request.orderByType = input.orderByType;
+  }
+  return request;
 }
 
 function parseFilter(filterJson: string): Record<string, unknown> {

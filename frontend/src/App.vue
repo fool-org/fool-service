@@ -20,6 +20,7 @@ import {
   buildGetEnumRequest,
   buildInputQueryRequest,
   buildLegacyListViewRequest,
+  buildLegacyQueryDataRequest,
   buildLegacyReadItemViewRequest,
   buildQueryDataDetailRequest,
   buildQueryRequest,
@@ -42,6 +43,10 @@ const quickFilterMode = ref<"equals" | "range">("range");
 const quickFilterValue = ref("");
 const quickFilterFrom = ref("1001");
 const quickFilterTo = ref("1002");
+const legacyQueryViewId = ref(100);
+const legacyQueryPageIndex = ref(1);
+const legacyQueryPageSize = ref(10);
+const legacyQueryFilter = ref('order_state="OPEN"');
 const inputQueryViewItemId = ref("symbol");
 const inputQueryText = ref("BTC");
 const inputQueryObjId = ref("");
@@ -240,6 +245,21 @@ async function queryData() {
   });
 
   const response = await runAction("query", () => postApi<ListViewResult>("/api/v1/data/query-list", request));
+  if (response) {
+    dataResponse.value = response;
+  }
+}
+
+async function queryLegacyData() {
+  const request = buildLegacyQueryDataRequest({
+    token: token.value,
+    viewId: Number(legacyQueryViewId.value),
+    pageIndex: Number(legacyQueryPageIndex.value),
+    pageSize: Number(legacyQueryPageSize.value),
+    queryFilter: legacyQueryFilter.value
+  });
+
+  const response = await runAction("legacy-query", () => postApi<ListViewResult>("/api/v1/data/querydata", request));
   if (response) {
     dataResponse.value = response;
   }
@@ -537,6 +557,34 @@ function formatValue(value: unknown) {
           </label>
           <button class="primary" type="button" :disabled="pendingAction === 'query'" @click="queryData">
             Query Data
+          </button>
+        </article>
+
+        <article class="panel lookup-panel">
+          <div class="panel-heading">
+            <h2>Legacy Query Data</h2>
+            <span>POST /api/v1/data/querydata</span>
+          </div>
+          <div class="inline-fields">
+            <label>
+              View ID
+              <input v-model.number="legacyQueryViewId" min="1" type="number" />
+            </label>
+            <label>
+              Page
+              <input v-model.number="legacyQueryPageIndex" min="1" type="number" />
+            </label>
+            <label>
+              Size
+              <input v-model.number="legacyQueryPageSize" min="1" type="number" />
+            </label>
+          </div>
+          <label>
+            QueryFilter
+            <input v-model="legacyQueryFilter" />
+          </label>
+          <button class="primary" type="button" :disabled="pendingAction === 'legacy-query'" @click="queryLegacyData">
+            Legacy Query Data
           </button>
         </article>
 

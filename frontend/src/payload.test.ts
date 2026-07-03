@@ -3,6 +3,7 @@ import {
   buildGetEnumRequest,
   buildInputQueryRequest,
   buildLegacyListViewRequest,
+  buildLegacyQueryDataRequest,
   buildLegacyReadItemViewRequest,
   buildQueryDataDetailRequest,
   buildQueryRequest,
@@ -201,6 +202,30 @@ describe("buildLegacyReadItemViewRequest", () => {
     expect(request).toEqual({
       token: "token-1",
       viewId: 100
+    });
+  });
+});
+
+describe("buildLegacyQueryDataRequest", () => {
+  it("matches the legacy querydata DTO shape", () => {
+    const request = buildLegacyQueryDataRequest({
+      token: "token-1",
+      viewId: 100,
+      pageSize: 10,
+      pageIndex: 2,
+      queryFilter: " order_state=\"OPEN\" ",
+      orderByItem: 1001,
+      orderByType: 1
+    });
+
+    expect(request).toEqual({
+      token: "token-1",
+      viewId: 100,
+      pageSize: 10,
+      pageIndex: 2,
+      queryFilter: "order_state=\"OPEN\"",
+      orderByItem: 1001,
+      orderByType: 1
     });
   });
 });
