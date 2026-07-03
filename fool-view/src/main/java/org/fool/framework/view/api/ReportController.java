@@ -9,6 +9,7 @@ import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.query.JdbcCompareOpCatalog;
 import org.fool.framework.query.JdbcSelectTypeCatalog;
+import org.fool.framework.query.SelectType;
 import org.fool.framework.report.ReportGridRenderer;
 import org.fool.framework.report.ReportGridResult;
 import org.fool.framework.view.dto.ListDataItem;
@@ -53,36 +54,35 @@ public class ReportController {
     @ResponseBody
     public CommonResponse<ReportModelResult> getReportModel(@RequestBody MakeReportRequest request) {
         ReportModelResult result = new ReportModelResult();
-        View view = request.getViewId() == null ? null : daoService.getOneDetailByKey(View.class, request.getViewId().toString());
-        if (view == null || !StringUtils.hasText(view.getViewModel())) {
+        ReportViewContext context = viewContext(request);
+        if (context.model() == null || CollectionUtils.isEmpty(context.model().getProperties())) {
             return new CommonResponse<>(result);
         }
-        Model model = daoService.getOneDetailByKey(Model.class, view.getViewModel());
-        if (model == null || CollectionUtils.isEmpty(model.getProperties())) {
-            return new CommonResponse<>(result);
-        }
-        result.setCols(reportModelCols(view, model));
+        result.setCols(reportModelCols(context));
         return new CommonResponse<>(result);
     }
 
     @PostMapping({"/makereport", "/getrpt"})
     @ResponseBody
     public CommonResponse<ReportGridResult> makeReport(@RequestBody MakeReportRequest request) {
+        ReportViewContext context = viewContext(request);
         PageNavigator page = new PageNavigator();
         page.setPageIndex(request.getCurrentPage() == null ? 0 : request.getCurrentPage());
         page.setPageSize(request.getPageSize() == null ? 0 : request.getPageSize());
         ListViewResult queryResult = dataQueryService.queryLegacyViewData(
                 request.getViewId() == null ? null : request.getViewId().toString(),
                 page,
-                queryFilter(request));
+                queryFilter(request, context));
+        boolean countReport = singleCountReport(request, context);
+        List<Map<String, Object>> reportRows = rows(request, context, queryResult, countReport);
         return new CommonResponse<>(renderer.render(
                 request.getViewId() == null ? 0 : request.getViewId().intValue(),
                 page.getPageIndex(),
                 page.getPageSize(),
-                queryResult.getTotalItem() == null ? 0 : queryResult.getTotalItem(),
-                queryResult.getTotalPage() == null ? 0 : queryResult.getTotalPage(),
-                columns(request, queryResult),
-                rows(request, queryResult)));
+                countReport ? reportRows.size() : queryResult.getTotalItem() == null ? 0 : queryResult.getTotalItem(),
+                countReport ? (reportRows.isEmpty() ? 0 : 1) : queryResult.getTotalPage() == null ? 0 : queryResult.getTotalPage(),
+                columns(request, context, queryResult),
+                reportRows));
     }
 
     @PostMapping("/saverpt")
@@ -91,15 +91,26 @@ public class ReportController {
         return new CommonResponse<>((Void) null);
     }
 
-    private List<ReportModelResult.QueryCol> reportModelCols(View view, Model model) {
-        if (!CollectionUtils.isEmpty(view.getListItems())) {
-            return view.getListItems().stream()
+    private ReportViewContext viewContext(MakeReportRequest request) {
+        if (daoService == null || request.getViewId() == null) {
+            return ReportViewContext.empty();
+        }
+        View view = daoService.getOneDetailByKey(View.class, request.getViewId().toString());
+        if (view == null || !StringUtils.hasText(view.getViewModel())) {
+            return new ReportViewContext(view, null);
+        }
+        return new ReportViewContext(view, daoService.getOneDetailByKey(Model.class, view.getViewModel()));
+    }
+
+    private List<ReportModelResult.QueryCol> reportModelCols(ReportViewContext context) {
+        if (context.view() != null && !CollectionUtils.isEmpty(context.view().getListItems())) {
+            return context.view().getListItems().stream()
                     .sorted(Comparator.comparingInt(this::safeShowIndex))
-                    .map(item -> reportModelCol(propertyForItem(model, item), item.getItemName()))
+                    .map(item -> reportModelCol(propertyForItem(context.model(), item), item))
                     .filter(Objects::nonNull)
                     .toList();
         }
-        return model.getProperties().stream()
+        return context.model().getProperties().stream()
                 .map(property -> reportModelCol(property, null))
                 .filter(Objects::nonNull)
                 .toList();
@@ -122,14 +133,14 @@ public class ReportController {
                 .orElse(null);
     }
 
-    private ReportModelResult.QueryCol reportModelCol(Property property, String name) {
+    private ReportModelResult.QueryCol reportModelCol(Property property, ViewItem item) {
         if (property == null || Boolean.TRUE.equals(property.getIsCollection()) || property.getPropertyType() == null) {
             return null;
         }
         ReportModelResult.QueryCol col = new ReportModelResult.QueryCol();
         PropertyType type = property.getPropertyType();
-        col.setId(property.getId() == null ? property.getName() : property.getId().toString());
-        col.setName(StringUtils.hasText(name) ? name : propertyShowName(property));
+        col.setId(reportColumnId(property));
+        col.setName(item != null && StringUtils.hasText(item.getItemName()) ? item.getItemName() : propertyShowName(property));
         col.setPrpType(type.code());
         col.setModelId(property.getPropertyModel() == null ? null : property.getPropertyModel().getId());
         col.setStates(states(property.getPropertyModel()));
@@ -140,6 +151,12 @@ public class ReportController {
                 .map(typeItem -> new ReportModelResult.Option(typeItem.getId() + "", typeItem.getShow()))
                 .toList());
         return col;
+    }
+
+    private String reportColumnId(Property property) {
+        return StringUtils.hasText(property.getName())
+                ? property.getName()
+                : property.getId() == null ? null : property.getId().toString();
     }
 
     private String propertyShowName(Property property) {
@@ -162,22 +179,22 @@ public class ReportController {
         return state;
     }
 
-    private String queryFilter(MakeReportRequest request) {
+    private String queryFilter(MakeReportRequest request, ReportViewContext context) {
         if (StringUtils.hasText(request.getQueryFilter())) {
             return request.getQueryFilter();
         }
-        return filterExpSql(request, request.getFilterExp());
+        return filterExpSql(context, request.getFilterExp());
     }
 
-    private String filterExpSql(MakeReportRequest request, MakeReportRequest.BoolExp filterExp) {
+    private String filterExpSql(ReportViewContext context, MakeReportRequest.BoolExp filterExp) {
         if (filterExp == null) {
             return null;
         }
         if (filterExp.getFirstExp() != null) {
-            String result = "(" + filterExpSql(request, filterExp.getFirstExp()) + ")";
+            String result = "(" + filterExpSql(context, filterExp.getFirstExp()) + ")";
             if (filterExp.getSequences() != null) {
                 for (MakeReportRequest.AddBoolExp sequence : filterExp.getSequences()) {
-                    result += boolSql(sequence.getBoolOp()) + "(" + filterExpSql(request, sequence.getAddedExp()) + ")";
+                    result += boolSql(sequence.getBoolOp()) + "(" + filterExpSql(context, sequence.getAddedExp()) + ")";
                 }
             }
             return result;
@@ -185,7 +202,7 @@ public class ReportController {
         if (!CollectionUtils.isEmpty(filterExp.getSequences())) {
             throw new IllegalArgumentException("Only simple or FirstExp composite FilterExp compare types are supported.");
         }
-        String column = filterColumn(request, filterExp);
+        String column = filterColumn(context, filterExp);
         String op = compareSql(filterExp.getCompareOp());
         if (!safeColumn(column) || op == null) {
             throw new IllegalArgumentException("Only simple FilterExp compare types are supported.");
@@ -194,51 +211,68 @@ public class ReportController {
         return "`" + column.trim() + "`" + op + "'" + filterValue(op, value) + "'";
     }
 
-    private String filterColumn(MakeReportRequest request, MakeReportRequest.BoolExp filterExp) {
+    private String filterColumn(ReportViewContext context, MakeReportRequest.BoolExp filterExp) {
         String column = filterExp.getCol() == null ? null : filterExp.getCol().getName();
         if (!StringUtils.hasText(column) && filterExp.getCol() != null) {
             column = filterExp.getCol().getId();
         }
-        String mappedColumn = mappedColumn(request, column);
+        String mappedColumn = mappedColumn(context, column);
         return StringUtils.hasText(mappedColumn) ? mappedColumn : column;
     }
 
-    private String mappedColumn(MakeReportRequest request, String column) {
-        Property property = propertyByToken(request, column);
+    private String mappedColumn(ReportViewContext context, String column) {
+        Property property = propertyByToken(context, column);
         return property == null || !StringUtils.hasText(property.getColumn()) ? null : property.getColumn();
     }
 
-    private Property propertyByToken(MakeReportRequest request, String token) {
-        if (daoService == null || request.getViewId() == null || !safePropertyToken(token)) {
-            return null;
-        }
-        View view = daoService.getOneDetailByKey(View.class, request.getViewId().toString());
-        if (view == null || !StringUtils.hasText(view.getViewModel())) {
-            return null;
-        }
-        Model model = daoService.getOneDetailByKey(Model.class, view.getViewModel());
-        if (model == null || CollectionUtils.isEmpty(model.getProperties())) {
+    private Property propertyByToken(ReportViewContext context, String token) {
+        if (context == null || context.model() == null || !StringUtils.hasText(token)) {
             return null;
         }
         String propertyToken = token.trim();
-        return model.getProperties().stream()
+        Property viewItemProperty = propertyFromViewItem(context, propertyToken);
+        if (viewItemProperty != null) {
+            return viewItemProperty;
+        }
+        if (CollectionUtils.isEmpty(context.model().getProperties())) {
+            return null;
+        }
+        return context.model().getProperties().stream()
                 .filter(property -> matchesProperty(property, propertyToken))
                 .findFirst()
                 .orElse(null);
     }
 
+    private Property propertyFromViewItem(ReportViewContext context, String token) {
+        if (context.view() == null || CollectionUtils.isEmpty(context.view().getListItems())) {
+            return null;
+        }
+        for (ViewItem item : context.view().getListItems()) {
+            Property property = propertyForItem(context.model(), item);
+            if (property != null && matchesViewItem(item, property, token)) {
+                return property;
+            }
+        }
+        return null;
+    }
+
+    private boolean matchesViewItem(ViewItem item, Property property, String token) {
+        return Objects.equals(item.getItemName(), token)
+                || Objects.equals(item.getItemLabel(), token)
+                || Objects.equals(item.getModelProperty(), token)
+                || (item.getId() != null && Objects.equals(item.getId().toString(), token))
+                || matchesProperty(property, token);
+    }
+
     private boolean matchesProperty(Property property, String token) {
         return Objects.equals(property.getName(), token)
+                || Objects.equals(property.getRemark(), token)
                 || Objects.equals(property.getColumn(), token)
                 || (property.getId() != null && Objects.equals(property.getId().toString(), token));
     }
 
     private boolean safeColumn(String column) {
         return StringUtils.hasText(column) && column.trim().matches("[A-Za-z_][A-Za-z0-9_]*");
-    }
-
-    private boolean safePropertyToken(String token) {
-        return safeColumn(token) || (StringUtils.hasText(token) && token.trim().matches("\\d+"));
     }
 
     private String compareSql(MakeReportRequest.CompareOpItem compareOp) {
@@ -320,45 +354,89 @@ public class ReportController {
         }
     }
 
-    private List<String> columns(MakeReportRequest request, ListViewResult queryResult) {
+    private List<String> columns(MakeReportRequest request, ReportViewContext context, ListViewResult queryResult) {
         if (!CollectionUtils.isEmpty(request.getReportCols())) {
             return request.getReportCols().stream()
                     .sorted(Comparator.comparingInt(col -> col.getIndex() == null ? 0 : col.getIndex()))
-                    .map(col -> reportColumnName(request, col))
+                    .map(col -> reportColumnName(context, col))
                     .filter(StringUtils::hasText)
                     .toList();
         }
         return queryResult.getCols() == null ? List.of() : queryResult.getCols();
     }
 
-    private String reportColumnName(MakeReportRequest request, MakeReportRequest.ReportCol col) {
+    private String reportColumnName(ReportViewContext context, MakeReportRequest.ReportCol col) {
         if (StringUtils.hasText(col.getColName())) {
             return col.getColName();
         }
-        Property property = propertyByToken(request, col.getColId());
+        Property property = propertyByToken(context, col.getColId());
         if (property == null) {
             return null;
         }
         return StringUtils.hasText(property.getRemark()) ? property.getRemark() : property.getName();
     }
 
-    private List<Map<String, Object>> rows(MakeReportRequest request, ListViewResult queryResult) {
+    private List<Map<String, Object>> rows(
+            MakeReportRequest request,
+            ReportViewContext context,
+            ListViewResult queryResult,
+            boolean countReport) {
+        if (countReport) {
+            MakeReportRequest.ReportCol col = request.getReportCols().get(0);
+            String name = reportColumnName(context, col);
+            return List.of(Map.of(StringUtils.hasText(name) ? name : "COUNT", countValue(queryResult)));
+        }
         List<ListDataItem> items = queryResult.getData() == null ? queryResult.getItems() : queryResult.getData();
         if (items == null) {
             return List.of();
         }
-        return items.stream().map(item -> row(request, item)).toList();
+        return items.stream().map(item -> row(request, context, item)).toList();
     }
 
-    private Map<String, Object> row(MakeReportRequest request, ListDataItem item) {
+    private boolean singleCountReport(MakeReportRequest request, ReportViewContext context) {
+        if (CollectionUtils.isEmpty(request.getReportCols()) || request.getReportCols().size() != 1) {
+            return false;
+        }
+        return isCountSelectType(selectedType(context, request.getReportCols().get(0)));
+    }
+
+    private SelectType selectedType(ReportViewContext context, MakeReportRequest.ReportCol col) {
+        Property property = propertyByToken(context, col.getColId());
+        if (selectTypeCatalog == null
+                || property == null
+                || property.getPropertyType() == null
+                || !StringUtils.hasText(col.getSelectedTypeId())) {
+            return null;
+        }
+        return selectTypeCatalog.listFor(property.getPropertyType()).stream()
+                .filter(type -> Objects.equals(Long.toString(type.getId()), col.getSelectedTypeId().trim()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private boolean isCountSelectType(SelectType selectType) {
+        return selectType != null
+                && StringUtils.hasText(selectType.getDbExp())
+                && selectType.getDbExp().trim().toUpperCase(Locale.ROOT).startsWith("COUNT(");
+    }
+
+    private long countValue(ListViewResult queryResult) {
+        if (queryResult.getTotalItem() != null) {
+            return queryResult.getTotalItem();
+        }
+        List<ListDataItem> items = queryResult.getData() == null ? queryResult.getItems() : queryResult.getData();
+        return items == null ? 0 : items.size();
+    }
+
+    private Map<String, Object> row(MakeReportRequest request, ReportViewContext context, ListDataItem item) {
         Map<String, Object> row = row(item);
         if (CollectionUtils.isEmpty(request.getReportCols())) {
             return row;
         }
         for (MakeReportRequest.ReportCol col : request.getReportCols()) {
-            String name = reportColumnName(request, col);
+            String name = reportColumnName(context, col);
             if (StringUtils.hasText(name) && !row.containsKey(name)) {
-                Object value = reportColumnValue(request, col, row);
+                Object value = reportColumnValue(context, col, row);
                 if (value != null) {
                     row.put(name, value);
                 }
@@ -367,8 +445,8 @@ public class ReportController {
         return row;
     }
 
-    private Object reportColumnValue(MakeReportRequest request, MakeReportRequest.ReportCol col, Map<String, Object> row) {
-        Property property = propertyByToken(request, col.getColId());
+    private Object reportColumnValue(ReportViewContext context, MakeReportRequest.ReportCol col, Map<String, Object> row) {
+        Property property = propertyByToken(context, col.getColId());
         if (property == null) {
             return null;
         }
@@ -404,5 +482,11 @@ public class ReportController {
             }
         }
         return row;
+    }
+
+    private record ReportViewContext(View view, Model model) {
+        private static ReportViewContext empty() {
+            return new ReportViewContext(null, null);
+        }
     }
 }

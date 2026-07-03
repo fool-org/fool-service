@@ -94,6 +94,15 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: report column identity now follows FoolFrame's
+  `QueryFactory.GetQueryModel(view)` shape more closely. `getmkqview` derives
+  candidate columns from the loaded View metadata and emits View/property keys
+  such as `symbol` as `QueryCol.ID`; `getrpt`, `makereport`, `FilterExp`, and
+  `SelectedTypeId` resolution now share a single View context that checks
+  ViewItem names/labels/model properties before falling back to model property
+  metadata. Numeric Java property ids remain accepted for compatibility, but
+  the Vue report flow no longer depends on those ids or any concrete business
+  DTO.
 - 2026-07-04: the Vue report workflow now converts loaded `getmkqview`
   candidate columns into FoolFrame-style `ReportCols` payload JSON. Loading
   report columns fills `ColName`, `ColId`, first `SelectedTypeId`, `Index`, and

@@ -75,6 +75,10 @@ explicitly named as authoritative for fool-service.
 - [x] Auto-fill Vue report `ReportCols` JSON from `getmkqview` metadata so the
       report tool can run from loaded View columns instead of hand-written
       column DTOs.
+- [x] Align report `getmkqview` / `getrpt` column identity with FoolFrame's
+      View-query model: candidate `ColId` values now come from View-derived
+      property keys, while report/filter/selected-type resolution reuses one
+      View metadata context before reading data rows.
 
 ## Backlog
 

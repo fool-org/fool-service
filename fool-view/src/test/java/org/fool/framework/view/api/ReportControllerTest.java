@@ -67,7 +67,7 @@ public class ReportControllerTest {
 
         assertEquals(0, response.getCode());
         ReportModelResult.QueryCol symbolCol = response.getData().getCols().get(0);
-        assertEquals("1002", symbolCol.getId());
+        assertEquals("symbol", symbolCol.getId());
         assertEquals("Symbol", symbolCol.getName());
         assertEquals(Integer.valueOf(PropertyType.String.code()), symbolCol.getPrpType());
         assertEquals("1", symbolCol.getCompareTypes().get(0).getId());
@@ -102,7 +102,7 @@ public class ReportControllerTest {
 
         assertEquals(0, response.getCode());
         assertEquals(1, response.getData().getCols().size());
-        assertEquals("1002", response.getData().getCols().get(0).getId());
+        assertEquals("symbol", response.getData().getCols().get(0).getId());
         assertEquals("Pair", response.getData().getCols().get(0).getName());
     }
 
@@ -197,7 +197,7 @@ public class ReportControllerTest {
         request.setViewId(100L);
         request.setCurrentPage(1);
         request.setPageSize(10);
-        request.setReportCols(List.of(reportColId("1002", 1)));
+        request.setReportCols(List.of(reportColId("symbol", 1)));
 
         CommonResponse<ReportGridResult> response = controller.makeReport(request);
 
@@ -227,13 +227,48 @@ public class ReportControllerTest {
         request.setViewId(100L);
         request.setCurrentPage(1);
         request.setPageSize(10);
-        request.setReportCols(List.of(reportCol("Pair", "1002", 1)));
+        request.setReportCols(List.of(reportCol("Pair", "symbol", 1)));
 
         CommonResponse<ReportGridResult> response = controller.makeReport(request);
 
         assertEquals(0, response.getCode());
         assertCell(response.getData().getCells().get(0), 0, 0, "Pair");
         assertCell(response.getData().getCells().get(1), 0, 1, "BTC-USDT");
+    }
+
+    @Test
+    public void makeReportUsesViewColumnForSingleCountSelectedType() throws Exception {
+        DataQueryService dataQueryService = mock(DataQueryService.class);
+        DaoService daoService = mock(DaoService.class);
+        JdbcSelectTypeCatalog selectTypeCatalog = mock(JdbcSelectTypeCatalog.class);
+        ListViewResult queryResult = new ListViewResult();
+        queryResult.setTotalItem(42L);
+        when(dataQueryService.queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), org.mockito.ArgumentMatchers.isNull()))
+                .thenReturn(queryResult);
+        when(daoService.getOneDetailByKey(eq(View.class), eq("100")))
+                .thenReturn(view("asset-model", viewItem("Asset Code", "assetCode", 10)));
+        when(daoService.getOneDetailByKey(eq(Model.class), eq("asset-model")))
+                .thenReturn(model(property(2002L, "assetCode", "asset_code", PropertyType.String)));
+        when(selectTypeCatalog.listFor(PropertyType.String)).thenReturn(List.of(selectType(2, "计数", "COUNT({0})")));
+
+        ReportController controller = new ReportController();
+        setField(controller, "dataQueryService", dataQueryService);
+        setField(controller, "daoService", daoService);
+        setField(controller, "selectTypeCatalog", selectTypeCatalog);
+
+        MakeReportRequest.ReportCol count = reportCol("Asset Code[计数]", "assetCode", 0);
+        count.setSelectedTypeId("2");
+        MakeReportRequest request = new MakeReportRequest();
+        request.setViewId(100L);
+        request.setReportCols(List.of(count));
+
+        CommonResponse<ReportGridResult> response = controller.makeReport(request);
+
+        assertEquals(0, response.getCode());
+        assertEquals(1, response.getData().getTotalRecords());
+        assertEquals(1, response.getData().getTotalPages());
+        assertCell(response.getData().getCells().get(0), 0, 0, "Asset Code[计数]");
+        assertCell(response.getData().getCells().get(1), 0, 1, "42");
     }
 
     @Test
@@ -272,12 +307,14 @@ public class ReportControllerTest {
     }
 
     @Test
-    public void makeReportMapsLegacyContainsFilterExpToQueryFilter() throws Exception {
+    public void makeReportMapsViewItemNameFilterExpToQueryFilter() throws Exception {
         DataQueryService dataQueryService = mock(DataQueryService.class);
         DaoService daoService = mock(DaoService.class);
-        when(daoService.getOneDetailByKey(eq(View.class), eq("100"))).thenReturn(view("100"));
-        when(daoService.getOneDetailByKey(eq(Model.class), eq("100"))).thenReturn(model(property("symbol", "order_symbol")));
-        when(dataQueryService.queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), eq("`order_symbol` LIKE '%BTC%'")))
+        when(daoService.getOneDetailByKey(eq(View.class), eq("100")))
+                .thenReturn(view("asset-model", viewItem("Asset Code", "assetCode", 10)));
+        when(daoService.getOneDetailByKey(eq(Model.class), eq("asset-model")))
+                .thenReturn(model(property("assetCode", "asset_code")));
+        when(dataQueryService.queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), eq("`asset_code` LIKE '%Bond%'")))
                 .thenReturn(new ListViewResult());
 
         ReportController controller = new ReportController();
@@ -286,11 +323,11 @@ public class ReportControllerTest {
 
         MakeReportRequest request = new MakeReportRequest();
         request.setViewId(100L);
-        request.setFilterExp(filterExp("symbol", "7", "包含", "BTC", "BTC"));
+        request.setFilterExp(filterExp("Asset Code", "7", "包含", "Bond", "Bond"));
 
         CommonResponse<ReportGridResult> response = controller.makeReport(request);
 
-        verify(dataQueryService).queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), eq("`order_symbol` LIKE '%BTC%'"));
+        verify(dataQueryService).queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), eq("`asset_code` LIKE '%Bond%'"));
         assertEquals(0, response.getCode());
     }
 
@@ -520,6 +557,12 @@ public class ReportControllerTest {
         SelectType type = new SelectType();
         type.setId(id);
         type.setShow(name);
+        return type;
+    }
+
+    private static SelectType selectType(long id, String name, String dbExp) {
+        SelectType type = selectType(id, name);
+        type.setDbExp(dbExp);
         return type;
     }
 
