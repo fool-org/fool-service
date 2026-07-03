@@ -94,6 +94,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: report `getrpt` now resolves legacy `ReportCols[].ColId`
+  through the selected View's model metadata when `ColName` is absent. This
+  matches the FoolFrame report protocol shape (`ColId`, `SelectedTypeId`,
+  `Index`, `OrderType`) without binding report rendering to concrete business
+  DTO fields: the endpoint still queries by View and renders rows from
+  View-shaped list data. Docker proof covers both backend `8080` and frontend
+  proxy `8081` with a ColId-only `ReportCols` payload.
 - 2026-07-04: cleaned the Vue first-screen View workflow so it no longer
   presents itself as an `OrderList` / trading DTO screen. The page still
   auto-loads Docker seed `ViewId=100`, but rendering begins with legacy

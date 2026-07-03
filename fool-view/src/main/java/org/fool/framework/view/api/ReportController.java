@@ -169,7 +169,12 @@ public class ReportController {
     }
 
     private String mappedColumn(MakeReportRequest request, String column) {
-        if (daoService == null || request.getViewId() == null || !safePropertyToken(column)) {
+        Property property = propertyByToken(request, column);
+        return property == null || !StringUtils.hasText(property.getColumn()) ? null : property.getColumn();
+    }
+
+    private Property propertyByToken(MakeReportRequest request, String token) {
+        if (daoService == null || request.getViewId() == null || !safePropertyToken(token)) {
             return null;
         }
         View view = daoService.getOneDetailByKey(View.class, request.getViewId().toString());
@@ -180,11 +185,9 @@ public class ReportController {
         if (model == null || CollectionUtils.isEmpty(model.getProperties())) {
             return null;
         }
-        String token = column.trim();
+        String propertyToken = token.trim();
         return model.getProperties().stream()
-                .filter(property -> matchesProperty(property, token))
-                .map(Property::getColumn)
-                .filter(StringUtils::hasText)
+                .filter(property -> matchesProperty(property, propertyToken))
                 .findFirst()
                 .orElse(null);
     }
@@ -286,11 +289,22 @@ public class ReportController {
         if (!CollectionUtils.isEmpty(request.getReportCols())) {
             return request.getReportCols().stream()
                     .sorted(Comparator.comparingInt(col -> col.getIndex() == null ? 0 : col.getIndex()))
-                    .map(MakeReportRequest.ReportCol::getColName)
+                    .map(col -> reportColumnName(request, col))
                     .filter(StringUtils::hasText)
                     .toList();
         }
         return queryResult.getCols() == null ? List.of() : queryResult.getCols();
+    }
+
+    private String reportColumnName(MakeReportRequest request, MakeReportRequest.ReportCol col) {
+        if (StringUtils.hasText(col.getColName())) {
+            return col.getColName();
+        }
+        Property property = propertyByToken(request, col.getColId());
+        if (property == null) {
+            return null;
+        }
+        return StringUtils.hasText(property.getRemark()) ? property.getRemark() : property.getName();
     }
 
     private List<Map<String, Object>> rows(ListViewResult queryResult) {

@@ -60,6 +60,9 @@ explicitly named as authoritative for fool-service.
 - [x] Remove visible `OrderList` / trading-field defaults from the Vue View
       workflow so first-screen rendering stays `viewId` and View metadata
       driven.
+- [x] Resolve report `ReportCols[].ColId` through View/Model metadata so
+      legacy `getrpt` can render selected columns without frontend business
+      DTO assumptions.
 
 ## Backlog
 
