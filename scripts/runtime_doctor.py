@@ -127,6 +127,22 @@ def read_item_detail_views_ok(payload: dict[str, Any]) -> bool:
     return isinstance(first_nested, dict) and bool(first_nested.get("PrpId") or first_nested.get("prpId"))
 
 
+def report_grid_ok(payload: dict[str, Any]) -> bool:
+    if not common_response_ok(payload):
+        return False
+    cells = payload["data"].get("cells")
+    if not isinstance(cells, list):
+        return False
+    by_position: dict[tuple[int, int], str] = {}
+    for cell in cells:
+        if isinstance(cell, dict) and isinstance(cell.get("row"), int) and isinstance(cell.get("col"), int):
+            by_position[(cell["row"], cell["col"])] = str(cell.get("fmtValue") or "")
+    if by_position.get((0, 0)) != "Symbol" or by_position.get((0, 1)) != "State":
+        return False
+    max_row = max((row for row, _col in by_position), default=0)
+    return any(by_position.get((row, 0)) and by_position.get((row, 1)) == "Open" for row in range(1, max_row + 1))
+
+
 def list_row_item(row: dict[str, Any], key: str) -> dict[str, Any] | None:
     items = row.get("items")
     if not isinstance(items, list):
@@ -240,6 +256,24 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
                 timeout,
             ), "cols"),
             "POST /api/v1/report/getmkqview ViewId=100",
+        ),
+        (
+            "report:getrpt",
+            lambda: report_grid_ok(post_json(
+                f"{frontend_url}/api/v1/report/getrpt",
+                {
+                    "ViewId": 100,
+                    "CurrentPage": 1,
+                    "PageSize": 10,
+                    "QueryFilter": "order_state=\"0\"",
+                    "ReportCols": [
+                        {"ColName": "Symbol", "Index": 1},
+                        {"ColName": "State", "Index": 2},
+                    ],
+                },
+                timeout,
+            )),
+            "POST /api/v1/report/getrpt returns Symbol/State cells",
         ),
     )
     results: list[CheckResult] = []

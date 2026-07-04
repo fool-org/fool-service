@@ -173,6 +173,8 @@ explicitly named as authoritative for fool-service.
       status row.
 - [x] Keep report-grid row projection sourced from legacy row `Items` instead
       of `row.values` DTO maps.
+- [x] Extend the Docker runtime doctor to prove legacy `getrpt` returns
+      report-grid cells through the Vue proxy.
 
 ## Backlog
 

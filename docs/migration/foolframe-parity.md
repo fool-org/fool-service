@@ -156,6 +156,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   migrated `makereport` / `getrpt` path aligned with View/query metadata and
   prevents business DTO map keys from leaking into report output.
 - 2026-07-04: `scripts/runtime_doctor.py` now proves the Docker frontend proxy
+  `getrpt` report execution path by checking the returned `Symbol` / `State`
+  report-grid cells for a filtered open order row.
+- 2026-07-04: `scripts/runtime_doctor.py` now proves the Docker frontend proxy
   `querydata` route with a legacy `QueryFilter`, then verifies returned legacy
   row `Items` carry `state.objId=0`. This covers the main Vue workflow's
   View-loaded filter path with runtime evidence instead of only source tests.

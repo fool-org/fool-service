@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import unittest
 
-from runtime_doctor import common_response_list, compose_checks, detail_view_id, parse_compose_ps
+from runtime_doctor import common_response_list, compose_checks, detail_view_id, parse_compose_ps, report_grid_ok
 
 
 class RuntimeDoctorTest(unittest.TestCase):
@@ -44,6 +44,18 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertEqual(102, detail_view_id({"code": 0, "data": {"detailViewId": 102}}))
         self.assertEqual(0, detail_view_id({"code": 0, "data": {"detailViewId": 0}}))
         self.assertEqual(0, detail_view_id({"code": 1, "data": {"detailViewId": 102}}))
+
+    def test_report_grid_ok_requires_headers_and_open_row(self) -> None:
+        self.assertTrue(report_grid_ok({"code": 0, "data": {"cells": [
+            {"col": 0, "row": 0, "fmtValue": "Symbol"},
+            {"col": 1, "row": 0, "fmtValue": "State"},
+            {"col": 0, "row": 1, "fmtValue": "BTC-USDT"},
+            {"col": 1, "row": 1, "fmtValue": "Open"},
+        ]}}))
+        self.assertFalse(report_grid_ok({"code": 0, "data": {"cells": [
+            {"col": 0, "row": 0, "fmtValue": "Symbol"},
+            {"col": 1, "row": 0, "fmtValue": "State"},
+        ]}}))
 
 
 if __name__ == "__main__":
