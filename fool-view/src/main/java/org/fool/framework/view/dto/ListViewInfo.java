@@ -1,5 +1,6 @@
 package org.fool.framework.view.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -39,4 +40,49 @@ public class ListViewInfo {
     private List<TableColumnInfo> tableColumn;
     @ApiModelProperty("可执行操作")
     private List<OperationInfo> operations;
+
+    @JsonProperty("ID")
+    public Long getLegacyId() {
+        return id;
+    }
+
+    @JsonProperty("Name")
+    public String getLegacyName() {
+        return name;
+    }
+
+    @JsonProperty("Type")
+    public ViewType getLegacyType() {
+        return type;
+    }
+
+    @JsonProperty("Items")
+    public List<TableColumnInfo> getLegacyItems() {
+        return tableColumn;
+    }
+
+    @JsonProperty("Operations")
+    public List<OperationInfo> getLegacyOperations() {
+        return operations;
+    }
+
+    @JsonProperty("DetailViewId")
+    public Long getLegacyDetailViewId() {
+        return detailViewId;
+    }
+
+    @JsonProperty("TempFile")
+    public String getLegacyTempFile() {
+        return tempFile;
+    }
+
+    @JsonProperty("ShowType")
+    public ViewType getLegacyShowType() {
+        return showType;
+    }
+
+    @JsonProperty("AutoFreshTime")
+    public Integer getLegacyAutoFreshTime() {
+        return autoFreshTime;
+    }
 }

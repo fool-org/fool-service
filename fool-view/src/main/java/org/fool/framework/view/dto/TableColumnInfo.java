@@ -1,10 +1,10 @@
 package org.fool.framework.view.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.fool.framework.common.PropertyType;
 import org.fool.framework.view.model.ItemEditType;
 
@@ -48,4 +48,84 @@ public class TableColumnInfo {
     private Long propertyModel;
     @ApiModelProperty("legacy 视图项模板文件")
     private String viewFile;
+
+    @JsonProperty("ID")
+    public Long getLegacyId() {
+        return id;
+    }
+
+    @JsonProperty("Name")
+    public String getLegacyName() {
+        return name;
+    }
+
+    @JsonProperty("Format")
+    public String getLegacyFormat() {
+        return format;
+    }
+
+    @JsonProperty("IsReadOnly")
+    public Boolean getLegacyIsReadOnly() {
+        return isReadOnly;
+    }
+
+    @JsonProperty("ShowIndex")
+    public Integer getLegacyShowIndex() {
+        return showIndex;
+    }
+
+    @JsonProperty("Width")
+    public Integer getLegacyWidth() {
+        return width;
+    }
+
+    @JsonProperty("PropertyName")
+    public String getLegacyPropertyName() {
+        return propertyName;
+    }
+
+    @JsonProperty("PropertyId")
+    public Long getLegacyPropertyId() {
+        return propertyId;
+    }
+
+    @JsonProperty("ListViewType")
+    public Integer getLegacyListViewType() {
+        return listViewType;
+    }
+
+    @JsonProperty("ListViewId")
+    public Long getLegacyListViewId() {
+        return listViewId;
+    }
+
+    @JsonProperty("EditViewId")
+    public Long getLegacyEditViewId() {
+        return editViewId;
+    }
+
+    @JsonProperty("EditExp")
+    public Long getLegacyEditExp() {
+        return editExp;
+    }
+
+    @JsonProperty("ViewFile")
+    public String getLegacyViewFile() {
+        return viewFile;
+    }
+
+    @JsonProperty("PropertyType")
+    public PropertyType getLegacyPropertyType() {
+        return propertyType;
+    }
+
+    @JsonProperty("PropertyModel")
+    public Long getLegacyPropertyModel() {
+        return propertyModel;
+    }
+
+    @JsonProperty("EditType")
+    public ItemEditType getLegacyEditType() {
+        return editType;
+    }
 }

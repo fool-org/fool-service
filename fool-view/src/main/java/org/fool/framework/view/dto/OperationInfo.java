@@ -1,6 +1,7 @@
 package org.fool.framework.view.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -29,4 +30,24 @@ public class OperationInfo {
     private int location;
     @ApiModelProperty("legacy 操作参数")
     private List<OperationParamInfo> params;
+
+    @JsonProperty("ID")
+    public Long getLegacyId() {
+        return id;
+    }
+
+    @JsonProperty("Name")
+    public String getLegacyName() {
+        return name;
+    }
+
+    @JsonProperty("RequireSelect")
+    public boolean getLegacyRequireSelect() {
+        return requireSelect;
+    }
+
+    @JsonProperty("ViewID")
+    public Long getLegacyViewId() {
+        return viewId;
+    }
 }

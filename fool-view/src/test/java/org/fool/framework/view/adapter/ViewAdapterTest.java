@@ -1,5 +1,6 @@
 package org.fool.framework.view.adapter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.fool.framework.common.PropertyType;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Operation;
@@ -16,6 +17,7 @@ import org.fool.framework.view.model.ViewOperationType;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -189,6 +191,74 @@ public class ViewAdapterTest {
         assertEquals("OrderList", legacyName(info));
         assertEquals(org.fool.framework.view.model.ViewType.ListView, legacyType(info));
         assertEquals(org.fool.framework.view.model.ViewType.ListView, legacyShowType(info));
+    }
+
+    @Test
+    public void viewInfoSerializesLegacyPascalMetadata() {
+        View detail = new View();
+        detail.setId(500L);
+        detail.setViewName("OrderDetail");
+
+        ViewItem orderId = viewItem("orderId", "Order ID", ItemEditType.ReadOnly);
+        orderId.setId(901L);
+        orderId.setItemName("Order ID");
+        orderId.setFormatRegx("id-format");
+        orderId.setCanEdit(false);
+        setShowIndex(orderId, 1);
+        setWidth(orderId, 180);
+        Property property = new Property();
+        property.setName("orderId");
+        property.setPropertyType(PropertyType.Long);
+        setProperty(orderId, property);
+
+        ViewOperation open = operation("Open", true, ViewOperationType.DETAIL_VIEW, detail);
+        open.setOperation(operation(300L));
+
+        View view = new View();
+        view.setId(100L);
+        view.setViewName("OrderList");
+        view.setViewType(org.fool.framework.view.model.ViewType.ListView);
+        view.setDefaultDetailView(detail);
+        view.setAutoFreshInterval(45);
+        view.setListItems(List.of(orderId));
+        view.setOperations(List.of(open));
+
+        Map<?, ?> serialized = new ObjectMapper().convertValue(new ViewAdapter().getViewInfo(view), Map.class);
+
+        assertEquals(100L, ((Number) serialized.get("ID")).longValue());
+        assertEquals("OrderList", serialized.get("Name"));
+        assertEquals("ListView", String.valueOf(serialized.get("Type")));
+        assertEquals(500L, ((Number) serialized.get("DetailViewId")).longValue());
+        assertEquals("", serialized.get("TempFile"));
+        assertEquals("ListView", String.valueOf(serialized.get("ShowType")));
+        assertEquals(45, ((Number) serialized.get("AutoFreshTime")).intValue());
+
+        List<?> items = (List<?>) serialized.get("Items");
+        assertEquals(serialized.get("tableColumn"), items);
+        Map<?, ?> column = (Map<?, ?>) items.get(0);
+        assertEquals(901L, ((Number) column.get("ID")).longValue());
+        assertEquals("Order ID", column.get("Name"));
+        assertEquals("id-format", column.get("Format"));
+        assertEquals(true, column.get("IsReadOnly"));
+        assertEquals(1, ((Number) column.get("ShowIndex")).intValue());
+        assertEquals(180, ((Number) column.get("Width")).intValue());
+        assertEquals("orderId", column.get("PropertyName"));
+        assertEquals(0L, ((Number) column.get("PropertyId")).longValue());
+        assertEquals(0, ((Number) column.get("ListViewType")).intValue());
+        assertEquals(0L, ((Number) column.get("ListViewId")).longValue());
+        assertEquals(0L, ((Number) column.get("EditViewId")).longValue());
+        assertEquals(0L, ((Number) column.get("EditExp")).longValue());
+        assertEquals("Long", String.valueOf(column.get("PropertyType")));
+        assertEquals(0L, ((Number) column.get("PropertyModel")).longValue());
+        assertEquals("ReadOnly", String.valueOf(column.get("EditType")));
+
+        List<?> operations = (List<?>) serialized.get("Operations");
+        assertEquals(serialized.get("operations"), operations);
+        Map<?, ?> operation = (Map<?, ?>) operations.get(0);
+        assertEquals(300L, ((Number) operation.get("ID")).longValue());
+        assertEquals("Open", operation.get("Name"));
+        assertEquals(true, operation.get("RequireSelect"));
+        assertEquals(500L, ((Number) operation.get("ViewID")).longValue());
     }
 
     @Test

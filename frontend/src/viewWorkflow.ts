@@ -6,6 +6,7 @@ import type {
   OperationInfo,
   QueryDataDetailDataItem,
   QueryDataDetailItemGroup,
+  QueryDataDetailResult,
   ReportCell,
   ReportCol,
   ReportModelColumn,
@@ -15,11 +16,28 @@ import type {
 } from "./api";
 
 export function columnKey(column: TableColumnInfo) {
-  return column.property || column.propertyName || column.name || String(column.id || "");
+  return firstDisplayValue([
+    column.property,
+    column.propertyName,
+    column.PropertyName,
+    column.name,
+    column.Name,
+    column.id,
+    column.ID
+  ]);
 }
 
 export function columnTitle(column: TableColumnInfo) {
-  return column.title || column.name || column.propertyName || column.property || String(column.id || "");
+  return firstDisplayValue([
+    column.title,
+    column.name,
+    column.Name,
+    column.propertyName,
+    column.PropertyName,
+    column.property,
+    column.id,
+    column.ID
+  ]);
 }
 
 export function rowObjectId(row: ListDataItem, _columns: TableColumnInfo[] = []) {
@@ -160,11 +178,43 @@ export function selectedChildViewId(group: QueryDataDetailItemGroup) {
 }
 
 export function createOperations(operations: OperationInfo[] = []) {
-  return operations.filter((operation) => operation.requireSelect === false && Number(operation.viewId || 0) > 0);
+  return operations.filter((operation) => operationRequiresSelect(operation) === false && operationTargetViewId(operation) > 0);
 }
 
 export function rowOperations(operations: OperationInfo[] = []) {
-  return operations.filter((operation) => operation.requireSelect === true);
+  return operations.filter((operation) => operationRequiresSelect(operation) === true);
+}
+
+export function operationId(operation: OperationInfo) {
+  return operation.id ?? operation.ID ?? 0;
+}
+
+export function operationKey(operation: OperationInfo) {
+  return firstDisplayValue([operationId(operation), operation.name, operation.Name, operationTargetViewId(operation), "operation"]);
+}
+
+export function operationLabel(operation: OperationInfo) {
+  return operation.text || operation.name || operation.Name || `Operation ${operationId(operation) || operationTargetViewId(operation)}`;
+}
+
+export function operationTargetViewId(operation: OperationInfo) {
+  return Number(operation.viewId ?? operation.ViewID ?? 0) || 0;
+}
+
+export function viewColumns(view: ListViewInfo | undefined) {
+  return firstList(view?.tableColumn, view?.Items);
+}
+
+export function viewId(view: ListViewInfo | undefined, fallback = 0) {
+  return Number(view?.id ?? view?.ID ?? fallback) || 0;
+}
+
+export function viewOperations(view: ListViewInfo | undefined) {
+  return firstList(view?.operations, view?.Operations);
+}
+
+export function dataOperations(result: QueryDataDetailResult | undefined) {
+  return firstList(result?.operations, result?.Operations);
 }
 
 export function listTotalItems(result?: ListViewResult) {
@@ -192,7 +242,7 @@ export function listRows(result?: ListViewResult) {
 }
 
 export function viewDetailViewId(view: ListViewInfo | undefined, fallback = 0) {
-  return Number(view?.detailViewId || fallback || 0);
+  return Number(view?.detailViewId ?? view?.DetailViewId ?? 0) || Number(fallback || 0);
 }
 
 export function reportRowsFromCells(cells: ReportCell[] = []) {
@@ -370,11 +420,15 @@ function rowItemForColumn(row: ListDataItem, column: TableColumnInfo) {
 function columnMatchKeys(column: TableColumnInfo) {
   return [
     column.propertyName,
+    column.PropertyName,
     column.property,
     column.name,
+    column.Name,
     column.title,
     column.propertyId,
-    column.id
+    column.PropertyId,
+    column.id,
+    column.ID
   ].map(displayValue).filter(Boolean);
 }
 
@@ -392,6 +446,10 @@ function valueObjId(value: ListDataValue | undefined) {
 
 function valueFmtValue(value: ListDataValue | undefined) {
   return value?.fmtValue ?? value?.FmtValue;
+}
+
+function operationRequiresSelect(operation: OperationInfo) {
+  return operation.requireSelect ?? operation.RequireSelect;
 }
 
 function firstList<T>(...lists: Array<T[] | undefined>): T[] {

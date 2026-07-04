@@ -14,6 +14,7 @@ import {
   columnsFromListResult,
   columnsFromRowItems,
   createOperations,
+  dataOperations,
   fieldModelId,
   groupKey,
   isEnumField,
@@ -26,6 +27,8 @@ import {
   listRows,
   listTotalItems,
   listTotalPages,
+  operationLabel,
+  operationTargetViewId,
   reportRowsFromCells,
   recordColumns,
   recordRowKey,
@@ -35,7 +38,10 @@ import {
   rowRenderKey,
   rowValue,
   selectedChildViewId,
-  viewDetailViewId
+  viewColumns,
+  viewDetailViewId,
+  viewId,
+  viewOperations
 } from "./viewWorkflow";
 
 describe("view workflow helpers", () => {
@@ -296,6 +302,26 @@ describe("view workflow helpers", () => {
     ]);
   });
 
+  it("reads Pascal getlistview metadata through shared View helpers", () => {
+    const create = { ID: 1, Name: "Create", RequireSelect: false, ViewID: 200 };
+    const open = { ID: 2, Name: "Open", RequireSelect: true, ViewID: 201 };
+    const view = {
+      ID: 100,
+      DetailViewId: 300,
+      Items: [{ ID: 901, Name: "Order ID", PropertyName: "orderId" }],
+      Operations: [create, open]
+    };
+
+    expect(viewId(view)).toBe(100);
+    expect(viewDetailViewId(view, 100)).toBe(300);
+    expect(columnKey(viewColumns(view)[0])).toBe("orderId");
+    expect(createOperations(viewOperations(view))).toEqual([create]);
+    expect(rowOperations(viewOperations(view))).toEqual([open]);
+    expect(operationTargetViewId(open)).toBe(201);
+    expect(operationLabel(open)).toBe("Open");
+    expect(dataOperations({ Operations: [open] })).toEqual([open]);
+  });
+
   it("reads legacy list paging from direct totals or pageInfo", () => {
     expect(listTotalItems({ totalItem: 8 })).toBe(8);
     expect(listTotalItems({ pageInfo: { total: 5 } })).toBe(5);
@@ -310,6 +336,8 @@ describe("view workflow helpers", () => {
 
   it("uses the rendered View detail id before falling back to the list id", () => {
     expect(viewDetailViewId({ id: 100, detailViewId: 200 }, 100)).toBe(200);
+    expect(viewDetailViewId({ ID: 100, DetailViewId: 300 }, 100)).toBe(300);
+    expect(viewDetailViewId({ id: 100, detailViewId: 0 }, 100)).toBe(100);
     expect(viewDetailViewId({ id: 100 }, 100)).toBe(100);
   });
 

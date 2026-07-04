@@ -54,7 +54,8 @@ describe("App defaults", () => {
 
   it("renders detail View operations from the loaded detail payload", () => {
     expect(appSource).toContain("View Operations");
-    expect(appSource).toContain("detailResponse?.data?.operations");
+    expect(appSource).toContain("dataOperations(detailResponse.value?.data)");
+    expect(appSource).toContain("detailViewOperations");
     expect(appSource).toContain("runViewOperation(operation)");
     expect(appSource).toContain("operation.params");
   });

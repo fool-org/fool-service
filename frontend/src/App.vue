@@ -49,6 +49,7 @@ import {
   columnsFromListResult,
   columnsFromRowItems,
   createOperations,
+  dataOperations,
   detailItemValues,
   displayValue,
   emptyGroupDraft,
@@ -66,13 +67,14 @@ import {
   listRows,
   listTotalItems,
   listTotalPages,
+  operationId as operationInfoId, operationKey, operationLabel, operationTargetViewId,
   recordColumns,
   recordRowKey,
   reportRowsFromCells,
   rowObjectId,
   rowOperations,
   selectedChildViewId,
-  viewDetailViewId
+  viewColumns, viewDetailViewId, viewId, viewOperations
 } from "./viewWorkflow";
 import {
   buildGetEnumRequest,
@@ -187,11 +189,11 @@ const backendSmokeResponse = ref<CommonResponse<Record<string, unknown>[]> | nul
 const errorMessage = ref("");
 const pendingAction = ref("");
 
-const currentViewId = computed(() => viewResponse.value?.data?.id || legacyListViewId.value);
-const viewTitle = computed(() => viewResponse.value?.data?.viewTitle || viewResponse.value?.data?.name || viewResponse.value?.data?.viewName || viewName.value || `View ${legacyListViewId.value}`);
+const currentViewId = computed(() => viewId(viewResponse.value?.data, legacyListViewId.value));
+const viewTitle = computed(() => viewResponse.value?.data?.viewTitle || viewResponse.value?.data?.name || viewResponse.value?.data?.Name || viewResponse.value?.data?.viewName || viewName.value || `View ${legacyListViewId.value}`);
 
 const resultColumns = computed<TableColumnInfo[]>(() => {
-  const declared = viewResponse.value?.data?.tableColumn || [];
+  const declared = viewColumns(viewResponse.value?.data);
   if (declared.length > 0) {
     return declared;
   }
@@ -213,8 +215,9 @@ const resultFreshTime = computed(() => listFreshTime(dataResponse.value?.data));
 const selectedObject = computed(() => resultRows.value.find((row) => rowObjectId(row, resultColumns.value) === selectedObjectId.value));
 const detailRows = computed(() => detailResponse.value?.data?.data?.simpleData || []);
 const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() => detailResponse.value?.data?.data?.items || []);
-const listCreateOperations = computed(() => createOperations(viewResponse.value?.data?.operations));
-const listRowOperations = computed(() => rowOperations(viewResponse.value?.data?.operations));
+const detailViewOperations = computed(() => dataOperations(detailResponse.value?.data));
+const listCreateOperations = computed(() => createOperations(viewOperations(viewResponse.value?.data)));
+const listRowOperations = computed(() => rowOperations(viewOperations(viewResponse.value?.data)));
 const backendSmokeColumns = computed(() => recordColumns(backendSmokeResponse.value?.data || []));
 const viewCanEdit = computed(() => Boolean(selectedObject.value || isCreatingObject.value));
 const fieldEditorContext = computed(() => ({
@@ -652,12 +655,13 @@ async function runViewOperation(operation: OperationInfo) {
     errorMessage.value = "Select an object first.";
     return;
   }
-  if (!operation.id) {
+  const id = operationInfoId(operation);
+  if (!id) {
     return;
   }
   operationObjectId.value = selectedObjectId.value;
   operationViewId.value = Number(detailViewId.value);
-  operationId.value = operation.id;
+  operationId.value = id;
   await runOperation();
   if (runOperationResponse.value?.data?.success) {
     await queryCurrentViewData();
@@ -853,7 +857,7 @@ async function loadExistingDetailItems(group: QueryDataDetailItemGroup) {
   if (!view) {
     return;
   }
-  const declaredColumns = view.data?.tableColumn || [];
+  const declaredColumns = viewColumns(view.data);
   const state = candidateState(group);
   const dataRequest = buildLegacyQueryDataRequest({
     token: token.value,
@@ -1025,7 +1029,9 @@ function syncDetailDrafts() {
             <button class="primary" type="button" :disabled="Boolean(pendingAction)" @click="loadViewWorkflow(true)">
               Load View
             </button>
-            <button v-for="operation in listCreateOperations" :key="operation.id || operation.name" type="button" :disabled="Boolean(pendingAction)" @click="startNewObject(operation.viewId || currentViewId)">{{ operation.text || operation.name || `New ${operation.viewId}` }}</button>
+            <button v-for="operation in listCreateOperations" :key="operationKey(operation)" type="button" :disabled="Boolean(pendingAction)" @click="startNewObject(operationTargetViewId(operation) || currentViewId)">
+              {{ operationLabel(operation) }}
+            </button>
             <button v-if="!listCreateOperations.length" type="button" :disabled="Boolean(pendingAction)" @click="startNewObject()">New Row</button>
           </div>
 
@@ -1091,23 +1097,15 @@ function syncDetailDrafts() {
             </div>
           </div>
 
-          <div v-if="selectedObject && !isCreatingObject && detailResponse?.data?.operations?.length" class="view-operations">
+          <div v-if="selectedObject && !isCreatingObject && detailViewOperations.length" class="view-operations">
             <h3>View Operations</h3>
             <div class="button-row">
-              <button
-                v-for="operation in detailResponse?.data?.operations || []"
-                :key="operation.id || operation.name"
-                type="button"
-                :disabled="Boolean(pendingAction)"
-                @click="runViewOperation(operation)"
-              >
-                {{ operation.text || operation.name || `Operation ${operation.id}` }}
+              <button v-for="operation in detailViewOperations" :key="operationKey(operation)" type="button" :disabled="Boolean(pendingAction)" @click="runViewOperation(operation)">
+                {{ operationLabel(operation) }}
               </button>
             </div>
-            <div v-for="operation in detailResponse?.data?.operations || []" :key="`params-${operation.id}`">
-              <span v-for="param in operation.params || []" :key="param.id || param.paramId" class="operation-param">
-                {{ param.paramName || param.name }}
-              </span>
+            <div v-for="operation in detailViewOperations" :key="`params-${operationKey(operation)}`">
+              <span v-for="param in operation.params || []" :key="param.id || param.paramId" class="operation-param">{{ param.paramName || param.name }}</span>
             </div>
           </div>
 
@@ -1455,7 +1453,7 @@ function syncDetailDrafts() {
           <div v-if="viewResponse?.data" class="summary-list">
             <div><span>Title</span><strong>{{ viewResponse.data.viewTitle || "-" }}</strong></div>
             <div><span>Type</span><strong>{{ viewResponse.data.viewType || "-" }}</strong></div>
-            <div><span>Columns</span><strong>{{ viewResponse.data.tableColumn?.length || 0 }}</strong></div>
+            <div><span>Columns</span><strong>{{ viewColumns(viewResponse.data).length }}</strong></div>
             <div><span>Inputs</span><strong>{{ viewResponse.data.inputInfo?.length || 0 }}</strong></div>
           </div>
         </article>

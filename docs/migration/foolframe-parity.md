@@ -97,6 +97,15 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: `getlistview` responses now expose FoolFrame Pascal aliases for
+  View page metadata: top-level `ID`, `Name`, `Type`, `Items`, `Operations`,
+  `DetailViewId`, `TempFile`, `ShowType`, and `AutoFreshTime`; View item
+  aliases such as `ID`, `Name`, `PropertyName`, `ShowIndex`, `Width`,
+  `Format`, `IsReadOnly`, `PropertyType`, `PropertyModel`, and `EditType`;
+  and operation aliases `ID`, `Name`, `RequireSelect`, and `ViewID`. Vue View
+  helpers now read either camel-case or Pascal `Items` / `Operations` /
+  `DetailViewId`, keeping page rendering on the `getlistview(ViewId)` metadata
+  path before `querydata(ViewId)` and avoiding concrete business DTO binding.
 - 2026-07-04: legacy `querydata` responses now expose FoolFrame Pascal aliases
   for result metadata (`TotalItem`, `TotalPage`, `PageIndex`, `Cols`,
   `FreshTime`, `AutoFreshTime`, `Data`) and row metadata (`Id`, `RowIndex`,

@@ -1,6 +1,16 @@
 <script setup lang="ts">
 import type { ListDataItem, OperationInfo, TableColumnInfo } from "./api";
-import { columnKey, columnTitle, rowFormatClass, rowObjectId, rowRenderKey, rowValue } from "./viewWorkflow";
+import {
+  columnKey,
+  columnTitle,
+  operationKey,
+  operationLabel,
+  operationTargetViewId,
+  rowFormatClass,
+  rowObjectId,
+  rowRenderKey,
+  rowValue
+} from "./viewWorkflow";
 
 withDefaults(defineProps<{
   columns: TableColumnInfo[];
@@ -19,18 +29,6 @@ withDefaults(defineProps<{
 const emit = defineEmits<{
   select: [row: ListDataItem, viewId?: number];
 }>();
-
-function operationKey(operation: OperationInfo) {
-  return operation.id || operation.name || operation.viewId || "operation";
-}
-
-function operationLabel(operation: OperationInfo) {
-  return operation.text || operation.name || `Open ${operation.viewId}`;
-}
-
-function operationTargetViewId(operation: OperationInfo) {
-  return Number(operation.viewId || 0);
-}
 </script>
 
 <template>

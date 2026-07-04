@@ -142,33 +142,53 @@ export interface ViewInputInfo {
 
 export interface TableColumnInfo {
   id?: number;
+  ID?: number;
   name?: string;
+  Name?: string;
   title?: string;
   property?: string;
   propertyName?: string;
+  PropertyName?: string;
   showIndex?: number;
+  ShowIndex?: number;
   width?: number;
+  Width?: number;
   format?: string;
+  Format?: string;
   isReadOnly?: boolean;
+  IsReadOnly?: boolean;
   editType?: string;
+  EditType?: string;
   propertyId?: number;
+  PropertyId?: number;
   listViewId?: number;
+  ListViewId?: number;
   listViewType?: number;
+  ListViewType?: number;
   editViewId?: number;
+  EditViewId?: number;
   editExp?: number;
+  EditExp?: number;
   propertyType?: string;
+  PropertyType?: string;
   propertyModel?: number;
+  PropertyModel?: number;
   viewFile?: string | null;
+  ViewFile?: string | null;
 }
 
 export interface OperationInfo {
   id?: number;
+  ID?: number;
   name?: string;
+  Name?: string;
   text?: string;
   type?: string;
   viewName?: string;
   viewId?: number;
+  ViewID?: number;
   requireSelect?: boolean;
+  RequireSelect?: boolean;
   location?: number;
   params?: OperationParamInfo[];
 }
@@ -186,19 +206,28 @@ export interface OperationParamInfo {
 
 export interface ListViewInfo {
   id?: number;
+  ID?: number;
   viewName?: string;
   name?: string;
+  Name?: string;
   viewTitle?: string;
   browserTitle?: string;
   viewType?: string;
   type?: string;
+  Type?: string;
   showType?: string;
+  ShowType?: string;
   tempFile?: string;
+  TempFile?: string;
   detailViewId?: number;
+  DetailViewId?: number;
   autoFreshTime?: number;
+  AutoFreshTime?: number;
   inputInfo?: ViewInputInfo[];
   tableColumn?: TableColumnInfo[];
+  Items?: TableColumnInfo[];
   operations?: OperationInfo[];
+  Operations?: OperationInfo[];
 }
 
 export interface ViewDataRequest {
@@ -462,9 +491,13 @@ export interface QueryDataDetailDataItem {
 
 export interface QueryDataDetailResult {
   data?: QueryDataDetail;
+  Data?: QueryDataDetail;
   autoFreshTime?: number;
+  AutoFreshTime?: number;
   canEdit?: boolean;
+  CanEdit?: boolean;
   operations?: OperationInfo[];
+  Operations?: OperationInfo[];
 }
 
 export interface SaveKeypair {
