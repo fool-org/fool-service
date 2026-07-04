@@ -171,6 +171,8 @@ explicitly named as authoritative for fool-service.
       before deriving columns from row `Items`.
 - [x] Display legacy `querydata.FreshTime` in the main Vue View workflow
       status row.
+- [x] Keep report-grid row projection sourced from legacy row `Items` instead
+      of `row.values` DTO maps.
 
 ## Backlog
 

@@ -468,9 +468,6 @@ public class ReportController {
 
     private Map<String, Object> row(ListDataItem item) {
         Map<String, Object> row = new LinkedHashMap<>();
-        if (item.getValues() != null) {
-            row.putAll(item.getValues());
-        }
         if (item.getItems() != null) {
             for (ListDataValue value : item.getItems()) {
                 if (StringUtils.hasText(value.getPrpId())) {

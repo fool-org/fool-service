@@ -237,6 +237,31 @@ public class ReportControllerTest {
     }
 
     @Test
+    public void makeReportRowsIgnoreValuesMapAndRenderLegacyItems() throws Exception {
+        DataQueryService dataQueryService = mock(DataQueryService.class);
+        ListDataItem row = row();
+        row.setValues(Map.of("DTO Only", "from-values"));
+        ListViewResult queryResult = new ListViewResult();
+        queryResult.setData(List.of(row));
+        when(dataQueryService.queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), org.mockito.ArgumentMatchers.isNull()))
+                .thenReturn(queryResult);
+
+        ReportController controller = new ReportController();
+        setField(controller, "dataQueryService", dataQueryService);
+
+        MakeReportRequest request = new MakeReportRequest();
+        request.setViewId(100L);
+        request.setReportCols(List.of(reportCol("DTO Only", 1), reportCol("Symbol", 2)));
+
+        CommonResponse<ReportGridResult> response = controller.makeReport(request);
+
+        assertCell(response.getData().getCells().get(0), 0, 0, "DTO Only");
+        assertCell(response.getData().getCells().get(1), 1, 0, "Symbol");
+        assertCell(response.getData().getCells().get(2), 0, 1, "");
+        assertCell(response.getData().getCells().get(3), 1, 1, "BTC-USDT");
+    }
+
+    @Test
     public void makeReportUsesViewColumnForSingleCountSelectedType() throws Exception {
         DataQueryService dataQueryService = mock(DataQueryService.class);
         DaoService daoService = mock(DaoService.class);
@@ -411,7 +436,6 @@ public class ReportControllerTest {
 
     private static ListDataItem row() {
         ListDataItem row = new ListDataItem();
-        row.setValues(Map.of("symbol", "BTC-USDT", "state", "Open"));
         row.setItems(List.of(value("symbol", "Symbol", "BTC-USDT"), value("state", "State", "Open")));
         return row;
     }
