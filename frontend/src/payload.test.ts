@@ -40,7 +40,16 @@ describe("App defaults", () => {
     expect(appSource).toContain("resultColumns");
     expect(appSource).toContain("detailDrafts");
     expect(appSource).toContain("childDrafts");
-    expect(appSource).toContain("rowValue(row, column)");
+    expect(listDataTableSource).toContain("rowValue(row, column)");
+  });
+
+  it("routes every view row table through the shared metadata renderer", () => {
+    expect(appSource).toContain("const noRowOperations");
+    expect(appSource).toContain('default-action-label="Select"');
+    expect(appSource).toContain(':show-default-action="false"');
+    expect(appSource).not.toContain("rowValue(row, column)");
+    expect(listDataTableSource).toContain("defaultActionLabel");
+    expect(listDataTableSource).toContain("showDefaultAction");
   });
 
   it("renders detail View operations from the loaded detail payload", () => {

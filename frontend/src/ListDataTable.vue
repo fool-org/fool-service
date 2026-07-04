@@ -2,13 +2,19 @@
 import type { ListDataItem, OperationInfo, TableColumnInfo } from "./api";
 import { columnKey, columnTitle, rowFormatClass, rowObjectId, rowRenderKey, rowValue } from "./viewWorkflow";
 
-defineProps<{
+withDefaults(defineProps<{
   columns: TableColumnInfo[];
+  defaultActionLabel?: string;
   disabled: boolean;
   rowOperations: OperationInfo[];
   rows: ListDataItem[];
-  selectedObjectId: string;
-}>();
+  selectedObjectId?: string;
+  showDefaultAction?: boolean;
+}>(), {
+  defaultActionLabel: "Open",
+  selectedObjectId: "",
+  showDefaultAction: true
+});
 
 const emit = defineEmits<{
   select: [row: ListDataItem, viewId?: number];
@@ -28,13 +34,13 @@ function operationTargetViewId(operation: OperationInfo) {
 </script>
 
 <template>
-  <table v-if="rows.length">
+  <table v-if="columns.length || rows.length">
     <thead>
       <tr>
         <th v-for="column in columns" :key="columnKey(column)">
           {{ columnTitle(column) }}
         </th>
-        <th></th>
+        <th v-if="rowOperations.length || showDefaultAction"></th>
       </tr>
     </thead>
     <tbody>
@@ -46,7 +52,7 @@ function operationTargetViewId(operation: OperationInfo) {
         <td v-for="column in columns" :key="columnKey(column)">
           {{ rowValue(row, column) }}
         </td>
-        <td>
+        <td v-if="rowOperations.length || showDefaultAction">
           <button
             v-for="operation in rowOperations"
             :key="operationKey(operation)"
@@ -56,7 +62,9 @@ function operationTargetViewId(operation: OperationInfo) {
           >
             {{ operationLabel(operation) }}
           </button>
-          <button type="button" :disabled="disabled" @click="emit('select', row)">Open</button>
+          <button v-if="showDefaultAction" type="button" :disabled="disabled" @click="emit('select', row)">
+            {{ defaultActionLabel }}
+          </button>
         </td>
       </tr>
     </tbody>

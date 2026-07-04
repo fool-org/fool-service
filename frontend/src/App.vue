@@ -46,8 +46,6 @@ import {
   buildSavePropertyies,
   buildSelectedExistingItemProperty,
   buildUpdatedItemProperty,
-  columnKey,
-  columnTitle,
   columnsFromRowItems,
   createOperations,
   detailItemValues,
@@ -70,8 +68,6 @@ import {
   reportRowsFromCells,
   rowObjectId,
   rowOperations,
-  rowRenderKey,
-  rowValue,
   selectedChildViewId,
   viewDetailViewId
 } from "./viewWorkflow";
@@ -91,6 +87,7 @@ import {
 } from "./payload";
 
 const token = ref(localStorage.getItem("fool-service-token") || "");
+const noRowOperations: OperationInfo[] = [];
 const userId = ref("admin");
 const password = ref("");
 const legacyAppId = ref("fool-service");
@@ -1148,32 +1145,16 @@ function syncDetailDrafts() {
                       Next
                     </button>
                   </div>
-                  <table v-if="candidateRows(group).length">
-                    <thead>
-                      <tr>
-                        <th v-for="column in candidateColumns(group)" :key="columnKey(column)">
-                          {{ columnTitle(column) }}
-                        </th>
-                        <th></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="(row, rowIndex) in candidateRows(group)" :key="rowRenderKey(row, rowIndex)">
-                        <td v-for="column in candidateColumns(group)" :key="columnKey(column)">
-                          {{ rowValue(row, column) }}
-                        </td>
-                        <td>
-                          <button
-                            type="button"
-                            :disabled="Boolean(pendingAction)"
-                            @click="addExistingDetailItem(group, row)"
-                          >
-                            Select
-                          </button>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                  <ListDataTable
+                    v-if="candidateRows(group).length"
+                    :columns="candidateColumns(group)"
+                    default-action-label="Select"
+                    :disabled="Boolean(pendingAction)"
+                    :row-operations="noRowOperations"
+                    :rows="candidateRows(group)"
+                    selected-object-id=""
+                    @select="(row) => addExistingDetailItem(group, row)"
+                  />
                 </div>
                 <div
                   v-for="item in group.items || []"
@@ -1901,30 +1882,15 @@ function syncDetailDrafts() {
 
         <div class="result-layout">
           <div class="table-wrap">
-            <table v-if="resultColumns.length > 0">
-              <thead>
-                <tr>
-                  <th
-                    v-for="column in resultColumns"
-                    :key="column.property || column.title"
-                    :style="{ width: column.width ? `${column.width}px` : undefined }"
-                  >
-                    {{ column.title || column.property }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(row, rowIndex) in resultRows" :key="rowRenderKey(row, rowIndex)">
-                  <td
-                    v-for="column in resultColumns"
-                    :key="column.property || column.title"
-                    :style="{ width: column.width ? `${column.width}px` : undefined }"
-                  >
-                    {{ rowValue(row, column) }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <ListDataTable
+              v-if="resultColumns.length > 0"
+              :columns="resultColumns"
+              :disabled="Boolean(pendingAction)"
+              :row-operations="noRowOperations"
+              :rows="resultRows"
+              selected-object-id=""
+              :show-default-action="false"
+            />
             <div v-else class="empty-state">No query rows loaded.</div>
           </div>
 

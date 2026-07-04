@@ -106,6 +106,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   still follows the View-first sequence (`getlistview(ViewId)` then
   `querydata(ViewId)`) and does not let concrete DTO fields in `values`
   define the rendered list.
+- 2026-07-04: Vue child-candidate tables and the API-tool query result table
+  now reuse `ListDataTable`, the same metadata renderer used by the main View
+  workflow. `App.vue` no longer calls row cell helpers directly, keeping table
+  cells centralized on loaded View columns matched to legacy row `Items`.
 - 2026-07-04: `scripts/runtime_doctor.py` now proves the Docker frontend proxy
   `querydata` route with a legacy `QueryFilter`, then verifies returned legacy
   row `Items` carry `state.objId=0`. This covers the main Vue workflow's
