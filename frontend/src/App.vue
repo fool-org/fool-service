@@ -61,6 +61,7 @@ import {
   itemKey,
   itemValue,
   listAutoFreshTime,
+  listFreshTime,
   listPageIndex,
   listRows,
   listTotalItems,
@@ -208,6 +209,7 @@ const resultRows = computed<ListDataItem[]>(() => listRows(dataResponse.value?.d
 const resultPageIndex = computed(() => listPageIndex(dataResponse.value?.data, Number(pageIndex.value)));
 const resultTotalItems = computed(() => listTotalItems(dataResponse.value?.data));
 const resultTotalPages = computed(() => listTotalPages(dataResponse.value?.data));
+const resultFreshTime = computed(() => listFreshTime(dataResponse.value?.data));
 const selectedObject = computed(() => resultRows.value.find((row) => rowObjectId(row, resultColumns.value) === selectedObjectId.value));
 const detailRows = computed(() => detailResponse.value?.data?.data?.simpleData || []);
 const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() => detailResponse.value?.data?.data?.items || []);
@@ -1039,7 +1041,7 @@ function syncDetailDrafts() {
               @select="selectObject"
             />
           </div>
-          <div v-if="resultRows.length || resultTotalItems" class="button-row">
+          <div v-if="resultRows.length || resultTotalItems || resultFreshTime" class="button-row">
             <button
               type="button"
               :disabled="Boolean(pendingAction) || resultPageIndex <= 1"
@@ -1055,6 +1057,7 @@ function syncDetailDrafts() {
             >
               Next
             </button>
+            <span v-if="resultFreshTime">Updated {{ resultFreshTime }}</span>
           </div>
         </article>
 

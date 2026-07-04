@@ -69,8 +69,10 @@ describe("App defaults", () => {
 
   it("renders list paging from legacy querydata totals", () => {
     expect(appSource).toContain("resultTotalItems");
+    expect(appSource).toContain("resultFreshTime");
     expect(appSource).toContain("loadResultPage(resultPageIndex + 1)");
     expect(appSource).toContain("Page {{ resultPageIndex }} / {{ resultTotalPages || 1 }}");
+    expect(appSource).toContain("Updated {{ resultFreshTime }}");
   });
 
   it("resets the main View search to the first page", () => {

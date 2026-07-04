@@ -183,6 +183,10 @@ export function listAutoFreshTime(result?: ListViewResult) {
   return Number(result?.autoFreshTime ?? result?.AutoFreshTime ?? 0) || 0;
 }
 
+export function listFreshTime(result?: ListViewResult) {
+  return displayValue(result?.freshTime ?? result?.FreshTime);
+}
+
 export function listRows(result?: ListViewResult) {
   return firstList(result?.items, result?.data, result?.Data);
 }

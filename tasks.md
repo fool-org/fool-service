@@ -156,6 +156,8 @@ explicitly named as authoritative for fool-service.
       a minimal timer that refreshes the loaded View/data path.
 - [x] Prefer legacy `querydata.Cols` as the Vue fallback table header source
       before deriving columns from row `Items`.
+- [x] Display legacy `querydata.FreshTime` in the main Vue View workflow
+      status row.
 
 ## Backlog
 

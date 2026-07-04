@@ -21,6 +21,7 @@ import {
   isReadonlyField,
   itemKey,
   listAutoFreshTime,
+  listFreshTime,
   listPageIndex,
   listRows,
   listTotalItems,
@@ -303,6 +304,8 @@ describe("view workflow helpers", () => {
     expect(listPageIndex({ pageInfo: { pageIndex: 2 } }, 1)).toBe(2);
     expect(listAutoFreshTime({ autoFreshTime: 30 })).toBe(30);
     expect(listAutoFreshTime({ AutoFreshTime: 45 })).toBe(45);
+    expect(listFreshTime({ freshTime: "2026-07-04T00:16:42" })).toBe("2026-07-04T00:16:42");
+    expect(listFreshTime({ FreshTime: "2026-07-04T00:17:00" })).toBe("2026-07-04T00:17:00");
   });
 
   it("uses the rendered View detail id before falling back to the list id", () => {
