@@ -67,6 +67,21 @@ export function columnsFromRowItems(row: ListDataItem | undefined): TableColumnI
     .filter((column) => column.property || column.title);
 }
 
+export function columnsFromListResult(result: ListViewResult | undefined): TableColumnInfo[] {
+  return firstList(result?.cols, result?.Cols)
+    .map((col, index) => {
+      const title = displayValue(col);
+      return {
+        id: index,
+        property: title,
+        propertyName: title,
+        title,
+        name: title
+      };
+    })
+    .filter((column) => column.title);
+}
+
 export function fieldModelId(field: ListDataValue) {
   return field.prpModelId ?? field.PrpModelId ?? 0;
 }

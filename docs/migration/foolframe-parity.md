@@ -115,6 +115,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   loaded View data query succeeds. The refresh follows FoolFrame's list-page
   behavior by resetting to page 1 and reusing the current `getlistview` /
   `querydata` context, while clearing the timer on component unmount.
+- 2026-07-04: when `getlistview` does not provide table columns, Vue now
+  prefers legacy `querydata.Cols` for fallback table headers before deriving
+  columns from row `Items`. This matches FoolFrame `querylistdata.js`, which
+  builds list headers from the data response `Cols` field.
 - 2026-07-04: `scripts/runtime_doctor.py` now proves the Docker frontend proxy
   `querydata` route with a legacy `QueryFilter`, then verifies returned legacy
   row `Items` carry `state.objId=0`. This covers the main Vue workflow's

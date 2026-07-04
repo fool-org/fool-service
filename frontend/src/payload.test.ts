@@ -87,6 +87,7 @@ describe("App defaults", () => {
     expect(appSource).toContain("async function startNewObject(viewId = Number(detailViewId.value))");
     expect(appSource).toContain("await queryDetail(Number(detailViewId.value))");
     expect(appSource).toContain("saveViewId.value = String(detailViewId.value)");
+    expect(appSource).toContain("columnsFromListResult(dataResponse.value?.data)");
     expect(appSource).toContain("columnsFromRowItems(first)");
     expect(appSource).not.toContain("Object.keys(first)");
     expect(appSource).not.toContain("viewName: viewName.value");
@@ -104,6 +105,20 @@ describe("App defaults", () => {
     expect(appSource).toContain('v-model="legacyQueryFilter"');
     expect(querySource).toContain("queryFilter: legacyQueryFilter.value");
     expect(querySource).not.toContain("keyword:");
+  });
+
+  it("uses querydata Cols before row Items when View columns are absent", () => {
+    const columnsSource = appSource.slice(
+      appSource.indexOf("const resultColumns = computed"),
+      appSource.indexOf("const resultRows = computed")
+    );
+    const childSource = appSource.slice(
+      appSource.indexOf("async function loadExistingDetailItems"),
+      appSource.indexOf("async function addExistingDetailItem")
+    );
+
+    expect(columnsSource.indexOf("columnsFromListResult")).toBeLessThan(columnsSource.indexOf("columnsFromRowItems"));
+    expect(childSource).toContain("declaredColumns.length ? declaredColumns : resultColumns");
   });
 
   it("refreshes the main View workflow from legacy AutoFreshTime", () => {

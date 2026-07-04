@@ -154,6 +154,8 @@ explicitly named as authoritative for fool-service.
       and API-tool View row tables so row cells keep one View/Items-driven path.
 - [x] Honor legacy `querydata.AutoFreshTime` in the main Vue View workflow with
       a minimal timer that refreshes the loaded View/data path.
+- [x] Prefer legacy `querydata.Cols` as the Vue fallback table header source
+      before deriving columns from row `Items`.
 
 ## Backlog
 

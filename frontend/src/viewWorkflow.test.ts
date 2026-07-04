@@ -11,6 +11,7 @@ import {
   buildSelectedExistingItemProperty,
   buildUpdatedItemProperty,
   columnKey,
+  columnsFromListResult,
   columnsFromRowItems,
   createOperations,
   fieldModelId,
@@ -119,6 +120,17 @@ describe("view workflow helpers", () => {
         propertyModel: undefined
       }
     ]);
+  });
+
+  it("derives fallback columns from legacy querydata Cols before row items", () => {
+    expect(columnsFromListResult({ Cols: ["Record ID", "State"] })).toEqual([
+      { id: 0, property: "Record ID", propertyName: "Record ID", title: "Record ID", name: "Record ID" },
+      { id: 1, property: "State", propertyName: "State", title: "State", name: "State" }
+    ]);
+    expect(columnsFromListResult({ cols: ["Name"] })[0]).toMatchObject({
+      property: "Name",
+      title: "Name"
+    });
   });
 
   it("does not use values DTO fields for view row identity or cells", () => {

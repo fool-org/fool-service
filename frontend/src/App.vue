@@ -46,6 +46,7 @@ import {
   buildSavePropertyies,
   buildSelectedExistingItemProperty,
   buildUpdatedItemProperty,
+  columnsFromListResult,
   columnsFromRowItems,
   createOperations,
   detailItemValues,
@@ -192,6 +193,11 @@ const resultColumns = computed<TableColumnInfo[]>(() => {
   const declared = viewResponse.value?.data?.tableColumn || [];
   if (declared.length > 0) {
     return declared;
+  }
+
+  const resultCols = columnsFromListResult(dataResponse.value?.data);
+  if (resultCols.length > 0) {
+    return resultCols;
   }
 
   const first = listRows(dataResponse.value?.data)[0];
@@ -845,7 +851,7 @@ async function loadExistingDetailItems(group: QueryDataDetailItemGroup) {
   if (!view) {
     return;
   }
-  const columns = view.data?.tableColumn || [];
+  const declaredColumns = view.data?.tableColumn || [];
   const state = candidateState(group);
   const dataRequest = buildLegacyQueryDataRequest({
     token: token.value,
@@ -858,7 +864,8 @@ async function loadExistingDetailItems(group: QueryDataDetailItemGroup) {
   if (!data) {
     return;
   }
-  setCandidateResults(group, columns, listRows(data.data), {
+  const resultColumns = columnsFromListResult(data.data);
+  setCandidateResults(group, declaredColumns.length ? declaredColumns : resultColumns, listRows(data.data), {
     totalItem: listTotalItems(data.data),
     totalPage: listTotalPages(data.data)
   });
