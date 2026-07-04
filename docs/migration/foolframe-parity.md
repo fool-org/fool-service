@@ -97,6 +97,16 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: `getreaditemview.DetailViews` now follows the FoolFrame
+  collection metadata shape for configured child edit Views. Collection
+  `ViewItem` metadata is emitted as a `DetailViews[]` entry, and the adapter
+  resolves `EditViewId` through the existing `ViewDataService` path to fill
+  nested `Items` with read-item View metadata. This keeps child detail field
+  definitions on the View metadata path instead of deriving them from business
+  DTO data rows. The Docker `Order.items` seed now configures `edit_view_id`
+  alongside list/selected child Views, and Vue merges `querydatadetail` child
+  rows under `getreaditemview.DetailViews[].Items` so child tables render
+  View-first before data values are bound.
 - 2026-07-04: `getreaditemview` responses now expose FoolFrame Pascal aliases
   for read-view metadata: top-level `ViewName`, `ViewId`, `Items`, and
   `DetailViews`, plus item aliases such as `Name`, `PrpType`, `Index`,
@@ -440,11 +450,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   collection groups, matching FoolFrame's `ListView` / `EditView` /
   `SelectedView` contract for detail child items. Docker seed data now includes
   an `OrderItemList` View (`viewId=101`) and configures `Order.items` to use it
-  for list and selected candidates. Runtime proof: `querydatadetail` for
+  for list, edit, and selected candidates. Runtime proof: `querydatadetail` for
   `OrderList` object `1001` returns `items.listViewId=101`,
-  `items.selectedView=101`, and `items.selectFromExists=true`; Vue then loads
-  `getlistview(101)` before `querydata(101, keyword=Legacy)` and renders the
-  `2001 / Legacy item` candidate row.
+  `items.detailViewId=101`, `items.selectedView=101`, and
+  `items.selectFromExists=true`; Vue then loads `getlistview(101)` before
+  `querydata(101, keyword=Legacy)` and renders the `2001 / Legacy item`
+  candidate row.
 - 2026-07-04: added candidate search/pagination state for select-from-existing
   child collection dialogs while keeping the page View-driven. The Vue detail
   panel still loads candidate View metadata first through legacy `getlistview`,

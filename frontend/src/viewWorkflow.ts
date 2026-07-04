@@ -77,6 +77,10 @@ export function readViewItems(view: ReadItemViewInfo | undefined) {
   return firstList(view?.items, view?.Items);
 }
 
+export function readViewDetailViews(view: ReadItemViewInfo | undefined) {
+  return firstList(view?.detailViews, view?.DetailViews);
+}
+
 export function readViewFields(view: ReadItemViewInfo | undefined) {
   return detailFieldsFromReadView(view, []);
 }
@@ -100,6 +104,45 @@ export function detailFieldsFromReadView(
     const field = fieldFromReadItem(item);
     return mergeFieldValue(field, valuesByKey.get(fieldKey(field)));
   });
+}
+
+export function detailGroupsFromReadView(
+  view: ReadItemViewInfo | undefined,
+  dataGroups: QueryDataDetailItemGroup[] = []
+): QueryDataDetailItemGroup[] {
+  const detailViews = readViewDetailViews(view);
+  if (!detailViews.length) {
+    return dataGroups;
+  }
+
+  const dataGroupsByKey = new Map<string, QueryDataDetailItemGroup>();
+  for (const group of dataGroups) {
+    for (const key of detailGroupKeys(group)) {
+      dataGroupsByKey.set(key, group);
+    }
+  }
+
+  const used = new Set<QueryDataDetailItemGroup>();
+  const groups: QueryDataDetailItemGroup[] = detailViews.map((detail) => {
+    const field = fieldFromReadItem(detail);
+    const dataGroup = readDetailKeys(detail, field)
+      .map((key) => dataGroupsByKey.get(key))
+      .find((group): group is QueryDataDetailItemGroup => Boolean(group));
+    if (dataGroup) {
+      used.add(dataGroup);
+    }
+    const properties = firstList(detail.items, detail.Items).map(fieldFromReadItem);
+    return {
+      ...dataGroup,
+      name: firstDisplayValue([detail.name, detail.Name, dataGroup?.name]),
+      itemName: firstDisplayValue([detail.name, detail.Name, dataGroup?.itemName]),
+      prpId: fieldKey(field) || dataGroup?.prpId,
+      properties: properties.length ? properties : dataGroup?.properties || [],
+      items: dataGroup?.items || []
+    };
+  });
+
+  return groups.concat(dataGroups.filter((group) => !used.has(group)));
 }
 
 export function columnsFromRowItems(row: ListDataItem | undefined): TableColumnInfo[] {
@@ -515,6 +558,35 @@ function mergeFieldValue(field: ListDataValue, value: ListDataValue | undefined)
     fmtValue,
     FmtValue: fmtValue
   };
+}
+
+function detailGroupKeys(group: QueryDataDetailItemGroup) {
+  return normalizeKeys([group.prpId, group.name, group.itemName]);
+}
+
+function readDetailKeys(detail: ReadItemViewItemInfo, field: ListDataValue) {
+  return normalizeKeys([
+    field.prpId,
+    field.PrpId,
+    field.prpShowName,
+    field.PrpShowName,
+    detail.name,
+    detail.Name,
+    detail.id,
+    detail.ID
+  ]);
+}
+
+function normalizeKeys(values: unknown[]) {
+  const keys = new Set<string>();
+  for (const value of values) {
+    const text = displayValue(value);
+    if (text) {
+      keys.add(text);
+      keys.add(text.toLowerCase());
+    }
+  }
+  return [...keys];
 }
 
 function operationRequiresSelect(operation: OperationInfo) {

@@ -41,6 +41,9 @@ public class ViewController {
     @ApiOperation("得到旧版只读详情视图")
     public CommonResponse<ReadItemViewInfo> getReadItemView(@RequestBody ViewDataRequest request) {
         String viewId = request.getViewId() == null ? null : request.getViewId().toString();
-        return new CommonResponse<>(viewAdapter.getReadItemView(viewDataService.getViewData(viewId, request.getToken())));
+        String token = request.getToken();
+        return new CommonResponse<>(viewAdapter.getReadItemView(
+                viewDataService.getViewData(viewId, token),
+                childViewId -> viewDataService.getViewData(childViewId.toString(), token)));
     }
 }

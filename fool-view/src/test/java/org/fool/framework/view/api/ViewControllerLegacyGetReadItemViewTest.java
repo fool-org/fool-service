@@ -12,6 +12,8 @@ import java.lang.reflect.Field;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,7 +26,7 @@ public class ViewControllerLegacyGetReadItemViewTest {
         View view = new View();
         ReadItemViewInfo expected = new ReadItemViewInfo();
         when(viewDataService.getViewData("200", "token-2")).thenReturn(view);
-        when(viewAdapter.getReadItemView(view)).thenReturn(expected);
+        when(viewAdapter.getReadItemView(eq(view), any())).thenReturn(expected);
 
         ViewController controller = new ViewController();
         setField(controller, "viewDataService", viewDataService);
@@ -36,6 +38,7 @@ public class ViewControllerLegacyGetReadItemViewTest {
         CommonResponse<ReadItemViewInfo> response = controller.getReadItemView(request);
 
         verify(viewDataService).getViewData("200", "token-2");
+        verify(viewAdapter).getReadItemView(eq(view), any());
         assertEquals(0, response.getCode());
         assertSame(expected, response.getData());
     }

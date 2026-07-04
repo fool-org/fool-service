@@ -663,13 +663,14 @@ SET `show_index` = 3,
     `edit_type` = 1
 WHERE `view_id` = 100 AND `model_property` = 'customer';
 
-INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `show_index`, `list_view_id`, `selected_view_id`, `view_id`)
-SELECT 1004, 'Items', 'Items', 'Items', 'items', 0, 0, NULL, NULL, NULL, 0, 4, 101, 101, 100
+INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `show_index`, `list_view_id`, `edit_view_id`, `selected_view_id`, `view_id`)
+SELECT 1004, 'Items', 'Items', 'Items', 'items', 0, 0, NULL, NULL, NULL, 0, 4, 101, 101, 101, 100
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 100 AND `model_property` = 'items');
 
 UPDATE `fool_sys_view_item`
 SET `show_index` = 5,
     `list_view_id` = 101,
+    `edit_view_id` = 101,
     `selected_view_id` = 101
 WHERE `view_id` = 100 AND `model_property` = 'items';
 
@@ -705,9 +706,15 @@ INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`
 SELECT 1203, 'State', 'State', 'State', 'state', 0, 1, NULL, NULL, NULL, 1, 4, 102
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 102 AND `model_property` = 'state');
 
-INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `show_index`, `list_view_id`, `selected_view_id`, `view_id`)
-SELECT 1204, 'Items', 'Items', 'Items', 'items', 0, 0, NULL, NULL, NULL, 0, 5, 101, 101, 102
+INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `show_index`, `list_view_id`, `edit_view_id`, `selected_view_id`, `view_id`)
+SELECT 1204, 'Items', 'Items', 'Items', 'items', 0, 0, NULL, NULL, NULL, 0, 5, 101, 101, 101, 102
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 102 AND `model_property` = 'items');
+
+UPDATE `fool_sys_view_item`
+SET `list_view_id` = 101,
+    `edit_view_id` = 101,
+    `selected_view_id` = 101
+WHERE `view_id` = 102 AND `model_property` = 'items';
 
 INSERT INTO `SW_SYS_VIEW` (
   `VIEW_ID`, `VIEW_MODEL`, `VIEW_NAME`, `VIEW_FILTER`, `VIEW_DEFAULT`, `VIEW_TYPE`,

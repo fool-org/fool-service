@@ -109,6 +109,42 @@ public class ViewAdapterTest {
     }
 
     @Test
+    public void readItemViewIncludesCollectionEditViewDetailItems() {
+        Property itemsProperty = new Property();
+        itemsProperty.setName("items");
+        itemsProperty.setPropertyType(PropertyType.BusinessObject);
+        itemsProperty.setIsCollection(true);
+        ViewItem items = viewItem("items", "Items", ItemEditType.TextBox);
+        items.setItemName("Items");
+        items.setEditViewId(102L);
+        setProperty(items, itemsProperty);
+
+        Property itemNameProperty = new Property();
+        itemNameProperty.setName("itemName");
+        itemNameProperty.setPropertyType(PropertyType.String);
+        ViewItem itemName = viewItem("itemName", "Item Name", ItemEditType.TextBox);
+        itemName.setItemName("Item Name");
+        setProperty(itemName, itemNameProperty);
+
+        View editView = new View();
+        editView.setId(102L);
+        editView.setListItems(List.of(itemName));
+
+        View view = new View();
+        view.setListItems(List.of(items));
+
+        ReadItemViewInfo info = new ViewAdapter().getReadItemView(view, id -> id.equals(102L) ? editView : null);
+
+        assertEquals(0, info.getItems().size());
+        assertEquals(1, info.getDetailViews().size());
+        assertEquals("items", info.getDetailViews().get(0).getPrpId());
+        assertEquals("Items", info.getDetailViews().get(0).getName());
+        assertEquals(1, info.getDetailViews().get(0).getItems().size());
+        assertEquals("itemName", info.getDetailViews().get(0).getItems().get(0).getPrpId());
+        assertEquals("Item Name", info.getDetailViews().get(0).getItems().get(0).getPrpShowName());
+    }
+
+    @Test
     public void formatViewItemsAreExcludedFromLegacyListColumnsAndInputs() {
         View view = new View();
         ViewItem orderId = viewItem("orderId", "Order ID", ItemEditType.ReadOnly);

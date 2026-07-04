@@ -51,6 +51,7 @@ import {
   createOperations,
   dataOperations,
   detailFieldsFromReadView,
+  detailGroupsFromReadView,
   detailItemValues,
   displayValue,
   emptyGroupDraft,
@@ -223,8 +224,11 @@ const currentReadItemView = computed(() => {
 });
 const readItemFields = computed(() => readViewFields(readItemViewResponse.value?.data));
 const detailRows = computed(() => detailFieldsFromReadView(currentReadItemView.value, detailDataRows.value));
-const detailItemGroups = computed<QueryDataDetailItemGroup[]>(
-  () => detailResponse.value?.data?.data?.items || detailResponse.value?.data?.Data?.Items || []
+const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() =>
+  detailGroupsFromReadView(
+    currentReadItemView.value,
+    detailResponse.value?.data?.data?.items || detailResponse.value?.data?.Data?.Items || []
+  )
 );
 const detailViewOperations = computed(() => dataOperations(detailResponse.value?.data));
 const listCreateOperations = computed(() => createOperations(viewOperations(viewResponse.value?.data)));

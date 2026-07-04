@@ -7,6 +7,7 @@ import org.fool.framework.model.model.Property;
 import org.fool.framework.view.dto.ListViewInfo;
 import org.fool.framework.view.dto.OperationInfo;
 import org.fool.framework.view.dto.OperationParamInfo;
+import org.fool.framework.view.dto.ReadItemViewDetailInfo;
 import org.fool.framework.view.dto.ReadItemViewInfo;
 import org.fool.framework.view.dto.ReadItemViewItemInfo;
 import org.fool.framework.view.dto.TableColumnInfo;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Component;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Function;
 
 @Component
 public class ViewAdapter {
@@ -87,14 +89,22 @@ public class ViewAdapter {
     }
 
     public ReadItemViewInfo getReadItemView(View view) {
+        return getReadItemView(view, id -> null);
+    }
+
+    public ReadItemViewInfo getReadItemView(View view, Function<Long, View> viewResolver) {
         ReadItemViewInfo result = new ReadItemViewInfo();
         result.setViewName(view.getViewName());
         result.setViewId(view.getId());
         result.setItems(new LinkedList<>());
         result.setDetailViews(new LinkedList<>());
-        orderedListItems(view).stream()
-                .filter(item -> !safeIsCollection(item))
-                .forEach(item -> result.getItems().add(toReadItem(item)));
+        orderedListItems(view).forEach(item -> {
+            if (safeIsCollection(item)) {
+                result.getDetailViews().add(toReadDetailItem(item, viewResolver));
+            } else {
+                result.getItems().add(toReadItem(item));
+            }
+        });
         return result;
     }
 
@@ -157,6 +167,19 @@ public class ViewAdapter {
 
     private ReadItemViewItemInfo toReadItem(ViewItem item) {
         ReadItemViewItemInfo result = new ReadItemViewItemInfo();
+        fillReadItem(item, result);
+        return result;
+    }
+
+    private ReadItemViewDetailInfo toReadDetailItem(ViewItem item, Function<Long, View> viewResolver) {
+        ReadItemViewDetailInfo result = new ReadItemViewDetailInfo();
+        fillReadItem(item, result);
+        View editView = item.getEditViewId() == null ? null : viewResolver.apply(item.getEditViewId());
+        result.setItems(editView == null ? List.of() : orderedListItems(editView).stream().map(this::toReadItem).toList());
+        return result;
+    }
+
+    private void fillReadItem(ViewItem item, ReadItemViewItemInfo result) {
         result.setName(item.getItemName());
         result.setIndex(safeShowIndex(item));
         result.setPrpType(safePropertyType(item));
@@ -166,7 +189,6 @@ public class ViewAdapter {
         result.setPrpShowName(item.getItemLabel());
         result.setReadOnly(!item.isCanEdit());
         result.setEditType(item.getEditType());
-        return result;
     }
 
     private String safeReadPropertyName(ViewItem item) {

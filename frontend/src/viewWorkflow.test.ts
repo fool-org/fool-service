@@ -16,9 +16,11 @@ import {
   createOperations,
   dataOperations,
   detailFieldsFromReadView,
+  detailGroupsFromReadView,
   fieldKey,
   fieldModelId,
   fieldTitle,
+  groupColumns,
   groupKey,
   isEnumField,
   isLookupField,
@@ -41,6 +43,7 @@ import {
   rowRenderKey,
   rowValue,
   selectedChildViewId,
+  readViewDetailViews,
   readViewFields,
   readViewId,
   viewColumns,
@@ -191,6 +194,49 @@ describe("view workflow helpers", () => {
       editType: "ReadOnly"
     });
     expect(fields).toHaveLength(1);
+  });
+
+  it("uses read item DetailViews as child group columns before data rows", () => {
+    const view = {
+      DetailViews: [
+        {
+          Name: "Items",
+          PrpId: "items",
+          Items: [
+            { Name: "Item ID", PrpId: "itemId", PrpShowName: "Item ID", PrpType: "Long", ReadOnly: true },
+            { Name: "Item Name", PrpId: "itemName", PrpShowName: "Item Name", PrpType: "String" }
+          ]
+        }
+      ]
+    };
+    const dataGroup = {
+      name: "OrderItem",
+      prpId: "items",
+      listViewId: 101,
+      selectedView: 101,
+      selectFromExists: true,
+      properties: [{ prpId: "dtoOnly", prpShowName: "DTO Only" }],
+      items: [
+        {
+          dataId: "2001",
+          values: [
+            { prpId: "itemId", objId: "2001", fmtValue: "2001" },
+            { prpId: "itemName", objId: "Updated item", fmtValue: "Updated item" }
+          ]
+        }
+      ]
+    };
+
+    const groups = detailGroupsFromReadView(view, [dataGroup]);
+
+    expect(readViewDetailViews(view)).toHaveLength(1);
+    expect(groups).toHaveLength(1);
+    expect(groupKey(groups[0])).toBe("items");
+    expect(selectedChildViewId(groups[0])).toBe(101);
+    expect(groups[0].items).toBe(dataGroup.items);
+    expect(groupColumns(groups[0]).map(fieldKey)).toEqual(["itemId", "itemName"]);
+    expect(fieldTitle(groupColumns(groups[0])[0])).toBe("Item ID");
+    expect(detailGroupsFromReadView(undefined, [dataGroup])).toEqual([dataGroup]);
   });
 
   it("renders Pascal legacy list rows from View item metadata", () => {
