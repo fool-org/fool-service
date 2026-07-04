@@ -147,6 +147,9 @@ explicitly named as authoritative for fool-service.
       `querydata.QueryFilter`, matching FoolFrame's list page filter box.
 - [x] Extend the Docker runtime doctor to prove `querydata.QueryFilter`
       returns filtered legacy row `Items`.
+- [x] Expose FoolFrame Pascal `querydata` response aliases and make Vue list
+      helpers consume legacy `Data` / row `Items` without binding rendering to
+      concrete business DTO fields.
 
 ## Backlog
 

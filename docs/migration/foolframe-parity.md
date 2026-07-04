@@ -97,6 +97,15 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: legacy `querydata` responses now expose FoolFrame Pascal aliases
+  for result metadata (`TotalItem`, `TotalPage`, `PageIndex`, `Cols`,
+  `FreshTime`, `AutoFreshTime`, `Data`) and row metadata (`Id`, `RowIndex`,
+  `Items`, `RowFmt`) while keeping the existing Vue camel-case contract. The
+  Vue View workflow reads rows, totals, detail item values, and fallback
+  columns through shared helpers that accept both alias forms, so the page
+  still follows the View-first sequence (`getlistview(ViewId)` then
+  `querydata(ViewId)`) and does not let concrete DTO fields in `values`
+  define the rendered list.
 - 2026-07-04: `scripts/runtime_doctor.py` now proves the Docker frontend proxy
   `querydata` route with a legacy `QueryFilter`, then verifies returned legacy
   row `Items` carry `state.objId=0`. This covers the main Vue workflow's

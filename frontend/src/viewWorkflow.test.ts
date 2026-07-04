@@ -4,6 +4,7 @@ import {
   buildDeletedItemProperty,
   buildDraftsFromRow,
   buildReportColsFromModel,
+  detailItemValues,
   emptyGroupDraft,
   buildFieldDrafts,
   buildSavePropertyies,
@@ -19,6 +20,7 @@ import {
   isReadonlyField,
   itemKey,
   listPageIndex,
+  listRows,
   listTotalItems,
   listTotalPages,
   reportRowsFromCells,
@@ -132,6 +134,38 @@ describe("view workflow helpers", () => {
     expect(rowRenderKey({ values: { recordId: "dto-id" }, rowIndex: 4 }, 7)).toBe("4");
   });
 
+  it("renders Pascal legacy list rows from View item metadata", () => {
+    const columns = [
+      { property: "recordId", title: "Record ID" },
+      { property: "state", title: "State" }
+    ];
+    const row = {
+      Id: "1001",
+      RowIndex: 2,
+      RowFmt: "warning-row ",
+      values: { recordId: "dto-id", state: "DTO state" },
+      Items: [
+        { PrpId: "recordId", ObjId: "1001", FmtValue: "1001", PrpShowName: "Record ID", ReadOnly: true },
+        { PrpId: "state", ObjId: "0", FmtValue: "Open", PrpShowName: "State", PrpType: "Enum", PrpModelId: 102 }
+      ]
+    };
+    const result = { TotalItem: 8, TotalPage: 2, PageIndex: 1, Data: [row] };
+
+    expect(listRows(result)).toEqual([row]);
+    expect(listTotalItems(result)).toBe(8);
+    expect(listTotalPages(result)).toBe(2);
+    expect(listPageIndex(result, 9)).toBe(1);
+    expect(rowObjectId(row, columns)).toBe("1001");
+    expect(rowValue(row, columns[1])).toBe("Open");
+    expect(rowFormatClass(row)).toBe("warning-row");
+    expect(columnsFromRowItems(row)[1]).toMatchObject({
+      property: "state",
+      title: "State",
+      propertyType: "Enum",
+      propertyModel: 102
+    });
+  });
+
   it("keeps legacy child collection add/update/delete payload names", () => {
     const group = {
       prpId: "items",
@@ -149,6 +183,7 @@ describe("view workflow helpers", () => {
     };
 
     expect(itemKey(group, item)).toBe("items:2001");
+    expect(detailItemValues({ DataId: "2002", Values: item.values })).toEqual(item.values);
     expect(buildAddedItemProperty(group, "2002", { itemId: "2002", itemName: "New item" })).toEqual({
       key: "items",
       addedItems: [

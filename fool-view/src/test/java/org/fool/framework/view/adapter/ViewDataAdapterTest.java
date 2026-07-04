@@ -122,7 +122,9 @@ public class ViewDataAdapterTest {
         ListDataItem item = result.getItems().get(0);
         Map<?, ?> serialized = new ObjectMapper().convertValue(item, Map.class);
         assertTrue(serialized.containsKey("rowIndex"));
+        assertTrue(serialized.containsKey("RowIndex"));
         assertEquals(21L, ((Number) serialized.get("rowIndex")).longValue());
+        assertEquals(21L, ((Number) serialized.get("RowIndex")).longValue());
     }
 
     @Test
@@ -148,7 +150,12 @@ public class ViewDataAdapterTest {
         assertEquals(25L, ((Number) serialized.get("totalItem")).longValue());
         assertEquals(3L, ((Number) serialized.get("totalPage")).longValue());
         assertEquals(3L, ((Number) serialized.get("pageIndex")).longValue());
+        assertEquals(25L, ((Number) serialized.get("TotalItem")).longValue());
+        assertEquals(3L, ((Number) serialized.get("TotalPage")).longValue());
+        assertEquals(3L, ((Number) serialized.get("PageIndex")).longValue());
+        assertEquals(serialized.get("cols"), serialized.get("Cols"));
         assertEquals(serialized.get("items"), serialized.get("data"));
+        assertEquals(serialized.get("items"), serialized.get("Data"));
     }
 
     @Test
@@ -170,7 +177,9 @@ public class ViewDataAdapterTest {
 
         Map<?, ?> serialized = new ObjectMapper().convertValue(row, Map.class);
         assertTrue("ListDataItem should expose legacy Items", serialized.containsKey("items"));
+        assertTrue("ListDataItem should expose Pascal legacy Items", serialized.containsKey("Items"));
         List<?> legacyItems = (List<?>) serialized.get("items");
+        assertEquals(legacyItems, serialized.get("Items"));
         Map<?, ?> value = (Map<?, ?>) legacyItems.get(0);
         assertEquals("1001", value.get("objId"));
         assertEquals("orderId", value.get("prpId"));

@@ -36,6 +36,7 @@ import {
 import ListDataTable from "./ListDataTable.vue";
 import MetadataFieldEditor from "./MetadataFieldEditor.vue";
 import { useChildCandidates } from "./useChildCandidates";
+import { enumFieldOptions, navItems, nextObjectId, services } from "./viewShell";
 import {
   buildAddedItemProperty,
   buildDeletedItemProperty,
@@ -49,6 +50,7 @@ import {
   columnTitle,
   columnsFromRowItems,
   createOperations,
+  detailItemValues,
   displayValue,
   emptyGroupDraft,
   fieldKey,
@@ -60,6 +62,7 @@ import {
   itemKey,
   itemValue,
   listPageIndex,
+  listRows,
   listTotalItems,
   listTotalPages,
   recordColumns,
@@ -184,18 +187,6 @@ const backendSmokeResponse = ref<CommonResponse<Record<string, unknown>[]> | nul
 const errorMessage = ref("");
 const pendingAction = ref("");
 
-const services = computed(() => [
-  { label: "Docker Backend", value: "8080", state: "ready" },
-  { label: "MySQL", value: "car_wash", state: "ready" },
-  { label: "Redis", value: "6379", state: "ready" }
-]);
-
-const navItems = [
-  { id: "views", label: "Views" },
-  { id: "tools", label: "API Tools" },
-  { id: "migration", label: "Migration" }
-];
-
 const currentViewId = computed(() => viewResponse.value?.data?.id || legacyListViewId.value);
 const viewTitle = computed(() => viewResponse.value?.data?.viewTitle || viewResponse.value?.data?.name || viewResponse.value?.data?.viewName || viewName.value || `View ${legacyListViewId.value}`);
 
@@ -205,11 +196,11 @@ const resultColumns = computed<TableColumnInfo[]>(() => {
     return declared;
   }
 
-  const first = dataResponse.value?.data?.items?.[0] || dataResponse.value?.data?.data?.[0];
+  const first = listRows(dataResponse.value?.data)[0];
   return columnsFromRowItems(first);
 });
 
-const resultRows = computed<ListDataItem[]>(() => dataResponse.value?.data?.items || dataResponse.value?.data?.data || []);
+const resultRows = computed<ListDataItem[]>(() => listRows(dataResponse.value?.data));
 const resultPageIndex = computed(() => listPageIndex(dataResponse.value?.data, Number(pageIndex.value)));
 const resultTotalItems = computed(() => listTotalItems(dataResponse.value?.data));
 const resultTotalPages = computed(() => listTotalPages(dataResponse.value?.data));
@@ -844,9 +835,9 @@ async function loadExistingDetailItems(group: QueryDataDetailItemGroup) {
   if (!data) {
     return;
   }
-  setCandidateResults(group, columns, data.data?.items || data.data?.data || [], {
-    totalItem: data.data?.totalItem || data.data?.pageInfo?.total || 0,
-    totalPage: data.data?.totalPage || data.data?.pageInfo?.pageCount || 0
+  setCandidateResults(group, columns, listRows(data.data), {
+    totalItem: listTotalItems(data.data),
+    totalPage: listTotalPages(data.data)
   });
 }
 
@@ -868,7 +859,7 @@ async function updateDetailItem(group: QueryDataDetailItemGroup, item: QueryData
     errorMessage.value = "Select a saved item first.";
     return;
   }
-  const drafts = childDrafts.value[itemKey(group, item)] || buildFieldDrafts(item.values || []);
+  const drafts = childDrafts.value[itemKey(group, item)] || buildFieldDrafts(detailItemValues(item));
   setDetailItemSavePayload([buildUpdatedItemProperty(group, item, drafts)]);
   const saved = await saveObj();
   saveItempropertiesJson.value = "";
@@ -898,14 +889,6 @@ function setDetailItemSavePayload(itemproperties: SaveItemProperty[]) {
   saveViewId.value = String(detailViewId.value);
   savePropertyiesJson.value = JSON.stringify(buildSavePropertyies(detailRows.value, detailDrafts.value));
   saveItempropertiesJson.value = JSON.stringify(itemproperties);
-}
-
-function nextObjectId() {
-  return String(Date.now());
-}
-
-function enumFieldOptions(field: { prpModelId?: number }) {
-  return enumOptions.value[String(field.prpModelId || "")] || [];
 }
 
 async function loadFieldEnums() {
@@ -1057,7 +1040,7 @@ function syncDetailDrafts() {
               <MetadataFieldEditor
                 v-model="detailDrafts[fieldKey(field)]"
                 :field="field"
-                :options="enumFieldOptions(field)"
+                :options="enumFieldOptions(enumOptions, field)"
                 :readonly-value="field.fmtValue"
                 v-bind="fieldEditorContext"
               />
@@ -1108,7 +1091,7 @@ function syncDetailDrafts() {
                     <MetadataFieldEditor
                       v-model="newChildDrafts[groupKey(group)][fieldKey(field)]"
                       :field="field"
-                      :options="enumFieldOptions(field)"
+                      :options="enumFieldOptions(enumOptions, field)"
                       v-bind="fieldEditorContext"
                     />
                   </label>
@@ -1203,7 +1186,7 @@ function syncDetailDrafts() {
                     <MetadataFieldEditor
                       v-model="childDrafts[itemKey(group, item)][fieldKey(field)]"
                       :field="field"
-                      :options="enumFieldOptions(field)"
+                      :options="enumFieldOptions(enumOptions, field)"
                       :readonly-value="itemValue(item, field)"
                       v-bind="fieldEditorContext"
                     />

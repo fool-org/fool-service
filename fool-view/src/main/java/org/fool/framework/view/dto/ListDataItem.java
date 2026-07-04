@@ -1,5 +1,6 @@
 package org.fool.framework.view.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -20,4 +21,24 @@ public class ListDataItem {
     private String rowFmt;
     @ApiModelProperty("可以进行的操作")
     private List<OperationInfo> operation;
+
+    @JsonProperty("Id")
+    public String getLegacyId() {
+        return id;
+    }
+
+    @JsonProperty("RowIndex")
+    public Long getLegacyRowIndex() {
+        return rowIndex;
+    }
+
+    @JsonProperty("Items")
+    public List<ListDataValue> getLegacyItems() {
+        return items;
+    }
+
+    @JsonProperty("RowFmt")
+    public String getLegacyRowFmt() {
+        return rowFmt;
+    }
 }

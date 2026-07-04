@@ -1,5 +1,6 @@
 package org.fool.framework.view.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -30,4 +31,39 @@ public class ListViewResult {
     private List<ListDataItem> items;
     @ApiModelProperty("legacy 结果数据")
     private List<ListDataItem> data;
+
+    @JsonProperty("TotalItem")
+    public Long getLegacyTotalItem() {
+        return totalItem;
+    }
+
+    @JsonProperty("TotalPage")
+    public Long getLegacyTotalPage() {
+        return totalPage;
+    }
+
+    @JsonProperty("PageIndex")
+    public Long getLegacyPageIndex() {
+        return pageIndex;
+    }
+
+    @JsonProperty("Cols")
+    public List<String> getLegacyCols() {
+        return cols;
+    }
+
+    @JsonProperty("FreshTime")
+    public LocalDateTime getLegacyFreshTime() {
+        return freshTime;
+    }
+
+    @JsonProperty("AutoFreshTime")
+    public Integer getLegacyAutoFreshTime() {
+        return autoFreshTime;
+    }
+
+    @JsonProperty("Data")
+    public List<ListDataItem> getLegacyData() {
+        return data;
+    }
 }

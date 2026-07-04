@@ -23,33 +23,34 @@ export function columnTitle(column: TableColumnInfo) {
 }
 
 export function rowObjectId(row: ListDataItem, _columns: TableColumnInfo[] = []) {
-  const firstItemWithId = row.items?.find((item) => displayValue(item.objId));
-  return firstDisplayValue([row.id, firstItemWithId?.objId, row.items?.[0]?.fmtValue]);
+  const items = rowItems(row);
+  const firstItemWithId = items.find((item) => displayValue(valueObjId(item)));
+  return firstDisplayValue([row.id, row.Id, firstItemWithId && valueObjId(firstItemWithId), valueFmtValue(items[0])]);
 }
 
 export function rowRenderKey(row: ListDataItem, index = 0) {
-  return rowObjectId(row) || firstDisplayValue([row.rowIndex]) || String(index);
+  return rowObjectId(row) || firstDisplayValue([row.rowIndex, row.RowIndex]) || String(index);
 }
 
 export function rowValue(row: ListDataItem, column: TableColumnInfo) {
   const item = rowItemForColumn(row, column);
-  return firstDisplayValue([item?.fmtValue, item?.objId]);
+  return firstDisplayValue([item && valueFmtValue(item), item && valueObjId(item)]);
 }
 
 export function rowFormatClass(row: ListDataItem) {
-  return displayValue(row.rowFmt).trim();
+  return displayValue(row.rowFmt ?? row.RowFmt).trim();
 }
 
 export function fieldKey(field: ListDataValue) {
-  return field.prpId || field.prpShowName || "";
+  return field.prpId || field.PrpId || field.prpShowName || field.PrpShowName || "";
 }
 
 export function fieldTitle(field: ListDataValue) {
-  return field.prpShowName || field.prpId || "";
+  return field.prpShowName || field.PrpShowName || field.prpId || field.PrpId || "";
 }
 
 export function columnsFromRowItems(row: ListDataItem | undefined): TableColumnInfo[] {
-  return (row?.items || [])
+  return rowItems(row)
     .map((field) => {
       const key = fieldKey(field);
       return {
@@ -57,34 +58,35 @@ export function columnsFromRowItems(row: ListDataItem | undefined): TableColumnI
         propertyName: key,
         title: fieldTitle(field),
         name: fieldTitle(field),
-        isReadOnly: field.readOnly,
-        editType: field.editType,
-        propertyType: field.prpType,
-        propertyModel: field.prpModelId
+        isReadOnly: field.readOnly ?? field.ReadOnly,
+        editType: field.editType ?? field.EditType,
+        propertyType: field.prpType ?? field.PrpType,
+        propertyModel: field.prpModelId ?? field.PrpModelId
       };
     })
     .filter((column) => column.property || column.title);
 }
 
 export function fieldModelId(field: ListDataValue) {
-  return field.prpModelId || 0;
+  return field.prpModelId ?? field.PrpModelId ?? 0;
 }
 
 export function isEnumField(field: ListDataValue) {
-  return String(field.prpType || "").toLowerCase() === "enum" && fieldModelId(field) > 0;
+  return String(field.prpType ?? field.PrpType ?? "").toLowerCase() === "enum" && fieldModelId(field) > 0;
 }
 
 export function isLookupField(field: ListDataValue) {
-  const type = String(field.prpType || "").toLowerCase();
+  const type = String(field.prpType ?? field.PrpType ?? "").toLowerCase();
   return (type === "businessobject" || type === "16") && fieldModelId(field) > 0;
 }
 
 export function isReadonlyField(field: ListDataValue) {
-  return field.readOnly === true || String(field.editType || "").toLowerCase() === "readonly";
+  return field.readOnly === true || field.ReadOnly === true || String(field.editType ?? field.EditType ?? "").toLowerCase() === "readonly";
 }
 
 export function fieldDraftValue(field: ListDataValue) {
-  const value = field.objId === undefined || field.objId === null || field.objId === "" ? field.fmtValue : field.objId;
+  const objId = valueObjId(field);
+  const value = objId === undefined || objId === null || objId === "" ? valueFmtValue(field) : objId;
   return displayValue(value);
 }
 
@@ -110,23 +112,28 @@ export function buildItemDrafts(groups: QueryDataDetailItemGroup[]) {
   const drafts: Record<string, Record<string, string>> = {};
   for (const group of groups) {
     for (const item of group.items || []) {
-      drafts[itemKey(group, item)] = buildFieldDrafts(item.values || []);
+      drafts[itemKey(group, item)] = buildFieldDrafts(detailItemValues(item));
     }
   }
   return drafts;
 }
 
 export function itemKey(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) {
-  return `${group.prpId || group.name || "items"}:${item.dataId || ""}`;
+  return `${group.prpId || group.name || "items"}:${item.dataId || item.DataId || ""}`;
 }
 
 export function groupColumns(group: QueryDataDetailItemGroup) {
-  return group.properties?.length ? group.properties : group.items?.[0]?.values || [];
+  return group.properties?.length ? group.properties : detailItemValues(group.items?.[0]);
 }
 
 export function itemValue(item: QueryDataDetailDataItem, field: ListDataValue) {
   const key = fieldKey(field);
-  return item.values?.find((value) => fieldKey(value) === key)?.fmtValue || "";
+  const value = detailItemValues(item).find((itemValue) => fieldKey(itemValue) === key);
+  return value ? valueFmtValue(value) : "";
+}
+
+export function detailItemValues(item: QueryDataDetailDataItem | undefined) {
+  return firstList(item?.values, item?.Values);
 }
 
 export function groupKey(group: QueryDataDetailItemGroup) {
@@ -146,15 +153,19 @@ export function rowOperations(operations: OperationInfo[] = []) {
 }
 
 export function listTotalItems(result?: ListViewResult) {
-  return result?.totalItem || result?.pageInfo?.total || 0;
+  return result?.totalItem ?? result?.TotalItem ?? result?.pageInfo?.total ?? 0;
 }
 
 export function listTotalPages(result?: ListViewResult) {
-  return result?.totalPage || result?.pageInfo?.pageCount || 0;
+  return result?.totalPage ?? result?.TotalPage ?? result?.pageInfo?.pageCount ?? 0;
 }
 
 export function listPageIndex(result: ListViewResult | undefined, fallback = 1) {
-  return result?.pageIndex || result?.pageInfo?.pageIndex || fallback;
+  return result?.pageIndex ?? result?.PageIndex ?? result?.pageInfo?.pageIndex ?? fallback;
+}
+
+export function listRows(result?: ListViewResult) {
+  return firstList(result?.items, result?.data, result?.Data);
 }
 
 export function viewDetailViewId(view: ListViewInfo | undefined, fallback = 0) {
@@ -245,9 +256,9 @@ export function buildUpdatedItemProperty(
     key: group.prpId || "items",
     items: [
       {
-        itemId: item.dataId,
+        itemId: item.dataId || item.DataId,
         isExist: true,
-        propertyies: buildItemPropertyies(item.values || [], drafts)
+        propertyies: buildItemPropertyies(detailItemValues(item), drafts)
       }
     ]
   };
@@ -261,9 +272,9 @@ export function buildDeletedItemProperty(
     key: group.prpId || "items",
     delteItems: [
       {
-        itemId: item.dataId,
+        itemId: item.dataId || item.DataId,
         isExist: true,
-        propertyies: buildItemPropertyies(item.values || [], buildFieldDrafts(item.values || []))
+        propertyies: buildItemPropertyies(detailItemValues(item), buildFieldDrafts(detailItemValues(item)))
       }
     ]
   };
@@ -288,21 +299,22 @@ export function buildAddedItemProperty(
 }
 
 export function buildDraftsFromRow(fields: ListDataValue[], row: ListDataItem, columns: TableColumnInfo[] = []) {
+  const items = rowItems(row);
   return fields.reduce<Record<string, string>>((drafts, field, index) => {
     const key = fieldKey(field);
     if (!key) {
       return drafts;
     }
-    const byKey = row.items?.find((item) => fieldKey(item) === key);
+    const byKey = items.find((item) => fieldKey(item) === key);
     const byColumn = columns[index] ? rowItemForColumn(row, columns[index]) : undefined;
-    const byIndex = row.items?.[index];
+    const byIndex = items[index];
     drafts[key] = firstDisplayValue([
-      byKey?.objId,
-      byKey?.fmtValue,
-      byColumn?.objId,
-      byColumn?.fmtValue,
-      byIndex?.objId,
-      byIndex?.fmtValue
+      byKey && valueObjId(byKey),
+      byKey && valueFmtValue(byKey),
+      byColumn && valueObjId(byColumn),
+      byColumn && valueFmtValue(byColumn),
+      byIndex && valueObjId(byIndex),
+      byIndex && valueFmtValue(byIndex)
     ]);
     return drafts;
   }, {});
@@ -329,7 +341,7 @@ export function displayValue(value: unknown) {
 
 function rowItemForColumn(row: ListDataItem, column: TableColumnInfo) {
   const keys = new Set(columnMatchKeys(column));
-  return row.items?.find((item) => rowItemKeys(item).some((key) => keys.has(key)));
+  return rowItems(row).find((item) => rowItemKeys(item).some((key) => keys.has(key)));
 }
 
 function columnMatchKeys(column: TableColumnInfo) {
@@ -344,7 +356,23 @@ function columnMatchKeys(column: TableColumnInfo) {
 }
 
 function rowItemKeys(item: ListDataValue) {
-  return [item.prpId, item.prpShowName].map(displayValue).filter(Boolean);
+  return [item.prpId, item.PrpId, item.prpShowName, item.PrpShowName].map(displayValue).filter(Boolean);
+}
+
+function rowItems(row: ListDataItem | undefined) {
+  return firstList(row?.items, row?.Items);
+}
+
+function valueObjId(value: ListDataValue | undefined) {
+  return value?.objId ?? value?.ObjId;
+}
+
+function valueFmtValue(value: ListDataValue | undefined) {
+  return value?.fmtValue ?? value?.FmtValue;
+}
+
+function firstList<T>(...lists: Array<T[] | undefined>): T[] {
+  return lists.find((list) => Array.isArray(list) && list.length > 0) ?? lists.find(Array.isArray) ?? [];
 }
 
 function firstDisplayValue(values: unknown[]) {

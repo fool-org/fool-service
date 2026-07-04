@@ -244,6 +244,10 @@ export interface ListDataItem {
   items?: ListDataValue[];
   rowFmt?: string;
   operation?: OperationInfo[];
+  Id?: string;
+  RowIndex?: number;
+  Items?: ListDataValue[];
+  RowFmt?: string;
 }
 
 export interface ListDataValue {
@@ -255,6 +259,14 @@ export interface ListDataValue {
   prpModelId?: number;
   readOnly?: boolean;
   editType?: string;
+  ObjId?: string;
+  PrpId?: string;
+  FmtValue?: string;
+  PrpShowName?: string;
+  PrpType?: string;
+  PrpModelId?: number;
+  ReadOnly?: boolean;
+  EditType?: string;
 }
 
 export interface ListViewResult {
@@ -267,6 +279,13 @@ export interface ListViewResult {
   autoFreshTime?: number;
   items?: ListDataItem[];
   data?: ListDataItem[];
+  TotalItem?: number;
+  TotalPage?: number;
+  PageIndex?: number;
+  Cols?: string[];
+  FreshTime?: string;
+  AutoFreshTime?: number;
+  Data?: ListDataItem[];
 }
 
 export interface GetEnumRequest {
@@ -437,6 +456,8 @@ export interface QueryDataDetailItemGroup {
 export interface QueryDataDetailDataItem {
   dataId?: string;
   values?: ListDataValue[];
+  DataId?: string;
+  Values?: ListDataValue[];
 }
 
 export interface QueryDataDetailResult {
