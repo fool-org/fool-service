@@ -106,7 +106,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   DTO data rows. The Docker `Order.items` seed now configures `edit_view_id`
   alongside list/selected child Views, and Vue merges `querydatadetail` child
   rows under `getreaditemview.DetailViews[].Items` so child tables render
-  View-first before data values are bound.
+  View-first before data values are bound. `scripts/runtime_doctor.py` now
+  checks the same loaded-detail-View `getreaditemview` path and fails if child
+  `DetailViews` metadata disappears.
 - 2026-07-04: `getreaditemview` responses now expose FoolFrame Pascal aliases
   for read-view metadata: top-level `ViewName`, `ViewId`, `Items`, and
   `DetailViews`, plus item aliases such as `Name`, `PrpType`, `Index`,

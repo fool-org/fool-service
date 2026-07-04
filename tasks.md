@@ -160,6 +160,9 @@ explicitly named as authoritative for fool-service.
       configured child edit Views via the existing View data service, and make
       Vue child tables use that View metadata before binding
       `querydatadetail` row values.
+- [x] Extend the Docker runtime doctor to fail when
+      `getreaditemview.DetailViews` child metadata disappears from the loaded
+      detail View path.
 - [x] Reuse the shared Vue `ListDataTable` renderer for main, child-candidate,
       and API-tool View row tables so row cells keep one View/Items-driven path.
 - [x] Honor legacy `querydata.AutoFreshTime` in the main Vue View workflow with

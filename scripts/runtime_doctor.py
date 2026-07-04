@@ -105,7 +105,26 @@ def detail_view_id(payload: dict[str, Any]) -> int:
     if not common_response_ok(payload):
         return 0
     value = payload["data"].get("detailViewId")
+    if not isinstance(value, int):
+        value = payload["data"].get("DetailViewId")
     return value if isinstance(value, int) else 0
+
+
+def read_item_detail_views_ok(payload: dict[str, Any]) -> bool:
+    if not common_response_ok(payload):
+        return False
+    data = payload["data"]
+    detail_views = data.get("DetailViews") or data.get("detailViews")
+    if not isinstance(detail_views, list) or not detail_views:
+        return False
+    first_detail = detail_views[0]
+    if not isinstance(first_detail, dict):
+        return False
+    nested_items = first_detail.get("Items") or first_detail.get("items")
+    if not isinstance(nested_items, list) or not nested_items:
+        return False
+    first_nested = nested_items[0]
+    return isinstance(first_nested, dict) and bool(first_nested.get("PrpId") or first_nested.get("prpId"))
 
 
 def list_row_item(row: dict[str, Any], key: str) -> dict[str, Any] | None:
@@ -137,6 +156,16 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         return detail_response_ok(post_json(
             f"{frontend_url}/api/v1/data/querydatadetail",
             {"ViewId": view_id, "ObjId": "1001"},
+            timeout,
+        ))
+
+    def read_item_view_from_loaded_view() -> bool:
+        view_id = view_state.get("detailViewId")
+        if not view_id:
+            return False
+        return read_item_detail_views_ok(post_json(
+            f"{frontend_url}/api/v1/view/getreaditemview",
+            {"ViewId": view_id},
             timeout,
         ))
 
@@ -188,6 +217,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "data:querydatadetail",
             query_detail_from_loaded_view,
             "POST /api/v1/data/querydatadetail uses loaded DetailViewId",
+        ),
+        (
+            "view:getreaditemview-detailviews",
+            read_item_view_from_loaded_view,
+            "POST /api/v1/view/getreaditemview returns DetailViews child metadata",
         ),
         (
             "data:inputquery",
