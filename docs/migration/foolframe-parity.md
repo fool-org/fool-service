@@ -97,6 +97,14 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-04: `getreaditemview` responses now expose FoolFrame Pascal aliases
+  for read-view metadata: top-level `ViewName`, `ViewId`, `Items`, and
+  `DetailViews`, plus item aliases such as `Name`, `PrpType`, `Index`,
+  `PrpId`, `PrpModelId`, `ID`, `PrpShowName`, `ReadOnly`, and `EditType`.
+  The Vue detail workflow now loads the active detail `ViewId` through
+  `getreaditemview` before `querydatadetail`, then merges data values into the
+  read-view fields so the editor is rendered from View metadata instead of
+  concrete business DTO fields.
 - 2026-07-04: `getlistview` responses now expose FoolFrame Pascal aliases for
   View page metadata: top-level `ID`, `Name`, `Type`, `Items`, `Operations`,
   `DetailViewId`, `TempFile`, `ShowType`, and `AutoFreshTime`; View item

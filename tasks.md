@@ -153,6 +153,9 @@ explicitly named as authoritative for fool-service.
 - [x] Expose FoolFrame Pascal `getlistview` response aliases and make Vue View
       helpers consume legacy `Items` / `Operations` metadata without binding
       page rendering to concrete business DTO fields.
+- [x] Expose FoolFrame Pascal `getreaditemview` response aliases and make the
+      Vue detail editor load read-item View metadata before merging
+      `querydatadetail` values.
 - [x] Reuse the shared Vue `ListDataTable` renderer for main, child-candidate,
       and API-tool View row tables so row cells keep one View/Items-driven path.
 - [x] Honor legacy `querydata.AutoFreshTime` in the main Vue View workflow with

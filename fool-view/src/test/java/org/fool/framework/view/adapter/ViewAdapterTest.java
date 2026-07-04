@@ -32,6 +32,7 @@ public class ViewAdapterTest {
         orderIdProperty.setPropertyType(PropertyType.Long);
 
         ViewItem orderId = viewItem("orderId", "Order ID", ItemEditType.TextBox);
+        orderId.setId(901L);
         orderId.setItemName("Order ID");
         orderId.setCanEdit(false);
         setShowIndex(orderId, 1);
@@ -51,9 +52,60 @@ public class ViewAdapterTest {
         assertEquals(Integer.valueOf(1), info.getItems().get(0).getIndex());
         assertEquals(PropertyType.Long, info.getItems().get(0).getPrpType());
         assertEquals("orderId", info.getItems().get(0).getPrpId());
+        assertEquals("901", info.getItems().get(0).getId());
+        assertEquals("Order ID", info.getItems().get(0).getPrpShowName());
         assertTrue(info.getItems().get(0).isReadOnly());
         assertEquals(ItemEditType.TextBox, info.getItems().get(0).getEditType());
         assertEquals(0, info.getDetailViews().size());
+    }
+
+    @Test
+    public void readItemViewSerializesLegacyPascalMetadata() {
+        Property orderIdProperty = new Property();
+        orderIdProperty.setName("orderId");
+        orderIdProperty.setPropertyType(PropertyType.Long);
+
+        ViewItem orderId = viewItem("orderId", "Order ID", ItemEditType.ReadOnly);
+        orderId.setId(901L);
+        orderId.setItemName("Order ID");
+        setShowIndex(orderId, 1);
+        setProperty(orderId, orderIdProperty);
+
+        View view = new View();
+        view.setId(102L);
+        view.setViewName("OrderDetail");
+        view.setListItems(List.of(orderId));
+
+        Map<?, ?> serialized = new ObjectMapper().convertValue(new ViewAdapter().getReadItemView(view), Map.class);
+
+        assertEquals("OrderDetail", serialized.get("ViewName"));
+        assertEquals(102L, ((Number) serialized.get("ViewId")).longValue());
+
+        List<?> items = (List<?>) serialized.get("Items");
+        assertEquals(serialized.get("items"), items);
+        Map<?, ?> item = (Map<?, ?>) items.get(0);
+        assertEquals("Order ID", item.get("Name"));
+        assertEquals("Long", String.valueOf(item.get("PrpType")));
+        assertEquals(1, ((Number) item.get("Index")).intValue());
+        assertEquals("orderId", item.get("PrpId"));
+        assertEquals(0L, ((Number) item.get("PrpModelId")).longValue());
+        assertEquals("901", item.get("ID"));
+        assertEquals("Order ID", item.get("PrpShowName"));
+        assertEquals(true, item.get("ReadOnly"));
+        assertEquals("ReadOnly", String.valueOf(item.get("EditType")));
+        assertEquals(serialized.get("detailViews"), serialized.get("DetailViews"));
+    }
+
+    @Test
+    public void readItemViewUsesModelPropertyWhenPropertyIsNotHydrated() {
+        ViewItem orderId = viewItem("orderId", "Order ID", ItemEditType.ReadOnly);
+
+        View view = new View();
+        view.setListItems(List.of(orderId));
+
+        ReadItemViewInfo info = new ViewAdapter().getReadItemView(view);
+
+        assertEquals("orderId", info.getItems().get(0).getPrpId());
     }
 
     @Test

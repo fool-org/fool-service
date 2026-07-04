@@ -15,7 +15,10 @@ import {
   columnsFromRowItems,
   createOperations,
   dataOperations,
+  detailFieldsFromReadView,
+  fieldKey,
   fieldModelId,
+  fieldTitle,
   groupKey,
   isEnumField,
   isLookupField,
@@ -38,6 +41,8 @@ import {
   rowRenderKey,
   rowValue,
   selectedChildViewId,
+  readViewFields,
+  readViewId,
   viewColumns,
   viewDetailViewId,
   viewId,
@@ -152,6 +157,40 @@ describe("view workflow helpers", () => {
     expect(rowObjectId({ values: { recordId: "dto-id" }, rowIndex: 4 }, columns)).toBe("");
     expect(rowValue({ values: { recordId: "dto-id" } }, columns[0])).toBe("");
     expect(rowRenderKey({ values: { recordId: "dto-id" }, rowIndex: 4 }, 7)).toBe("4");
+  });
+
+  it("merges read item View metadata with detail data values", () => {
+    const view = {
+      ViewId: 102,
+      Items: [
+        {
+          Name: "Order ID",
+          PrpId: "orderId",
+          PrpShowName: "Order ID",
+          PrpType: "Long",
+          PrpModelId: 0,
+          ReadOnly: true,
+          EditType: "ReadOnly"
+        }
+      ]
+    };
+    const fields = detailFieldsFromReadView(view, [
+      { PrpId: "orderId", ObjId: "1001", FmtValue: "1001", PrpShowName: "DTO Order ID" },
+      { PrpId: "dtoOnly", ObjId: "ignored", FmtValue: "Ignored" }
+    ]);
+
+    expect(readViewId(view)).toBe(102);
+    expect(readViewFields(view).length).toBe(1);
+    expect(fieldKey(fields[0])).toBe("orderId");
+    expect(fieldTitle(fields[0])).toBe("Order ID");
+    expect(fields[0]).toMatchObject({
+      objId: "1001",
+      fmtValue: "1001",
+      prpType: "Long",
+      readOnly: true,
+      editType: "ReadOnly"
+    });
+    expect(fields).toHaveLength(1);
   });
 
   it("renders Pascal legacy list rows from View item metadata", () => {

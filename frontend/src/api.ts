@@ -238,25 +238,39 @@ export interface ViewDataRequest {
 
 export interface ReadItemViewItemInfo {
   name?: string;
+  Name?: string;
   prpType?: string;
+  PrpType?: string;
   index?: number;
+  Index?: number;
   prpId?: string;
+  PrpId?: string;
   prpModelId?: number;
+  PrpModelId?: number;
   id?: string;
+  ID?: string;
   prpShowName?: string;
+  PrpShowName?: string;
   readOnly?: boolean;
+  ReadOnly?: boolean;
   editType?: string;
+  EditType?: string;
 }
 
 export interface ReadItemViewDetailInfo extends ReadItemViewItemInfo {
   items?: ReadItemViewItemInfo[];
+  Items?: ReadItemViewItemInfo[];
 }
 
 export interface ReadItemViewInfo {
   viewName?: string;
+  ViewName?: string;
   viewId?: number;
+  ViewId?: number;
   items?: ReadItemViewItemInfo[];
+  Items?: ReadItemViewItemInfo[];
   detailViews?: ReadItemViewDetailInfo[];
+  DetailViews?: ReadItemViewDetailInfo[];
 }
 
 export interface PageNavigatorResult {
@@ -463,11 +477,17 @@ export interface LegacyInitNewRequest {
 
 export interface QueryDataDetail {
   objId?: string;
+  ObjId?: string;
   name?: string;
+  Name?: string;
   simpleData?: ListDataValue[];
+  SimpleData?: ListDataValue[];
   items?: QueryDataDetailItemGroup[];
+  Items?: QueryDataDetailItemGroup[];
   model?: string;
+  Model?: string;
   parentId?: string;
+  ParentId?: string;
 }
 
 export interface QueryDataDetailItemGroup {

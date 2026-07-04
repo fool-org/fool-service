@@ -50,6 +50,7 @@ import {
   columnsFromRowItems,
   createOperations,
   dataOperations,
+  detailFieldsFromReadView,
   detailItemValues,
   displayValue,
   emptyGroupDraft,
@@ -74,6 +75,8 @@ import {
   rowObjectId,
   rowOperations,
   selectedChildViewId,
+  readViewFields,
+  readViewId,
   viewColumns, viewDetailViewId, viewId, viewOperations
 } from "./viewWorkflow";
 import {
@@ -213,8 +216,16 @@ const resultTotalItems = computed(() => listTotalItems(dataResponse.value?.data)
 const resultTotalPages = computed(() => listTotalPages(dataResponse.value?.data));
 const resultFreshTime = computed(() => listFreshTime(dataResponse.value?.data));
 const selectedObject = computed(() => resultRows.value.find((row) => rowObjectId(row, resultColumns.value) === selectedObjectId.value));
-const detailRows = computed(() => detailResponse.value?.data?.data?.simpleData || []);
-const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() => detailResponse.value?.data?.data?.items || []);
+const detailDataRows = computed(() => detailResponse.value?.data?.data?.simpleData || detailResponse.value?.data?.Data?.SimpleData || []);
+const currentReadItemView = computed(() => {
+  const view = readItemViewResponse.value?.data;
+  return readViewId(view) === Number(detailViewId.value) ? view : undefined;
+});
+const readItemFields = computed(() => readViewFields(readItemViewResponse.value?.data));
+const detailRows = computed(() => detailFieldsFromReadView(currentReadItemView.value, detailDataRows.value));
+const detailItemGroups = computed<QueryDataDetailItemGroup[]>(
+  () => detailResponse.value?.data?.data?.items || detailResponse.value?.data?.Data?.Items || []
+);
 const detailViewOperations = computed(() => dataOperations(detailResponse.value?.data));
 const listCreateOperations = computed(() => createOperations(viewOperations(viewResponse.value?.data)));
 const listRowOperations = computed(() => rowOperations(viewOperations(viewResponse.value?.data)));
@@ -420,10 +431,11 @@ async function loadLegacyListView() {
   return response;
 }
 
-async function loadReadItemView() {
+async function loadReadItemView(viewId = Number(readItemViewId.value)) {
+  readItemViewId.value = viewId;
   const request = buildLegacyReadItemViewRequest({
     token: token.value,
-    viewId: Number(readItemViewId.value)
+    viewId
   });
 
   const response = await runAction("read-item-view", () =>
@@ -552,6 +564,7 @@ async function inputQuery() {
 }
 
 async function queryDetail(viewId = Number(detailViewId.value)) {
+  await loadReadItemView(viewId);
   const request = buildQueryDataDetailRequest({
     token: token.value,
     viewId,
@@ -571,6 +584,7 @@ async function queryDetail(viewId = Number(detailViewId.value)) {
 }
 
 async function initNew() {
+  await loadReadItemView(Number(initNewViewId.value));
   const request = buildInitNewRequest({
     token: token.value,
     viewId: Number(initNewViewId.value),
@@ -692,14 +706,14 @@ async function loadBackendSmoke() {
 }
 
 function applyLoadedView(view?: ListViewInfo) {
-  if (view?.viewName) {
-    viewName.value = view.viewName;
+  if (view?.viewName || view?.Name) {
+    viewName.value = view.viewName || view.Name || "";
   }
-  const loadedViewId = view?.id;
+  const loadedViewId = viewId(view, legacyListViewId.value);
   if (loadedViewId) {
     const loadedDetailViewId = viewDetailViewId(view, loadedViewId);
     legacyListViewId.value = loadedViewId;
-    readItemViewId.value = loadedViewId;
+    readItemViewId.value = loadedDetailViewId;
     legacyQueryViewId.value = loadedViewId;
     reportViewId.value = loadedViewId;
     detailViewId.value = loadedDetailViewId;
@@ -1467,12 +1481,12 @@ function syncDetailDrafts() {
             View ID
             <input v-model.number="readItemViewId" min="1" type="number" />
           </label>
-          <button class="primary" type="button" :disabled="pendingAction === 'read-item-view'" @click="loadReadItemView">
+          <button class="primary" type="button" :disabled="pendingAction === 'read-item-view'" @click="() => loadReadItemView()">
             Load Read Items
           </button>
 
           <div class="table-wrap input-query-results">
-            <table v-if="readItemViewResponse?.data?.items?.length">
+            <table v-if="readItemFields.length">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -1482,11 +1496,11 @@ function syncDetailDrafts() {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in readItemViewResponse.data.items" :key="item.prpId || item.name">
-                  <td>{{ item.name }}</td>
-                  <td>{{ item.prpId }}</td>
-                  <td>{{ item.prpType }}</td>
-                  <td>{{ item.editType }}</td>
+                <tr v-for="item in readItemFields" :key="fieldKey(item)">
+                  <td>{{ fieldTitle(item) }}</td>
+                  <td>{{ fieldKey(item) }}</td>
+                  <td>{{ item.prpType || item.PrpType }}</td>
+                  <td>{{ item.editType || item.EditType }}</td>
                 </tr>
               </tbody>
             </table>

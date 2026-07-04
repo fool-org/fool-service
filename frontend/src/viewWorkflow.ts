@@ -7,6 +7,8 @@ import type {
   QueryDataDetailDataItem,
   QueryDataDetailItemGroup,
   QueryDataDetailResult,
+  ReadItemViewInfo,
+  ReadItemViewItemInfo,
   ReportCell,
   ReportCol,
   ReportModelColumn,
@@ -65,6 +67,39 @@ export function fieldKey(field: ListDataValue) {
 
 export function fieldTitle(field: ListDataValue) {
   return field.prpShowName || field.PrpShowName || field.prpId || field.PrpId || "";
+}
+
+export function readViewId(view: ReadItemViewInfo | undefined, fallback = 0) {
+  return Number(view?.viewId ?? view?.ViewId ?? fallback) || 0;
+}
+
+export function readViewItems(view: ReadItemViewInfo | undefined) {
+  return firstList(view?.items, view?.Items);
+}
+
+export function readViewFields(view: ReadItemViewInfo | undefined) {
+  return detailFieldsFromReadView(view, []);
+}
+
+export function detailFieldsFromReadView(
+  view: ReadItemViewInfo | undefined,
+  dataFields: ListDataValue[] = []
+): ListDataValue[] {
+  const metadata = readViewItems(view);
+  if (!metadata.length) {
+    return dataFields;
+  }
+  const valuesByKey = new Map<string, ListDataValue>();
+  for (const field of dataFields) {
+    const key = fieldKey(field);
+    if (key) {
+      valuesByKey.set(key, field);
+    }
+  }
+  return metadata.map((item) => {
+    const field = fieldFromReadItem(item);
+    return mergeFieldValue(field, valuesByKey.get(fieldKey(field)));
+  });
 }
 
 export function columnsFromRowItems(row: ListDataItem | undefined): TableColumnInfo[] {
@@ -446,6 +481,40 @@ function valueObjId(value: ListDataValue | undefined) {
 
 function valueFmtValue(value: ListDataValue | undefined) {
   return value?.fmtValue ?? value?.FmtValue;
+}
+
+function fieldFromReadItem(item: ReadItemViewItemInfo): ListDataValue {
+  const prpId = firstDisplayValue([item.prpId, item.PrpId, item.id, item.ID]);
+  const prpShowName = firstDisplayValue([item.prpShowName, item.PrpShowName, item.name, item.Name, prpId]);
+  return {
+    prpId,
+    PrpId: prpId,
+    prpShowName,
+    PrpShowName: prpShowName,
+    prpType: item.prpType ?? item.PrpType,
+    PrpType: item.PrpType ?? item.prpType,
+    prpModelId: item.prpModelId ?? item.PrpModelId,
+    PrpModelId: item.PrpModelId ?? item.prpModelId,
+    readOnly: item.readOnly ?? item.ReadOnly,
+    ReadOnly: item.ReadOnly ?? item.readOnly,
+    editType: item.editType ?? item.EditType,
+    EditType: item.EditType ?? item.editType
+  };
+}
+
+function mergeFieldValue(field: ListDataValue, value: ListDataValue | undefined): ListDataValue {
+  if (!value) {
+    return field;
+  }
+  const objId = valueObjId(value);
+  const fmtValue = valueFmtValue(value);
+  return {
+    ...field,
+    objId,
+    ObjId: objId,
+    fmtValue,
+    FmtValue: fmtValue
+  };
 }
 
 function operationRequiresSelect(operation: OperationInfo) {

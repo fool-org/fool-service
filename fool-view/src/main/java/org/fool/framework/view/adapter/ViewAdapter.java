@@ -160,11 +160,18 @@ public class ViewAdapter {
         result.setName(item.getItemName());
         result.setIndex(safeShowIndex(item));
         result.setPrpType(safePropertyType(item));
-        result.setPrpId(safePropertyName(item));
+        result.setPrpId(safeReadPropertyName(item));
         result.setPrpModelId(safePropertyModel(item));
+        result.setId(item.getId() == null ? "" : item.getId().toString());
+        result.setPrpShowName(item.getItemLabel());
         result.setReadOnly(!item.isCanEdit());
         result.setEditType(item.getEditType());
         return result;
+    }
+
+    private String safeReadPropertyName(ViewItem item) {
+        String propertyName = safePropertyName(item);
+        return propertyName.isEmpty() && item.getModelProperty() != null ? item.getModelProperty() : propertyName;
     }
 
     private OperationInfo toOperationInfo(ViewOperation operation) {
