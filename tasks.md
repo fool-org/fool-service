@@ -152,6 +152,8 @@ explicitly named as authoritative for fool-service.
       concrete business DTO fields.
 - [x] Reuse the shared Vue `ListDataTable` renderer for main, child-candidate,
       and API-tool View row tables so row cells keep one View/Items-driven path.
+- [x] Honor legacy `querydata.AutoFreshTime` in the main Vue View workflow with
+      a minimal timer that refreshes the loaded View/data path.
 
 ## Backlog
 

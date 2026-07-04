@@ -164,6 +164,10 @@ export function listPageIndex(result: ListViewResult | undefined, fallback = 1) 
   return result?.pageIndex ?? result?.PageIndex ?? result?.pageInfo?.pageIndex ?? fallback;
 }
 
+export function listAutoFreshTime(result?: ListViewResult) {
+  return Number(result?.autoFreshTime ?? result?.AutoFreshTime ?? 0) || 0;
+}
+
 export function listRows(result?: ListViewResult) {
   return firstList(result?.items, result?.data, result?.Data);
 }

@@ -106,6 +106,15 @@ describe("App defaults", () => {
     expect(querySource).not.toContain("keyword:");
   });
 
+  it("refreshes the main View workflow from legacy AutoFreshTime", () => {
+    expect(appSource).toContain("listAutoFreshTime");
+    expect(appSource).toContain("scheduleAutoRefresh(response.data)");
+    expect(appSource).toContain("window.setInterval");
+    expect(appSource).toContain("pageIndex.value = 1");
+    expect(appSource).toContain('activeSection.value === "views"');
+    expect(appSource).toContain("onUnmounted(stopAutoRefresh)");
+  });
+
   it("keeps metadata lookup tied to the rendered view id", () => {
     expect(metadataFieldEditorSource).toContain("viewId: props.viewId");
     expect(metadataFieldEditorSource).not.toContain("viewName");

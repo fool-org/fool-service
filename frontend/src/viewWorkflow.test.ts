@@ -19,6 +19,7 @@ import {
   isLookupField,
   isReadonlyField,
   itemKey,
+  listAutoFreshTime,
   listPageIndex,
   listRows,
   listTotalItems,
@@ -288,6 +289,8 @@ describe("view workflow helpers", () => {
     expect(listTotalPages({ totalPage: 4 })).toBe(4);
     expect(listTotalPages({ pageInfo: { pageCount: 3 } })).toBe(3);
     expect(listPageIndex({ pageInfo: { pageIndex: 2 } }, 1)).toBe(2);
+    expect(listAutoFreshTime({ autoFreshTime: 30 })).toBe(30);
+    expect(listAutoFreshTime({ AutoFreshTime: 45 })).toBe(45);
   });
 
   it("uses the rendered View detail id before falling back to the list id", () => {

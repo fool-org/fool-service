@@ -110,6 +110,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   now reuse `ListDataTable`, the same metadata renderer used by the main View
   workflow. `App.vue` no longer calls row cell helpers directly, keeping table
   cells centralized on loaded View columns matched to legacy row `Items`.
+- 2026-07-04: the main Vue View workflow now honors legacy
+  `querydata.AutoFreshTime` by scheduling a native browser interval after the
+  loaded View data query succeeds. The refresh follows FoolFrame's list-page
+  behavior by resetting to page 1 and reusing the current `getlistview` /
+  `querydata` context, while clearing the timer on component unmount.
 - 2026-07-04: `scripts/runtime_doctor.py` now proves the Docker frontend proxy
   `querydata` route with a legacy `QueryFilter`, then verifies returned legacy
   row `Items` carry `state.objId=0`. This covers the main Vue workflow's

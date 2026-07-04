@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import {
   type AuthItem,
   type CheckCodeRequest,
@@ -59,6 +59,7 @@ import {
   isEnumField,
   itemKey,
   itemValue,
+  listAutoFreshTime,
   listPageIndex,
   listRows,
   listTotalItems,
@@ -217,6 +218,7 @@ const fieldEditorContext = computed(() => ({
 }));
 
 const reportRows = computed(() => reportRowsFromCells(reportResponse.value?.data?.cells || []));
+let autoRefreshTimer: number | undefined;
 
 async function runAction<T>(label: string, action: () => Promise<CommonResponse<T>>) {
   pendingAction.value = label;
@@ -454,6 +456,7 @@ async function queryCurrentViewData() {
   const response = await runAction("workflow-query", () => postApi<ListViewResult>("/api/v1/data/querydata", request));
   if (response) {
     dataResponse.value = response;
+    scheduleAutoRefresh(response.data);
   }
 }
 
@@ -696,6 +699,7 @@ function applyLoadedView(view?: ListViewInfo) {
 }
 
 async function loadViewWorkflow(resetPage = false) {
+  stopAutoRefresh();
   if (resetPage) {
     pageIndex.value = 1;
   }
@@ -713,6 +717,28 @@ async function loadViewWorkflow(resetPage = false) {
 onMounted(() => {
   void loadViewWorkflow();
 });
+
+onUnmounted(stopAutoRefresh);
+
+function stopAutoRefresh() {
+  if (autoRefreshTimer !== undefined) {
+    window.clearInterval(autoRefreshTimer);
+    autoRefreshTimer = undefined;
+  }
+}
+
+function scheduleAutoRefresh(result?: ListViewResult) {
+  stopAutoRefresh();
+  const seconds = listAutoFreshTime(result);
+  if (seconds > 0) {
+    autoRefreshTimer = window.setInterval(() => {
+      if (activeSection.value === "views" && !pendingAction.value) {
+        pageIndex.value = 1;
+        void queryCurrentViewData();
+      }
+    }, seconds * 1000);
+  }
+}
 
 async function selectObject(row: ListDataItem, viewId = Number(detailViewId.value)) {
   const objectId = rowObjectId(row, resultColumns.value);
