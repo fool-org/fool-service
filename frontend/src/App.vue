@@ -1066,19 +1066,11 @@ function syncDetailDrafts() {
             />
           </div>
           <div v-if="resultRows.length || resultTotalItems || resultFreshTime" class="button-row">
-            <button
-              type="button"
-              :disabled="Boolean(pendingAction) || resultPageIndex <= 1"
-              @click="loadResultPage(resultPageIndex - 1)"
-            >
+            <button type="button" :disabled="Boolean(pendingAction) || resultPageIndex <= 1" @click="loadResultPage(resultPageIndex - 1)">
               Previous
             </button>
             <span>Page {{ resultPageIndex }} / {{ resultTotalPages || 1 }} · {{ resultTotalItems }} rows</span>
-            <button
-              type="button"
-              :disabled="Boolean(pendingAction) || resultTotalPages === 0 || resultPageIndex >= resultTotalPages"
-              @click="loadResultPage(resultPageIndex + 1)"
-            >
+            <button type="button" :disabled="Boolean(pendingAction) || resultTotalPages === 0 || resultPageIndex >= resultTotalPages" @click="loadResultPage(resultPageIndex + 1)">
               Next
             </button>
             <span v-if="resultFreshTime">Updated {{ resultFreshTime }}</span>
@@ -1154,46 +1146,24 @@ function syncDetailDrafts() {
                     </label>
                     <label>
                       Page
-                      <input
-                        min="1"
-                        type="number"
-                        :value="candidateState(group).pageIndex"
-                        @input="updateCandidatePage(group, $event)"
-                      />
+                      <input min="1" type="number" :value="candidateState(group).pageIndex" @input="updateCandidatePage(group, $event)" />
                     </label>
                     <label>
                       Page size
-                      <input
-                        min="1"
-                        type="number"
-                        :value="candidateState(group).pageSize"
-                        @input="updateCandidatePageSize(group, $event)"
-                      />
+                      <input min="1" type="number" :value="candidateState(group).pageSize" @input="updateCandidatePageSize(group, $event)" />
                     </label>
                     <button type="button" :disabled="Boolean(pendingAction)" @click="loadExistingDetailItems(group)">
                       Load Existing
                     </button>
                   </div>
                   <div v-if="candidateRows(group).length || candidateState(group).totalPage" class="button-row">
-                    <button
-                      type="button"
-                      :disabled="Boolean(pendingAction) || candidateState(group).pageIndex <= 1"
-                      @click="loadCandidatePage(group, candidateState(group).pageIndex - 1)"
-                    >
+                    <button type="button" :disabled="Boolean(pendingAction) || candidateState(group).pageIndex <= 1" @click="loadCandidatePage(group, candidateState(group).pageIndex - 1)">
                       Previous
                     </button>
                     <span>
                       Page {{ candidateState(group).pageIndex }} / {{ candidateState(group).totalPage || 1 }}
                     </span>
-                    <button
-                      type="button"
-                      :disabled="
-                        Boolean(pendingAction) ||
-                        candidateState(group).totalPage === 0 ||
-                        candidateState(group).pageIndex >= candidateState(group).totalPage
-                      "
-                      @click="loadCandidatePage(group, candidateState(group).pageIndex + 1)"
-                    >
+                    <button type="button" :disabled="Boolean(pendingAction) || candidateState(group).totalPage === 0 || candidateState(group).pageIndex >= candidateState(group).totalPage" @click="loadCandidatePage(group, candidateState(group).pageIndex + 1)">
                       Next
                     </button>
                   </div>
