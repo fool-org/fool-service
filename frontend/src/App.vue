@@ -9,6 +9,7 @@ import {
   type GetMessageResult,
   type GetNotifyResult,
   type InputQueryResult,
+  type LegacyAuthItem,
   type LegacyAppResult,
   type LegacyInitAppResult,
   type LegacyLoginResult,
@@ -85,6 +86,7 @@ import {
   legacyInitAppCheckCode,
   legacyInitAppDbId,
   legacyInputQueryItems,
+  legacyMainMenuItems,
   legacyMessageContent,
   legacyMessageId,
   legacyMessageResultKey,
@@ -275,7 +277,9 @@ const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() =>
 const detailViewOperations = computed(() => dataOperations(detailResponse.value?.data));
 const listCreateOperations = computed(() => createOperations(viewOperations(viewResponse.value?.data)));
 const listRowOperations = computed(() => rowOperations(viewOperations(viewResponse.value?.data)));
+const topMenuItems = computed(() => legacyMainMenuItems(mainInfoResponse.value?.data));
 const subMenuItems = computed(() => legacySubMenuItems(subMenuResponse.value?.data));
+const shellMenuItems = computed(() => (subMenuItems.value.length ? subMenuItems.value : topMenuItems.value));
 const messageItems = computed(() => legacyMessages(messageResponse.value?.data));
 const notifyItems = computed(() => legacyNotifies(notifyResponse.value?.data));
 const enumItems = computed(() => legacyEnumValues(enumResponse.value?.data));
@@ -407,6 +411,7 @@ async function loadMainInfo() {
     mainInfoResponse.value = response;
     applyDefaultAppView(response.data);
   }
+  return response;
 }
 
 async function loadAppInfo() {
@@ -459,6 +464,21 @@ async function loadSubMenu() {
   );
   if (response) {
     subMenuResponse.value = response;
+  }
+}
+
+async function openShellMenu(item: LegacyAuthItem) {
+  const itemViewId = legacyAuthViewId(item);
+  if (itemViewId) {
+    activeSection.value = "views";
+    legacyListViewId.value = itemViewId;
+    await loadViewWorkflow(true);
+    return;
+  }
+  const authNo = legacyAuthNo(item);
+  if (authNo) {
+    subMenuParentAuthCode.value = authNo;
+    await loadSubMenu();
   }
 }
 
@@ -805,7 +825,11 @@ async function loadViewWorkflow(resetPage = false) {
   }
   if (!resetPage && !viewResponse.value) {
     if (!(await ensureLegacySession())) return;
-    await loadMainInfo();
+    if (!(await loadMainInfo())) {
+      token.value = "";
+      localStorage.removeItem("fool-service-token");
+      if (!(await ensureLegacySession()) || !(await loadMainInfo())) return;
+    }
   }
   const loadedView = await loadLegacyListView();
   if (!loadedView) {
@@ -1080,6 +1104,19 @@ function syncDetailDrafts() {
           @click="activeSection = item.id"
         >
           {{ item.label }}
+        </button>
+      </nav>
+
+      <nav v-if="shellMenuItems.length" class="nav-list" aria-label="FoolFrame menu">
+        <button
+          v-for="item in shellMenuItems"
+          :key="legacyAuthNo(item) || legacyAuthText(item)"
+          type="button"
+          :class="{ active: activeSection === 'views' && legacyAuthViewId(item) === currentViewId }"
+          :disabled="Boolean(pendingAction)"
+          @click="openShellMenu(item)"
+        >
+          {{ legacyAuthText(item) || legacyAuthNo(item) }}
         </button>
       </nav>
     </aside>

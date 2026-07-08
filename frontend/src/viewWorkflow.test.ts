@@ -47,6 +47,7 @@ import {
   legacyInitAppCheckCode,
   legacyInitAppDbId,
   legacyInputQueryItems,
+  legacyMainMenuItems,
   legacyMessageContent,
   legacyMessageId,
   legacyMessageResultKey,
@@ -525,12 +526,15 @@ describe("view workflow helpers", () => {
   });
 
   it("reads tool-panel lists and fields from Pascal or camel legacy payloads", () => {
+    const main = { TopMenu: [{ AuthNo: "0", Text: "Views", ViewId: 0, Index: 1 }] };
     const menu = { Items: [{ AuthNo: "1", Text: "Home", ViewId: 100, Index: 2 }] };
     const messages = { Messages: [{ MessageID: "m1", MessageContent: "Ready", ResultView: 100, ResultKey: "1001" }] };
     const notifies = { Notifies: [{ AuthNo: "1", Count: 3 }] };
     const enums = { EnumValues: [{ Name: "Open", Value: 0 }] };
     const inputQuery = { Items: [{ Id: "1001", Text: "Ada" }] };
 
+    expect(legacyMainMenuItems(main)).toHaveLength(1);
+    expect(legacyAuthText(main.TopMenu[0])).toBe("Views");
     expect(legacySubMenuItems(menu)).toHaveLength(1);
     expect(legacyAuthNo(menu.Items[0])).toBe("1");
     expect(legacyAuthText(menu.Items[0])).toBe("Home");

@@ -688,6 +688,9 @@ export async function postApi<T>(path: string, payload: unknown): Promise<Common
   if (!body) {
     throw new Error("Empty response body.");
   }
+  if (body.code !== 0) {
+    throw new Error(body.message || `API code ${body.code}`);
+  }
 
   return body;
 }

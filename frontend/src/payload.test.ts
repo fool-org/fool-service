@@ -185,6 +185,35 @@ describe("App defaults", () => {
     expect(workflowSource.indexOf("await loadMainInfo()")).toBeLessThan(workflowSource.indexOf("await loadLegacyListView()"));
   });
 
+  it("retries the first-screen legacy shell after a stale stored token", () => {
+    const workflowSource = appSource.slice(
+      appSource.indexOf("async function loadViewWorkflow"),
+      appSource.indexOf("onMounted(()")
+    );
+
+    expect(workflowSource).toContain("if (!(await loadMainInfo()))");
+    expect(workflowSource).toContain("token.value = \"\"");
+    expect(workflowSource).toContain('localStorage.removeItem("fool-service-token")');
+    expect(workflowSource).toContain("if (!(await ensureLegacySession()) || !(await loadMainInfo())) return");
+  });
+
+  it("renders legacy shell menu entries and opens their View ids", () => {
+    const menuSource = appSource.slice(
+      appSource.indexOf("async function openShellMenu"),
+      appSource.indexOf("async function loadLegacyListView")
+    );
+
+    expect(appSource).toContain("legacyMainMenuItems(mainInfoResponse.value?.data)");
+    expect(appSource).toContain("shellMenuItems");
+    expect(appSource).toContain('@click="openShellMenu(item)"');
+    expect(menuSource).toContain("legacyAuthViewId(item)");
+    expect(menuSource).toContain("legacyListViewId.value = itemViewId");
+    expect(menuSource).not.toContain("legacyQueryViewId.value = itemViewId");
+    expect(menuSource).toContain("await loadViewWorkflow(true)");
+    expect(menuSource).toContain("subMenuParentAuthCode.value = authNo");
+    expect(menuSource).toContain("await loadSubMenu()");
+  });
+
   it("does not prefill business-specific data DTO fields by default", () => {
     expect(appSource).toContain('const enumModelId = ref("102")');
     expect(appSource).toContain('const legacyQueryFilter = ref("")');

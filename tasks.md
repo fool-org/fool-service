@@ -36,6 +36,10 @@ explicitly named as authoritative for fool-service.
 - [x] Drive the main Vue workflow through legacy `getlistview(viewId)` then
       `querydata(viewId)` so the rendered page follows View metadata instead
       of the newer business-name query shortcut.
+- [x] Render legacy `getmain/getsubmenu` menu entries in the Vue sidebar and
+      open menu `ViewId` entries through the existing
+      `getlistview(ViewId)` -> `querydata(ViewId)` workflow, including stale
+      stored-token recovery before first-screen rendering.
 - [x] Tighten the Docker runtime doctor so every `querydata` row must expose
       View-column-matched `Items`; DTO-only `values` rows no longer satisfy the
       view-first smoke contract.

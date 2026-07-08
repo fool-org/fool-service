@@ -8,6 +8,7 @@ import type {
   InputQueryResult,
   LegacyAuthItem,
   LegacyInitAppResult,
+  LegacyMainResult,
   LegacyRunOperationResult,
   LegacySubMenuResult,
   ListDataItem,
@@ -145,7 +146,11 @@ export function legacyCheckCodeImage(source?: CheckCodeResult) {
   return firstDisplayValue([source?.chkCodeImg, source?.ChkCodeImg]);
 }
 
-export function legacySubMenuItems(source?: LegacySubMenuResult) {
+export function legacyMainMenuItems(source?: LegacyMainResult): LegacyAuthItem[] {
+  return firstList(source?.topMenu, source?.TopMenu);
+}
+
+export function legacySubMenuItems(source?: LegacySubMenuResult): LegacyAuthItem[] {
   return firstList(source?.items, source?.Items);
 }
 

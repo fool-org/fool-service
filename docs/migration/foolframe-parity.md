@@ -97,6 +97,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: the Vue sidebar now renders legacy shell menu entries from
+  `getmain.TopMenu` / `getsubmenu.Items`. Clicking a menu item with `ViewId`
+  opens the existing `getlistview(ViewId)` -> `querydata(ViewId)` workflow
+  instead of treating navigation as static frontend tabs or pre-binding data to
+  a concrete business DTO. The first-screen workflow also treats non-zero API
+  response codes as errors, clears stale stored tokens, and retries the legacy
+  login before rendering.
 - 2026-07-08: a fresh Vue browser session now bootstraps the Docker legacy
   session through `initapp` / `loginv2`, reads `App.DefaultViewId` from
   `getmain`, then loads the first screen through `getlistview(ViewId)` and
@@ -1119,6 +1126,9 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Vue API types for legacy `getlistview` view-id payloads
 - A Vue legacy list-view lookup control that calls `/api/v1/view/getlistview`
   by view ID and reuses the view-definition summary display
+- Legacy shell menu rendering in the Vue sidebar from `getmain` /
+  `getsubmenu`, with `ViewId` menu entries opening the same View-driven list
+  workflow.
 - Vue API types for legacy `getreaditemview` read-item payloads
 - A Vue read-item view panel that calls `/api/v1/view/getreaditemview` by view
   ID and renders returned field metadata
