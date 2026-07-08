@@ -97,6 +97,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: report `getrpt` now parses `ReportCols.OrderType` into a
+  View/property `QueryOrder` before calling `querydata`, so report row ordering
+  happens in the DataQueryService SQL path instead of sorting rendered row DTO
+  maps. When every selected report column uses `OrderType=2` / `NULL`, the
+  request falls back to the first selected report column ASC, matching the
+  legacy FoolFrame report query behavior while keeping View metadata ahead of
+  data binding.
 - 2026-07-08: the Vue sidebar now renders legacy shell menu entries from
   `getmain.TopMenu` / `getsubmenu.Items`. Clicking a menu item with `ViewId`
   opens the existing `getlistview(ViewId)` -> `querydata(ViewId)` workflow

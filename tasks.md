@@ -98,6 +98,9 @@ explicitly named as authoritative for fool-service.
       View-query model: candidate `ColId` values now come from View-derived
       property keys, while report/filter/selected-type resolution reuses one
       View metadata context before reading data rows.
+- [x] Route report `ReportCols.OrderType` through View metadata into the
+      `querydata` SQL order path instead of sorting rendered row DTO maps;
+      `OrderType=2` falls back to the first selected report column ASC.
 - [x] Let lookup `inputquery` resolve the current View by `ViewId` before
       falling back to legacy `ViewName`, and have Vue metadata editors pass
       the loaded View id so lookup follows the rendered View context.

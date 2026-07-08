@@ -196,8 +196,7 @@ public class ReportControllerTest {
         queryResult.setTotalItem(42L);
         queryResult.setTotalPage(3L);
         queryResult.setData(List.of(row()));
-        when(dataQueryService.queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), eq("order_state=\"0\"")))
-                .thenReturn(queryResult);
+        stubReportQuery(dataQueryService, "100", "order_state=\"0\"", queryResult);
 
         ReportController controller = new ReportController();
         setField(controller, "dataQueryService", dataQueryService);
@@ -212,7 +211,12 @@ public class ReportControllerTest {
         CommonResponse<ReportGridResult> response = controller.makeReport(request);
 
         ArgumentCaptor<PageNavigator> pageCaptor = ArgumentCaptor.forClass(PageNavigator.class);
-        verify(dataQueryService).queryLegacyViewData(eq("100"), pageCaptor.capture(), eq("order_state=\"0\""));
+        verify(dataQueryService).queryLegacyViewData(
+                eq("100"),
+                pageCaptor.capture(),
+                eq("order_state=\"0\""),
+                org.mockito.ArgumentMatchers.<String>isNull(),
+                org.mockito.ArgumentMatchers.nullable(DataQueryService.QueryOrder.class));
         assertEquals(20, pageCaptor.getValue().getPageSize());
         assertEquals(2, pageCaptor.getValue().getPageIndex());
         assertEquals(0, response.getCode());
@@ -230,6 +234,44 @@ public class ReportControllerTest {
     }
 
     @Test
+    public void makeReportOrdersRowsByFirstReportColumnWhenOrderTypeIsNull() throws Exception {
+        DataQueryService dataQueryService = mock(DataQueryService.class);
+        ListViewResult queryResult = new ListViewResult();
+        queryResult.setTotalItem(2L);
+        queryResult.setTotalPage(1L);
+        queryResult.setData(List.of(row("Beta", "Open"), row("Alpha", "Open")));
+        stubReportQuery(dataQueryService, "100", null, queryResult);
+
+        ReportController controller = new ReportController();
+        setField(controller, "dataQueryService", dataQueryService);
+
+        MakeReportRequest.ReportCol symbol = reportCol("Symbol", 0);
+        symbol.setOrderType("2");
+        MakeReportRequest request = new MakeReportRequest();
+        request.setViewId(100L);
+        request.setReportCols(List.of(symbol));
+
+        controller.makeReport(request);
+
+        verify(dataQueryService).queryLegacyViewData(
+                eq("100"),
+                org.mockito.ArgumentMatchers.any(PageNavigator.class),
+                eq(null),
+                org.mockito.ArgumentMatchers.<String>isNull(),
+                eq(new DataQueryService.QueryOrder("Symbol", false)));
+
+        symbol.setOrderType("1");
+        controller.makeReport(request);
+
+        verify(dataQueryService).queryLegacyViewData(
+                eq("100"),
+                org.mockito.ArgumentMatchers.any(PageNavigator.class),
+                eq(null),
+                org.mockito.ArgumentMatchers.<String>isNull(),
+                eq(new DataQueryService.QueryOrder("Symbol", true)));
+    }
+
+    @Test
     public void makeReportAlsoExposesLegacyGetRptRoute() throws Exception {
         var mapping = ReportController.class
                 .getMethod("makeReport", MakeReportRequest.class)
@@ -244,8 +286,7 @@ public class ReportControllerTest {
         DaoService daoService = mock(DaoService.class);
         ListViewResult queryResult = new ListViewResult();
         queryResult.setData(List.of(row()));
-        when(dataQueryService.queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), org.mockito.ArgumentMatchers.isNull()))
-                .thenReturn(queryResult);
+        stubReportQuery(dataQueryService, "100", null, queryResult);
         when(daoService.getOneDetailByKey(eq(View.class), eq("100"))).thenReturn(view("100"));
         Property symbol = property(1002L, "symbol", "order_symbol", PropertyType.String);
         symbol.setRemark("Symbol");
@@ -275,8 +316,7 @@ public class ReportControllerTest {
         DaoService daoService = mock(DaoService.class);
         ListViewResult queryResult = new ListViewResult();
         queryResult.setData(List.of(row()));
-        when(dataQueryService.queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), org.mockito.ArgumentMatchers.isNull()))
-                .thenReturn(queryResult);
+        stubReportQuery(dataQueryService, "100", null, queryResult);
         when(daoService.getOneDetailByKey(eq(View.class), eq("100"))).thenReturn(view("100"));
         when(daoService.getOneDetailByKey(eq(Model.class), eq("100")))
                 .thenReturn(model(property(1002L, "symbol", "order_symbol", PropertyType.String)));
@@ -305,8 +345,7 @@ public class ReportControllerTest {
         row.setValues(Map.of("DTO Only", "from-values"));
         ListViewResult queryResult = new ListViewResult();
         queryResult.setData(List.of(row));
-        when(dataQueryService.queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), org.mockito.ArgumentMatchers.isNull()))
-                .thenReturn(queryResult);
+        stubReportQuery(dataQueryService, "100", null, queryResult);
 
         ReportController controller = new ReportController();
         setField(controller, "dataQueryService", dataQueryService);
@@ -330,8 +369,7 @@ public class ReportControllerTest {
         JdbcSelectTypeCatalog selectTypeCatalog = mock(JdbcSelectTypeCatalog.class);
         ListViewResult queryResult = new ListViewResult();
         queryResult.setTotalItem(42L);
-        when(dataQueryService.queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), org.mockito.ArgumentMatchers.isNull()))
-                .thenReturn(queryResult);
+        stubReportQuery(dataQueryService, "100", null, queryResult);
         when(daoService.getOneDetailByKey(eq(View.class), eq("100")))
                 .thenReturn(view("asset-model", viewItem("Asset Code", "assetCode", 10)));
         when(daoService.getOneDetailByKey(eq(Model.class), eq("asset-model")))
@@ -375,8 +413,7 @@ public class ReportControllerTest {
     @Test
     public void makeReportMapsLegacySimpleFilterExpToQueryFilter() throws Exception {
         DataQueryService dataQueryService = mock(DataQueryService.class);
-        when(dataQueryService.queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), eq("`order_state`='0'")))
-                .thenReturn(new ListViewResult());
+        stubReportQuery(dataQueryService, "100", "`order_state`='0'", new ListViewResult());
 
         ReportController controller = new ReportController();
         setField(controller, "dataQueryService", dataQueryService);
@@ -389,7 +426,12 @@ public class ReportControllerTest {
 
         CommonResponse<ReportGridResult> response = controller.makeReport(request);
 
-        verify(dataQueryService).queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), eq("`order_state`='0'"));
+        verify(dataQueryService).queryLegacyViewData(
+                eq("100"),
+                org.mockito.ArgumentMatchers.any(PageNavigator.class),
+                eq("`order_state`='0'"),
+                org.mockito.ArgumentMatchers.<String>isNull(),
+                org.mockito.ArgumentMatchers.nullable(DataQueryService.QueryOrder.class));
         assertEquals(0, response.getCode());
     }
 
@@ -401,8 +443,7 @@ public class ReportControllerTest {
                 .thenReturn(view("asset-model", viewItem("Asset Code", "assetCode", 10)));
         when(daoService.getOneDetailByKey(eq(Model.class), eq("asset-model")))
                 .thenReturn(model(property("assetCode", "asset_code")));
-        when(dataQueryService.queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), eq("`asset_code` LIKE '%Bond%'")))
-                .thenReturn(new ListViewResult());
+        stubReportQuery(dataQueryService, "100", "`asset_code` LIKE '%Bond%'", new ListViewResult());
 
         ReportController controller = new ReportController();
         setField(controller, "dataQueryService", dataQueryService);
@@ -414,7 +455,12 @@ public class ReportControllerTest {
 
         CommonResponse<ReportGridResult> response = controller.makeReport(request);
 
-        verify(dataQueryService).queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), eq("`asset_code` LIKE '%Bond%'"));
+        verify(dataQueryService).queryLegacyViewData(
+                eq("100"),
+                org.mockito.ArgumentMatchers.any(PageNavigator.class),
+                eq("`asset_code` LIKE '%Bond%'"),
+                org.mockito.ArgumentMatchers.<String>isNull(),
+                org.mockito.ArgumentMatchers.nullable(DataQueryService.QueryOrder.class));
         assertEquals(0, response.getCode());
     }
 
@@ -424,8 +470,7 @@ public class ReportControllerTest {
         DaoService daoService = mock(DaoService.class);
         when(daoService.getOneDetailByKey(eq(View.class), eq("100"))).thenReturn(view("100"));
         when(daoService.getOneDetailByKey(eq(Model.class), eq("100"))).thenReturn(model(property(11L, "price", "order_price")));
-        when(dataQueryService.queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), eq("`order_price`>'100'")))
-                .thenReturn(new ListViewResult());
+        stubReportQuery(dataQueryService, "100", "`order_price`>'100'", new ListViewResult());
 
         ReportController controller = new ReportController();
         setField(controller, "dataQueryService", dataQueryService);
@@ -437,7 +482,12 @@ public class ReportControllerTest {
 
         CommonResponse<ReportGridResult> response = controller.makeReport(request);
 
-        verify(dataQueryService).queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class), eq("`order_price`>'100'"));
+        verify(dataQueryService).queryLegacyViewData(
+                eq("100"),
+                org.mockito.ArgumentMatchers.any(PageNavigator.class),
+                eq("`order_price`>'100'"),
+                org.mockito.ArgumentMatchers.<String>isNull(),
+                org.mockito.ArgumentMatchers.nullable(DataQueryService.QueryOrder.class));
         assertEquals(0, response.getCode());
     }
 
@@ -447,9 +497,9 @@ public class ReportControllerTest {
         DaoService daoService = mock(DaoService.class);
         when(daoService.getOneDetailByKey(eq(View.class), eq("100"))).thenReturn(view("100"));
         when(daoService.getOneDetailByKey(eq(Model.class), eq("100"))).thenReturn(model(property("symbol", "order_symbol")));
-        when(dataQueryService.queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class),
-                eq("(`order_state`='0') And (`order_symbol` LIKE '%BTC%') OR (`order_price`>'100')")))
-                .thenReturn(new ListViewResult());
+        stubReportQuery(dataQueryService, "100",
+                "(`order_state`='0') And (`order_symbol` LIKE '%BTC%') OR (`order_price`>'100')",
+                new ListViewResult());
 
         ReportController controller = new ReportController();
         setField(controller, "dataQueryService", dataQueryService);
@@ -464,8 +514,12 @@ public class ReportControllerTest {
 
         CommonResponse<ReportGridResult> response = controller.makeReport(request);
 
-        verify(dataQueryService).queryLegacyViewData(eq("100"), org.mockito.ArgumentMatchers.any(PageNavigator.class),
-                eq("(`order_state`='0') And (`order_symbol` LIKE '%BTC%') OR (`order_price`>'100')"));
+        verify(dataQueryService).queryLegacyViewData(
+                eq("100"),
+                org.mockito.ArgumentMatchers.any(PageNavigator.class),
+                eq("(`order_state`='0') And (`order_symbol` LIKE '%BTC%') OR (`order_price`>'100')"),
+                org.mockito.ArgumentMatchers.<String>isNull(),
+                org.mockito.ArgumentMatchers.nullable(DataQueryService.QueryOrder.class));
         assertEquals(0, response.getCode());
     }
 
@@ -497,9 +551,27 @@ public class ReportControllerTest {
     }
 
     private static ListDataItem row() {
+        return row("BTC-USDT", "Open");
+    }
+
+    private static ListDataItem row(String symbol, String state) {
         ListDataItem row = new ListDataItem();
-        row.setItems(List.of(value("symbol", "Symbol", "BTC-USDT"), value("state", "State", "Open")));
+        row.setItems(List.of(value("symbol", "Symbol", symbol), value("state", "State", state)));
         return row;
+    }
+
+    private static void stubReportQuery(
+            DataQueryService dataQueryService,
+            String viewId,
+            String filter,
+            ListViewResult result) {
+        when(dataQueryService.queryLegacyViewData(
+                eq(viewId),
+                org.mockito.ArgumentMatchers.any(PageNavigator.class),
+                eq(filter),
+                org.mockito.ArgumentMatchers.<String>isNull(),
+                org.mockito.ArgumentMatchers.nullable(DataQueryService.QueryOrder.class)))
+                .thenReturn(result);
     }
 
     private static ListDataValue value(String id, String name, String value) {

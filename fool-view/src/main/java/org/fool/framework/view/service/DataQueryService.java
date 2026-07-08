@@ -72,6 +72,9 @@ public class DataQueryService {
 
     private final OperationCommandValueResolver commandValueResolver = new OperationCommandValueResolver();
 
+    public record QueryOrder(String itemToken, boolean descending) {
+    }
+
     /**
      * 得到视图信息
      *
@@ -92,7 +95,16 @@ public class DataQueryService {
     }
 
     public ListViewResult queryLegacyViewData(String viewId, PageNavigator pageInfo, String queryFilter, String keyword) {
-        return queryViewDataList(viewId, null, pageInfo, keyword, queryFilter);
+        return queryLegacyViewData(viewId, pageInfo, queryFilter, keyword, null);
+    }
+
+    public ListViewResult queryLegacyViewData(
+            String viewId,
+            PageNavigator pageInfo,
+            String queryFilter,
+            String keyword,
+            QueryOrder order) {
+        return queryViewDataList(viewId, null, pageInfo, keyword, queryFilter, order);
     }
 
     public QueryDataDetailResult queryLegacyViewDataDetail(String viewId, String dataId) {
@@ -732,6 +744,16 @@ public class DataQueryService {
     }
 
     private ListViewResult queryViewDataList(String viewName, Map<String, QueryValue> filter, PageNavigator pageInfo, String keyword, String legacyQueryFilter) {
+        return queryViewDataList(viewName, filter, pageInfo, keyword, legacyQueryFilter, null);
+    }
+
+    private ListViewResult queryViewDataList(
+            String viewName,
+            Map<String, QueryValue> filter,
+            PageNavigator pageInfo,
+            String keyword,
+            String legacyQueryFilter,
+            QueryOrder order) {
 
         View view = daoService.getOneDetailByKey(View.class, viewName);
         if (view == null) {
@@ -744,14 +766,14 @@ public class DataQueryService {
         var properties = getViewProperies(view, model);
         attachProperties(view, model);
         IQueryFilter queryFilter = generateFilter(model, view, filter, keyword, legacyQueryFilter);
-        Property orderProperty = getDefaultOrderProperty(view, model);
+        OrderSelection orderSelection = orderSelection(view, model, order);
         var result = modelDataService.getDataListWithPageInfo(
                 view.getViewModel(),
                 queryFilter,
                 properties,
                 pageInfo,
-                orderProperty == null ? null : orderColumnExpression(orderProperty),
-                orderProperty != null);
+                orderSelection.property() == null ? null : orderColumnExpression(orderSelection.property()),
+                orderSelection.descending());
 
         return viewAdapter.getListViewResult(view, result);
     }
@@ -957,14 +979,68 @@ public class DataQueryService {
 
     private Property getDefaultOrderProperty(View view, Model model) {
         for (var item : orderedListItems(view)) {
-            var propertyOptional = model.getProperties().stream()
-                    .filter(p -> p.getName().equals(item.getModelProperty()))
-                    .findFirst();
-            if (propertyOptional.isPresent()) {
-                return propertyOptional.get();
+            Property property = propertyForItem(model, item);
+            if (property != null) {
+                return property;
             }
         }
         return null;
+    }
+
+    private OrderSelection orderSelection(View view, Model model, QueryOrder order) {
+        if (order != null && StringUtils.hasText(order.itemToken())) {
+            Property property = propertyByViewToken(view, model, order.itemToken());
+            if (property != null) {
+                return new OrderSelection(property, order.descending());
+            }
+        }
+        Property defaultProperty = getDefaultOrderProperty(view, model);
+        return new OrderSelection(defaultProperty, defaultProperty != null);
+    }
+
+    private Property propertyByViewToken(View view, Model model, String token) {
+        if (model == null || CollectionUtils.isEmpty(model.getProperties()) || !StringUtils.hasText(token)) {
+            return null;
+        }
+        String trimmed = token.trim();
+        for (ViewItem item : orderedListItems(view)) {
+            Property property = propertyForItem(model, item);
+            if (property != null && matchesViewToken(item, property, trimmed)) {
+                return property;
+            }
+        }
+        return model.getProperties().stream()
+                .filter(property -> matchesProperty(property, trimmed))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private Property propertyForItem(Model model, ViewItem item) {
+        if (item.getProperty() != null) {
+            return item.getProperty();
+        }
+        if (!StringUtils.hasText(item.getModelProperty()) || CollectionUtils.isEmpty(model.getProperties())) {
+            return null;
+        }
+        return model.getProperties().stream()
+                .filter(property -> item.getModelProperty().equals(property.getName()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private boolean matchesViewToken(ViewItem item, Property property, String token) {
+        return Objects.equals(item.getItemName(), token)
+                || Objects.equals(item.getItemLabel(), token)
+                || Objects.equals(item.getModelProperty(), token)
+                || (item.getId() != null && Objects.equals(item.getId().toString(), token))
+                || matchesProperty(property, token);
+    }
+
+    private boolean matchesProperty(Property property, String token) {
+        return Objects.equals(property.getName(), token)
+                || Objects.equals(property.getRemark(), token)
+                || Objects.equals(property.getColumn(), token)
+                || (property.getId() != null && Objects.equals(property.getId().toString(), token));
     }
 
     private List<ViewItem> orderedListItems(View view) {
@@ -978,6 +1054,9 @@ public class DataQueryService {
 
     private int safeShowIndex(ViewItem item) {
         return item.getShowIndex() == null ? 0 : item.getShowIndex();
+    }
+
+    private record OrderSelection(Property property, boolean descending) {
     }
 
 }

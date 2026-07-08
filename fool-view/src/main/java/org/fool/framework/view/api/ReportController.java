@@ -72,7 +72,9 @@ public class ReportController {
         ListViewResult queryResult = dataQueryService.queryLegacyViewData(
                 request.getViewId() == null ? null : request.getViewId().toString(),
                 page,
-                queryFilter(request, context));
+                queryFilter(request, context),
+                null,
+                reportOrder(request, context));
         boolean countReport = singleCountReport(request, context);
         List<Map<String, Object>> reportRows = rows(request, context, queryResult, countReport);
         return new CommonResponse<>(renderer.render(
@@ -391,6 +393,48 @@ public class ReportController {
             return List.of();
         }
         return items.stream().map(item -> row(request, context, item)).toList();
+    }
+
+    private DataQueryService.QueryOrder reportOrder(MakeReportRequest request, ReportViewContext context) {
+        if (CollectionUtils.isEmpty(request.getReportCols())) {
+            return null;
+        }
+        List<MakeReportRequest.ReportCol> sortedCols = request.getReportCols().stream()
+                .sorted(Comparator.comparingInt(this::reportColIndex))
+                .toList();
+        MakeReportRequest.ReportCol col = sortedCols.stream()
+                .filter(item -> !nullOrder(item.getOrderType()))
+                .findFirst()
+                .orElse(sortedCols.get(0));
+        String token = reportOrderToken(context, col);
+        if (!StringUtils.hasText(token)) {
+            return null;
+        }
+        // ponytail: DataQueryService currently supports one ORDER BY column; extend it there when multi-column reports matter.
+        return new DataQueryService.QueryOrder(token, descOrder(col.getOrderType()));
+    }
+
+    private String reportOrderToken(ReportViewContext context, MakeReportRequest.ReportCol col) {
+        Property property = propertyByToken(context, StringUtils.hasText(col.getColId()) ? col.getColId() : col.getColName());
+        if (property != null && StringUtils.hasText(property.getName())) {
+            return property.getName();
+        }
+        if (StringUtils.hasText(col.getColId())) {
+            return col.getColId();
+        }
+        return col.getColName();
+    }
+
+    private int reportColIndex(MakeReportRequest.ReportCol col) {
+        return col.getIndex() == null ? 0 : col.getIndex();
+    }
+
+    private boolean nullOrder(String orderType) {
+        return !StringUtils.hasText(orderType) || "2".equals(orderType.trim()) || "NULL".equalsIgnoreCase(orderType.trim());
+    }
+
+    private boolean descOrder(String orderType) {
+        return StringUtils.hasText(orderType) && ("1".equals(orderType.trim()) || "DESC".equalsIgnoreCase(orderType.trim()));
     }
 
     private boolean singleCountReport(MakeReportRequest request, ReportViewContext context) {

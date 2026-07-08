@@ -285,6 +285,51 @@ public class DataQueryServiceOrderingTest {
     }
 
     @Test
+    public void queryLegacyViewDataUsesExplicitOrderFromRenderedViewItem() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
+        DataQueryService service = new DataQueryService();
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+        ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
+        ReflectionTestUtils.setField(service, "viewAdapter", viewAdapter);
+
+        View view = new View();
+        view.setViewName("CandidateList");
+        view.setViewModel("Candidate");
+        view.setListItems(List.of(
+                viewItem("Candidate ID", "candidateId", 10),
+                viewItem("Display Name", "displayName", 20)));
+        Model model = model("Candidate", List.of(
+                property("candidateId", "candidate_id"),
+                property("displayName", "display_name")));
+        PageNavigator pageNavigator = new PageNavigator();
+        PageResult<IDynamicData> pageResult = new PageResult<>();
+        when(daoService.getOneDetailByKey(View.class, "101")).thenReturn(view);
+        when(daoService.getOneDetailByKey(Model.class, "Candidate")).thenReturn(model);
+        when(modelDataService.getDataListWithPageInfo(
+                eq("Candidate"),
+                any(IQueryFilter.class),
+                anyList(),
+                eq(pageNavigator),
+                eq("display_name"),
+                eq(false)))
+                .thenReturn(pageResult);
+        when(viewAdapter.getListViewResult(eq(view), eq(pageResult))).thenReturn(new ListViewResult());
+
+        service.queryLegacyViewData("101", pageNavigator, null, null,
+                new DataQueryService.QueryOrder("Display Name", false));
+
+        verify(modelDataService).getDataListWithPageInfo(
+                eq("Candidate"),
+                any(IQueryFilter.class),
+                anyList(),
+                eq(pageNavigator),
+                eq("display_name"),
+                eq(false));
+    }
+
+    @Test
     public void queryViewDataListAppliesLegacyKeywordToReadOnlyItems() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
@@ -393,6 +438,12 @@ public class DataQueryServiceOrderingTest {
 
     private static ViewItem viewItem(String modelProperty, int showIndex) {
         return viewItem(modelProperty, showIndex, InputType.READ_ONLY, false);
+    }
+
+    private static ViewItem viewItem(String itemName, String modelProperty, int showIndex) {
+        ViewItem item = viewItem(modelProperty, showIndex);
+        item.setItemName(itemName);
+        return item;
     }
 
     private static ViewItem viewItem(String modelProperty, int showIndex, InputType inputType, boolean canEdit) {
