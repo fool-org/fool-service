@@ -21,7 +21,6 @@ import {
   type QueryDataDetailDataItem,
   type QueryDataDetailItemGroup,
   type ListDataItem,
-  type ListDataValue,
   type ListViewInfo,
   type ListViewResult,
   type LoginVo,
@@ -38,6 +37,7 @@ import MetadataFieldEditor from "./MetadataFieldEditor.vue";
 import MigrationMap from "./MigrationMap.vue";
 import ResultsPanel from "./ResultsPanel.vue";
 import { useChildCandidates } from "./useChildCandidates";
+import { useChildDrafts } from "./useChildDrafts";
 import { useFieldEnums } from "./useFieldEnums";
 import { useViewDataWorkflow } from "./useViewDataWorkflow";
 import { enumFieldOptions, navItems, nextObjectId, services } from "./viewShell";
@@ -45,7 +45,6 @@ import {
   buildAddedItemProperty,
   buildDeletedItemProperty,
   buildFieldDrafts,
-  buildItemDrafts,
   buildReportColsFromModel,
   buildSavePropertyies,
   buildSelectedExistingItemProperty,
@@ -55,7 +54,6 @@ import {
   detailItemValues,
   detailResultItems,
   detailResultSimpleData,
-  draftFieldValue,
   emptyGroupDraft,
   fieldEditType,
   fieldKey,
@@ -119,7 +117,6 @@ import {
   viewDisplayTitle,
   viewDisplayType,
   viewInputCount,
-  withDraftFieldValue,
   readViewFields,
   renderedDetailFields,
   renderedDetailGroups,
@@ -192,8 +189,6 @@ const activeSection = ref("views");
 const selectedObjectId = ref("");
 const isCreatingObject = ref(false);
 const detailDrafts = ref<Record<string, string>>({});
-const childDrafts = ref<Record<string, Record<string, string>>>({});
-const newChildDrafts = ref<Record<string, Record<string, string>>>({});
 const {
   candidateColumns,
   candidateRows,
@@ -204,6 +199,15 @@ const {
   updateCandidatePage,
   updateCandidatePageSize
 } = useChildCandidates(groupKey);
+const {
+  childDrafts,
+  newChildDrafts,
+  childDraftValue,
+  newChildDraftValue,
+  setChildDraftValue,
+  setNewChildDraftValue,
+  syncChildDrafts
+} = useChildDrafts();
 
 const loginResponse = ref<CommonResponse<LoginVo> | null>(null);
 const initAppResponse = ref<CommonResponse<LegacyInitAppResult> | null>(null);
@@ -994,43 +998,9 @@ async function loadCandidatePage(group: QueryDataDetailItemGroup, pageIndex: num
   await loadExistingDetailItems(group);
 }
 
-function newChildDraftValue(group: QueryDataDetailItemGroup, field: ListDataValue) {
-  return draftFieldValue(newChildDrafts.value, groupKey(group), field);
-}
-
-function setNewChildDraftValue(group: QueryDataDetailItemGroup, field: ListDataValue, value: string) {
-  const key = groupKey(group);
-  newChildDrafts.value = withDraftFieldValue(newChildDrafts.value, key, emptyGroupDraft(group), field, value);
-}
-
-function childDraftValue(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem, field: ListDataValue) {
-  return draftFieldValue(childDrafts.value, itemKey(group, item), field);
-}
-
-function setChildDraftValue(
-  group: QueryDataDetailItemGroup,
-  item: QueryDataDetailDataItem,
-  field: ListDataValue,
-  value: string
-) {
-  const key = itemKey(group, item);
-  childDrafts.value = withDraftFieldValue(
-    childDrafts.value,
-    key,
-    buildFieldDrafts(detailItemValues(item)),
-    field,
-    value
-  );
-}
-
 function syncDetailDrafts() {
   detailDrafts.value = buildFieldDrafts(detailRows.value);
-  childDrafts.value = buildItemDrafts(detailItemGroups.value);
-  newChildDrafts.value = detailItemGroups.value.reduce<Record<string, Record<string, string>>>((drafts, group) => {
-    const key = groupKey(group);
-    drafts[key] = newChildDrafts.value[key] || emptyGroupDraft(group);
-    return drafts;
-  }, {});
+  syncChildDrafts(detailItemGroups.value);
 }
 </script>
 

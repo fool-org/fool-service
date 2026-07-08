@@ -191,6 +191,9 @@ explicitly named as authoritative for fool-service.
       editors share the same cached model-id lookup without growing `App.vue`.
 - [x] Keep Vue child collection editor bindings stable when DetailView
       metadata renders before child draft maps are synchronized.
+- [x] Move Vue child add/update draft state into `useChildDrafts`, reusing
+      shared View workflow draft helpers while keeping `App.vue` below the
+      frontend root budget.
 - [x] Execute legacy property `SET` trigger `SET_VALUE` side effects through
       dynamic `ModelDataService` create/save writes without introducing
       concrete business DTO binding.

@@ -1,0 +1,36 @@
+import { describe, expect, it } from "vitest";
+import { useChildDrafts } from "./useChildDrafts";
+
+describe("useChildDrafts", () => {
+  it("keeps child draft reads stable before sync and writes through defaults", () => {
+    const drafts = useChildDrafts();
+    const group = {
+      prpId: "items",
+      properties: [
+        { prpId: "itemId", fmtValue: "" },
+        { prpId: "itemName", fmtValue: "" }
+      ],
+      items: [
+        {
+          dataId: "2001",
+          values: [
+            { prpId: "itemId", objId: "2001", fmtValue: "2001" },
+            { prpId: "itemName", objId: "Old", fmtValue: "Old" }
+          ]
+        }
+      ]
+    };
+
+    expect(drafts.newChildDraftValue(group, group.properties[0])).toBe("");
+
+    drafts.setNewChildDraftValue(group, group.properties[1], "New");
+    expect(drafts.newChildDrafts.value.items).toEqual({ itemId: "", itemName: "New" });
+
+    drafts.syncChildDrafts([group]);
+    expect(drafts.newChildDrafts.value.items).toEqual({ itemId: "", itemName: "New" });
+    expect(drafts.childDraftValue(group, group.items[0], group.properties[1])).toBe("Old");
+
+    drafts.setChildDraftValue(group, group.items[0], group.properties[1], "Updated");
+    expect(drafts.childDraftValue(group, group.items[0], group.properties[1])).toBe("Updated");
+  });
+});

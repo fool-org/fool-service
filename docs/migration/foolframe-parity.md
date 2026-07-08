@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue child add/update draft state now lives in
+  `useChildDrafts`, reusing the shared View workflow draft helpers for
+  missing-value reads, default child add rows, and persisted child item edits.
+  `App.vue` is down to 1926 lines while child collection editors remain bound
+  to rendered `getreaditemview.DetailViews` metadata instead of concrete
+  business DTO fields.
 - 2026-07-09: Vue child collection editors no longer crash when a
   `getreaditemview` DetailView renders before child draft maps have been
   synchronized. `MetadataFieldEditor` child add/update bindings now read
