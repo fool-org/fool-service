@@ -31,6 +31,31 @@ STANDARD_HEADINGS = (
 SOURCE_FILE_LINE_LIMIT = 2100
 SOURCE_FILE_EXTENSIONS = frozenset((".java", ".ts", ".vue"))
 SOURCE_FILE_SKIP_DIRS = frozenset((".git", "node_modules", "target", "dist"))
+JAVA_MODULE_PACKAGE_PREFIXES = {
+    "fool-app-manage": "org.fool.framework.app",
+    "fool-auth": "org.fool.framework.auth",
+    "fool-common": "org.fool.framework.common",
+    "fool-dao": "org.fool.framework.dao",
+    "fool-db-manage": "org.fool.framework.dbmanage",
+    "fool-dto": "org.fool.framework.dto",
+    "fool-error-handler": "org.fool.framework.error",
+    "fool-event": "org.fool.framework.event",
+    "fool-log": "org.fool.framework.log",
+    "fool-model": "org.fool.framework.model",
+    "fool-query": "org.fool.framework.query",
+    "fool-report": "org.fool.framework.report",
+    "fool-view": "org.fool.framework.view",
+}
+MIGRATION_PARITY_MARKERS = (
+    "../FoolFrame",
+    "python scripts/runtime_doctor.py",
+    "## Remaining Migration Work",
+    "AppInstallGateway",
+    "SCPB05-Soway.Model",
+    "SWDQ01-Soway.Query",
+    "SCPB09-SOWAY.EVENT",
+    "SWRPT01-Soway.Report",
+)
 
 
 @dataclass(frozen=True)
@@ -251,6 +276,44 @@ def check_source_file_sizes(root: Path, report: HarnessReport) -> None:
             )
 
 
+def check_java_package_boundaries(root: Path, report: HarnessReport) -> None:
+    for module, package_prefix in sorted(JAVA_MODULE_PACKAGE_PREFIXES.items()):
+        source_root = root / module / "src/main/java"
+        if not source_root.exists():
+            continue
+        for path in source_root.rglob("*.java"):
+            relative_path = path.relative_to(root).as_posix()
+            report.add_checked(relative_path)
+            package_name = java_package(path)
+            if not package_name:
+                report.errors.append(f"Missing Java package declaration: {relative_path}")
+            elif package_name != package_prefix and not package_name.startswith(f"{package_prefix}."):
+                report.errors.append(
+                    f"Java package boundary violation: {relative_path} declares "
+                    f"{package_name}, expected {package_prefix}.*"
+                )
+
+
+def java_package(path: Path) -> str:
+    with path.open(encoding="utf-8", errors="ignore") as source:
+        for line in source:
+            stripped = line.strip()
+            if stripped.startswith("package ") and stripped.endswith(";"):
+                return stripped.removeprefix("package ").removesuffix(";").strip()
+    return ""
+
+
+def check_migration_parity_contract(root: Path, report: HarnessReport) -> None:
+    text = read_required_text(root, "docs/migration/foolframe-parity.md", report)
+    if text is None:
+        return
+    for marker in MIGRATION_PARITY_MARKERS:
+        if marker not in text:
+            report.errors.append(
+                f"Migration parity doc missing required marker '{marker}'"
+            )
+
+
 def validate_repo(root: Path | str = ROOT) -> HarnessReport:
     repo_root = Path(root).resolve()
     report = HarnessReport(root=repo_root)
@@ -259,6 +322,8 @@ def validate_repo(root: Path | str = ROOT) -> HarnessReport:
     check_existing_command_surfaces(repo_root, report)
     check_readme_discovery(repo_root, report)
     check_source_file_sizes(repo_root, report)
+    check_java_package_boundaries(repo_root, report)
+    check_migration_parity_contract(repo_root, report)
     return report
 
 

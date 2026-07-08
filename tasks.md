@@ -59,6 +59,8 @@ explicitly named as authoritative for fool-service.
 - [x] Remove the Vue workspace's visible business-name `get-view/query-list`
       shortcuts so View rendering and data loading stay `viewId` driven.
 - [x] Add a repository harness guard for oversized source files.
+- [x] Add repository harness checks for Java package boundaries and FoolFrame
+      migration parity marker drift.
 - [x] Accept legacy Pascal `inputquery` request fields at the protocol DTO
       boundary without introducing concrete business DTO binding.
 - [x] Remove the unused Vue business-name `query-list` payload builder so the
@@ -238,4 +240,3 @@ explicitly named as authoritative for fool-service.
 ## Backlog
 
 - [ ] Add focused Maven module profiles once module boundaries are cleaned up.
-- [ ] Add contract checks for package boundaries and migration drift.

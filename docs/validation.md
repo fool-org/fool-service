@@ -34,6 +34,8 @@ the heaviest runtime path for every edit.
   `checked_files`, `standards`, `errors`, and `warnings`.
 - JUnit reports use `--junit-out` for CI systems that aggregate XML.
 - Source file size checks fail source files over 2100 lines.
+- Repository harness checks fail Java package boundary drift across `fool-*`
+  modules and missing required migration parity markers.
 - Runtime evidence should use `artifacts/runs/<run_id>/` when a browser,
   Docker, log, or HTTP observation is decisive.
 

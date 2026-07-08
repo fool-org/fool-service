@@ -17,7 +17,8 @@ gap remains.
 
 `docs/migration/foolframe-parity.md review and focused tests` are required for
 migration changes. `python scripts/check_repo_harness.py` verifies that the
-parity document remains discoverable and references the key command families.
+parity document remains discoverable, references the key command families, and
+keeps required remaining-work markers for the active FoolFrame migration areas.
 
 ## Evidence
 

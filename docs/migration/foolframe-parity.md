@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: repository harness now fails Java package-boundary drift across
+  `fool-*` modules and missing required migration parity markers for the active
+  FoolFrame areas. This makes package ownership and the remaining AppInstall,
+  Model, Query, Event, Report, and Docker/runtime parity surfaces mechanically
+  visible during `python scripts/check_repo_harness.py`.
 - 2026-07-08: the Docker runtime doctor now covers `runoperation` result
   aliases through the Vue proxy. It reuses the loaded View id and object id
   from `querydata`, then sends a no-op operation id so the check proves
