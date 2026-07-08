@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: legacy `querydatadetail` now carries request `Token` from the
+  controller into `DataQueryService` and on to `ViewDataService.getViewData`.
+  This keeps detail View loading on the same token-aware View lookup boundary
+  as `getlistview` / `getreaditemview` without adding a direct `fool-auth`
+  dependency to `fool-view`. Auth/context `IdExp` expression evaluation
+  remains future work.
 - 2026-07-08: the Vue detail child-item editor now initializes child add
   drafts immediately after `getreaditemview` metadata loads. This removes the
   first-screen runtime error from rendering `newChildDrafts[group][itemId]`

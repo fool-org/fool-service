@@ -170,6 +170,9 @@ explicitly named as authoritative for fool-service.
 - [x] Accept legacy Pascal `querydatadetail` `ViewId` / `ObjId` fields at the
       generic detail-data protocol boundary and cover it in the Docker runtime
       doctor.
+- [x] Pass legacy `querydatadetail` request `Token` through the controller and
+      detail service View lookup boundary without adding a cross-module auth
+      dependency.
 - [x] Render detail View operation buttons from the loaded `querydatadetail`
       operations payload instead of the list View metadata, keeping detail
       actions bound to the rendered detail View context.

@@ -130,7 +130,11 @@ public class DataQueryService {
     }
 
     public QueryDataDetailResult queryLegacyViewDataDetail(String viewId, String dataId, String idExp) {
-        View view = viewDataService.getViewData(viewId, null);
+        return queryLegacyViewDataDetail(viewId, dataId, idExp, null);
+    }
+
+    public QueryDataDetailResult queryLegacyViewDataDetail(String viewId, String dataId, String idExp, String token) {
+        View view = viewDataService.getViewData(viewId, token);
         if (view == null) {
             throw new CommonException(ErrorCode.VIEW_NOT_FOUND, "没有查到视图");
         }
