@@ -24,6 +24,9 @@ import type {
   ReportCell,
   ReportCol,
   ReportModelColumn,
+  ReportModelOption,
+  ReportModelResult,
+  ReportModelState,
   SaveItemProperty,
   SaveKeypair,
   TableColumnInfo
@@ -79,6 +82,14 @@ export function fieldKey(field: ListDataValue) {
 
 export function fieldTitle(field: ListDataValue) {
   return field.prpShowName || field.PrpShowName || field.prpId || field.PrpId || "";
+}
+
+export function fieldType(field: ListDataValue) {
+  return field.prpType ?? field.PrpType;
+}
+
+export function fieldEditType(field: ListDataValue) {
+  return field.editType ?? field.EditType;
 }
 
 export function fieldDisplayValue(field: ListDataValue) {
@@ -284,8 +295,8 @@ export function columnsFromRowItems(row: ListDataItem | undefined): TableColumnI
         title: fieldTitle(field),
         name: fieldTitle(field),
         isReadOnly: field.readOnly ?? field.ReadOnly,
-        editType: field.editType ?? field.EditType,
-        propertyType: field.prpType ?? field.PrpType,
+        editType: fieldEditType(field),
+        propertyType: fieldType(field),
         propertyModel: field.prpModelId ?? field.PrpModelId
       };
     })
@@ -465,16 +476,56 @@ export function reportRowsFromCells(cells: ReportCell[] = []) {
   );
 }
 
+export function reportModelColumns(result: ReportModelResult | undefined) {
+  return firstList(result?.cols, result?.Cols);
+}
+
+export function reportModelColumnId(col: ReportModelColumn) {
+  return firstDisplayValue([col.id, col.ID]);
+}
+
+export function reportModelColumnName(col: ReportModelColumn) {
+  return firstDisplayValue([col.name, col.Name, reportModelColumnId(col)]);
+}
+
+export function reportModelColumnType(col: ReportModelColumn) {
+  return firstDisplayValue([col.prpType, col.PrpType]);
+}
+
+export function reportModelCompareTypes(col: ReportModelColumn) {
+  return firstList(col.compareTypes, col.CompareTypes);
+}
+
+export function reportModelQueryTypes(col: ReportModelColumn) {
+  return firstList(col.queryTypes, col.QueryTypes);
+}
+
+export function reportModelStates(col: ReportModelColumn) {
+  return firstList(col.states, col.States);
+}
+
+export function reportModelOptionId(option: ReportModelOption) {
+  return firstDisplayValue([option.id, option.ID]);
+}
+
+export function reportModelOptionName(option: ReportModelOption) {
+  return firstDisplayValue([option.name, option.Name, reportModelOptionId(option)]);
+}
+
+export function reportModelStateText(state: ReportModelState) {
+  return firstDisplayValue([state.showName, state.ShowName, state.dbName, state.DBName]);
+}
+
 export function buildReportColsFromModel(cols: ReportModelColumn[] = []): ReportCol[] {
   return cols
     .map((col, index) => {
-      const queryType = col.queryTypes?.[0];
-      const name = col.name || col.id || "";
-      const queryName = queryType?.name || queryType?.id || "";
+      const queryType = reportModelQueryTypes(col)[0];
+      const name = reportModelColumnName(col);
+      const queryName = queryType ? reportModelOptionName(queryType) : "";
       return {
         colName: queryName ? `${name}[${queryName}]` : name,
-        colId: col.id,
-        selectedTypeId: queryType?.id,
+        colId: reportModelColumnId(col),
+        selectedTypeId: queryType && reportModelOptionId(queryType),
         index,
         orderType: "2"
       };

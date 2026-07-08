@@ -1,5 +1,6 @@
 package org.fool.framework.view.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.fool.framework.dao.PageNavigator;
 import org.fool.framework.dao.DaoService;
 import org.fool.framework.common.PropertyType;
@@ -30,6 +31,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -125,6 +127,37 @@ public class ReportControllerTest {
 
         assertEquals("Symbol", response.getData().getCols().get(0).getName());
         assertEquals("State", response.getData().getCols().get(1).getName());
+    }
+
+    @Test
+    public void getReportModelExposesLegacyPascalAliases() {
+        ReportModelResult result = new ReportModelResult();
+        ReportModelResult.QueryCol col = new ReportModelResult.QueryCol();
+        col.setId("symbol");
+        col.setName("Symbol");
+        col.setPrpType(PropertyType.String.code());
+        col.setModelId(102L);
+        col.setCompareTypes(List.of(new ReportModelResult.Option("7", "包含")));
+        col.setQueryTypes(List.of(new ReportModelResult.Option("1", "原值")));
+        ReportModelResult.StateValue state = new ReportModelResult.StateValue();
+        state.setShowName("Open");
+        state.setDbName("0");
+        col.setStates(List.of(state));
+        result.setCols(List.of(col));
+
+        Map<?, ?> serialized = new ObjectMapper().convertValue(result, Map.class);
+        assertTrue(serialized.containsKey("cols"));
+        assertTrue(serialized.containsKey("Cols"));
+        assertEquals(serialized.get("cols"), serialized.get("Cols"));
+        Map<?, ?> item = (Map<?, ?>) ((List<?>) serialized.get("Cols")).get(0);
+        assertEquals("symbol", item.get("id"));
+        assertEquals("symbol", item.get("ID"));
+        assertEquals("Symbol", item.get("Name"));
+        assertEquals(PropertyType.String.code(), item.get("PrpType"));
+        assertEquals(102L, item.get("ModelId"));
+        assertTrue(item.containsKey("CompareTypes"));
+        assertTrue(item.containsKey("QueryTypes"));
+        assertTrue(item.containsKey("States"));
     }
 
     @Test

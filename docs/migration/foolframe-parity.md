@@ -97,6 +97,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: `getmkqview` now exposes FoolFrame report model aliases
+  (`Cols`, `ID`, `Name`, `PrpType`, `ModelId`, `QueryTypes`,
+  `CompareTypes`, `States`, `ShowName`, `DBName`) while preserving the
+  existing camel-case contract. Vue report-column rendering and default
+  `ReportCols` generation now read report model metadata through shared
+  `viewWorkflow` helpers, and the Docker runtime doctor requires the Pascal
+  `Cols` field on the loaded-View report model path.
 - 2026-07-08: `inputquery` now exposes FoolFrame response aliases
   (`Items`, `Id`, `Text`) while preserving the existing camel-case fields.
   Vue API-tool and metadata lookup consumers read candidates through shared

@@ -510,26 +510,38 @@ export interface ReportGridResult {
 
 export interface ReportModelOption {
   id?: string;
+  ID?: string;
   name?: string;
+  Name?: string;
 }
 
 export interface ReportModelState {
   showName?: string;
+  ShowName?: string;
   dbName?: string;
+  DBName?: string;
 }
 
 export interface ReportModelColumn {
   id?: string;
+  ID?: string;
   name?: string;
+  Name?: string;
   prpType?: number;
+  PrpType?: number;
   modelId?: number;
+  ModelId?: number;
   states?: ReportModelState[];
+  States?: ReportModelState[];
   compareTypes?: ReportModelOption[];
+  CompareTypes?: ReportModelOption[];
   queryTypes?: ReportModelOption[];
+  QueryTypes?: ReportModelOption[];
 }
 
 export interface ReportModelResult {
   cols?: ReportModelColumn[];
+  Cols?: ReportModelColumn[];
 }
 
 export interface LegacyQueryDataDetailRequest {

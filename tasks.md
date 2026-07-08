@@ -104,6 +104,9 @@ explicitly named as authoritative for fool-service.
       `Value`) while keeping the Vue camel-case enum contract.
 - [x] Expose legacy `querydatadetail` response aliases for detail payloads
       while keeping the Vue camel-case detail contract.
+- [x] Expose FoolFrame Pascal `getmkqview` report model aliases (`Cols`,
+      `ID`, `Name`, `QueryTypes`, `CompareTypes`, `States`) and make Vue
+      report-column consumers read them through shared View workflow helpers.
 - [x] Tighten the Vue main View workflow layout so loaded View rows and
       `querydatadetail` detail fields render in the first usable screen on
       desktop and remain scrollable on narrow screens.

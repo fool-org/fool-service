@@ -57,9 +57,11 @@ import {
   detailResultSimpleData,
   displayValue,
   emptyGroupDraft,
+  fieldEditType,
   fieldKey,
   fieldDisplayValue,
   fieldModelId,
+  fieldType,
   fieldTitle,
   groupKey,
   groupColumns,
@@ -100,6 +102,15 @@ import {
   operationId as operationInfoId, operationKey, operationLabel, operationTargetViewId,
   recordColumns,
   recordRowKey,
+  reportModelColumnId,
+  reportModelColumnName,
+  reportModelColumnType,
+  reportModelColumns,
+  reportModelCompareTypes,
+  reportModelOptionName,
+  reportModelQueryTypes,
+  reportModelStates,
+  reportModelStateText,
   reportRowsFromCells,
   rowObjectId,
   rowOperations,
@@ -264,6 +275,7 @@ const messageItems = computed(() => legacyMessages(messageResponse.value?.data))
 const notifyItems = computed(() => legacyNotifies(notifyResponse.value?.data));
 const enumItems = computed(() => legacyEnumValues(enumResponse.value?.data));
 const inputQueryItems = computed(() => legacyInputQueryItems(inputQueryResponse.value?.data));
+const reportModelColumnItems = computed(() => reportModelColumns(reportModelResponse.value?.data));
 const backendSmokeColumns = computed(() => recordColumns(backendSmokeResponse.value?.data || []));
 const viewCanEdit = computed(() => Boolean(selectedObject.value || isCreatingObject.value));
 const fieldEditorContext = computed(() => ({
@@ -562,7 +574,7 @@ async function loadReportColumns() {
   );
   if (response) {
     reportModelResponse.value = response;
-    reportColsJson.value = JSON.stringify(buildReportColsFromModel(response.data?.cols || []));
+    reportColsJson.value = JSON.stringify(buildReportColsFromModel(reportModelColumns(response.data)));
   }
 }
 
@@ -1516,8 +1528,8 @@ function syncDetailDrafts() {
                 <tr v-for="item in readItemFields" :key="fieldKey(item)">
                   <td>{{ fieldTitle(item) }}</td>
                   <td>{{ fieldKey(item) }}</td>
-                  <td>{{ item.prpType || item.PrpType }}</td>
-                  <td>{{ item.editType || item.EditType }}</td>
+                  <td>{{ fieldType(item) }}</td>
+                  <td>{{ fieldEditType(item) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -1572,7 +1584,7 @@ function syncDetailDrafts() {
           </button>
 
           <div class="table-wrap input-query-results">
-            <table v-if="reportModelResponse?.data?.cols?.length">
+            <table v-if="reportModelColumnItems.length">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -1584,13 +1596,13 @@ function syncDetailDrafts() {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="col in reportModelResponse.data.cols" :key="col.id || col.name">
-                  <td>{{ col.name }}</td>
-                  <td>{{ col.id }}</td>
-                  <td>{{ col.prpType }}</td>
-                  <td>{{ col.compareTypes?.map((item) => item.name || item.id).join(", ") }}</td>
-                  <td>{{ col.queryTypes?.map((item) => item.name || item.id).join(", ") }}</td>
-                  <td>{{ col.states?.map((item) => item.showName || item.dbName).join(", ") }}</td>
+                <tr v-for="col in reportModelColumnItems" :key="reportModelColumnId(col) || reportModelColumnName(col)">
+                  <td>{{ reportModelColumnName(col) }}</td>
+                  <td>{{ reportModelColumnId(col) }}</td>
+                  <td>{{ reportModelColumnType(col) }}</td>
+                  <td>{{ reportModelCompareTypes(col).map(reportModelOptionName).join(", ") }}</td>
+                  <td>{{ reportModelQueryTypes(col).map(reportModelOptionName).join(", ") }}</td>
+                  <td>{{ reportModelStates(col).map(reportModelStateText).join(", ") }}</td>
                 </tr>
               </tbody>
             </table>

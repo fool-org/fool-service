@@ -225,21 +225,21 @@ def lookup_view_item_id(columns: list[dict[str, Any]]) -> str:
 def report_model_columns(payload: dict[str, Any]) -> list[dict[str, Any]]:
     if not common_response_ok(payload):
         return []
-    columns = payload["data"].get("cols")
+    columns = payload["data"].get("cols") or payload["data"].get("Cols")
     return [column for column in columns if isinstance(column, dict)] if isinstance(columns, list) else []
 
 
 def runtime_report_cols(columns: list[dict[str, Any]]) -> list[dict[str, Any]]:
     result: list[dict[str, Any]] = []
     for index, column in enumerate(columns[:2], start=1):
-        name = str(column.get("name") or column.get("id") or "")
-        column_id = str(column.get("id") or name)
-        query_types = column.get("queryTypes") or []
+        name = str(column.get("name") or column.get("Name") or column.get("id") or column.get("ID") or "")
+        column_id = str(column.get("id") or column.get("ID") or name)
+        query_types = column.get("queryTypes") or column.get("QueryTypes") or []
         selected = query_types[0] if query_types and isinstance(query_types[0], dict) else {}
         result.append({
             "ColName": name,
             "ColId": column_id,
-            "SelectedTypeId": selected.get("id"),
+            "SelectedTypeId": selected.get("id") or selected.get("ID"),
             "Index": index,
             "OrderType": "2",
         })
@@ -543,7 +543,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         columns = report_model_columns(payload)
         if columns:
             view_state["reportColumns"] = columns
-        return bool(columns)
+        return bool(columns) and response_list_field_present(payload, "Cols")
 
     def get_report_ok() -> bool:
         view_id = loaded_list_view_id()

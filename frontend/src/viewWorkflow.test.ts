@@ -19,9 +19,11 @@ import {
   detailGroupsFromReadView,
   detailResultItems,
   detailResultSimpleData,
+  fieldEditType,
   fieldKey,
   fieldDisplayValue,
   fieldModelId,
+  fieldType,
   fieldTitle,
   groupColumns,
   groupKey,
@@ -62,6 +64,14 @@ import {
   listTotalPages,
   operationLabel,
   operationTargetViewId,
+  reportModelColumnId,
+  reportModelColumnName,
+  reportModelColumns,
+  reportModelCompareTypes,
+  reportModelOptionName,
+  reportModelQueryTypes,
+  reportModelStates,
+  reportModelStateText,
   reportRowsFromCells,
   recordColumns,
   recordRowKey,
@@ -214,6 +224,8 @@ describe("view workflow helpers", () => {
     expect(readViewFields(view).length).toBe(1);
     expect(fieldKey(fields[0])).toBe("orderId");
     expect(fieldTitle(fields[0])).toBe("Order ID");
+    expect(fieldType(fields[0])).toBe("Long");
+    expect(fieldEditType(fields[0])).toBe("ReadOnly");
     expect(fields[0]).toMatchObject({
       objId: "1001",
       fmtValue: "1001",
@@ -552,6 +564,26 @@ describe("view workflow helpers", () => {
     ])).toEqual([
       { colName: "Symbol[原值]", colId: "1002", selectedTypeId: "1", index: 0, orderType: "2" },
       { colName: "State[计数]", colId: "1003", selectedTypeId: "2", index: 1, orderType: "2" }
+    ]);
+
+    const pascal = {
+      Cols: [{
+        ID: "1004",
+        Name: "Amount",
+        PrpType: 2,
+        QueryTypes: [{ ID: "1", Name: "原值" }],
+        CompareTypes: [{ ID: "7", Name: "包含" }],
+        States: [{ ShowName: "Open", DBName: "0" }]
+      }]
+    };
+    const col = reportModelColumns(pascal)[0];
+    expect(reportModelColumnId(col)).toBe("1004");
+    expect(reportModelColumnName(col)).toBe("Amount");
+    expect(reportModelOptionName(reportModelQueryTypes(col)[0])).toBe("原值");
+    expect(reportModelOptionName(reportModelCompareTypes(col)[0])).toBe("包含");
+    expect(reportModelStateText(reportModelStates(col)[0])).toBe("Open");
+    expect(buildReportColsFromModel(reportModelColumns(pascal))).toEqual([
+      { colName: "Amount[原值]", colId: "1004", selectedTypeId: "1", index: 0, orderType: "2" }
     ]);
   });
 
