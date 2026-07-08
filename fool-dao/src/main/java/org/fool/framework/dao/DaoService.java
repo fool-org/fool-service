@@ -8,12 +8,14 @@ import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionOperations;
 
 import java.lang.reflect.ParameterizedType;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Component
@@ -26,13 +28,20 @@ public class DaoService {
     private SqlScriptGenerator sqlScriptGenerator;
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired(required = false)
+    private TransactionOperations transactionOperations;
 
     public DaoService() {
     }
 
     public DaoService(SqlScriptGenerator sqlScriptGenerator, JdbcTemplate jdbcTemplate) {
+        this(sqlScriptGenerator, jdbcTemplate, null);
+    }
+
+    public DaoService(SqlScriptGenerator sqlScriptGenerator, JdbcTemplate jdbcTemplate, TransactionOperations transactionOperations) {
         this.sqlScriptGenerator = sqlScriptGenerator;
         this.jdbcTemplate = jdbcTemplate;
+        this.transactionOperations = transactionOperations;
     }
 
     static <T> Mapper<T> getMapper(Class<T> clazz) {
@@ -79,6 +88,13 @@ public class DaoService {
             return;
         }
         this.jdbcTemplate.execute(sql);
+    }
+
+    public <T> T inTransaction(Supplier<T> action) {
+        if (transactionOperations == null) {
+            return action.get();
+        }
+        return transactionOperations.execute(status -> action.get());
     }
 
     /**

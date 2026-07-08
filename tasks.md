@@ -316,6 +316,8 @@ explicitly named as authoritative for fool-service.
       columns before raw `querydata.Items` order.
 - [x] Reuse parsed legacy enum values for AppInstall `SW_SYS_EMUNVALUE`
       duplicate checks.
+- [x] Wrap routed AppInstall module-source/default-View metadata and schema
+      DDL work in target `DaoService` transaction boundaries.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

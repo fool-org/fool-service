@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: AppInstall routed module-source metadata installs, routed model
+  schema DDL, and default View generation now execute through the target
+  `DaoService` transaction boundary. DriverManager-created legacy connection
+  DAOs use a Spring `DataSourceTransactionManager` over the cached
+  `SingleConnectionDataSource`; this covers per-connection rollback scope
+  without introducing a distributed transaction across sys/work databases.
 - 2026-07-09: AppInstall legacy enum-value duplicate checks now use the same
   parsed integer `EMUN_VALUE` that is written to `SW_SYS_EMUNVALUE`, avoiding
   a string-vs-number mismatch between `EnumValue.value` and the legacy enum

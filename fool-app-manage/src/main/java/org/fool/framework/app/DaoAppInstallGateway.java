@@ -134,9 +134,23 @@ public class DaoAppInstallGateway implements AppInstallGateway {
         }
 
         List<AppModuleDefinition> modules = source.getModules();
+        DaoService metadataDao = daoFor(sysCon);
+        return metadataDao.inTransaction(() -> installModuleSourceMetadata(
+                metadataDao,
+                sysCon,
+                databaseConnection,
+                source,
+                modules));
+    }
+
+    private List<String> installModuleSourceMetadata(
+            DaoService metadataDao,
+            String sysCon,
+            String databaseConnection,
+            AppModuleSource source,
+            List<AppModuleDefinition> modules) {
         List<String> installed = new ArrayList<>();
         Integer connectionType = connectionType(sysCon, databaseConnection);
-        DaoService metadataDao = daoFor(sysCon);
         Map<Model, AppInstalledModel> installedModels = new IdentityHashMap<>();
         Map<Property, AppInstalledProperty> installedProperties = new IdentityHashMap<>();
         for (AppModuleDefinition module : modules) {
@@ -245,7 +259,8 @@ public class DaoAppInstallGateway implements AppInstallGateway {
 
     @Override
     public List<String> installModelSchemas(String sysCon, String databaseConnection, List<Model> models) {
-        return installModelSchemas(daoFor(databaseConnection), models);
+        DaoService schemaDao = daoFor(databaseConnection);
+        return schemaDao.inTransaction(() -> installModelSchemas(schemaDao, models));
     }
 
     @Override
@@ -254,8 +269,12 @@ public class DaoAppInstallGateway implements AppInstallGateway {
             return List.of();
         }
 
-        List<String> viewNames = new ArrayList<>();
         DaoService metadataDao = daoFor(sysCon);
+        return metadataDao.inTransaction(() -> installDefaultViews(metadataDao, models));
+    }
+
+    private List<String> installDefaultViews(DaoService metadataDao, List<Model> models) {
+        List<String> viewNames = new ArrayList<>();
         for (Model model : models) {
             if (model == null || model.getModelType() == ModelType.ENUM) {
                 continue;

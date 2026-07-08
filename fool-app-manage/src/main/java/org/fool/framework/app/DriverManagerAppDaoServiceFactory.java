@@ -3,8 +3,10 @@ package org.fool.framework.app;
 import org.fool.framework.dao.DaoService;
 import org.fool.framework.dao.SqlScriptGenerator;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -41,7 +43,10 @@ public class DriverManagerAppDaoServiceFactory implements AppDaoServiceFactory {
         if (settings.driverClassName() != null) {
             dataSource.setDriverClassName(settings.driverClassName());
         }
-        return new DaoService(sqlScriptGenerator, new JdbcTemplate(dataSource));
+        return new DaoService(
+                sqlScriptGenerator,
+                new JdbcTemplate(dataSource),
+                new TransactionTemplate(new DataSourceTransactionManager(dataSource)));
     }
 
     static ConnectionSettings parse(String connectionString) {
