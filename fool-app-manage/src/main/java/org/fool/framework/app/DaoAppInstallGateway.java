@@ -10,6 +10,7 @@ import org.fool.framework.model.model.Relation;
 import org.fool.framework.model.sqlscript.LegacyMysqlDdlGenerator;
 import org.fool.framework.view.model.View;
 import org.fool.framework.view.model.ViewItem;
+import org.fool.framework.view.model.ViewOperation;
 import org.fool.framework.view.service.LegacyAutoViewFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -381,11 +382,13 @@ public class DaoAppInstallGateway implements AppInstallGateway {
                         + "FROM `SW_SYS_MODEL` WHERE `MODEL_CLASS` = ?",
                 model.getClassName());
         if (!models.isEmpty()) {
+            model.setId(models.get(0).getModelId());
             return new InstalledModelResult(models.get(0), false);
         }
 
         AppInstalledModel installedModel = AppInstalledModel.fromModel(model, moduleName, connectionType, connection);
         daoService.create(installedModel);
+        model.setId(installedModel.getModelId());
         return new InstalledModelResult(installedModel, true);
     }
 
@@ -426,6 +429,7 @@ public class DaoAppInstallGateway implements AppInstallGateway {
                     installedModel.getModelId(),
                     property.getName());
             if (existing != null) {
+                property.setId(existing.getPropertyId());
                 installedProperties.put(property, existing);
                 installMultiDbMaps(daoService, property, existing);
                 continue;
@@ -441,6 +445,7 @@ public class DaoAppInstallGateway implements AppInstallGateway {
                     connectionType,
                     connection);
             daoService.create(installedProperty);
+            property.setId(installedProperty.getPropertyId());
             installedProperties.put(property, installedProperty);
             installMultiDbMaps(daoService, property, installedProperty);
         }
@@ -634,6 +639,16 @@ public class DaoAppInstallGateway implements AppInstallGateway {
         for (ViewItem item : safeViewItems(view)) {
             daoService.create(installedViewItem(item, view.getId()));
         }
+        for (ViewOperation operation : safeViewOperations(view)) {
+            AppInstalledOperationView operationView = installedOperationView(operation);
+            if (operationView != null) {
+                daoService.create(operationView);
+            }
+            daoService.create(installedViewOperation(
+                    operation,
+                    view.getId(),
+                    operationView == null ? null : operationView.getOperationViewId()));
+        }
         return view;
     }
 
@@ -655,6 +670,7 @@ public class DaoAppInstallGateway implements AppInstallGateway {
         installed.setOwnerViewId(viewId);
         installed.setName(item.getItemName());
         installed.setFormat(item.getFormatRegx());
+        installed.setPropertyId(item.getProperty() == null ? null : item.getProperty().getId());
         installed.setReadOnly(!item.isCanEdit());
         installed.setShowIndex(item.getShowIndex());
         installed.setListViewId(item.getListViewId());
@@ -667,8 +683,43 @@ public class DaoAppInstallGateway implements AppInstallGateway {
         return installed;
     }
 
+    private AppInstalledOperationView installedOperationView(ViewOperation operation) {
+        if (operation.getOperation() == null) {
+            return null;
+        }
+        AppInstalledOperationView installed = new AppInstalledOperationView();
+        installed.setName(operation.getName());
+        installed.setResultViewId(operation.getResultView() == null ? null : operation.getResultView().getId());
+        installed.setOperationId(operation.getOperation().getId());
+        installed.setSuccessMsg(operation.getSuccessMsg());
+        installed.setErrorMsg(operation.getErrorMsg());
+        installed.setMsg(operation.getConfirmMsg());
+        installed.setShow(true);
+        installed.setConfirmMsg(operation.getConfirmMsg());
+        return installed;
+    }
+
+    private AppInstalledViewOperation installedViewOperation(
+            ViewOperation operation,
+            Long viewId,
+            Long operationViewId) {
+        AppInstalledViewOperation installed = new AppInstalledViewOperation();
+        installed.setOwnerViewId(viewId);
+        installed.setName(operation.getName());
+        installed.setOperationViewId(operationViewId);
+        installed.setResultViewId(operation.getResultView() == null ? null : operation.getResultView().getId());
+        installed.setShowProcess(false);
+        installed.setLocation(operation.getLocation());
+        installed.setRequireSelect(operation.isRequireSelect());
+        return installed;
+    }
+
     private List<ViewItem> safeViewItems(View view) {
         return view.getListItems() == null ? List.of() : view.getListItems();
+    }
+
+    private List<ViewOperation> safeViewOperations(View view) {
+        return view.getOperations() == null ? List.of() : view.getOperations();
     }
 
     private AuthorizedUser resolveAuthorizedUser(DaoService daoService, String userId) {

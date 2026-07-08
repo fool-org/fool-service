@@ -128,6 +128,7 @@ public class LegacyAutoViewFactory {
         item.setItemName(displayName(property));
         item.setItemLabel(displayName(property));
         item.setModelProperty(property.getName());
+        item.setProperty(property);
         item.setFormatRegx(Objects.toString(property.getFormat(), ""));
         item.setCanEdit(!readOnly);
         item.setInputType(readOnly ? InputType.READ_ONLY : InputType.TEXT_BOX);

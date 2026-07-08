@@ -14,6 +14,8 @@ import org.fool.framework.dao.DaoService;
 import org.fool.framework.model.model.EnumValue;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.ModelType;
+import org.fool.framework.model.model.Operation;
+import org.fool.framework.model.model.OperationBaseType;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.model.model.Relation;
 import org.fool.framework.model.model.RelationType;
@@ -1142,7 +1144,7 @@ public class AppManageMigrationTest {
     }
 
     @Test
-    public void daoAppInstallGatewayBackfillsLegacyDefaultOwnerAfterModelIdsExist() {
+    public void daoAppInstallGatewaySetsLegacyDefaultOwnerAfterModelIdsExist() {
         RecordingDaoService daoService = new RecordingDaoService();
         DaoAppInstallGateway gateway = new DaoAppInstallGateway(daoService);
         Model order = legacyModel("Order", "SW_ORDER");
@@ -1162,7 +1164,7 @@ public class AppManageMigrationTest {
         AppInstalledModel orderModel = (AppInstalledModel) daoService.created.get(1);
         AppInstalledModel orderLineModel = (AppInstalledModel) daoService.created.get(2);
         assertEquals(orderModel.getModelId(), orderLineModel.getDefaultOwnerId());
-        assertEquals(List.of(orderLineModel), daoService.saved);
+        assertTrue(daoService.saved.isEmpty());
     }
 
     @Test
@@ -1221,6 +1223,9 @@ public class AppManageMigrationTest {
         AppInstalledModel orderModel = (AppInstalledModel) daoService.created.get(1);
         AppInstalledProperty orderIdProperty = (AppInstalledProperty) daoService.created.get(2);
         AppInstalledProperty statusProperty = (AppInstalledProperty) daoService.created.get(3);
+        assertEquals(orderModel.getModelId(), order.getId());
+        assertEquals(orderIdProperty.getPropertyId(), orderId.getId());
+        assertEquals(statusProperty.getPropertyId(), status.getId());
         assertInstalledProperty(
                 orderIdProperty,
                 "orderId",
@@ -1421,12 +1426,14 @@ public class AppManageMigrationTest {
         gateway.installModelSchemas("sys-con", "work-con", List.of(order));
         gateway.installDefaultViews("sys-con", "work-con", List.of(order));
 
-        assertEquals(7, sysDao.created.size());
+        assertEquals(9, sysDao.created.size());
         assertTrue(sysDao.created.get(0) instanceof AppInstalledModule);
         assertTrue(sysDao.created.get(1) instanceof AppInstalledModel);
         assertTrue(sysDao.created.get(2) instanceof AppInstalledProperty);
         assertTrue(sysDao.created.get(3) instanceof AppInstalledView);
         assertTrue(sysDao.created.get(4) instanceof AppInstalledViewItem);
+        assertTrue(sysDao.created.get(7) instanceof AppInstalledViewOperation);
+        assertTrue(sysDao.created.get(8) instanceof AppInstalledViewOperation);
         assertTrue(sysDao.executedSql.isEmpty());
         assertTrue(workDao.created.isEmpty());
         assertEquals(1, workDao.executedSql.size());
@@ -1510,33 +1517,50 @@ public class AppManageMigrationTest {
         DaoAppInstallGateway gateway = new DaoAppInstallGateway(daoService);
         Model order = legacyModel("Order", "SW_ORDER");
         order.setId(77L);
-        order.setProperties(List.of(
-                legacyProperty("orderId", "ORDER_ID", PropertyType.IdentifyId),
-                legacyProperty("symbol", "ORDER_SYMBOL", PropertyType.String)));
+        Property orderId = legacyProperty("orderId", "ORDER_ID", PropertyType.IdentifyId);
+        orderId.setId(771L);
+        Property symbol = legacyProperty("symbol", "ORDER_SYMBOL", PropertyType.String);
+        symbol.setId(772L);
+        Operation delete = new Operation();
+        delete.setId(881L);
+        delete.setName("删除");
+        delete.setBaseOperationType(OperationBaseType.DELETE);
+        order.setProperties(List.of(orderId, symbol));
+        order.setOperations(List.of(delete));
 
         List<String> viewNames = gateway.installDefaultViews("sys-con", "work-con", List.of(order));
 
         assertEquals(Arrays.asList("Order详细", "Order列表"), viewNames);
-        assertEquals(6, daoService.created.size());
+        assertEquals(10, daoService.created.size());
         AppInstalledView detailView = (AppInstalledView) daoService.created.get(0);
         AppInstalledViewItem detailFirstItem = (AppInstalledViewItem) daoService.created.get(1);
-        AppInstalledViewItem detailSecondItem = (AppInstalledViewItem) daoService.created.get(2);
         AppInstalledView listView = (AppInstalledView) daoService.created.get(3);
         AppInstalledViewItem listFirstItem = (AppInstalledViewItem) daoService.created.get(4);
         AppInstalledViewItem listSecondItem = (AppInstalledViewItem) daoService.created.get(5);
+        AppInstalledViewOperation createOperation = (AppInstalledViewOperation) daoService.created.get(6);
+        AppInstalledOperationView deleteOperationView = (AppInstalledOperationView) daoService.created.get(8);
+        AppInstalledViewOperation deleteOperation = (AppInstalledViewOperation) daoService.created.get(9);
         assertEquals("Order详细", detailView.getName());
         assertEquals("Order列表", listView.getName());
         assertEquals(Long.valueOf(77L), detailView.getModelId());
-        assertEquals(Long.valueOf(77L), listView.getModelId());
         assertEquals(detailView.getViewId(), listView.getDefaultViewId());
         assertEquals(detailView.getViewId(), detailFirstItem.getOwnerViewId());
-        assertEquals(detailView.getViewId(), detailSecondItem.getOwnerViewId());
         assertEquals(listView.getViewId(), listFirstItem.getOwnerViewId());
-        assertEquals(listView.getViewId(), listSecondItem.getOwnerViewId());
+        assertEquals(Long.valueOf(771L), detailFirstItem.getPropertyId());
+        assertEquals(Long.valueOf(772L), listSecondItem.getPropertyId());
         assertEquals(Boolean.FALSE, detailFirstItem.getReadOnly());
         assertEquals(Boolean.TRUE, listFirstItem.getReadOnly());
         assertEquals(Integer.valueOf(ItemEditType.TextBox.ordinal()), detailFirstItem.getEditType());
         assertEquals(Integer.valueOf(ItemEditType.ReadOnly.ordinal()), listFirstItem.getEditType());
+        assertEquals("新建", createOperation.getName());
+        assertEquals(listView.getViewId(), createOperation.getOwnerViewId());
+        assertEquals(detailView.getViewId(), createOperation.getResultViewId());
+        assertEquals(Boolean.FALSE, createOperation.getRequireSelect());
+        assertEquals(Long.valueOf(881L), deleteOperationView.getOperationId());
+        assertEquals("操作成功", deleteOperationView.getSuccessMsg());
+        assertEquals("确定要删除？该操作不可撤消", deleteOperationView.getConfirmMsg());
+        assertEquals(deleteOperationView.getOperationViewId(), deleteOperation.getOperationViewId());
+        assertEquals(Boolean.TRUE, deleteOperation.getRequireSelect());
     }
 
     private static String tableName(Class<?> type) {
@@ -1939,6 +1963,8 @@ public class AppManageMigrationTest {
         private long nextRoleId = 3000;
         private long nextViewId = 4000;
         private long nextViewItemId = 4500;
+        private long nextViewOperationId = 4700;
+        private long nextOperationViewId = 4800;
         private long nextModelId = 5000;
         private long nextPropertyId = 6000;
 
@@ -1956,6 +1982,11 @@ public class AppManageMigrationTest {
                 view.setViewId(nextViewId++);
             } else if (object instanceof AppInstalledViewItem item && item.getItemId() == null) {
                 item.setItemId(nextViewItemId++);
+            } else if (object instanceof AppInstalledViewOperation operation && operation.getViewOperationId() == null) {
+                operation.setViewOperationId(nextViewOperationId++);
+            } else if (object instanceof AppInstalledOperationView operationView
+                    && operationView.getOperationViewId() == null) {
+                operationView.setOperationViewId(nextOperationViewId++);
             } else if (object instanceof AppInstalledModel model && model.getModelId() == null) {
                 model.setModelId(nextModelId++);
             } else if (object instanceof AppInstalledProperty property && property.getPropertyId() == null) {

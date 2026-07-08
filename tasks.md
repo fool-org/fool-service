@@ -301,6 +301,8 @@ explicitly named as authoritative for fool-service.
       `SW_SYS_VIEW` / `SW_SYS_VIEW_ITEM` records, preserving View model/default
       View and item read-only/edit-type metadata without binding to business
       DTOs.
+- [x] Backfill legacy model/property ids during module-source install and use
+      them when persisting generated default View items and View operations.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
