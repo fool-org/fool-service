@@ -97,6 +97,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: AppInstall legacy enum-value duplicate checks now use the same
+  parsed integer `EMUN_VALUE` that is written to `SW_SYS_EMUNVALUE`, avoiding
+  a string-vs-number mismatch between `EnumValue.value` and the legacy enum
+  metadata table.
 - 2026-07-09: Vue list-row selection/render keys now use loaded View columns
   before falling back to raw `querydata.Items` order when `querydata.Id` is
   absent. This keeps fallback row identity tied to the rendered View instead

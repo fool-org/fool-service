@@ -605,20 +605,24 @@ public class DaoAppInstallGateway implements AppInstallGateway {
             return;
         }
         for (EnumValue enumValue : model.getEnumValues()) {
-            if (enumValue == null || isInstalledEnumValue(daoService, installedModel.getModelId(), enumValue)) {
+            if (enumValue == null) {
                 continue;
             }
-            daoService.create(AppInstalledEnumValue.fromEnumValue(enumValue, installedModel.getModelId()));
+            AppInstalledEnumValue installed = AppInstalledEnumValue.fromEnumValue(enumValue, installedModel.getModelId());
+            if (isInstalledEnumValue(daoService, installed)) {
+                continue;
+            }
+            daoService.create(installed);
         }
     }
 
-    private boolean isInstalledEnumValue(DaoService daoService, Long ownerModelId, EnumValue enumValue) {
+    private boolean isInstalledEnumValue(DaoService daoService, AppInstalledEnumValue enumValue) {
         List<AppInstalledEnumValue> values = daoService.selectList(
                 AppInstalledEnumValue.class,
                 "SELECT `EMUN_STR`,`EMUN_VALUE`,`SW_SYS_MODEL_EnumValuesMODEL_ID` "
                         + "FROM `SW_SYS_EMUNVALUE` WHERE `SW_SYS_MODEL_EnumValuesMODEL_ID` = ? "
                         + "AND `EMUN_STR` = ? AND `EMUN_VALUE` = ?",
-                ownerModelId,
+                enumValue.getOwnerModelId(),
                 enumValue.getName(),
                 enumValue.getValue());
         return !values.isEmpty();

@@ -314,6 +314,8 @@ explicitly named as authoritative for fool-service.
       `SW_SYS_VIEW_OPERATION` / `SW_SYS_OPERATIONVIEW` records.
 - [x] Keep Vue fallback row identity and table keys tied to rendered View
       columns before raw `querydata.Items` order.
+- [x] Reuse parsed legacy enum values for AppInstall `SW_SYS_EMUNVALUE`
+      duplicate checks.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

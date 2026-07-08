@@ -3,6 +3,7 @@ package org.fool.framework.app;
 import org.fool.framework.common.PropertyType;
 import org.fool.framework.dao.DaoService;
 import org.fool.framework.model.model.CommandsType;
+import org.fool.framework.model.model.EnumValue;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.ModelType;
 import org.fool.framework.model.model.Operation;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class DaoAppInstallGatewayOperationTest {
     @Test
@@ -128,6 +130,32 @@ public class DaoAppInstallGatewayOperationTest {
         assertEquals(Integer.valueOf(2), viewOperation.getLocation());
     }
 
+    @Test
+    public void installModuleSourceChecksExistingEnumValuesWithLegacyNumericValue() {
+        RecordingDaoService daoService = new RecordingDaoService();
+        DaoAppInstallGateway gateway = new DaoAppInstallGateway(daoService);
+        Model state = legacyModel("OrderState", null);
+        state.setModelType(ModelType.ENUM);
+        EnumValue open = new EnumValue();
+        open.setName("OPEN");
+        open.setValue("0");
+        state.setEnumValues(List.of(open));
+        AppModuleDefinition module = AppModuleDefinition.legacy(
+                "MKT01",
+                "example.OrderModule",
+                "2.0.0",
+                List.of(state));
+
+        gateway.installModuleSource("sys-con", "work-con", new StaticAppModuleSource(List.of(module)));
+
+        Object[] enumSelectArgs = daoService.selectedArgs.stream()
+                .filter(args -> args.length == 3 && "OPEN".equals(args[1]))
+                .findFirst()
+                .orElse(null);
+        assertNotNull(enumSelectArgs);
+        assertEquals(Integer.valueOf(0), enumSelectArgs[2]);
+    }
+
     private static Model legacyModel(String name, String tableName) {
         Model model = new Model();
         model.setName(name);
@@ -148,6 +176,7 @@ public class DaoAppInstallGatewayOperationTest {
 
     private static final class RecordingDaoService extends DaoService {
         private final List<Object> created = new ArrayList<>();
+        private final List<Object[]> selectedArgs = new ArrayList<>();
         private long nextModelId = 5000;
         private long nextPropertyId = 6000;
         private long nextOperationId = 7000;
@@ -183,6 +212,7 @@ public class DaoAppInstallGatewayOperationTest {
 
         @Override
         public <T> List<T> selectList(Class<T> clazz, String sql, Object... args) {
+            selectedArgs.add(args);
             return List.of();
         }
     }
