@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: the Vue auth first-hop controls now read `initapp` and
+  `getcheckcode` payloads through shared protocol helpers that accept both
+  FoolFrame Pascal fields (`CheckCode`, `Dbs`, `Key`, `Code`, `ChkCodeImg`)
+  and the existing camel-case compatibility fields. This keeps the frontend's
+  auth setup aligned with the legacy protocol surface without adding
+  business-specific DTO bindings.
 - 2026-07-08: `getcheckcode` and `initapp` now expose FoolFrame Pascal
   response aliases for the first auth hop: `Key`, `Code`, `ChkCodeImg`,
   `AppTitle`, `CheckCode`, `Dbs`, `DbId`, and related app/store fields. The

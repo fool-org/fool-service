@@ -1,4 +1,6 @@
 import type {
+  CheckCodeResult,
+  LegacyInitAppResult,
   ListDataItem,
   ListDataValue,
   ListViewInfo,
@@ -77,6 +79,27 @@ export function legacyAppDefaultViewId(source?: unknown) {
   const record = objectRecord(source);
   const app = objectRecord(record.app || record.App || source);
   return Number(app.defaultViewId ?? app.DefaultViewId ?? 0) || 0;
+}
+
+export function legacyInitAppCheckCode(source?: LegacyInitAppResult) {
+  return source?.checkCode ?? source?.CheckCode;
+}
+
+export function legacyInitAppDbId(source?: LegacyInitAppResult) {
+  const db = firstList(source?.dbs, source?.Dbs)[0];
+  return firstDisplayValue([db?.dbId, db?.DbId]);
+}
+
+export function legacyCheckCodeKey(source?: CheckCodeResult) {
+  return firstDisplayValue([source?.key, source?.Key]);
+}
+
+export function legacyCheckCodeCode(source?: CheckCodeResult) {
+  return firstDisplayValue([source?.code, source?.Code]);
+}
+
+export function legacyCheckCodeImage(source?: CheckCodeResult) {
+  return firstDisplayValue([source?.chkCodeImg, source?.ChkCodeImg]);
 }
 
 export function readViewItems(view: ReadItemViewInfo | undefined) {

@@ -64,6 +64,11 @@ import {
   itemKey,
   itemValue,
   legacyAppDefaultViewId,
+  legacyCheckCodeCode,
+  legacyCheckCodeImage,
+  legacyCheckCodeKey,
+  legacyInitAppCheckCode,
+  legacyInitAppDbId,
   listAutoFreshTime,
   listFreshTime,
   listPageIndex,
@@ -288,9 +293,10 @@ async function initApp() {
 
   if (response) {
     initAppResponse.value = response;
-    checkCodeKey.value = response.data?.checkCode?.key || checkCodeKey.value;
-    checkCodeValue.value = response.data?.checkCode?.code || checkCodeValue.value;
-    legacyDbId.value = response.data?.dbs?.[0]?.dbId || legacyDbId.value;
+    const checkCode = legacyInitAppCheckCode(response.data);
+    checkCodeKey.value = legacyCheckCodeKey(checkCode) || checkCodeKey.value;
+    checkCodeValue.value = legacyCheckCodeCode(checkCode) || checkCodeValue.value;
+    legacyDbId.value = legacyInitAppDbId(response.data) || legacyDbId.value;
   }
 }
 
@@ -359,8 +365,8 @@ async function loadCheckCode() {
   const response = await runAction("getcheckcode", () => postApi<CheckCodeResult>("/api/v1/auth/getcheckcode", {}));
   if (response) {
     checkCodeResponse.value = response;
-    checkCodeKey.value = response.data?.key || "";
-    checkCodeValue.value = response.data?.code || "";
+    checkCodeKey.value = legacyCheckCodeKey(response.data);
+    checkCodeValue.value = legacyCheckCodeCode(response.data);
   }
 }
 
@@ -1301,7 +1307,7 @@ function syncDetailDrafts() {
           </div>
 
           <div v-if="checkCodeResponse?.data" class="summary-list">
-            <div><span>Image bytes</span><strong>{{ checkCodeResponse.data.chkCodeImg?.length || 0 }}</strong></div>
+            <div><span>Image bytes</span><strong>{{ legacyCheckCodeImage(checkCodeResponse.data).length || 0 }}</strong></div>
             <div><span>Valid</span><strong>{{ checkCodeValidationResponse?.data ?? "-" }}</strong></div>
           </div>
         </article>

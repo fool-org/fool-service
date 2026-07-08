@@ -27,6 +27,11 @@ import {
   isReadonlyField,
   itemKey,
   legacyAppDefaultViewId,
+  legacyCheckCodeCode,
+  legacyCheckCodeImage,
+  legacyCheckCodeKey,
+  legacyInitAppCheckCode,
+  legacyInitAppDbId,
   listAutoFreshTime,
   listFreshTime,
   listPageIndex,
@@ -425,6 +430,28 @@ describe("view workflow helpers", () => {
     expect(legacyAppDefaultViewId({ App: { DefaultViewId: 101 } })).toBe(101);
     expect(legacyAppDefaultViewId({ defaultViewId: 102 })).toBe(102);
     expect(legacyAppDefaultViewId({ App: { DefaultViewId: 0 } })).toBe(0);
+  });
+
+  it("reads initapp and check-code fields from Pascal or camel legacy payloads", () => {
+    const pascal = {
+      CheckCode: { Key: "key-1", Code: "A2BC", ChkCodeImg: "image-bytes" },
+      Dbs: [{ DbId: "car_wash", DbName: "Car Wash" }]
+    };
+    const camel = {
+      checkCode: { key: "key-2", code: "D4EF", chkCodeImg: "camel-image" },
+      dbs: [{ dbId: "main", dbName: "Main" }]
+    };
+
+    expect(legacyInitAppCheckCode(pascal)).toBe(pascal.CheckCode);
+    expect(legacyInitAppDbId(pascal)).toBe("car_wash");
+    expect(legacyCheckCodeKey(pascal.CheckCode)).toBe("key-1");
+    expect(legacyCheckCodeCode(pascal.CheckCode)).toBe("A2BC");
+    expect(legacyCheckCodeImage(pascal.CheckCode)).toBe("image-bytes");
+    expect(legacyInitAppCheckCode(camel)).toBe(camel.checkCode);
+    expect(legacyInitAppDbId(camel)).toBe("main");
+    expect(legacyCheckCodeKey(camel.checkCode)).toBe("key-2");
+    expect(legacyCheckCodeCode(camel.checkCode)).toBe("D4EF");
+    expect(legacyCheckCodeImage(camel.checkCode)).toBe("camel-image");
   });
 
   it("uses the rendered View detail id before falling back to the list id", () => {
