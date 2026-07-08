@@ -7,6 +7,7 @@ import listDataTableSource from "./ListDataTable.vue?raw";
 import metadataFieldEditorSource from "./MetadataFieldEditor.vue?raw";
 import payloadSource from "./payload.ts?raw";
 import resultsPanelSource from "./ResultsPanel.vue?raw";
+import viewShellSource from "./viewShell.ts?raw";
 import viewDataWorkflowSource from "./useViewDataWorkflow.ts?raw";
 import viewWorkflowSource from "./viewWorkflow.ts?raw";
 import {
@@ -157,6 +158,12 @@ describe("App defaults", () => {
     expect(childSource).toContain("setCandidateResults(group, viewColumns(view.data), listRows(data.data)");
     expect(childSource).not.toContain("columnsFromListResult");
     expect(childSource).not.toContain("declaredColumns.length ? declaredColumns : resultColumns");
+  });
+
+  it("keeps enum option lookup on the shared field metadata helper", () => {
+    expect(viewShellSource).toContain("fieldModelId(field)");
+    expect(viewShellSource).not.toContain("field.prpModelId");
+    expect(viewShellSource).not.toContain("field.PrpModelId");
   });
 
   it("renders select-existing child controls through the shared group helper", () => {

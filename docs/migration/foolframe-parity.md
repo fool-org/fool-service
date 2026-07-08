@@ -111,6 +111,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `EditType=ReadOnly` fallback. Imported rows with `ReadOnly=false` no longer
   become disabled controls just because stale item edit-type metadata is still
   set to readonly.
+- 2026-07-09: Vue enum option lookup now reuses the shared `fieldModelId`
+  helper in both option loading and option selection. `viewShell` no longer
+  reads `prpModelId` / `PrpModelId` aliases directly, keeping model-id
+  handling on the same View metadata path as enum detection.
 - 2026-07-09: Vue metadata editors now render legacy `RichTextBox` /
   numeric `ItemEditType=5` fields with a native `<textarea>` and shared value
   update handling. This covers the simplest multiline legacy widget without

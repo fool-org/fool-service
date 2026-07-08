@@ -391,6 +391,9 @@ explicitly named as authoritative for fool-service.
 - [x] Keep Vue readonly detection on FoolFrame's detail render path:
       explicit `ReadOnly` / `readOnly` wins before `EditType=ReadOnly`
       compatibility fallback.
+- [x] Route Vue enum option selection through the shared `fieldModelId`
+      helper so shell code no longer reads `prpModelId` / `PrpModelId`
+      aliases directly.
 - [x] Accept numeric `PrpType` / `PropertyType` codes in Vue metadata editors
       for enum, lookup, Boolean, date, time, datetime, and numeric controls;
       keep numeric `ItemEditType` only as a compatibility fallback or
