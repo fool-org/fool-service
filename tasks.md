@@ -345,6 +345,9 @@ explicitly named as authoritative for fool-service.
       DDL work in target `DaoService` transaction boundaries.
 - [x] Keep Vue lookup/rendering and legacy view endpoints on ViewId-only flow:
       load View metadata first, then query data from that loaded View.
+- [x] Require shared Vue row tables to have rendered View columns before
+      drawing data rows or row actions, so `querydata` DTO rows cannot define
+      a page when View metadata is empty.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

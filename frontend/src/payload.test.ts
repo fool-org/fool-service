@@ -55,6 +55,11 @@ describe("App defaults", () => {
     expect(listDataTableSource).toContain("showDefaultAction");
   });
 
+  it("does not render data rows before View columns exist", () => {
+    expect(listDataTableSource).toContain('v-if="columns.length"');
+    expect(listDataTableSource).not.toContain("columns.length || rows.length");
+  });
+
   it("does not keep generic record-map table helpers", () => {
     expect(viewWorkflowSource).not.toContain("recordColumns");
     expect(viewWorkflowSource).not.toContain("recordRowKey");

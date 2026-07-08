@@ -1360,6 +1360,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `saveobj`; fresh Docker browser sessions bootstrap the legacy session first
   with `initapp` / `loginv2` so the initial View id comes from
   `App.DefaultViewId`
+- Shared Vue row tables render only after View columns exist, so data rows from
+  `querydata` cannot draw a page or row actions without a rendered View shape.
 - A default Vue child collection workflow that renders from
   `querydatadetail.Items[].properties` and sends legacy
   `saveobj.Itemproperties.Items`, `AddedItems`, and `DelteItems` payloads

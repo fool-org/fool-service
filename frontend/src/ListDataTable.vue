@@ -32,7 +32,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <table v-if="columns.length || rows.length">
+  <table v-if="columns.length">
     <thead>
       <tr>
         <th v-for="column in columns" :key="columnKey(column)">
