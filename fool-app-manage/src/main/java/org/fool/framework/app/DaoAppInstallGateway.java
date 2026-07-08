@@ -5,6 +5,8 @@ import org.fool.framework.model.model.EnumValue;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.ModelType;
 import org.fool.framework.model.model.MultiDbMap;
+import org.fool.framework.model.model.Operation;
+import org.fool.framework.model.model.OperationCommand;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.model.model.Relation;
 import org.fool.framework.model.sqlscript.LegacyMysqlDdlGenerator;
@@ -182,6 +184,14 @@ public class DaoAppInstallGateway implements AppInstallGateway {
                         installedProperties,
                         connectionType,
                         databaseConnection);
+            }
+        }
+        for (AppModuleDefinition module : modules) {
+            if (module == null || module.getName() == null) {
+                continue;
+            }
+            for (Model model : source.getModels(module)) {
+                installOperations(metadataDao, model, installedModels.get(model));
             }
         }
         Set<Relation> installedRelations = Collections.newSetFromMap(new IdentityHashMap<>());
@@ -466,6 +476,84 @@ public class DaoAppInstallGateway implements AppInstallGateway {
             }
             daoService.create(AppInstalledMultiDbMap.fromDbMap(dbMap, installedProperty.getPropertyId()));
         }
+    }
+
+    private void installOperations(DaoService daoService, Model model, AppInstalledModel installedModel) {
+        if (model == null || installedModel == null || model.getOperations() == null) {
+            return;
+        }
+        for (Operation operation : model.getOperations()) {
+            if (operation == null || operation.getName() == null) {
+                continue;
+            }
+            AppInstalledOperation existing = findInstalledOperation(
+                    daoService,
+                    installedModel.getModelId(),
+                    operation.getName());
+            if (existing != null) {
+                operation.setId(existing.getOperationId());
+                continue;
+            }
+            AppInstalledOperation installed = installedOperation(operation, installedModel.getModelId());
+            daoService.create(installed);
+            operation.setId(installed.getOperationId());
+            for (OperationCommand command : safeOperationCommands(operation)) {
+                AppInstalledOperationCommand installedCommand =
+                        installedOperationCommand(command, installed.getOperationId());
+                daoService.create(installedCommand);
+                command.setId(installedCommand.getCommandId());
+                command.setOwnerOperationId(installed.getOperationId());
+            }
+        }
+    }
+
+    private AppInstalledOperation findInstalledOperation(DaoService daoService, Long ownerModelId, String name) {
+        List<AppInstalledOperation> operations = daoService.selectList(
+                AppInstalledOperation.class,
+                "SELECT `SysId`,`SW_SYS_MODEL_OperationsMODEL_ID`,`SW_MODEL_OPERATION_NAME`,"
+                        + "`SW_MODEL_OPERATION_FILTER`,`SW_MODEL_OPERATION_BASETYPE`,"
+                        + "`SW_MODEL_OPERATION_ARGMODEL`,`SW_MODEL_OPERATION_ARGFILTER`,"
+                        + "`SW_MODEL_OPERATION_INVOKEDLL`,`SW_MODEL_OPERATION_INVOKECLASS`,"
+                        + "`SW_MODEL_OPERATION_INVOKEMETHOD`,`SW_MODEL_OPERATION_RETURNMODEL` "
+                        + "FROM `SW_SYS_OPERATION` WHERE `SW_SYS_MODEL_OperationsMODEL_ID` = ? "
+                        + "AND `SW_MODEL_OPERATION_NAME` = ?",
+                ownerModelId,
+                name);
+        return operations.isEmpty() ? null : operations.get(0);
+    }
+
+    private AppInstalledOperation installedOperation(Operation operation, Long ownerModelId) {
+        AppInstalledOperation installed = new AppInstalledOperation();
+        installed.setOwnerModelId(ownerModelId);
+        installed.setName(operation.getName());
+        installed.setFilter(operation.getFilter());
+        installed.setBaseType(operation.getBaseOperationType() == null ? null : operation.getBaseOperationType().code());
+        installed.setArgModelId(operation.getArgModelId());
+        installed.setArgFilter(operation.getArgFilter());
+        installed.setInvokeDll(operation.getInvokeDll());
+        installed.setInvokeClass(operation.getInvokeClass());
+        installed.setInvokeMethod(operation.getInvokeMethod());
+        installed.setReturnModelId(operation.getReturnModelId());
+        return installed;
+    }
+
+    private AppInstalledOperationCommand installedOperationCommand(OperationCommand command, Long ownerOperationId) {
+        AppInstalledOperationCommand installed = new AppInstalledOperationCommand();
+        installed.setOwnerOperationId(ownerOperationId);
+        installed.setCommandType(command.getCommandType() == null ? null : command.getCommandType().code());
+        installed.setPropertyId(command.getPropertyId());
+        installed.setExpression(command.getExpression());
+        installed.setArgModelId(command.getArgModelId());
+        installed.setArgExpression(command.getArgExpression());
+        installed.setArgSourceIdExpression(command.getArgSourceIdExpression());
+        installed.setIndex(command.getIndex());
+        installed.setPropertyExpression(command.getPropertyExpression());
+        installed.setTempValue(command.getTempValue());
+        return installed;
+    }
+
+    private List<OperationCommand> safeOperationCommands(Operation operation) {
+        return operation.getCommands() == null ? List.of() : operation.getCommands();
     }
 
     private boolean isInstalledMultiDbMap(DaoService daoService, Long ownerPropertyId, MultiDbMap dbMap) {

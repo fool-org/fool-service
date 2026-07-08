@@ -303,6 +303,8 @@ explicitly named as authoritative for fool-service.
       DTOs.
 - [x] Backfill legacy model/property ids during module-source install and use
       them when persisting generated default View items and View operations.
+- [x] Persist module-source model operations and operation commands into
+      legacy `SW_SYS_OPERATION` / `SW_SYS_COMMANDS` records.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
