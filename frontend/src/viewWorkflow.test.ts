@@ -17,6 +17,7 @@ import {
   detailGroupsFromReadView,
   detailResultItems,
   detailResultSimpleData,
+  draftFieldValue,
   listRenderColumns,
   fieldEditType,
   fieldKey,
@@ -105,6 +106,7 @@ import {
   viewDetailViewId,
   viewId,
   viewInputCount,
+  withDraftFieldValue,
   viewOperations
 } from "./viewWorkflow";
 
@@ -588,6 +590,30 @@ describe("view workflow helpers", () => {
     expect(emptyGroupDraft(group)).toEqual({
       itemId: "",
       itemName: ""
+    });
+  });
+
+  it("reads missing child drafts as empty and writes through a default draft", () => {
+    const group = {
+      prpId: "items",
+      properties: [
+        { prpId: "itemId", fmtValue: "" },
+        { prpId: "itemName", fmtValue: "" }
+      ]
+    };
+
+    expect(draftFieldValue({}, "items", group.properties[0])).toBe("");
+    expect(withDraftFieldValue({}, "items", emptyGroupDraft(group), group.properties[0], "3001")).toEqual({
+      items: {
+        itemId: "3001",
+        itemName: ""
+      }
+    });
+    expect(withDraftFieldValue({ items: { itemId: "3001" } }, "items", emptyGroupDraft(group), group.properties[1], "New")).toEqual({
+      items: {
+        itemId: "3001",
+        itemName: "New"
+      }
     });
   });
 

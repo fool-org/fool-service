@@ -442,6 +442,35 @@ export function buildItemDrafts(groups: QueryDataDetailItemGroup[]) {
   return drafts;
 }
 
+export function draftFieldValue(
+  drafts: Record<string, Record<string, string>>,
+  draftKey: string,
+  field: ListDataValue
+) {
+  return drafts[draftKey]?.[fieldKey(field)] ?? "";
+}
+
+export function withDraftFieldValue(
+  drafts: Record<string, Record<string, string>>,
+  draftKey: string,
+  defaults: Record<string, string>,
+  field: ListDataValue,
+  value: string
+) {
+  const key = fieldKey(field);
+  if (!key) {
+    return drafts;
+  }
+  return {
+    ...drafts,
+    [draftKey]: {
+      ...defaults,
+      ...(drafts[draftKey] || {}),
+      [key]: value
+    }
+  };
+}
+
 export function itemKey(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) {
   return `${groupKey(group)}:${itemDataId(item)}`;
 }

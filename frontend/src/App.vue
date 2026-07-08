@@ -21,6 +21,7 @@ import {
   type QueryDataDetailDataItem,
   type QueryDataDetailItemGroup,
   type ListDataItem,
+  type ListDataValue,
   type ListViewInfo,
   type ListViewResult,
   type LoginVo,
@@ -54,6 +55,7 @@ import {
   detailItemValues,
   detailResultItems,
   detailResultSimpleData,
+  draftFieldValue,
   emptyGroupDraft,
   fieldEditType,
   fieldKey,
@@ -117,6 +119,7 @@ import {
   viewDisplayTitle,
   viewDisplayType,
   viewInputCount,
+  withDraftFieldValue,
   readViewFields,
   renderedDetailFields,
   renderedDetailGroups,
@@ -991,6 +994,35 @@ async function loadCandidatePage(group: QueryDataDetailItemGroup, pageIndex: num
   await loadExistingDetailItems(group);
 }
 
+function newChildDraftValue(group: QueryDataDetailItemGroup, field: ListDataValue) {
+  return draftFieldValue(newChildDrafts.value, groupKey(group), field);
+}
+
+function setNewChildDraftValue(group: QueryDataDetailItemGroup, field: ListDataValue, value: string) {
+  const key = groupKey(group);
+  newChildDrafts.value = withDraftFieldValue(newChildDrafts.value, key, emptyGroupDraft(group), field, value);
+}
+
+function childDraftValue(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem, field: ListDataValue) {
+  return draftFieldValue(childDrafts.value, itemKey(group, item), field);
+}
+
+function setChildDraftValue(
+  group: QueryDataDetailItemGroup,
+  item: QueryDataDetailDataItem,
+  field: ListDataValue,
+  value: string
+) {
+  const key = itemKey(group, item);
+  childDrafts.value = withDraftFieldValue(
+    childDrafts.value,
+    key,
+    buildFieldDrafts(detailItemValues(item)),
+    field,
+    value
+  );
+}
+
 function syncDetailDrafts() {
   detailDrafts.value = buildFieldDrafts(detailRows.value);
   childDrafts.value = buildItemDrafts(detailItemGroups.value);
@@ -1165,13 +1197,14 @@ function syncDetailDrafts() {
                   <label v-for="field in groupColumns(group)" :key="fieldKey(field)">
                     {{ fieldTitle(field) }}
                     <MetadataFieldEditor
-                      v-model="newChildDrafts[groupKey(group)][fieldKey(field)]"
+                      :model-value="newChildDraftValue(group, field)"
                       :field="field"
                       :options="enumFieldOptions(enumOptions, field)"
                       v-bind="fieldEditorContext"
                       :is-added="true"
                       :object-id="''"
                       :owner-id="selectedObjectId"
+                      @update:model-value="(value) => setNewChildDraftValue(group, field, value)"
                     />
                   </label>
                   <button type="button" :disabled="Boolean(pendingAction)" @click="addDetailItem(group)">Add</button>
@@ -1225,7 +1258,7 @@ function syncDetailDrafts() {
                   <label v-for="field in groupColumns(group)" :key="fieldKey(field)">
                     {{ fieldTitle(field) }}
                     <MetadataFieldEditor
-                      v-model="childDrafts[itemKey(group, item)][fieldKey(field)]"
+                      :model-value="childDraftValue(group, item, field)"
                       :field="field"
                       :options="enumFieldOptions(enumOptions, field)"
                       :readonly-value="itemValue(item, field)"
@@ -1233,6 +1266,7 @@ function syncDetailDrafts() {
                       :is-added="false"
                       :object-id="itemDataId(item)"
                       :owner-id="selectedObjectId"
+                      @update:model-value="(value) => setChildDraftValue(group, item, field, value)"
                     />
                   </label>
                   <button type="button" :disabled="Boolean(pendingAction)" @click="updateDetailItem(group, item)">

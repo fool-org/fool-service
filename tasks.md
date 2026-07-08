@@ -189,6 +189,8 @@ explicitly named as authoritative for fool-service.
       row tables on the shared metadata renderer.
 - [x] Move Vue field enum option loading into `useFieldEnums` so metadata
       editors share the same cached model-id lookup without growing `App.vue`.
+- [x] Keep Vue child collection editor bindings stable when DetailView
+      metadata renders before child draft maps are synchronized.
 - [x] Execute legacy property `SET` trigger `SET_VALUE` side effects through
       dynamic `ModelDataService` create/save writes without introducing
       concrete business DTO binding.

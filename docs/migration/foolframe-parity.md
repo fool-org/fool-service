@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue child collection editors no longer crash when a
+  `getreaditemview` DetailView renders before child draft maps have been
+  synchronized. `MetadataFieldEditor` child add/update bindings now read
+  missing draft values as empty strings and write through shared draft helpers,
+  keeping child fields bound to rendered View metadata without exposing
+  `undefined.itemId` on the Docker first screen.
 - 2026-07-09: Vue enum option loading now lives in `useFieldEnums` instead of
   inline `App.vue` state. Detail and child metadata editors still load enum
   options from rendered View field metadata by `PrpModelId`, cache options by
