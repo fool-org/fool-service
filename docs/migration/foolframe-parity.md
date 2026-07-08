@@ -97,6 +97,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: the Vue manual `runoperation` tool no longer defaults to the
+  Docker-seeded operation id `7001`. View-rendered operation buttons still set
+  the operation id from loaded metadata, while the manual tool now requires a
+  positive operation id and object id before executing.
 - 2026-07-08: the Vue auth first-hop controls now read `initapp` and
   `getcheckcode` payloads through shared protocol helpers that accept both
   FoolFrame Pascal fields (`CheckCode`, `Dbs`, `Key`, `Code`, `ChkCodeImg`)

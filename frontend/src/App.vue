@@ -146,7 +146,7 @@ const saveNewOwnerId = ref("");
 const saveNewProperty = ref("");
 const operationObjectId = ref("");
 const operationViewId = ref(100);
-const operationId = ref(7001);
+const operationId = ref(0);
 const checkCodeKey = ref("");
 const checkCodeValue = ref("");
 const subMenuParentAuthCode = ref("");
@@ -1898,14 +1898,14 @@ function syncDetailDrafts() {
             </label>
             <label>
               Operation ID
-              <input v-model.number="operationId" min="1" type="number" />
+              <input v-model.number="operationId" min="0" type="number" />
             </label>
             <label>
               Object ID
               <input v-model="operationObjectId" />
             </label>
           </div>
-          <button class="primary" type="button" :disabled="pendingAction === 'runoperation'" @click="runOperation">
+          <button class="primary" type="button" :disabled="pendingAction === 'runoperation' || operationId <= 0 || !operationObjectId" @click="runOperation">
             Run Operation
           </button>
         </article>

@@ -200,6 +200,9 @@ explicitly named as authoritative for fool-service.
       make the runtime doctor require those legacy fields before auth login.
 - [x] Make Vue auth first-hop controls consume FoolFrame Pascal `initapp` and
       `getcheckcode` fields through shared protocol helpers.
+- [x] Remove the Docker seed operation id from the Vue manual `runoperation`
+      tool default so operation execution starts from View metadata or user
+      input.
 
 ## Backlog
 
