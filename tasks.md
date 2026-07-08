@@ -128,9 +128,9 @@ explicitly named as authoritative for fool-service.
 - [x] Make the Vue current View refresh path verify the rendered
       `getlistview(viewId)` metadata before `querydata(viewId)`, preventing
       page rendering from starting at a data/business DTO fallback.
-- [ ] Split remaining Vue View workflow state/actions out of `App.vue` before
-      adding more panels; current size is 2054 lines and should trend back
-      below the 2000-line target.
+- [x] Split the Vue results panel and static migration map out of `App.vue`,
+      bringing the file back under the 2000-line target while keeping View
+      row tables on the shared metadata renderer.
 - [x] Execute legacy property `SET` trigger `SET_VALUE` side effects through
       dynamic `ModelDataService` create/save writes without introducing
       concrete business DTO binding.

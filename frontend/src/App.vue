@@ -35,6 +35,8 @@ import {
 } from "./api";
 import ListDataTable from "./ListDataTable.vue";
 import MetadataFieldEditor from "./MetadataFieldEditor.vue";
+import MigrationMap from "./MigrationMap.vue";
+import ResultsPanel from "./ResultsPanel.vue";
 import { useChildCandidates } from "./useChildCandidates";
 import { enumFieldOptions, navItems, nextObjectId, services } from "./viewShell";
 import {
@@ -294,6 +296,24 @@ const fieldEditorContext = computed(() => ({
 }));
 
 const reportRows = computed(() => reportRowsFromCells(reportGridCells(reportResponse.value?.data)));
+const responseDump = computed(() =>
+  JSON.stringify(
+    {
+      login: loginResponse.value, initApp: initAppResponse.value, legacyLogin: legacyLoginResponse.value,
+      profile: profileResponse.value, legacyUserInfo: legacyUserInfoResponse.value, mainInfo: mainInfoResponse.value,
+      appInfo: appInfoResponse.value, checkCode: checkCodeResponse.value, checkCodeValidation: checkCodeValidationResponse.value,
+      subMenu: subMenuResponse.value, logout: logoutResponse.value, menus: menuResponse.value,
+      view: viewResponse.value, readItemView: readItemViewResponse.value, data: dataResponse.value,
+      detail: detailResponse.value, initNew: initNewResponse.value, enums: enumResponse.value,
+      inputQuery: inputQueryResponse.value, saveObj: saveObjResponse.value, saveNewObj: saveNewObjResponse.value,
+      runOperation: runOperationResponse.value, reportModel: reportModelResponse.value, report: reportResponse.value,
+      saveReport: saveReportResponse.value, messages: messageResponse.value, notify: notifyResponse.value,
+      backendSmoke: backendSmokeResponse.value
+    },
+    null,
+    2
+  )
+);
 let autoRefreshTimer: number | undefined;
 
 async function runAction<T>(label: string, action: () => Promise<CommonResponse<T>>) {
@@ -1961,94 +1981,17 @@ function syncDetailDrafts() {
         </article>
       </section>
 
-      <section v-if="activeSection === 'tools'" class="panel results-panel" aria-label="Results">
-        <div class="panel-heading">
-          <h2>Response & Result Set</h2>
-          <span v-if="pendingAction">Running {{ pendingAction }}...</span>
-          <span v-else>Ready</span>
-        </div>
+      <ResultsPanel
+        v-if="activeSection === 'tools'"
+        :columns="resultColumns"
+        :disabled="Boolean(pendingAction)"
+        :error-message="errorMessage"
+        :pending-action="pendingAction"
+        :response-dump="responseDump"
+        :rows="resultRows"
+      />
 
-        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
-
-        <div class="result-layout">
-          <div class="table-wrap">
-            <ListDataTable
-              v-if="resultColumns.length > 0"
-              :columns="resultColumns"
-              :disabled="Boolean(pendingAction)"
-              :row-operations="noRowOperations"
-              :rows="resultRows"
-              selected-object-id=""
-              :show-default-action="false"
-            />
-            <div v-else class="empty-state">No query rows loaded.</div>
-          </div>
-
-          <pre class="json-output">{{
-            JSON.stringify(
-              {
-                login: loginResponse,
-                initApp: initAppResponse,
-                legacyLogin: legacyLoginResponse,
-                profile: profileResponse,
-                legacyUserInfo: legacyUserInfoResponse,
-                mainInfo: mainInfoResponse,
-                appInfo: appInfoResponse,
-                checkCode: checkCodeResponse,
-                checkCodeValidation: checkCodeValidationResponse,
-                subMenu: subMenuResponse,
-                logout: logoutResponse,
-                menus: menuResponse,
-                view: viewResponse,
-                readItemView: readItemViewResponse,
-                data: dataResponse,
-                detail: detailResponse,
-                initNew: initNewResponse,
-                enums: enumResponse,
-                inputQuery: inputQueryResponse,
-                saveObj: saveObjResponse,
-                saveNewObj: saveNewObjResponse,
-                runOperation: runOperationResponse,
-                reportModel: reportModelResponse,
-                report: reportResponse,
-                saveReport: saveReportResponse,
-                messages: messageResponse,
-                notify: notifyResponse,
-                backendSmoke: backendSmokeResponse
-              },
-              null,
-              2
-            )
-          }}</pre>
-        </div>
-      </section>
-
-      <section v-if="activeSection === 'migration'" class="migration-band" aria-label="Migration map">
-        <div>
-          <strong>SCPB01-Soway.Data</strong>
-          <span>fool-common</span>
-        </div>
-        <div>
-          <strong>SCPB02-Soway.DB</strong>
-          <span>fool-dao</span>
-        </div>
-        <div>
-          <strong>SCPB05-Soway.Model</strong>
-          <span>fool-model</span>
-        </div>
-        <div>
-          <strong>SWDQ01-Soway.Query</strong>
-          <span>fool-query</span>
-        </div>
-        <div>
-          <strong>Soway.Server</strong>
-          <span>fool-view</span>
-        </div>
-        <div>
-          <strong>SWUA Auth</strong>
-          <span>fool-auth</span>
-        </div>
-      </section>
+      <MigrationMap v-if="activeSection === 'migration'" />
     </main>
   </div>
 </template>

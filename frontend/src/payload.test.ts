@@ -4,6 +4,7 @@ import viteConfig from "../vite.config.ts?raw";
 import appSource from "./App.vue?raw";
 import listDataTableSource from "./ListDataTable.vue?raw";
 import metadataFieldEditorSource from "./MetadataFieldEditor.vue?raw";
+import resultsPanelSource from "./ResultsPanel.vue?raw";
 import {
   buildGetEnumRequest,
   buildInputQueryRequest,
@@ -46,7 +47,7 @@ describe("App defaults", () => {
   it("routes every view row table through the shared metadata renderer", () => {
     expect(appSource).toContain("const noRowOperations");
     expect(appSource).toContain('default-action-label="Select"');
-    expect(appSource).toContain(':show-default-action="false"');
+    expect(resultsPanelSource).toContain(':show-default-action="false"');
     expect(appSource).not.toContain("rowValue(row, column)");
     expect(listDataTableSource).toContain("defaultActionLabel");
     expect(listDataTableSource).toContain("showDefaultAction");
