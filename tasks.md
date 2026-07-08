@@ -420,6 +420,9 @@ explicitly named as authoritative for fool-service.
       value or concrete business DTO fallback.
 - [x] Build existing child-row update payload fields from rendered child group
       View columns instead of `querydatadetail` data DTO values.
+- [x] Initialize existing child-row draft state from rendered child group View
+      columns, merging data values by property key so DTO-only fields cannot
+      enter the Vue editor state.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

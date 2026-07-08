@@ -1,9 +1,8 @@
 import { ref } from "vue";
 import type { ListDataValue, QueryDataDetailDataItem, QueryDataDetailItemGroup } from "./api";
 import {
-  buildFieldDrafts,
+  buildGroupItemDrafts,
   buildItemDrafts,
-  detailItemValues,
   draftFieldValue,
   emptyGroupDraft,
   groupKey,
@@ -38,7 +37,7 @@ export function useChildDrafts() {
     childDrafts.value = withDraftFieldValue(
       childDrafts.value,
       key,
-      buildFieldDrafts(detailItemValues(item)),
+      buildGroupItemDrafts(group, item),
       field,
       value
     );

@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue existing child-row draft state now initializes from rendered
+  child group View columns and then merges `querydatadetail` row values by
+  property key. DTO-only child values no longer enter `childDrafts`, including
+  the first edit path that runs before a sync, keeping child editor state and
+  save payloads on the same View-first contract.
 - 2026-07-09: Vue existing child-row update payloads now build
   `Itemproperties[].Items[].Propertyies` from rendered child group View
   columns (`getreaditemview.DetailViews`) instead of `querydatadetail` child

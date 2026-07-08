@@ -456,10 +456,27 @@ export function buildItemDrafts(groups: QueryDataDetailItemGroup[]) {
   const drafts: Record<string, Record<string, string>> = {};
   for (const group of groups) {
     for (const item of groupItems(group)) {
-      drafts[itemKey(group, item)] = buildFieldDrafts(detailItemValues(item));
+      drafts[itemKey(group, item)] = buildGroupItemDrafts(group, item);
     }
   }
   return drafts;
+}
+
+export function buildGroupItemDrafts(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) {
+  const valuesByKey = new Map<string, ListDataValue>();
+  for (const value of detailItemValues(item)) {
+    const key = fieldKey(value);
+    if (key) {
+      valuesByKey.set(key, value);
+    }
+  }
+  return groupColumns(group).reduce<Record<string, string>>((drafts, field) => {
+    const key = fieldKey(field);
+    if (key) {
+      drafts[key] = fieldDraftValue(mergeFieldValue(field, valuesByKey.get(key)));
+    }
+    return drafts;
+  }, {});
 }
 
 export function draftFieldValue(
