@@ -19,7 +19,6 @@ import type {
 export interface InputQueryRequestInput {
   token: string;
   viewId?: number;
-  viewName?: string;
   viewItemId: string;
   text?: string;
   modelID?: string;
@@ -110,10 +109,6 @@ export function buildInputQueryRequest(input: InputQueryRequestInput): InputQuer
   };
   if (input.viewId) {
     request.viewId = input.viewId;
-  }
-  const viewName = input.viewName?.trim();
-  if (viewName) {
-    request.viewName = viewName;
   }
   addOptional(request, "modelID", input.modelID);
   addOptional(request, "objID", input.objID);

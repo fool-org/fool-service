@@ -318,6 +318,8 @@ explicitly named as authoritative for fool-service.
       duplicate checks.
 - [x] Wrap routed AppInstall module-source/default-View metadata and schema
       DDL work in target `DaoService` transaction boundaries.
+- [x] Keep Vue lookup/rendering and legacy view endpoints on ViewId-only flow:
+      load View metadata first, then query data from that loaded View.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

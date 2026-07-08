@@ -90,6 +90,19 @@ public class ViewControllerLegacyGetListViewTest {
         assertEquals("ViewId is required", exception.getMessage());
     }
 
+    @Test
+    public void getListViewRejectsViewNameOnlyRequest() throws Exception {
+        ViewController controller = new ViewController();
+        setField(controller, "viewDataService", mock(ViewDataService.class));
+        setField(controller, "viewAdapter", mock(ViewAdapter.class));
+        ViewDataRequest request = new ViewDataRequest();
+        request.setViewName("BusinessNameShortcut");
+
+        CommonException exception = assertThrows(CommonException.class, () -> controller.getListView(request));
+
+        assertEquals("ViewId is required", exception.getMessage());
+    }
+
     private static void setField(Object target, String name, Object value) throws Exception {
         Field field = target.getClass().getDeclaredField(name);
         field.setAccessible(true);

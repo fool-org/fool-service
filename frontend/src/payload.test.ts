@@ -4,6 +4,7 @@ import viteConfig from "../vite.config.ts?raw";
 import appSource from "./App.vue?raw";
 import listDataTableSource from "./ListDataTable.vue?raw";
 import metadataFieldEditorSource from "./MetadataFieldEditor.vue?raw";
+import payloadSource from "./payload.ts?raw";
 import resultsPanelSource from "./ResultsPanel.vue?raw";
 import viewWorkflowSource from "./viewWorkflow.ts?raw";
 import {
@@ -157,6 +158,13 @@ describe("App defaults", () => {
   it("keeps metadata lookup tied to the rendered view id", () => {
     expect(metadataFieldEditorSource).toContain("viewId: props.viewId");
     expect(metadataFieldEditorSource).not.toContain("viewName");
+  });
+
+  it("does not keep ViewName as a frontend lookup or workflow shortcut", () => {
+    expect(appSource).not.toContain("const viewName = ref");
+    expect(appSource).not.toContain("viewName.value");
+    expect(payloadSource).not.toContain("viewName?: string");
+    expect(payloadSource).not.toContain("request.viewName");
   });
 
   it("loads the View definition before the API-tool data query", () => {
@@ -388,7 +396,7 @@ describe("buildInputQueryRequest", () => {
   it("matches the legacy inputquery DTO shape", () => {
     const request = buildInputQueryRequest({
       token: "token-1",
-      viewName: "RecordView",
+      viewId: 100,
       viewItemId: "name",
       text: "  Ada  ",
       objID: "1001",
@@ -398,7 +406,7 @@ describe("buildInputQueryRequest", () => {
 
     expect(request).toEqual({
       token: "token-1",
-      viewName: "RecordView",
+      viewId: 100,
       viewItemId: "name",
       text: "Ada",
       objID: "1001",
@@ -411,7 +419,6 @@ describe("buildInputQueryRequest", () => {
     const request = buildInputQueryRequest({
       token: "token-1",
       viewId: 100,
-      viewName: " ",
       viewItemId: "customer",
       text: "Ad"
     });

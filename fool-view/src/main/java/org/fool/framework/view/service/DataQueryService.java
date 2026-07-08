@@ -230,10 +230,10 @@ public class DataQueryService {
     }
 
     private View inputQueryView(InputQueryRequest request) {
-        if (request.getViewId() != null) {
-            return daoService.getOneDetailByKey(View.class, request.getViewId().toString());
+        if (request.getViewId() == null) {
+            throw new CommonException(ErrorCode.VIEW_NOT_FOUND, "ViewId is required");
         }
-        return daoService.getOneDetailByKey(View.class, request.getViewName());
+        return daoService.getOneDetailByKey(View.class, request.getViewId().toString());
     }
 
     private InputQueryResult inputQueryFromSourceList(

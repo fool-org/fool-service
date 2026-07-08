@@ -34,7 +34,7 @@ public class ViewController {
     @PostMapping("/getlistview")
     @ApiOperation("得到旧版视图定义")
     public CommonResponse<ListViewInfo> getListView(@RequestBody ViewDataRequest request) {
-        String viewId = request.getViewId() == null ? null : request.getViewId().toString();
+        String viewId = requireViewId(request.getViewId());
         return new CommonResponse<>(viewAdapter.getViewInfo(viewDataService.getViewData(viewId, request.getToken())));
     }
 
@@ -42,7 +42,7 @@ public class ViewController {
     @PostMapping("/getreaditemview")
     @ApiOperation("得到旧版只读详情视图")
     public CommonResponse<ReadItemViewInfo> getReadItemView(@RequestBody ViewDataRequest request) {
-        String viewId = request.getViewId() == null ? null : request.getViewId().toString();
+        String viewId = requireViewId(request.getViewId());
         String token = request.getToken();
         return new CommonResponse<>(viewAdapter.getReadItemView(
                 viewDataService.getViewData(viewId, token),

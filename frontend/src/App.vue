@@ -147,7 +147,6 @@ const password = ref("admin");
 const legacyAppId = ref("fool-service");
 const legacyAppKey = ref("fool-service");
 const legacyDbId = ref("car_wash");
-const viewName = ref("");
 const legacyListViewId = ref(0);
 const readItemViewId = ref(0);
 const pageIndex = ref(1);
@@ -238,8 +237,8 @@ const errorMessage = ref("");
 const pendingAction = ref("");
 
 const currentViewId = computed(() => viewId(viewResponse.value?.data));
-const loadedViewName = computed(() => viewDisplayName(viewResponse.value?.data, viewName.value));
-const viewTitle = computed(() => viewDisplayTitle(viewResponse.value?.data, viewName.value || "Load a View"));
+const loadedViewName = computed(() => viewDisplayName(viewResponse.value?.data));
+const viewTitle = computed(() => viewDisplayTitle(viewResponse.value?.data, "Load a View"));
 
 const resultColumns = computed<TableColumnInfo[]>(() => listRenderColumns(viewResponse.value?.data));
 
@@ -775,10 +774,6 @@ async function runViewOperation(operation: OperationInfo) {
 }
 
 function applyLoadedView(view?: ListViewInfo) {
-  const loadedName = viewDisplayName(view);
-  if (loadedName) {
-    viewName.value = loadedName;
-  }
   const loadedViewId = viewId(view, legacyListViewId.value);
   if (loadedViewId) {
     const loadedDetailViewId = viewDetailViewId(view, loadedViewId);

@@ -1,5 +1,6 @@
 package org.fool.framework.view.api;
 
+import org.fool.framework.dto.CommonException;
 import org.fool.framework.dto.CommonResponse;
 import org.fool.framework.view.adapter.ViewAdapter;
 import org.fool.framework.view.dto.ReadItemViewInfo;
@@ -12,6 +13,7 @@ import java.lang.reflect.Field;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -41,6 +43,19 @@ public class ViewControllerLegacyGetReadItemViewTest {
         verify(viewAdapter).getReadItemView(eq(view), any());
         assertEquals(0, response.getCode());
         assertSame(expected, response.getData());
+    }
+
+    @Test
+    public void getReadItemViewRejectsViewNameOnlyRequest() throws Exception {
+        ViewController controller = new ViewController();
+        setField(controller, "viewDataService", mock(ViewDataService.class));
+        setField(controller, "viewAdapter", mock(ViewAdapter.class));
+        ViewDataRequest request = new ViewDataRequest();
+        request.setViewName("BusinessNameShortcut");
+
+        CommonException exception = assertThrows(CommonException.class, () -> controller.getReadItemView(request));
+
+        assertEquals("ViewId is required", exception.getMessage());
     }
 
     private static void setField(Object target, String name, Object value) throws Exception {

@@ -5,6 +5,7 @@ import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.dao.DaoService;
 import org.fool.framework.dao.PageNavigator;
 import org.fool.framework.dao.PageResult;
+import org.fool.framework.dto.CommonException;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.model.service.ModelDataService;
@@ -22,6 +23,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
@@ -53,7 +55,7 @@ public class DataQueryServiceInputQueryTest {
         view.setListItems(List.of(viewItem("Customer", "customer")));
         PageResult<IDynamicData> pageResult = new PageResult<>();
         pageResult.setItems(List.of(dynamic("1001", "Ada"), dynamic("1002", "Adam")));
-        when(daoService.getOneDetailByKey(View.class, "OrderList")).thenReturn(view);
+        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
         when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(order);
         when(modelDataService.getDataListWithPageInfo(
                 eq("Customer"),
@@ -64,7 +66,7 @@ public class DataQueryServiceInputQueryTest {
                 eq(true)))
                 .thenReturn(pageResult);
         InputQueryRequest request = new InputQueryRequest();
-        request.setViewName("OrderList");
+        request.setViewId(100L);
         request.setViewItemId("Customer");
         request.setText("Ad");
 
@@ -119,6 +121,19 @@ public class DataQueryServiceInputQueryTest {
     }
 
     @Test
+    public void inputQueryRejectsViewNameOnlyRequest() {
+        DataQueryService service = new DataQueryService();
+        ReflectionTestUtils.setField(service, "daoService", mock(DaoService.class));
+        InputQueryRequest request = new InputQueryRequest();
+        request.setViewName("BusinessNameShortcut");
+        request.setViewItemId("Customer");
+
+        CommonException exception = assertThrows(CommonException.class, () -> service.inputQuery(request));
+
+        assertEquals("ViewId is required", exception.getMessage());
+    }
+
+    @Test
     public void inputQueryUsesFirstStringPropertyWhenShowPropertyIsMissing() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
@@ -150,7 +165,7 @@ public class DataQueryServiceInputQueryTest {
         when(ada.get("displayName")).thenReturn("Ada Capital");
         PageResult<IDynamicData> pageResult = new PageResult<>();
         pageResult.setItems(List.of(ada));
-        when(daoService.getOneDetailByKey(View.class, "OrderList")).thenReturn(view);
+        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
         when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(order);
         when(modelDataService.getDataListWithPageInfo(
                 eq("Customer"),
@@ -161,7 +176,7 @@ public class DataQueryServiceInputQueryTest {
                 eq(true)))
                 .thenReturn(pageResult);
         InputQueryRequest request = new InputQueryRequest();
-        request.setViewName("OrderList");
+        request.setViewId(100L);
         request.setViewItemId("Customer");
         request.setText("Ada");
 
@@ -210,7 +225,7 @@ public class DataQueryServiceInputQueryTest {
         selectedView.setFilter("customer_state='active'");
         PageResult<IDynamicData> pageResult = new PageResult<>();
         pageResult.setItems(List.of(dynamic("1001", "Ada")));
-        when(daoService.getOneDetailByKey(View.class, "OrderList")).thenReturn(view);
+        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
         when(daoService.getOneDetailByKey(View.class, "201")).thenReturn(selectedView);
         when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(order);
         when(modelDataService.getDataListWithPageInfo(
@@ -222,7 +237,7 @@ public class DataQueryServiceInputQueryTest {
                 eq(true)))
                 .thenReturn(pageResult);
         InputQueryRequest request = new InputQueryRequest();
-        request.setViewName("OrderList");
+        request.setViewId(100L);
         request.setViewItemId("Customer");
         request.setText("Ada");
 
@@ -266,7 +281,7 @@ public class DataQueryServiceInputQueryTest {
         IDynamicData bob = dynamic("1002", "Bob");
         IDynamicData alina = dynamic("1003", "ALINA");
         when(owner.get("availableCustomers")).thenReturn(List.of(alice, bob, alina));
-        when(daoService.getOneDetailByKey(View.class, "OrderList")).thenReturn(view);
+        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
         when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(order);
         when(modelDataService.getDataList(eq("Order"), any(IQueryFilter.class), eq(order.getProperties())))
                 .thenReturn(List.of(owner));
@@ -281,7 +296,7 @@ public class DataQueryServiceInputQueryTest {
                 eq(true)))
                 .thenReturn(emptyPage);
         InputQueryRequest request = new InputQueryRequest();
-        request.setViewName("OrderList");
+        request.setViewId(100L);
         request.setViewItemId("Customer");
         request.setObjID("5001");
         request.setText("ali");
@@ -334,12 +349,12 @@ public class DataQueryServiceInputQueryTest {
         IDynamicData alina = dynamic("1003", "ALINA");
         when(owner.get("viewCustomers")).thenReturn(List.of(alice, alina));
         when(owner.get("propertyCustomers")).thenReturn(List.of(bob));
-        when(daoService.getOneDetailByKey(View.class, "OrderList")).thenReturn(view);
+        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
         when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(order);
         when(modelDataService.getDataList(eq("Order"), any(IQueryFilter.class), eq(order.getProperties())))
                 .thenReturn(List.of(owner));
         InputQueryRequest request = new InputQueryRequest();
-        request.setViewName("OrderList");
+        request.setViewId(100L);
         request.setViewItemId("Customer");
         request.setObjID("5001");
         request.setText("ali");
@@ -381,12 +396,12 @@ public class DataQueryServiceInputQueryTest {
         IDynamicData bob = dynamic("1002", "Bob");
         IDynamicData alina = dynamic("1003", "ALINA");
         when(owner.get("availableCustomers")).thenReturn(List.of(alice, bob, alina));
-        when(daoService.getOneDetailByKey(View.class, "OrderItemEdit")).thenReturn(view);
+        when(daoService.getOneDetailByKey(View.class, "200")).thenReturn(view);
         when(daoService.getOneDetailByKey(Model.class, "OrderItem")).thenReturn(orderItem);
         when(modelDataService.getDataList(eq("Order"), any(IQueryFilter.class), eq(order.getProperties())))
                 .thenReturn(List.of(owner));
         InputQueryRequest request = new InputQueryRequest();
-        request.setViewName("OrderItemEdit");
+        request.setViewId(200L);
         request.setViewItemId("Customer");
         request.setOwnerId("5001");
         request.setAdded(true);
