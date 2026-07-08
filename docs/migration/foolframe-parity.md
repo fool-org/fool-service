@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: `getlistview` responses now expose `ViewId` alongside the
+  existing legacy `ID`, and Vue's shared `viewId()` helper accepts
+  `viewId` / `ViewId` / `ViewID` before falling back to `id` / `ID`. The main
+  workflow therefore keeps the sequence as rendered View metadata first, then
+  `querydata` with that loaded View id, instead of depending on a request-form
+  value or a concrete business DTO shape.
 - 2026-07-09: Vue metadata field editors now follow FoolFrame detail-page
   render order for scalar controls: the legacy `detailView.jade` emits
   generic field metadata, `detailview.js` passes `data-propertyType` into

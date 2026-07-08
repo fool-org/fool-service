@@ -574,7 +574,7 @@ export function viewColumns(view: ListViewInfo | undefined) {
 }
 
 export function viewId(view: ListViewInfo | undefined, fallback = 0) {
-  return Number(view?.id ?? view?.ID ?? fallback) || 0;
+  return Number(view?.viewId ?? view?.ViewId ?? view?.ViewID ?? view?.id ?? view?.ID ?? fallback) || 0;
 }
 
 export function viewOperations(view: ListViewInfo | undefined) {

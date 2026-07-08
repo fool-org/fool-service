@@ -45,6 +45,36 @@ describe("useViewDataWorkflow", () => {
     expect(workflow.resultRows.value).toEqual([{ Items: [{ PrpId: "symbol", FmtValue: "BTC-USDT" }] }]);
   });
 
+  it("uses legacy ViewId from rendered View metadata before querying data", async () => {
+    const calls: { path: string; payload: Record<string, unknown> }[] = [];
+    vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+      const payload = JSON.parse(String(init?.body || "{}")) as Record<string, unknown>;
+      calls.push({ path, payload });
+      if (path === "/api/v1/view/getlistview") {
+        return jsonResponse({
+          ViewId: 144,
+          Name: "Rendered View",
+          Items: [{ Name: "Name", PropertyName: "name" }]
+        });
+      }
+      return jsonResponse({
+        Data: [{ Items: [{ PrpId: "name", FmtValue: "Alice" }] }]
+      });
+    }));
+
+    const workflow = useViewDataWorkflow(workflowRefs({ listViewId: ref(42) }));
+
+    await workflow.queryCurrentViewData();
+
+    expect(calls.map((call) => call.path)).toEqual([
+      "/api/v1/view/getlistview",
+      "/api/v1/data/querydata"
+    ]);
+    expect(calls[1].payload).toMatchObject({ viewId: 144 });
+    expect(workflow.currentViewId.value).toBe(144);
+    expect(workflow.resultColumns.value).toEqual([{ Name: "Name", PropertyName: "name" }]);
+  });
+
   it("caches read-item View metadata by the rendered View id", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => jsonResponse({
       ViewId: 60,

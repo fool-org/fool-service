@@ -314,6 +314,7 @@ public class ViewAdapterTest {
         Map<?, ?> serialized = new ObjectMapper().convertValue(new ViewAdapter().getViewInfo(view), Map.class);
 
         assertEquals(100L, ((Number) serialized.get("ID")).longValue());
+        assertEquals(100L, ((Number) serialized.get("ViewId")).longValue());
         assertEquals("OrderList", serialized.get("Name"));
         assertEquals("ListView", String.valueOf(serialized.get("Type")));
         assertEquals(500L, ((Number) serialized.get("DetailViewId")).longValue());

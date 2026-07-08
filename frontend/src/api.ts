@@ -262,6 +262,9 @@ export interface OperationParamInfo {
 export interface ListViewInfo {
   id?: number;
   ID?: number;
+  viewId?: number;
+  ViewId?: number;
+  ViewID?: number;
   viewName?: string;
   name?: string;
   Name?: string;

@@ -46,6 +46,11 @@ public class ListViewInfo {
         return id;
     }
 
+    @JsonProperty("ViewId")
+    public Long getLegacyViewId() {
+        return id;
+    }
+
     @JsonProperty("Name")
     public String getLegacyName() {
         return name;

@@ -415,6 +415,9 @@ explicitly named as authoritative for fool-service.
 - [x] Add a stricter harness line budget for `frontend/src/App.vue` so future
       Vue migration work keeps extracting workflow helpers instead of growing
       the root component.
+- [x] Normalize loaded list View ids through shared `ViewId` / `ID` helpers so
+      Vue queries data from the rendered View response instead of a request-form
+      value or concrete business DTO fallback.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
