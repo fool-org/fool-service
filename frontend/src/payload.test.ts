@@ -107,7 +107,7 @@ describe("App defaults", () => {
     expect(appSource).toContain("async function startNewObject(viewId = Number(detailViewId.value))");
     expect(appSource).toContain("await queryDetail(Number(detailViewId.value))");
     expect(appSource).toContain("saveViewId.value = String(detailViewId.value)");
-    expect(appSource).toContain("listRenderColumns(viewResponse.value?.data, dataResponse.value?.data)");
+    expect(appSource).toContain("listRenderColumns(viewResponse.value?.data)");
     expect(appSource).not.toContain("Object.keys(first)");
     expect(appSource).not.toContain("viewName: viewName.value");
     expect(appSource).not.toContain("/api/v1/view/get-view");
@@ -126,7 +126,7 @@ describe("App defaults", () => {
     expect(querySource).not.toContain("keyword:");
   });
 
-  it("uses querydata Cols before row Items when View columns are absent", () => {
+  it("does not let querydata define table columns when View columns are absent", () => {
     const columnsSource = viewWorkflowSource.slice(
       viewWorkflowSource.indexOf("export function listRenderColumns"),
       viewWorkflowSource.indexOf("export function fieldModelId")
@@ -137,8 +137,12 @@ describe("App defaults", () => {
     );
 
     expect(columnsSource).toContain("if (!view)");
-    expect(columnsSource.indexOf("columnsFromListResult")).toBeLessThan(columnsSource.indexOf("columnsFromRowItems"));
-    expect(childSource).toContain("declaredColumns.length ? declaredColumns : resultColumns");
+    expect(columnsSource).toContain("return viewColumns(view)");
+    expect(columnsSource).not.toContain("columnsFromListResult");
+    expect(columnsSource).not.toContain("columnsFromRowItems");
+    expect(childSource).toContain("setCandidateResults(group, viewColumns(view.data), listRows(data.data)");
+    expect(childSource).not.toContain("columnsFromListResult");
+    expect(childSource).not.toContain("declaredColumns.length ? declaredColumns : resultColumns");
   });
 
   it("refreshes the main View workflow from legacy AutoFreshTime", () => {

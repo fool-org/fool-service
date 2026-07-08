@@ -11,8 +11,6 @@ import {
   buildSelectedExistingItemProperty,
   buildUpdatedItemProperty,
   columnKey,
-  columnsFromListResult,
-  columnsFromRowItems,
   createOperations,
   dataOperations,
   detailFieldsFromReadView,
@@ -152,60 +150,16 @@ describe("view workflow helpers", () => {
     expect(isReadonlyField({ prpId: "name", readOnly: false, editType: "TextBox" })).toBe(false);
   });
 
-  it("derives fallback columns from row item metadata instead of DTO values", () => {
-    const runtimeRow = {
-      values: { dtoOnly: "ignored" },
-      items: [
-        { prpId: "recordId", prpShowName: "Record ID", prpType: "Long", readOnly: true },
-        { prpId: "name", prpShowName: "Name", prpType: "String" }
-      ]
-    };
-
-    expect(columnsFromRowItems(runtimeRow)).toEqual([
-      {
-        property: "recordId",
-        propertyName: "recordId",
-        title: "Record ID",
-        name: "Record ID",
-        isReadOnly: true,
-        editType: undefined,
-        propertyType: "Long",
-        propertyModel: undefined
-      },
-      {
-        property: "name",
-        propertyName: "name",
-        title: "Name",
-        name: "Name",
-        isReadOnly: undefined,
-        editType: undefined,
-        propertyType: "String",
-        propertyModel: undefined
-      }
-    ]);
-  });
-
-  it("derives fallback columns from legacy querydata Cols before row items", () => {
-    expect(columnsFromListResult({ Cols: ["Record ID", "State"] })).toEqual([
-      { id: 0, property: "Record ID", propertyName: "Record ID", title: "Record ID", name: "Record ID" },
-      { id: 1, property: "State", propertyName: "State", title: "State", name: "State" }
-    ]);
-    expect(columnsFromListResult({ cols: ["Name"] })[0]).toMatchObject({
-      property: "Name",
-      title: "Name"
-    });
-  });
-
-  it("does not render list data columns before a View definition is loaded", () => {
+  it("renders list columns only from loaded View metadata", () => {
+    const declared = [{ property: "name", title: "Name" }];
     const result = {
       Cols: ["DTO Only"],
       Data: [{ Items: [{ PrpId: "dtoOnly", FmtValue: "ignored" }] }]
     };
 
-    expect(listRenderColumns(undefined, result)).toEqual([]);
-    expect(listRenderColumns({ ID: 100, Items: [] }, result)).toEqual([
-      { id: 0, property: "DTO Only", propertyName: "DTO Only", title: "DTO Only", name: "DTO Only" }
-    ]);
+    expect(listRenderColumns(undefined)).toEqual([]);
+    expect(listRenderColumns({ ID: 100, Items: [] })).toEqual([]);
+    expect(listRenderColumns({ ID: 100, Items: declared })).toEqual(declared);
   });
 
   it("does not use values DTO fields for view row identity or cells", () => {
@@ -361,12 +315,6 @@ describe("view workflow helpers", () => {
     expect(rowObjectId(row, columns)).toBe("1001");
     expect(rowValue(row, columns[1])).toBe("Open");
     expect(rowFormatClass(row)).toBe("warning-row");
-    expect(columnsFromRowItems(row)[1]).toMatchObject({
-      property: "state",
-      title: "State",
-      propertyType: "Enum",
-      propertyModel: 102
-    });
   });
 
   it("keeps legacy child collection add/update/delete payload names", () => {

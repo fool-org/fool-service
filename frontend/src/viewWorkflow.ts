@@ -326,55 +326,11 @@ export function detailResultItems(result: QueryDataDetailResult | undefined) {
   return firstList(data?.items, data?.Items);
 }
 
-export function columnsFromRowItems(row: ListDataItem | undefined): TableColumnInfo[] {
-  return rowItems(row)
-    .map((field) => {
-      const key = fieldKey(field);
-      return {
-        property: key,
-        propertyName: key,
-        title: fieldTitle(field),
-        name: fieldTitle(field),
-        isReadOnly: field.readOnly ?? field.ReadOnly,
-        editType: fieldEditType(field),
-        propertyType: fieldType(field),
-        propertyModel: field.prpModelId ?? field.PrpModelId
-      };
-    })
-    .filter((column) => column.property || column.title);
-}
-
-export function columnsFromListResult(result: ListViewResult | undefined): TableColumnInfo[] {
-  return firstList(result?.cols, result?.Cols)
-    .map((col, index) => {
-      const title = displayValue(col);
-      return {
-        id: index,
-        property: title,
-        propertyName: title,
-        title,
-        name: title
-      };
-    })
-    .filter((column) => column.title);
-}
-
-export function listRenderColumns(
-  view: ListViewInfo | undefined,
-  result: ListViewResult | undefined
-): TableColumnInfo[] {
+export function listRenderColumns(view: ListViewInfo | undefined): TableColumnInfo[] {
   if (!view) {
     return [];
   }
-  const declared = viewColumns(view);
-  if (declared.length > 0) {
-    return declared;
-  }
-  const resultCols = columnsFromListResult(result);
-  if (resultCols.length > 0) {
-    return resultCols;
-  }
-  return columnsFromRowItems(listRows(result)[0]);
+  return viewColumns(view);
 }
 
 export function fieldModelId(field: ListDataValue) {

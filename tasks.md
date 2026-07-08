@@ -176,6 +176,9 @@ explicitly named as authoritative for fool-service.
 - [x] Require the Vue main list and detail editor to have rendered View
       metadata before using `querydata` / `querydatadetail` payloads, so data
       DTO rows cannot define page columns or detail form fields.
+- [x] Remove the remaining Vue list-column fallback to `querydata.Cols` and
+      first-row `Items`, so main and child candidate tables only take columns
+      from loaded View metadata.
 - [x] Render detail View operation buttons from the loaded `querydatadetail`
       operations payload instead of the list View metadata, keeping detail
       actions bound to the rendered detail View context.
@@ -193,8 +196,8 @@ explicitly named as authoritative for fool-service.
       fallback new-row initialization, so detail data stays bound to the View
       metadata context instead of the list View or a concrete business DTO.
 - [x] Stop deriving the main Vue list columns from row `values` DTO keys; when
-      View columns are absent, fallback columns now come from legacy row
-      `Items` metadata.
+      View columns are absent, the page keeps columns empty instead of
+      inventing them from data DTO fields.
 - [x] Hydrate persisted legacy `SW_SYS_VIEW.VIEW_DEFAULT` into
       `getlistview.DetailViewId` and prove runtime detail loading uses that
       loaded View metadata instead of a fixed business DTO/detail id.

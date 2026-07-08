@@ -49,7 +49,6 @@ import {
   buildSavePropertyies,
   buildSelectedExistingItemProperty,
   buildUpdatedItemProperty,
-  columnsFromListResult,
   createOperations,
   dataOperations,
   detailItemValues,
@@ -242,7 +241,7 @@ const currentViewId = computed(() => viewId(viewResponse.value?.data));
 const loadedViewName = computed(() => viewDisplayName(viewResponse.value?.data, viewName.value));
 const viewTitle = computed(() => viewDisplayTitle(viewResponse.value?.data, viewName.value || "Load a View"));
 
-const resultColumns = computed<TableColumnInfo[]>(() => listRenderColumns(viewResponse.value?.data, dataResponse.value?.data));
+const resultColumns = computed<TableColumnInfo[]>(() => listRenderColumns(viewResponse.value?.data));
 
 const resultRows = computed<ListDataItem[]>(() => listRows(dataResponse.value?.data));
 const resultPageIndex = computed(() => listPageIndex(dataResponse.value?.data, Number(pageIndex.value)));
@@ -965,7 +964,6 @@ async function loadExistingDetailItems(group: QueryDataDetailItemGroup) {
   if (!view) {
     return;
   }
-  const declaredColumns = viewColumns(view.data);
   const state = candidateState(group);
   const dataRequest = buildLegacyQueryDataRequest({
     token: token.value,
@@ -978,8 +976,7 @@ async function loadExistingDetailItems(group: QueryDataDetailItemGroup) {
   if (!data) {
     return;
   }
-  const resultColumns = columnsFromListResult(data.data);
-  setCandidateResults(group, declaredColumns.length ? declaredColumns : resultColumns, listRows(data.data), {
+  setCandidateResults(group, viewColumns(view.data), listRows(data.data), {
     totalItem: listTotalItems(data.data),
     totalPage: listTotalPages(data.data)
   });
