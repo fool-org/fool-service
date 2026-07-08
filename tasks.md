@@ -187,6 +187,8 @@ explicitly named as authoritative for fool-service.
 - [x] Split the Vue results panel and static migration map out of `App.vue`,
       bringing the file back under the 2000-line target while keeping View
       row tables on the shared metadata renderer.
+- [x] Move Vue field enum option loading into `useFieldEnums` so metadata
+      editors share the same cached model-id lookup without growing `App.vue`.
 - [x] Execute legacy property `SET` trigger `SET_VALUE` side effects through
       dynamic `ModelDataService` create/save writes without introducing
       concrete business DTO binding.

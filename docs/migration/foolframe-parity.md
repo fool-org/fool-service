@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue enum option loading now lives in `useFieldEnums` instead of
+  inline `App.vue` state. Detail and child metadata editors still load enum
+  options from rendered View field metadata by `PrpModelId`, cache options by
+  model id, and keep the manual API-tool `getenums` panel separate. This keeps
+  enum editors on the View-first data path while reducing `App.vue` to 1922
+  lines under the frontend root budget.
 - 2026-07-09: Vue list workflow now routes first-screen and API-tool data
   loading through `useViewDataWorkflow`: `getlistview(ViewId)` loads the
   rendered View definition first, then `querydata` uses the loaded View id and

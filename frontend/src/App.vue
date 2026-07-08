@@ -37,6 +37,7 @@ import MetadataFieldEditor from "./MetadataFieldEditor.vue";
 import MigrationMap from "./MigrationMap.vue";
 import ResultsPanel from "./ResultsPanel.vue";
 import { useChildCandidates } from "./useChildCandidates";
+import { useFieldEnums } from "./useFieldEnums";
 import { useViewDataWorkflow } from "./useViewDataWorkflow";
 import { enumFieldOptions, navItems, nextObjectId, services } from "./viewShell";
 import {
@@ -57,7 +58,6 @@ import {
   fieldEditType,
   fieldKey,
   fieldDisplayValue,
-  fieldModelId,
   fieldType,
   fieldTitle,
   groupKey,
@@ -67,7 +67,6 @@ import {
   groupTitle,
   inputQueryItemId,
   inputQueryItemText,
-  isEnumField,
   itemDataId,
   itemKey,
   itemValue,
@@ -192,7 +191,6 @@ const isCreatingObject = ref(false);
 const detailDrafts = ref<Record<string, string>>({});
 const childDrafts = ref<Record<string, Record<string, string>>>({});
 const newChildDrafts = ref<Record<string, Record<string, string>>>({});
-const enumOptions = ref<Record<string, { label: string; value: string }[]>>({});
 const {
   candidateColumns,
   candidateRows,
@@ -267,6 +265,7 @@ const {
   saveNewViewId,
   runAction
 });
+const { enumOptions, loadFieldEnums: loadFieldEnumsFor } = useFieldEnums(token, runAction);
 
 const selectedObject = computed(() => resultRows.value.find((row) => rowObjectId(row, resultColumns.value) === selectedObjectId.value));
 const detailDataRows = computed(() => detailResultSimpleData(detailResponse.value?.data));
@@ -981,28 +980,10 @@ function setDetailItemSavePayload(itemproperties: SaveItemProperty[]) {
 }
 
 async function loadFieldEnums() {
-  const fields = [
+  await loadFieldEnumsFor([
     ...detailRows.value,
     ...detailItemGroups.value.flatMap((group) => groupColumns(group))
-  ].filter(isEnumField);
-  for (const field of fields) {
-    const modelId = String(fieldModelId(field));
-    if (enumOptions.value[modelId]) {
-      continue;
-    }
-    const response = await runAction("field-enums", () =>
-      postApi<GetEnumResult>("/api/v1/data/getenums", buildGetEnumRequest({ token: token.value, modelId }))
-    );
-    if (response) {
-      enumOptions.value = {
-        ...enumOptions.value,
-        [modelId]: legacyEnumValues(response.data).map((item) => ({
-          label: legacyEnumName(item) || legacyEnumValue(item),
-          value: legacyEnumValue(item)
-        }))
-      };
-    }
-  }
+  ]);
 }
 
 async function loadCandidatePage(group: QueryDataDetailItemGroup, pageIndex: number) {
