@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: the Docker runtime doctor no longer falls back to seeded
+  `ViewId=100` when the legacy app shell fails to provide a default View. The
+  runtime proof now has to pass through `getapp/getmain` `App.DefaultViewId`
+  before `getlistview(ViewId)` and `querydata(ViewId)`, so the smoke check
+  cannot silently bind migration confidence to the seeded order DTO.
 - 2026-07-08: repository harness now fails Vue main render paths that rebind
   page columns or cells to concrete business DTO data (`row.values` or
   `Object.keys(first)`). The allowed path remains `getlistview(ViewId)` for

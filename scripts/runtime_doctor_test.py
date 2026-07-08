@@ -5,7 +5,9 @@ from __future__ import annotations
 
 import unittest
 
+import runtime_doctor
 from runtime_doctor import (
+    api_checks,
     common_response_list,
     common_true_ok,
     common_void_ok,
@@ -173,6 +175,79 @@ class RuntimeDoctorTest(unittest.TestCase):
             {"col": 0, "row": 0, "fmtValue": "Record ID"},
             {"col": 1, "row": 0, "fmtValue": "Status"},
         ]}}, ["Record ID", "Status"]))
+
+    def test_api_checks_do_not_fallback_to_seeded_view_id(self) -> None:
+        calls: list[tuple[str, object]] = []
+        original_get_json = runtime_doctor.get_json
+        original_post_json = runtime_doctor.post_json
+
+        def fake_get_json(_url: str, _timeout: float) -> object:
+            return []
+
+        def fake_post_json(url: str, payload: object, _timeout: float) -> dict[str, object]:
+            calls.append((url, payload))
+            if url.endswith("/auth/initapp"):
+                return {"code": 0, "data": {"Dbs": [{}], "CheckCode": {"Key": "k", "Code": "c"}}}
+            if url.endswith("/auth/getcheckcode"):
+                return {"code": 0, "data": {"Key": "k", "Code": "c"}}
+            if url.endswith("/auth/checkcode"):
+                return {"code": 0, "data": True}
+            if url.endswith("/auth/loginv2"):
+                return {"code": 0, "data": {"LoginSucess": True, "Token": "t"}}
+            if url.endswith("/auth/getuserinfo"):
+                return {"code": 0, "data": {"user": {"id": "admin"}}}
+            if url.endswith("/auth/getapp"):
+                return {"code": 0, "data": {"App": {}}}
+            if url.endswith("/auth/getmain"):
+                return {"code": 0, "data": {"App": {}, "TopMenu": [{"AuthNo": "0101"}]}}
+            if url.endswith("/auth/getsubmenu"):
+                return {"code": 0, "data": {"Items": [{}]}}
+            if url.endswith("/view/getlistview"):
+                return {"code": 0, "data": {
+                    "DetailViewId": 102,
+                    "Items": [{"PropertyName": "recordId"}],
+                    "Operations": [{"Name": "\u5220\u9664"}, {"Name": "\u4fdd\u5b58"}],
+                }}
+            if url.endswith("/data/querydata"):
+                return {"code": 0, "data": {"Data": [{"Items": [{"PrpId": "recordId", "ObjId": "9001"}]}]}}
+            if url.endswith("/data/runoperation"):
+                return {"code": 0, "data": {
+                    "Value": None,
+                    "IsSuccess": False,
+                    "ReturnObjId": None,
+                    "ReturnViewId": 0,
+                    "ReturnMsg": "",
+                }}
+            if url.endswith("/data/querydatadetail"):
+                return {"code": 0, "data": {"data": {"simpleData": [{}]}}}
+            if url.endswith("/view/getreaditemview"):
+                return {"code": 0, "data": {"DetailViews": [{"Items": [{"PrpId": "recordId"}]}]}}
+            if url.endswith("/data/inputquery"):
+                return {"code": 0, "data": {"items": [{}], "Items": [{}]}}
+            if url.endswith("/report/getmkqview"):
+                return {"code": 0, "data": {"Cols": [{"ID": "recordId", "Name": "Record ID"}]}}
+            if url.endswith("/report/getrpt"):
+                return {"code": 0, "data": {"Cells": [
+                    {"Col": 0, "Row": 0, "FmtValue": "Record ID"},
+                    {"Col": 0, "Row": 1, "FmtValue": "9001"},
+                ]}}
+            if url.endswith("/message/getmsg"):
+                return {"code": 0, "data": {"Messages": []}}
+            if url.endswith("/message/getnotify"):
+                return {"code": 0, "data": {"Notifies": []}}
+            return {"code": 0, "data": None}
+
+        try:
+            runtime_doctor.get_json = fake_get_json
+            runtime_doctor.post_json = fake_post_json
+            results = api_checks("http://backend", "http://frontend", 1.0)
+        finally:
+            runtime_doctor.get_json = original_get_json
+            runtime_doctor.post_json = original_post_json
+
+        by_name = {result.name: result for result in results}
+        self.assertFalse(by_name["view:getlistview"].ok)
+        self.assertFalse(any(url.endswith("/view/getlistview") for url, _payload in calls))
 
 
 if __name__ == "__main__":

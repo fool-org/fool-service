@@ -13,7 +13,6 @@ from urllib import error, request
 
 
 REQUIRED_SERVICES = ("backend", "frontend", "mysql", "redis")
-LIST_VIEW_ID = 100
 
 
 @dataclass(frozen=True)
@@ -457,7 +456,9 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         )
 
     def get_list_view() -> bool:
-        view_id = loaded_list_view_id() or LIST_VIEW_ID
+        view_id = loaded_list_view_id()
+        if not view_id:
+            return False
         payload = post_json(
             f"{frontend_url}/api/v1/view/getlistview",
             {"ViewId": view_id},
