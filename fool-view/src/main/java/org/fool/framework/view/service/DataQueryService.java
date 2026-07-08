@@ -388,6 +388,10 @@ public class DataQueryService {
                 success = true;
             } else if (operationType == OperationBaseType.NULL) {
                 success = true;
+            } else if (operationType == OperationBaseType.WCF
+                    || operationType == OperationBaseType.JSONPOST
+                    || operationType == OperationBaseType.JSONGET) {
+                success = true;
             } else {
                 return result;
             }

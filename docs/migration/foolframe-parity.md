@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: legacy `runoperation` now treats WCF / JSONPOST / JSONGET
+  operation base types as successful no-ops after command evaluation, matching
+  FoolFrame `ModelMethodContext.ExcuteOperation` default switch behavior plus
+  `HandlerRunOperation` success handling. No HTTP/WCF client layer was added;
+  those operation types still do not perform external calls until a real
+  migrated handler needs that surface.
 - 2026-07-09: Vue metadata field editors now render legacy Boolean /
   CheckBox fields as native checkboxes from View field metadata. `PrpType=8`,
   `PropertyType.Boolean`, and `EditType=CheckBox` flow through the existing
@@ -301,8 +307,7 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-08: `runoperation` now treats legacy `OperationBaseType.NULL` as a
   successful no-op after command evaluation, matching FoolFrame
   `ModelMethodContext.ExcuteOperation` default switch behavior and
-  `HandlerRunOperation` success handling. JSON/WCF operation types remain
-  unsupported until real migrated handlers exist.
+  `HandlerRunOperation` success handling.
 - 2026-07-08: backend compatibility endpoints `/api/v1/view/get-view` and
   `/api/v1/data/query-list` now require `ViewId` instead of falling back to
   `ViewName`. Legacy `getlistview(ViewId)` / `querydata(ViewId)` remain the
@@ -1302,8 +1307,10 @@ view-operation and command hydration in `fool-view`, wire the legacy
 paths, and apply `SetValue` literal, current-object, static-object,
 math-expression, time-context, and `Filter` guard commands before the base
 operation. Runtime `Operation` metadata now includes legacy filter, argument
-model/filter, invoke assembly/class/method, and return-model columns, but those
-invoke paths are not executed yet.
+model/filter, invoke assembly/class/method, and return-model columns; the
+migrated operation path executes Java class assembly reflection, property-model
+method, list-method, and external-model command slices, while WCF/JSON base
+operation types intentionally retain FoolFrame's no-op success behavior.
 
 ## fool-service Module Status
 

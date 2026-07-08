@@ -525,7 +525,7 @@ public class DataQueryServiceRunOperationTest {
     }
 
     @Test
-    public void runLegacyOperationLeavesUnsupportedOperationUnexecuted() {
+    public void runLegacyOperationTreatsJsonWcfOperationTypesAsSuccessfulNoops() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
         ViewDataService viewDataService = mock(ViewDataService.class);
@@ -537,8 +537,10 @@ public class DataQueryServiceRunOperationTest {
         LegacyRunOperationResult result = service.runLegacyOperation(request("1001", 100L, 7003L));
 
         verify(modelDataService, never()).deleteData(org.mockito.ArgumentMatchers.any(IDynamicData.class));
-        assertFalse(result.isSuccess());
-        assertEquals("", result.getReturnMsg());
+        verify(modelDataService, never()).saveData(org.mockito.ArgumentMatchers.any(IDynamicData.class));
+        verify(modelDataService, never()).createData(org.mockito.ArgumentMatchers.any(IDynamicData.class));
+        assertTrue(result.isSuccess());
+        assertEquals("posted", result.getReturnMsg());
     }
 
     @Test
