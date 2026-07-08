@@ -720,7 +720,7 @@ export function buildUpdatedItemProperty(
       {
         itemId: itemDataId(item),
         isExist: true,
-        propertyies: buildItemPropertyies(detailItemValues(item), drafts)
+        propertyies: buildItemPropertyies(groupColumns(group), drafts)
       }
     ]
   };

@@ -559,6 +559,34 @@ describe("view workflow helpers", () => {
     });
   });
 
+  it("builds existing child updates from rendered group columns instead of data DTO values", () => {
+    const group = {
+      prpId: "items",
+      properties: [
+        { prpId: "itemId", editType: "ReadOnly" },
+        { prpId: "itemName" }
+      ]
+    };
+    const item = {
+      dataId: "2001",
+      values: [
+        { prpId: "itemId", objId: "2001", editType: "ReadOnly" },
+        { prpId: "dtoOnly", objId: "leak" }
+      ]
+    };
+
+    expect(buildUpdatedItemProperty(group, item, { itemName: "Updated item", dtoOnly: "leak" })).toEqual({
+      key: "items",
+      items: [
+        {
+          itemId: "2001",
+          isExist: true,
+          propertyies: [{ key: "itemName", value: "Updated item" }]
+        }
+      ]
+    });
+  });
+
   it("maps a selected existing row into AddedItems by child fields", () => {
     const group = {
       prpId: "items",

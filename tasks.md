@@ -418,6 +418,8 @@ explicitly named as authoritative for fool-service.
 - [x] Normalize loaded list View ids through shared `ViewId` / `ID` helpers so
       Vue queries data from the rendered View response instead of a request-form
       value or concrete business DTO fallback.
+- [x] Build existing child-row update payload fields from rendered child group
+      View columns instead of `querydatadetail` data DTO values.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

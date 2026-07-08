@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue existing child-row update payloads now build
+  `Itemproperties[].Items[].Propertyies` from rendered child group View
+  columns (`getreaditemview.DetailViews`) instead of `querydatadetail` child
+  row value DTOs. DTO-only child values no longer leak into save payloads, and
+  editable View fields that are missing from the data row can still be saved
+  through the shared child draft path.
 - 2026-07-09: `getlistview` responses now expose `ViewId` alongside the
   existing legacy `ID`, and Vue's shared `viewId()` helper accepts
   `viewId` / `ViewId` / `ViewID` before falling back to `id` / `ID`. The main
