@@ -385,11 +385,13 @@ explicitly named as authoritative for fool-service.
 - [x] Render Vue DateTime metadata fields with native `datetime-local` inputs
       from View field type metadata, normalizing legacy display strings only
       at the editor boundary and not from business DTO field names.
-- [x] Honor legacy View `EditType` picker metadata in Vue scalar editors so
-      `DatePicker`, `TimePicker`, and `DateTimePicker` select native inputs
-      before falling back to property type metadata.
-- [x] Accept FoolFrame numeric `ItemEditType` enum values in Vue metadata
-      editors for readonly, checkbox, date, time, and datetime controls.
+- [x] Keep Vue scalar editor control selection on FoolFrame's detail render
+      path: `PrpType` / `PropertyType` selects native inputs first, while
+      `EditType` picker names only fill missing property-type metadata.
+- [x] Accept numeric `PrpType` / `PropertyType` codes in Vue metadata editors
+      for enum, lookup, Boolean, date, time, datetime, and numeric controls;
+      keep numeric `ItemEditType` only as a compatibility fallback or
+      view-item state such as readonly/rich text.
 - [x] Render legacy `RichTextBox` / numeric `ItemEditType=5` metadata fields
       with a native Vue textarea and shared value update handling.
 - [x] Render Vue Boolean / CheckBox metadata fields as native checkboxes from

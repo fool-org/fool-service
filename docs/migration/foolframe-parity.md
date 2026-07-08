@@ -97,16 +97,26 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue metadata field editors now follow FoolFrame detail-page
+  render order for scalar controls: the legacy `detailView.jade` emits
+  generic field metadata, `detailview.js` passes `data-propertyType` into
+  `setextype`, and save reads the same generic field attributes. Vue therefore
+  chooses native inputs from `PrpType` / `PropertyType` first, supports numeric
+  property-type codes for imported configurations, and treats `EditType`
+  picker values only as compatibility fallback when property type metadata is
+  absent. String fields no longer become date/time/checkbox controls just
+  because a business DTO or imported item carries a numeric `EditType`.
 - 2026-07-09: Vue metadata editors now render legacy `RichTextBox` /
   numeric `ItemEditType=5` fields with a native `<textarea>` and shared value
   update handling. This covers the simplest multiline legacy widget without
   adding a custom editor framework; `ComboBox`, `SelectLable`, and
   `DropTextBox` remain future slices.
 - 2026-07-09: Vue metadata editors now accept FoolFrame numeric
-  `ItemEditType` enum values as well as Java enum names. Numeric
-  `ReadOnly=0`, `CheckBox=2`, `DatePicker=6`, `TimePicker=7`, and
-  `DateTimePicker=8` map to the same disabled/native inputs as their string
-  aliases without adding a custom widget layer.
+  `ItemEditType` enum values as compatibility aliases where View property
+  metadata is missing, and for view-item-only states such as `ReadOnly=0` and
+  `RichTextBox=5`. Numeric `PrpType` / `PropertyType` codes are the primary
+  source for Boolean, Date, Time, DateTime, Enum, BusinessObject, and numeric
+  scalar controls.
 - 2026-07-09: Vue input-query item display helpers now tolerate empty legacy
   candidate entries by returning empty display text instead of throwing during
   render. The first-screen View workflow loads the rebuilt frontend bundle
@@ -153,19 +163,19 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   migrated handler needs that surface.
 - 2026-07-09: Vue metadata field editors now render legacy Boolean /
   CheckBox fields as native checkboxes from View field metadata. `PrpType=8`,
-  `PropertyType.Boolean`, and `EditType=CheckBox` flow through the existing
-  shared input helper, while similarly named string fields still render as
-  text. Save payloads keep the legacy string contract at the frontend
-  boundary, and `ModelDataService` coerces Boolean string values by
-  `PropertyType.Boolean` before dynamic persistence so MySQL `BIT` columns do
-  not require a concrete business DTO binding.
-- 2026-07-09: Vue metadata field editors now also honor legacy
-  `ItemEditType` picker metadata. `DatePicker`, `TimePicker`, and
-  `DateTimePicker` map through the existing native input helper before
-  falling back to `PropertyType`, so View configuration can select date/time
-  widgets without binding the page to concrete business DTO field names.
-  Docker frontend/backend were rebuilt with this slice and `runtime_doctor.py`
-  passed against the refreshed Compose stack.
+  numeric `PropertyType=8`, and `PropertyType.Boolean` flow through the
+  existing shared input helper, while similarly named string fields still
+  render as text even if stale `EditType=CheckBox` metadata is present. Save
+  payloads keep the legacy string contract at the frontend boundary, and
+  `ModelDataService` coerces Boolean string values by `PropertyType.Boolean`
+  before dynamic persistence so MySQL `BIT` columns do not require a concrete
+  business DTO binding.
+- 2026-07-09: Vue metadata field editors keep legacy `ItemEditType` picker
+  names (`DatePicker`, `TimePicker`, and `DateTimePicker`) as fallback input
+  hints only when `PrpType` / `PropertyType` is absent. When View field type
+  metadata is available, it wins, matching FoolFrame detail rendering and
+  preventing business DTO names or stale imported edit types from selecting
+  controls.
 - 2026-07-09: Vue metadata field editors now render `DateTime` / `PrpType=14`
   through native `datetime-local` inputs from View field metadata. The editor
   normalizes legacy display values such as `2026-07-03 09:05:06.0` only at the

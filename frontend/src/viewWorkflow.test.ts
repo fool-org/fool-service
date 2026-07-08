@@ -149,6 +149,7 @@ describe("view workflow helpers", () => {
 
   it("identifies enum fields by metadata", () => {
     expect(isEnumField({ prpId: "state", prpType: "Enum", prpModelId: 102 })).toBe(true);
+    expect(isEnumField({ prpId: "state", PrpType: 15, PrpModelId: 102 })).toBe(true);
     expect(fieldModelId({ prpId: "state", prpType: "Enum", prpModelId: 102 })).toBe(102);
     expect(isEnumField({ prpId: "name", prpType: "String", prpModelId: 0 })).toBe(false);
   });
@@ -156,6 +157,7 @@ describe("view workflow helpers", () => {
   it("identifies lookup fields by metadata", () => {
     expect(isLookupField({ prpId: "customer", prpType: "BusinessObject", prpModelId: 200 })).toBe(true);
     expect(isLookupField({ prpId: "customer", prpType: "16", prpModelId: 200 })).toBe(true);
+    expect(isLookupField({ prpId: "customer", PrpType: 16, PrpModelId: 200 })).toBe(true);
     expect(isLookupField({ prpId: "name", prpType: "String", prpModelId: 0 })).toBe(false);
   });
 
@@ -174,20 +176,26 @@ describe("view workflow helpers", () => {
 
   it("maps metadata field types to native input types", () => {
     expect(fieldInputType({ prpId: "tradeDate", prpType: "Date" })).toBe("date");
+    expect(fieldInputType({ prpId: "tradeDate", PrpType: 12 })).toBe("date");
     expect(fieldInputType({ prpId: "tradeTime", PrpType: "13" })).toBe("time");
+    expect(fieldInputType({ prpId: "tradeTime", PrpType: 13 })).toBe("time");
     expect(fieldInputType({ prpId: "createdAt", PrpType: "14" })).toBe("datetime-local");
+    expect(fieldInputType({ prpId: "createdAt", PrpType: 14 })).toBe("datetime-local");
     expect(fieldInputType({ prpId: "orderTime", prpType: "String" })).toBe("text");
-    expect(fieldInputType({ prpId: "planned", prpType: "String", EditType: "DatePicker" })).toBe("date");
-    expect(fieldInputType({ prpId: "planned", prpType: "String", EditType: "TimePicker" })).toBe("time");
-    expect(fieldInputType({ prpId: "planned", prpType: "String", EditType: "DateTimePicker" })).toBe(
-      "datetime-local"
-    );
-    expect(fieldInputType({ prpId: "planned", prpType: "String", EditType: 6 })).toBe("date");
-    expect(fieldInputType({ prpId: "planned", prpType: "String", EditType: 7 })).toBe("time");
-    expect(fieldInputType({ prpId: "planned", prpType: "String", EditType: 8 })).toBe("datetime-local");
+    expect(fieldInputType({ prpId: "planned", EditType: "DatePicker" })).toBe("date");
+    expect(fieldInputType({ prpId: "planned", EditType: "TimePicker" })).toBe("time");
+    expect(fieldInputType({ prpId: "planned", EditType: "DateTimePicker" })).toBe("datetime-local");
+    expect(fieldInputType({ prpId: "planned", EditType: 6 })).toBe("date");
+    expect(fieldInputType({ prpId: "planned", EditType: 7 })).toBe("time");
+    expect(fieldInputType({ prpId: "planned", EditType: 8 })).toBe("datetime-local");
+    expect(fieldInputType({ prpId: "planned", prpType: "String", EditType: "DatePicker" })).toBe("text");
+    expect(fieldInputType({ prpId: "planned", prpType: "String", EditType: 6 })).toBe("text");
     expect(fieldInputType({ prpId: "active", PrpType: "8" })).toBe("checkbox");
-    expect(fieldInputType({ prpId: "active", prpType: "String", EditType: "CheckBox" })).toBe("checkbox");
-    expect(fieldInputType({ prpId: "active", prpType: "String", EditType: 2 })).toBe("checkbox");
+    expect(fieldInputType({ prpId: "active", PrpType: 8 })).toBe("checkbox");
+    expect(fieldInputType({ prpId: "active", EditType: "CheckBox" })).toBe("checkbox");
+    expect(fieldInputType({ prpId: "active", EditType: 2 })).toBe("checkbox");
+    expect(fieldInputType({ prpId: "active", prpType: "String", EditType: "CheckBox" })).toBe("text");
+    expect(fieldInputType({ prpId: "active", prpType: "String", EditType: 2 })).toBe("text");
     expect(fieldInputType({ prpId: "active", prpType: "String" })).toBe("text");
     expect(fieldInputType({ prpId: "amount", prpType: "Decimal" })).toBe("number");
     expect(fieldInputType({ prpId: "count", PrpType: "1" })).toBe("number");

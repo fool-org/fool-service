@@ -219,8 +219,8 @@ export interface TableColumnInfo {
   EditViewId?: number;
   editExp?: number;
   EditExp?: number;
-  propertyType?: string;
-  PropertyType?: string;
+  propertyType?: string | number;
+  PropertyType?: string | number;
   propertyModel?: number;
   PropertyModel?: number;
   viewFile?: string | null;
@@ -293,8 +293,8 @@ export interface ViewDataRequest {
 export interface ReadItemViewItemInfo {
   name?: string;
   Name?: string;
-  prpType?: string;
-  PrpType?: string;
+  prpType?: string | number;
+  PrpType?: string | number;
   index?: number;
   Index?: number;
   prpId?: string;
@@ -351,7 +351,7 @@ export interface ListDataValue {
   prpId?: string;
   fmtValue?: string;
   prpShowName?: string;
-  prpType?: string;
+  prpType?: string | number;
   prpModelId?: number;
   readOnly?: boolean;
   editType?: string | number;
@@ -359,7 +359,7 @@ export interface ListDataValue {
   PrpId?: string;
   FmtValue?: string;
   PrpShowName?: string;
-  PrpType?: string;
+  PrpType?: string | number;
   PrpModelId?: number;
   ReadOnly?: boolean;
   EditType?: string | number;

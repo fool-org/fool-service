@@ -107,17 +107,19 @@ const numberFieldTypes = new Set([
 ]);
 
 export function fieldInputType(field: ListDataValue) {
-  const editType = normalizedEditType(field);
-  if (editType === "checkbox" || editType === "2") return "checkbox";
-  if (editType === "datepicker" || editType === "6") return "date";
-  if (editType === "timepicker" || editType === "7") return "time";
-  if (editType === "datetimepicker" || editType === "8") return "datetime-local";
-  const type = String(fieldType(field) ?? "").toLowerCase();
+  const type = normalizedPropertyType(field);
   if (type === "boolean" || type === "8") return "checkbox";
   if (type === "date" || type === "12") return "date";
   if (type === "time" || type === "13") return "time";
   if (type === "datetime" || type === "14") return "datetime-local";
   if (numberFieldTypes.has(type)) return "number";
+  if (type) return "text";
+
+  const editType = normalizedEditType(field);
+  if (editType === "checkbox" || editType === "2") return "checkbox";
+  if (editType === "datepicker" || editType === "6") return "date";
+  if (editType === "timepicker" || editType === "7") return "time";
+  if (editType === "datetimepicker" || editType === "8") return "datetime-local";
   return "text";
 }
 
@@ -140,6 +142,10 @@ export function fieldEditType(field: ListDataValue) {
 
 function normalizedEditType(field: ListDataValue) {
   return String(fieldEditType(field) ?? "").toLowerCase();
+}
+
+function normalizedPropertyType(field: ListDataValue) {
+  return String(fieldType(field) ?? "").toLowerCase();
 }
 
 export function fieldDisplayValue(field: ListDataValue) {
@@ -400,11 +406,12 @@ export function fieldModelId(field: ListDataValue) {
 }
 
 export function isEnumField(field: ListDataValue) {
-  return String(field.prpType ?? field.PrpType ?? "").toLowerCase() === "enum" && fieldModelId(field) > 0;
+  const type = normalizedPropertyType(field);
+  return (type === "enum" || type === "15") && fieldModelId(field) > 0;
 }
 
 export function isLookupField(field: ListDataValue) {
-  const type = String(field.prpType ?? field.PrpType ?? "").toLowerCase();
+  const type = normalizedPropertyType(field);
   return (type === "businessobject" || type === "16") && fieldModelId(field) > 0;
 }
 
