@@ -43,6 +43,30 @@ public class SqlGeneratorTest {
     }
 
     @Test
+    public void generateSelectPlacesMultipleLegacyOrdersBeforePagination() {
+        Model order = model("Order", "market_order");
+        Property symbol = property("symbol", "order_symbol");
+        Property state = property("state", "order_state");
+        PageNavigator pageNavigator = new PageNavigator();
+        pageNavigator.setPageIndex(1);
+        pageNavigator.setPageSize(20);
+
+        QueryAndArgs query = new SqlGenerator().generateSelect(
+                order,
+                List.of(symbol, state),
+                IQueryFilter.init(),
+                pageNavigator,
+                List.of(
+                        new SqlGenerator.OrderColumn("order_state", true),
+                        new SqlGenerator.OrderColumn("order_symbol", false)));
+
+        assertEquals(
+                "SELECT order_symbol,order_state FROM `market_order` WHERE 1=1  AND  1=1  ORDER BY `order_state` DESC,`order_symbol` ASC LIMIT ? OFFSET ?",
+                query.getSql());
+        assertArrayEquals(new Object[]{20, 0}, query.getArgs());
+    }
+
+    @Test
     public void generateSelectJoinsLegacyBusinessObjectShowProperty() {
         Model customer = model("Customer", "customer");
         Property customerId = property("customerId", "customer_id");

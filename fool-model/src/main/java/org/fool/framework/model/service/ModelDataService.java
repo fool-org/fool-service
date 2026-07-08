@@ -43,6 +43,8 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class ModelDataService {
+    public record OrderColumn(String column, boolean descending) {
+    }
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -226,9 +228,25 @@ public class ModelDataService {
             PageNavigator pageNavigator,
             String orderColumn,
             boolean orderDescending) {
+        return getDataListWithPageInfo(
+                modelId,
+                filter,
+                properties,
+                pageNavigator,
+                orderColumn == null || orderColumn.isBlank()
+                        ? List.of()
+                        : List.of(new OrderColumn(orderColumn, orderDescending)));
+    }
+
+    public PageResult<IDynamicData> getDataListWithPageInfo(
+            String modelId,
+            IQueryFilter filter,
+            List<Property> properties,
+            PageNavigator pageNavigator,
+            List<OrderColumn> orderColumns) {
         var mapper = getMapper(modelId);
         QueryAndArgs queryAndArgs = sqlGenerator.generateSelect(
-                mapper.getModel(), properties, filter, pageNavigator, orderColumn, orderDescending);
+                mapper.getModel(), properties, filter, pageNavigator, sqlOrderColumns(orderColumns));
         PageResult<IDynamicData> result = new PageResult<>();
         var items = this.jdbcTemplate.query(queryAndArgs.getSql(), queryAndArgs.getArgs(), mapper);
         loadCollectionProperties(mapper.getModel(), properties, items);
@@ -244,6 +262,17 @@ public class ModelDataService {
             result.getPageInfo().setPageCount(result.getPageInfo().getTotal() / result.getPageInfo().getPageSize() + (result.getPageInfo().getTotal() % result.getPageInfo().getPageSize() > 0 ? 1 : 0));
         }
         return result;
+    }
+
+    private List<SqlGenerator.OrderColumn> sqlOrderColumns(List<OrderColumn> orderColumns) {
+        if (orderColumns == null) {
+            return List.of();
+        }
+        return orderColumns.stream()
+                .filter(Objects::nonNull)
+                .filter(orderColumn -> orderColumn.column() != null && !orderColumn.column().isBlank())
+                .map(orderColumn -> new SqlGenerator.OrderColumn(orderColumn.column(), orderColumn.descending()))
+                .toList();
     }
 
     private void loadCollectionProperties(Model model, List<Property> properties, List<IDynamicData> items) {

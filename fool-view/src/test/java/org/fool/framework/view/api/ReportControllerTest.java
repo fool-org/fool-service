@@ -272,6 +272,36 @@ public class ReportControllerTest {
     }
 
     @Test
+    public void makeReportPassesMultipleReportOrdersBySelectedIndex() throws Exception {
+        DataQueryService dataQueryService = mock(DataQueryService.class);
+        ListViewResult queryResult = new ListViewResult();
+        queryResult.setData(List.of(row()));
+        stubReportQuery(dataQueryService, "100", null, queryResult);
+
+        ReportController controller = new ReportController();
+        setField(controller, "dataQueryService", dataQueryService);
+
+        MakeReportRequest.ReportCol symbol = reportCol("Symbol", 2);
+        symbol.setOrderType("0");
+        MakeReportRequest.ReportCol state = reportCol("State", 1);
+        state.setOrderType("1");
+        MakeReportRequest request = new MakeReportRequest();
+        request.setViewId(100L);
+        request.setReportCols(List.of(symbol, state));
+
+        controller.makeReport(request);
+
+        verify(dataQueryService).queryLegacyViewData(
+                eq("100"),
+                org.mockito.ArgumentMatchers.any(PageNavigator.class),
+                eq(null),
+                org.mockito.ArgumentMatchers.<String>isNull(),
+                eq(new DataQueryService.QueryOrder(List.of(
+                        new DataQueryService.QueryOrder.Item("State", true),
+                        new DataQueryService.QueryOrder.Item("Symbol", false)))));
+    }
+
+    @Test
     public void makeReportAlsoExposesLegacyGetRptRoute() throws Exception {
         var mapping = ReportController.class
                 .getMethod("makeReport", MakeReportRequest.class)

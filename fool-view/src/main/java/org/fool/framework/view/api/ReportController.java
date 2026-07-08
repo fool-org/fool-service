@@ -402,16 +402,24 @@ public class ReportController {
         List<MakeReportRequest.ReportCol> sortedCols = request.getReportCols().stream()
                 .sorted(Comparator.comparingInt(this::reportColIndex))
                 .toList();
-        MakeReportRequest.ReportCol col = sortedCols.stream()
+        List<DataQueryService.QueryOrder.Item> items = sortedCols.stream()
                 .filter(item -> !nullOrder(item.getOrderType()))
-                .findFirst()
-                .orElse(sortedCols.get(0));
-        String token = reportOrderToken(context, col);
+                .map(col -> {
+                    String token = reportOrderToken(context, col);
+                    return StringUtils.hasText(token)
+                            ? new DataQueryService.QueryOrder.Item(token, descOrder(col.getOrderType()))
+                            : null;
+                })
+                .filter(Objects::nonNull)
+                .toList();
+        if (!items.isEmpty()) {
+            return new DataQueryService.QueryOrder(items);
+        }
+        String token = reportOrderToken(context, sortedCols.get(0));
         if (!StringUtils.hasText(token)) {
             return null;
         }
-        // ponytail: DataQueryService currently supports one ORDER BY column; extend it there when multi-column reports matter.
-        return new DataQueryService.QueryOrder(token, descOrder(col.getOrderType()));
+        return new DataQueryService.QueryOrder(token, false);
     }
 
     private String reportOrderToken(ReportViewContext context, MakeReportRequest.ReportCol col) {

@@ -28,6 +28,9 @@ import java.util.stream.Collectors;
 public class SqlGenerator {
     public static final String ITEM_PARENT_ID_COLUMN = "__parent_id";
 
+    public record OrderColumn(String column, boolean descending) {
+    }
+
     /**
      * 生成统一查询
      *
@@ -47,9 +50,24 @@ public class SqlGenerator {
             PageNavigator pageNavigator,
             String orderColumn,
             boolean orderDescending) {
+        return generateSelect(
+                model,
+                properties,
+                filter,
+                pageNavigator,
+                StringUtils.hasText(orderColumn) ? List.of(new OrderColumn(orderColumn, orderDescending)) : List.of());
+    }
+
+    public QueryAndArgs generateSelect(
+            Model model,
+            List<Property> properties,
+            IQueryFilter filter,
+            PageNavigator pageNavigator,
+            List<OrderColumn> orderColumns) {
         var filterQuery = filter.generateSql();
         StringBuilder builder = new StringBuilder();
         List<Property> selectedProperties = selectedProperties(model, properties);
+        List<OrderColumn> selectedOrderColumns = selectedOrderColumns(orderColumns);
         boolean hasJoins = selectedProperties.stream().anyMatch(this::joinsBusinessObject);
         builder.append(DbConst.SELECT);
         builder.append(selectedProperties.stream()
@@ -71,11 +89,11 @@ public class SqlGenerator {
 
         List<Object> params = new LinkedList<>();
         params.addAll(Arrays.asList(filterQuery.getArgs()));
-        if (orderColumn != null && !orderColumn.isBlank()) {
+        if (!selectedOrderColumns.isEmpty()) {
             builder.append(" ORDER BY ")
-                    .append(orderExpression(orderColumn))
-                    .append(" ")
-                    .append(orderDescending ? "DESC" : "ASC");
+                    .append(selectedOrderColumns.stream()
+                            .map(this::orderExpression)
+                            .collect(Collectors.joining(",")));
         }
         if (pageNavigator != null) {
             builder.append(DbConst.PAGE_INFO);
@@ -87,6 +105,16 @@ public class SqlGenerator {
         queryAndArgs.setArgs(params.toArray());
         log.info("generate select sql:{}", queryAndArgs);
         return queryAndArgs;
+    }
+
+    private List<OrderColumn> selectedOrderColumns(List<OrderColumn> orderColumns) {
+        if (orderColumns == null) {
+            return List.of();
+        }
+        return orderColumns.stream()
+                .filter(Objects::nonNull)
+                .filter(orderColumn -> StringUtils.hasText(orderColumn.column()))
+                .toList();
     }
 
     private List<Property> selectedProperties(Model model, List<Property> properties) {
@@ -174,6 +202,10 @@ public class SqlGenerator {
 
     private String orderExpression(String orderColumn) {
         return orderColumn.startsWith("`") ? orderColumn : "`" + orderColumn + "`";
+    }
+
+    private String orderExpression(OrderColumn orderColumn) {
+        return orderExpression(orderColumn.column()) + " " + (orderColumn.descending() ? "DESC" : "ASC");
     }
 
     /**

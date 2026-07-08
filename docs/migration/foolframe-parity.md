@@ -97,6 +97,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: report `getrpt` now preserves multiple non-NULL
+  `ReportCols.OrderType` entries in selected-column order. `ReportController`
+  passes a View token order list into `DataQueryService`, `DataQueryService`
+  resolves those tokens through rendered ViewItem/Property metadata, and
+  `SqlGenerator` emits the resulting SQL `ORDER BY` list before pagination.
+  This matches FoolFrame report query generation while keeping report ordering
+  off rendered row DTO maps.
 - 2026-07-08: report `getrpt` now parses `ReportCols.OrderType` into a
   View/property `QueryOrder` before calling `querydata`, so report row ordering
   happens in the DataQueryService SQL path instead of sorting rendered row DTO

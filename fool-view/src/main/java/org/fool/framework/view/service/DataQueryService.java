@@ -72,7 +72,25 @@ public class DataQueryService {
 
     private final OperationCommandValueResolver commandValueResolver = new OperationCommandValueResolver();
 
-    public record QueryOrder(String itemToken, boolean descending) {
+    public record QueryOrder(List<Item> items) {
+        public QueryOrder {
+            items = items == null ? List.of() : items.stream().filter(Objects::nonNull).toList();
+        }
+
+        public QueryOrder(String itemToken, boolean descending) {
+            this(List.of(new Item(itemToken, descending)));
+        }
+
+        public String itemToken() {
+            return items.isEmpty() ? null : items.get(0).itemToken();
+        }
+
+        public boolean descending() {
+            return !items.isEmpty() && items.get(0).descending();
+        }
+
+        public record Item(String itemToken, boolean descending) {
+        }
     }
 
     /**
@@ -767,15 +785,31 @@ public class DataQueryService {
         attachProperties(view, model);
         IQueryFilter queryFilter = generateFilter(model, view, filter, keyword, legacyQueryFilter);
         OrderSelection orderSelection = orderSelection(view, model, order);
-        var result = modelDataService.getDataListWithPageInfo(
+        var result = queryDataList(
                 view.getViewModel(),
                 queryFilter,
                 properties,
                 pageInfo,
-                orderSelection.property() == null ? null : orderColumnExpression(orderSelection.property()),
-                orderSelection.descending());
+                orderSelection.columns());
 
         return viewAdapter.getListViewResult(view, result);
+    }
+
+    private PageResult<IDynamicData> queryDataList(
+            String viewModel,
+            IQueryFilter queryFilter,
+            List<Property> properties,
+            PageNavigator pageInfo,
+            List<ModelDataService.OrderColumn> orderColumns) {
+        if (orderColumns == null || orderColumns.isEmpty()) {
+            return modelDataService.getDataListWithPageInfo(viewModel, queryFilter, properties, pageInfo, null, false);
+        }
+        if (orderColumns.size() == 1) {
+            ModelDataService.OrderColumn orderColumn = orderColumns.get(0);
+            return modelDataService.getDataListWithPageInfo(
+                    viewModel, queryFilter, properties, pageInfo, orderColumn.column(), orderColumn.descending());
+        }
+        return modelDataService.getDataListWithPageInfo(viewModel, queryFilter, properties, pageInfo, orderColumns);
     }
 
     /**
@@ -988,14 +1022,36 @@ public class DataQueryService {
     }
 
     private OrderSelection orderSelection(View view, Model model, QueryOrder order) {
-        if (order != null && StringUtils.hasText(order.itemToken())) {
-            Property property = propertyByViewToken(view, model, order.itemToken());
-            if (property != null) {
-                return new OrderSelection(property, order.descending());
-            }
+        List<ModelDataService.OrderColumn> columns = orderColumns(view, model, order);
+        if (!columns.isEmpty()) {
+            return new OrderSelection(columns);
         }
         Property defaultProperty = getDefaultOrderProperty(view, model);
-        return new OrderSelection(defaultProperty, defaultProperty != null);
+        return new OrderSelection(defaultProperty == null
+                ? List.of()
+                : List.of(new ModelDataService.OrderColumn(orderColumnExpression(defaultProperty), true)));
+    }
+
+    private List<ModelDataService.OrderColumn> orderColumns(View view, Model model, QueryOrder order) {
+        if (order == null || order.items().isEmpty()) {
+            return List.of();
+        }
+        return order.items().stream()
+                .map(item -> orderColumn(view, model, item))
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    private ModelDataService.OrderColumn orderColumn(View view, Model model, QueryOrder.Item item) {
+        if (item == null || !StringUtils.hasText(item.itemToken())) {
+            return null;
+        }
+        Property property = propertyByViewToken(view, model, item.itemToken());
+        if (property == null) {
+            return null;
+        }
+        String column = orderColumnExpression(property);
+        return StringUtils.hasText(column) ? new ModelDataService.OrderColumn(column, item.descending()) : null;
     }
 
     private Property propertyByViewToken(View view, Model model, String token) {
@@ -1056,7 +1112,7 @@ public class DataQueryService {
         return item.getShowIndex() == null ? 0 : item.getShowIndex();
     }
 
-    private record OrderSelection(Property property, boolean descending) {
+    private record OrderSelection(List<ModelDataService.OrderColumn> columns) {
     }
 
 }
