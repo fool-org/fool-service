@@ -6,6 +6,7 @@ import org.fool.framework.model.model.Operation;
 import org.fool.framework.model.model.OperationBaseType;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.view.model.InputType;
+import org.fool.framework.view.model.ItemEditType;
 import org.fool.framework.view.model.View;
 import org.fool.framework.view.model.ViewOperation;
 import org.fool.framework.view.model.ViewType;
@@ -43,6 +44,7 @@ public class LegacyAutoViewFactoryTest {
         assertSame(detailView, listView.getDefaultDetailView());
         assertEquals(List.of("id", "name"), listView.getListItems().stream().map(item -> item.getModelProperty()).toList());
         assertTrue(listView.getListItems().stream().allMatch(item -> item.getInputType() == InputType.READ_ONLY));
+        assertTrue(listView.getListItems().stream().allMatch(item -> item.getEditType() == ItemEditType.ReadOnly));
         assertTrue(listView.getListItems().stream().noneMatch(ViewItemAssertions::canEdit));
 
         assertEquals("Order详细", detailView.getViewName());
@@ -51,6 +53,7 @@ public class LegacyAutoViewFactoryTest {
         assertEquals(List.of("id", "name", "lines"), detailView.getListItems().stream().map(item -> item.getModelProperty()).toList());
         assertTrue(detailView.getListItems().stream().allMatch(ViewItemAssertions::canEdit));
         assertFalse(detailView.getListItems().stream().anyMatch(item -> item.getInputType() == InputType.READ_ONLY));
+        assertTrue(detailView.getListItems().stream().allMatch(item -> item.getEditType() == ItemEditType.TextBox));
 
         assertEquals(List.of("新建", "编辑", "删除"), listView.getOperations().stream().map(ViewOperation::getName).toList());
         assertEquals(List.of(false, true, true), listView.getOperations().stream().map(ViewOperation::isRequireSelect).toList());

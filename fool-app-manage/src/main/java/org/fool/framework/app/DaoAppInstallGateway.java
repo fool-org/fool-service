@@ -240,8 +240,8 @@ public class DaoAppInstallGateway implements AppInstallGateway {
             if (model == null || model.getModelType() == ModelType.ENUM) {
                 continue;
             }
-            addPersistedViewName(viewNames, persistView(metadataDao, autoViewFactory.createDefaultItemView(model)));
-            addPersistedViewName(viewNames, persistView(metadataDao, autoViewFactory.createDefaultListView(model)));
+            addPersistedViewName(viewNames, persistView(metadataDao, autoViewFactory.createDefaultItemView(model), model.getId()));
+            addPersistedViewName(viewNames, persistView(metadataDao, autoViewFactory.createDefaultListView(model), model.getId()));
         }
         return viewNames;
     }
@@ -611,27 +611,60 @@ public class DaoAppInstallGateway implements AppInstallGateway {
         }
     }
 
-    private View persistView(DaoService daoService, View view) {
+    private View persistView(DaoService daoService, View view, Long modelId) {
         if (view == null) {
             return null;
         }
 
-        List<View> existingViews = daoService.selectList(
-                View.class,
-                "SELECT `id`,`view_name`,`view_text`,`view_remark`,`view_title`,`view_type`,"
-                        + "`view_model`,`filter`,`auto_fresh_interval`,`view_model_class` "
-                        + "FROM `fool_sys_view` WHERE `view_name` = ?",
+        List<AppInstalledView> existingViews = daoService.selectList(
+                AppInstalledView.class,
+                "SELECT `VIEW_ID`,`VIEW_MODEL`,`VIEW_NAME`,`VIEW_FILTER`,`VIEW_DEFAULT`,"
+                        + "`VIEW_TYPE`,`VIEW_CONTYPE`,`VIEW_FILE`,`VIEW_CHECKAUTH`,"
+                        + "`VIEW_AUTOFRESHINTERVAL`,`VIEW_CANEDIT` "
+                        + "FROM `SW_SYS_VIEW` WHERE `VIEW_NAME` = ?",
                 view.getViewName());
         if (!existingViews.isEmpty()) {
-            return existingViews.get(0);
+            view.setId(existingViews.get(0).getViewId());
+            return view;
         }
 
-        daoService.create(view);
+        AppInstalledView installedView = installedView(view, modelId);
+        daoService.create(installedView);
+        view.setId(installedView.getViewId());
         for (ViewItem item : safeViewItems(view)) {
-            item.setViewId(view.getId());
-            daoService.create(item);
+            daoService.create(installedViewItem(item, view.getId()));
         }
         return view;
+    }
+
+    private AppInstalledView installedView(View view, Long modelId) {
+        AppInstalledView installed = new AppInstalledView();
+        installed.setModelId(modelId);
+        installed.setName(view.getViewName());
+        installed.setFilter(view.getFilter());
+        installed.setDefaultViewId(view.getDefaultDetailView() == null ? null : view.getDefaultDetailView().getId());
+        installed.setViewType(view.getViewType() == null ? null : view.getViewType().code());
+        installed.setConnectionType(AppInstalledModel.CONNECTION_TYPE_CURRENT);
+        installed.setAutoFreshInterval(view.getAutoFreshInterval());
+        installed.setCanEdit(true);
+        return installed;
+    }
+
+    private AppInstalledViewItem installedViewItem(ViewItem item, Long viewId) {
+        AppInstalledViewItem installed = new AppInstalledViewItem();
+        installed.setOwnerViewId(viewId);
+        installed.setName(item.getItemName());
+        installed.setFormat(item.getFormatRegx());
+        installed.setReadOnly(!item.isCanEdit());
+        installed.setShowIndex(item.getShowIndex());
+        installed.setListViewId(item.getListViewId());
+        installed.setEditViewId(item.getEditViewId());
+        installed.setSelectedViewId(item.getSelectedViewId());
+        installed.setWidth(item.getWidth());
+        installed.setShow(true);
+        installed.setEditType(item.getEditType() == null ? null : item.getEditType().ordinal());
+        installed.setSourceExpression(item.getSourceExpression());
+        return installed;
     }
 
     private List<ViewItem> safeViewItems(View view) {

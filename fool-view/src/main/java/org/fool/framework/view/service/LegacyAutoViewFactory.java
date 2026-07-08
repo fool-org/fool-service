@@ -6,6 +6,7 @@ import org.fool.framework.model.model.Operation;
 import org.fool.framework.model.model.OperationBaseType;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.view.model.InputType;
+import org.fool.framework.view.model.ItemEditType;
 import org.fool.framework.view.model.View;
 import org.fool.framework.view.model.ViewItem;
 import org.fool.framework.view.model.ViewOperation;
@@ -130,6 +131,7 @@ public class LegacyAutoViewFactory {
         item.setFormatRegx(Objects.toString(property.getFormat(), ""));
         item.setCanEdit(!readOnly);
         item.setInputType(readOnly ? InputType.READ_ONLY : InputType.TEXT_BOX);
+        item.setEditType(readOnly ? ItemEditType.ReadOnly : ItemEditType.TextBox);
         return item;
     }
 

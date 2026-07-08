@@ -17,8 +17,7 @@ import org.fool.framework.model.model.ModelType;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.model.model.Relation;
 import org.fool.framework.model.model.RelationType;
-import org.fool.framework.view.model.View;
-import org.fool.framework.view.model.ViewItem;
+import org.fool.framework.view.model.ItemEditType;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -1426,8 +1425,8 @@ public class AppManageMigrationTest {
         assertTrue(sysDao.created.get(0) instanceof AppInstalledModule);
         assertTrue(sysDao.created.get(1) instanceof AppInstalledModel);
         assertTrue(sysDao.created.get(2) instanceof AppInstalledProperty);
-        assertTrue(sysDao.created.get(3) instanceof View);
-        assertTrue(sysDao.created.get(4) instanceof ViewItem);
+        assertTrue(sysDao.created.get(3) instanceof AppInstalledView);
+        assertTrue(sysDao.created.get(4) instanceof AppInstalledViewItem);
         assertTrue(sysDao.executedSql.isEmpty());
         assertTrue(workDao.created.isEmpty());
         assertEquals(1, workDao.executedSql.size());
@@ -1510,6 +1509,7 @@ public class AppManageMigrationTest {
         RecordingDaoService daoService = new RecordingDaoService();
         DaoAppInstallGateway gateway = new DaoAppInstallGateway(daoService);
         Model order = legacyModel("Order", "SW_ORDER");
+        order.setId(77L);
         order.setProperties(List.of(
                 legacyProperty("orderId", "ORDER_ID", PropertyType.IdentifyId),
                 legacyProperty("symbol", "ORDER_SYMBOL", PropertyType.String)));
@@ -1518,20 +1518,25 @@ public class AppManageMigrationTest {
 
         assertEquals(Arrays.asList("Order详细", "Order列表"), viewNames);
         assertEquals(6, daoService.created.size());
-        View detailView = (View) daoService.created.get(0);
-        ViewItem detailFirstItem = (ViewItem) daoService.created.get(1);
-        ViewItem detailSecondItem = (ViewItem) daoService.created.get(2);
-        View listView = (View) daoService.created.get(3);
-        ViewItem listFirstItem = (ViewItem) daoService.created.get(4);
-        ViewItem listSecondItem = (ViewItem) daoService.created.get(5);
-        assertEquals("Order详细", detailView.getViewName());
-        assertEquals("Order列表", listView.getViewName());
-        assertEquals(detailView.getId(), detailFirstItem.getViewId());
-        assertEquals(detailView.getId(), detailSecondItem.getViewId());
-        assertEquals(listView.getId(), listFirstItem.getViewId());
-        assertEquals(listView.getId(), listSecondItem.getViewId());
-        assertTrue(detailFirstItem.isCanEdit());
-        assertTrue(!listFirstItem.isCanEdit());
+        AppInstalledView detailView = (AppInstalledView) daoService.created.get(0);
+        AppInstalledViewItem detailFirstItem = (AppInstalledViewItem) daoService.created.get(1);
+        AppInstalledViewItem detailSecondItem = (AppInstalledViewItem) daoService.created.get(2);
+        AppInstalledView listView = (AppInstalledView) daoService.created.get(3);
+        AppInstalledViewItem listFirstItem = (AppInstalledViewItem) daoService.created.get(4);
+        AppInstalledViewItem listSecondItem = (AppInstalledViewItem) daoService.created.get(5);
+        assertEquals("Order详细", detailView.getName());
+        assertEquals("Order列表", listView.getName());
+        assertEquals(Long.valueOf(77L), detailView.getModelId());
+        assertEquals(Long.valueOf(77L), listView.getModelId());
+        assertEquals(detailView.getViewId(), listView.getDefaultViewId());
+        assertEquals(detailView.getViewId(), detailFirstItem.getOwnerViewId());
+        assertEquals(detailView.getViewId(), detailSecondItem.getOwnerViewId());
+        assertEquals(listView.getViewId(), listFirstItem.getOwnerViewId());
+        assertEquals(listView.getViewId(), listSecondItem.getOwnerViewId());
+        assertEquals(Boolean.FALSE, detailFirstItem.getReadOnly());
+        assertEquals(Boolean.TRUE, listFirstItem.getReadOnly());
+        assertEquals(Integer.valueOf(ItemEditType.TextBox.ordinal()), detailFirstItem.getEditType());
+        assertEquals(Integer.valueOf(ItemEditType.ReadOnly.ordinal()), listFirstItem.getEditType());
     }
 
     private static String tableName(Class<?> type) {
@@ -1947,10 +1952,10 @@ public class AppManageMigrationTest {
                 role.setRoleId(nextRoleId++);
             } else if (object instanceof AppSystemView view && view.getViewId() == null) {
                 view.setViewId(nextViewId++);
-            } else if (object instanceof View view && view.getId() == null) {
-                view.setId(nextViewId++);
-            } else if (object instanceof ViewItem item && item.getId() == null) {
-                item.setId(nextViewItemId++);
+            } else if (object instanceof AppInstalledView view && view.getViewId() == null) {
+                view.setViewId(nextViewId++);
+            } else if (object instanceof AppInstalledViewItem item && item.getItemId() == null) {
+                item.setItemId(nextViewItemId++);
             } else if (object instanceof AppInstalledModel model && model.getModelId() == null) {
                 model.setModelId(nextModelId++);
             } else if (object instanceof AppInstalledProperty property && property.getPropertyId() == null) {

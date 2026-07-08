@@ -297,6 +297,10 @@ explicitly named as authoritative for fool-service.
 - [x] Initialize Vue child add-row drafts immediately after `getreaditemview`
       metadata loads so the first-screen detail panel renders without
       `undefined.itemId` runtime errors.
+- [x] Persist AppInstall-generated default Views through legacy
+      `SW_SYS_VIEW` / `SW_SYS_VIEW_ITEM` records, preserving View model/default
+      View and item read-only/edit-type metadata without binding to business
+      DTOs.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
