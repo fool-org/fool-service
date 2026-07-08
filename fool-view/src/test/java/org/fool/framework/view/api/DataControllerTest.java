@@ -31,7 +31,7 @@ public class DataControllerTest {
         QueryDataRequest dataRequest = new QueryDataRequest();
         dataRequest.setFilter(null);
         dataRequest.setPageInfo(pageNavigator);
-        dataRequest.setViewName("CarOwnerList");
+        dataRequest.setViewId(100L);
 
 
         var resp = dataController.queryViewDataList(dataRequest);

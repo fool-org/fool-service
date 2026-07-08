@@ -20,12 +20,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - Smoke routes verified:
   `curl http://localhost:8081/`
   `curl http://localhost:8080/test`
-  `curl -H 'Content-Type: application/json' -d '{"viewName":"OrderList"}' http://localhost:8080/api/v1/view/get-view`
+  `curl -H 'Content-Type: application/json' -d '{"viewId":100}' http://localhost:8080/api/v1/view/get-view`
   `curl -H 'Content-Type: application/json' -d '{"viewId":100}' http://localhost:8080/api/v1/view/getlistview`
   `curl -H 'Content-Type: application/json' -d '{"Token":"token-1","ViewId":100}' http://localhost:8080/api/v1/view/getlistview`
   `curl -H 'Content-Type: application/json' -d '{"viewId":100}' http://localhost:8080/api/v1/view/getreaditemview`
-  `curl -H 'Content-Type: application/json' -d '{"viewName":"OrderList","pageInfo":{"pageSize":10,"pageIndex":1},"filter":null}' http://localhost:8080/api/v1/data/query-list`
-  `curl -H 'Content-Type: application/json' -d '{"viewName":"OrderList","pageInfo":{"pageSize":10,"pageIndex":1},"filter":{"orderId":{"values":["1001","1002"]}}}' http://localhost:8080/api/v1/data/query-list`
+  `curl -H 'Content-Type: application/json' -d '{"viewId":100,"pageInfo":{"pageSize":10,"pageIndex":1},"filter":null}' http://localhost:8080/api/v1/data/query-list`
+  `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"pageInfo":{"pageSize":10,"pageIndex":1},"filter":{"orderId":{"values":["1001","1002"]}}}' http://localhost:8080/api/v1/data/query-list`
   `curl -H 'Content-Type: application/json' -d '{"viewId":100,"pageSize":10,"pageIndex":1,"queryFilter":"order_state=\"0\""}' http://localhost:8080/api/v1/data/querydata`
   `curl -H 'Content-Type: application/json' -d '{"Token":"token-1","ViewId":100,"PageSize":2,"PageIndex":1,"QueryFilter":"order_state=\"0\"","OrderByItem":0,"OrderByType":0}' http://localhost:8080/api/v1/data/querydata`
   `curl -H 'Content-Type: application/json' -d '{"viewId":100,"objId":"1001"}' http://localhost:8080/api/v1/data/querydatadetail`
@@ -34,9 +34,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"ParentObjId":"5001"}' http://localhost:8080/api/v1/data/initnew`
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"ParentObjId":"5001"}' http://localhost:8081/api/v1/data/initnew`
   `curl -H 'Content-Type: application/json' -d '{"modelId":"102"}' http://localhost:8080/api/v1/data/getenums`
-  `curl -H 'Content-Type: application/json' -d '{"viewName":"OrderList","viewItemId":"symbol","text":"BTC"}' http://localhost:8080/api/v1/data/inputquery`
+  `curl -H 'Content-Type: application/json' -d '{"viewId":100,"viewItemId":"symbol","text":"BTC"}' http://localhost:8080/api/v1/data/inputquery`
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"ViewItemId":"Customer","Text":"Ada","IsAdded":false}' http://localhost:8080/api/v1/data/inputquery`
-  `curl -H 'Content-Type: application/json' -d '{"Text":"Ada","ViewName":"OrderList","ViewItemId":"Customer","ModelID":"103","ObjID":"1001","OwnerId":"5001","IsAdded":false}' http://localhost:8080/api/v1/data/inputquery`
+  `curl -H 'Content-Type: application/json' -d '{"Text":"Ada","ViewId":100,"ViewItemId":"Customer","ModelID":"103","ObjID":"1001","OwnerId":"5001","IsAdded":false}' http://localhost:8080/api/v1/data/inputquery`
   `curl -H 'Content-Type: application/json' -d '{"saveObj":{"id":"1001","viewID":"100","propertyies":[{"key":"symbol","value":"BTC-USDT"},{"key":"state","value":"0"}]}}' http://localhost:8080/api/v1/data/saveobj`
   `curl -H 'Content-Type: application/json' -d '{"saveObj":{"id":"1001","viewID":"100","propertyies":[{"key":"symbol","value":"BTC-USDT"},{"key":"state","value":"0"}],"itemproperties":[{"key":"items","items":[{"itemId":"2001","isExist":true,"propertyies":[{"key":"itemName","value":"Updated item"}]}],"addedItems":[{"itemId":"2003","isExist":true,"propertyies":[{"key":"itemName","value":"New item"}]}],"delteItems":[{"itemId":"2004","isExist":true,"propertyies":[]}]}]}}}' http://localhost:8080/api/v1/data/saveobj`
   `curl -H 'Content-Type: application/json' -d '{"SaveObj":{"id":"930001","viewID":"100","propertyies":[{"key":"symbol","value":"SOL-USDT"},{"key":"state","value":"0"}],"itemproperties":[]}}' http://localhost:8080/api/v1/data/savenewobj`
@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: backend compatibility endpoints `/api/v1/view/get-view` and
+  `/api/v1/data/query-list` now require `ViewId` instead of falling back to
+  `ViewName`. Legacy `getlistview(ViewId)` / `querydata(ViewId)` remain the
+  primary migrated flow, and the older generic endpoints can no longer start a
+  page/data query from a business-name DTO shortcut.
 - 2026-07-08: the Vue render boundary no longer exposes generic record-map
   table helpers or `ListDataItem.values` typing. Result tables still load the
   View first (`getlistview` / `getreaditemview`), then render `querydata` /
@@ -504,8 +509,8 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `Cloud-Social/soway.js` and `detailview.js` object shapes while keeping the
   save flow View-driven and free of concrete business DTO binding.
 - 2026-07-04: tightened the View-first runtime context after auditing the
-  rendered Vue page flow. Generic `get-view` and `query-list` now accept and
-  prefer `ViewId` before falling back to `ViewName`, and the Vue main
+  rendered Vue page flow. Generic `get-view` and `query-list` now use `ViewId`
+  at the controller boundary, and the Vue main
   list/detail/save/lookup refresh paths now reuse the currently loaded View id
   instead of leaking manual tool-panel ViewName/detail ViewId state into the
   primary workflow. This keeps the intended order explicit: render View
@@ -1140,9 +1145,10 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Vue API types for legacy check-code result and validation payloads
 - Vue API types for legacy `getsubmenu` AuthItem result payloads
 - View definition lookup through `/api/v1/view/get-view` and legacy
-  `/api/v1/view/getlistview`
+  `/api/v1/view/getlistview`; both use `ViewId`
 - Legacy data query through `/api/v1/data/querydata`; the newer
-  `/api/v1/data/query-list` remains a backend compatibility route
+  `/api/v1/data/query-list` remains a backend compatibility route but requires
+  `ViewId`
 - Vue API types for view operation names, IDs, operation locations, view operations, list row format, list-query columns, legacy view types/names/show types/temp files, default detail view IDs, and refresh metadata
 - Vue API types for legacy list-query row indexes, paging aliases, `Data` result alias, and row `Items`/`ObjValuePair` metadata
 - Vue API types for legacy `getenums` enum-value request/result payloads

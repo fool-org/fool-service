@@ -1,8 +1,10 @@
 package org.fool.framework.view.api;
 
 import io.swagger.annotations.ApiOperation;
+import org.fool.framework.dto.CommonException;
 import org.fool.framework.dto.CommonResponse;
 import org.fool.framework.view.adapter.ViewAdapter;
+import org.fool.framework.view.common.ErrorCode;
 import org.fool.framework.view.dto.ListViewInfo;
 import org.fool.framework.view.dto.ReadItemViewInfo;
 import org.fool.framework.view.dto.ViewDataRequest;
@@ -24,7 +26,7 @@ public class ViewController {
     @PostMapping("/get-view")
     @ApiOperation("得到视图的定义")
     public CommonResponse<ListViewInfo> getViewData(@RequestBody ViewDataRequest request) {
-        String viewId = request.getViewId() == null ? request.getViewName() : request.getViewId().toString();
+        String viewId = requireViewId(request.getViewId());
         return new CommonResponse<>(viewAdapter.getViewInfo(viewDataService.getViewData(viewId, request.getToken())));
     }
 
@@ -45,5 +47,12 @@ public class ViewController {
         return new CommonResponse<>(viewAdapter.getReadItemView(
                 viewDataService.getViewData(viewId, token),
                 childViewId -> viewDataService.getViewData(childViewId.toString(), token)));
+    }
+
+    private static String requireViewId(Long viewId) {
+        if (viewId == null) {
+            throw new CommonException(ErrorCode.VIEW_NOT_FOUND, "ViewId is required");
+        }
+        return viewId.toString();
     }
 }

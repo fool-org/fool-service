@@ -23,9 +23,8 @@ public class ViewControllerTest {
 
     @Test
     public void TestGetView() {
-        String name = "CarOwnerList";
         ViewDataRequest req = new ViewDataRequest();
-        req.setViewName(name);
+        req.setViewId(100L);
         log.info("{}", viewController.getViewData(req));
 
     }

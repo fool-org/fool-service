@@ -1,6 +1,7 @@
 package org.fool.framework.view.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.fool.framework.dto.CommonException;
 import org.fool.framework.dto.CommonResponse;
 import org.fool.framework.view.adapter.ViewAdapter;
 import org.fool.framework.view.dto.ListViewInfo;
@@ -13,6 +14,7 @@ import java.lang.reflect.Field;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -73,6 +75,19 @@ public class ViewControllerLegacyGetListViewTest {
         verify(viewDataService).getViewData("100", "token-1");
         assertEquals(0, response.getCode());
         assertSame(expected, response.getData());
+    }
+
+    @Test
+    public void getViewRejectsViewNameOnlyRequest() throws Exception {
+        ViewController controller = new ViewController();
+        setField(controller, "viewDataService", mock(ViewDataService.class));
+        setField(controller, "viewAdapter", mock(ViewAdapter.class));
+        ViewDataRequest request = new ViewDataRequest();
+        request.setViewName("BusinessNameShortcut");
+
+        CommonException exception = assertThrows(CommonException.class, () -> controller.getViewData(request));
+
+        assertEquals("ViewId is required", exception.getMessage());
     }
 
     private static void setField(Object target, String name, Object value) throws Exception {

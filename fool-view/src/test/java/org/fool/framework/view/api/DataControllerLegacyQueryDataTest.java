@@ -2,6 +2,7 @@ package org.fool.framework.view.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.fool.framework.dao.PageNavigator;
+import org.fool.framework.dto.CommonException;
 import org.fool.framework.dto.CommonResponse;
 import org.fool.framework.view.dto.LegacyQueryDataRequest;
 import org.fool.framework.view.dto.ListViewResult;
@@ -14,6 +15,7 @@ import java.lang.reflect.Field;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -80,6 +82,18 @@ public class DataControllerLegacyQueryDataTest {
         verify(dataQueryService).queryViewDataList("42", null, null, "USDT");
         assertEquals(0, response.getCode());
         assertSame(expected, response.getData());
+    }
+
+    @Test
+    public void queryListRejectsViewNameOnlyRequest() throws Exception {
+        DataController controller = new DataController();
+        setField(controller, "dataQueryService", mock(DataQueryService.class));
+        QueryDataRequest request = new QueryDataRequest();
+        request.setViewName("BusinessNameShortcut");
+
+        CommonException exception = assertThrows(CommonException.class, () -> controller.queryViewDataList(request));
+
+        assertEquals("ViewId is required", exception.getMessage());
     }
 
     private static void setField(Object target, String name, Object value) throws Exception {

@@ -2,10 +2,12 @@ package org.fool.framework.view.api;
 
 
 import org.fool.framework.dto.CommonResponse;
+import org.fool.framework.dto.CommonException;
 import org.fool.framework.dao.PageNavigator;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.service.ModelDataService;
 import org.fool.framework.view.adapter.ViewDataAdapter;
+import org.fool.framework.view.common.ErrorCode;
 import org.fool.framework.view.dto.GetEnumRequest;
 import org.fool.framework.view.dto.GetEnumResult;
 import org.fool.framework.view.dto.InputQueryRequest;
@@ -45,7 +47,7 @@ public class DataController {
     public CommonResponse<ListViewResult> queryViewDataList(@RequestBody QueryDataRequest request) {
         return new CommonResponse<ListViewResult>(
                 dataQueryService.queryViewDataList(
-                        request.getViewId() == null ? request.getViewName() : request.getViewId().toString(),
+                        requireViewId(request.getViewId()),
                         request.getFilter(),
                         request.getPageInfo(),
                         request.getKeyword()));
@@ -118,6 +120,13 @@ public class DataController {
     @ResponseBody
     public CommonResponse<LegacyRunOperationResult> runOperation(@RequestBody LegacyRunOperationRequest request) {
         return new CommonResponse<>(dataQueryService.runLegacyOperation(request));
+    }
+
+    private static String requireViewId(Long viewId) {
+        if (viewId == null) {
+            throw new CommonException(ErrorCode.VIEW_NOT_FOUND, "ViewId is required");
+        }
+        return viewId.toString();
     }
 
 }
