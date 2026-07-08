@@ -115,15 +115,16 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   helper in both option loading and option selection. `viewShell` no longer
   reads `prpModelId` / `PrpModelId` aliases directly, keeping model-id
   handling on the same View metadata path as enum detection.
-- 2026-07-09: Vue metadata editors now render legacy `RichTextBox` /
-  numeric `ItemEditType=5` fields with a native `<textarea>` and shared value
-  update handling. This covers the simplest multiline legacy widget without
-  adding a custom editor framework; `ComboBox`, `SelectLable`, and
-  `DropTextBox` remain future slices.
+- 2026-07-09: Vue metadata editors now treat legacy `RichTextBox` /
+  numeric `ItemEditType=5` as a native `<textarea>` fallback only when
+  `PrpType` / `PropertyType` metadata is absent. When field type metadata is
+  present, the editor follows the FoolFrame detail-page path and lets property
+  type drive the scalar control; `ComboBox`, `SelectLable`, and `DropTextBox`
+  remain future slices until their View/data-source behavior is proven.
 - 2026-07-09: Vue metadata editors now accept FoolFrame numeric
   `ItemEditType` enum values as compatibility aliases where View property
-  metadata is missing, and for view-item-only states such as `ReadOnly=0` and
-  `RichTextBox=5`. Numeric `PrpType` / `PropertyType` codes are the primary
+  metadata is missing, and for view-item-only states such as `ReadOnly=0`.
+  Numeric `PrpType` / `PropertyType` codes are the primary
   source for Boolean, Date, Time, DateTime, Enum, BusinessObject, and numeric
   scalar controls.
 - 2026-07-09: Vue input-query item display helpers now tolerate empty legacy

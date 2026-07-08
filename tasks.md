@@ -398,8 +398,8 @@ explicitly named as authoritative for fool-service.
       for enum, lookup, Boolean, date, time, datetime, and numeric controls;
       keep numeric `ItemEditType` only as a compatibility fallback or
       view-item state such as readonly/rich text.
-- [x] Render legacy `RichTextBox` / numeric `ItemEditType=5` metadata fields
-      with a native Vue textarea and shared value update handling.
+- [x] Keep `RichTextBox` / numeric `ItemEditType=5` as a native textarea
+      fallback only when `PrpType` / `PropertyType` metadata is absent.
 - [x] Render Vue Boolean / CheckBox metadata fields as native checkboxes from
       View field metadata and coerce legacy Boolean string save values by
       `PropertyType.Boolean` during dynamic persistence.

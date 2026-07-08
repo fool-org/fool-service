@@ -170,9 +170,11 @@ describe("view workflow helpers", () => {
     expect(isReadonlyField({ prpId: "name", readOnly: false, editType: "TextBox" })).toBe(false);
   });
 
-  it("identifies RichTextBox fields as multiline metadata editors", () => {
+  it("uses RichTextBox as a multiline fallback only when property type is absent", () => {
     expect(isMultilineField({ prpId: "notes", EditType: "RichTextBox" })).toBe(true);
     expect(isMultilineField({ prpId: "notes", EditType: 5 })).toBe(true);
+    expect(isMultilineField({ prpId: "notes", PrpType: "String", EditType: "RichTextBox" })).toBe(false);
+    expect(isMultilineField({ prpId: "notes", PrpType: 11, EditType: 5 })).toBe(false);
     expect(isMultilineField({ prpId: "name", EditType: "TextBox" })).toBe(false);
   });
 

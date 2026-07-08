@@ -416,6 +416,7 @@ export function isLookupField(field: ListDataValue) {
 }
 
 export function isMultilineField(field: ListDataValue) {
+  if (normalizedPropertyType(field)) return false;
   const editType = normalizedEditType(field);
   return editType === "richtextbox" || editType === "5";
 }
