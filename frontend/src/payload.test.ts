@@ -7,6 +7,7 @@ import listDataTableSource from "./ListDataTable.vue?raw";
 import metadataFieldEditorSource from "./MetadataFieldEditor.vue?raw";
 import payloadSource from "./payload.ts?raw";
 import resultsPanelSource from "./ResultsPanel.vue?raw";
+import viewDataWorkflowSource from "./useViewDataWorkflow.ts?raw";
 import viewWorkflowSource from "./viewWorkflow.ts?raw";
 import {
   buildGetEnumRequest,
@@ -32,6 +33,7 @@ describe("App defaults", () => {
     expect(appSource).toContain("Load View");
     expect(appSource).toContain("await loadLegacyListView()");
     expect(appSource).toContain("await queryCurrentViewData()");
+    expect(appSource).toContain("useViewDataWorkflow");
     expect(appSource).toContain('v-model.number="legacyListViewId"');
     expect(appSource).toContain("New Row");
     expect(appSource).toContain("Create Row");
@@ -89,10 +91,11 @@ describe("App defaults", () => {
   it("initializes child add drafts as soon as read-item View metadata loads", () => {
     const readViewSource = appSource.slice(
       appSource.indexOf("async function loadReadItemView"),
-      appSource.indexOf("async function queryLegacyData")
+      appSource.indexOf("async function queryCurrentViewData")
     );
 
-    expect(readViewSource).toContain("readItemViewResponse.value = response");
+    expect(viewDataWorkflowSource).toContain("readItemViewResponse.value = response");
+    expect(readViewSource).toContain("loadReadItemViewBase(viewId)");
     expect(readViewSource).toContain("syncDetailDrafts()");
   });
 
@@ -111,14 +114,14 @@ describe("App defaults", () => {
   });
 
   it("keeps the Vue workspace on view-id driven legacy view and data APIs", () => {
-    expect(appSource).toContain("/api/v1/view/getlistview");
-    expect(appSource).toContain("/api/v1/data/querydata");
-    expect(appSource).toContain("viewDetailViewId(view, loadedViewId)");
+    expect(viewDataWorkflowSource).toContain("/api/v1/view/getlistview");
+    expect(viewDataWorkflowSource).toContain("/api/v1/data/querydata");
+    expect(viewDataWorkflowSource).toContain("viewDetailViewId(view, loadedViewId)");
     expect(appSource).toContain("async function selectObject(row: ListDataItem, viewId = Number(detailViewId.value))");
     expect(appSource).toContain("async function startNewObject(viewId = Number(detailViewId.value))");
     expect(appSource).toContain("await queryDetail(Number(detailViewId.value))");
     expect(appSource).toContain("saveViewId.value = String(detailViewId.value)");
-    expect(appSource).toContain("listRenderColumns(viewResponse.value?.data)");
+    expect(viewDataWorkflowSource).toContain("listRenderColumns(viewResponse.value?.data)");
     expect(appSource).not.toContain("Object.keys(first)");
     expect(appSource).not.toContain("viewName: viewName.value");
     expect(appSource).not.toContain("/api/v1/view/get-view");
@@ -127,13 +130,13 @@ describe("App defaults", () => {
   });
 
   it("passes the main View filter as legacy querydata QueryFilter", () => {
-    const querySource = appSource.slice(
-      appSource.indexOf("async function queryCurrentViewData"),
-      appSource.indexOf("async function loadResultPage")
+    const querySource = viewDataWorkflowSource.slice(
+      viewDataWorkflowSource.indexOf("async function queryLoadedViewData"),
+      viewDataWorkflowSource.indexOf("async function queryLegacyData")
     );
 
     expect(appSource).toContain('v-model="legacyQueryFilter"');
-    expect(querySource).toContain("queryFilter: legacyQueryFilter.value");
+    expect(querySource).toContain("queryFilter: options.queryFilter.value");
     expect(querySource).not.toContain("keyword:");
   });
 
@@ -215,27 +218,27 @@ describe("App defaults", () => {
   });
 
   it("loads the View definition before the API-tool data query", () => {
-    const querySource = appSource.slice(
-      appSource.indexOf("async function queryLegacyData"),
-      appSource.indexOf("async function queryCurrentViewData")
+    const querySource = viewDataWorkflowSource.slice(
+      viewDataWorkflowSource.indexOf("async function queryLegacyData"),
+      viewDataWorkflowSource.indexOf("async function queryCurrentViewData")
     );
 
     expect(querySource.indexOf("await loadLegacyListView()")).toBeGreaterThanOrEqual(0);
-    expect(querySource.indexOf("await loadLegacyListView()")).toBeLessThan(querySource.indexOf("/api/v1/data/querydata"));
-    expect(querySource).toContain("viewId: Number(currentViewId.value)");
-    expect(querySource).not.toContain("viewId: Number(legacyQueryViewId.value)");
+    expect(querySource.indexOf("await loadLegacyListView()")).toBeLessThan(querySource.indexOf("queryLoadedViewData("));
+    expect(querySource).toContain("queryLoadedViewData(");
+    expect(querySource).not.toContain("viewId: Number(options.queryViewId.value)");
   });
 
   it("loads the rendered View before the current data query", () => {
-    const querySource = appSource.slice(
-      appSource.indexOf("async function queryCurrentViewData"),
-      appSource.indexOf("async function loadResultPage")
+    const querySource = viewDataWorkflowSource.slice(
+      viewDataWorkflowSource.indexOf("async function queryCurrentViewData"),
+      viewDataWorkflowSource.indexOf("function readItemViewFor")
     );
 
-    expect(querySource).toContain("viewId(viewResponse.value.data) !== Number(legacyListViewId.value)");
+    expect(querySource).toContain("viewId(viewResponse.value.data) !== requestedViewId");
     expect(querySource.indexOf("await loadLegacyListView()")).toBeGreaterThanOrEqual(0);
-    expect(querySource.indexOf("await loadLegacyListView()")).toBeLessThan(querySource.indexOf("/api/v1/data/querydata"));
-    expect(querySource).toContain("viewId: loadedViewId");
+    expect(querySource.indexOf("await loadLegacyListView()")).toBeLessThan(querySource.indexOf("queryLoadedViewData("));
+    expect(querySource).toContain("const loadedViewId = Number(currentViewId.value)");
   });
 
   it("loads the read-item View before detail data and aborts if it cannot render", () => {
@@ -259,10 +262,11 @@ describe("App defaults", () => {
   });
 
   it("keeps read-item View state keyed by the rendered View id", () => {
-    expect(appSource).toContain("const readItemViews = ref<Record<number, ReadItemViewInfo>>({})");
-    expect(appSource).toContain("readViewForId(readItemViews.value, Number(detailViewId.value))");
-    expect(appSource).toContain("readViewForId(readItemViews.value, Number(initNewViewId.value))");
-    expect(appSource).toContain("readItemViews.value = rememberReadView(readItemViews.value, viewId, response.data)");
+    expect(viewDataWorkflowSource).toContain("const readItemViews = ref<Record<number, ReadItemViewInfo>>({})");
+    expect(viewDataWorkflowSource).toContain("readViewForId(readItemViews.value, Number(viewId))");
+    expect(viewDataWorkflowSource).toContain("readItemViews.value = rememberReadView(readItemViews.value, viewId, response.data)");
+    expect(appSource).toContain("readItemViewFor(Number(detailViewId.value))");
+    expect(appSource).toContain("readItemViewFor(Number(initNewViewId.value))");
 
     const createSource = appSource.slice(
       appSource.indexOf("async function startNewObject"),
@@ -274,8 +278,8 @@ describe("App defaults", () => {
 
   it("does not bootstrap View/data rendering from the seeded business View", () => {
     expect(appSource).not.toContain("ref(100)");
-    expect(appSource).toContain("const currentViewId = computed(() => viewId(viewResponse.value?.data))");
-    expect(appSource).not.toContain("viewId(viewResponse.value?.data, legacyListViewId.value)");
+    expect(viewDataWorkflowSource).toContain("const currentViewId = computed(() => viewId(viewResponse.value?.data))");
+    expect(viewDataWorkflowSource).not.toContain("viewId(viewResponse.value?.data, options.listViewId.value)");
   });
 
   it("loads the default first-screen View from the legacy app shell", () => {

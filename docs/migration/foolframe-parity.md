@@ -97,6 +97,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue list workflow now routes first-screen and API-tool data
+  loading through `useViewDataWorkflow`: `getlistview(ViewId)` loads the
+  rendered View definition first, then `querydata` uses the loaded View id and
+  renders columns from View metadata rather than business DTO fields or
+  `querydata` column fallbacks. `App.vue` dropped duplicated View/data state and
+  request-building code, reducing the component while keeping child candidate
+  lookups on the same View-first metadata path.
 - 2026-07-09: legacy `runoperation` now treats WCF / JSONPOST / JSONGET
   operation base types as successful no-ops after command evaluation, matching
   FoolFrame `ModelMethodContext.ExcuteOperation` default switch behavior plus

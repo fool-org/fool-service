@@ -25,11 +25,9 @@ import {
   type ListViewResult,
   type LoginVo,
   type OperationInfo,
-  type ReadItemViewInfo,
   type ReportGridResult,
   type ReportModelResult,
   type SaveItemProperty,
-  type TableColumnInfo,
   type TreeNode,
   type UserDTO,
   postApi
@@ -39,6 +37,7 @@ import MetadataFieldEditor from "./MetadataFieldEditor.vue";
 import MigrationMap from "./MigrationMap.vue";
 import ResultsPanel from "./ResultsPanel.vue";
 import { useChildCandidates } from "./useChildCandidates";
+import { useViewDataWorkflow } from "./useViewDataWorkflow";
 import { enumFieldOptions, navItems, nextObjectId, services } from "./viewShell";
 import {
   buildAddedItemProperty,
@@ -97,10 +96,7 @@ import {
   legacyNotifyCount,
   legacyRunOperationSuccess,
   legacySubMenuItems,
-  listRenderColumns,
   listAutoFreshTime,
-  listFreshTime,
-  listPageIndex,
   listRows,
   listTotalItems,
   listTotalPages,
@@ -119,16 +115,14 @@ import {
   rowObjectId,
   rowOperations,
   selectedChildViewId,
-  viewDisplayName,
   viewDisplayTitle,
   viewDisplayType,
   viewInputCount,
   readViewFields,
-  readViewForId,
-  rememberReadView,
   renderedDetailFields,
   renderedDetailGroups,
-  viewColumns, viewDetailViewId, viewId, viewOperations
+  viewColumns,
+  viewOperations
 } from "./viewWorkflow";
 import {
   buildGetEnumRequest,
@@ -136,7 +130,6 @@ import {
   buildInputQueryRequest,
   buildLegacyListViewRequest,
   buildLegacyQueryDataRequest,
-  buildLegacyReadItemViewRequest,
   buildMakeReportRequest,
   buildQueryDataDetailRequest,
   buildRunOperationRequest,
@@ -223,10 +216,6 @@ const checkCodeValidationResponse = ref<CommonResponse<boolean> | null>(null);
 const subMenuResponse = ref<CommonResponse<LegacySubMenuResult> | null>(null);
 const logoutResponse = ref<CommonResponse<void> | null>(null);
 const menuResponse = ref<CommonResponse<TreeNode<AuthItem>[]> | null>(null);
-const viewResponse = ref<CommonResponse<ListViewInfo> | null>(null);
-const readItemViewResponse = ref<CommonResponse<ReadItemViewInfo> | null>(null);
-const readItemViews = ref<Record<number, ReadItemViewInfo>>({});
-const dataResponse = ref<CommonResponse<ListViewResult> | null>(null);
 const detailResponse = ref<CommonResponse<QueryDataDetailResult> | null>(null);
 const initNewResponse = ref<CommonResponse<QueryDataDetailResult> | null>(null);
 const enumResponse = ref<CommonResponse<GetEnumResult> | null>(null);
@@ -242,24 +231,50 @@ const notifyResponse = ref<CommonResponse<GetNotifyResult> | null>(null);
 const errorMessage = ref("");
 const pendingAction = ref("");
 
-const currentViewId = computed(() => viewId(viewResponse.value?.data));
-const loadedViewName = computed(() => viewDisplayName(viewResponse.value?.data));
-const viewTitle = computed(() => viewDisplayTitle(viewResponse.value?.data, "Load a View"));
+const {
+  viewResponse,
+  readItemViewResponse,
+  dataResponse,
+  currentViewId,
+  loadedViewName,
+  viewTitle,
+  resultColumns,
+  resultRows,
+  resultPageIndex,
+  resultTotalItems,
+  resultTotalPages,
+  resultFreshTime,
+  readItemViewFor,
+  loadLegacyListView,
+  loadReadItemView: loadReadItemViewBase,
+  queryLegacyData,
+  queryCurrentViewData: queryCurrentViewDataBase
+} = useViewDataWorkflow({
+  token,
+  listViewId: legacyListViewId,
+  readItemViewId,
+  queryViewId: legacyQueryViewId,
+  queryPageIndex: legacyQueryPageIndex,
+  queryPageSize: legacyQueryPageSize,
+  pageIndex,
+  pageSize,
+  queryFilter: legacyQueryFilter,
+  reportViewId,
+  detailViewId,
+  initNewViewId,
+  operationViewId,
+  saveViewId,
+  saveNewViewId,
+  runAction
+});
 
-const resultColumns = computed<TableColumnInfo[]>(() => listRenderColumns(viewResponse.value?.data));
-
-const resultRows = computed<ListDataItem[]>(() => listRows(dataResponse.value?.data));
-const resultPageIndex = computed(() => listPageIndex(dataResponse.value?.data, Number(pageIndex.value)));
-const resultTotalItems = computed(() => listTotalItems(dataResponse.value?.data));
-const resultTotalPages = computed(() => listTotalPages(dataResponse.value?.data));
-const resultFreshTime = computed(() => listFreshTime(dataResponse.value?.data));
 const selectedObject = computed(() => resultRows.value.find((row) => rowObjectId(row, resultColumns.value) === selectedObjectId.value));
 const detailDataRows = computed(() => detailResultSimpleData(detailResponse.value?.data));
 const initNewDataRows = computed(() => detailResultSimpleData(initNewResponse.value?.data));
-const currentReadItemView = computed(() => readViewForId(readItemViews.value, Number(detailViewId.value)));
-const currentInitNewReadItemView = computed(() => readViewForId(readItemViews.value, Number(initNewViewId.value)));
+const currentReadItemView = computed(() => readItemViewFor(Number(detailViewId.value)));
+const currentInitNewReadItemView = computed(() => readItemViewFor(Number(initNewViewId.value)));
 const readItemFields = computed(() =>
-  readViewFields(readViewForId(readItemViews.value, Number(readItemViewId.value)) || readItemViewResponse.value?.data)
+  readViewFields(readItemViewFor(Number(readItemViewId.value)) || readItemViewResponse.value?.data)
 );
 const detailRows = computed(() => renderedDetailFields(currentReadItemView.value, detailDataRows.value));
 const initNewRows = computed(() => renderedDetailFields(currentInitNewReadItemView.value, initNewDataRows.value));
@@ -501,81 +516,20 @@ async function logout() {
   }
 }
 
-async function loadLegacyListView() {
-  const requestedViewId = Number(legacyListViewId.value) || 0;
-  if (requestedViewId <= 0) return null;
-  const request = buildLegacyListViewRequest({
-    token: token.value,
-    viewId: requestedViewId
-  });
-
-  const response = await runAction("legacy-list-view", () => postApi<ListViewInfo>("/api/v1/view/getlistview", request));
-  if (response) {
-    viewResponse.value = response;
-    applyLoadedView(response.data);
-  }
-  return response;
-}
-
 async function loadReadItemView(viewId = Number(readItemViewId.value)) {
-  readItemViewId.value = viewId;
-  if (viewId <= 0) return null;
-  const request = buildLegacyReadItemViewRequest({
-    token: token.value,
-    viewId
-  });
-
-  const response = await runAction("read-item-view", () =>
-    postApi<ReadItemViewInfo>("/api/v1/view/getreaditemview", request)
-  );
+  const response = await loadReadItemViewBase(viewId);
   if (response) {
-    readItemViewResponse.value = response;
-    readItemViews.value = rememberReadView(readItemViews.value, viewId, response.data);
     syncDetailDrafts();
   }
   return response;
 }
 
-async function queryLegacyData() {
-  legacyListViewId.value = Number(legacyQueryViewId.value);
-  if (!(await loadLegacyListView())) return;
-  const request = buildLegacyQueryDataRequest({
-    token: token.value,
-    viewId: Number(currentViewId.value),
-    pageIndex: Number(legacyQueryPageIndex.value),
-    pageSize: Number(legacyQueryPageSize.value),
-    queryFilter: legacyQueryFilter.value
-  });
-
-  const response = await runAction("legacy-query", () => postApi<ListViewResult>("/api/v1/data/querydata", request));
-  if (response) {
-    dataResponse.value = response;
-  }
-}
-
 async function queryCurrentViewData() {
-  if (!viewResponse.value?.data || viewId(viewResponse.value.data) !== Number(legacyListViewId.value)) {
-    const loadedView = await loadLegacyListView();
-    if (!loadedView) return;
-  }
-
-  const loadedViewId = Number(currentViewId.value);
-  legacyQueryViewId.value = loadedViewId;
-  legacyQueryPageIndex.value = Number(pageIndex.value);
-  legacyQueryPageSize.value = Number(pageSize.value);
-  const request = buildLegacyQueryDataRequest({
-    token: token.value,
-    viewId: loadedViewId,
-    pageIndex: Number(pageIndex.value),
-    pageSize: Number(pageSize.value),
-    queryFilter: legacyQueryFilter.value
-  });
-
-  const response = await runAction("workflow-query", () => postApi<ListViewResult>("/api/v1/data/querydata", request));
+  const response = await queryCurrentViewDataBase();
   if (response) {
-    dataResponse.value = response;
     scheduleAutoRefresh(response.data);
   }
+  return response;
 }
 
 async function loadResultPage(nextPage: number) {
@@ -782,22 +736,6 @@ async function runViewOperation(operation: OperationInfo) {
     await queryCurrentViewData();
     detailObjId.value = selectedObjectId.value;
     await queryDetail(Number(detailViewId.value));
-  }
-}
-
-function applyLoadedView(view?: ListViewInfo) {
-  const loadedViewId = viewId(view, legacyListViewId.value);
-  if (loadedViewId) {
-    const loadedDetailViewId = viewDetailViewId(view, loadedViewId);
-    legacyListViewId.value = loadedViewId;
-    readItemViewId.value = loadedDetailViewId;
-    legacyQueryViewId.value = loadedViewId;
-    reportViewId.value = loadedViewId;
-    detailViewId.value = loadedDetailViewId;
-    initNewViewId.value = loadedDetailViewId;
-    operationViewId.value = loadedDetailViewId;
-    saveViewId.value = String(loadedDetailViewId);
-    saveNewViewId.value = String(loadedDetailViewId);
   }
 }
 

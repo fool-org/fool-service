@@ -383,6 +383,9 @@ explicitly named as authoritative for fool-service.
 - [x] Treat legacy WCF / JSONPOST / JSONGET `runoperation` base types as
       successful no-ops, matching FoolFrame handler semantics without adding
       speculative external client code.
+- [x] Move Vue View/data loading into a reusable View-first workflow helper so
+      list rendering loads View metadata before `querydata` and avoids concrete
+      business DTO column binding.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
