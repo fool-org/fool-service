@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: the Vue workflow no longer boots from seeded `ViewId=100`
+  frontend defaults. View-related state starts empty, `currentViewId` is derived
+  only from the loaded `getlistview` payload, and `querydata` is not called from
+  the API-tool path until that View payload exists, keeping page rendering ahead
+  of data loading and away from concrete business DTO assumptions.
 - 2026-07-08: Docker now includes the FH_JAVA legacy `market_symbols` schema,
   including the later `exchange_type` and symbol filter precision columns from
   `V2022022001__add_exchange_type.sql`. The runtime doctor checks the live

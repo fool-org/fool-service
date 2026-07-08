@@ -255,6 +255,8 @@ explicitly named as authoritative for fool-service.
       through the existing paged SQL executor.
 - [x] Import the FH_JAVA legacy `market_symbols` schema into Docker and make the
       runtime doctor fail if the exchange/filter precision columns are missing.
+- [x] Remove seeded `ViewId=100` bootstrap defaults from the Vue workflow so
+      data queries only run after a View has been loaded from app/view metadata.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

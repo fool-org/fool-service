@@ -150,15 +150,15 @@ const legacyAppId = ref("fool-service");
 const legacyAppKey = ref("fool-service");
 const legacyDbId = ref("car_wash");
 const viewName = ref("");
-const legacyListViewId = ref(100);
-const readItemViewId = ref(100);
+const legacyListViewId = ref(0);
+const readItemViewId = ref(0);
 const pageIndex = ref(1);
 const pageSize = ref(20);
-const legacyQueryViewId = ref(100);
+const legacyQueryViewId = ref(0);
 const legacyQueryPageIndex = ref(1);
 const legacyQueryPageSize = ref(10);
 const legacyQueryFilter = ref("");
-const reportViewId = ref(100);
+const reportViewId = ref(0);
 const reportCurrentPage = ref(1);
 const reportPageSize = ref(10);
 const reportQueryFilter = ref("");
@@ -169,24 +169,24 @@ const inputQueryText = ref("");
 const inputQueryObjId = ref("");
 const inputQueryOwnerId = ref("");
 const inputQueryIsAdded = ref(false);
-const detailViewId = ref(100);
+const detailViewId = ref(0);
 const detailObjId = ref("");
 const detailIdExp = ref("");
-const initNewViewId = ref(100);
+const initNewViewId = ref(0);
 const initNewParentObjId = ref("");
 const enumModelId = ref("102");
-const saveViewId = ref("100");
+const saveViewId = ref("");
 const saveObjId = ref("");
 const savePropertyiesJson = ref("[]");
 const saveItempropertiesJson = ref("");
-const saveNewViewId = ref("100");
+const saveNewViewId = ref("");
 const saveNewObjId = ref("9001");
 const saveNewPropertyiesJson = ref("[]");
 const saveNewOwnerViewId = ref("");
 const saveNewOwnerId = ref("");
 const saveNewProperty = ref("");
 const operationObjectId = ref("");
-const operationViewId = ref(100);
+const operationViewId = ref(0);
 const operationId = ref(0);
 const checkCodeKey = ref("");
 const checkCodeValue = ref("");
@@ -240,9 +240,9 @@ const backendSmokeResponse = ref<CommonResponse<Record<string, unknown>[]> | nul
 const errorMessage = ref("");
 const pendingAction = ref("");
 
-const currentViewId = computed(() => viewId(viewResponse.value?.data, legacyListViewId.value));
+const currentViewId = computed(() => viewId(viewResponse.value?.data));
 const loadedViewName = computed(() => viewDisplayName(viewResponse.value?.data, viewName.value));
-const viewTitle = computed(() => viewDisplayTitle(viewResponse.value?.data, viewName.value || `View ${legacyListViewId.value}`));
+const viewTitle = computed(() => viewDisplayTitle(viewResponse.value?.data, viewName.value || "Load a View"));
 
 const resultColumns = computed<TableColumnInfo[]>(() => {
   const declared = viewColumns(viewResponse.value?.data);
@@ -496,9 +496,11 @@ async function logout() {
 }
 
 async function loadLegacyListView() {
+  const requestedViewId = Number(legacyListViewId.value) || 0;
+  if (requestedViewId <= 0) return null;
   const request = buildLegacyListViewRequest({
     token: token.value,
-    viewId: Number(legacyListViewId.value)
+    viewId: requestedViewId
   });
 
   const response = await runAction("legacy-list-view", () => postApi<ListViewInfo>("/api/v1/view/getlistview", request));

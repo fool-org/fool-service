@@ -163,6 +163,12 @@ describe("App defaults", () => {
     expect(querySource).toContain("viewId: loadedViewId");
   });
 
+  it("does not bootstrap View/data rendering from the seeded business View", () => {
+    expect(appSource).not.toContain("ref(100)");
+    expect(appSource).toContain("const currentViewId = computed(() => viewId(viewResponse.value?.data))");
+    expect(appSource).not.toContain("viewId(viewResponse.value?.data, legacyListViewId.value)");
+  });
+
   it("loads the default first-screen View from the legacy app shell", () => {
     const workflowSource = appSource.slice(
       appSource.indexOf("async function loadViewWorkflow"),
