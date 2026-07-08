@@ -97,6 +97,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: the Vue detail child-item editor now initializes child add
+  drafts immediately after `getreaditemview` metadata loads. This removes the
+  first-screen runtime error from rendering `newChildDrafts[group][itemId]`
+  before `querydatadetail` finishes, while keeping child editor fields driven
+  by read-item View metadata rather than concrete business DTO maps. Browser
+  proof on the Docker frontend shows the loaded View table, detail panel, and
+  row `Open` interaction update without console or page errors.
 - 2026-07-08: `fool-query` now exposes the legacy
   `SelectedColCollection.CopyTo(array, arrayIndex)` collection surface.
   `SelectedColumnCollection` copies selected columns into the caller-provided

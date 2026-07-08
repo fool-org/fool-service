@@ -537,6 +537,7 @@ async function loadReadItemView(viewId = Number(readItemViewId.value)) {
   );
   if (response) {
     readItemViewResponse.value = response;
+    syncDetailDrafts();
   }
 }
 

@@ -288,6 +288,9 @@ explicitly named as authoritative for fool-service.
       `initapp` / `loginv2` / `getmain` path before `getlistview`, so the
       first screen loads the app-shell default View instead of stopping at
       `ViewId=0`.
+- [x] Initialize Vue child add-row drafts immediately after `getreaditemview`
+      metadata loads so the first-screen detail panel renders without
+      `undefined.itemId` runtime errors.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

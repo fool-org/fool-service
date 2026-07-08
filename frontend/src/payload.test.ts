@@ -75,6 +75,16 @@ describe("App defaults", () => {
     expect(listDataTableSource).toContain("operationTargetViewId(operation) <= 0");
   });
 
+  it("initializes child add drafts as soon as read-item View metadata loads", () => {
+    const readViewSource = appSource.slice(
+      appSource.indexOf("async function loadReadItemView"),
+      appSource.indexOf("async function queryLegacyData")
+    );
+
+    expect(readViewSource).toContain("readItemViewResponse.value = response");
+    expect(readViewSource).toContain("syncDetailDrafts()");
+  });
+
   it("renders list paging from legacy querydata totals", () => {
     expect(appSource).toContain("resultTotalItems");
     expect(appSource).toContain("resultFreshTime");
