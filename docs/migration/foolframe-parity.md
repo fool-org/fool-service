@@ -97,6 +97,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: cleaned stale remaining-work entries for
+  `SWDQ01-Soway.Query` and `SWRPT01-Soway.Report` after re-checking the
+  current module map, focused tests, and `../FoolFrame` sources. The listed
+  query surfaces are now covered by `fool-query`, while the report
+  table-source path is covered through source-row matrix construction and the
+  old `ReportFactory` / `IReportSource` types remain empty shells rather than
+  concrete export adapters.
 - 2026-07-09: Vue list data loading now requires a loaded View with renderable
   columns before calling `querydata`. If `getlistview` returns no column
   contract, the workflow clears stale rows and stops instead of letting raw
@@ -1570,23 +1577,18 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 
 - Complete concrete `AppInstallGateway` side-effect parity beyond application creation, creator authorized-user creation, app-system view preparation, root module/model installation records, menu/role record creation, menu/role relation creation, the model/relation DDL execution hook, configured model/static/reflective module-source schema wiring, static module-source dependency ordering, connection-aware metadata/DDL routing, connection-string `DaoService`/`JdbcTemplate` factory including legacy `SqlCon.ToString()` SQL Server string parsing and routed connection reuse, module-source module/model/property/relation/operation/operation-command/operation-param/custom-View operation metadata persistence, reflective model-reference package traversal, basic reflective collection `One2Many` relation generation, self-collection `Recurve` relation generation, bidirectional collection `Many2Many` relation generation, `ReferToProperyAttrbute`, `MultiTypeAttribute`, legacy `ObjectWithSubItem<>` parent target-property relation generation, legacy `ColumnAttribute` key-group/key-nullability/identity/generation/generation-expression/default-value/format/encryption/no-map/multi-column DBMaps/table column-prefix metadata, and legacy `SW_SYS_EMUNVALUE` enum metadata persistence: transaction boundaries for routed connection strings, deeper DBMaps query/runtime behavior beyond same-row dynamic loading and list-query alias mapping, and arbitrary classpath dependency enumeration beyond model-type references remain.
 - Complete remaining `SCPB05-Soway.Model` runtime data mutations beyond the already-covered simple dynamic row create/update/delete, simple batch saves, old-id dynamic save lookup, BusinessObject foreign-key dynamic save writes, DBMaps create/update writes, One2Many child-row create/update/delete-list sync, Many2Many/Recurve relation-table insert/delete-list sync, legacy `saveobj` `Itemproperties` request mapping, legacy `savenewobj` new-object/owner-relation request mapping, model-trigger metadata hydration, model/property/collection trigger `Filter` command checks, property `SET` trigger `SET_VALUE` writes, collection `ItemsAdd`/`ItemsDelete` trigger `SET_VALUE` writes, and CREATE/DELETE/UPDATE/NULL `runoperation` with legacy operation metadata hydration plus `SetValue`, `Filter`, direct/collection property-model method, list-method command slices, Java classpath assembly reflection with constructor/parameter command values, and external-model create/update/delete/detail-fallback execution: richer collection state parity, remaining property-trigger command types beyond `Filter`, remaining non-NULL operation command types, WCF/JSON/external-model edge cases, operation-trigger side-effect execution, and routed-connection transaction behavior remain.
-- Complete remaining `SWDQ01-Soway.Query` behavior: saved-query/report execution surfaces and richer query-to-view integration beyond the current compare/between/in/composite/report filter SQL, selected-table compare-column simple bool-expression path, bool-expression factory create/add orchestration, compare-operation/select-type catalogs, selected column/table state beyond the covered selected-column duplicate-name/indexing/CopyTo collection surface, selected table join-add/result contract, query instance parameter/result container beyond the covered `QueryResult.GetData` current-page reload surface, query report definition contract, report-parameter refresh orchestration and named binding, `QueryFactory` table/column/state-value dictionary surface, base/paged SQL builder, JDBC paged executor, `QueryContext` add/clear/CanJoinSelected/connection-string-routed/getSql/getResult orchestration, enum state-value hydration surfaces, and richer input-query expression evaluation beyond added-item `#.` owner source lists.
+- Continue `SWDQ01-Soway.Query` only when a new legacy query surface is
+  identified beyond the currently migrated bool-expression SQL generation,
+  selected table/column state, query/report parameter containers,
+  `QueryFactory`, SQL builder, JDBC executor, and `QueryContext` orchestration.
 - Continue `SCPB09-SOWAY.EVENT` only when a new legacy event surface is
   identified beyond the currently migrated object-query, message, scheduler,
   and admin-notification path. The previously listed null-model, zero-row,
   table-name, explicit/auto ID-column, case-insensitive ID-column,
   missing-column, and matched-row value cases are covered by the current module
   map and tests, so they are no longer counted as open remaining work.
-- Complete remaining `SWRPT01-Soway.Report` behavior: table source adapters
-  and export integration around the rendered report grid. The flat
-  `makereport` REST path now reuses migrated list-query data and
-  `ReportGridRenderer`, with simple and composite `FilterExp` request mapping;
-  the report model candidate-column lookup is exposed through
-  `getmkqview`/`mkqview` with compare/select catalogs and enum states; the
-  legacy `saverpt` no-op success surface is exposed and matches FoolFrame's
-  empty `HandlerSaveReport`; Matrix static subtotal parity covers nested
-  row/column sibling scope, deep shared-ancestor scope, flat-row grid column
-  coordinates, and the legacy `MatrixHeader`/`StaticCellValue` helper surface;
-  `ReportFactory`/`IReportSource` empty shell parity is covered, but export
-  wiring and table-source behavior remain open.
+- Continue `SWRPT01-Soway.Report` only when a new legacy report surface is
+  identified beyond the currently migrated report definitions, source-row
+  matrix construction, static subtotal behavior, flat-grid rendering, and
+  empty `ReportFactory` / `IReportSource` shells.
 - Add complete database schema/migration scripts for `car_wash`; Compose currently seeds smoke/order, FH_JAVA legacy `market_symbols` schema with exchange/filter precision columns, app-management base tables plus app/store-db relation table, DB-management base tables, event/message base tables plus one Docker `Order` event definition and direct admin notification relation, legacy `SW_AUTH_USER`, modern Vue auth base tables and auth relation tables with admin/menu smoke data, the legacy All-authorized-user source table, direct event NotifyUsers/NotifyRoles/NotifyDeps/NotifyCompanies relation tables, the minimum auth graph tables needed for role/department/company recipient expansion, auth menu/role tables with menu-subitem, role-user, and role-menu relation tables, legacy `SW_SYS_VIEW`/`SW_SYS_VIEW_FILE`/`SW_SYS_VIEW_ITEM`/`SW_SYS_VIEW_OPERATION`/`SW_SYS_OPERATIONVIEW`/`SW_SYS_OPERATIONVIEW_ITEM` schema including collection owner columns, the legacy `SW_SYS_MODULE` table for root and module-source module installation records, the legacy `SW_SYS_MODEL` table for root and module-source model shell records, legacy `SW_SYS_CON` connection schema, legacy `SW_SYS_EMUNVALUE` enum metadata, runtime `fool_sys_model_enum` enum metadata, `SW_SYS_PROPERTY`, `SW_SYS_MULTIMAP`, `SW_SYS_RELATION`, `SW_SYS_OPERATION`, `SW_SYS_OPERATION_PARAM`, `SW_SYS_COMMANDS`, `SW_SYS_MODEL_TRIGGER`, `SW_SYS_MODEL_TRIGGER_COMMANDS`, `SW_SYS_PROPERTY_TRIGGER`, `SW_SYS_PROPERTY_TRIGGER_COMMANDS`, model/property metadata tables needed for event object table and ID-column resolution plus legacy DDL type/key/generation-expression/default-value metadata, legacy `SE_COMPARETYPE` and `SE_SELECTEDTYPE` query catalogs, and `fool_sys_view`/`fool_sys_view_item` metadata including `auto_fresh_interval`, `edit_type`, `show_index`, and `width` for the Vue `OrderList` smoke workflow.

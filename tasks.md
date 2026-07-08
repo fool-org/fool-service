@@ -433,6 +433,9 @@ explicitly named as authoritative for fool-service.
 - [x] Stop Vue data queries when the loaded View has no renderable columns, so
       page data cannot fall back to concrete business DTO rows when the View
       contract is missing.
+- [x] Remove stale `SWDQ01-Soway.Query` / `SWRPT01-Soway.Report` remaining-work
+      wording after re-checking the current module map, focused tests, and
+      legacy empty-shell report sources.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
