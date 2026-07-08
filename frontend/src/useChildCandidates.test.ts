@@ -24,12 +24,12 @@ describe("useChildCandidates", () => {
     candidates.setCandidateResults(
       group,
       [{ property: "fileName", title: "File Name" }],
-      [{ id: "1", values: { fileName: "contract.pdf" } }],
+      [{ id: "1", items: [{ prpId: "fileName", fmtValue: "contract.pdf" }] }],
       { totalItem: 1, totalPage: 1 }
     );
 
     expect(candidates.candidateColumns(group)).toEqual([{ property: "fileName", title: "File Name" }]);
-    expect(candidates.candidateRows(group)).toEqual([{ id: "1", values: { fileName: "contract.pdf" } }]);
+    expect(candidates.candidateRows(group)).toEqual([{ id: "1", items: [{ prpId: "fileName", fmtValue: "contract.pdf" }] }]);
     expect(candidates.candidateState(group)).toMatchObject({ totalItem: 1, totalPage: 1 });
   });
 });

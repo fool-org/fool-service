@@ -107,6 +107,9 @@ explicitly named as authoritative for fool-service.
 - [x] Remove stale saved-report persistence/execution language from remaining
       report migration work after confirming FoolFrame `HandlerSaveReport` is
       an empty no-op success handler.
+- [x] Remove the frontend generic record-map table helpers and `ListDataItem`
+      `values` typing so rendered tables cannot bind directly to concrete
+      business DTO maps.
 - [x] Let lookup `inputquery` resolve the current View by `ViewId` before
       falling back to legacy `ViewName`, and have Vue metadata editors pass
       the loaded View id so lookup follows the rendered View context.

@@ -76,8 +76,6 @@ import {
   reportModelStateText,
   reportGridCells,
   reportRowsFromCells,
-  recordColumns,
-  recordRowKey,
   rowFormatClass,
   rowObjectId,
   rowOperations,
@@ -152,13 +150,15 @@ describe("view workflow helpers", () => {
   });
 
   it("derives fallback columns from row item metadata instead of DTO values", () => {
-    expect(columnsFromRowItems({
+    const runtimeRow = {
       values: { dtoOnly: "ignored" },
       items: [
         { prpId: "recordId", prpShowName: "Record ID", prpType: "Long", readOnly: true },
         { prpId: "name", prpShowName: "Name", prpType: "String" }
       ]
-    })).toEqual([
+    };
+
+    expect(columnsFromRowItems(runtimeRow)).toEqual([
       {
         property: "recordId",
         propertyName: "recordId",
@@ -202,9 +202,10 @@ describe("view workflow helpers", () => {
 
     expect(rowObjectId(row, columns)).toBe("item-id");
     expect(rowValue(row, columns[0])).toBe("Item ID");
-    expect(rowObjectId({ values: { recordId: "dto-id" }, rowIndex: 4 }, columns)).toBe("");
-    expect(rowValue({ values: { recordId: "dto-id" } }, columns[0])).toBe("");
-    expect(rowRenderKey({ values: { recordId: "dto-id" }, rowIndex: 4 }, 7)).toBe("4");
+    const dtoOnlyRow = { values: { recordId: "dto-id" }, rowIndex: 4 };
+    expect(rowObjectId(dtoOnlyRow, columns)).toBe("");
+    expect(rowValue(dtoOnlyRow, columns[0])).toBe("");
+    expect(rowRenderKey(dtoOnlyRow, 7)).toBe("4");
   });
 
   it("merges read item View metadata with detail data values", () => {
@@ -620,15 +621,4 @@ describe("view workflow helpers", () => {
     ]);
   });
 
-  it("derives generic record columns without business keys", () => {
-    const rows = [
-      { id: 1, amount: 120, state: "Open" },
-      { id: 2, operator: "Ada" }
-    ];
-
-    expect(recordColumns(rows)).toEqual(["id", "amount", "state", "operator"]);
-    expect(recordRowKey(rows[0], ["id", "amount"], 0)).toBe("1");
-    expect(recordRowKey({ amount: 120 }, ["id", "amount"], 3)).toBe("120");
-    expect(recordRowKey({}, [], 4)).toBe("4");
-  });
 });

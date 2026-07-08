@@ -5,6 +5,7 @@ import appSource from "./App.vue?raw";
 import listDataTableSource from "./ListDataTable.vue?raw";
 import metadataFieldEditorSource from "./MetadataFieldEditor.vue?raw";
 import resultsPanelSource from "./ResultsPanel.vue?raw";
+import viewWorkflowSource from "./viewWorkflow.ts?raw";
 import {
   buildGetEnumRequest,
   buildInputQueryRequest,
@@ -51,6 +52,11 @@ describe("App defaults", () => {
     expect(appSource).not.toContain("rowValue(row, column)");
     expect(listDataTableSource).toContain("defaultActionLabel");
     expect(listDataTableSource).toContain("showDefaultAction");
+  });
+
+  it("does not keep generic record-map table helpers", () => {
+    expect(viewWorkflowSource).not.toContain("recordColumns");
+    expect(viewWorkflowSource).not.toContain("recordRowKey");
   });
 
   it("renders detail View operations from the loaded detail payload", () => {

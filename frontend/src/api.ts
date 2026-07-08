@@ -333,7 +333,6 @@ export interface PageNavigatorResult {
 export interface ListDataItem {
   id?: string;
   rowIndex?: number;
-  values?: Record<string, unknown>;
   items?: ListDataValue[];
   rowFmt?: string;
   operation?: OperationInfo[];

@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: the Vue render boundary no longer exposes generic record-map
+  table helpers or `ListDataItem.values` typing. Result tables still load the
+  View first (`getlistview` / `getreaditemview`), then render `querydata` /
+  `querydatadetail` payloads through View columns and legacy row `Items`, so
+  concrete business DTO maps cannot define page columns, row keys, or cells.
 - 2026-07-08: `saverpt` remaining-work text now matches FoolFrame server
   truth. Legacy `HandlerSaveReport.ImplementBusinessLogic()` is empty and
   `DataService.SaveReport` only returns the base `Result`, so report metadata
