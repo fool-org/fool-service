@@ -8,6 +8,7 @@ import org.fool.framework.model.model.ModelType;
 import org.fool.framework.model.model.Operation;
 import org.fool.framework.model.model.OperationBaseType;
 import org.fool.framework.model.model.OperationCommand;
+import org.fool.framework.model.model.OperationParam;
 import org.fool.framework.model.model.Property;
 import org.junit.Test;
 
@@ -33,6 +34,12 @@ public class DaoAppInstallGatewayOperationTest {
         setState.setExpression("$1");
         setState.setIndex(1);
         approve.setCommands(List.of(setState));
+        OperationParam reason = new OperationParam();
+        reason.setName("reason");
+        reason.setViewId(910L);
+        reason.setFilter("state=0");
+        reason.setValue("$reason");
+        approve.setParams(List.of(reason));
         order.setProperties(List.of(state));
         order.setOperations(List.of(approve));
 
@@ -45,10 +52,11 @@ public class DaoAppInstallGatewayOperationTest {
                         "2.0.0",
                         List.of(order)))));
 
-        assertEquals(5, daoService.created.size());
+        assertEquals(6, daoService.created.size());
         AppInstalledModel installedModel = (AppInstalledModel) daoService.created.get(1);
         AppInstalledOperation operation = (AppInstalledOperation) daoService.created.get(3);
         AppInstalledOperationCommand command = (AppInstalledOperationCommand) daoService.created.get(4);
+        AppInstalledOperationParam param = (AppInstalledOperationParam) daoService.created.get(5);
         assertEquals(installedModel.getModelId(), operation.getOwnerModelId());
         assertEquals("审批", operation.getName());
         assertEquals(Integer.valueOf(OperationBaseType.UPDATE.code()), operation.getBaseType());
@@ -58,6 +66,13 @@ public class DaoAppInstallGatewayOperationTest {
         assertEquals(Long.valueOf(901L), command.getPropertyId());
         assertEquals("$1", command.getExpression());
         assertEquals(command.getCommandId(), setState.getId());
+        assertEquals(operation.getOperationId(), param.getOwnerOperationId());
+        assertEquals("reason", param.getName());
+        assertEquals(Long.valueOf(910L), param.getViewId());
+        assertEquals("state=0", param.getFilter());
+        assertEquals("$reason", param.getValue());
+        assertEquals(param.getParamId(), reason.getId());
+        assertEquals(operation.getOperationId(), reason.getOwnerOperationId());
     }
 
     private static Model legacyModel(String name, String tableName) {
@@ -84,6 +99,7 @@ public class DaoAppInstallGatewayOperationTest {
         private long nextPropertyId = 6000;
         private long nextOperationId = 7000;
         private long nextCommandId = 8000;
+        private long nextParamId = 9000;
 
         @Override
         public <T> void create(T object) {
@@ -95,6 +111,8 @@ public class DaoAppInstallGatewayOperationTest {
                 operation.setOperationId(nextOperationId++);
             } else if (object instanceof AppInstalledOperationCommand command && command.getCommandId() == null) {
                 command.setCommandId(nextCommandId++);
+            } else if (object instanceof AppInstalledOperationParam param && param.getParamId() == null) {
+                param.setParamId(nextParamId++);
             }
             created.add(object);
         }

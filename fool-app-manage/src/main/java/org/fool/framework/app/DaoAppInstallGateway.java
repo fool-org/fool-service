@@ -7,6 +7,7 @@ import org.fool.framework.model.model.ModelType;
 import org.fool.framework.model.model.MultiDbMap;
 import org.fool.framework.model.model.Operation;
 import org.fool.framework.model.model.OperationCommand;
+import org.fool.framework.model.model.OperationParam;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.model.model.Relation;
 import org.fool.framework.model.sqlscript.LegacyMysqlDdlGenerator;
@@ -504,6 +505,12 @@ public class DaoAppInstallGateway implements AppInstallGateway {
                 command.setId(installedCommand.getCommandId());
                 command.setOwnerOperationId(installed.getOperationId());
             }
+            for (OperationParam param : safeOperationParams(operation)) {
+                AppInstalledOperationParam installedParam = installedOperationParam(param, installed.getOperationId());
+                daoService.create(installedParam);
+                param.setId(installedParam.getParamId());
+                param.setOwnerOperationId(installed.getOperationId());
+            }
         }
     }
 
@@ -552,8 +559,22 @@ public class DaoAppInstallGateway implements AppInstallGateway {
         return installed;
     }
 
+    private AppInstalledOperationParam installedOperationParam(OperationParam param, Long ownerOperationId) {
+        AppInstalledOperationParam installed = new AppInstalledOperationParam();
+        installed.setOwnerOperationId(ownerOperationId);
+        installed.setName(param.getName());
+        installed.setViewId(param.getViewId());
+        installed.setFilter(param.getFilter());
+        installed.setValue(param.getValue());
+        return installed;
+    }
+
     private List<OperationCommand> safeOperationCommands(Operation operation) {
         return operation.getCommands() == null ? List.of() : operation.getCommands();
+    }
+
+    private List<OperationParam> safeOperationParams(Operation operation) {
+        return operation.getParams() == null ? List.of() : operation.getParams();
     }
 
     private boolean isInstalledMultiDbMap(DaoService daoService, Long ownerPropertyId, MultiDbMap dbMap) {

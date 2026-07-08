@@ -18,4 +18,5 @@ public class Operation {
     private String invokeMethod;
     private Long returnModelId;
     private List<OperationCommand> commands = new ArrayList<>();
+    private List<OperationParam> params = new ArrayList<>();
 }
