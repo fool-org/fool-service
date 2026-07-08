@@ -93,8 +93,11 @@ export interface LegacyAppResult {
 
 export interface CheckCodeResult {
   key?: string;
+  Key?: string;
   code?: string;
+  Code?: string;
   chkCodeImg?: string;
+  ChkCodeImg?: string;
 }
 
 export interface CheckCodeRequest {
@@ -105,18 +108,28 @@ export interface CheckCodeRequest {
 
 export interface LegacyStoreBaseInfo {
   dbId?: string;
+  DbId?: string;
   dbName?: string;
+  DbName?: string;
 }
 
 export interface LegacyInitAppResult {
   appTitle?: string;
+  AppTitle?: string;
   appName?: string;
+  AppName?: string;
   appImg?: string;
+  AppImg?: string;
   appVersion?: string;
+  AppVersion?: string;
   appPowerBy?: string;
+  AppPowerBy?: string;
   appUrl?: string;
+  AppUrl?: string;
   checkCode?: CheckCodeResult;
+  CheckCode?: CheckCodeResult;
   dbs?: LegacyStoreBaseInfo[];
+  Dbs?: LegacyStoreBaseInfo[];
   error?: {
     code?: number;
     message?: string;

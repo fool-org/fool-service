@@ -68,6 +68,10 @@ public class LoginControllerLogoutTest {
         assertEquals(0, response.getCode());
         assertEquals("key-1", response.getData().getKey());
         assertEquals("A2BC", response.getData().getCode());
+        String json = new ObjectMapper().writeValueAsString(response.getData());
+        assertTrue(json.contains("\"Key\":\"key-1\""));
+        assertTrue(json.contains("\"Code\":\"A2BC\""));
+        assertTrue(json.contains("\"ChkCodeImg\":\"image\""));
         verify(checkCodeService).create();
     }
 
@@ -100,6 +104,12 @@ public class LoginControllerLogoutTest {
         assertEquals("1.0.0", response.getData().getAppVersion());
         assertEquals("key-1", response.getData().getCheckCode().getKey());
         assertEquals("car_wash", response.getData().getDbs().get(0).getDbId());
+        String json = new ObjectMapper().writeValueAsString(response.getData());
+        assertTrue(json.contains("\"AppTitle\":\"Fool Service\""));
+        assertTrue(json.contains("\"CheckCode\""));
+        assertTrue(json.contains("\"Key\":\"key-1\""));
+        assertTrue(json.contains("\"Dbs\""));
+        assertTrue(json.contains("\"DbId\":\"car_wash\""));
     }
 
     @Test

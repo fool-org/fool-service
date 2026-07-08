@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: `getcheckcode` and `initapp` now expose FoolFrame Pascal
+  response aliases for the first auth hop: `Key`, `Code`, `ChkCodeImg`,
+  `AppTitle`, `CheckCode`, `Dbs`, `DbId`, and related app/store fields. The
+  Docker runtime doctor now requires these legacy fields before continuing to
+  `checkcode` and `loginv2`, keeping auth smoke on the FoolFrame protocol
+  surface instead of relying on camel-case DTO fields.
 - 2026-07-08: the Docker runtime doctor now follows the same View-first path
   as the Vue workspace when proving data and report routes. It records the App
   default View id, loads `getlistview`, verifies `querydata` row `Items` match

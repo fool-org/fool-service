@@ -273,6 +273,46 @@ public class LoginController {
             return new LegacyInitAppResult("", "", "", "", "", "", null, List.of(),
                     new LegacyError(code, message));
         }
+
+        @JsonProperty("AppTitle")
+        public String getLegacyAppTitle() {
+            return appTitle;
+        }
+
+        @JsonProperty("AppName")
+        public String getLegacyAppName() {
+            return appName;
+        }
+
+        @JsonProperty("AppImg")
+        public String getLegacyAppImg() {
+            return appImg;
+        }
+
+        @JsonProperty("AppVersion")
+        public String getLegacyAppVersion() {
+            return appVersion;
+        }
+
+        @JsonProperty("AppPowerBy")
+        public String getLegacyAppPowerBy() {
+            return appPowerBy;
+        }
+
+        @JsonProperty("AppUrl")
+        public String getLegacyAppUrl() {
+            return appUrl;
+        }
+
+        @JsonProperty("CheckCode")
+        public CheckCodeService.CheckCodeResult getLegacyCheckCode() {
+            return checkCode;
+        }
+
+        @JsonProperty("Dbs")
+        public List<AuthService.LegacyStoreBaseInfo> getLegacyDbs() {
+            return dbs;
+        }
     }
 
     @Data

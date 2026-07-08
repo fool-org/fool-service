@@ -322,14 +322,21 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         if not common_response_ok(payload):
             return False
         data = payload["data"]
-        return isinstance(data.get("dbs"), list) and bool(data["dbs"])
+        check_code = data.get("CheckCode")
+        return (
+            isinstance(data.get("Dbs"), list)
+            and bool(data["Dbs"])
+            and isinstance(check_code, dict)
+            and bool(check_code.get("Key"))
+            and bool(check_code.get("Code"))
+        )
 
     def check_code_ok() -> bool:
         payload = post_json(f"{frontend_url}/api/v1/auth/getcheckcode", {}, timeout)
         if not common_response_ok(payload):
             return False
-        key = str(payload["data"].get("key") or "")
-        code = str(payload["data"].get("code") or "")
+        key = str(payload["data"].get("Key") or "")
+        code = str(payload["data"].get("Code") or "")
         if not key or not code:
             return False
         auth_state["checkCodeKey"] = key

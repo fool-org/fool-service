@@ -1,6 +1,7 @@
 package org.fool.framework.auth.business.service;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -82,6 +83,21 @@ public class CheckCodeService {
         private String key;
         private String code;
         private String chkCodeImg;
+
+        @JsonProperty("Key")
+        public String getLegacyKey() {
+            return key;
+        }
+
+        @JsonProperty("Code")
+        public String getLegacyCode() {
+            return code;
+        }
+
+        @JsonProperty("ChkCodeImg")
+        public String getLegacyChkCodeImg() {
+            return chkCodeImg;
+        }
     }
 
     @Data

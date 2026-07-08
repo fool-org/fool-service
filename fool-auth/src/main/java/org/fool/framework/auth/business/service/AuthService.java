@@ -390,5 +390,15 @@ public class AuthService {
     public static class LegacyStoreBaseInfo {
         private String dbId = "";
         private String dbName = "";
+
+        @JsonProperty("DbId")
+        public String getLegacyDbId() {
+            return dbId;
+        }
+
+        @JsonProperty("DbName")
+        public String getLegacyDbName() {
+            return dbName;
+        }
     }
 }

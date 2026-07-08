@@ -196,6 +196,8 @@ explicitly named as authoritative for fool-service.
 - [x] Expose FoolFrame Pascal message aliases for `getmsg` / `getnotify`
       while keeping the Vue message panel on the existing compatibility
       contract.
+- [x] Expose FoolFrame Pascal `getcheckcode` / `initapp` response aliases and
+      make the runtime doctor require those legacy fields before auth login.
 
 ## Backlog
 
