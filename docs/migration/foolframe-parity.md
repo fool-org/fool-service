@@ -164,6 +164,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   before falling back to raw `querydata.Items` order when `querydata.Id` is
   absent. This keeps fallback row identity tied to the rendered View instead
   of whichever business DTO field appears first in the data payload.
+- 2026-07-09: Vue manual API tools no longer default enum lookup to seeded
+  model `102` or new-object save to seeded object `9001`. Metadata-driven enum
+  editors still load model ids from rendered View fields; manual tools now
+  require user or View context instead of starting from concrete business DTO
+  identifiers.
 - 2026-07-09: the Vue View workflow now lets only loaded View metadata define
   table columns. `listRenderColumns` reads `getlistview.Items` /
   `tableColumn` and no longer falls back to `querydata.Cols` or first-row

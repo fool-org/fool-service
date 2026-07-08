@@ -348,6 +348,9 @@ explicitly named as authoritative for fool-service.
 - [x] Require shared Vue row tables to have rendered View columns before
       drawing data rows or row actions, so `querydata` DTO rows cannot define
       a page when View metadata is empty.
+- [x] Remove the remaining Vue API-tool seed defaults for enum model and
+      new-object ID so manual tools no longer start from concrete business DTO
+      identifiers.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

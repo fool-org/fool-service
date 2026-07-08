@@ -301,19 +301,22 @@ describe("App defaults", () => {
   });
 
   it("does not prefill business-specific data DTO fields by default", () => {
-    expect(appSource).toContain('const enumModelId = ref("102")');
+    expect(appSource).toContain('const enumModelId = ref("")');
     expect(appSource).toContain('const legacyQueryFilter = ref("")');
     expect(appSource).toContain('const detailObjId = ref("")');
     expect(appSource).toContain('const saveObjId = ref("")');
+    expect(appSource).toContain('const saveNewObjId = ref("")');
     expect(appSource).toContain('const operationObjectId = ref("")');
     expect(appSource).toContain("const operationId = ref(0)");
     expect(appSource).toContain('const savePropertyiesJson = ref("[]")');
     expect(appSource).toContain('const saveNewPropertyiesJson = ref("[]")');
     expect(appSource).not.toContain('order_state="0"');
     expect(appSource).not.toContain("BTC-USDT");
+    expect(appSource).not.toContain('const enumModelId = ref("102")');
     expect(appSource).not.toContain("const operationId = ref(7001)");
     expect(appSource).not.toContain('const detailObjId = ref("1001")');
     expect(appSource).not.toContain('const saveObjId = ref("1001")');
+    expect(appSource).not.toContain('const saveNewObjId = ref("9001")');
     expect(appSource).not.toContain('const operationObjectId = ref("1001")');
   });
 
