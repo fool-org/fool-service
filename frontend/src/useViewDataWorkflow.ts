@@ -61,6 +61,10 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
   const resultTotalPages = computed(() => listTotalPages(dataResponse.value?.data));
   const resultFreshTime = computed(() => listFreshTime(dataResponse.value?.data));
 
+  function canRenderLoadedView() {
+    return listRenderColumns(viewResponse.value?.data).length > 0;
+  }
+
   function applyLoadedView(view?: ListViewInfo) {
     const loadedViewId = viewId(view, options.listViewId.value);
     if (!loadedViewId) {
@@ -93,6 +97,7 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
     );
     if (response) {
       viewResponse.value = response;
+      dataResponse.value = null;
       applyLoadedView(response.data);
     }
     return response;
@@ -120,7 +125,7 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
 
   async function queryLoadedViewData(label: string, pageIndex: number, pageSize: number) {
     const loadedViewId = Number(currentViewId.value);
-    if (loadedViewId <= 0) {
+    if (loadedViewId <= 0 || !canRenderLoadedView()) {
       return null;
     }
     const request = buildLegacyQueryDataRequest({

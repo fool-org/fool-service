@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue list data loading now requires a loaded View with renderable
+  columns before calling `querydata`. If `getlistview` returns no column
+  contract, the workflow clears stale rows and stops instead of letting raw
+  data DTO rows define the page. This keeps first-screen and API-tool list
+  loading on the View-first path: renderable View metadata, then data for that
+  loaded View id.
 - 2026-07-09: Vue child delete payloads now keep
   `Itemproperties[].DelteItems[]` to the child `itemId` plus an empty
   `propertyies` list, matching FoolFrame's delete branch that removes by

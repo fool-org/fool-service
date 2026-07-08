@@ -75,6 +75,29 @@ describe("useViewDataWorkflow", () => {
     expect(workflow.resultColumns.value).toEqual([{ Name: "Name", PropertyName: "name" }]);
   });
 
+  it("does not query data when the loaded View cannot render columns", async () => {
+    const calls: { path: string; payload: Record<string, unknown> }[] = [];
+    vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+      const payload = JSON.parse(String(init?.body || "{}")) as Record<string, unknown>;
+      calls.push({ path, payload });
+      return jsonResponse({
+        ViewId: 144,
+        Name: "Empty View",
+        Items: []
+      });
+    }));
+
+    const workflow = useViewDataWorkflow(workflowRefs({ listViewId: ref(42) }));
+
+    const response = await workflow.queryCurrentViewData();
+
+    expect(response).toBeNull();
+    expect(calls.map((call) => call.path)).toEqual(["/api/v1/view/getlistview"]);
+    expect(workflow.currentViewId.value).toBe(144);
+    expect(workflow.resultColumns.value).toEqual([]);
+    expect(workflow.resultRows.value).toEqual([]);
+  });
+
   it("caches read-item View metadata by the rendered View id", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => jsonResponse({
       ViewId: 60,

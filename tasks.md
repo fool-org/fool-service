@@ -430,6 +430,9 @@ explicitly named as authoritative for fool-service.
       when the Vue child draft map is missing during save.
 - [x] Trim child delete payloads to item id plus empty `propertyies`, matching
       FoolFrame's delete-by-`ItemId` behavior and avoiding DTO-only values.
+- [x] Stop Vue data queries when the loaded View has no renderable columns, so
+      page data cannot fall back to concrete business DTO rows when the View
+      contract is missing.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
