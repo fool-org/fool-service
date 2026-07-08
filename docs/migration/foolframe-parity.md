@@ -97,6 +97,17 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: the Docker runtime doctor now follows the same View-first path
+  as the Vue workspace when proving data and report routes. It records the App
+  default View id, loads `getlistview`, verifies `querydata` row `Items` match
+  the loaded View columns, derives `inputquery` from the View's first
+  `BusinessObject` field, and builds `getrpt` / `saverpt` smoke payloads from
+  `getmkqview` candidate columns instead of hard-coded Docker order fields.
+- 2026-07-08: `getmsg` and `getnotify` now expose FoolFrame Pascal response
+  aliases (`Messages`, `Notifies`, and message/notify field aliases) while
+  retaining the existing camel-case fields used by the Vue compatibility
+  panel. The runtime doctor covers these aliases after a live `loginv2`
+  session.
 - 2026-07-08: Docker seed scripts that contain legacy Chinese metadata now
   run with `SET NAMES utf8mb4`. Replaying `006-view.sql` and `010-query.sql`
   against the current Docker volume repaired View operation labels and query

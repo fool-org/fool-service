@@ -1,5 +1,6 @@
 package org.fool.framework.application.api;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.fool.framework.auth.business.service.AuthService;
 import org.fool.framework.dto.CommonRequest;
@@ -63,17 +64,37 @@ public class MessageController {
     @Data
     public static class GetMessageResult {
         private final List<MessageInfo> messages;
+
+        @JsonProperty("Messages")
+        public List<MessageInfo> getLegacyMessages() {
+            return messages;
+        }
     }
 
     @Data
     public static class GetNotifyResult {
         private final List<NotifyInfo> notifies;
+
+        @JsonProperty("Notifies")
+        public List<NotifyInfo> getLegacyNotifies() {
+            return notifies;
+        }
     }
 
     @Data
     public static class NotifyInfo {
         private int count;
         private String authNo;
+
+        @JsonProperty("Count")
+        public int getLegacyCount() {
+            return count;
+        }
+
+        @JsonProperty("AuthNo")
+        public String getLegacyAuthNo() {
+            return authNo;
+        }
     }
 
     @Data
@@ -88,5 +109,55 @@ public class MessageController {
         private boolean read;
         private boolean timeOut;
         private LocalDateTime readDateTime = LocalDateTime.now();
+
+        @JsonProperty("MessageID")
+        public String getLegacyMessageID() {
+            return messageID;
+        }
+
+        @JsonProperty("GernerationTime")
+        public LocalDateTime getLegacyGernerationTime() {
+            return gernerationTime;
+        }
+
+        @JsonProperty("MessageContent")
+        public String getLegacyMessageContent() {
+            return messageContent;
+        }
+
+        @JsonProperty("ResultView")
+        public long getLegacyResultView() {
+            return resultView;
+        }
+
+        @JsonProperty("ObjId")
+        public String getLegacyObjId() {
+            return objId;
+        }
+
+        @JsonProperty("ResultViewType")
+        public String getLegacyResultViewType() {
+            return resultViewType;
+        }
+
+        @JsonProperty("ResultKey")
+        public String getLegacyResultKey() {
+            return resultKey;
+        }
+
+        @JsonProperty("Read")
+        public boolean getLegacyRead() {
+            return read;
+        }
+
+        @JsonProperty("TimeOut")
+        public boolean getLegacyTimeOut() {
+            return timeOut;
+        }
+
+        @JsonProperty("ReadDateTime")
+        public LocalDateTime getLegacyReadDateTime() {
+            return readDateTime;
+        }
     }
 }

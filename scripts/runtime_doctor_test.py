@@ -17,9 +17,16 @@ from runtime_doctor import (
     legacy_response_list,
     list_view_operation_labels_ok,
     list_rows,
+    lookup_view_item_id,
     parse_compose_ps,
+    query_rows_match_view,
     report_grid_ok,
+    report_model_columns,
+    response_list_field_present,
     row_object_id,
+    runtime_report_cols,
+    view_column_key,
+    view_columns,
 )
 
 
@@ -58,6 +65,10 @@ class RuntimeDoctorTest(unittest.TestCase):
     def test_legacy_response_list_requires_pascal_alias(self) -> None:
         self.assertEqual([1], legacy_response_list({"code": 0, "data": {"Items": [1]}}, "Items"))
         self.assertEqual([], legacy_response_list({"code": 0, "data": {"items": [1]}}, "Items"))
+
+    def test_response_list_field_present_allows_empty_legacy_lists(self) -> None:
+        self.assertTrue(response_list_field_present({"code": 0, "data": {"Messages": []}}, "Messages"))
+        self.assertFalse(response_list_field_present({"code": 0, "data": {"messages": []}}, "Messages"))
 
     def test_common_void_ok_accepts_legacy_no_data_success(self) -> None:
         self.assertTrue(common_void_ok({"code": 0, "data": None}))
@@ -103,17 +114,47 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertEqual("9001", row_object_id(row))
         self.assertEqual("1001", row_object_id({"id": "1001", "Items": [{"ObjId": "9001"}]}))
 
-    def test_report_grid_ok_requires_headers_and_open_row(self) -> None:
+    def test_query_rows_match_loaded_view_columns(self) -> None:
+        columns = view_columns({"code": 0, "data": {"Items": [
+            {"PropertyName": "recordId", "Name": "Record ID"},
+            {"PropertyName": "status", "Name": "Status"},
+        ]}})
+        rows = [{"Items": [
+            {"PrpId": "recordId", "ObjId": "9001"},
+            {"PrpId": "status", "ObjId": "ready"},
+        ]}]
+
+        self.assertEqual("recordId", view_column_key(columns[0]))
+        self.assertTrue(query_rows_match_view(rows, columns))
+        self.assertFalse(query_rows_match_view(rows, columns + [{"PropertyName": "missing"}]))
+
+    def test_lookup_view_item_id_uses_business_object_view_metadata(self) -> None:
+        self.assertEqual("owner", lookup_view_item_id([
+            {"PropertyName": "name", "PropertyType": "String", "PropertyModel": 0},
+            {"PropertyName": "owner", "PropertyType": "BusinessObject", "PropertyModel": 103},
+        ]))
+        self.assertEqual("", lookup_view_item_id([{"PropertyName": "name", "PropertyType": "String"}]))
+
+    def test_runtime_report_cols_come_from_report_model(self) -> None:
+        columns = report_model_columns({"code": 0, "data": {"cols": [
+            {"id": "recordId", "name": "Record ID", "queryTypes": [{"id": "1", "name": "原值"}]},
+        ]}})
+
+        self.assertEqual([
+            {"ColName": "Record ID", "ColId": "recordId", "SelectedTypeId": "1", "Index": 1, "OrderType": "2"}
+        ], runtime_report_cols(columns))
+
+    def test_report_grid_ok_requires_expected_headers_and_data_row(self) -> None:
         self.assertTrue(report_grid_ok({"code": 0, "data": {"cells": [
-            {"col": 0, "row": 0, "fmtValue": "Symbol"},
-            {"col": 1, "row": 0, "fmtValue": "State"},
-            {"col": 0, "row": 1, "fmtValue": "BTC-USDT"},
-            {"col": 1, "row": 1, "fmtValue": "Open"},
-        ]}}))
+            {"col": 0, "row": 0, "fmtValue": "Record ID"},
+            {"col": 1, "row": 0, "fmtValue": "Status"},
+            {"col": 0, "row": 1, "fmtValue": "9001"},
+            {"col": 1, "row": 1, "fmtValue": "ready"},
+        ]}}, ["Record ID", "Status"]))
         self.assertFalse(report_grid_ok({"code": 0, "data": {"cells": [
-            {"col": 0, "row": 0, "fmtValue": "Symbol"},
-            {"col": 1, "row": 0, "fmtValue": "State"},
-        ]}}))
+            {"col": 0, "row": 0, "fmtValue": "Record ID"},
+            {"col": 1, "row": 0, "fmtValue": "Status"},
+        ]}}, ["Record ID", "Status"]))
 
 
 if __name__ == "__main__":

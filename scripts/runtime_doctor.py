@@ -110,6 +110,10 @@ def legacy_response_list(payload: dict[str, Any], key: str) -> list[Any]:
     return value if isinstance(value, list) else []
 
 
+def response_list_field_present(payload: dict[str, Any], key: str) -> bool:
+    return common_response_ok(payload) and isinstance(payload["data"].get(key), list)
+
+
 def detail_response_ok(payload: dict[str, Any]) -> bool:
     if not common_response_ok(payload):
         return False
@@ -157,7 +161,7 @@ def read_item_detail_views_ok(payload: dict[str, Any]) -> bool:
     return isinstance(first_nested, dict) and bool(first_nested.get("PrpId") or first_nested.get("prpId"))
 
 
-def report_grid_ok(payload: dict[str, Any]) -> bool:
+def report_grid_ok(payload: dict[str, Any], expected_headers: list[str] | None = None) -> bool:
     if not common_response_ok(payload):
         return False
     cells = payload["data"].get("cells")
@@ -167,10 +171,79 @@ def report_grid_ok(payload: dict[str, Any]) -> bool:
     for cell in cells:
         if isinstance(cell, dict) and isinstance(cell.get("row"), int) and isinstance(cell.get("col"), int):
             by_position[(cell["row"], cell["col"])] = str(cell.get("fmtValue") or "")
-    if by_position.get((0, 0)) != "Symbol" or by_position.get((0, 1)) != "State":
+    headers = [by_position.get((0, index), "") for index in range(len(expected_headers or []))]
+    if expected_headers and headers != expected_headers:
+        return False
+    if not expected_headers and not by_position.get((0, 0)):
         return False
     max_row = max((row for row, _col in by_position), default=0)
-    return any(by_position.get((row, 0)) and by_position.get((row, 1)) == "Open" for row in range(1, max_row + 1))
+    max_col = max((col for _row, col in by_position), default=0)
+    return any(by_position.get((row, col)) for row in range(1, max_row + 1) for col in range(0, max_col + 1))
+
+
+def view_columns(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    if not common_response_ok(payload):
+        return []
+    data = payload["data"]
+    columns = data.get("Items") or data.get("tableColumn")
+    return [column for column in columns if isinstance(column, dict)] if isinstance(columns, list) else []
+
+
+def view_column_key(column: dict[str, Any]) -> str:
+    keys = (
+        "PropertyName",
+        "propertyName",
+        "property",
+        "Name",
+        "name",
+        "ID",
+        "id",
+    )
+    return next((str(column.get(key)) for key in keys if column.get(key) not in (None, "")), "")
+
+
+def query_rows_match_view(rows: list[Any], columns: list[dict[str, Any]]) -> bool:
+    keys = [view_column_key(column) for column in columns if view_column_key(column)]
+    if not rows or not keys or not isinstance(rows[0], dict):
+        return False
+    return all(list_row_item(rows[0], key) is not None for key in keys)
+
+
+def lookup_view_item_id(columns: list[dict[str, Any]]) -> str:
+    for column in columns:
+        property_type = str(column.get("PropertyType") or column.get("propertyType") or "").lower()
+        property_model = column.get("PropertyModel") or column.get("propertyModel") or 0
+        try:
+            model_id = int(property_model or 0)
+        except (TypeError, ValueError):
+            model_id = 0
+        if property_type in {"businessobject", "16"} and model_id > 0:
+            return view_column_key(column)
+    return ""
+
+
+def report_model_columns(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    if not common_response_ok(payload):
+        return []
+    columns = payload["data"].get("cols")
+    return [column for column in columns if isinstance(column, dict)] if isinstance(columns, list) else []
+
+
+def runtime_report_cols(columns: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    result: list[dict[str, Any]] = []
+    for index, column in enumerate(columns[:2], start=1):
+        name = str(column.get("name") or column.get("id") or "")
+        column_id = str(column.get("id") or name)
+        query_types = column.get("queryTypes") or []
+        selected = query_types[0] if query_types and isinstance(query_types[0], dict) else {}
+        result.append({
+            "ColName": name,
+            "ColId": column_id,
+            "SelectedTypeId": selected.get("id"),
+            "Index": index,
+            "OrderType": "2",
+        })
+    return [column for column in result if column["ColName"]]
 
 
 def list_row_item(row: dict[str, Any], key: str) -> dict[str, Any] | None:
@@ -342,6 +415,24 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             return False
         return common_void_ok(post_json(f"{frontend_url}/api/v1/auth/logout", {"Token": token}, timeout))
 
+    def get_messages_ok() -> bool:
+        token = auth_state.get("token")
+        if not token:
+            return False
+        return response_list_field_present(
+            post_json(f"{frontend_url}/api/v1/message/getmsg", {"Token": token}, timeout),
+            "Messages",
+        )
+
+    def get_notify_ok() -> bool:
+        token = auth_state.get("token")
+        if not token:
+            return False
+        return response_list_field_present(
+            post_json(f"{frontend_url}/api/v1/message/getnotify", {"Token": token}, timeout),
+            "Notifies",
+        )
+
     def get_list_view() -> bool:
         view_id = loaded_list_view_id() or LIST_VIEW_ID
         payload = post_json(
@@ -350,10 +441,13 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             timeout,
         )
         loaded_detail_view_id = detail_view_id(payload)
+        columns = view_columns(payload)
         if loaded_detail_view_id:
             view_state["listViewId"] = view_id
             view_state["detailViewId"] = loaded_detail_view_id
-        return loaded_detail_view_id > 0 and list_view_operation_labels_ok(payload)
+        if columns:
+            view_state["columns"] = columns
+        return loaded_detail_view_id > 0 and bool(columns) and list_view_operation_labels_ok(payload)
 
     def loaded_list_view_id() -> int:
         view_id = view_state.get("listViewId")
@@ -380,27 +474,20 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             timeout,
         ))
 
-    def querydata_filter_ok() -> bool:
+    def querydata_view_items_ok() -> bool:
         view_id = loaded_list_view_id()
         if not view_id:
             return False
         payload = post_json(
             f"{frontend_url}/api/v1/data/querydata",
-            {"ViewId": view_id, "PageSize": 5, "PageIndex": 1, "QueryFilter": "order_state=\"0\""},
+            {"ViewId": view_id, "PageSize": 5, "PageIndex": 1},
             timeout,
         )
         if not common_response_ok(payload):
             return False
         rows = list_rows(payload["data"])
-        if not rows:
-            return False
-        for row in rows:
-            if not isinstance(row, dict):
-                return False
-            state = list_row_item(row, "state") or {}
-            if str(state.get("objId") or state.get("ObjId") or "") != "0":
-                return False
-        return True
+        columns = view_state.get("columns")
+        return isinstance(columns, list) and query_rows_match_view(rows, columns)
 
     def querydata_ok() -> bool:
         view_id = loaded_list_view_id()
@@ -419,7 +506,74 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         object_id = row_object_id(rows[0])
         if object_id:
             view_state["objectId"] = object_id
-        return bool(object_id)
+        columns = view_state.get("columns")
+        return bool(object_id) and isinstance(columns, list) and query_rows_match_view(rows, columns)
+
+    def inputquery_ok() -> bool:
+        view_id = loaded_list_view_id()
+        columns = view_state.get("columns")
+        if not view_id or not isinstance(columns, list):
+            return False
+        item_id = lookup_view_item_id(columns)
+        if not item_id:
+            return False
+        return common_response_list(post_json(
+            f"{frontend_url}/api/v1/data/inputquery",
+            {"ViewId": view_id, "ViewItemId": item_id, "Text": "", "IsAdded": False},
+            timeout,
+        ), "items")
+
+    def get_report_model_ok() -> bool:
+        view_id = loaded_list_view_id()
+        if not view_id:
+            return False
+        payload = post_json(
+            f"{frontend_url}/api/v1/report/getmkqview",
+            {"ViewId": view_id},
+            timeout,
+        )
+        columns = report_model_columns(payload)
+        if columns:
+            view_state["reportColumns"] = columns
+        return bool(columns)
+
+    def get_report_ok() -> bool:
+        view_id = loaded_list_view_id()
+        columns = view_state.get("reportColumns")
+        if not view_id or not isinstance(columns, list):
+            return False
+        report_cols = runtime_report_cols(columns)
+        if not report_cols:
+            return False
+        payload = post_json(
+            f"{frontend_url}/api/v1/report/getrpt",
+            {
+                "ViewId": view_id,
+                "CurrentPage": 1,
+                "PageSize": 10,
+                "ReportCols": report_cols,
+            },
+            timeout,
+        )
+        return report_grid_ok(payload, [str(column["ColName"]) for column in report_cols])
+
+    def save_report_ok() -> bool:
+        view_id = loaded_list_view_id()
+        columns = view_state.get("reportColumns")
+        if not view_id or not isinstance(columns, list):
+            return False
+        report_cols = runtime_report_cols(columns[:1])
+        if not report_cols:
+            return False
+        return common_void_ok(post_json(
+            f"{frontend_url}/api/v1/report/saverpt",
+            {
+                "ViewId": view_id,
+                "ReportName": f"View {view_id} Runtime",
+                "ReportCols": report_cols,
+            },
+            timeout,
+        ))
 
     checks = (
         (
@@ -473,9 +627,9 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "POST /api/v1/data/querydata uses loaded list view id and returns a row object id",
         ),
         (
-            "data:querydata-filter",
-            querydata_filter_ok,
-            "POST /api/v1/data/querydata uses loaded list view id and keeps State=0 rows",
+            "data:querydata-items",
+            querydata_view_items_ok,
+            "POST /api/v1/data/querydata rows expose Items matching the loaded View columns",
         ),
         (
             "data:querydatadetail",
@@ -489,58 +643,33 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         ),
         (
             "data:inputquery",
-            lambda: common_response_list(post_json(
-                f"{frontend_url}/api/v1/data/inputquery",
-                {"ViewId": 100, "ViewItemId": "Customer", "Text": "Ada", "IsAdded": False},
-                timeout,
-            ), "items"),
-            "POST /api/v1/data/inputquery Customer contains Ada",
+            inputquery_ok,
+            "POST /api/v1/data/inputquery uses a BusinessObject field from the loaded View",
         ),
         (
             "report:getmkqview",
-            lambda: common_response_list(post_json(
-                f"{frontend_url}/api/v1/report/getmkqview",
-                {"ViewId": 100},
-                timeout,
-            ), "cols"),
-            "POST /api/v1/report/getmkqview ViewId=100",
+            get_report_model_ok,
+            "POST /api/v1/report/getmkqview uses the loaded ViewId",
         ),
         (
             "report:getrpt",
-            lambda: report_grid_ok(post_json(
-                f"{frontend_url}/api/v1/report/getrpt",
-                {
-                    "ViewId": 100,
-                    "CurrentPage": 1,
-                    "PageSize": 10,
-                    "QueryFilter": "order_state=\"0\"",
-                    "ReportCols": [
-                        {"ColName": "Symbol", "Index": 1},
-                        {"ColName": "State", "Index": 2},
-                    ],
-                },
-                timeout,
-            )),
-            "POST /api/v1/report/getrpt returns Symbol/State cells",
+            get_report_ok,
+            "POST /api/v1/report/getrpt uses getmkqview columns from the loaded View",
         ),
         (
             "report:saverpt",
-            lambda: common_void_ok(post_json(
-                f"{frontend_url}/api/v1/report/saverpt",
-                {
-                    "ViewId": 100,
-                    "ReportName": "Order Daily",
-                    "ReportCols": [{"ColName": "Symbol", "Index": 1}],
-                    "FilterExp": {
-                        "Col": {"Name": "order_state"},
-                        "CompareOp": {"ID": "1", "Name": "等于"},
-                        "ValueExp": "0",
-                        "ValueFmt": "Open",
-                    },
-                },
-                timeout,
-            )),
+            save_report_ok,
             "POST /api/v1/report/saverpt keeps legacy no-op success surface",
+        ),
+        (
+            "message:getmsg",
+            get_messages_ok,
+            "POST /api/v1/message/getmsg returns legacy Messages list",
+        ),
+        (
+            "message:getnotify",
+            get_notify_ok,
+            "POST /api/v1/message/getnotify returns legacy Notifies list",
         ),
         (
             "auth:logout",

@@ -190,6 +190,12 @@ explicitly named as authoritative for fool-service.
 - [x] Extend the Docker runtime doctor to prove the logged-in legacy auth
       shell path through the Vue proxy: `getapp`, `getmain`, `getsubmenu`,
       and `logout`.
+- [x] Make the Docker runtime doctor derive `querydata`, `inputquery`, and
+      report checks from the loaded View metadata instead of hard-coded
+      Docker order DTO fields.
+- [x] Expose FoolFrame Pascal message aliases for `getmsg` / `getnotify`
+      while keeping the Vue message panel on the existing compatibility
+      contract.
 
 ## Backlog
 

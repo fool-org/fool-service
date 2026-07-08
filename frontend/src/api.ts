@@ -403,28 +403,42 @@ export interface InputQueryResult {
 
 export interface MessageInfo {
   messageID?: string;
+  MessageID?: string;
   gernerationTime?: string;
+  GernerationTime?: string;
   messageContent?: string;
+  MessageContent?: string;
   resultView?: number;
+  ResultView?: number;
   objId?: string;
+  ObjId?: string;
   resultViewType?: string;
+  ResultViewType?: string;
   resultKey?: string;
+  ResultKey?: string;
   read?: boolean;
+  Read?: boolean;
   timeOut?: boolean;
+  TimeOut?: boolean;
   readDateTime?: string;
+  ReadDateTime?: string;
 }
 
 export interface GetMessageResult {
   messages?: MessageInfo[];
+  Messages?: MessageInfo[];
 }
 
 export interface NotifyInfo {
   count?: number;
+  Count?: number;
   authNo?: string;
+  AuthNo?: string;
 }
 
 export interface GetNotifyResult {
   notifies?: NotifyInfo[];
+  Notifies?: NotifyInfo[];
 }
 
 export interface LegacyQueryDataRequest {

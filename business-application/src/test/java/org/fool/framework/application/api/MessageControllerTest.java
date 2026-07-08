@@ -1,5 +1,7 @@
 package org.fool.framework.application.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.fool.framework.auth.business.service.AuthService;
 import org.fool.framework.auth.dto.UserDTO;
 import org.fool.framework.dto.CommonRequest;
@@ -16,10 +18,13 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class MessageControllerTest {
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(new JavaTimeModule());
+
     @Test
-    public void getmsgReturnsCurrentUserGeneratedMessagesAndMarksThemPushed() {
+    public void getmsgReturnsCurrentUserGeneratedMessagesAndMarksThemPushed() throws Exception {
         UUID messageId = UUID.randomUUID();
         LocalDateTime generated = LocalDateTime.of(2026, 7, 3, 10, 20);
         EventMessage message = new EventMessage();
@@ -48,10 +53,15 @@ public class MessageControllerTest {
         assertEquals("1001", info.getResultKey());
         assertFalse(info.isRead());
         assertFalse(info.isTimeOut());
+        String json = OBJECT_MAPPER.writeValueAsString(response.getData());
+        assertTrue(json.contains("\"Messages\""));
+        assertTrue(json.contains("\"MessageID\":\"" + messageId + "\""));
+        assertTrue(json.contains("\"MessageContent\":\"Order timeout\""));
+        assertTrue(json.contains("\"ResultView\":100"));
     }
 
     @Test
-    public void getnotifyReturnsEmptyLegacyNotifyList() {
+    public void getnotifyReturnsEmptyLegacyNotifyList() throws Exception {
         StubAuthService authService = new StubAuthService("admin");
         MessageController controller = new MessageController(authService, new CapturingMessageRepository(List.of()));
         CommonRequest request = new CommonRequest();
@@ -62,6 +72,8 @@ public class MessageControllerTest {
         assertEquals(0, response.getCode());
         assertEquals(List.of("token-1"), authService.tokens);
         assertEquals(0, response.getData().getNotifies().size());
+        String json = OBJECT_MAPPER.writeValueAsString(response.getData());
+        assertTrue(json.contains("\"Notifies\":[]"));
     }
 
     private static final class StubAuthService extends AuthService {
