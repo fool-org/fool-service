@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: `saverpt` remaining-work text now matches FoolFrame server
+  truth. Legacy `HandlerSaveReport.ImplementBusinessLogic()` is empty and
+  `DataService.SaveReport` only returns the base `Result`, so report metadata
+  persistence and saved-report execution are not counted as open server
+  parity gaps. The migrated route remains the no-op success surface covered by
+  the Docker runtime doctor.
 - 2026-07-08: report `getrpt` now preserves multiple non-NULL
   `ReportCols.OrderType` entries in selected-column order. `ReportController`
   passes a View token order list into `DataQueryService`, `DataQueryService`
@@ -1235,5 +1241,16 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   table-name, explicit/auto ID-column, case-insensitive ID-column,
   missing-column, and matched-row value cases are covered by the current module
   map and tests, so they are no longer counted as open remaining work.
-- Complete remaining `SWRPT01-Soway.Report` behavior: table source adapters, saved report metadata persistence, saved-report execution, and export integration around the rendered report grid. The flat `makereport` REST path now reuses migrated list-query data and `ReportGridRenderer`, with simple and composite `FilterExp` request mapping; the report model candidate-column lookup is exposed through `getmkqview`/`mkqview` with compare/select catalogs and enum states; the legacy `saverpt` no-op success surface is exposed; Matrix static subtotal parity covers nested row/column sibling scope, deep shared-ancestor scope, flat-row grid column coordinates, and the legacy `MatrixHeader`/`StaticCellValue` helper surface; `ReportFactory`/`IReportSource` empty shell parity is covered, but broader report persistence/execution/export wiring remains open.
+- Complete remaining `SWRPT01-Soway.Report` behavior: table source adapters
+  and export integration around the rendered report grid. The flat
+  `makereport` REST path now reuses migrated list-query data and
+  `ReportGridRenderer`, with simple and composite `FilterExp` request mapping;
+  the report model candidate-column lookup is exposed through
+  `getmkqview`/`mkqview` with compare/select catalogs and enum states; the
+  legacy `saverpt` no-op success surface is exposed and matches FoolFrame's
+  empty `HandlerSaveReport`; Matrix static subtotal parity covers nested
+  row/column sibling scope, deep shared-ancestor scope, flat-row grid column
+  coordinates, and the legacy `MatrixHeader`/`StaticCellValue` helper surface;
+  `ReportFactory`/`IReportSource` empty shell parity is covered, but export
+  wiring and table-source behavior remain open.
 - Add complete database schema/migration scripts for `car_wash`; Compose currently seeds smoke/order, FH_JAVA legacy `market_symbols` schema with exchange/filter precision columns, app-management base tables plus app/store-db relation table, DB-management base tables, event/message base tables plus one Docker `Order` event definition and direct admin notification relation, legacy `SW_AUTH_USER`, modern Vue auth base tables and auth relation tables with admin/menu smoke data, the legacy All-authorized-user source table, direct event NotifyUsers/NotifyRoles/NotifyDeps/NotifyCompanies relation tables, the minimum auth graph tables needed for role/department/company recipient expansion, auth menu/role tables with menu-subitem, role-user, and role-menu relation tables, legacy `SW_SYS_VIEW`/`SW_SYS_VIEW_FILE`/`SW_SYS_VIEW_ITEM`/`SW_SYS_VIEW_OPERATION`/`SW_SYS_OPERATIONVIEW`/`SW_SYS_OPERATIONVIEW_ITEM` schema including collection owner columns, the legacy `SW_SYS_MODULE` table for root and module-source module installation records, the legacy `SW_SYS_MODEL` table for root and module-source model shell records, legacy `SW_SYS_CON` connection schema, legacy `SW_SYS_EMUNVALUE` enum metadata, runtime `fool_sys_model_enum` enum metadata, `SW_SYS_PROPERTY`, `SW_SYS_MULTIMAP`, `SW_SYS_RELATION`, `SW_SYS_OPERATION`, `SW_SYS_OPERATION_PARAM`, `SW_SYS_COMMANDS`, `SW_SYS_MODEL_TRIGGER`, `SW_SYS_MODEL_TRIGGER_COMMANDS`, `SW_SYS_PROPERTY_TRIGGER`, `SW_SYS_PROPERTY_TRIGGER_COMMANDS`, model/property metadata tables needed for event object table and ID-column resolution plus legacy DDL type/key/generation-expression/default-value metadata, legacy `SE_COMPARETYPE` and `SE_SELECTEDTYPE` query catalogs, and `fool_sys_view`/`fool_sys_view_item` metadata including `auto_fresh_interval`, `edit_type`, `show_index`, and `width` for the Vue `OrderList` smoke workflow.
