@@ -12,6 +12,7 @@ from check_repo_harness import (
     check_java_package_boundaries,
     check_migration_parity_contract,
     check_source_file_sizes,
+    check_vue_view_data_boundaries,
 )
 
 
@@ -65,6 +66,33 @@ class SourceFileSizeContractTest(unittest.TestCase):
 
             self.assertIn(
                 "Migration parity doc missing required marker 'python scripts/runtime_doctor.py'",
+                report.errors,
+            )
+
+    def test_reports_vue_rendering_business_dto_bindings(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            source = root / "frontend" / "src" / "App.vue"
+            source.parent.mkdir(parents=True)
+            source.write_text(
+                "const columns = Object.keys(first);\nconst cell = row.values.symbol;\n",
+                encoding="utf-8",
+            )
+            report = HarnessReport(root=root)
+
+            check_vue_view_data_boundaries(root, report)
+
+            self.assertEqual(
+                [
+                    (
+                        "Vue View/data boundary violation: frontend/src/App.vue uses "
+                        "'row.values'; render from loaded View metadata and row Items instead"
+                    ),
+                    (
+                        "Vue View/data boundary violation: frontend/src/App.vue uses "
+                        "'Object.keys(first)'; render from loaded View metadata and row Items instead"
+                    ),
+                ],
                 report.errors,
             )
 

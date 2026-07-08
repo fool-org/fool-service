@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: repository harness now fails Vue main render paths that rebind
+  page columns or cells to concrete business DTO data (`row.values` or
+  `Object.keys(first)`). The allowed path remains `getlistview(ViewId)` for
+  rendered View metadata, then `querydata(ViewId)` rows matched through legacy
+  row `Items`.
 - 2026-07-08: focused Docker Maven module validation no longer needs every
   command to repeat `-DfailIfNoTests=false`. The root Surefire config now
   ignores upstream modules with no matching tests, so scoped checks can use the

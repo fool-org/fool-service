@@ -31,6 +31,16 @@ STANDARD_HEADINGS = (
 SOURCE_FILE_LINE_LIMIT = 2100
 SOURCE_FILE_EXTENSIONS = frozenset((".java", ".ts", ".vue"))
 SOURCE_FILE_SKIP_DIRS = frozenset((".git", "node_modules", "target", "dist"))
+FRONTEND_VIEW_DATA_BOUNDARY_FILES = (
+    "frontend/src/App.vue",
+    "frontend/src/ListDataTable.vue",
+    "frontend/src/ResultsPanel.vue",
+)
+FRONTEND_BUSINESS_DTO_BINDING_MARKERS = (
+    "row.values",
+    "row?.values",
+    "Object.keys(first)",
+)
 JAVA_MODULE_PACKAGE_PREFIXES = {
     "fool-app-manage": "org.fool.framework.app",
     "fool-auth": "org.fool.framework.auth",
@@ -303,6 +313,22 @@ def java_package(path: Path) -> str:
     return ""
 
 
+def check_vue_view_data_boundaries(root: Path, report: HarnessReport) -> None:
+    for relative_path in FRONTEND_VIEW_DATA_BOUNDARY_FILES:
+        path = root / relative_path
+        if not path.exists():
+            continue
+        report.add_checked(relative_path)
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        for marker in FRONTEND_BUSINESS_DTO_BINDING_MARKERS:
+            if marker in text:
+                report.errors.append(
+                    "Vue View/data boundary violation: "
+                    f"{relative_path} uses '{marker}'; "
+                    "render from loaded View metadata and row Items instead"
+                )
+
+
 def check_migration_parity_contract(root: Path, report: HarnessReport) -> None:
     text = read_required_text(root, "docs/migration/foolframe-parity.md", report)
     if text is None:
@@ -323,6 +349,7 @@ def validate_repo(root: Path | str = ROOT) -> HarnessReport:
     check_readme_discovery(repo_root, report)
     check_source_file_sizes(repo_root, report)
     check_java_package_boundaries(repo_root, report)
+    check_vue_view_data_boundaries(repo_root, report)
     check_migration_parity_contract(repo_root, report)
     return report
 

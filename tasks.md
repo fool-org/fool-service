@@ -244,6 +244,9 @@ explicitly named as authoritative for fool-service.
 - [x] Make focused Docker Maven module tests work without repeating
       `-DfailIfNoTests=false`, using the root Surefire config instead of
       adding Maven profile scaffolding.
+- [x] Add a repository harness guard that fails Vue main render paths if they
+      infer table columns or cells from business DTO `row.values` instead of
+      loaded View metadata and row `Items`.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

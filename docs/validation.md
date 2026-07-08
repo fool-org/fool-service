@@ -35,7 +35,8 @@ the heaviest runtime path for every edit.
 - JUnit reports use `--junit-out` for CI systems that aggregate XML.
 - Source file size checks fail source files over 2100 lines.
 - Repository harness checks fail Java package boundary drift across `fool-*`
-  modules and missing required migration parity markers.
+  modules, Vue render paths that infer columns/cells from business DTO
+  `row.values`, and missing required migration parity markers.
 - Runtime evidence should use `artifacts/runs/<run_id>/` when a browser,
   Docker, log, or HTTP observation is decisive.
 
