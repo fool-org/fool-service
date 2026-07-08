@@ -97,6 +97,8 @@ explicitly named as authoritative for fool-service.
 - [x] Let lookup `inputquery` resolve the current View by `ViewId` before
       falling back to legacy `ViewName`, and have Vue metadata editors pass
       the loaded View id so lookup follows the rendered View context.
+- [x] Make backend `inputquery` combine a configured `ViewItem.SelectedView`
+      filter with the text lookup when querying target-model candidates.
 - [x] Remove the Vue metadata lookup component's `viewName` fallback so
       BusinessObject candidate lookup stays tied to the rendered View id.
 - [x] Add a Docker runtime doctor for the stable Vue/View workflow so

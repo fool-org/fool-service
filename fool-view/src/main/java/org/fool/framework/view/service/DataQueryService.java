@@ -178,9 +178,10 @@ public class DataQueryService {
         PageNavigator page = new PageNavigator();
         page.setPageIndex(1);
         page.setPageSize(5);
+        IQueryFilter queryFilter = inputQueryFilter(item, showProperty, request.getText());
         PageResult<IDynamicData> pageResult = modelDataService.getDataListWithPageInfo(
                 targetModel.getName(),
-                likeFilter(showProperty, request.getText()),
+                queryFilter,
                 List.of(idProperty, showProperty),
                 page,
                 idProperty == null ? null : idProperty.getColumn(),
@@ -283,6 +284,18 @@ public class DataQueryService {
             return item.getSourceExpression();
         }
         return property == null ? null : property.getSource();
+    }
+
+    private IQueryFilter inputQueryFilter(ViewItem item, Property showProperty, String text) {
+        IQueryFilter filter = likeFilter(showProperty, text);
+        if (item == null || item.getSelectedViewId() == null) {
+            return filter;
+        }
+        View selectedView = daoService.getOneDetailByKey(View.class, item.getSelectedViewId().toString());
+        if (selectedView == null || !StringUtils.hasText(selectedView.getFilter())) {
+            return filter;
+        }
+        return rawViewFilter(selectedView.getFilter()).and(filter);
     }
 
     public void saveLegacyObject(SaveObjRequest request) {

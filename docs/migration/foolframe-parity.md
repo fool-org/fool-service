@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: backend `inputquery` now respects configured
+  `ViewItem.SelectedView` filters on the target-model lookup path. The service
+  still prefers existing source-list branches first, then combines the selected
+  View raw filter with the legacy text `LIKE` filter, matching FoolFrame's
+  selected View candidate lookup contract without adding frontend DTO binding.
 - 2026-07-08: repository harness now fails Java package-boundary drift across
   `fool-*` modules and missing required migration parity markers for the active
   FoolFrame areas. This makes package ownership and the remaining AppInstall,

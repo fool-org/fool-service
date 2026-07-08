@@ -183,6 +183,65 @@ public class DataQueryServiceInputQueryTest {
     }
 
     @Test
+    public void inputQueryCombinesSelectedViewFilterWithTextLookup() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        DataQueryService service = new DataQueryService();
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+        ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
+        ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
+
+        Model customer = model("Customer", "customer", "customerId", "customer_id", "customerName", "customer_name");
+        Property customerProperty = property("customer", "customer_id");
+        customerProperty.setPropertyType(PropertyType.BusinessObject);
+        customerProperty.setPropertyModel(customer);
+        Model order = new Model();
+        order.setName("Order");
+        order.setProperties(List.of(customerProperty));
+        ViewItem customerItem = viewItem("Customer", "customer");
+        customerItem.setSelectedViewId(201L);
+        View view = new View();
+        view.setViewName("OrderList");
+        view.setViewModel("Order");
+        view.setListItems(List.of(customerItem));
+        View selectedView = new View();
+        selectedView.setId(201L);
+        selectedView.setViewModel("Customer");
+        selectedView.setFilter("customer_state='active'");
+        PageResult<IDynamicData> pageResult = new PageResult<>();
+        pageResult.setItems(List.of(dynamic("1001", "Ada")));
+        when(daoService.getOneDetailByKey(View.class, "OrderList")).thenReturn(view);
+        when(daoService.getOneDetailByKey(View.class, "201")).thenReturn(selectedView);
+        when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(order);
+        when(modelDataService.getDataListWithPageInfo(
+                eq("Customer"),
+                any(IQueryFilter.class),
+                anyList(),
+                any(PageNavigator.class),
+                eq("customer_id"),
+                eq(true)))
+                .thenReturn(pageResult);
+        InputQueryRequest request = new InputQueryRequest();
+        request.setViewName("OrderList");
+        request.setViewItemId("Customer");
+        request.setText("Ada");
+
+        InputQueryResult result = service.inputQuery(request);
+
+        assertEquals(1, result.getItems().size());
+        ArgumentCaptor<IQueryFilter> filterCaptor = ArgumentCaptor.forClass(IQueryFilter.class);
+        verify(modelDataService).getDataListWithPageInfo(
+                eq("Customer"),
+                filterCaptor.capture(),
+                anyList(),
+                any(PageNavigator.class),
+                eq("customer_id"),
+                eq(true));
+        assertEquals("(customer_state='active') And (`customer_name` LIKE ?)", filterCaptor.getValue().generateSql().getSql());
+        assertArrayEquals(new Object[]{"%Ada%"}, filterCaptor.getValue().generateSql().getArgs());
+    }
+
+    @Test
     public void inputQueryFiltersLegacySourceListForExistingObject() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
