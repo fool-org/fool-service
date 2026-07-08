@@ -271,6 +271,16 @@ describe("App defaults", () => {
     expect(appSource).not.toContain('v-for="item in detailDataRows"');
   });
 
+  it("keeps child update fallback drafts on rendered group columns", () => {
+    const updateSource = appSource.slice(
+      appSource.indexOf("async function updateDetailItem"),
+      appSource.indexOf("async function deleteDetailItem")
+    );
+
+    expect(updateSource).toContain("buildGroupItemDrafts(group, item)");
+    expect(updateSource).not.toContain("buildFieldDrafts(detailItemValues(item))");
+  });
+
   it("keeps read-item View state keyed by the rendered View id", () => {
     expect(viewDataWorkflowSource).toContain("const readItemViews = ref<Record<number, ReadItemViewInfo>>({})");
     expect(viewDataWorkflowSource).toContain("readViewForId(readItemViews.value, Number(viewId))");

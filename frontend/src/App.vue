@@ -45,13 +45,13 @@ import {
   buildAddedItemProperty,
   buildDeletedItemProperty,
   buildFieldDrafts,
+  buildGroupItemDrafts,
   buildReportColsFromModel,
   buildSavePropertyies,
   buildSelectedExistingItemProperty,
   buildUpdatedItemProperty,
   createOperations,
   dataOperations,
-  detailItemValues,
   detailResultItems,
   detailResultSimpleData,
   emptyGroupDraft,
@@ -953,7 +953,7 @@ async function updateDetailItem(group: QueryDataDetailItemGroup, item: QueryData
     errorMessage.value = "Select a saved item first.";
     return;
   }
-  const drafts = childDrafts.value[itemKey(group, item)] || buildFieldDrafts(detailItemValues(item));
+  const drafts = childDrafts.value[itemKey(group, item)] || buildGroupItemDrafts(group, item);
   setDetailItemSavePayload([buildUpdatedItemProperty(group, item, drafts)]);
   const saved = await saveObj();
   saveItempropertiesJson.value = "";

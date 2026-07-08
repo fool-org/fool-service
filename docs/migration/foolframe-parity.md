@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue child update submission fallback now reuses the same
+  `buildGroupItemDrafts(group, item)` path as child draft initialization. If a
+  child draft map is missing during a save click, the payload still starts from
+  rendered child group View columns instead of raw `querydatadetail` item DTO
+  values.
 - 2026-07-09: Vue select-existing child row mapping now reads candidate row
   values through rendered candidate View columns before falling back to same-key
   row items. A raw `querydata.Items` value that happens to share a child
