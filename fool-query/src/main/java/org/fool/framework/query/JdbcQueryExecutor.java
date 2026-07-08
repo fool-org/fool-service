@@ -29,6 +29,21 @@ public class JdbcQueryExecutor {
             int startPage,
             String rowIndex,
             boolean includeRowIndex) {
+        QueryResult result = new QueryResult(
+                pageSize,
+                (size, page) -> loadPage(instance, size, page, rowIndex, includeRowIndex));
+        result.setCurrentPage(startPage);
+        QueryResult.Page page = loadPage(instance, pageSize, startPage, rowIndex, includeRowIndex);
+        result.updatePage(page.totalRecords(), page.rows());
+        return result;
+    }
+
+    private QueryResult.Page loadPage(
+            QueryInstance instance,
+            int pageSize,
+            int startPage,
+            String rowIndex,
+            boolean includeRowIndex) {
         PagedQuerySql querySql = QuerySqlBuilder.pagedQuerySql(
                 instance,
                 pageSize,
@@ -43,11 +58,7 @@ public class JdbcQueryExecutor {
         List<Map<String, Object>> rows = jdbcTemplate.queryForList(
                 querySql.getPageSql(),
                 querySql.getPageArgs());
-
-        QueryResult result = new QueryResult(pageSize);
-        result.setCurrentPage(startPage);
-        result.updatePage(totalRecords == null ? 0L : totalRecords, rows);
-        return result;
+        return new QueryResult.Page(totalRecords == null ? 0L : totalRecords, rows);
     }
 
     private static JdbcTemplate createJdbcTemplate(String connectionString) {

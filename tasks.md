@@ -250,6 +250,9 @@ explicitly named as authoritative for fool-service.
 - [x] Remove the Docker runtime doctor's seeded `ViewId=100` fallback so runtime
       proof must start from the legacy app shell default View before loading
       View metadata and data.
+- [x] Implement the legacy `QueryResult.GetData` current-page reload surface in
+      `fool-query` so changing `CurrentPage` can re-query the current page
+      through the existing paged SQL executor.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

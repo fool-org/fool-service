@@ -4,6 +4,7 @@ import org.fool.framework.common.PropertyType;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,23 @@ public class JdbcQueryExecutorTest {
         assertTrue(jdbcTemplate.pageSql.startsWith("SELECT  [order_id]  FROM (SELECT distinct"));
         assertArrayEquals(new Object[]{"1001"}, jdbcTemplate.countArgs);
         assertArrayEquals(new Object[]{"1001", 2, 10, 2, 10}, jdbcTemplate.pageArgs);
+    }
+
+    @Test
+    public void queryResultGetDataReloadsTheCurrentPage() {
+        RecordingJdbcTemplate jdbcTemplate = RecordingJdbcTemplate.rowsByPage(30L);
+        JdbcQueryExecutor executor = new JdbcQueryExecutor(jdbcTemplate);
+
+        QueryResult result = executor.execute(queryInstance(), 10, 1);
+        assertEquals("page-1", result.getRows().get(0).get("order_id"));
+
+        result.setCurrentPage(3);
+        assertEquals("page-3", result.getData().get(0).get("order_id"));
+
+        assertEquals(2, jdbcTemplate.pageArgsHistory.size());
+        assertArrayEquals(new Object[]{3, 10, 3, 10}, jdbcTemplate.pageArgsHistory.get(1));
+        assertEquals(30L, result.getTotalRecords());
+        assertEquals(3L, result.getTotalPages());
     }
 
     @Test
@@ -74,6 +92,8 @@ public class JdbcQueryExecutorTest {
     private static final class RecordingJdbcTemplate extends JdbcTemplate {
         private final Long count;
         private final List<Map<String, Object>> rows;
+        private final boolean rowsByPage;
+        private final List<Object[]> pageArgsHistory = new ArrayList<>();
         private String countSql;
         private String pageSql;
         private Object[] countArgs;
@@ -82,6 +102,17 @@ public class JdbcQueryExecutorTest {
         private RecordingJdbcTemplate(Long count, List<Map<String, Object>> rows) {
             this.count = count;
             this.rows = rows;
+            this.rowsByPage = false;
+        }
+
+        private RecordingJdbcTemplate(Long count) {
+            this.count = count;
+            this.rows = List.of();
+            this.rowsByPage = true;
+        }
+
+        private static RecordingJdbcTemplate rowsByPage(Long count) {
+            return new RecordingJdbcTemplate(count);
         }
 
         @Override
@@ -95,6 +126,10 @@ public class JdbcQueryExecutorTest {
         public List<Map<String, Object>> queryForList(String sql, Object... args) {
             this.pageSql = sql;
             this.pageArgs = Arrays.copyOf(args, args.length);
+            this.pageArgsHistory.add(this.pageArgs);
+            if (rowsByPage) {
+                return List.of(Map.of("order_id", "page-" + args[0]));
+            }
             return rows;
         }
     }
