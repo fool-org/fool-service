@@ -28,6 +28,12 @@ public class SelectedColumnCollection implements Iterable<SelectedColumn> {
         return items.contains(item);
     }
 
+    public void copyTo(SelectedColumn[] array, int arrayIndex) {
+        for (int i = 0; i < items.size(); i++) {
+            array[arrayIndex + i] = items.get(i);
+        }
+    }
+
     public SelectedColumn get(int index) {
         return items.get(index);
     }

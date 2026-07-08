@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.lang.reflect.Method;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -69,6 +70,22 @@ public class SelectedColumnCollectionTest {
         assertEquals(1, columns.size());
         assertEquals(second, columns.get(0));
         assertEquals(1, second.getSelectedIndex());
+    }
+
+    @Test
+    public void copyToKeepsLegacyCollectionSurface() throws Exception {
+        SelectedColumnCollection columns = new SelectedColumnCollection();
+        SelectedColumn first = new SelectedColumn("orderId", queryColumn("ORDER_ID"));
+        SelectedColumn second = new SelectedColumn("symbol", queryColumn("SYMBOL"));
+        SelectedColumn sentinel = new SelectedColumn("sentinel", queryColumn("SENTINEL"));
+        columns.add(first);
+        columns.add(second);
+        SelectedColumn[] target = new SelectedColumn[4];
+        target[0] = sentinel;
+
+        method("copyTo", SelectedColumn[].class, int.class).invoke(columns, target, 1);
+
+        assertArrayEquals(new SelectedColumn[]{sentinel, first, second, null}, target);
     }
 
     @Test
