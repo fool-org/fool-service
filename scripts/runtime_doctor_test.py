@@ -24,6 +24,7 @@ from runtime_doctor import (
     report_model_columns,
     response_list_field_present,
     row_object_id,
+    runoperation_result_aliases_ok,
     runtime_report_cols,
     view_column_key,
     view_columns,
@@ -69,6 +70,16 @@ class RuntimeDoctorTest(unittest.TestCase):
     def test_response_list_field_present_allows_empty_legacy_lists(self) -> None:
         self.assertTrue(response_list_field_present({"code": 0, "data": {"Messages": []}}, "Messages"))
         self.assertFalse(response_list_field_present({"code": 0, "data": {"messages": []}}, "Messages"))
+
+    def test_runoperation_result_aliases_require_legacy_result_fields(self) -> None:
+        self.assertTrue(runoperation_result_aliases_ok({"code": 0, "data": {
+            "Value": None,
+            "IsSuccess": False,
+            "ReturnObjId": None,
+            "ReturnViewId": 0,
+            "ReturnMsg": "",
+        }}))
+        self.assertFalse(runoperation_result_aliases_ok({"code": 0, "data": {"success": False}}))
 
     def test_common_void_ok_accepts_legacy_no_data_success(self) -> None:
         self.assertTrue(common_void_ok({"code": 0, "data": None}))

@@ -114,6 +114,13 @@ def response_list_field_present(payload: dict[str, Any], key: str) -> bool:
     return common_response_ok(payload) and isinstance(payload["data"].get(key), list)
 
 
+def runoperation_result_aliases_ok(payload: dict[str, Any]) -> bool:
+    if not common_response_ok(payload):
+        return False
+    data = payload["data"]
+    return all(key in data for key in ("Value", "IsSuccess", "ReturnObjId", "ReturnViewId", "ReturnMsg"))
+
+
 def detail_response_ok(payload: dict[str, Any]) -> bool:
     if not common_response_ok(payload):
         return False
@@ -525,6 +532,17 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         columns = view_state.get("columns")
         return bool(object_id) and isinstance(columns, list) and query_rows_match_view(rows, columns)
 
+    def runoperation_aliases_ok() -> bool:
+        view_id = loaded_list_view_id()
+        object_id = view_state.get("objectId")
+        if not view_id or not object_id:
+            return False
+        return runoperation_result_aliases_ok(post_json(
+            f"{frontend_url}/api/v1/data/runoperation",
+            {"ViewId": view_id, "ObjectId": object_id, "OperationId": 0},
+            timeout,
+        ))
+
     def inputquery_ok() -> bool:
         view_id = loaded_list_view_id()
         columns = view_state.get("columns")
@@ -647,6 +665,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "data:querydata-items",
             querydata_view_items_ok,
             "POST /api/v1/data/querydata rows expose Items matching the loaded View columns",
+        ),
+        (
+            "data:runoperation-aliases",
+            runoperation_aliases_ok,
+            "POST /api/v1/data/runoperation returns legacy result aliases on a no-op operation",
         ),
         (
             "data:querydatadetail",

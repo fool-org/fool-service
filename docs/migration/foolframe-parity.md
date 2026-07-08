@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: the Docker runtime doctor now covers `runoperation` result
+  aliases through the Vue proxy. It reuses the loaded View id and object id
+  from `querydata`, then sends a no-op operation id so the check proves
+  `Value` / `IsSuccess` / `ReturnObjId` / `ReturnViewId` / `ReturnMsg`
+  without mutating seeded rows.
 - 2026-07-08: the Docker runtime doctor now requires every returned
   `querydata` row to match the loaded `getlistview` View columns through row
   `Items`. DTO-only `values` rows are explicitly rejected in the helper tests,

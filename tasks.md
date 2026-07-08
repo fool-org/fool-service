@@ -54,6 +54,8 @@ explicitly named as authoritative for fool-service.
 - [x] Expose FoolFrame Pascal `runoperation` result aliases (`Value`,
       `IsSuccess`, `ReturnObjId`, `ReturnViewId`, `ReturnMsg`) and make Vue
       operation refresh logic read success through a shared protocol helper.
+- [x] Extend the Docker runtime doctor to prove `runoperation` result aliases
+      through the Vue proxy without executing a mutating View operation.
 - [x] Remove the Vue workspace's visible business-name `get-view/query-list`
       shortcuts so View rendering and data loading stay `viewId` driven.
 - [x] Add a repository harness guard for oversized source files.
