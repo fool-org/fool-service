@@ -21,6 +21,7 @@ import {
   fieldEditType,
   fieldKey,
   fieldDisplayValue,
+  fieldInputType,
   fieldModelId,
   fieldType,
   fieldTitle,
@@ -157,6 +158,14 @@ describe("view workflow helpers", () => {
     expect(isReadonlyField({ prpId: "id", readOnly: true })).toBe(true);
     expect(isReadonlyField({ prpId: "id", editType: "ReadOnly" })).toBe(true);
     expect(isReadonlyField({ prpId: "name", readOnly: false, editType: "TextBox" })).toBe(false);
+  });
+
+  it("maps metadata field types to native input types", () => {
+    expect(fieldInputType({ prpId: "tradeDate", prpType: "Date" })).toBe("date");
+    expect(fieldInputType({ prpId: "tradeTime", PrpType: "13" })).toBe("time");
+    expect(fieldInputType({ prpId: "amount", prpType: "Decimal" })).toBe("number");
+    expect(fieldInputType({ prpId: "count", PrpType: "1" })).toBe("number");
+    expect(fieldInputType({ prpId: "name", prpType: "String" })).toBe("text");
   });
 
   it("renders list columns only from loaded View metadata", () => {

@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue metadata field editors now render native field-specific
+  inputs for low-risk scalar View metadata: `Date` uses `type=date`, `Time`
+  uses `type=time`, and numeric `PropertyType` values use `type=number`.
+  Enum, BusinessObject lookup, readonly, and save payload behavior continue to
+  use the existing shared View workflow helpers, avoiding a custom picker or a
+  second field-rendering path.
 - 2026-07-09: legacy `inputquery` source-list lookup now treats `#.` as
   owner-context for both added and existing child items. Backend lookup loads
   the owner model by `OwnerId`, strips the `#.` prefix for the source-list
@@ -875,8 +881,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   current View field keys instead of binding to `symbol` / `state` business
   fields. Child collection add/update/delete controls now render from
   `querydatadetail.Items[].properties` and preserve the legacy
-  `Itemproperties.Items` / `AddedItems` / `DelteItems` payload names. Richer
-  field-type widgets remain future work.
+  `Itemproperties.Items` / `AddedItems` / `DelteItems` payload names. The
+  workflow has since moved to `getlistview` / `querydata` / `getreaditemview`
+  ViewId-first calls and now includes native date/time/number scalar inputs;
+  custom formatted widgets remain future work.
 - 2026-07-04: added the first Vue select-from-existing child collection path.
   When `querydatadetail.Items[]` marks a group as `selectFromExists`, the
   detail panel can load the configured `selectedView` / `listViewId` through
@@ -888,8 +896,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   workflow. Detail and child collection fields with `prpType=Enum` and
   `prpModelId` now load options through the migrated `getenums` endpoint and
   render as `<select>` controls while saving the enum DB value through the
-  existing `saveobj` / `savenewobj` payloads. Readonly, lookup, and formatted
-  field-specific widgets remain future work.
+  existing `saveobj` / `savenewobj` payloads. Readonly and lookup widgets are
+  now covered by later migrated slices; custom formatted widgets remain future
+  work.
 - 2026-07-04: aligned Vue detail editing with legacy readonly handling from
   `detailview.js` / `savetext.js`. Detail and child collection fields marked
   with `readOnly=true` or `editType=ReadOnly` render as disabled controls and

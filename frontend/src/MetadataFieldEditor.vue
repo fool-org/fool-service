@@ -4,6 +4,7 @@ import type { InputQueryItem, InputQueryResult, ListDataValue } from "./api";
 import { postApi } from "./api";
 import { buildInputQueryRequest } from "./payload";
 import {
+  fieldInputType,
   fieldKey,
   inputQueryItemId,
   inputQueryItemText,
@@ -114,5 +115,5 @@ function selectLookup(item: InputQueryItem) {
     <small v-if="lookupError" class="metadata-lookup-error">{{ lookupError }}</small>
     <small v-if="modelValue">{{ modelValue }}</small>
   </div>
-  <input v-else v-model="value" />
+  <input v-else v-model="value" :type="fieldInputType(field)" />
 </template>

@@ -192,6 +192,11 @@ describe("App defaults", () => {
     expect(appSource).toContain(':object-id="itemDataId(item)"');
   });
 
+  it("renders native metadata inputs for field-specific widgets", () => {
+    expect(metadataFieldEditorSource).toContain("fieldInputType");
+    expect(metadataFieldEditorSource).toContain(':type="fieldInputType(field)"');
+  });
+
   it("does not keep ViewName as a frontend lookup or workflow shortcut", () => {
     const inputQueryRequestSource = apiSource.slice(
       apiSource.indexOf("export interface InputQueryRequest"),

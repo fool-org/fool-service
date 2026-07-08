@@ -369,6 +369,8 @@ explicitly named as authoritative for fool-service.
 - [x] Let legacy `inputquery` owner source-list expressions (`#.`) work for
       existing child rows as well as added rows, and pass Vue child lookup
       owner context through the shared metadata field editor.
+- [x] Render Vue metadata scalar fields with native date, time, and numeric
+      inputs from View field type metadata instead of a one-size text input.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

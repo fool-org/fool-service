@@ -101,6 +101,19 @@ export function fieldType(field: ListDataValue) {
   return field.prpType ?? field.PrpType;
 }
 
+const numberFieldTypes = new Set([
+  "identifyid", "int", "uint", "long", "ulong", "float", "double", "decimal", "byte",
+  "0", "1", "2", "3", "4", "5", "6", "7", "10"
+]);
+
+export function fieldInputType(field: ListDataValue) {
+  const type = String(fieldType(field) ?? "").toLowerCase();
+  if (type === "date" || type === "12") return "date";
+  if (type === "time" || type === "13") return "time";
+  if (numberFieldTypes.has(type)) return "number";
+  return "text";
+}
+
 export function fieldEditType(field: ListDataValue) {
   return field.editType ?? field.EditType;
 }
