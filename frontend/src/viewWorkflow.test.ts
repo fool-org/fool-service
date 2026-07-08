@@ -587,6 +587,33 @@ describe("view workflow helpers", () => {
     });
   });
 
+  it("keeps child delete payloads to item id without data DTO propertyies", () => {
+    const group = {
+      prpId: "items",
+      properties: [
+        { prpId: "itemName" }
+      ]
+    };
+    const item = {
+      dataId: "2001",
+      values: [
+        { prpId: "itemName", objId: "Old item" },
+        { prpId: "dtoOnly", objId: "leak" }
+      ]
+    };
+
+    expect(buildDeletedItemProperty(group, item)).toEqual({
+      key: "items",
+      delteItems: [
+        {
+          itemId: "2001",
+          isExist: true,
+          propertyies: []
+        }
+      ]
+    });
+  });
+
   it("maps a selected existing row into AddedItems by child fields", () => {
     const group = {
       prpId: "items",

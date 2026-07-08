@@ -97,6 +97,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue child delete payloads now keep
+  `Itemproperties[].DelteItems[]` to the child `itemId` plus an empty
+  `propertyies` list, matching FoolFrame's delete branch that removes by
+  `ItemId` only. Raw child data DTO values no longer leak into delete payloads.
 - 2026-07-09: Vue child update submission fallback now reuses the same
   `buildGroupItemDrafts(group, item)` path as child draft initialization. If a
   child draft map is missing during a save click, the payload still starts from

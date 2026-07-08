@@ -428,6 +428,8 @@ explicitly named as authoritative for fool-service.
       `AddedItems` payload fields.
 - [x] Reuse rendered child group View columns for child update fallback drafts
       when the Vue child draft map is missing during save.
+- [x] Trim child delete payloads to item id plus empty `propertyies`, matching
+      FoolFrame's delete-by-`ItemId` behavior and avoiding DTO-only values.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

@@ -753,7 +753,7 @@ export function buildDeletedItemProperty(
       {
         itemId: itemDataId(item),
         isExist: true,
-        propertyies: buildItemPropertyies(detailItemValues(item), buildFieldDrafts(detailItemValues(item)))
+        propertyies: []
       }
     ]
   };
