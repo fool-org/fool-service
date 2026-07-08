@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import apiSource from "./api.ts?raw";
 import nginxConfig from "../nginx.conf?raw";
 import viteConfig from "../vite.config.ts?raw";
 import appSource from "./App.vue?raw";
@@ -185,10 +186,16 @@ describe("App defaults", () => {
   });
 
   it("does not keep ViewName as a frontend lookup or workflow shortcut", () => {
+    const inputQueryRequestSource = apiSource.slice(
+      apiSource.indexOf("export interface InputQueryRequest"),
+      apiSource.indexOf("export interface InputQueryItem")
+    );
+
     expect(appSource).not.toContain("const viewName = ref");
     expect(appSource).not.toContain("viewName.value");
     expect(payloadSource).not.toContain("viewName?: string");
     expect(payloadSource).not.toContain("request.viewName");
+    expect(inputQueryRequestSource).not.toContain("viewName");
   });
 
   it("loads the View definition before the API-tool data query", () => {

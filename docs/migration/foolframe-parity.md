@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue's `InputQueryRequest` type no longer exposes a
+  `viewName` field. The frontend payload builder was already ViewId-driven;
+  removing the stale type shortcut keeps lookup callers from reintroducing a
+  business-name request path while leaving backend legacy `inputquery`
+  protocol compatibility at the DTO boundary.
 - 2026-07-09: `ViewDataService.getViewData` and
   `DataQueryService.queryViewDataList` now reject service-level business-name
   shortcuts before DAO lookup. Direct service callers must pass numeric

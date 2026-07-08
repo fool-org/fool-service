@@ -406,7 +406,6 @@ export interface InputQueryRequest {
   text?: string;
   viewItemId?: string;
   viewId?: number;
-  viewName?: string;
   modelID?: string;
   objID?: string;
   isAdded?: boolean;

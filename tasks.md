@@ -361,6 +361,8 @@ explicitly named as authoritative for fool-service.
 - [x] Require service-level View/data lookups to receive numeric `ViewId`
       before DAO lookup, removing direct `ViewName` shortcuts from
       `ViewDataService.getViewData` and `DataQueryService.queryViewDataList`.
+- [x] Remove the stale frontend `InputQueryRequest.viewName` type shortcut so
+      Vue lookup payloads stay typed around loaded `ViewId` context.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
