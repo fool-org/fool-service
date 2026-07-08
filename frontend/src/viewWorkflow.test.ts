@@ -26,6 +26,7 @@ import {
   fieldTitle,
   groupColumns,
   groupKey,
+  groupSelectFromExists,
   isEnumField,
   inputQueryItemId,
   inputQueryItemText,
@@ -521,6 +522,12 @@ describe("view workflow helpers", () => {
     expect(selectedChildViewId(group)).toBe(103);
     expect(group.items).toBe(dataGroup.Items);
     expect(groupColumns(group).map(fieldKey)).toEqual(["itemId"]);
+  });
+
+  it("reads select-existing flags from camel or Pascal child group aliases", () => {
+    expect(groupSelectFromExists({ selectFromExists: true })).toBe(true);
+    expect(groupSelectFromExists({ SelectFromExists: true })).toBe(true);
+    expect(groupSelectFromExists({ selectFromExists: false, SelectFromExists: true })).toBe(false);
   });
 
   it("splits legacy list create and row operations", () => {

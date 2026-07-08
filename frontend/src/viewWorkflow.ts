@@ -434,6 +434,10 @@ export function selectedChildViewId(group: QueryDataDetailItemGroup) {
   return Number(group.selectedView ?? group.SelectedView ?? group.listViewId ?? group.ListViewId ?? 0) || 0;
 }
 
+export function groupSelectFromExists(group: QueryDataDetailItemGroup) {
+  return group.selectFromExists ?? group.SelectFromExists ?? false;
+}
+
 export function createOperations(operations: OperationInfo[] = []) {
   return operations.filter((operation) => operationRequiresSelect(operation) === false && operationTargetViewId(operation) > 0);
 }

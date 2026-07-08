@@ -146,6 +146,11 @@ describe("App defaults", () => {
     expect(childSource).not.toContain("declaredColumns.length ? declaredColumns : resultColumns");
   });
 
+  it("renders select-existing child controls through the shared group helper", () => {
+    expect(appSource).toContain("groupSelectFromExists(group)");
+    expect(appSource).not.toContain("group.selectFromExists");
+  });
+
   it("refreshes the main View workflow from legacy AutoFreshTime", () => {
     expect(appSource).toContain("listAutoFreshTime");
     expect(appSource).toContain("scheduleAutoRefresh(response.data)");

@@ -113,6 +113,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `SelectedView`, `Items`, `Properties`) when matching data rows to rendered
   read-item View `DetailViews`. Select-existing child workflows no longer
   depend on camel-case DTO fields to recover the target View id.
+- 2026-07-09: Vue select-existing child controls now read the shared
+  `groupSelectFromExists` helper instead of the camel-only
+  `group.selectFromExists` field, so legacy Pascal `SelectFromExists` can
+  expose the candidate loader after the child group is matched to rendered
+  read-item View metadata.
 - 2026-07-09: Vue read-item View metadata is now cached by rendered `ViewId`.
   Detail rendering, init-new rendering, and manual read-item inspection no
   longer share a single last-loaded read View, and create operations set the

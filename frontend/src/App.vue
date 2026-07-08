@@ -63,6 +63,7 @@ import {
   fieldTitle,
   groupKey,
   groupColumns,
+  groupSelectFromExists,
   inputQueryItemId,
   inputQueryItemText,
   isEnumField,
@@ -1243,7 +1244,7 @@ function syncDetailDrafts() {
                   </label>
                   <button type="button" :disabled="Boolean(pendingAction)" @click="addDetailItem(group)">Add</button>
                 </div>
-                <div v-if="group.selectFromExists" class="table-wrap">
+                <div v-if="groupSelectFromExists(group)" class="table-wrap">
                   <div class="inline-fields">
                     <label>
                       Search

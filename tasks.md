@@ -45,6 +45,9 @@ explicitly named as authoritative for fool-service.
 - [x] Read FoolFrame Pascal `querydatadetail` child-group aliases in shared
       Vue helpers so `SelectedView` / `ListViewId` still drive select-existing
       child workflows after matching the rendered read-item View.
+- [x] Render select-existing child controls through a shared
+      `SelectFromExists`/`selectFromExists` helper instead of a camel-only
+      template field read.
 - [x] Cache Vue read-item View metadata by rendered `ViewId` so detail,
       init-new, and manual read-item panels do not bind data DTO values to a
       stale or wrong read View shape.
