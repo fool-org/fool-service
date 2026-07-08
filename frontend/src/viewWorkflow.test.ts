@@ -55,6 +55,7 @@ import {
   legacyNotifies,
   legacyNotifyAuthNo,
   legacyNotifyCount,
+  legacyRunOperationSuccess,
   legacySubMenuItems,
   listAutoFreshTime,
   listFreshTime,
@@ -549,6 +550,12 @@ describe("view workflow helpers", () => {
     expect(legacyInputQueryItems(inputQuery)).toHaveLength(1);
     expect(inputQueryItemId(inputQuery.Items[0])).toBe("1001");
     expect(inputQueryItemText(inputQuery.Items[0])).toBe("Ada");
+  });
+
+  it("reads runoperation success from camel or legacy result fields", () => {
+    expect(legacyRunOperationSuccess({ success: true })).toBe(true);
+    expect(legacyRunOperationSuccess({ IsSuccess: true })).toBe(true);
+    expect(legacyRunOperationSuccess({ success: false, IsSuccess: false })).toBe(false);
   });
 
   it("uses the rendered View detail id before falling back to the list id", () => {

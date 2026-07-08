@@ -660,10 +660,15 @@ export interface LegacyRunOperationRequest {
 
 export interface LegacyRunOperationResult {
   value?: ListDataValue[];
+  Value?: ListDataValue[];
   success?: boolean;
+  IsSuccess?: boolean;
   returnObjId?: string;
+  ReturnObjId?: string;
   returnViewId?: number;
+  ReturnViewId?: number;
   returnMsg?: string;
+  ReturnMsg?: string;
 }
 
 export async function postApi<T>(path: string, payload: unknown): Promise<CommonResponse<T>> {

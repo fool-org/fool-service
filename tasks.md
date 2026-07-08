@@ -48,6 +48,9 @@ explicitly named as authoritative for fool-service.
       to concrete business DTOs.
 - [x] Render View metadata operation buttons in the main Vue workflow and
       execute them through legacy `runoperation`.
+- [x] Expose FoolFrame Pascal `runoperation` result aliases (`Value`,
+      `IsSuccess`, `ReturnObjId`, `ReturnViewId`, `ReturnMsg`) and make Vue
+      operation refresh logic read success through a shared protocol helper.
 - [x] Remove the Vue workspace's visible business-name `get-view/query-list`
       shortcuts so View rendering and data loading stay `viewId` driven.
 - [x] Add a repository harness guard for oversized source files.
@@ -122,6 +125,12 @@ explicitly named as authoritative for fool-service.
 - [x] Make the Vue API-tools `Query Data` path load the selected View
       definition before calling `querydata`, so shared row state stays bound to
       the rendered View context instead of a standalone business DTO shortcut.
+- [x] Make the Vue current View refresh path verify the rendered
+      `getlistview(viewId)` metadata before `querydata(viewId)`, preventing
+      page rendering from starting at a data/business DTO fallback.
+- [ ] Split remaining Vue View workflow state/actions out of `App.vue` before
+      adding more panels; current size is 2054 lines and should trend back
+      below the 2000-line target.
 - [x] Execute legacy property `SET` trigger `SET_VALUE` side effects through
       dynamic `ModelDataService` create/save writes without introducing
       concrete business DTO binding.

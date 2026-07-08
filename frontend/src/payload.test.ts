@@ -150,6 +150,18 @@ describe("App defaults", () => {
     expect(querySource).not.toContain("viewId: Number(legacyQueryViewId.value)");
   });
 
+  it("loads the rendered View before the current data query", () => {
+    const querySource = appSource.slice(
+      appSource.indexOf("async function queryCurrentViewData"),
+      appSource.indexOf("async function loadResultPage")
+    );
+
+    expect(querySource).toContain("viewId(viewResponse.value.data) !== Number(legacyListViewId.value)");
+    expect(querySource.indexOf("await loadLegacyListView()")).toBeGreaterThanOrEqual(0);
+    expect(querySource.indexOf("await loadLegacyListView()")).toBeLessThan(querySource.indexOf("/api/v1/data/querydata"));
+    expect(querySource).toContain("viewId: loadedViewId");
+  });
+
   it("loads the default first-screen View from the legacy app shell", () => {
     const workflowSource = appSource.slice(
       appSource.indexOf("async function loadViewWorkflow"),

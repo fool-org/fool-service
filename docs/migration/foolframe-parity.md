@@ -97,6 +97,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: `runoperation` result payloads now expose FoolFrame aliases
+  (`Value`, `IsSuccess`, `ReturnObjId`, `ReturnViewId`, `ReturnMsg`) while
+  preserving camel-case fields. Vue operation refresh logic reads success
+  through `legacyRunOperationSuccess`, and `queryCurrentViewData` verifies the
+  rendered `getlistview(viewId)` metadata before calling `querydata(viewId)`,
+  keeping page code on the View-first protocol boundary instead of binding to
+  concrete business DTO fields.
 - 2026-07-08: report grid responses now expose FoolFrame aliases for
   `ReportResult` and `ReportCell` (`ViewId`, `CurrentPage`, `PageSize`,
   `TotalRecords`, `TotalPages`, `Cells`, `Col`, `Row`, `ColSpan`,

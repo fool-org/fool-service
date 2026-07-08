@@ -8,6 +8,7 @@ import type {
   InputQueryResult,
   LegacyAuthItem,
   LegacyInitAppResult,
+  LegacyRunOperationResult,
   LegacySubMenuResult,
   ListDataItem,
   ListDataValue,
@@ -218,6 +219,10 @@ export function inputQueryItemId(item: InputQueryItem) {
 
 export function inputQueryItemText(item: InputQueryItem) {
   return firstDisplayValue([item.text, item.Text]);
+}
+
+export function legacyRunOperationSuccess(source?: LegacyRunOperationResult) {
+  return source?.success === true || source?.IsSuccess === true;
 }
 
 export function readViewItems(view: ReadItemViewInfo | undefined) {

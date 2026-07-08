@@ -92,6 +92,7 @@ import {
   legacyNotifies,
   legacyNotifyAuthNo,
   legacyNotifyCount,
+  legacyRunOperationSuccess,
   legacySubMenuItems,
   listAutoFreshTime,
   listFreshTime,
@@ -521,13 +522,18 @@ async function queryLegacyData() {
 }
 
 async function queryCurrentViewData() {
-  const viewId = Number(currentViewId.value);
-  legacyQueryViewId.value = viewId;
+  if (!viewResponse.value?.data || viewId(viewResponse.value.data) !== Number(legacyListViewId.value)) {
+    const loadedView = await loadLegacyListView();
+    if (!loadedView) return;
+  }
+
+  const loadedViewId = Number(currentViewId.value);
+  legacyQueryViewId.value = loadedViewId;
   legacyQueryPageIndex.value = Number(pageIndex.value);
   legacyQueryPageSize.value = Number(pageSize.value);
   const request = buildLegacyQueryDataRequest({
     token: token.value,
-    viewId,
+    viewId: loadedViewId,
     pageIndex: Number(pageIndex.value),
     pageSize: Number(pageSize.value),
     queryFilter: legacyQueryFilter.value
@@ -734,7 +740,7 @@ async function runViewOperation(operation: OperationInfo) {
   operationViewId.value = Number(detailViewId.value);
   operationId.value = id;
   await runOperation();
-  if (runOperationResponse.value?.data?.success) {
+  if (legacyRunOperationSuccess(runOperationResponse.value?.data)) {
     await queryCurrentViewData();
     detailObjId.value = selectedObjectId.value;
     await queryDetail(Number(detailViewId.value));
@@ -1152,7 +1158,7 @@ function syncDetailDrafts() {
                 v-model="detailDrafts[fieldKey(field)]"
                 :field="field"
                 :options="enumFieldOptions(enumOptions, field)"
-                :readonly-value="field.fmtValue"
+                :readonly-value="fieldDisplayValue(field)"
                 v-bind="fieldEditorContext"
               />
             </label>
@@ -1163,9 +1169,9 @@ function syncDetailDrafts() {
           <div v-else class="empty-state compact">Select a row from the list.</div>
 
           <div class="detail-fields">
-            <div v-for="item in detailRows" :key="item.prpId || item.prpShowName">
+            <div v-for="item in detailRows" :key="fieldKey(item)">
               <span>{{ fieldTitle(item) }}</span>
-              <strong>{{ item.fmtValue }}</strong>
+              <strong>{{ fieldDisplayValue(item) }}</strong>
             </div>
           </div>
 
