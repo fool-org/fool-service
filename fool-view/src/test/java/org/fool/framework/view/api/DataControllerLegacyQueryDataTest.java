@@ -38,6 +38,11 @@ public class DataControllerLegacyQueryDataTest {
     }
 
     @Test
+    public void queryDataRequestDoesNotDeclareBusinessNameShortcut() {
+        assertThrows(NoSuchFieldException.class, () -> QueryDataRequest.class.getDeclaredField("viewName"));
+    }
+
+    @Test
     public void queryDataMapsLegacyViewIdPagingAndFilter() throws Exception {
         DataQueryService dataQueryService = mock(DataQueryService.class);
         ListViewResult expected = new ListViewResult();
@@ -72,10 +77,9 @@ public class DataControllerLegacyQueryDataTest {
 
         DataController controller = new DataController();
         setField(controller, "dataQueryService", dataQueryService);
-        QueryDataRequest request = new QueryDataRequest();
-        request.setViewId(42L);
-        request.setViewName("WrongBusinessViewName");
-        request.setKeyword("USDT");
+        QueryDataRequest request = new ObjectMapper().readValue(
+                "{\"ViewId\":42,\"viewName\":\"WrongBusinessViewName\",\"keyword\":\"USDT\"}",
+                QueryDataRequest.class);
 
         CommonResponse<ListViewResult> response = controller.queryViewDataList(request);
 
@@ -88,8 +92,9 @@ public class DataControllerLegacyQueryDataTest {
     public void queryListRejectsViewNameOnlyRequest() throws Exception {
         DataController controller = new DataController();
         setField(controller, "dataQueryService", mock(DataQueryService.class));
-        QueryDataRequest request = new QueryDataRequest();
-        request.setViewName("BusinessNameShortcut");
+        QueryDataRequest request = new ObjectMapper().readValue(
+                "{\"ViewName\":\"BusinessNameShortcut\"}",
+                QueryDataRequest.class);
 
         CommonException exception = assertThrows(CommonException.class, () -> controller.queryViewDataList(request));
 

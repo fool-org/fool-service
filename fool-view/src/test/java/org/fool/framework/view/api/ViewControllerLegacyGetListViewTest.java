@@ -31,6 +31,11 @@ public class ViewControllerLegacyGetListViewTest {
     }
 
     @Test
+    public void viewDataRequestDoesNotDeclareBusinessNameShortcut() {
+        assertThrows(NoSuchFieldException.class, () -> ViewDataRequest.class.getDeclaredField("viewName"));
+    }
+
+    @Test
     public void getListViewMapsLegacyViewIdPayload() throws Exception {
         ViewDataService viewDataService = mock(ViewDataService.class);
         ViewAdapter viewAdapter = mock(ViewAdapter.class);
@@ -65,10 +70,9 @@ public class ViewControllerLegacyGetListViewTest {
         ViewController controller = new ViewController();
         setField(controller, "viewDataService", viewDataService);
         setField(controller, "viewAdapter", viewAdapter);
-        ViewDataRequest request = new ViewDataRequest();
-        request.setToken("token-1");
-        request.setViewId(100L);
-        request.setViewName("WrongBusinessViewName");
+        ViewDataRequest request = new ObjectMapper().readValue(
+                "{\"Token\":\"token-1\",\"ViewId\":100,\"ViewName\":\"WrongBusinessViewName\"}",
+                ViewDataRequest.class);
 
         CommonResponse<ListViewInfo> response = controller.getViewData(request);
 
@@ -82,8 +86,9 @@ public class ViewControllerLegacyGetListViewTest {
         ViewController controller = new ViewController();
         setField(controller, "viewDataService", mock(ViewDataService.class));
         setField(controller, "viewAdapter", mock(ViewAdapter.class));
-        ViewDataRequest request = new ViewDataRequest();
-        request.setViewName("BusinessNameShortcut");
+        ViewDataRequest request = new ObjectMapper().readValue(
+                "{\"ViewName\":\"BusinessNameShortcut\"}",
+                ViewDataRequest.class);
 
         CommonException exception = assertThrows(CommonException.class, () -> controller.getViewData(request));
 
@@ -95,8 +100,9 @@ public class ViewControllerLegacyGetListViewTest {
         ViewController controller = new ViewController();
         setField(controller, "viewDataService", mock(ViewDataService.class));
         setField(controller, "viewAdapter", mock(ViewAdapter.class));
-        ViewDataRequest request = new ViewDataRequest();
-        request.setViewName("BusinessNameShortcut");
+        ViewDataRequest request = new ObjectMapper().readValue(
+                "{\"viewName\":\"BusinessNameShortcut\"}",
+                ViewDataRequest.class);
 
         CommonException exception = assertThrows(CommonException.class, () -> controller.getListView(request));
 

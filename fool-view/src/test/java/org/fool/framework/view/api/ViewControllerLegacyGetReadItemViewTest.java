@@ -1,5 +1,6 @@
 package org.fool.framework.view.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.fool.framework.dto.CommonException;
 import org.fool.framework.dto.CommonResponse;
 import org.fool.framework.view.adapter.ViewAdapter;
@@ -50,8 +51,9 @@ public class ViewControllerLegacyGetReadItemViewTest {
         ViewController controller = new ViewController();
         setField(controller, "viewDataService", mock(ViewDataService.class));
         setField(controller, "viewAdapter", mock(ViewAdapter.class));
-        ViewDataRequest request = new ViewDataRequest();
-        request.setViewName("BusinessNameShortcut");
+        ViewDataRequest request = new ObjectMapper().readValue(
+                "{\"ViewName\":\"BusinessNameShortcut\"}",
+                ViewDataRequest.class);
 
         CommonException exception = assertThrows(CommonException.class, () -> controller.getReadItemView(request));
 

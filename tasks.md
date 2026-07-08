@@ -354,6 +354,10 @@ explicitly named as authoritative for fool-service.
 - [x] Align `QueryFactory.getTable` with FoolFrame `GetTable` by resolving
       tables from trimmed/case-insensitive DBName only and failing missing
       tables instead of accepting rendered ShowName labels or returning null.
+- [x] Remove the generic View/data request DTO `viewName` shortcut from
+      `get-view`, `getlistview`, `getreaditemview`, and `query-list`, so
+      stray `ViewName` JSON is ignored and those endpoints still require
+      `ViewId`.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

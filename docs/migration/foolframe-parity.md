@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Generic View/data request DTOs for `get-view`,
+  `getlistview`, `getreaditemview`, and `query-list` no longer declare a
+  `viewName` shortcut. Extra `ViewName` / `viewName` JSON fields are ignored
+  and the controllers still require `ViewId`, keeping rendering and data
+  loading on the ViewId-first path while leaving legacy `inputquery`
+  `ViewName` compatibility at its protocol boundary.
 - 2026-07-09: `QueryFactory.getTable` now matches FoolFrame
   `GetTable`: table lookup uses trimmed, case-insensitive DBName only and
   throws on missing tables. The Java-only ShowName/null fallback was removed

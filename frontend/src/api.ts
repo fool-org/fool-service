@@ -288,7 +288,6 @@ export interface ListViewInfo {
 export interface ViewDataRequest {
   token?: string;
   viewId?: number;
-  viewName?: string;
 }
 
 export interface ReadItemViewItemInfo {
