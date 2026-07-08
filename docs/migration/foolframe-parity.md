@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue metadata editors now accept FoolFrame numeric
+  `ItemEditType` enum values as well as Java enum names. Numeric
+  `ReadOnly=0`, `CheckBox=2`, `DatePicker=6`, `TimePicker=7`, and
+  `DateTimePicker=8` map to the same disabled/native inputs as their string
+  aliases without adding a custom widget layer.
 - 2026-07-09: Vue input-query item display helpers now tolerate empty legacy
   candidate entries by returning empty display text instead of throwing during
   render. The first-screen View workflow loads the rebuilt frontend bundle

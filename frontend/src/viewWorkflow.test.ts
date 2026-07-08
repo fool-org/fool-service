@@ -161,6 +161,7 @@ describe("view workflow helpers", () => {
   it("identifies readonly fields by metadata", () => {
     expect(isReadonlyField({ prpId: "id", readOnly: true })).toBe(true);
     expect(isReadonlyField({ prpId: "id", editType: "ReadOnly" })).toBe(true);
+    expect(isReadonlyField({ prpId: "id", editType: 0 })).toBe(true);
     expect(isReadonlyField({ prpId: "name", readOnly: false, editType: "TextBox" })).toBe(false);
   });
 
@@ -174,8 +175,12 @@ describe("view workflow helpers", () => {
     expect(fieldInputType({ prpId: "planned", prpType: "String", EditType: "DateTimePicker" })).toBe(
       "datetime-local"
     );
+    expect(fieldInputType({ prpId: "planned", prpType: "String", EditType: 6 })).toBe("date");
+    expect(fieldInputType({ prpId: "planned", prpType: "String", EditType: 7 })).toBe("time");
+    expect(fieldInputType({ prpId: "planned", prpType: "String", EditType: 8 })).toBe("datetime-local");
     expect(fieldInputType({ prpId: "active", PrpType: "8" })).toBe("checkbox");
     expect(fieldInputType({ prpId: "active", prpType: "String", EditType: "CheckBox" })).toBe("checkbox");
+    expect(fieldInputType({ prpId: "active", prpType: "String", EditType: 2 })).toBe("checkbox");
     expect(fieldInputType({ prpId: "active", prpType: "String" })).toBe("text");
     expect(fieldInputType({ prpId: "amount", prpType: "Decimal" })).toBe("number");
     expect(fieldInputType({ prpId: "count", PrpType: "1" })).toBe("number");

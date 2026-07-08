@@ -107,11 +107,11 @@ const numberFieldTypes = new Set([
 ]);
 
 export function fieldInputType(field: ListDataValue) {
-  const editType = String(fieldEditType(field) ?? "").toLowerCase();
-  if (editType === "checkbox") return "checkbox";
-  if (editType === "datepicker") return "date";
-  if (editType === "timepicker") return "time";
-  if (editType === "datetimepicker") return "datetime-local";
+  const editType = normalizedEditType(field);
+  if (editType === "checkbox" || editType === "2") return "checkbox";
+  if (editType === "datepicker" || editType === "6") return "date";
+  if (editType === "timepicker" || editType === "7") return "time";
+  if (editType === "datetimepicker" || editType === "8") return "datetime-local";
   const type = String(fieldType(field) ?? "").toLowerCase();
   if (type === "boolean" || type === "8") return "checkbox";
   if (type === "date" || type === "12") return "date";
@@ -136,6 +136,10 @@ export function fieldInputValue(field: ListDataValue, value: string) {
 
 export function fieldEditType(field: ListDataValue) {
   return field.editType ?? field.EditType;
+}
+
+function normalizedEditType(field: ListDataValue) {
+  return String(fieldEditType(field) ?? "").toLowerCase();
 }
 
 export function fieldDisplayValue(field: ListDataValue) {
@@ -405,7 +409,8 @@ export function isLookupField(field: ListDataValue) {
 }
 
 export function isReadonlyField(field: ListDataValue) {
-  return field.readOnly === true || field.ReadOnly === true || String(field.editType ?? field.EditType ?? "").toLowerCase() === "readonly";
+  const editType = normalizedEditType(field);
+  return field.readOnly === true || field.ReadOnly === true || editType === "readonly" || editType === "0";
 }
 
 export function fieldDraftValue(field: ListDataValue) {

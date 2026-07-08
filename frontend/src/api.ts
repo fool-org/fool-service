@@ -207,8 +207,8 @@ export interface TableColumnInfo {
   Format?: string;
   isReadOnly?: boolean;
   IsReadOnly?: boolean;
-  editType?: string;
-  EditType?: string;
+  editType?: string | number;
+  EditType?: string | number;
   propertyId?: number;
   PropertyId?: number;
   listViewId?: number;
@@ -307,8 +307,8 @@ export interface ReadItemViewItemInfo {
   PrpShowName?: string;
   readOnly?: boolean;
   ReadOnly?: boolean;
-  editType?: string;
-  EditType?: string;
+  editType?: string | number;
+  EditType?: string | number;
 }
 
 export interface ReadItemViewDetailInfo extends ReadItemViewItemInfo {
@@ -354,7 +354,7 @@ export interface ListDataValue {
   prpType?: string;
   prpModelId?: number;
   readOnly?: boolean;
-  editType?: string;
+  editType?: string | number;
   ObjId?: string;
   PrpId?: string;
   FmtValue?: string;
@@ -362,7 +362,7 @@ export interface ListDataValue {
   PrpType?: string;
   PrpModelId?: number;
   ReadOnly?: boolean;
-  EditType?: string;
+  EditType?: string | number;
 }
 
 export interface ListViewResult {
