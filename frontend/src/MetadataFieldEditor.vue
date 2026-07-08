@@ -3,7 +3,15 @@ import { computed, ref } from "vue";
 import type { InputQueryItem, InputQueryResult, ListDataValue } from "./api";
 import { postApi } from "./api";
 import { buildInputQueryRequest } from "./payload";
-import { fieldKey, isEnumField, isLookupField, isReadonlyField } from "./viewWorkflow";
+import {
+  fieldKey,
+  inputQueryItemId,
+  inputQueryItemText,
+  isEnumField,
+  isLookupField,
+  isReadonlyField,
+  legacyInputQueryItems
+} from "./viewWorkflow";
 
 const props = withDefaults(
   defineProps<{
@@ -57,7 +65,7 @@ async function searchLookup() {
         isAdded: props.isAdded
       })
     );
-    lookupOptions.value = response.data?.items || [];
+    lookupOptions.value = legacyInputQueryItems(response.data);
     if (response.code !== 0) {
       lookupError.value = response.message || "Lookup failed.";
     }
@@ -69,9 +77,9 @@ async function searchLookup() {
 }
 
 function selectLookup(item: InputQueryItem) {
-  const id = item.id || "";
+  const id = inputQueryItemId(item);
   emit("update:modelValue", id);
-  lookupTerm.value = item.text || id;
+  lookupTerm.value = inputQueryItemText(item) || id;
   lookupOptions.value = [];
 }
 </script>
@@ -93,11 +101,11 @@ function selectLookup(item: InputQueryItem) {
     <div v-if="lookupOptions.length" class="metadata-lookup-options">
       <button
         v-for="option in lookupOptions"
-        :key="option.id || option.text"
+        :key="inputQueryItemId(option) || inputQueryItemText(option)"
         type="button"
         @click="selectLookup(option)"
       >
-        {{ option.text || option.id }}
+        {{ inputQueryItemText(option) || inputQueryItemId(option) }}
       </button>
     </div>
     <small v-if="lookupError" class="metadata-lookup-error">{{ lookupError }}</small>

@@ -412,11 +412,14 @@ export interface InputQueryRequest {
 
 export interface InputQueryItem {
   id?: string;
+  Id?: string;
   text?: string;
+  Text?: string;
 }
 
 export interface InputQueryResult {
   items?: InputQueryItem[];
+  Items?: InputQueryItem[];
 }
 
 export interface MessageInfo {

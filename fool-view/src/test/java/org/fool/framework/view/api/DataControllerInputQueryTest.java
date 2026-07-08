@@ -9,9 +9,11 @@ import org.junit.Test;
 
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -52,6 +54,22 @@ public class DataControllerInputQueryTest {
         verify(dataQueryService).inputQuery(request);
         assertEquals(0, response.getCode());
         assertSame(expected, response.getData());
+    }
+
+    @Test
+    public void inputQueryResultExposesLegacyPascalAliases() {
+        InputQueryResult result = new InputQueryResult();
+        result.setItems(List.of(new InputQueryResult.QueryItem("1001", "Ada")));
+
+        Map<?, ?> serialized = new ObjectMapper().convertValue(result, Map.class);
+        assertTrue(serialized.containsKey("items"));
+        assertTrue(serialized.containsKey("Items"));
+        assertEquals(serialized.get("items"), serialized.get("Items"));
+        Map<?, ?> item = (Map<?, ?>) ((List<?>) serialized.get("Items")).get(0);
+        assertEquals("1001", item.get("id"));
+        assertEquals("1001", item.get("Id"));
+        assertEquals("Ada", item.get("text"));
+        assertEquals("Ada", item.get("Text"));
     }
 
     private static void setField(Object target, String name, Object value) throws Exception {

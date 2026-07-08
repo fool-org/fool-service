@@ -63,6 +63,8 @@ import {
   fieldTitle,
   groupKey,
   groupColumns,
+  inputQueryItemId,
+  inputQueryItemText,
   isEnumField,
   itemKey,
   itemValue,
@@ -79,6 +81,7 @@ import {
   legacyEnumValues,
   legacyInitAppCheckCode,
   legacyInitAppDbId,
+  legacyInputQueryItems,
   legacyMessageContent,
   legacyMessageId,
   legacyMessageResultKey,
@@ -260,6 +263,7 @@ const subMenuItems = computed(() => legacySubMenuItems(subMenuResponse.value?.da
 const messageItems = computed(() => legacyMessages(messageResponse.value?.data));
 const notifyItems = computed(() => legacyNotifies(notifyResponse.value?.data));
 const enumItems = computed(() => legacyEnumValues(enumResponse.value?.data));
+const inputQueryItems = computed(() => legacyInputQueryItems(inputQueryResponse.value?.data));
 const backendSmokeColumns = computed(() => recordColumns(backendSmokeResponse.value?.data || []));
 const viewCanEdit = computed(() => Boolean(selectedObject.value || isCreatingObject.value));
 const fieldEditorContext = computed(() => ({
@@ -1823,7 +1827,7 @@ function syncDetailDrafts() {
           </button>
 
           <div class="table-wrap input-query-results">
-            <table v-if="inputQueryResponse?.data?.items?.length">
+            <table v-if="inputQueryItems.length">
               <thead>
                 <tr>
                   <th>ID</th>
@@ -1831,9 +1835,9 @@ function syncDetailDrafts() {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in inputQueryResponse.data.items" :key="item.id || item.text">
-                  <td>{{ item.id }}</td>
-                  <td>{{ item.text }}</td>
+                <tr v-for="item in inputQueryItems" :key="inputQueryItemId(item) || inputQueryItemText(item)">
+                  <td>{{ inputQueryItemId(item) }}</td>
+                  <td>{{ inputQueryItemText(item) }}</td>
                 </tr>
               </tbody>
             </table>

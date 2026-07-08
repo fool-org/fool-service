@@ -26,6 +26,8 @@ import {
   groupColumns,
   groupKey,
   isEnumField,
+  inputQueryItemId,
+  inputQueryItemText,
   isLookupField,
   isReadonlyField,
   itemKey,
@@ -42,6 +44,7 @@ import {
   legacyEnumValues,
   legacyInitAppCheckCode,
   legacyInitAppDbId,
+  legacyInputQueryItems,
   legacyMessageContent,
   legacyMessageId,
   legacyMessageResultKey,
@@ -501,6 +504,7 @@ describe("view workflow helpers", () => {
     const messages = { Messages: [{ MessageID: "m1", MessageContent: "Ready", ResultView: 100, ResultKey: "1001" }] };
     const notifies = { Notifies: [{ AuthNo: "1", Count: 3 }] };
     const enums = { EnumValues: [{ Name: "Open", Value: 0 }] };
+    const inputQuery = { Items: [{ Id: "1001", Text: "Ada" }] };
 
     expect(legacySubMenuItems(menu)).toHaveLength(1);
     expect(legacyAuthNo(menu.Items[0])).toBe("1");
@@ -518,6 +522,9 @@ describe("view workflow helpers", () => {
     expect(legacyEnumValues(enums)).toHaveLength(1);
     expect(legacyEnumName(enums.EnumValues[0])).toBe("Open");
     expect(legacyEnumValue(enums.EnumValues[0])).toBe("0");
+    expect(legacyInputQueryItems(inputQuery)).toHaveLength(1);
+    expect(inputQueryItemId(inputQuery.Items[0])).toBe("1001");
+    expect(inputQueryItemText(inputQuery.Items[0])).toBe("Ada");
   });
 
   it("uses the rendered View detail id before falling back to the list id", () => {

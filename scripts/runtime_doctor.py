@@ -524,11 +524,12 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         item_id = lookup_view_item_id(columns)
         if not item_id:
             return False
-        return common_response_list(post_json(
+        payload = post_json(
             f"{frontend_url}/api/v1/data/inputquery",
             {"ViewId": view_id, "ViewItemId": item_id, "Text": "", "IsAdded": False},
             timeout,
-        ), "items")
+        )
+        return common_response_list(payload, "items") and common_response_list(payload, "Items")
 
     def get_report_model_ok() -> bool:
         view_id = loaded_list_view_id()

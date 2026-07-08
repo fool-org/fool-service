@@ -208,6 +208,9 @@ explicitly named as authoritative for fool-service.
 - [x] Make Vue `querydatadetail` / `initnew` tool tables consume legacy
       `Data.SimpleData` / `Data.Items` aliases through shared View workflow
       helpers instead of binding templates to camel-case DTO fields.
+- [x] Expose FoolFrame Pascal `inputquery` response aliases (`Items`, `Id`,
+      `Text`) and make Vue lookup consumers read them through shared protocol
+      helpers.
 
 ## Backlog
 

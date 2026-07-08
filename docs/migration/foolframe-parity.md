@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: `inputquery` now exposes FoolFrame response aliases
+  (`Items`, `Id`, `Text`) while preserving the existing camel-case fields.
+  Vue API-tool and metadata lookup consumers read candidates through shared
+  helpers, and the Docker runtime doctor now requires both `items` and
+  `Items` on the loaded-View `inputquery` path.
 - 2026-07-08: the Vue API-tool tables for `querydatadetail` and `initnew`
   now read legacy `Data.SimpleData` / `Data.Items` through shared
   `viewWorkflow` helpers, and render row labels/values via generic field

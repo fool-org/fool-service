@@ -4,6 +4,8 @@ import type {
   GetEnumValue,
   GetMessageResult,
   GetNotifyResult,
+  InputQueryItem,
+  InputQueryResult,
   LegacyAuthItem,
   LegacyInitAppResult,
   LegacySubMenuResult,
@@ -176,6 +178,18 @@ export function legacyEnumName(item: GetEnumValue) {
 
 export function legacyEnumValue(item: GetEnumValue) {
   return firstDisplayValue([item.value, item.Value]);
+}
+
+export function legacyInputQueryItems(source?: InputQueryResult) {
+  return firstList(source?.items, source?.Items);
+}
+
+export function inputQueryItemId(item: InputQueryItem) {
+  return firstDisplayValue([item.id, item.Id]);
+}
+
+export function inputQueryItemText(item: InputQueryItem) {
+  return firstDisplayValue([item.text, item.Text]);
 }
 
 export function readViewItems(view: ReadItemViewInfo | undefined) {
