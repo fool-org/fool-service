@@ -241,7 +241,10 @@ explicitly named as authoritative for fool-service.
 - [x] Remove stale `SCPB09-SOWAY.EVENT` object-query items from remaining
       migration work after confirming the same cases are already covered by
       the module map and event tests.
+- [x] Make focused Docker Maven module tests work without repeating
+      `-DfailIfNoTests=false`, using the root Surefire config instead of
+      adding Maven profile scaffolding.
 
 ## Backlog
-
-- [ ] Add focused Maven module profiles once module boundaries are cleaned up.
+- No open repo-local task-state items. Continue from
+  `docs/migration/foolframe-parity.md` remaining migration work.

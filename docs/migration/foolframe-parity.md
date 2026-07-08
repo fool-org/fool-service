@@ -16,7 +16,7 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `python scripts/runtime_doctor.py`
 - Full backend Maven tests run inside the Compose network without datasource
   command-line overrides:
-  `docker run --rm --network fool-service_default -v "$PWD":/workspace -v "$HOME/.m2":/root/.m2 -w /workspace maven:3.9-eclipse-temurin-17 mvn -DfailIfNoTests=false test`
+  `docker run --rm --network fool-service_default -v "$PWD":/workspace -v "$HOME/.m2":/root/.m2 -w /workspace maven:3.9-eclipse-temurin-17 mvn test`
 - Smoke routes verified:
   `curl http://localhost:8081/`
   `curl http://localhost:8080/test`
@@ -97,6 +97,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: focused Docker Maven module validation no longer needs every
+  command to repeat `-DfailIfNoTests=false`. The root Surefire config now
+  ignores upstream modules with no matching tests, so scoped checks can use the
+  ordinary `mvn -pl <module> -am -Dtest=<TestClass> test` shape.
 - 2026-07-08: migration status now stops counting the already-tested event
   object-query runtime slice as remaining work. The module map and
   `EventMigrationTest` cover null-model, zero-row, table-name, explicit/auto
