@@ -3,14 +3,17 @@ package org.fool.framework.view.service;
 import lombok.extern.slf4j.Slf4j;
 import org.fool.framework.common.annotation.Column;
 import org.fool.framework.dao.DaoService;
+import org.fool.framework.dto.CommonException;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.OperationCommand;
+import org.fool.framework.view.common.ErrorCode;
 import org.fool.framework.view.model.OperationViewParam;
 import org.fool.framework.view.model.PersistedViewOperation;
 import org.fool.framework.view.model.View;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -60,12 +63,20 @@ public class ViewDataService {
     @Autowired
     private DaoService daoService;
 
-    public View getViewData(String viewName, String token) {
-        var view = daoService.getOneDetailByKey(View.class, viewName);
+    public View getViewData(String viewId, String token) {
+        var view = daoService.getOneDetailByKey(View.class, requireViewId(viewId));
         attachProperties(view);
         attachDefaultDetailView(view);
         attachOperations(view);
         return view;
+    }
+
+    static String requireViewId(String viewId) {
+        String normalized = StringUtils.hasText(viewId) ? viewId.trim() : "";
+        if (normalized.isEmpty() || !normalized.chars().allMatch(ch -> ch >= '0' && ch <= '9')) {
+            throw new CommonException(ErrorCode.VIEW_NOT_FOUND, "ViewId is required");
+        }
+        return normalized;
     }
 
     private void attachDefaultDetailView(View view) {

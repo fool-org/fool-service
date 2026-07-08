@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: `ViewDataService.getViewData` and
+  `DataQueryService.queryViewDataList` now reject service-level business-name
+  shortcuts before DAO lookup. Direct service callers must pass numeric
+  `ViewId`, matching the controller contract and keeping View rendering/data
+  loading from falling back to `ViewName` or concrete DTO labels.
 - 2026-07-09: Generic View/data request DTOs for `get-view`,
   `getlistview`, `getreaditemview`, and `query-list` no longer declare a
   `viewName` shortcut. Extra `ViewName` / `viewName` JSON fields are ignored

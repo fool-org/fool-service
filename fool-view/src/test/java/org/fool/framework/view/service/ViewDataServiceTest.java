@@ -2,6 +2,7 @@ package org.fool.framework.view.service;
 
 import org.fool.framework.common.PropertyType;
 import org.fool.framework.dao.DaoService;
+import org.fool.framework.dto.CommonException;
 import org.fool.framework.model.model.CommandsType;
 import org.fool.framework.model.model.Operation;
 import org.fool.framework.model.model.OperationBaseType;
@@ -21,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -31,6 +33,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ViewDataServiceTest {
+    @Test
+    public void getViewDataRejectsBusinessNameShortcut() {
+        ViewDataService service = new ViewDataService();
+        ReflectionTestUtils.setField(service, "daoService", mock(DaoService.class));
+
+        CommonException exception = assertThrows(CommonException.class, () -> service.getViewData("OrderList", ""));
+
+        assertEquals("ViewId is required", exception.getMessage());
+    }
+
     @Test
     public void getViewDataAttachesLegacyModelPropertyMetadataToItems() {
         DaoService daoService = mock(DaoService.class);
@@ -49,10 +61,10 @@ public class ViewDataServiceTest {
         model.setName("Order");
         model.setProperties(List.of(property));
 
-        when(daoService.getOneDetailByKey(View.class, "OrderList")).thenReturn(view);
+        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
         when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(model);
 
-        View result = service.getViewData("OrderList", "");
+        View result = service.getViewData("100", "");
 
         assertSame(property, itemProperty(result.getListItems().get(0)));
     }

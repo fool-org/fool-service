@@ -96,16 +96,16 @@ public class DataQueryService {
     /**
      * 得到视图信息
      *
-     * @param viewName
+     * @param viewId
      * @param filter
      * @param pageInfo
      */
-    public ListViewResult queryViewDataList(String viewName, Map<String, QueryValue> filter, PageNavigator pageInfo) {
-        return queryViewDataList(viewName, filter, pageInfo, null);
+    public ListViewResult queryViewDataList(String viewId, Map<String, QueryValue> filter, PageNavigator pageInfo) {
+        return queryViewDataList(viewId, filter, pageInfo, null);
     }
 
-    public ListViewResult queryViewDataList(String viewName, Map<String, QueryValue> filter, PageNavigator pageInfo, String keyword) {
-        return queryViewDataList(viewName, filter, pageInfo, keyword, null);
+    public ListViewResult queryViewDataList(String viewId, Map<String, QueryValue> filter, PageNavigator pageInfo, String keyword) {
+        return queryViewDataList(viewId, filter, pageInfo, keyword, null);
     }
 
     public ListViewResult queryLegacyViewData(String viewId, PageNavigator pageInfo, String queryFilter) {
@@ -767,19 +767,19 @@ public class DataQueryService {
         return data;
     }
 
-    private ListViewResult queryViewDataList(String viewName, Map<String, QueryValue> filter, PageNavigator pageInfo, String keyword, String legacyQueryFilter) {
-        return queryViewDataList(viewName, filter, pageInfo, keyword, legacyQueryFilter, null);
+    private ListViewResult queryViewDataList(String viewId, Map<String, QueryValue> filter, PageNavigator pageInfo, String keyword, String legacyQueryFilter) {
+        return queryViewDataList(viewId, filter, pageInfo, keyword, legacyQueryFilter, null);
     }
 
     private ListViewResult queryViewDataList(
-            String viewName,
+            String viewId,
             Map<String, QueryValue> filter,
             PageNavigator pageInfo,
             String keyword,
             String legacyQueryFilter,
             QueryOrder order) {
 
-        View view = daoService.getOneDetailByKey(View.class, viewName);
+        View view = daoService.getOneDetailByKey(View.class, ViewDataService.requireViewId(viewId));
         if (view == null) {
             throw new CommonException(ErrorCode.VIEW_NOT_FOUND, "没有查到视图");
         }

@@ -22,7 +22,7 @@ public class ViewDataQueryServiceTest {
 
     @Test
     public void getViewData() {
-        String name = "CarOwnerList";
+        String name = "100";
 
         var view = viewDataService.getViewData(name, "");
 

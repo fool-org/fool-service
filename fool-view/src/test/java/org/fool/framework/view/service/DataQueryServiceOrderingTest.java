@@ -5,6 +5,7 @@ import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.dao.DaoService;
 import org.fool.framework.dao.PageNavigator;
 import org.fool.framework.dao.PageResult;
+import org.fool.framework.dto.CommonException;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.ModelType;
 import org.fool.framework.model.model.Property;
@@ -25,6 +26,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -34,6 +36,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DataQueryServiceOrderingTest {
+
+    @Test
+    public void queryViewDataListRejectsBusinessNameShortcut() {
+        DataQueryService service = new DataQueryService();
+        ReflectionTestUtils.setField(service, "daoService", mock(DaoService.class));
+
+        CommonException exception = assertThrows(CommonException.class,
+                () -> service.queryViewDataList("OrderList", null, new PageNavigator()));
+
+        assertEquals("ViewId is required", exception.getMessage());
+    }
 
     @Test
     public void queryViewDataListOrdersByFirstLegacyShowIndexItemDescending() {
@@ -59,7 +72,7 @@ public class DataQueryServiceOrderingTest {
         pageNavigator.setPageSize(10);
         PageResult<IDynamicData> pageResult = new PageResult<>();
         ListViewResult expected = new ListViewResult();
-        when(daoService.getOneDetailByKey(View.class, "OrderList")).thenReturn(view);
+        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
         when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(model);
         when(modelDataService.getDataListWithPageInfo(
                 eq("Order"),
@@ -71,7 +84,7 @@ public class DataQueryServiceOrderingTest {
                 .thenReturn(pageResult);
         when(viewAdapter.getListViewResult(view, pageResult)).thenReturn(expected);
 
-        ListViewResult actual = service.queryViewDataList("OrderList", null, pageNavigator);
+        ListViewResult actual = service.queryViewDataList("100", null, pageNavigator);
 
         assertSame(expected, actual);
         ArgumentCaptor<List<Property>> propertiesCaptor = ArgumentCaptor.forClass(List.class);
@@ -115,7 +128,7 @@ public class DataQueryServiceOrderingTest {
         Model order = model("Order", List.of(customerProperty, property("orderId", "order_id")));
         PageNavigator pageNavigator = new PageNavigator();
         PageResult<IDynamicData> pageResult = new PageResult<>();
-        when(daoService.getOneDetailByKey(View.class, "OrderList")).thenReturn(view);
+        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
         when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(order);
         when(modelDataService.getDataListWithPageInfo(
                 eq("Order"),
@@ -127,7 +140,7 @@ public class DataQueryServiceOrderingTest {
                 .thenReturn(pageResult);
         when(viewAdapter.getListViewResult(eq(view), eq(pageResult))).thenReturn(new ListViewResult());
 
-        service.queryViewDataList("OrderList", null, pageNavigator);
+        service.queryViewDataList("100", null, pageNavigator);
 
         verify(modelDataService).getDataListWithPageInfo(
                 eq("Order"),
@@ -162,7 +175,7 @@ public class DataQueryServiceOrderingTest {
         pageNavigator.setPageIndex(1);
         pageNavigator.setPageSize(10);
         PageResult<IDynamicData> pageResult = new PageResult<>();
-        when(daoService.getOneDetailByKey(View.class, "OpenOrderList")).thenReturn(view);
+        when(daoService.getOneDetailByKey(View.class, "101")).thenReturn(view);
         when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(model);
         when(modelDataService.getDataListWithPageInfo(
                 eq("Order"),
@@ -174,7 +187,7 @@ public class DataQueryServiceOrderingTest {
                 .thenReturn(pageResult);
         when(viewAdapter.getListViewResult(eq(view), eq(pageResult))).thenReturn(new ListViewResult());
 
-        service.queryViewDataList("OpenOrderList", Map.of("symbol", symbolFilter), pageNavigator);
+        service.queryViewDataList("101", Map.of("symbol", symbolFilter), pageNavigator);
 
         ArgumentCaptor<IQueryFilter> filterCaptor = ArgumentCaptor.forClass(IQueryFilter.class);
         verify(modelDataService).getDataListWithPageInfo(
@@ -400,7 +413,7 @@ public class DataQueryServiceOrderingTest {
                 property("state", "order_state")));
         PageNavigator pageNavigator = new PageNavigator();
         PageResult<IDynamicData> pageResult = new PageResult<>();
-        when(daoService.getOneDetailByKey(View.class, "OrderList")).thenReturn(view);
+        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
         when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(model);
         when(modelDataService.getDataListWithPageInfo(
                 eq("Order"),
@@ -412,7 +425,7 @@ public class DataQueryServiceOrderingTest {
                 .thenReturn(pageResult);
         when(viewAdapter.getListViewResult(eq(view), eq(pageResult))).thenReturn(new ListViewResult());
 
-        service.queryViewDataList("OrderList", null, pageNavigator, "USDT");
+        service.queryViewDataList("100", null, pageNavigator, "USDT");
 
         ArgumentCaptor<IQueryFilter> filterCaptor = ArgumentCaptor.forClass(IQueryFilter.class);
         verify(modelDataService).getDataListWithPageInfo(
@@ -457,7 +470,7 @@ public class DataQueryServiceOrderingTest {
                 customerProperty));
         PageNavigator pageNavigator = new PageNavigator();
         PageResult<IDynamicData> pageResult = new PageResult<>();
-        when(daoService.getOneDetailByKey(View.class, "OrderList")).thenReturn(view);
+        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
         when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(order);
         when(modelDataService.getDataListWithPageInfo(
                 eq("Order"),
@@ -469,7 +482,7 @@ public class DataQueryServiceOrderingTest {
                 .thenReturn(pageResult);
         when(viewAdapter.getListViewResult(eq(view), eq(pageResult))).thenReturn(new ListViewResult());
 
-        service.queryViewDataList("OrderList", null, pageNavigator, "Ada");
+        service.queryViewDataList("100", null, pageNavigator, "Ada");
 
         ArgumentCaptor<IQueryFilter> filterCaptor = ArgumentCaptor.forClass(IQueryFilter.class);
         verify(modelDataService).getDataListWithPageInfo(

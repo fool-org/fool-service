@@ -358,6 +358,9 @@ explicitly named as authoritative for fool-service.
       `get-view`, `getlistview`, `getreaditemview`, and `query-list`, so
       stray `ViewName` JSON is ignored and those endpoints still require
       `ViewId`.
+- [x] Require service-level View/data lookups to receive numeric `ViewId`
+      before DAO lookup, removing direct `ViewName` shortcuts from
+      `ViewDataService.getViewData` and `DataQueryService.queryViewDataList`.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

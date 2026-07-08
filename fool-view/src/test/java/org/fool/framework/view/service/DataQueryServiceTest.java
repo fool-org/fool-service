@@ -24,7 +24,7 @@ public class DataQueryServiceTest {
     public void queryViewDataList() {
 
         try {
-            String name = "CarOwnerList";
+            String name = "100";
             PageNavigator pageNavigator = new PageNavigator();
             pageNavigator.setPageIndex(1);
             pageNavigator.setPageSize(20);
