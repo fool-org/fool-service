@@ -308,6 +308,30 @@ describe("view workflow helpers", () => {
     }, [dataGroup])[0])).toEqual([]);
   });
 
+  it("does not append child groups missing from the rendered read-item View", () => {
+    const view = {
+      ViewId: 102,
+      DetailViews: [
+        { Name: "Items", PrpId: "items", Items: [{ PrpId: "itemId", PrpShowName: "Item ID" }] }
+      ]
+    };
+    const declaredDataGroup = {
+      prpId: "items",
+      items: [{ dataId: "2001", values: [{ prpId: "itemId", objId: "2001" }] }]
+    };
+    const dtoOnlyDataGroup = {
+      prpId: "dtoOnly",
+      properties: [{ prpId: "dtoField", prpShowName: "DTO Field" }],
+      items: [{ dataId: "9001", values: [{ prpId: "dtoField", objId: "leak" }] }]
+    };
+
+    const groups = renderedDetailGroups(view, [declaredDataGroup, dtoOnlyDataGroup]);
+
+    expect(groups).toHaveLength(1);
+    expect(groupKey(groups[0])).toBe("items");
+    expect(groupColumns(groups[0]).map(fieldKey)).toEqual(["itemId"]);
+  });
+
   it("keeps read-item Views keyed by rendered View id", () => {
     const detailView = { ViewId: 201, Items: [{ PrpId: "name", PrpShowName: "Name" }] };
     const createView = { ViewId: 301, Items: [{ PrpId: "symbol", PrpShowName: "Symbol" }] };

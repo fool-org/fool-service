@@ -39,6 +39,9 @@ explicitly named as authoritative for fool-service.
 - [x] Keep Vue detail/initnew rendering tied to loaded read-item View metadata;
       raw `querydatadetail` DTO fields and child groups can no longer define
       page structure when the View metadata is missing or empty.
+- [x] Drop `querydatadetail` child groups that are not declared by the loaded
+      read-item View `DetailViews`, so DTO-only groups cannot define Vue child
+      sections or columns.
 - [x] Cache Vue read-item View metadata by rendered `ViewId` so detail,
       init-new, and manual read-item panels do not bind data DTO values to a
       stale or wrong read View shape.

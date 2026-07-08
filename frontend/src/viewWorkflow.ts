@@ -314,15 +314,11 @@ export function detailGroupsFromReadView(
     }
   }
 
-  const used = new Set<QueryDataDetailItemGroup>();
   const groups: QueryDataDetailItemGroup[] = detailViews.map((detail) => {
     const field = fieldFromReadItem(detail);
     const dataGroup = readDetailKeys(detail, field)
       .map((key) => dataGroupsByKey.get(key))
       .find((group): group is QueryDataDetailItemGroup => Boolean(group));
-    if (dataGroup) {
-      used.add(dataGroup);
-    }
     const properties = firstList(detail.items, detail.Items).map(fieldFromReadItem);
     return {
       ...dataGroup,
@@ -334,7 +330,7 @@ export function detailGroupsFromReadView(
     };
   });
 
-  return groups.concat(dataGroups.filter((group) => !used.has(group)));
+  return groups;
 }
 
 export function renderedDetailGroups(

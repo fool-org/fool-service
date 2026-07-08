@@ -103,6 +103,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   row by model ID column plus the raw command expression, throws the legacy
   command message, and stops later trigger commands/base operations from
   running.
+- 2026-07-09: Vue detail child-group rendering no longer appends
+  `querydatadetail` DTO groups that are missing from the loaded read-item
+  View `DetailViews`. The DTO payload can still provide row values for
+  declared child groups, but only rendered View metadata can define child
+  sections and columns.
 - 2026-07-09: Vue read-item View metadata is now cached by rendered `ViewId`.
   Detail rendering, init-new rendering, and manual read-item inspection no
   longer share a single last-loaded read View, and create operations set the
