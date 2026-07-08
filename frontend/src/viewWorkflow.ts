@@ -261,12 +261,12 @@ export function legacyInputQueryItems(source?: InputQueryResult) {
   return firstList(source?.items, source?.Items);
 }
 
-export function inputQueryItemId(item: InputQueryItem) {
-  return firstDisplayValue([item.id, item.Id]);
+export function inputQueryItemId(item?: InputQueryItem) {
+  return firstDisplayValue([item?.id, item?.Id]);
 }
 
-export function inputQueryItemText(item: InputQueryItem) {
-  return firstDisplayValue([item.text, item.Text]);
+export function inputQueryItemText(item?: InputQueryItem) {
+  return firstDisplayValue([item?.text, item?.Text]);
 }
 
 export function legacyRunOperationSuccess(source?: LegacyRunOperationResult) {

@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue input-query item display helpers now tolerate empty legacy
+  candidate entries by returning empty display text instead of throwing during
+  render. The first-screen View workflow loads the rebuilt frontend bundle
+  `index-C2xMzW1f.js`, keeps list/detail rendering active after `Load View`,
+  and has no current-bundle console errors for the previous `itemId` crash.
 - 2026-07-09: legacy `querydatadetail.IdExp` now resolves FoolFrame
   `@userid` / `@username` user-context expressions through the shared
   `OperationCommandValueResolver`. `fool-view` consumes an optional

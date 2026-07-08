@@ -391,6 +391,9 @@ explicitly named as authoritative for fool-service.
 - [x] Render Vue Boolean / CheckBox metadata fields as native checkboxes from
       View field metadata and coerce legacy Boolean string save values by
       `PropertyType.Boolean` during dynamic persistence.
+- [x] Keep Vue input-query item display helpers stable for empty legacy
+      candidate entries so the first-screen View workflow does not throw an
+      `itemId` render error while remaining metadata-driven.
 - [x] Treat legacy WCF / JSONPOST / JSONGET `runoperation` base types as
       successful no-ops, matching FoolFrame handler semantics without adding
       speculative external client code.

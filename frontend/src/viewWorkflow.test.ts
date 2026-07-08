@@ -769,6 +769,8 @@ describe("view workflow helpers", () => {
     expect(legacyInputQueryItems(inputQuery)).toHaveLength(1);
     expect(inputQueryItemId(inputQuery.Items[0])).toBe("1001");
     expect(inputQueryItemText(inputQuery.Items[0])).toBe("Ada");
+    expect(inputQueryItemId(undefined as never)).toBe("");
+    expect(inputQueryItemText(undefined as never)).toBe("");
   });
 
   it("reads runoperation success from camel or legacy result fields", () => {
