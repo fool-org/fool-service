@@ -35,6 +35,24 @@ class SourceFileSizeContractTest(unittest.TestCase):
                 report.errors,
             )
 
+    def test_reports_oversized_frontend_root_component(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            source = root / "frontend" / "src" / "App.vue"
+            source.parent.mkdir(parents=True)
+            source.write_text("x\n" * 2001, encoding="utf-8")
+            report = HarnessReport(root=root)
+
+            check_source_file_sizes(root, report)
+
+            self.assertEqual(
+                [
+                    "Oversized frontend root component: frontend/src/App.vue has 2001 lines "
+                    "(limit 2000)"
+                ],
+                report.errors,
+            )
+
     def test_reports_java_package_boundary_violations(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)

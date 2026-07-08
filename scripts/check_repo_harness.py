@@ -29,6 +29,7 @@ STANDARD_HEADINGS = (
     "## Revision Trigger",
 )
 SOURCE_FILE_LINE_LIMIT = 2100
+FRONTEND_APP_LINE_LIMIT = 2000
 SOURCE_FILE_EXTENSIONS = frozenset((".java", ".ts", ".vue"))
 SOURCE_FILE_SKIP_DIRS = frozenset((".git", "node_modules", "target", "dist"))
 FRONTEND_VIEW_DATA_BOUNDARY_FILES = (
@@ -283,6 +284,11 @@ def check_source_file_sizes(root: Path, report: HarnessReport) -> None:
             report.errors.append(
                 f"Oversized source file: {relative_path} has {line_count} lines "
                 f"(limit {SOURCE_FILE_LINE_LIMIT})"
+            )
+        if relative_path == "frontend/src/App.vue" and line_count > FRONTEND_APP_LINE_LIMIT:
+            report.errors.append(
+                f"Oversized frontend root component: {relative_path} has {line_count} lines "
+                f"(limit {FRONTEND_APP_LINE_LIMIT})"
             )
 
 

@@ -386,6 +386,9 @@ explicitly named as authoritative for fool-service.
 - [x] Move Vue View/data loading into a reusable View-first workflow helper so
       list rendering loads View metadata before `querydata` and avoids concrete
       business DTO column binding.
+- [x] Add a stricter harness line budget for `frontend/src/App.vue` so future
+      Vue migration work keeps extracting workflow helpers instead of growing
+      the root component.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

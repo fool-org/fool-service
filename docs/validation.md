@@ -33,7 +33,8 @@ the heaviest runtime path for every edit.
 - JSON reports use `--report-json` and include `status`, `root`,
   `checked_files`, `standards`, `errors`, and `warnings`.
 - JUnit reports use `--junit-out` for CI systems that aggregate XML.
-- Source file size checks fail source files over 2100 lines.
+- Source file size checks fail source files over 2100 lines, with
+  `frontend/src/App.vue` capped at 2000 lines.
 - Repository harness checks fail Java package boundary drift across `fool-*`
   modules, Vue render paths that infer columns/cells from business DTO
   `row.values`, and missing required migration parity markers.
