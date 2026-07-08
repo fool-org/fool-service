@@ -194,7 +194,9 @@ describe("App defaults", () => {
 
   it("renders native metadata inputs for field-specific widgets", () => {
     expect(metadataFieldEditorSource).toContain("fieldInputType");
+    expect(metadataFieldEditorSource).toContain("fieldInputValue");
     expect(metadataFieldEditorSource).toContain(':type="fieldInputType(field)"');
+    expect(metadataFieldEditorSource).toContain(':value="fieldInputValue(field, value)"');
   });
 
   it("does not keep ViewName as a frontend lookup or workflow shortcut", () => {

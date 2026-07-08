@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue metadata field editors now render `DateTime` / `PrpType=14`
+  through native `datetime-local` inputs from View field metadata. The editor
+  normalizes legacy display values such as `2026-07-03 09:05:06.0` only at the
+  input render boundary, keeps the existing string save payload contract, and
+  explicitly leaves field names like `createdAt` / `orderTime` out of widget
+  selection so page rendering stays View-first instead of business-DTO-bound.
 - 2026-07-09: Vue metadata field editors now render native field-specific
   inputs for low-risk scalar View metadata: `Date` uses `type=date`, `Time`
   uses `type=time`, and numeric `PropertyType` values use `type=number`.

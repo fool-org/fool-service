@@ -371,6 +371,9 @@ explicitly named as authoritative for fool-service.
       owner context through the shared metadata field editor.
 - [x] Render Vue metadata scalar fields with native date, time, and numeric
       inputs from View field type metadata instead of a one-size text input.
+- [x] Render Vue DateTime metadata fields with native `datetime-local` inputs
+      from View field type metadata, normalizing legacy display strings only
+      at the editor boundary and not from business DTO field names.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

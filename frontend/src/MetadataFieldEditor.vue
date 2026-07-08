@@ -5,6 +5,7 @@ import { postApi } from "./api";
 import { buildInputQueryRequest } from "./payload";
 import {
   fieldInputType,
+  fieldInputValue,
   fieldKey,
   inputQueryItemId,
   inputQueryItemText,
@@ -86,6 +87,12 @@ function selectLookup(item: InputQueryItem) {
   lookupTerm.value = inputQueryItemText(item) || id;
   lookupOptions.value = [];
 }
+
+function updateValue(event: Event) {
+  if (event.target instanceof HTMLInputElement) {
+    value.value = event.target.value;
+  }
+}
 </script>
 
 <template>
@@ -115,5 +122,5 @@ function selectLookup(item: InputQueryItem) {
     <small v-if="lookupError" class="metadata-lookup-error">{{ lookupError }}</small>
     <small v-if="modelValue">{{ modelValue }}</small>
   </div>
-  <input v-else v-model="value" :type="fieldInputType(field)" />
+  <input v-else :type="fieldInputType(field)" :value="fieldInputValue(field, value)" @input="updateValue" />
 </template>

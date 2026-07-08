@@ -110,8 +110,16 @@ export function fieldInputType(field: ListDataValue) {
   const type = String(fieldType(field) ?? "").toLowerCase();
   if (type === "date" || type === "12") return "date";
   if (type === "time" || type === "13") return "time";
+  if (type === "datetime" || type === "14") return "datetime-local";
   if (numberFieldTypes.has(type)) return "number";
   return "text";
+}
+
+export function fieldInputValue(field: ListDataValue, value: string) {
+  const text = String(value ?? "");
+  if (fieldInputType(field) !== "datetime-local") return text;
+  const match = text.trim().match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2}(?::\d{2})?)(?:\.\d+)?$/);
+  return match ? `${match[1]}T${match[2]}` : text;
 }
 
 export function fieldEditType(field: ListDataValue) {

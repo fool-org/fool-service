@@ -22,6 +22,7 @@ import {
   fieldKey,
   fieldDisplayValue,
   fieldInputType,
+  fieldInputValue,
   fieldModelId,
   fieldType,
   fieldTitle,
@@ -163,9 +164,19 @@ describe("view workflow helpers", () => {
   it("maps metadata field types to native input types", () => {
     expect(fieldInputType({ prpId: "tradeDate", prpType: "Date" })).toBe("date");
     expect(fieldInputType({ prpId: "tradeTime", PrpType: "13" })).toBe("time");
+    expect(fieldInputType({ prpId: "createdAt", PrpType: "14" })).toBe("datetime-local");
+    expect(fieldInputType({ prpId: "orderTime", prpType: "String" })).toBe("text");
     expect(fieldInputType({ prpId: "amount", prpType: "Decimal" })).toBe("number");
     expect(fieldInputType({ prpId: "count", PrpType: "1" })).toBe("number");
     expect(fieldInputType({ prpId: "name", prpType: "String" })).toBe("text");
+  });
+
+  it("normalizes only DateTime metadata values for native inputs", () => {
+    expect(fieldInputValue({ PrpType: "14" }, "2026-07-03 09:05:06.0")).toBe("2026-07-03T09:05:06");
+    expect(fieldInputValue({ prpType: "DateTime" }, "2026-07-03T09:05:06.123")).toBe("2026-07-03T09:05:06");
+    expect(fieldInputValue({ prpType: "String", prpId: "createdAt" }, "2026-07-03 09:05:06.0")).toBe(
+      "2026-07-03 09:05:06.0"
+    );
   });
 
   it("renders list columns only from loaded View metadata", () => {
