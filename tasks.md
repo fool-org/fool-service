@@ -260,6 +260,10 @@ explicitly named as authoritative for fool-service.
 - [x] Remove the Vue `/test` seed-data panel and frontend proxy so the browser
       workspace proves data loading through View metadata and `querydata`
       instead of the backend `Order` smoke DTO.
+- [x] Bootstrap fresh Vue Docker browser sessions through the legacy
+      `initapp` / `loginv2` / `getmain` path before `getlistview`, so the
+      first screen loads the app-shell default View instead of stopping at
+      `ViewId=0`.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

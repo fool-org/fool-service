@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: a fresh Vue browser session now bootstraps the Docker legacy
+  session through `initapp` / `loginv2`, reads `App.DefaultViewId` from
+  `getmain`, then loads the first screen through `getlistview(ViewId)` and
+  `querydata(ViewId)`. The browser-verified page no longer stops at
+  `ViewId=0`; changing the main list page size reloads the same View-driven
+  data path.
 - 2026-07-08: the Vue workspace no longer exposes the backend `/test`
   seed-data DTO route or proxies it through Vite/Nginx. `/test` remains a
   backend Docker health check, while the frontend data proof stays on the
@@ -523,11 +529,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   proxy `8081` with a ColId-only `ReportCols` payload.
 - 2026-07-04: cleaned the Vue first-screen View workflow so it no longer
   presents itself as an `OrderList` / trading DTO screen. The page still
-  auto-loads Docker seed `ViewId=100`, but rendering begins with legacy
-  `getlistview(viewId)`, data loading follows with `querydata(viewId)`, tool
-  defaults no longer prefill order/trading filters or save payload fields, and
-  the backend smoke table derives columns from returned record keys instead of
-  binding to `order_price`.
+  starts from the legacy app shell default View, and rendering begins with
+  legacy `getlistview(viewId)`, data loading follows with `querydata(viewId)`,
+  and tool defaults no longer prefill order/trading filters or save payload
+  fields.
 - 2026-07-04: accepted FoolFrame Pascal request field names on the generic
   legacy `getlistview` and `querydata` protocol DTOs: `ViewId`, `PageSize`,
   `PageIndex`, `QueryFilter`, `OrderByItem`, and `OrderByType`. This fixes
@@ -635,8 +640,8 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   isolated in `useChildCandidates` instead of expanding `App.vue`.
 - 2026-07-04: made the default Vue View workflow load itself on first render.
   The app now uses Vue's native `onMounted` hook to call the existing
-  `loadViewWorkflow()` path, so the first screen shows the Docker-seeded
-  `OrderList`, selects the first row, and renders the detail panel without
+  `loadViewWorkflow()` path, so the first screen follows the legacy app shell
+  default View, selects the first row, and renders the detail panel without
   requiring a manual setup click.
 - 2026-07-04: seeded and proved a live BusinessObject lookup path for the Vue
   metadata workflow. Docker MySQL now includes `Customer` model metadata,
@@ -1174,7 +1179,9 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   loaded View id, renders columns from `tableColumn` / legacy `Items`, renders
   detail fields from `querydatadetail.simpleData`, initializes new rows with
   `initnew`, creates them with `savenewobj`, and saves existing rows with
-  `saveobj`
+  `saveobj`; fresh Docker browser sessions bootstrap the legacy session first
+  with `initapp` / `loginv2` so the initial View id comes from
+  `App.DefaultViewId`
 - A default Vue child collection workflow that renders from
   `querydatadetail.Items[].properties` and sends legacy
   `saveobj.Itemproperties.Items`, `AddedItems`, and `DelteItems` payloads

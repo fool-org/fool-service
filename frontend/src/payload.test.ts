@@ -175,6 +175,10 @@ describe("App defaults", () => {
       appSource.indexOf("onMounted(()")
     );
 
+    expect(appSource).toContain('const password = ref("admin")');
+    expect(appSource).toContain("async function ensureLegacySession");
+    expect(workflowSource.indexOf("await ensureLegacySession()")).toBeGreaterThanOrEqual(0);
+    expect(workflowSource.indexOf("await ensureLegacySession()")).toBeLessThan(workflowSource.indexOf("await loadMainInfo()"));
     expect(appSource).toContain("legacyAppDefaultViewId");
     expect(appSource).toContain("applyDefaultAppView(response.data)");
     expect(workflowSource.indexOf("await loadMainInfo()")).toBeGreaterThanOrEqual(0);

@@ -142,7 +142,7 @@ import {
 const token = ref(localStorage.getItem("fool-service-token") || "");
 const noRowOperations: OperationInfo[] = [];
 const userId = ref("admin");
-const password = ref("");
+const password = ref("admin");
 const legacyAppId = ref("fool-service");
 const legacyAppKey = ref("fool-service");
 const legacyDbId = ref("car_wash");
@@ -788,12 +788,23 @@ function applyDefaultAppView(source?: unknown) {
   if (defaultViewId) legacyListViewId.value = legacyQueryViewId.value = reportViewId.value = defaultViewId;
 }
 
+async function ensureLegacySession() {
+  if (token.value) return true;
+  await initApp();
+  if (!checkCodeKey.value || !checkCodeValue.value) {
+    await loadCheckCode();
+  }
+  await loginV2();
+  return Boolean(token.value);
+}
+
 async function loadViewWorkflow(resetPage = false) {
   stopAutoRefresh();
   if (resetPage) {
     pageIndex.value = 1;
   }
-  if (!resetPage && !viewResponse.value && token.value) {
+  if (!resetPage && !viewResponse.value) {
+    if (!(await ensureLegacySession())) return;
     await loadMainInfo();
   }
   const loadedView = await loadLegacyListView();
