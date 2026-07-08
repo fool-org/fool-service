@@ -163,8 +163,9 @@ public class DataQueryService {
                     : result.getItems().get(0).getId();
         }
         String expression = idExp.trim();
-        // ponytail: only static IdExp is real here; add auth/context expressions when fool-view owns auth context.
-        return expression.startsWith("$") ? expression.substring(1) : dataId;
+        Object resolved = commandValue(null, null, expression);
+        String resolvedId = resolved == null ? "" : String.valueOf(resolved);
+        return StringUtils.hasText(resolvedId) ? resolvedId : dataId;
     }
 
     public QueryDataDetailResult initLegacyNewObject(String viewId, String parentObjId) {

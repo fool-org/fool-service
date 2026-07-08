@@ -363,6 +363,9 @@ explicitly named as authoritative for fool-service.
       `ViewDataService.getViewData` and `DataQueryService.queryViewDataList`.
 - [x] Remove the stale frontend `InputQueryRequest.viewName` type shortcut so
       Vue lookup payloads stay typed around loaded `ViewId` context.
+- [x] Evaluate legacy `querydatadetail.IdExp` through the shared
+      `OperationCommandValueResolver` before detail data lookup, keeping
+      empty-`objId` loading View-first and avoiding a second expression parser.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

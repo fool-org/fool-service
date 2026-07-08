@@ -97,6 +97,14 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: legacy `querydatadetail.IdExp` now reuses the shared
+  `OperationCommandValueResolver` before detail data lookup. Empty `objId`
+  requests still load the `View` first, resolve the target model from
+  `View.ViewModel`, and then query `getOneData(viewModel, resolvedId)`;
+  static, math, and context expressions share the existing operation-command
+  expression path instead of adding a second parser. Expressions that need a
+  current object (`#.` / `.`) remain unavailable in this detail-id phase
+  because FoolFrame calls this handler without an object/property context.
 - 2026-07-09: Vue's `InputQueryRequest` type no longer exposes a
   `viewName` field. The frontend payload builder was already ViewId-driven;
   removing the stale type shortcut keeps lookup callers from reintroducing a
