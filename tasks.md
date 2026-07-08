@@ -175,6 +175,8 @@ explicitly named as authoritative for fool-service.
       of `row.values` DTO maps.
 - [x] Extend the Docker runtime doctor to prove legacy `getrpt` returns
       report-grid cells through the Vue proxy.
+- [x] Extend the Docker runtime doctor to prove legacy `saverpt` returns the
+      FoolFrame no-op success surface through the Vue proxy.
 
 ## Backlog
 

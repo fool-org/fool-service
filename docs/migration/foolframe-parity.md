@@ -158,6 +158,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-04: `scripts/runtime_doctor.py` now proves the Docker frontend proxy
   `getrpt` report execution path by checking the returned `Symbol` / `State`
   report-grid cells for a filtered open order row.
+- 2026-07-08: `scripts/runtime_doctor.py` now proves the Docker frontend proxy
+  `saverpt` report-definition path returns the same legacy no-op success
+  surface as FoolFrame `HandlerSaveReport`; saved-report persistence remains
+  separate report work.
 - 2026-07-04: `scripts/runtime_doctor.py` now proves the Docker frontend proxy
   `querydata` route with a legacy `QueryFilter`, then verifies returned legacy
   row `Items` carry `state.objId=0`. This covers the main Vue workflow's

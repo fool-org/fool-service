@@ -87,6 +87,10 @@ def common_response_ok(payload: dict[str, Any]) -> bool:
     return payload.get("code") == 0 and isinstance(payload.get("data"), dict)
 
 
+def common_void_ok(payload: dict[str, Any]) -> bool:
+    return payload.get("code") == 0
+
+
 def common_response_list(payload: dict[str, Any], key: str) -> bool:
     if not common_response_ok(payload):
         return False
@@ -274,6 +278,25 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
                 timeout,
             )),
             "POST /api/v1/report/getrpt returns Symbol/State cells",
+        ),
+        (
+            "report:saverpt",
+            lambda: common_void_ok(post_json(
+                f"{frontend_url}/api/v1/report/saverpt",
+                {
+                    "ViewId": 100,
+                    "ReportName": "Order Daily",
+                    "ReportCols": [{"ColName": "Symbol", "Index": 1}],
+                    "FilterExp": {
+                        "Col": {"Name": "order_state"},
+                        "CompareOp": {"ID": "1", "Name": "等于"},
+                        "ValueExp": "0",
+                        "ValueFmt": "Open",
+                    },
+                },
+                timeout,
+            )),
+            "POST /api/v1/report/saverpt keeps legacy no-op success surface",
         ),
     )
     results: list[CheckResult] = []

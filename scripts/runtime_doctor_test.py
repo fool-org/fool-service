@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import unittest
 
-from runtime_doctor import common_response_list, compose_checks, detail_view_id, parse_compose_ps, report_grid_ok
+from runtime_doctor import common_response_list, common_void_ok, compose_checks, detail_view_id, parse_compose_ps, report_grid_ok
 
 
 class RuntimeDoctorTest(unittest.TestCase):
@@ -39,6 +39,10 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertTrue(common_response_list({"code": 0, "data": {"items": [1]}}, "items"))
         self.assertFalse(common_response_list({"code": 1, "data": {"items": [1]}}, "items"))
         self.assertFalse(common_response_list({"code": 0, "data": {"items": []}}, "items"))
+
+    def test_common_void_ok_accepts_legacy_no_data_success(self) -> None:
+        self.assertTrue(common_void_ok({"code": 0, "data": None}))
+        self.assertFalse(common_void_ok({"code": 1, "data": None}))
 
     def test_detail_view_id_reads_loaded_view_metadata(self) -> None:
         self.assertEqual(102, detail_view_id({"code": 0, "data": {"detailViewId": 102}}))
