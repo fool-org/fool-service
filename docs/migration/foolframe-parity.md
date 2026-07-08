@@ -162,6 +162,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `saverpt` report-definition path returns the same legacy no-op success
   surface as FoolFrame `HandlerSaveReport`; saved-report persistence remains
   separate report work.
+- 2026-07-08: the Vue API-tool defaults no longer seed detail/save/operation
+  object ids with Docker `1001`. The main View workflow still fills those
+  fields after selecting a `querydata` row, and `scripts/runtime_doctor.py`
+  now queries data from the loaded list view before reusing the returned row id
+  for `querydatadetail` instead of hard-coding a concrete business object id.
 - 2026-07-04: `scripts/runtime_doctor.py` now proves the Docker frontend proxy
   `querydata` route with a legacy `QueryFilter`, then verifies returned legacy
   row `Items` carry `state.objId=0`. This covers the main Vue workflow's

@@ -5,7 +5,16 @@ from __future__ import annotations
 
 import unittest
 
-from runtime_doctor import common_response_list, common_void_ok, compose_checks, detail_view_id, parse_compose_ps, report_grid_ok
+from runtime_doctor import (
+    common_response_list,
+    common_void_ok,
+    compose_checks,
+    detail_view_id,
+    list_rows,
+    parse_compose_ps,
+    report_grid_ok,
+    row_object_id,
+)
 
 
 class RuntimeDoctorTest(unittest.TestCase):
@@ -48,6 +57,13 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertEqual(102, detail_view_id({"code": 0, "data": {"detailViewId": 102}}))
         self.assertEqual(0, detail_view_id({"code": 0, "data": {"detailViewId": 0}}))
         self.assertEqual(0, detail_view_id({"code": 1, "data": {"detailViewId": 102}}))
+
+    def test_query_rows_and_object_id_accept_legacy_aliases(self) -> None:
+        row = {"Items": [{"PrpId": "recordId", "ObjId": "9001"}]}
+
+        self.assertEqual([row], list_rows({"Data": [row]}))
+        self.assertEqual("9001", row_object_id(row))
+        self.assertEqual("1001", row_object_id({"id": "1001", "Items": [{"ObjId": "9001"}]}))
 
     def test_report_grid_ok_requires_headers_and_open_row(self) -> None:
         self.assertTrue(report_grid_ok({"code": 0, "data": {"cells": [

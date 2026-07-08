@@ -13,6 +13,7 @@ from urllib import error, request
 
 
 REQUIRED_SERVICES = ("backend", "frontend", "mysql", "redis")
+LIST_VIEW_ID = 100
 
 
 @dataclass(frozen=True)
@@ -148,7 +149,7 @@ def report_grid_ok(payload: dict[str, Any]) -> bool:
 
 
 def list_row_item(row: dict[str, Any], key: str) -> dict[str, Any] | None:
-    items = row.get("items")
+    items = row.get("items") or row.get("Items")
     if not isinstance(items, list):
         return None
     return next((
@@ -157,25 +158,55 @@ def list_row_item(row: dict[str, Any], key: str) -> dict[str, Any] | None:
     ), None)
 
 
+def list_rows(data: dict[str, Any]) -> list[Any]:
+    rows = data.get("items")
+    if not isinstance(rows, list):
+        rows = data.get("Data")
+    return rows if isinstance(rows, list) else []
+
+
+def row_object_id(row: dict[str, Any]) -> str:
+    direct = row.get("id") or row.get("Id")
+    if direct:
+        return str(direct)
+    items = row.get("items") or row.get("Items")
+    if not isinstance(items, list):
+        return ""
+    for item in items:
+        if isinstance(item, dict):
+            value = item.get("objId") or item.get("ObjId")
+            if value:
+                return str(value)
+    return ""
+
+
 def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[CheckResult]:
-    view_state: dict[str, int] = {}
+    view_state: dict[str, Any] = {}
 
     def get_list_view() -> bool:
         payload = post_json(
             f"{frontend_url}/api/v1/view/getlistview",
-            {"ViewId": 100},
+            {"ViewId": LIST_VIEW_ID},
             timeout,
         )
-        view_state["detailViewId"] = detail_view_id(payload)
-        return view_state["detailViewId"] > 0
+        loaded_detail_view_id = detail_view_id(payload)
+        if loaded_detail_view_id:
+            view_state["listViewId"] = LIST_VIEW_ID
+            view_state["detailViewId"] = loaded_detail_view_id
+        return loaded_detail_view_id > 0
+
+    def loaded_list_view_id() -> int:
+        view_id = view_state.get("listViewId")
+        return view_id if isinstance(view_id, int) else 0
 
     def query_detail_from_loaded_view() -> bool:
         view_id = view_state.get("detailViewId")
-        if not view_id:
+        object_id = view_state.get("objectId")
+        if not view_id or not object_id:
             return False
         return detail_response_ok(post_json(
             f"{frontend_url}/api/v1/data/querydatadetail",
-            {"ViewId": view_id, "ObjId": "1001"},
+            {"ViewId": view_id, "ObjId": object_id},
             timeout,
         ))
 
@@ -190,15 +221,18 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         ))
 
     def querydata_filter_ok() -> bool:
+        view_id = loaded_list_view_id()
+        if not view_id:
+            return False
         payload = post_json(
             f"{frontend_url}/api/v1/data/querydata",
-            {"ViewId": 100, "PageSize": 5, "PageIndex": 1, "QueryFilter": "order_state=\"0\""},
+            {"ViewId": view_id, "PageSize": 5, "PageIndex": 1, "QueryFilter": "order_state=\"0\""},
             timeout,
         )
         if not common_response_ok(payload):
             return False
-        rows = payload["data"].get("items")
-        if not isinstance(rows, list) or not rows:
+        rows = list_rows(payload["data"])
+        if not rows:
             return False
         for row in rows:
             if not isinstance(row, dict):
@@ -207,6 +241,25 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             if str(state.get("objId") or state.get("ObjId") or "") != "0":
                 return False
         return True
+
+    def querydata_ok() -> bool:
+        view_id = loaded_list_view_id()
+        if not view_id:
+            return False
+        payload = post_json(
+            f"{frontend_url}/api/v1/data/querydata",
+            {"ViewId": view_id, "PageSize": 2, "PageIndex": 1},
+            timeout,
+        )
+        if not common_response_ok(payload):
+            return False
+        rows = list_rows(payload["data"])
+        if not rows or not isinstance(rows[0], dict):
+            return False
+        object_id = row_object_id(rows[0])
+        if object_id:
+            view_state["objectId"] = object_id
+        return bool(object_id)
 
     checks = (
         (
@@ -217,26 +270,22 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         (
             "view:getlistview",
             get_list_view,
-            "POST /api/v1/view/getlistview ViewId=100 returns DetailViewId",
+            f"POST /api/v1/view/getlistview ViewId={LIST_VIEW_ID} returns DetailViewId",
         ),
         (
             "data:querydata",
-            lambda: common_response_ok(post_json(
-                f"{frontend_url}/api/v1/data/querydata",
-                {"ViewId": 100, "PageSize": 2, "PageIndex": 1},
-                timeout,
-            )),
-            "POST /api/v1/data/querydata ViewId=100",
+            querydata_ok,
+            "POST /api/v1/data/querydata uses loaded list view id and returns a row object id",
         ),
         (
             "data:querydata-filter",
             querydata_filter_ok,
-            "POST /api/v1/data/querydata QueryFilter keeps State=0 rows",
+            "POST /api/v1/data/querydata uses loaded list view id and keeps State=0 rows",
         ),
         (
             "data:querydatadetail",
             query_detail_from_loaded_view,
-            "POST /api/v1/data/querydatadetail uses loaded DetailViewId",
+            "POST /api/v1/data/querydatadetail uses loaded DetailViewId and querydata row id",
         ),
         (
             "view:getreaditemview-detailviews",

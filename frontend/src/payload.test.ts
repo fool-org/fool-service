@@ -153,11 +153,17 @@ describe("App defaults", () => {
   it("does not prefill business-specific data DTO fields by default", () => {
     expect(appSource).toContain('const enumModelId = ref("102")');
     expect(appSource).toContain('const legacyQueryFilter = ref("")');
+    expect(appSource).toContain('const detailObjId = ref("")');
+    expect(appSource).toContain('const saveObjId = ref("")');
+    expect(appSource).toContain('const operationObjectId = ref("")');
     expect(appSource).toContain('const savePropertyiesJson = ref("[]")');
     expect(appSource).toContain('const saveNewPropertyiesJson = ref("[]")');
     expect(appSource).toContain("recordColumns");
     expect(appSource).not.toContain('order_state="0"');
     expect(appSource).not.toContain("BTC-USDT");
+    expect(appSource).not.toContain('const detailObjId = ref("1001")');
+    expect(appSource).not.toContain('const saveObjId = ref("1001")');
+    expect(appSource).not.toContain('const operationObjectId = ref("1001")');
   });
 
   it("exposes the Docker backend smoke route in the Vue console", () => {
