@@ -19,6 +19,7 @@ import {
   detailGroupsFromReadView,
   detailResultItems,
   detailResultSimpleData,
+  listRenderColumns,
   fieldEditType,
   fieldKey,
   fieldDisplayValue,
@@ -85,6 +86,8 @@ import {
   readViewDetailViews,
   readViewFields,
   readViewId,
+  renderedDetailFields,
+  renderedDetailGroups,
   viewColumns,
   viewDisplayName,
   viewDisplayTitle,
@@ -193,6 +196,18 @@ describe("view workflow helpers", () => {
     });
   });
 
+  it("does not render list data columns before a View definition is loaded", () => {
+    const result = {
+      Cols: ["DTO Only"],
+      Data: [{ Items: [{ PrpId: "dtoOnly", FmtValue: "ignored" }] }]
+    };
+
+    expect(listRenderColumns(undefined, result)).toEqual([]);
+    expect(listRenderColumns({ ID: 100, Items: [] }, result)).toEqual([
+      { id: 0, property: "DTO Only", propertyName: "DTO Only", title: "DTO Only", name: "DTO Only" }
+    ]);
+  });
+
   it("does not use values DTO fields for view row identity or cells", () => {
     const columns = [{ property: "recordId", title: "Record ID" }];
     const row = {
@@ -285,6 +300,18 @@ describe("view workflow helpers", () => {
     expect(groupColumns(groups[0]).map(fieldKey)).toEqual(["itemId", "itemName"]);
     expect(fieldTitle(groupColumns(groups[0])[0])).toBe("Item ID");
     expect(detailGroupsFromReadView(undefined, [dataGroup])).toEqual([dataGroup]);
+    expect(renderedDetailGroups(undefined, [dataGroup])).toEqual([]);
+    expect(renderedDetailGroups(view, [dataGroup])).toEqual(groups);
+  });
+
+  it("does not render detail DTO fields before a read-item View definition is loaded", () => {
+    const dataFields = [{ PrpId: "dtoOnly", ObjId: "ignored", FmtValue: "Ignored" }];
+    const view = { ViewId: 102, Items: [{ PrpId: "name", PrpShowName: "Name" }] };
+
+    expect(renderedDetailFields(undefined, dataFields)).toEqual([]);
+    expect(renderedDetailFields(view, [{ PrpId: "name", ObjId: "Ada", FmtValue: "Ada" }])).toMatchObject([
+      { prpId: "name", objId: "Ada" }
+    ]);
   });
 
   it("reads querydatadetail rows and child items from legacy or camel result payloads", () => {

@@ -107,8 +107,7 @@ describe("App defaults", () => {
     expect(appSource).toContain("async function startNewObject(viewId = Number(detailViewId.value))");
     expect(appSource).toContain("await queryDetail(Number(detailViewId.value))");
     expect(appSource).toContain("saveViewId.value = String(detailViewId.value)");
-    expect(appSource).toContain("columnsFromListResult(dataResponse.value?.data)");
-    expect(appSource).toContain("columnsFromRowItems(first)");
+    expect(appSource).toContain("listRenderColumns(viewResponse.value?.data, dataResponse.value?.data)");
     expect(appSource).not.toContain("Object.keys(first)");
     expect(appSource).not.toContain("viewName: viewName.value");
     expect(appSource).not.toContain("/api/v1/view/get-view");
@@ -128,15 +127,16 @@ describe("App defaults", () => {
   });
 
   it("uses querydata Cols before row Items when View columns are absent", () => {
-    const columnsSource = appSource.slice(
-      appSource.indexOf("const resultColumns = computed"),
-      appSource.indexOf("const resultRows = computed")
+    const columnsSource = viewWorkflowSource.slice(
+      viewWorkflowSource.indexOf("export function listRenderColumns"),
+      viewWorkflowSource.indexOf("export function fieldModelId")
     );
     const childSource = appSource.slice(
       appSource.indexOf("async function loadExistingDetailItems"),
       appSource.indexOf("async function addExistingDetailItem")
     );
 
+    expect(columnsSource).toContain("if (!view)");
     expect(columnsSource.indexOf("columnsFromListResult")).toBeLessThan(columnsSource.indexOf("columnsFromRowItems"));
     expect(childSource).toContain("declaredColumns.length ? declaredColumns : resultColumns");
   });
@@ -177,6 +177,19 @@ describe("App defaults", () => {
     expect(querySource.indexOf("await loadLegacyListView()")).toBeGreaterThanOrEqual(0);
     expect(querySource.indexOf("await loadLegacyListView()")).toBeLessThan(querySource.indexOf("/api/v1/data/querydata"));
     expect(querySource).toContain("viewId: loadedViewId");
+  });
+
+  it("loads the read-item View before detail data and aborts if it cannot render", () => {
+    const detailSource = appSource.slice(
+      appSource.indexOf("async function queryDetail"),
+      appSource.indexOf("async function initNew")
+    );
+
+    expect(detailSource).toContain("const readView = await loadReadItemView(viewId)");
+    expect(detailSource.indexOf("const readView = await loadReadItemView(viewId)")).toBeLessThan(
+      detailSource.indexOf("/api/v1/data/querydatadetail")
+    );
+    expect(detailSource).toContain("if (!readView?.data) return null");
   });
 
   it("does not bootstrap View/data rendering from the seeded business View", () => {

@@ -263,6 +263,13 @@ export function detailFieldsFromReadView(
   });
 }
 
+export function renderedDetailFields(
+  view: ReadItemViewInfo | undefined,
+  dataFields: ListDataValue[] = []
+): ListDataValue[] {
+  return view ? detailFieldsFromReadView(view, dataFields) : [];
+}
+
 export function detailGroupsFromReadView(
   view: ReadItemViewInfo | undefined,
   dataGroups: QueryDataDetailItemGroup[] = []
@@ -300,6 +307,13 @@ export function detailGroupsFromReadView(
   });
 
   return groups.concat(dataGroups.filter((group) => !used.has(group)));
+}
+
+export function renderedDetailGroups(
+  view: ReadItemViewInfo | undefined,
+  dataGroups: QueryDataDetailItemGroup[] = []
+): QueryDataDetailItemGroup[] {
+  return view ? detailGroupsFromReadView(view, dataGroups) : [];
 }
 
 export function detailResultSimpleData(result: QueryDataDetailResult | undefined) {
@@ -343,6 +357,24 @@ export function columnsFromListResult(result: ListViewResult | undefined): Table
       };
     })
     .filter((column) => column.title);
+}
+
+export function listRenderColumns(
+  view: ListViewInfo | undefined,
+  result: ListViewResult | undefined
+): TableColumnInfo[] {
+  if (!view) {
+    return [];
+  }
+  const declared = viewColumns(view);
+  if (declared.length > 0) {
+    return declared;
+  }
+  const resultCols = columnsFromListResult(result);
+  if (resultCols.length > 0) {
+    return resultCols;
+  }
+  return columnsFromRowItems(listRows(result)[0]);
 }
 
 export function fieldModelId(field: ListDataValue) {

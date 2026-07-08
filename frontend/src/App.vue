@@ -50,11 +50,8 @@ import {
   buildSelectedExistingItemProperty,
   buildUpdatedItemProperty,
   columnsFromListResult,
-  columnsFromRowItems,
   createOperations,
   dataOperations,
-  detailFieldsFromReadView,
-  detailGroupsFromReadView,
   detailItemValues,
   detailResultItems,
   detailResultSimpleData,
@@ -97,6 +94,7 @@ import {
   legacyNotifyCount,
   legacyRunOperationSuccess,
   legacySubMenuItems,
+  listRenderColumns,
   listAutoFreshTime,
   listFreshTime,
   listPageIndex,
@@ -124,6 +122,8 @@ import {
   viewInputCount,
   readViewFields,
   readViewId,
+  renderedDetailFields,
+  renderedDetailGroups,
   viewColumns, viewDetailViewId, viewId, viewOperations
 } from "./viewWorkflow";
 import {
@@ -242,20 +242,7 @@ const currentViewId = computed(() => viewId(viewResponse.value?.data));
 const loadedViewName = computed(() => viewDisplayName(viewResponse.value?.data, viewName.value));
 const viewTitle = computed(() => viewDisplayTitle(viewResponse.value?.data, viewName.value || "Load a View"));
 
-const resultColumns = computed<TableColumnInfo[]>(() => {
-  const declared = viewColumns(viewResponse.value?.data);
-  if (declared.length > 0) {
-    return declared;
-  }
-
-  const resultCols = columnsFromListResult(dataResponse.value?.data);
-  if (resultCols.length > 0) {
-    return resultCols;
-  }
-
-  const first = listRows(dataResponse.value?.data)[0];
-  return columnsFromRowItems(first);
-});
+const resultColumns = computed<TableColumnInfo[]>(() => listRenderColumns(viewResponse.value?.data, dataResponse.value?.data));
 
 const resultRows = computed<ListDataItem[]>(() => listRows(dataResponse.value?.data));
 const resultPageIndex = computed(() => listPageIndex(dataResponse.value?.data, Number(pageIndex.value)));
@@ -270,9 +257,9 @@ const currentReadItemView = computed(() => {
   return readViewId(view) === Number(detailViewId.value) ? view : undefined;
 });
 const readItemFields = computed(() => readViewFields(readItemViewResponse.value?.data));
-const detailRows = computed(() => detailFieldsFromReadView(currentReadItemView.value, detailDataRows.value));
+const detailRows = computed(() => renderedDetailFields(currentReadItemView.value, detailDataRows.value));
 const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() =>
-  detailGroupsFromReadView(currentReadItemView.value, detailResultItems(detailResponse.value?.data))
+  renderedDetailGroups(currentReadItemView.value, detailResultItems(detailResponse.value?.data))
 );
 const detailViewOperations = computed(() => dataOperations(detailResponse.value?.data));
 const listCreateOperations = computed(() => createOperations(viewOperations(viewResponse.value?.data)));
@@ -527,6 +514,7 @@ async function loadLegacyListView() {
 
 async function loadReadItemView(viewId = Number(readItemViewId.value)) {
   readItemViewId.value = viewId;
+  if (viewId <= 0) return null;
   const request = buildLegacyReadItemViewRequest({
     token: token.value,
     viewId
@@ -539,6 +527,7 @@ async function loadReadItemView(viewId = Number(readItemViewId.value)) {
     readItemViewResponse.value = response;
     syncDetailDrafts();
   }
+  return response;
 }
 
 async function queryLegacyData() {
@@ -664,7 +653,8 @@ async function inputQuery() {
 }
 
 async function queryDetail(viewId = Number(detailViewId.value)) {
-  await loadReadItemView(viewId);
+  const readView = await loadReadItemView(viewId);
+  if (!readView?.data) return null;
   const request = buildQueryDataDetailRequest({
     token: token.value,
     viewId,
@@ -684,7 +674,8 @@ async function queryDetail(viewId = Number(detailViewId.value)) {
 }
 
 async function initNew() {
-  await loadReadItemView(Number(initNewViewId.value));
+  const readView = await loadReadItemView(Number(initNewViewId.value));
+  if (!readView?.data) return null;
   const request = buildInitNewRequest({
     token: token.value,
     viewId: Number(initNewViewId.value),

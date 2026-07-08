@@ -173,6 +173,9 @@ explicitly named as authoritative for fool-service.
 - [x] Pass legacy `querydatadetail` request `Token` through the controller and
       detail service View lookup boundary without adding a cross-module auth
       dependency.
+- [x] Require the Vue main list and detail editor to have rendered View
+      metadata before using `querydata` / `querydatadetail` payloads, so data
+      DTO rows cannot define page columns or detail form fields.
 - [x] Render detail View operation buttons from the loaded `querydatadetail`
       operations payload instead of the list View metadata, keeping detail
       actions bound to the rendered detail View context.

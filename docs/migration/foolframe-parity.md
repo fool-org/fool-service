@@ -97,6 +97,14 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: the Vue View workflow now requires rendered View metadata before
+  list/detail UI can consume data payloads. Main table columns go through the
+  shared `listRenderColumns(view, querydata)` helper, which returns no columns
+  until `getlistview` has loaded, and detail fields/child groups use
+  read-item View metadata wrappers that return no form fields until
+  `getreaditemview` succeeds. `queryDetail` / `initNew` now stop before
+  `querydatadetail` / `initnew` if the read-item View cannot render, keeping
+  data DTO rows from defining page structure.
 - 2026-07-08: legacy `querydatadetail` now carries request `Token` from the
   controller into `DataQueryService` and on to `ViewDataService.getViewData`.
   This keeps detail View loading on the same token-aware View lookup boundary
