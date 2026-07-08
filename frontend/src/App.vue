@@ -63,10 +63,13 @@ import {
   fieldTitle,
   groupKey,
   groupColumns,
+  groupItems,
   groupSelectFromExists,
+  groupTitle,
   inputQueryItemId,
   inputQueryItemText,
   isEnumField,
+  itemDataId,
   itemKey,
   itemValue,
   legacyAppDefaultViewId,
@@ -1002,7 +1005,7 @@ async function addExistingDetailItem(group: QueryDataDetailItemGroup, row: ListD
 }
 
 async function updateDetailItem(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) {
-  if (!selectedObject.value || isCreatingObject.value || !item.dataId) {
+  if (!selectedObject.value || isCreatingObject.value || !itemDataId(item)) {
     errorMessage.value = "Select a saved item first.";
     return;
   }
@@ -1016,11 +1019,12 @@ async function updateDetailItem(group: QueryDataDetailItemGroup, item: QueryData
 }
 
 async function deleteDetailItem(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) {
-  if (!selectedObject.value || isCreatingObject.value || !item.dataId) {
+  const dataId = itemDataId(item);
+  if (!selectedObject.value || isCreatingObject.value || !dataId) {
     errorMessage.value = "Select a saved item first.";
     return;
   }
-  if (!window.confirm(`Delete ${item.dataId}?`)) {
+  if (!window.confirm(`Delete ${dataId}?`)) {
     return;
   }
   setDetailItemSavePayload([buildDeletedItemProperty(group, item)]);
@@ -1227,10 +1231,10 @@ function syncDetailDrafts() {
 
           <div v-if="selectedObject && !isCreatingObject" class="view-items-panel">
             <div v-if="detailItemGroups.length" class="detail-fields">
-              <template v-for="group in detailItemGroups" :key="group.prpId || group.name">
+              <template v-for="group in detailItemGroups" :key="groupKey(group)">
                 <div>
-                  <span>{{ group.itemName || group.name || group.prpId }}</span>
-                  <strong>{{ group.items?.length || 0 }} rows</strong>
+                  <span>{{ groupTitle(group) }}</span>
+                  <strong>{{ groupItems(group).length }} rows</strong>
                 </div>
                 <div class="item-add-row">
                   <label v-for="field in groupColumns(group)" :key="fieldKey(field)">
@@ -1285,11 +1289,11 @@ function syncDetailDrafts() {
                   />
                 </div>
                 <div
-                  v-for="item in group.items || []"
-                  :key="`${group.prpId || group.name}-${item.dataId}`"
+                  v-for="item in groupItems(group)"
+                  :key="itemKey(group, item)"
                   class="detail-item-row"
                 >
-                  <span>{{ item.dataId }}</span>
+                  <span>{{ itemDataId(item) }}</span>
                   <label v-for="field in groupColumns(group)" :key="fieldKey(field)">
                     {{ fieldTitle(field) }}
                     <MetadataFieldEditor

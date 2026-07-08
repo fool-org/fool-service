@@ -48,6 +48,9 @@ explicitly named as authoritative for fool-service.
 - [x] Render select-existing child controls through a shared
       `SelectFromExists`/`selectFromExists` helper instead of a camel-only
       template field read.
+- [x] Route Vue child group labels, row iteration, item ids, and child-item
+      save payloads through shared helpers so Pascal detail DTO aliases do not
+      leak into the template or payload builders.
 - [x] Cache Vue read-item View metadata by rendered `ViewId` so detail,
       init-new, and manual read-item panels do not bind data DTO values to a
       stale or wrong read View shape.

@@ -151,6 +151,16 @@ describe("App defaults", () => {
     expect(appSource).not.toContain("group.selectFromExists");
   });
 
+  it("renders child group labels and rows through shared group helpers", () => {
+    expect(appSource).toContain("groupTitle(group)");
+    expect(appSource).toContain("groupItems(group).length");
+    expect(appSource).toContain("v-for=\"item in groupItems(group)\"");
+    expect(appSource).toContain("itemDataId(item)");
+    expect(appSource).not.toContain("group.itemName");
+    expect(appSource).not.toContain("group.items");
+    expect(appSource).not.toContain("item.dataId");
+  });
+
   it("refreshes the main View workflow from legacy AutoFreshTime", () => {
     expect(appSource).toContain("listAutoFreshTime");
     expect(appSource).toContain("scheduleAutoRefresh(response.data)");

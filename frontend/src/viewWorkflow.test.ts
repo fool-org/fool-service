@@ -25,13 +25,16 @@ import {
   fieldType,
   fieldTitle,
   groupColumns,
+  groupItems,
   groupKey,
   groupSelectFromExists,
+  groupTitle,
   isEnumField,
   inputQueryItemId,
   inputQueryItemText,
   isLookupField,
   isReadonlyField,
+  itemDataId,
   itemKey,
   legacyAppDefaultViewId,
   legacyAuthIndex,
@@ -438,6 +441,53 @@ describe("view workflow helpers", () => {
     expect(buildDeletedItemProperty(group, item)).toMatchObject({
       key: "items",
       delteItems: [{ itemId: "2001", isExist: true }]
+    });
+  });
+
+  it("reads child group render and save values through shared aliases", () => {
+    const group = {
+      PrpId: "lines",
+      ItemName: "Order Lines",
+      Properties: [
+        { PrpId: "lineId", FmtValue: "", EditType: "ReadOnly" },
+        { PrpId: "lineName", FmtValue: "" }
+      ],
+      Items: [
+        {
+          DataId: "9001",
+          Values: [
+            { PrpId: "lineId", ObjId: "9001", FmtValue: "9001", EditType: "ReadOnly" },
+            { PrpId: "lineName", ObjId: "Old line", FmtValue: "Old line" }
+          ]
+        }
+      ]
+    };
+    const item = group.Items[0];
+
+    expect(groupKey(group)).toBe("lines");
+    expect(groupTitle(group)).toBe("Order Lines");
+    expect(groupItems(group)).toBe(group.Items);
+    expect(itemDataId(item)).toBe("9001");
+    expect(itemKey(group, item)).toBe("lines:9001");
+    expect(buildAddedItemProperty(group, "9002", { lineId: "9002", lineName: "New line" })).toEqual({
+      key: "lines",
+      addedItems: [
+        {
+          itemId: "9002",
+          isExist: true,
+          propertyies: [{ key: "lineName", value: "New line" }]
+        }
+      ]
+    });
+    expect(buildUpdatedItemProperty(group, item, { lineId: "9001", lineName: "Updated line" })).toEqual({
+      key: "lines",
+      items: [
+        {
+          itemId: "9001",
+          isExist: true,
+          propertyies: [{ key: "lineName", value: "Updated line" }]
+        }
+      ]
     });
   });
 

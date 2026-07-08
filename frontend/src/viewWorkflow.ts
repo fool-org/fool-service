@@ -401,7 +401,7 @@ export function buildSavePropertyies(fields: ListDataValue[], drafts: Record<str
 export function buildItemDrafts(groups: QueryDataDetailItemGroup[]) {
   const drafts: Record<string, Record<string, string>> = {};
   for (const group of groups) {
-    for (const item of group.items || []) {
+    for (const item of groupItems(group)) {
       drafts[itemKey(group, item)] = buildFieldDrafts(detailItemValues(item));
     }
   }
@@ -409,11 +409,23 @@ export function buildItemDrafts(groups: QueryDataDetailItemGroup[]) {
 }
 
 export function itemKey(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) {
-  return `${group.prpId || group.name || "items"}:${item.dataId || item.DataId || ""}`;
+  return `${groupKey(group)}:${itemDataId(item)}`;
 }
 
 export function groupColumns(group: QueryDataDetailItemGroup) {
   return firstList(group.properties, group.Properties);
+}
+
+export function groupItems(group: QueryDataDetailItemGroup) {
+  return firstList(group.items, group.Items);
+}
+
+export function groupTitle(group: QueryDataDetailItemGroup) {
+  return firstDisplayValue([group.itemName, group.ItemName, group.name, group.Name, group.prpId, group.PrpId]);
+}
+
+export function itemDataId(item: QueryDataDetailDataItem) {
+  return firstDisplayValue([item.dataId, item.DataId]);
 }
 
 export function itemValue(item: QueryDataDetailDataItem, field: ListDataValue) {
@@ -608,10 +620,10 @@ export function buildUpdatedItemProperty(
   drafts: Record<string, string>
 ): SaveItemProperty {
   return {
-    key: group.prpId || "items",
+    key: groupKey(group),
     items: [
       {
-        itemId: item.dataId || item.DataId,
+        itemId: itemDataId(item),
         isExist: true,
         propertyies: buildItemPropertyies(detailItemValues(item), drafts)
       }
@@ -624,10 +636,10 @@ export function buildDeletedItemProperty(
   item: QueryDataDetailDataItem
 ): SaveItemProperty {
   return {
-    key: group.prpId || "items",
+    key: groupKey(group),
     delteItems: [
       {
-        itemId: item.dataId || item.DataId,
+        itemId: itemDataId(item),
         isExist: true,
         propertyies: buildItemPropertyies(detailItemValues(item), buildFieldDrafts(detailItemValues(item)))
       }
@@ -642,12 +654,12 @@ export function buildAddedItemProperty(
   includeReadonly = false
 ): SaveItemProperty {
   return {
-    key: group.prpId || "items",
+    key: groupKey(group),
     addedItems: [
       {
         itemId,
         isExist: true,
-        propertyies: buildItemPropertyies(group.properties || [], drafts, includeReadonly)
+        propertyies: buildItemPropertyies(groupColumns(group), drafts, includeReadonly)
       }
     ]
   };
@@ -681,7 +693,7 @@ export function buildSelectedExistingItemProperty(
   columns: TableColumnInfo[] = []
 ): SaveItemProperty {
   const itemId = rowObjectId(row, columns);
-  return buildAddedItemProperty(group, itemId, buildDraftsFromRow(group.properties || [], row, columns), true);
+  return buildAddedItemProperty(group, itemId, buildDraftsFromRow(groupColumns(group), row, columns), true);
 }
 
 export function displayValue(value: unknown) {

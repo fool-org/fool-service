@@ -118,6 +118,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `group.selectFromExists` field, so legacy Pascal `SelectFromExists` can
   expose the candidate loader after the child group is matched to rendered
   read-item View metadata.
+- 2026-07-09: Vue child group titles, row counts, row keys, item ids, and
+  child-item save payloads now read through shared helpers
+  (`groupTitle`, `groupItems`, `itemDataId`, `groupKey`, `groupColumns`)
+  instead of direct template/business DTO field reads. Pascal
+  `PrpId`/`ItemName`/`Items`/`Properties` detail payloads now keep rendering
+  and save identity aligned with the loaded read-item View metadata.
 - 2026-07-09: Vue read-item View metadata is now cached by rendered `ViewId`.
   Detail rendering, init-new rendering, and manual read-item inspection no
   longer share a single last-loaded read View, and create operations set the
