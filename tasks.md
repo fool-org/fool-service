@@ -374,6 +374,9 @@ explicitly named as authoritative for fool-service.
 - [x] Render Vue DateTime metadata fields with native `datetime-local` inputs
       from View field type metadata, normalizing legacy display strings only
       at the editor boundary and not from business DTO field names.
+- [x] Honor legacy View `EditType` picker metadata in Vue scalar editors so
+      `DatePicker`, `TimePicker`, and `DateTimePicker` select native inputs
+      before falling back to property type metadata.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

@@ -97,6 +97,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue metadata field editors now also honor legacy
+  `ItemEditType` picker metadata. `DatePicker`, `TimePicker`, and
+  `DateTimePicker` map through the existing native input helper before
+  falling back to `PropertyType`, so View configuration can select date/time
+  widgets without binding the page to concrete business DTO field names.
+  Docker frontend/backend were rebuilt with this slice and `runtime_doctor.py`
+  passed against the refreshed Compose stack.
 - 2026-07-09: Vue metadata field editors now render `DateTime` / `PrpType=14`
   through native `datetime-local` inputs from View field metadata. The editor
   normalizes legacy display values such as `2026-07-03 09:05:06.0` only at the

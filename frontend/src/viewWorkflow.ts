@@ -107,6 +107,10 @@ const numberFieldTypes = new Set([
 ]);
 
 export function fieldInputType(field: ListDataValue) {
+  const editType = String(fieldEditType(field) ?? "").toLowerCase();
+  if (editType === "datepicker") return "date";
+  if (editType === "timepicker") return "time";
+  if (editType === "datetimepicker") return "datetime-local";
   const type = String(fieldType(field) ?? "").toLowerCase();
   if (type === "date" || type === "12") return "date";
   if (type === "time" || type === "13") return "time";

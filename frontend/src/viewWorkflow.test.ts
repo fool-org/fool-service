@@ -166,6 +166,11 @@ describe("view workflow helpers", () => {
     expect(fieldInputType({ prpId: "tradeTime", PrpType: "13" })).toBe("time");
     expect(fieldInputType({ prpId: "createdAt", PrpType: "14" })).toBe("datetime-local");
     expect(fieldInputType({ prpId: "orderTime", prpType: "String" })).toBe("text");
+    expect(fieldInputType({ prpId: "planned", prpType: "String", EditType: "DatePicker" })).toBe("date");
+    expect(fieldInputType({ prpId: "planned", prpType: "String", EditType: "TimePicker" })).toBe("time");
+    expect(fieldInputType({ prpId: "planned", prpType: "String", EditType: "DateTimePicker" })).toBe(
+      "datetime-local"
+    );
     expect(fieldInputType({ prpId: "amount", prpType: "Decimal" })).toBe("number");
     expect(fieldInputType({ prpId: "count", PrpType: "1" })).toBe("number");
     expect(fieldInputType({ prpId: "name", prpType: "String" })).toBe("text");
@@ -174,6 +179,9 @@ describe("view workflow helpers", () => {
   it("normalizes only DateTime metadata values for native inputs", () => {
     expect(fieldInputValue({ PrpType: "14" }, "2026-07-03 09:05:06.0")).toBe("2026-07-03T09:05:06");
     expect(fieldInputValue({ prpType: "DateTime" }, "2026-07-03T09:05:06.123")).toBe("2026-07-03T09:05:06");
+    expect(fieldInputValue({ EditType: "DateTimePicker" }, "2026-07-03 09:05:06.0")).toBe(
+      "2026-07-03T09:05:06"
+    );
     expect(fieldInputValue({ prpType: "String", prpId: "createdAt" }, "2026-07-03 09:05:06.0")).toBe(
       "2026-07-03 09:05:06.0"
     );
