@@ -238,6 +238,9 @@ explicitly named as authoritative for fool-service.
 - [x] Expose FoolFrame Pascal `inputquery` response aliases (`Items`, `Id`,
       `Text`) and make Vue lookup consumers read them through shared protocol
       helpers.
+- [x] Remove stale `SCPB09-SOWAY.EVENT` object-query items from remaining
+      migration work after confirming the same cases are already covered by
+      the module map and event tests.
 
 ## Backlog
 
