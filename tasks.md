@@ -124,6 +124,8 @@ explicitly named as authoritative for fool-service.
 - [x] Preserve multiple report `ReportCols.OrderType` entries by selected
       column order in the View/data SQL query path, matching FoolFrame report
       ORDER BY generation without binding reports to rendered row DTO maps.
+- [x] Align `QueryFactory.getStateStr` with FoolFrame's enum DB-value to
+      display-name lookup, including empty string for missing values.
 - [x] Remove stale saved-report persistence/execution language from remaining
       report migration work after confirming FoolFrame `HandlerSaveReport` is
       an empty no-op success handler.

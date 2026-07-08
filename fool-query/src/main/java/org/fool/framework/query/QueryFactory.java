@@ -30,20 +30,11 @@ public interface QueryFactory {
     }
 
     default String getStateStr(QueryColumn col, String value) {
-        List<ColStateValue> values = getStateValues(col);
-        String showName = values.stream()
+        return getStateValues(col).stream()
                 .filter(stateValue -> Objects.equals(stateValue.getDbName(), value))
                 .map(ColStateValue::getShowName)
                 .findFirst()
-                .orElse(null);
-        if (showName != null) {
-            return showName;
-        }
-        return values.stream()
-                .filter(stateValue -> Objects.equals(stateValue.getShowName(), value))
-                .map(ColStateValue::getDbName)
-                .findFirst()
-                .orElse(value);
+                .orElse("");
     }
 
     private static String normalize(String value) {

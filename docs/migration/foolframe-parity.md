@@ -129,6 +129,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   instead of direct `operation.params` / `param.paramName` template fields, so
   Pascal `Params` / `ParamName` metadata stays behind the shared View
   workflow protocol layer.
+- 2026-07-09: `QueryFactory.getStateStr` now matches FoolFrame
+  `GetStateStr`: it maps enum DB values to display names and returns an empty
+  string when the DB value is missing. The previous Java-only reverse
+  show-name-to-DB mapping was removed to keep query/report state formatting
+  aligned with the legacy query factory contract.
 - 2026-07-09: Vue read-item View metadata is now cached by rendered `ViewId`.
   Detail rendering, init-new rendering, and manual read-item inspection no
   longer share a single last-loaded read View, and create operations set the
