@@ -312,6 +312,8 @@ explicitly named as authoritative for fool-service.
       `SW_SYS_OPERATION_PARAM` records.
 - [x] Persist module-source custom View operation metadata through legacy
       `SW_SYS_VIEW_OPERATION` / `SW_SYS_OPERATIONVIEW` records.
+- [x] Keep Vue fallback row identity and table keys tied to rendered View
+      columns before raw `querydata.Items` order.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

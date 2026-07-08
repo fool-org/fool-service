@@ -60,14 +60,23 @@ export function columnTitle(column: TableColumnInfo) {
   ]);
 }
 
-export function rowObjectId(row: ListDataItem, _columns: TableColumnInfo[] = []) {
+export function rowObjectId(row: ListDataItem, columns: TableColumnInfo[] = []) {
   const items = rowItems(row);
+  const firstColumnItemWithId = columns
+    .map((column) => rowItemForColumn(row, column))
+    .find((item) => displayValue(valueObjId(item)));
   const firstItemWithId = items.find((item) => displayValue(valueObjId(item)));
-  return firstDisplayValue([row.id, row.Id, firstItemWithId && valueObjId(firstItemWithId), valueFmtValue(items[0])]);
+  return firstDisplayValue([
+    row.id,
+    row.Id,
+    firstColumnItemWithId && valueObjId(firstColumnItemWithId),
+    firstItemWithId && valueObjId(firstItemWithId),
+    valueFmtValue(items[0])
+  ]);
 }
 
-export function rowRenderKey(row: ListDataItem, index = 0) {
-  return rowObjectId(row) || firstDisplayValue([row.rowIndex, row.RowIndex]) || String(index);
+export function rowRenderKey(row: ListDataItem, index = 0, columns: TableColumnInfo[] = []) {
+  return rowObjectId(row, columns) || firstDisplayValue([row.rowIndex, row.RowIndex]) || String(index);
 }
 
 export function rowValue(row: ListDataItem, column: TableColumnInfo) {

@@ -177,6 +177,22 @@ describe("view workflow helpers", () => {
     expect(rowRenderKey(dtoOnlyRow, 7)).toBe("4");
   });
 
+  it("uses rendered View columns before DTO item order for fallback row identity", () => {
+    const columns = [
+      { property: "recordId", title: "Record ID" },
+      { property: "state", title: "State" }
+    ];
+    const row = {
+      items: [
+        { prpId: "state", objId: "wrong-first-item", fmtValue: "Open" },
+        { prpId: "recordId", objId: "view-column-id", fmtValue: "1001" }
+      ]
+    };
+
+    expect(rowObjectId(row, columns)).toBe("view-column-id");
+    expect(rowRenderKey(row, 0, columns)).toBe("view-column-id");
+  });
+
   it("merges read item View metadata with detail data values", () => {
     const view = {
       ViewId: 102,

@@ -97,6 +97,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue list-row selection/render keys now use loaded View columns
+  before falling back to raw `querydata.Items` order when `querydata.Id` is
+  absent. This keeps fallback row identity tied to the rendered View instead
+  of whichever business DTO field appears first in the data payload.
 - 2026-07-09: the Vue View workflow now lets only loaded View metadata define
   table columns. `listRenderColumns` reads `getlistview.Items` /
   `tableColumn` and no longer falls back to `querydata.Cols` or first-row

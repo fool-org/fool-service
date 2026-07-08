@@ -44,7 +44,7 @@ const emit = defineEmits<{
     <tbody>
       <tr
         v-for="(row, rowIndex) in rows"
-        :key="rowRenderKey(row, rowIndex)"
+        :key="rowRenderKey(row, rowIndex, columns)"
         :class="[{ selected: rowObjectId(row, columns) === selectedObjectId }, rowFormatClass(row)]"
       >
         <td v-for="column in columns" :key="columnKey(column)">
