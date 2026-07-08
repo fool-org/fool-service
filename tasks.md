@@ -203,6 +203,8 @@ explicitly named as authoritative for fool-service.
 - [x] Remove the Docker seed operation id from the Vue manual `runoperation`
       tool default so operation execution starts from View metadata or user
       input.
+- [x] Make Vue SubMenu, message, notify, and enum tool panels consume
+      FoolFrame Pascal aliases through shared protocol helpers.
 
 ## Backlog
 

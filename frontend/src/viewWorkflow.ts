@@ -1,11 +1,19 @@
 import type {
   CheckCodeResult,
+  GetEnumResult,
+  GetEnumValue,
+  GetMessageResult,
+  GetNotifyResult,
+  LegacyAuthItem,
   LegacyInitAppResult,
+  LegacySubMenuResult,
   ListDataItem,
   ListDataValue,
   ListViewInfo,
   ListViewResult,
   OperationInfo,
+  MessageInfo,
+  NotifyInfo,
   QueryDataDetailDataItem,
   QueryDataDetailItemGroup,
   QueryDataDetailResult,
@@ -100,6 +108,70 @@ export function legacyCheckCodeCode(source?: CheckCodeResult) {
 
 export function legacyCheckCodeImage(source?: CheckCodeResult) {
   return firstDisplayValue([source?.chkCodeImg, source?.ChkCodeImg]);
+}
+
+export function legacySubMenuItems(source?: LegacySubMenuResult) {
+  return firstList(source?.items, source?.Items);
+}
+
+export function legacyAuthText(item: LegacyAuthItem) {
+  return firstDisplayValue([item.text, item.Text]);
+}
+
+export function legacyAuthNo(item: LegacyAuthItem) {
+  return firstDisplayValue([item.authNo, item.AuthNo]);
+}
+
+export function legacyAuthViewId(item: LegacyAuthItem) {
+  return Number(item.viewId ?? item.ViewId ?? 0) || 0;
+}
+
+export function legacyAuthIndex(item: LegacyAuthItem) {
+  return Number(item.index ?? item.Index ?? 0) || 0;
+}
+
+export function legacyMessages(source?: GetMessageResult) {
+  return firstList(source?.messages, source?.Messages);
+}
+
+export function legacyMessageId(message: MessageInfo) {
+  return firstDisplayValue([message.messageID, message.MessageID]);
+}
+
+export function legacyMessageContent(message: MessageInfo) {
+  return firstDisplayValue([message.messageContent, message.MessageContent]);
+}
+
+export function legacyMessageResultView(message: MessageInfo) {
+  return Number(message.resultView ?? message.ResultView ?? 0) || 0;
+}
+
+export function legacyMessageResultKey(message: MessageInfo) {
+  return firstDisplayValue([message.resultKey, message.ResultKey]);
+}
+
+export function legacyNotifies(source?: GetNotifyResult) {
+  return firstList(source?.notifies, source?.Notifies);
+}
+
+export function legacyNotifyAuthNo(item: NotifyInfo) {
+  return firstDisplayValue([item.authNo, item.AuthNo]);
+}
+
+export function legacyNotifyCount(item: NotifyInfo) {
+  return Number(item.count ?? item.Count ?? 0) || 0;
+}
+
+export function legacyEnumValues(source?: GetEnumResult) {
+  return firstList(source?.enumValues, source?.EnumValues);
+}
+
+export function legacyEnumName(item: GetEnumValue) {
+  return firstDisplayValue([item.name, item.Name]);
+}
+
+export function legacyEnumValue(item: GetEnumValue) {
+  return firstDisplayValue([item.value, item.Value]);
 }
 
 export function readViewItems(view: ReadItemViewInfo | undefined) {

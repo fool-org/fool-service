@@ -51,7 +51,9 @@ export interface LegacyAuthItem {
 
 export interface LegacySubMenuResult {
   token?: string;
+  Token?: string;
   items?: LegacyAuthItem[];
+  Items?: LegacyAuthItem[];
 }
 
 export interface LegacyAppInfo {
@@ -386,11 +388,14 @@ export interface GetEnumRequest {
 
 export interface GetEnumValue {
   name?: string;
+  Name?: string;
   value?: number;
+  Value?: number;
 }
 
 export interface GetEnumResult {
   enumValues?: GetEnumValue[];
+  EnumValues?: GetEnumValue[];
 }
 
 export interface InputQueryRequest {

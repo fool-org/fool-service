@@ -27,11 +27,27 @@ import {
   isReadonlyField,
   itemKey,
   legacyAppDefaultViewId,
+  legacyAuthIndex,
+  legacyAuthNo,
+  legacyAuthText,
+  legacyAuthViewId,
   legacyCheckCodeCode,
   legacyCheckCodeImage,
   legacyCheckCodeKey,
+  legacyEnumName,
+  legacyEnumValue,
+  legacyEnumValues,
   legacyInitAppCheckCode,
   legacyInitAppDbId,
+  legacyMessageContent,
+  legacyMessageId,
+  legacyMessageResultKey,
+  legacyMessageResultView,
+  legacyMessages,
+  legacyNotifies,
+  legacyNotifyAuthNo,
+  legacyNotifyCount,
+  legacySubMenuItems,
   listAutoFreshTime,
   listFreshTime,
   listPageIndex,
@@ -452,6 +468,30 @@ describe("view workflow helpers", () => {
     expect(legacyCheckCodeKey(camel.checkCode)).toBe("key-2");
     expect(legacyCheckCodeCode(camel.checkCode)).toBe("D4EF");
     expect(legacyCheckCodeImage(camel.checkCode)).toBe("camel-image");
+  });
+
+  it("reads tool-panel lists and fields from Pascal or camel legacy payloads", () => {
+    const menu = { Items: [{ AuthNo: "1", Text: "Home", ViewId: 100, Index: 2 }] };
+    const messages = { Messages: [{ MessageID: "m1", MessageContent: "Ready", ResultView: 100, ResultKey: "1001" }] };
+    const notifies = { Notifies: [{ AuthNo: "1", Count: 3 }] };
+    const enums = { EnumValues: [{ Name: "Open", Value: 0 }] };
+
+    expect(legacySubMenuItems(menu)).toHaveLength(1);
+    expect(legacyAuthNo(menu.Items[0])).toBe("1");
+    expect(legacyAuthText(menu.Items[0])).toBe("Home");
+    expect(legacyAuthViewId(menu.Items[0])).toBe(100);
+    expect(legacyAuthIndex(menu.Items[0])).toBe(2);
+    expect(legacyMessages(messages)).toHaveLength(1);
+    expect(legacyMessageId(messages.Messages[0])).toBe("m1");
+    expect(legacyMessageContent(messages.Messages[0])).toBe("Ready");
+    expect(legacyMessageResultView(messages.Messages[0])).toBe(100);
+    expect(legacyMessageResultKey(messages.Messages[0])).toBe("1001");
+    expect(legacyNotifies(notifies)).toHaveLength(1);
+    expect(legacyNotifyAuthNo(notifies.Notifies[0])).toBe("1");
+    expect(legacyNotifyCount(notifies.Notifies[0])).toBe(3);
+    expect(legacyEnumValues(enums)).toHaveLength(1);
+    expect(legacyEnumName(enums.EnumValues[0])).toBe("Open");
+    expect(legacyEnumValue(enums.EnumValues[0])).toBe("0");
   });
 
   it("uses the rendered View detail id before falling back to the list id", () => {

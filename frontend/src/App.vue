@@ -64,11 +64,27 @@ import {
   itemKey,
   itemValue,
   legacyAppDefaultViewId,
+  legacyAuthIndex,
+  legacyAuthNo,
+  legacyAuthText,
+  legacyAuthViewId,
   legacyCheckCodeCode,
   legacyCheckCodeImage,
   legacyCheckCodeKey,
+  legacyEnumName,
+  legacyEnumValue,
+  legacyEnumValues,
   legacyInitAppCheckCode,
   legacyInitAppDbId,
+  legacyMessageContent,
+  legacyMessageId,
+  legacyMessageResultKey,
+  legacyMessageResultView,
+  legacyMessages,
+  legacyNotifies,
+  legacyNotifyAuthNo,
+  legacyNotifyCount,
+  legacySubMenuItems,
   listAutoFreshTime,
   listFreshTime,
   listPageIndex,
@@ -239,6 +255,10 @@ const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() =>
 const detailViewOperations = computed(() => dataOperations(detailResponse.value?.data));
 const listCreateOperations = computed(() => createOperations(viewOperations(viewResponse.value?.data)));
 const listRowOperations = computed(() => rowOperations(viewOperations(viewResponse.value?.data)));
+const subMenuItems = computed(() => legacySubMenuItems(subMenuResponse.value?.data));
+const messageItems = computed(() => legacyMessages(messageResponse.value?.data));
+const notifyItems = computed(() => legacyNotifies(notifyResponse.value?.data));
+const enumItems = computed(() => legacyEnumValues(enumResponse.value?.data));
 const backendSmokeColumns = computed(() => recordColumns(backendSmokeResponse.value?.data || []));
 const viewCanEdit = computed(() => Boolean(selectedObject.value || isCreatingObject.value));
 const fieldEditorContext = computed(() => ({
@@ -979,9 +999,9 @@ async function loadFieldEnums() {
     if (response) {
       enumOptions.value = {
         ...enumOptions.value,
-        [modelId]: (response.data?.enumValues || []).map((item) => ({
-          label: item.name || displayValue(item.value),
-          value: displayValue(item.value)
+        [modelId]: legacyEnumValues(response.data).map((item) => ({
+          label: legacyEnumName(item) || legacyEnumValue(item),
+          value: legacyEnumValue(item)
         }))
       };
     }
@@ -1326,7 +1346,7 @@ function syncDetailDrafts() {
           </button>
 
           <div class="table-wrap input-query-results">
-            <table v-if="subMenuResponse?.data?.items?.length">
+            <table v-if="subMenuItems.length">
               <thead>
                 <tr>
                   <th>Auth</th>
@@ -1336,11 +1356,11 @@ function syncDetailDrafts() {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in subMenuResponse.data.items" :key="item.authNo || item.text">
-                  <td>{{ item.authNo }}</td>
-                  <td>{{ item.text }}</td>
-                  <td>{{ item.viewId }}</td>
-                  <td>{{ item.index }}</td>
+                <tr v-for="item in subMenuItems" :key="legacyAuthNo(item) || legacyAuthText(item)">
+                  <td>{{ legacyAuthNo(item) }}</td>
+                  <td>{{ legacyAuthText(item) }}</td>
+                  <td>{{ legacyAuthViewId(item) }}</td>
+                  <td>{{ legacyAuthIndex(item) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -1358,7 +1378,7 @@ function syncDetailDrafts() {
           </button>
 
           <div class="table-wrap input-query-results">
-            <table v-if="messageResponse?.data?.messages?.length">
+            <table v-if="messageItems.length">
               <thead>
                 <tr>
                   <th>ID</th>
@@ -1368,11 +1388,11 @@ function syncDetailDrafts() {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="message in messageResponse.data.messages" :key="message.messageID">
-                  <td>{{ message.messageID }}</td>
-                  <td>{{ message.messageContent }}</td>
-                  <td>{{ message.resultView }}</td>
-                  <td>{{ message.resultKey }}</td>
+                <tr v-for="message in messageItems" :key="legacyMessageId(message)">
+                  <td>{{ legacyMessageId(message) }}</td>
+                  <td>{{ legacyMessageContent(message) }}</td>
+                  <td>{{ legacyMessageResultView(message) }}</td>
+                  <td>{{ legacyMessageResultKey(message) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -1390,7 +1410,7 @@ function syncDetailDrafts() {
           </button>
 
           <div class="table-wrap input-query-results">
-            <table v-if="notifyResponse?.data?.notifies?.length">
+            <table v-if="notifyItems.length">
               <thead>
                 <tr>
                   <th>Auth</th>
@@ -1398,9 +1418,9 @@ function syncDetailDrafts() {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in notifyResponse.data.notifies" :key="item.authNo || item.count">
-                  <td>{{ item.authNo }}</td>
-                  <td>{{ item.count }}</td>
+                <tr v-for="item in notifyItems" :key="legacyNotifyAuthNo(item) || legacyNotifyCount(item)">
+                  <td>{{ legacyNotifyAuthNo(item) }}</td>
+                  <td>{{ legacyNotifyCount(item) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -1750,7 +1770,7 @@ function syncDetailDrafts() {
           </button>
 
           <div class="table-wrap input-query-results">
-            <table v-if="enumResponse?.data?.enumValues?.length">
+            <table v-if="enumItems.length">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -1758,9 +1778,9 @@ function syncDetailDrafts() {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in enumResponse.data.enumValues" :key="`${item.name}-${item.value}`">
-                  <td>{{ item.name }}</td>
-                  <td>{{ item.value }}</td>
+                <tr v-for="item in enumItems" :key="`${legacyEnumName(item)}-${legacyEnumValue(item)}`">
+                  <td>{{ legacyEnumName(item) }}</td>
+                  <td>{{ legacyEnumValue(item) }}</td>
                 </tr>
               </tbody>
             </table>

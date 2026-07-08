@@ -97,6 +97,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: Vue API-tool panels for `getsubmenu`, `getmsg`,
+  `getnotify`, and `getenums` now consume FoolFrame Pascal aliases through
+  shared protocol helpers (`Items`, `Messages`, `Notifies`, `EnumValues`, and
+  nested Pascal field names) while preserving camel-case compatibility.
 - 2026-07-08: the Vue manual `runoperation` tool no longer defaults to the
   Docker-seeded operation id `7001`. View-rendered operation buttons still set
   the operation id from loaded metadata, while the manual tool now requires a
