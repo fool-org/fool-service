@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: the Vue View summary now reads loaded View name/title/type and
+  input-count metadata through shared `viewWorkflow` helpers. This keeps the
+  page shell on the same View-first normalization path as columns, operations,
+  detail fields, lookup candidates, and report metadata instead of scattering
+  direct DTO field reads through `App.vue`.
 - 2026-07-08: `getmkqview` now exposes FoolFrame report model aliases
   (`Cols`, `ID`, `Name`, `PrpType`, `ModelId`, `QueryTypes`,
   `CompareTypes`, `States`, `ShowName`, `DBName`) while preserving the

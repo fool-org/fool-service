@@ -85,8 +85,12 @@ import {
   readViewFields,
   readViewId,
   viewColumns,
+  viewDisplayName,
+  viewDisplayTitle,
+  viewDisplayType,
   viewDetailViewId,
   viewId,
+  viewInputCount,
   viewOperations
 } from "./viewWorkflow";
 
@@ -455,12 +459,19 @@ describe("view workflow helpers", () => {
     const open = { ID: 2, Name: "Open", RequireSelect: true, ViewID: 201 };
     const view = {
       ID: 100,
+      Name: "Orders",
+      Type: "ListView",
       DetailViewId: 300,
+      inputInfo: [{ property: "keyword", text: "Keyword" }],
       Items: [{ ID: 901, Name: "Order ID", PropertyName: "orderId" }],
       Operations: [create, open]
     };
 
     expect(viewId(view)).toBe(100);
+    expect(viewDisplayName(view)).toBe("Orders");
+    expect(viewDisplayTitle(view)).toBe("Orders");
+    expect(viewDisplayType(view)).toBe("ListView");
+    expect(viewInputCount(view)).toBe(1);
     expect(viewDetailViewId(view, 100)).toBe(300);
     expect(columnKey(viewColumns(view)[0])).toBe("orderId");
     expect(createOperations(viewOperations(view))).toEqual([create]);

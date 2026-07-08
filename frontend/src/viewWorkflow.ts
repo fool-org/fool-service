@@ -100,6 +100,22 @@ export function readViewId(view: ReadItemViewInfo | undefined, fallback = 0) {
   return Number(view?.viewId ?? view?.ViewId ?? fallback) || 0;
 }
 
+export function viewDisplayName(view: ListViewInfo | undefined, fallback = "") {
+  return firstDisplayValue([view?.viewName, view?.name, view?.Name, fallback]);
+}
+
+export function viewDisplayTitle(view: ListViewInfo | undefined, fallback = "") {
+  return firstDisplayValue([view?.viewTitle, viewDisplayName(view), fallback]);
+}
+
+export function viewDisplayType(view: ListViewInfo | undefined) {
+  return firstDisplayValue([view?.viewType, view?.type, view?.Type, view?.showType, view?.ShowType]);
+}
+
+export function viewInputCount(view: ListViewInfo | undefined) {
+  return firstList(view?.inputInfo).length;
+}
+
 export function legacyAppDefaultViewId(source?: unknown) {
   const record = objectRecord(source);
   const app = objectRecord(record.app || record.App || source);

@@ -107,6 +107,9 @@ explicitly named as authoritative for fool-service.
 - [x] Expose FoolFrame Pascal `getmkqview` report model aliases (`Cols`,
       `ID`, `Name`, `QueryTypes`, `CompareTypes`, `States`) and make Vue
       report-column consumers read them through shared View workflow helpers.
+- [x] Route Vue View summary name/title/type/input-count rendering through
+      shared View workflow helpers instead of direct page-level metadata field
+      reads.
 - [x] Tighten the Vue main View workflow layout so loaded View rows and
       `querydatadetail` detail fields render in the first usable screen on
       desktop and remain scrollable on narrow screens.

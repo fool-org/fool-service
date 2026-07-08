@@ -115,6 +115,10 @@ import {
   rowObjectId,
   rowOperations,
   selectedChildViewId,
+  viewDisplayName,
+  viewDisplayTitle,
+  viewDisplayType,
+  viewInputCount,
   readViewFields,
   readViewId,
   viewColumns, viewDetailViewId, viewId, viewOperations
@@ -233,7 +237,8 @@ const errorMessage = ref("");
 const pendingAction = ref("");
 
 const currentViewId = computed(() => viewId(viewResponse.value?.data, legacyListViewId.value));
-const viewTitle = computed(() => viewResponse.value?.data?.viewTitle || viewResponse.value?.data?.name || viewResponse.value?.data?.Name || viewResponse.value?.data?.viewName || viewName.value || `View ${legacyListViewId.value}`);
+const loadedViewName = computed(() => viewDisplayName(viewResponse.value?.data, viewName.value));
+const viewTitle = computed(() => viewDisplayTitle(viewResponse.value?.data, viewName.value || `View ${legacyListViewId.value}`));
 
 const resultColumns = computed<TableColumnInfo[]>(() => {
   const declared = viewColumns(viewResponse.value?.data);
@@ -757,8 +762,9 @@ async function loadBackendSmoke() {
 }
 
 function applyLoadedView(view?: ListViewInfo) {
-  if (view?.viewName || view?.Name) {
-    viewName.value = view.viewName || view.Name || "";
+  const loadedName = viewDisplayName(view);
+  if (loadedName) {
+    viewName.value = loadedName;
   }
   const loadedViewId = viewId(view, legacyListViewId.value);
   if (loadedViewId) {
@@ -1069,7 +1075,7 @@ function syncDetailDrafts() {
       <header class="topbar">
         <div>
           <h1>{{ viewTitle }}</h1>
-          <p>{{ viewResponse?.data?.viewName || viewName }}</p>
+          <p>{{ loadedViewName }}</p>
         </div>
         <div class="status-strip">
           <div v-for="service in services" :key="service.label" class="status-item">
@@ -1084,7 +1090,7 @@ function syncDetailDrafts() {
         <article class="panel view-list-panel">
           <div class="panel-heading">
             <h2>{{ viewTitle }}</h2>
-            <span>{{ viewName }}</span>
+            <span>{{ loadedViewName }}</span>
           </div>
           <div class="workflow-toolbar">
             <label>
@@ -1494,10 +1500,10 @@ function syncDetailDrafts() {
           </div>
 
           <div v-if="viewResponse?.data" class="summary-list">
-            <div><span>Title</span><strong>{{ viewResponse.data.viewTitle || "-" }}</strong></div>
-            <div><span>Type</span><strong>{{ viewResponse.data.viewType || "-" }}</strong></div>
+            <div><span>Title</span><strong>{{ viewDisplayTitle(viewResponse.data) || "-" }}</strong></div>
+            <div><span>Type</span><strong>{{ viewDisplayType(viewResponse.data) || "-" }}</strong></div>
             <div><span>Columns</span><strong>{{ viewColumns(viewResponse.data).length }}</strong></div>
-            <div><span>Inputs</span><strong>{{ viewResponse.data.inputInfo?.length || 0 }}</strong></div>
+            <div><span>Inputs</span><strong>{{ viewInputCount(viewResponse.data) }}</strong></div>
           </div>
         </article>
 
