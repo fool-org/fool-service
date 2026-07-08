@@ -7,9 +7,11 @@ import unittest
 
 from runtime_doctor import (
     common_response_list,
+    common_true_ok,
     common_void_ok,
     compose_checks,
     detail_view_id,
+    legacy_login_token,
     list_rows,
     parse_compose_ps,
     report_grid_ok,
@@ -52,6 +54,15 @@ class RuntimeDoctorTest(unittest.TestCase):
     def test_common_void_ok_accepts_legacy_no_data_success(self) -> None:
         self.assertTrue(common_void_ok({"code": 0, "data": None}))
         self.assertFalse(common_void_ok({"code": 1, "data": None}))
+
+    def test_common_true_ok_accepts_checkcode_success(self) -> None:
+        self.assertTrue(common_true_ok({"code": 0, "data": True}))
+        self.assertFalse(common_true_ok({"code": 0, "data": False}))
+
+    def test_legacy_login_token_requires_success_and_token(self) -> None:
+        self.assertEqual("t1", legacy_login_token({"code": 0, "data": {"loginSucess": True, "token": "t1"}}))
+        self.assertEqual("t2", legacy_login_token({"code": 0, "data": {"LoginSucess": True, "Token": "t2"}}))
+        self.assertEqual("", legacy_login_token({"code": 0, "data": {"loginSucess": False, "token": "t1"}}))
 
     def test_detail_view_id_reads_loaded_view_metadata(self) -> None:
         self.assertEqual(102, detail_view_id({"code": 0, "data": {"detailViewId": 102}}))

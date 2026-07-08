@@ -67,7 +67,7 @@ def run_compose_ps() -> list[CheckResult]:
     return compose_checks(parse_compose_ps(completed.stdout))
 
 
-def post_json(url: str, payload: dict[str, Any], timeout: float) -> dict[str, Any]:
+def post_json(url: str, payload: Any, timeout: float) -> dict[str, Any]:
     body = json.dumps(payload).encode("utf-8")
     req = request.Request(
         url,
@@ -90,6 +90,10 @@ def common_response_ok(payload: dict[str, Any]) -> bool:
 
 def common_void_ok(payload: dict[str, Any]) -> bool:
     return payload.get("code") == 0
+
+
+def common_true_ok(payload: dict[str, Any]) -> bool:
+    return payload.get("code") == 0 and payload.get("data") is True
 
 
 def common_response_list(payload: dict[str, Any], key: str) -> bool:
@@ -180,8 +184,76 @@ def row_object_id(row: dict[str, Any]) -> str:
     return ""
 
 
+def legacy_login_token(payload: dict[str, Any]) -> str:
+    if not common_response_ok(payload):
+        return ""
+    data = payload["data"]
+    success = data.get("loginSucess")
+    if success is None:
+        success = data.get("LoginSucess")
+    token = data.get("token") or data.get("Token")
+    return str(token) if success is True and token else ""
+
+
 def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[CheckResult]:
     view_state: dict[str, Any] = {}
+    auth_state: dict[str, str] = {}
+
+    def init_app_ok() -> bool:
+        payload = post_json(
+            f"{frontend_url}/api/v1/auth/initapp",
+            {"AppId": "fool-service", "AppKey": "fool-service"},
+            timeout,
+        )
+        if not common_response_ok(payload):
+            return False
+        data = payload["data"]
+        return isinstance(data.get("dbs"), list) and bool(data["dbs"])
+
+    def check_code_ok() -> bool:
+        payload = post_json(f"{frontend_url}/api/v1/auth/getcheckcode", {}, timeout)
+        if not common_response_ok(payload):
+            return False
+        key = str(payload["data"].get("key") or "")
+        code = str(payload["data"].get("code") or "")
+        if not key or not code:
+            return False
+        auth_state["checkCodeKey"] = key
+        auth_state["checkCode"] = code
+        return common_true_ok(post_json(
+            f"{frontend_url}/api/v1/auth/checkcode",
+            {"Key": key, "Code": code},
+            timeout,
+        ))
+
+    def login_v2_ok() -> bool:
+        key = auth_state.get("checkCodeKey")
+        code = auth_state.get("checkCode")
+        if not key or not code:
+            return False
+        token = legacy_login_token(post_json(
+            f"{frontend_url}/api/v1/auth/loginv2",
+            {
+                "UserId": "admin",
+                "PassWord": "admin",
+                "DbId": "car_wash",
+                "CheckCode": code,
+                "AppId": "fool-service",
+                "AppKey": "fool-service",
+                "CheckCodeKey": key,
+            },
+            timeout,
+        ))
+        if token:
+            auth_state["token"] = token
+        return bool(token)
+
+    def get_userinfo_ok() -> bool:
+        token = auth_state.get("token")
+        if not token:
+            return False
+        payload = post_json(f"{frontend_url}/api/v1/auth/getuserinfo", {"Token": token}, timeout)
+        return common_response_ok(payload) and payload["data"].get("user") is not None
 
     def get_list_view() -> bool:
         payload = post_json(
@@ -266,6 +338,26 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "backend:test",
             lambda: isinstance(get_json(f"{backend_url}/test", timeout), list),
             f"{backend_url}/test",
+        ),
+        (
+            "auth:initapp",
+            init_app_ok,
+            "POST /api/v1/auth/initapp returns seeded app database list",
+        ),
+        (
+            "auth:checkcode",
+            check_code_ok,
+            "POST /api/v1/auth/getcheckcode then /checkcode validates the legacy code",
+        ),
+        (
+            "auth:loginv2",
+            login_v2_ok,
+            "POST /api/v1/auth/loginv2 returns a legacy token for Docker admin",
+        ),
+        (
+            "auth:getuserinfo",
+            get_userinfo_ok,
+            "POST /api/v1/auth/getuserinfo accepts the loginv2 token",
         ),
         (
             "view:getlistview",

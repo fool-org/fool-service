@@ -167,6 +167,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   fields after selecting a `querydata` row, and `scripts/runtime_doctor.py`
   now queries data from the loaded list view before reusing the returned row id
   for `querydatadetail` instead of hard-coding a concrete business object id.
+- 2026-07-08: `scripts/runtime_doctor.py` now proves the legacy auth first-hop
+  path through the Docker frontend proxy: `initapp` returns a seeded database,
+  `getcheckcode` / `checkcode` validates a generated legacy code, `loginv2`
+  returns a token for the Docker admin user, and `getuserinfo` accepts that
+  token.
 - 2026-07-04: `scripts/runtime_doctor.py` now proves the Docker frontend proxy
   `querydata` route with a legacy `QueryFilter`, then verifies returned legacy
   row `Items` carry `state.objId=0`. This covers the main Vue workflow's

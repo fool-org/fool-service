@@ -179,6 +179,9 @@ explicitly named as authoritative for fool-service.
       FoolFrame no-op success surface through the Vue proxy.
 - [x] Remove hard-coded seed object IDs from Vue API-tool defaults and make
       runtime detail smoke use the object id returned by `querydata`.
+- [x] Extend the Docker runtime doctor to prove the legacy auth first-hop
+      path through the Vue proxy: `initapp`, `getcheckcode` / `checkcode`,
+      `loginv2`, and `getuserinfo`.
 
 ## Backlog
 
