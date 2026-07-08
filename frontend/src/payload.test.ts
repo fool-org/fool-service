@@ -211,6 +211,20 @@ describe("App defaults", () => {
     expect(appSource).not.toContain('v-for="item in detailDataRows"');
   });
 
+  it("keeps read-item View state keyed by the rendered View id", () => {
+    expect(appSource).toContain("const readItemViews = ref<Record<number, ReadItemViewInfo>>({})");
+    expect(appSource).toContain("readViewForId(readItemViews.value, Number(detailViewId.value))");
+    expect(appSource).toContain("readViewForId(readItemViews.value, Number(initNewViewId.value))");
+    expect(appSource).toContain("readItemViews.value = rememberReadView(readItemViews.value, viewId, response.data)");
+
+    const createSource = appSource.slice(
+      appSource.indexOf("async function startNewObject"),
+      appSource.indexOf("async function saveSelectedObject")
+    );
+    expect(createSource).toContain("detailViewId.value = viewId");
+    expect(createSource).toContain("detailResponse.value = null");
+  });
+
   it("does not bootstrap View/data rendering from the seeded business View", () => {
     expect(appSource).not.toContain("ref(100)");
     expect(appSource).toContain("const currentViewId = computed(() => viewId(viewResponse.value?.data))");

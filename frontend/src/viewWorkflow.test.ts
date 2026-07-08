@@ -84,8 +84,10 @@ import {
   readViewDetailViews,
   readViewFields,
   readViewId,
+  readViewForId,
   renderedDetailFields,
   renderedDetailGroups,
+  rememberReadView,
   viewColumns,
   viewDisplayName,
   viewDisplayTitle,
@@ -304,6 +306,21 @@ describe("view workflow helpers", () => {
       ViewId: 102,
       DetailViews: [{ Name: "Items", PrpId: "items", Items: [] }]
     }, [dataGroup])[0])).toEqual([]);
+  });
+
+  it("keeps read-item Views keyed by rendered View id", () => {
+    const detailView = { ViewId: 201, Items: [{ PrpId: "name", PrpShowName: "Name" }] };
+    const createView = { ViewId: 301, Items: [{ PrpId: "symbol", PrpShowName: "Symbol" }] };
+    const views = rememberReadView(
+      rememberReadView({}, 201, detailView),
+      301,
+      createView
+    );
+
+    expect(readViewForId(views, 201)).toBe(detailView);
+    expect(readViewForId(views, 301)).toBe(createView);
+    expect(readViewFields(readViewForId(views, 201)).map(fieldKey)).toEqual(["name"]);
+    expect(readViewFields(readViewForId(views, 301)).map(fieldKey)).toEqual(["symbol"]);
   });
 
   it("reads querydatadetail rows and child items from legacy or camel result payloads", () => {

@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue read-item View metadata is now cached by rendered `ViewId`.
+  Detail rendering, init-new rendering, and manual read-item inspection no
+  longer share a single last-loaded read View, and create operations set the
+  target detail `ViewId` before `initnew` data is merged. This prevents stale
+  or wrong-view `querydatadetail` / `initnew` DTO values from binding to a
+  different page shape.
 - 2026-07-09: Vue detail rendering no longer falls back to
   `querydatadetail` / `initnew` DTO fields when the read-item View metadata is
   missing or empty. Detail fields, child-group columns, and API-tool detail

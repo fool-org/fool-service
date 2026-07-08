@@ -251,6 +251,19 @@ export function readViewFields(view: ReadItemViewInfo | undefined) {
   return detailFieldsFromReadView(view, []);
 }
 
+export function rememberReadView(
+  views: Record<number, ReadItemViewInfo>,
+  requestedViewId: number,
+  view: ReadItemViewInfo | undefined
+) {
+  const id = readViewId(view, requestedViewId);
+  return id && view ? { ...views, [id]: view } : views;
+}
+
+export function readViewForId(views: Record<number, ReadItemViewInfo>, viewId: number) {
+  return views[Number(viewId) || 0];
+}
+
 export function detailFieldsFromReadView(
   view: ReadItemViewInfo | undefined,
   dataFields: ListDataValue[] = []
