@@ -241,14 +241,19 @@ export interface OperationInfo {
   RequireSelect?: boolean;
   location?: number;
   params?: OperationParamInfo[];
+  Params?: OperationParamInfo[];
 }
 
 export interface OperationParamInfo {
   id?: number;
+  ID?: number;
   name?: string;
+  Name?: string;
   index?: number;
   paramId?: number;
+  ParamId?: number;
   paramName?: string;
+  ParamName?: string;
   viewId?: number;
   filter?: string;
   value?: string;

@@ -68,6 +68,8 @@ explicitly named as authoritative for fool-service.
       renders operation labels like `删除` / `保存` instead of mojibake.
 - [x] Hydrate legacy `SW_SYS_OPERATIONVIEW_ITEM` operation parameter metadata
       into View operation DTOs for both list-view and detail-view responses.
+- [x] Render Vue detail operation parameters through shared
+      `Params`/`ParamName` helpers instead of direct template DTO field reads.
 - [x] Persist dynamic `BusinessObject` fields through their foreign-key ids so
       legacy `runoperation` update saves stay metadata-driven and do not bind
       to concrete business DTOs.

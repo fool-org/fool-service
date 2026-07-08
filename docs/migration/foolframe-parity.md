@@ -124,6 +124,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   instead of direct template/business DTO field reads. Pascal
   `PrpId`/`ItemName`/`Items`/`Properties` detail payloads now keep rendering
   and save identity aligned with the loaded read-item View metadata.
+- 2026-07-09: Vue detail operation parameter rendering now reads
+  `operationParams`, `operationParamKey`, and `operationParamLabel` helpers
+  instead of direct `operation.params` / `param.paramName` template fields, so
+  Pascal `Params` / `ParamName` metadata stays behind the shared View
+  workflow protocol layer.
 - 2026-07-09: Vue read-item View metadata is now cached by rendered `ViewId`.
   Detail rendering, init-new rendering, and manual read-item inspection no
   longer share a single last-loaded read View, and create operations set the

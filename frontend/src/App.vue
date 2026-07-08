@@ -104,7 +104,7 @@ import {
   listRows,
   listTotalItems,
   listTotalPages,
-  operationId as operationInfoId, operationKey, operationLabel, operationTargetViewId,
+  operationId as operationInfoId, operationKey, operationLabel, operationParamKey, operationParamLabel, operationParams, operationTargetViewId,
   reportGridCells,
   reportModelColumnId,
   reportModelColumnName,
@@ -1225,7 +1225,13 @@ function syncDetailDrafts() {
               </button>
             </div>
             <div v-for="operation in detailViewOperations" :key="`params-${operationKey(operation)}`">
-              <span v-for="param in operation.params || []" :key="param.id || param.paramId" class="operation-param">{{ param.paramName || param.name }}</span>
+              <span
+                v-for="(param, index) in operationParams(operation)"
+                :key="operationParamKey(param, index)"
+                class="operation-param"
+              >
+                {{ operationParamLabel(param) }}
+              </span>
             </div>
           </div>
 

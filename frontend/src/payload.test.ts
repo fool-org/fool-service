@@ -65,7 +65,11 @@ describe("App defaults", () => {
     expect(appSource).toContain("dataOperations(detailResponse.value?.data)");
     expect(appSource).toContain("detailViewOperations");
     expect(appSource).toContain("runViewOperation(operation)");
-    expect(appSource).toContain("operation.params");
+    expect(appSource).toContain("operationParams(operation)");
+    expect(appSource).toContain("operationParamKey(param, index)");
+    expect(appSource).toContain("operationParamLabel(param)");
+    expect(appSource).not.toContain("operation.params");
+    expect(appSource).not.toContain("param.paramName");
   });
 
   it("renders row operations through their target detail View id", () => {

@@ -16,6 +16,7 @@ import type {
   ListViewInfo,
   ListViewResult,
   OperationInfo,
+  OperationParamInfo,
   MessageInfo,
   NotifyInfo,
   QueryDataDetailDataItem,
@@ -472,6 +473,18 @@ export function operationLabel(operation: OperationInfo) {
 
 export function operationTargetViewId(operation: OperationInfo) {
   return Number(operation.viewId ?? operation.ViewID ?? 0) || 0;
+}
+
+export function operationParams(operation: OperationInfo) {
+  return firstList(operation.params, operation.Params);
+}
+
+export function operationParamKey(param: OperationParamInfo, index = 0) {
+  return firstDisplayValue([param.id, param.ID, param.paramId, param.ParamId, param.name, param.Name, index]);
+}
+
+export function operationParamLabel(param: OperationParamInfo) {
+  return firstDisplayValue([param.paramName, param.ParamName, param.name, param.Name, operationParamKey(param)]);
 }
 
 export function viewColumns(view: ListViewInfo | undefined) {

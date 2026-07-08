@@ -67,6 +67,9 @@ import {
   listRows,
   listTotalItems,
   listTotalPages,
+  operationParamKey,
+  operationParamLabel,
+  operationParams,
   operationLabel,
   operationTargetViewId,
   reportModelColumnId,
@@ -596,7 +599,13 @@ describe("view workflow helpers", () => {
 
   it("reads Pascal getlistview metadata through shared View helpers", () => {
     const create = { ID: 1, Name: "Create", RequireSelect: false, ViewID: 200 };
-    const open = { ID: 2, Name: "Open", RequireSelect: true, ViewID: 201 };
+    const open = {
+      ID: 2,
+      Name: "Open",
+      RequireSelect: true,
+      ViewID: 201,
+      Params: [{ ID: 10, ParamId: 9001, ParamName: "Reason" }, { Name: "Fallback" }]
+    };
     const view = {
       ID: 100,
       Name: "Orders",
@@ -618,6 +627,10 @@ describe("view workflow helpers", () => {
     expect(rowOperations(viewOperations(view))).toEqual([open]);
     expect(operationTargetViewId(open)).toBe(201);
     expect(operationLabel(open)).toBe("Open");
+    expect(operationParams(open)).toBe(open.Params);
+    expect(operationParamKey(open.Params[0], 0)).toBe("10");
+    expect(operationParamLabel(open.Params[0])).toBe("Reason");
+    expect(operationParamKey(open.Params[1], 1)).toBe("Fallback");
     expect(dataOperations({ Operations: [open] })).toEqual([open]);
   });
 
