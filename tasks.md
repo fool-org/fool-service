@@ -205,6 +205,9 @@ explicitly named as authoritative for fool-service.
       input.
 - [x] Make Vue SubMenu, message, notify, and enum tool panels consume
       FoolFrame Pascal aliases through shared protocol helpers.
+- [x] Make Vue `querydatadetail` / `initnew` tool tables consume legacy
+      `Data.SimpleData` / `Data.Items` aliases through shared View workflow
+      helpers instead of binding templates to camel-case DTO fields.
 
 ## Backlog
 

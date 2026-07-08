@@ -17,7 +17,10 @@ import {
   dataOperations,
   detailFieldsFromReadView,
   detailGroupsFromReadView,
+  detailResultItems,
+  detailResultSimpleData,
   fieldKey,
+  fieldDisplayValue,
   fieldModelId,
   fieldTitle,
   groupColumns,
@@ -259,6 +262,29 @@ describe("view workflow helpers", () => {
     expect(groupColumns(groups[0]).map(fieldKey)).toEqual(["itemId", "itemName"]);
     expect(fieldTitle(groupColumns(groups[0])[0])).toBe("Item ID");
     expect(detailGroupsFromReadView(undefined, [dataGroup])).toEqual([dataGroup]);
+  });
+
+  it("reads querydatadetail rows and child items from legacy or camel result payloads", () => {
+    const pascal = {
+      Data: {
+        SimpleData: [{ PrpId: "orderId", PrpShowName: "Order ID", FmtValue: "1001" }],
+        Items: [{ name: "Items", prpId: "items", items: [] }]
+      }
+    };
+    const camel = {
+      data: {
+        simpleData: [{ prpId: "name", prpShowName: "Name", fmtValue: "Ada" }],
+        items: [{ name: "Lines", prpId: "lines", items: [] }]
+      }
+    };
+
+    expect(detailResultSimpleData(pascal)).toEqual(pascal.Data.SimpleData);
+    expect(detailResultItems(pascal)).toEqual(pascal.Data.Items);
+    expect(fieldKey(detailResultSimpleData(pascal)[0])).toBe("orderId");
+    expect(fieldTitle(detailResultSimpleData(pascal)[0])).toBe("Order ID");
+    expect(fieldDisplayValue(detailResultSimpleData(pascal)[0])).toBe("1001");
+    expect(detailResultSimpleData(camel)).toEqual(camel.data.simpleData);
+    expect(detailResultItems(camel)).toEqual(camel.data.items);
   });
 
   it("renders Pascal legacy list rows from View item metadata", () => {

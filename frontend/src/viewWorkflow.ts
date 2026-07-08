@@ -79,6 +79,10 @@ export function fieldTitle(field: ListDataValue) {
   return field.prpShowName || field.PrpShowName || field.prpId || field.PrpId || "";
 }
 
+export function fieldDisplayValue(field: ListDataValue) {
+  return firstDisplayValue([field.fmtValue, field.FmtValue, field.objId, field.ObjId]);
+}
+
 export function readViewId(view: ReadItemViewInfo | undefined, fallback = 0) {
   return Number(view?.viewId ?? view?.ViewId ?? fallback) || 0;
 }
@@ -244,6 +248,16 @@ export function detailGroupsFromReadView(
   });
 
   return groups.concat(dataGroups.filter((group) => !used.has(group)));
+}
+
+export function detailResultSimpleData(result: QueryDataDetailResult | undefined) {
+  const data = detailResultData(result);
+  return firstList(data?.simpleData, data?.SimpleData);
+}
+
+export function detailResultItems(result: QueryDataDetailResult | undefined) {
+  const data = detailResultData(result);
+  return firstList(data?.items, data?.Items);
 }
 
 export function columnsFromRowItems(row: ListDataItem | undefined): TableColumnInfo[] {
@@ -696,6 +710,10 @@ function objectRecord(value: unknown): Record<string, unknown> {
 
 function operationRequiresSelect(operation: OperationInfo) {
   return operation.requireSelect ?? operation.RequireSelect;
+}
+
+function detailResultData(result: QueryDataDetailResult | undefined) {
+  return result?.data ?? result?.Data;
 }
 
 function firstList<T>(...lists: Array<T[] | undefined>): T[] {

@@ -53,9 +53,12 @@ import {
   detailFieldsFromReadView,
   detailGroupsFromReadView,
   detailItemValues,
+  detailResultItems,
+  detailResultSimpleData,
   displayValue,
   emptyGroupDraft,
   fieldKey,
+  fieldDisplayValue,
   fieldModelId,
   fieldTitle,
   groupKey,
@@ -239,7 +242,8 @@ const resultTotalItems = computed(() => listTotalItems(dataResponse.value?.data)
 const resultTotalPages = computed(() => listTotalPages(dataResponse.value?.data));
 const resultFreshTime = computed(() => listFreshTime(dataResponse.value?.data));
 const selectedObject = computed(() => resultRows.value.find((row) => rowObjectId(row, resultColumns.value) === selectedObjectId.value));
-const detailDataRows = computed(() => detailResponse.value?.data?.data?.simpleData || detailResponse.value?.data?.Data?.SimpleData || []);
+const detailDataRows = computed(() => detailResultSimpleData(detailResponse.value?.data));
+const initNewRows = computed(() => detailResultSimpleData(initNewResponse.value?.data));
 const currentReadItemView = computed(() => {
   const view = readItemViewResponse.value?.data;
   return readViewId(view) === Number(detailViewId.value) ? view : undefined;
@@ -247,10 +251,7 @@ const currentReadItemView = computed(() => {
 const readItemFields = computed(() => readViewFields(readItemViewResponse.value?.data));
 const detailRows = computed(() => detailFieldsFromReadView(currentReadItemView.value, detailDataRows.value));
 const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() =>
-  detailGroupsFromReadView(
-    currentReadItemView.value,
-    detailResponse.value?.data?.data?.items || detailResponse.value?.data?.Data?.Items || []
-  )
+  detailGroupsFromReadView(currentReadItemView.value, detailResultItems(detailResponse.value?.data))
 );
 const detailViewOperations = computed(() => dataOperations(detailResponse.value?.data));
 const listCreateOperations = computed(() => createOperations(viewOperations(viewResponse.value?.data)));
@@ -1700,7 +1701,7 @@ function syncDetailDrafts() {
           </button>
 
           <div class="table-wrap input-query-results">
-            <table v-if="detailResponse?.data?.data?.simpleData?.length">
+            <table v-if="detailDataRows.length">
               <thead>
                 <tr>
                   <th>Property</th>
@@ -1708,9 +1709,9 @@ function syncDetailDrafts() {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in detailResponse.data.data.simpleData" :key="item.prpId || item.prpShowName">
-                  <td>{{ item.prpShowName || item.prpId }}</td>
-                  <td>{{ item.fmtValue }}</td>
+                <tr v-for="item in detailDataRows" :key="fieldKey(item) || fieldTitle(item)">
+                  <td>{{ fieldTitle(item) }}</td>
+                  <td>{{ fieldDisplayValue(item) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -1738,7 +1739,7 @@ function syncDetailDrafts() {
           </button>
 
           <div class="table-wrap input-query-results">
-            <table v-if="initNewResponse?.data?.data?.simpleData?.length">
+            <table v-if="initNewRows.length">
               <thead>
                 <tr>
                   <th>Property</th>
@@ -1746,9 +1747,9 @@ function syncDetailDrafts() {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in initNewResponse.data.data.simpleData" :key="item.prpId || item.prpShowName">
-                  <td>{{ item.prpShowName || item.prpId }}</td>
-                  <td>{{ item.fmtValue }}</td>
+                <tr v-for="item in initNewRows" :key="fieldKey(item) || fieldTitle(item)">
+                  <td>{{ fieldTitle(item) }}</td>
+                  <td>{{ fieldDisplayValue(item) }}</td>
                 </tr>
               </tbody>
             </table>

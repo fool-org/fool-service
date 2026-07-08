@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: the Vue API-tool tables for `querydatadetail` and `initnew`
+  now read legacy `Data.SimpleData` / `Data.Items` through shared
+  `viewWorkflow` helpers, and render row labels/values via generic field
+  helpers. This keeps the panels on the same View-first metadata path as the
+  main detail workflow instead of binding the template to camel-case business
+  DTO fields.
 - 2026-07-08: Vue API-tool panels for `getsubmenu`, `getmsg`,
   `getnotify`, and `getenums` now consume FoolFrame Pascal aliases through
   shared protocol helpers (`Items`, `Messages`, `Notifies`, `EnumValues`, and
