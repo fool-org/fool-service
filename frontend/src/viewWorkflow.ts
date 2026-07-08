@@ -322,11 +322,11 @@ export function detailGroupsFromReadView(
     const properties = firstList(detail.items, detail.Items).map(fieldFromReadItem);
     return {
       ...dataGroup,
-      name: firstDisplayValue([detail.name, detail.Name, dataGroup?.name]),
-      itemName: firstDisplayValue([detail.name, detail.Name, dataGroup?.itemName]),
-      prpId: fieldKey(field) || dataGroup?.prpId,
+      name: firstDisplayValue([detail.name, detail.Name, dataGroup?.name, dataGroup?.Name]),
+      itemName: firstDisplayValue([detail.name, detail.Name, dataGroup?.itemName, dataGroup?.ItemName]),
+      prpId: fieldKey(field) || dataGroup?.prpId || dataGroup?.PrpId,
       properties,
-      items: dataGroup?.items || []
+      items: firstList(dataGroup?.items, dataGroup?.Items)
     };
   });
 
@@ -413,7 +413,7 @@ export function itemKey(group: QueryDataDetailItemGroup, item: QueryDataDetailDa
 }
 
 export function groupColumns(group: QueryDataDetailItemGroup) {
-  return group.properties || [];
+  return firstList(group.properties, group.Properties);
 }
 
 export function itemValue(item: QueryDataDetailDataItem, field: ListDataValue) {
@@ -427,11 +427,11 @@ export function detailItemValues(item: QueryDataDetailDataItem | undefined) {
 }
 
 export function groupKey(group: QueryDataDetailItemGroup) {
-  return group.prpId || group.name || "items";
+  return group.prpId || group.PrpId || group.name || group.Name || "items";
 }
 
 export function selectedChildViewId(group: QueryDataDetailItemGroup) {
-  return group.selectedView || group.listViewId || 0;
+  return Number(group.selectedView ?? group.SelectedView ?? group.listViewId ?? group.ListViewId ?? 0) || 0;
 }
 
 export function createOperations(operations: OperationInfo[] = []) {
@@ -778,7 +778,7 @@ function mergeFieldValue(field: ListDataValue, value: ListDataValue | undefined)
 }
 
 function detailGroupKeys(group: QueryDataDetailItemGroup) {
-  return normalizeKeys([group.prpId, group.name, group.itemName]);
+  return normalizeKeys([group.prpId, group.PrpId, group.name, group.Name, group.itemName, group.ItemName]);
 }
 
 function readDetailKeys(detail: ReadItemViewItemInfo, field: ListDataValue) {

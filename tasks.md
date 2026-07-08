@@ -42,6 +42,9 @@ explicitly named as authoritative for fool-service.
 - [x] Drop `querydatadetail` child groups that are not declared by the loaded
       read-item View `DetailViews`, so DTO-only groups cannot define Vue child
       sections or columns.
+- [x] Read FoolFrame Pascal `querydatadetail` child-group aliases in shared
+      Vue helpers so `SelectedView` / `ListViewId` still drive select-existing
+      child workflows after matching the rendered read-item View.
 - [x] Cache Vue read-item View metadata by rendered `ViewId` so detail,
       init-new, and manual read-item panels do not bind data DTO values to a
       stale or wrong read View shape.

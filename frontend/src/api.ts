@@ -584,14 +584,23 @@ export interface QueryDataDetail {
 
 export interface QueryDataDetailItemGroup {
   properties?: ListDataValue[];
+  Properties?: ListDataValue[];
   items?: QueryDataDetailDataItem[];
+  Items?: QueryDataDetailDataItem[];
   listViewId?: number;
+  ListViewId?: number;
   detailViewId?: number;
+  DetailViewId?: number;
   name?: string;
+  Name?: string;
   prpId?: string;
+  PrpId?: string;
   selectFromExists?: boolean;
+  SelectFromExists?: boolean;
   itemName?: string;
+  ItemName?: string;
   selectedView?: number;
+  SelectedView?: number;
 }
 
 export interface QueryDataDetailDataItem {

@@ -108,6 +108,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   View `DetailViews`. The DTO payload can still provide row values for
   declared child groups, but only rendered View metadata can define child
   sections and columns.
+- 2026-07-09: Vue child-group helpers now consume FoolFrame Pascal
+  `querydatadetail` group aliases (`PrpId`, `Name`, `ItemName`, `ListViewId`,
+  `SelectedView`, `Items`, `Properties`) when matching data rows to rendered
+  read-item View `DetailViews`. Select-existing child workflows no longer
+  depend on camel-case DTO fields to recover the target View id.
 - 2026-07-09: Vue read-item View metadata is now cached by rendered `ViewId`.
   Detail rendering, init-new rendering, and manual read-item inspection no
   longer share a single last-loaded read View, and create operations set the

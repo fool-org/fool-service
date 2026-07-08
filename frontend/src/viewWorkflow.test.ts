@@ -498,6 +498,31 @@ describe("view workflow helpers", () => {
     });
   });
 
+  it("matches Pascal querydatadetail child groups to rendered read-item DetailViews", () => {
+    const view = {
+      DetailViews: [
+        {
+          Name: "Items",
+          PrpId: "items",
+          Items: [{ PrpId: "itemId", PrpShowName: "Item ID" }]
+        }
+      ]
+    };
+    const dataGroup = {
+      PrpId: "items",
+      ListViewId: 101,
+      SelectedView: 103,
+      Items: [{ DataId: "2001", Values: [{ PrpId: "itemId", ObjId: "2001" }] }]
+    };
+
+    const group = renderedDetailGroups(view, [dataGroup])[0];
+
+    expect(groupKey(group)).toBe("items");
+    expect(selectedChildViewId(group)).toBe(103);
+    expect(group.items).toBe(dataGroup.Items);
+    expect(groupColumns(group).map(fieldKey)).toEqual(["itemId"]);
+  });
+
   it("splits legacy list create and row operations", () => {
     const operations = [
       { id: 1, name: "Create", requireSelect: false, viewId: 200 },
