@@ -1,4 +1,5 @@
 USE car_wash;
+SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `fool_sys_view` (
   `id` bigint NOT NULL AUTO_INCREMENT,

@@ -39,6 +39,8 @@ explicitly named as authoritative for fool-service.
 - [x] Load the Vue first-screen View id from legacy `getmain/getapp`
       `App.DefaultViewId` before `getlistview`, so the default page follows
       FoolFrame shell configuration instead of a Docker seed DTO shortcut.
+- [x] Seed legacy View/query Chinese metadata as UTF-8 in Docker so Vue
+      renders operation labels like `删除` / `保存` instead of mojibake.
 - [x] Hydrate legacy `SW_SYS_OPERATIONVIEW_ITEM` operation parameter metadata
       into View operation DTOs for both list-view and detail-view responses.
 - [x] Persist dynamic `BusinessObject` fields through their foreign-key ids so

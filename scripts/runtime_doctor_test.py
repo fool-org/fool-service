@@ -15,6 +15,7 @@ from runtime_doctor import (
     legacy_app_default_view_id,
     legacy_login_token,
     legacy_response_list,
+    list_view_operation_labels_ok,
     list_rows,
     parse_compose_ps,
     report_grid_ok,
@@ -84,6 +85,16 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertEqual(102, detail_view_id({"code": 0, "data": {"detailViewId": 102}}))
         self.assertEqual(0, detail_view_id({"code": 0, "data": {"detailViewId": 0}}))
         self.assertEqual(0, detail_view_id({"code": 1, "data": {"detailViewId": 102}}))
+
+    def test_list_view_operation_labels_rejects_mojibake(self) -> None:
+        self.assertTrue(list_view_operation_labels_ok({"code": 0, "data": {"Operations": [
+            {"Name": "\u5220\u9664"},
+            {"Name": "\u4fdd\u5b58"},
+        ]}}))
+        self.assertFalse(list_view_operation_labels_ok({"code": 0, "data": {"Operations": [
+            {"Name": "\u00e5\u02c6\u00a0\u00e9\u2122\u00a4"},
+            {"Name": "\u00e4\u00bf\u009d\u00e5\u00ad\u02dc"},
+        ]}}))
 
     def test_query_rows_and_object_id_accept_legacy_aliases(self) -> None:
         row = {"Items": [{"PrpId": "recordId", "ObjId": "9001"}]}

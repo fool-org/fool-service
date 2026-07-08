@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: Docker seed scripts that contain legacy Chinese metadata now
+  run with `SET NAMES utf8mb4`. Replaying `006-view.sql` and `010-query.sql`
+  against the current Docker volume repaired View operation labels and query
+  compare/select labels that had been stored as mojibake when the MySQL client
+  defaulted to latin1. The runtime doctor now fails if default View operations
+  no longer expose the expected `删除` / `保存` labels.
 - 2026-07-08: legacy auth shell responses now expose Pascal aliases such as
   `App`, `TopMenu`, `Items`, and `App.DefaultViewId` while retaining the
   existing camel-case fields. The Vue first-screen workflow reads the App

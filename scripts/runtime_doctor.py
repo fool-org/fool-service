@@ -126,6 +126,20 @@ def detail_view_id(payload: dict[str, Any]) -> int:
     return value if isinstance(value, int) else 0
 
 
+def list_view_operation_labels_ok(payload: dict[str, Any]) -> bool:
+    if not common_response_ok(payload):
+        return False
+    operations = payload["data"].get("Operations") or payload["data"].get("operations")
+    if not isinstance(operations, list):
+        return False
+    labels = {
+        str(operation.get("Name") or operation.get("name") or "")
+        for operation in operations
+        if isinstance(operation, dict)
+    }
+    return {"\u5220\u9664", "\u4fdd\u5b58"}.issubset(labels)
+
+
 def read_item_detail_views_ok(payload: dict[str, Any]) -> bool:
     if not common_response_ok(payload):
         return False
@@ -339,7 +353,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         if loaded_detail_view_id:
             view_state["listViewId"] = view_id
             view_state["detailViewId"] = loaded_detail_view_id
-        return loaded_detail_view_id > 0
+        return loaded_detail_view_id > 0 and list_view_operation_labels_ok(payload)
 
     def loaded_list_view_id() -> int:
         view_id = view_state.get("listViewId")
