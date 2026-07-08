@@ -379,6 +379,8 @@ public class DataQueryService {
             } else if (operationType == OperationBaseType.ASSEBMLY) {
                 invokeAssemblyOperation(operation.getOperation(), data, commandValues);
                 success = true;
+            } else if (operationType == OperationBaseType.NULL) {
+                success = true;
             } else {
                 return result;
             }

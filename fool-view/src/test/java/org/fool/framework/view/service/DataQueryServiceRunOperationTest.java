@@ -541,6 +541,28 @@ public class DataQueryServiceRunOperationTest {
         assertEquals("", result.getReturnMsg());
     }
 
+    @Test
+    public void runLegacyNullOperationReturnsSuccessWithoutPersistence() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataService viewDataService = mock(ViewDataService.class);
+        DataQueryService service = service(daoService, modelDataService, viewDataService);
+        Model model = model();
+        DbMysqlDynamic data = new DbMysqlDynamic(model);
+        View view = view(operation(7006L, OperationBaseType.NULL, "noop"));
+        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(modelDataService.getModel("Order")).thenReturn(model);
+        when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
+
+        LegacyRunOperationResult result = service.runLegacyOperation(request("1001", 100L, 7006L));
+
+        verify(modelDataService, never()).createData(any(IDynamicData.class));
+        verify(modelDataService, never()).saveData(any(IDynamicData.class));
+        verify(modelDataService, never()).deleteData(any(IDynamicData.class));
+        assertTrue(result.isSuccess());
+        assertEquals("noop", result.getReturnMsg());
+    }
+
     private static DataQueryService service(
             DaoService daoService,
             ModelDataService modelDataService,

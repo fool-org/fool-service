@@ -126,6 +126,9 @@ explicitly named as authoritative for fool-service.
 - [x] Require `ViewId` on the generic backend `get-view` / `query-list`
       compatibility endpoints so data queries cannot start from a business-name
       DTO shortcut.
+- [x] Treat legacy `OperationBaseType.NULL` runoperation as a successful no-op
+      without create/update/delete persistence, matching FoolFrame handler
+      behavior.
 - [x] Accept FoolFrame Pascal `SaveObj` and nested save payload fields at the
       generic legacy `saveobj` DTO boundary without binding saves to concrete
       business DTOs.
