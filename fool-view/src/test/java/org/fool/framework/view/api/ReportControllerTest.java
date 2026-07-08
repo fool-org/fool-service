@@ -161,6 +161,35 @@ public class ReportControllerTest {
     }
 
     @Test
+    public void makeReportExposesLegacyPascalGridAliases() {
+        ReportGridResult result = new ReportGridResult();
+        result.setViewId(100);
+        result.setCurrentPage(1);
+        result.setPageSize(10);
+        result.setTotalRecords(1);
+        result.setTotalPages(1);
+        ReportCell cell = new ReportCell();
+        cell.setCol(0);
+        cell.setRow(1);
+        cell.setColSpan(1);
+        cell.setRowSpan(1);
+        cell.setFmtValue("BTC-USDT");
+        result.setCells(List.of(cell));
+
+        Map<?, ?> serialized = new ObjectMapper().convertValue(result, Map.class);
+        assertEquals(100, serialized.get("ViewId"));
+        assertEquals(1L, serialized.get("TotalRecords"));
+        assertTrue(serialized.containsKey("Cells"));
+        assertEquals(serialized.get("cells"), serialized.get("Cells"));
+        Map<?, ?> item = (Map<?, ?>) ((List<?>) serialized.get("Cells")).get(0);
+        assertEquals(0, item.get("Col"));
+        assertEquals(1, item.get("Row"));
+        assertEquals(1, item.get("ColSpan"));
+        assertEquals(1, item.get("RowSpan"));
+        assertEquals("BTC-USDT", item.get("FmtValue"));
+    }
+
+    @Test
     public void makeReportMapsLegacyQueryDataIntoReportGridCells() throws Exception {
         DataQueryService dataQueryService = mock(DataQueryService.class);
         ListViewResult queryResult = new ListViewResult();

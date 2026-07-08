@@ -72,6 +72,7 @@ import {
   reportModelQueryTypes,
   reportModelStates,
   reportModelStateText,
+  reportGridCells,
   reportRowsFromCells,
   recordColumns,
   recordRowKey,
@@ -565,6 +566,16 @@ describe("view workflow helpers", () => {
     ])).toEqual([
       ["Symbol", "State"],
       ["Sample", ""]
+    ]);
+    const pascal = {
+      Cells: [
+        { Row: 0, Col: 0, RowSpan: 1, ColSpan: 1, FmtValue: "Symbol" },
+        { Row: 1, Col: 0, RowSpan: 1, ColSpan: 1, FmtValue: "BTC-USDT" }
+      ]
+    };
+    expect(reportRowsFromCells(reportGridCells(pascal))).toEqual([
+      ["Symbol"],
+      ["BTC-USDT"]
     ]);
   });
 

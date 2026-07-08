@@ -492,20 +492,31 @@ export interface MakeReportRequest {
 }
 
 export interface ReportCell {
-  col: number;
-  row: number;
-  colSpan: number;
-  rowSpan: number;
+  col?: number;
+  Col?: number;
+  row?: number;
+  Row?: number;
+  colSpan?: number;
+  ColSpan?: number;
+  rowSpan?: number;
+  RowSpan?: number;
   fmtValue?: string;
+  FmtValue?: string;
 }
 
 export interface ReportGridResult {
-  viewId: number;
-  currentPage: number;
-  pageSize: number;
-  totalRecords: number;
-  totalPages: number;
-  cells: ReportCell[];
+  viewId?: number;
+  ViewId?: number;
+  currentPage?: number;
+  CurrentPage?: number;
+  pageSize?: number;
+  PageSize?: number;
+  totalRecords?: number;
+  TotalRecords?: number;
+  totalPages?: number;
+  TotalPages?: number;
+  cells?: ReportCell[];
+  Cells?: ReportCell[];
 }
 
 export interface ReportModelOption {

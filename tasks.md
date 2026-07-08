@@ -110,6 +110,9 @@ explicitly named as authoritative for fool-service.
 - [x] Route Vue View summary name/title/type/input-count rendering through
       shared View workflow helpers instead of direct page-level metadata field
       reads.
+- [x] Expose FoolFrame Pascal report grid aliases (`Cells`, `Col`, `Row`,
+      `ColSpan`, `RowSpan`, `FmtValue`) and make Vue report-grid rendering read
+      cells through shared helpers.
 - [x] Tighten the Vue main View workflow layout so loaded View rows and
       `querydatadetail` detail fields render in the first usable screen on
       desktop and remain scrollable on narrow screens.

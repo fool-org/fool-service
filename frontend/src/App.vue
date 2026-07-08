@@ -102,6 +102,7 @@ import {
   operationId as operationInfoId, operationKey, operationLabel, operationTargetViewId,
   recordColumns,
   recordRowKey,
+  reportGridCells,
   reportModelColumnId,
   reportModelColumnName,
   reportModelColumnType,
@@ -291,7 +292,7 @@ const fieldEditorContext = computed(() => ({
   viewId: Number(detailViewId.value)
 }));
 
-const reportRows = computed(() => reportRowsFromCells(reportResponse.value?.data?.cells || []));
+const reportRows = computed(() => reportRowsFromCells(reportGridCells(reportResponse.value?.data)));
 let autoRefreshTimer: number | undefined;
 
 async function runAction<T>(label: string, action: () => Promise<CommonResponse<T>>) {

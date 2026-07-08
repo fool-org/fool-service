@@ -164,13 +164,17 @@ def read_item_detail_views_ok(payload: dict[str, Any]) -> bool:
 def report_grid_ok(payload: dict[str, Any], expected_headers: list[str] | None = None) -> bool:
     if not common_response_ok(payload):
         return False
-    cells = payload["data"].get("cells")
+    cells = payload["data"].get("cells") or payload["data"].get("Cells")
     if not isinstance(cells, list):
         return False
     by_position: dict[tuple[int, int], str] = {}
     for cell in cells:
-        if isinstance(cell, dict) and isinstance(cell.get("row"), int) and isinstance(cell.get("col"), int):
-            by_position[(cell["row"], cell["col"])] = str(cell.get("fmtValue") or "")
+        if not isinstance(cell, dict):
+            continue
+        row = cell.get("row") if cell.get("row") is not None else cell.get("Row")
+        col = cell.get("col") if cell.get("col") is not None else cell.get("Col")
+        if isinstance(row, int) and isinstance(col, int):
+            by_position[(row, col)] = str(cell.get("fmtValue") or cell.get("FmtValue") or "")
     headers = [by_position.get((0, index), "") for index in range(len(expected_headers or []))]
     if expected_headers and headers != expected_headers:
         return False
@@ -563,7 +567,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             },
             timeout,
         )
-        return report_grid_ok(payload, [str(column["ColName"]) for column in report_cols])
+        return report_grid_ok(payload, [str(column["ColName"]) for column in report_cols]) and response_list_field_present(payload, "Cells")
 
     def save_report_ok() -> bool:
         view_id = loaded_list_view_id()

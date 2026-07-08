@@ -23,6 +23,7 @@ import type {
   ReadItemViewItemInfo,
   ReportCell,
   ReportCol,
+  ReportGridResult,
   ReportModelColumn,
   ReportModelOption,
   ReportModelResult,
@@ -479,14 +480,18 @@ export function viewDetailViewId(view: ListViewInfo | undefined, fallback = 0) {
   return Number(view?.detailViewId ?? view?.DetailViewId ?? 0) || Number(fallback || 0);
 }
 
+export function reportGridCells(result: ReportGridResult | undefined) {
+  return firstList(result?.cells, result?.Cells);
+}
+
 export function reportRowsFromCells(cells: ReportCell[] = []) {
-  const maxRow = cells.reduce((max, cell) => Math.max(max, cell.row), -1);
-  const maxCol = cells.reduce((max, cell) => Math.max(max, cell.col), -1);
+  const maxRow = cells.reduce((max, cell) => Math.max(max, reportCellRow(cell)), -1);
+  const maxCol = cells.reduce((max, cell) => Math.max(max, reportCellCol(cell)), -1);
   if (maxRow < 0 || maxCol < 0) {
     return [];
   }
 
-  const byPosition = new Map(cells.map((cell) => [`${cell.row}:${cell.col}`, cell.fmtValue || ""]));
+  const byPosition = new Map(cells.map((cell) => [`${reportCellRow(cell)}:${reportCellCol(cell)}`, reportCellValue(cell)]));
   return Array.from({ length: maxRow + 1 }, (_, row) =>
     Array.from({ length: maxCol + 1 }, (_, col) => byPosition.get(`${row}:${col}`) || "")
   );
@@ -720,6 +725,23 @@ function valueObjId(value: ListDataValue | undefined) {
 
 function valueFmtValue(value: ListDataValue | undefined) {
   return value?.fmtValue ?? value?.FmtValue;
+}
+
+function reportCellRow(cell: ReportCell) {
+  return finiteNumber(cell.row ?? cell.Row, -1);
+}
+
+function reportCellCol(cell: ReportCell) {
+  return finiteNumber(cell.col ?? cell.Col, -1);
+}
+
+function reportCellValue(cell: ReportCell) {
+  return firstDisplayValue([cell.fmtValue, cell.FmtValue]);
+}
+
+function finiteNumber(value: unknown, fallback: number) {
+  const result = Number(value);
+  return Number.isFinite(result) ? result : fallback;
 }
 
 function fieldFromReadItem(item: ReadItemViewItemInfo): ListDataValue {
