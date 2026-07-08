@@ -954,8 +954,8 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   detail panel can load the configured `selectedView` / `listViewId` through
   legacy `getlistview` + `querydata`, show candidate rows from that View
   metadata, and add the selected row through legacy
-  `saveobj.Itemproperties.AddedItems`. Candidate search/pagination remains
-  future work.
+  `saveobj.Itemproperties.AddedItems`. Candidate search/pagination is covered
+  by the later `useChildCandidates` slice below.
 - 2026-07-04: added metadata-driven enum editors to the default Vue View
   workflow. Detail and child collection fields with `prpType=Enum` and
   `prpModelId` now load options through the migrated `getenums` endpoint and
