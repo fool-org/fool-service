@@ -310,6 +310,8 @@ explicitly named as authoritative for fool-service.
       legacy `SW_SYS_OPERATION` / `SW_SYS_COMMANDS` records.
 - [x] Persist module-source operation params into legacy
       `SW_SYS_OPERATION_PARAM` records.
+- [x] Persist module-source custom View operation metadata through legacy
+      `SW_SYS_VIEW_OPERATION` / `SW_SYS_OPERATIONVIEW` records.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

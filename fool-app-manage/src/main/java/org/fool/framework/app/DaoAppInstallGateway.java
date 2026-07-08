@@ -204,6 +204,14 @@ public class DaoAppInstallGateway implements AppInstallGateway {
                 installRelations(metadataDao, model, installedProperties, installedRelations);
             }
         }
+        for (AppModuleDefinition module : modules) {
+            if (module == null || module.getName() == null) {
+                continue;
+            }
+            for (View view : source.getViews(module)) {
+                addPersistedViewName(installed, persistView(metadataDao, view, installedViewModelId(view, installedModels)));
+            }
+        }
         return installed;
     }
 
@@ -711,6 +719,19 @@ public class DaoAppInstallGateway implements AppInstallGateway {
 
     private List<Relation> safeRelations(Model model) {
         return model.getRelations() == null ? List.of() : model.getRelations();
+    }
+
+    private Long installedViewModelId(View view, Map<Model, AppInstalledModel> installedModels) {
+        if (view == null || view.getViewModel() == null) {
+            return null;
+        }
+        for (Map.Entry<Model, AppInstalledModel> entry : installedModels.entrySet()) {
+            Model model = entry.getKey();
+            if (model != null && Objects.equals(view.getViewModel(), model.getName())) {
+                return entry.getValue() == null ? model.getId() : entry.getValue().getModelId();
+            }
+        }
+        return null;
     }
 
     private void addStatement(List<String> statements, String sql) {

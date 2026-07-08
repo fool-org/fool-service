@@ -2,6 +2,7 @@ package org.fool.framework.app;
 
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
+import org.fool.framework.view.model.View;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,6 +41,11 @@ public class StaticAppModuleSource implements AppModuleSource {
             addModelWithDependencies(model, moduleModels, visited, visiting, ordered);
         }
         return ordered;
+    }
+
+    @Override
+    public List<View> getViews(AppModuleDefinition module) {
+        return module == null || module.getViews() == null ? List.of() : module.getViews();
     }
 
     private void addWithDependencies(

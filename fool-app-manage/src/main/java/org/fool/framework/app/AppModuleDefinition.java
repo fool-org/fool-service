@@ -2,6 +2,7 @@ package org.fool.framework.app;
 
 import lombok.Data;
 import org.fool.framework.model.model.Model;
+import org.fool.framework.view.model.View;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ public class AppModuleDefinition {
     private Boolean generationCode = true;
     private List<AppModuleDefinition> dependencies = List.of();
     private List<Model> models = List.of();
+    private List<View> views = List.of();
 
     public static AppModuleDefinition legacy(
             String name,

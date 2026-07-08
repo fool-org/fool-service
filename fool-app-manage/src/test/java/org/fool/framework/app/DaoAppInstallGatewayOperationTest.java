@@ -10,6 +10,9 @@ import org.fool.framework.model.model.OperationBaseType;
 import org.fool.framework.model.model.OperationCommand;
 import org.fool.framework.model.model.OperationParam;
 import org.fool.framework.model.model.Property;
+import org.fool.framework.view.model.View;
+import org.fool.framework.view.model.ViewOperation;
+import org.fool.framework.view.model.ViewType;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -75,6 +78,56 @@ public class DaoAppInstallGatewayOperationTest {
         assertEquals(operation.getOperationId(), reason.getOwnerOperationId());
     }
 
+    @Test
+    public void installModuleSourcePersistsCustomViewOperations() {
+        RecordingDaoService daoService = new RecordingDaoService();
+        DaoAppInstallGateway gateway = new DaoAppInstallGateway(daoService);
+        Model order = legacyModel("Order", "SW_ORDER");
+        Operation approve = new Operation();
+        approve.setName("审批");
+        approve.setBaseOperationType(OperationBaseType.UPDATE);
+        order.setOperations(List.of(approve));
+        View view = new View();
+        view.setViewName("Order审批");
+        view.setViewModel("Order");
+        view.setViewType(ViewType.ListView);
+        ViewOperation approveAction = new ViewOperation();
+        approveAction.setName("审批");
+        approveAction.setOperation(approve);
+        approveAction.setRequireSelect(true);
+        approveAction.setLocation(2);
+        approveAction.setConfirmMsg("确认审批");
+        approveAction.setSuccessMsg("审批成功");
+        approveAction.setErrorMsg("审批失败");
+        view.setOperations(List.of(approveAction));
+        AppModuleDefinition module = AppModuleDefinition.legacy(
+                "MKT01",
+                "example.OrderModule",
+                "2.0.0",
+                List.of(order));
+        module.setViews(List.of(view));
+
+        gateway.installModuleSource("sys-con", "work-con", new StaticAppModuleSource(List.of(module)));
+
+        assertEquals(6, daoService.created.size());
+        AppInstalledModel installedModel = (AppInstalledModel) daoService.created.get(1);
+        AppInstalledOperation operation = (AppInstalledOperation) daoService.created.get(2);
+        AppInstalledView installedView = (AppInstalledView) daoService.created.get(3);
+        AppInstalledOperationView operationView = (AppInstalledOperationView) daoService.created.get(4);
+        AppInstalledViewOperation viewOperation = (AppInstalledViewOperation) daoService.created.get(5);
+        assertEquals("Order审批", installedView.getName());
+        assertEquals(installedModel.getModelId(), installedView.getModelId());
+        assertEquals(installedView.getViewId(), view.getId());
+        assertEquals(operation.getOperationId(), operationView.getOperationId());
+        assertEquals("审批成功", operationView.getSuccessMsg());
+        assertEquals("审批失败", operationView.getErrorMsg());
+        assertEquals("确认审批", operationView.getConfirmMsg());
+        assertEquals(installedView.getViewId(), viewOperation.getOwnerViewId());
+        assertEquals(operationView.getOperationViewId(), viewOperation.getOperationViewId());
+        assertEquals(Boolean.TRUE, viewOperation.getRequireSelect());
+        assertEquals(Integer.valueOf(2), viewOperation.getLocation());
+    }
+
     private static Model legacyModel(String name, String tableName) {
         Model model = new Model();
         model.setName(name);
@@ -100,6 +153,9 @@ public class DaoAppInstallGatewayOperationTest {
         private long nextOperationId = 7000;
         private long nextCommandId = 8000;
         private long nextParamId = 9000;
+        private long nextViewId = 10000;
+        private long nextOperationViewId = 11000;
+        private long nextViewOperationId = 12000;
 
         @Override
         public <T> void create(T object) {
@@ -113,6 +169,14 @@ public class DaoAppInstallGatewayOperationTest {
                 command.setCommandId(nextCommandId++);
             } else if (object instanceof AppInstalledOperationParam param && param.getParamId() == null) {
                 param.setParamId(nextParamId++);
+            } else if (object instanceof AppInstalledView view && view.getViewId() == null) {
+                view.setViewId(nextViewId++);
+            } else if (object instanceof AppInstalledOperationView operationView
+                    && operationView.getOperationViewId() == null) {
+                operationView.setOperationViewId(nextOperationViewId++);
+            } else if (object instanceof AppInstalledViewOperation viewOperation
+                    && viewOperation.getViewOperationId() == null) {
+                viewOperation.setViewOperationId(nextViewOperationId++);
             }
             created.add(object);
         }

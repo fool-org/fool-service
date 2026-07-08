@@ -1,6 +1,7 @@
 package org.fool.framework.app;
 
 import org.fool.framework.model.model.Model;
+import org.fool.framework.view.model.View;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,10 @@ public interface AppModuleSource {
     List<AppModuleDefinition> getModules();
 
     List<Model> getModels(AppModuleDefinition module);
+
+    default List<View> getViews(AppModuleDefinition module) {
+        return List.of();
+    }
 
     default List<Model> getModels() {
         List<Model> models = new ArrayList<>();
