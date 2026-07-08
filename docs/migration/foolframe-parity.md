@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: the Vue workspace no longer exposes the backend `/test`
+  seed-data DTO route or proxies it through Vite/Nginx. `/test` remains a
+  backend Docker health check, while the frontend data proof stays on the
+  migrated sequence: load `getlistview(ViewId)`, then load rows with
+  `querydata(ViewId)` and render legacy row `Items`.
 - 2026-07-08: the Vue workflow no longer boots from seeded `ViewId=100`
   frontend defaults. View-related state starts empty, `currentViewId` is derived
   only from the loaded `getlistview` payload, and `querydata` is not called from
@@ -1099,7 +1104,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Vue API types for legacy `getsubmenu` AuthItem result payloads
 - View definition lookup through `/api/v1/view/get-view` and legacy
   `/api/v1/view/getlistview`
-- Data query through `/api/v1/data/query-list`
+- Legacy data query through `/api/v1/data/querydata`; the newer
+  `/api/v1/data/query-list` remains a backend compatibility route
 - Vue API types for view operation names, IDs, operation locations, view operations, list row format, list-query columns, legacy view types/names/show types/temp files, default detail view IDs, and refresh metadata
 - Vue API types for legacy list-query row indexes, paging aliases, `Data` result alias, and row `Items`/`ObjValuePair` metadata
 - Vue API types for legacy `getenums` enum-value request/result payloads
@@ -1165,9 +1171,10 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Legacy-style default ordering over BusinessObject show-property list columns
 - Seeded `OrderList` metadata and rows for Docker smoke coverage
 - A default Vue View workflow that loads View metadata first, queries rows by
-  view name, renders columns from `tableColumn`, renders detail fields from
-  `querydatadetail.simpleData`, initializes new rows with `initnew`, creates
-  them with `savenewobj`, and saves existing rows with `saveobj`
+  loaded View id, renders columns from `tableColumn` / legacy `Items`, renders
+  detail fields from `querydatadetail.simpleData`, initializes new rows with
+  `initnew`, creates them with `savenewobj`, and saves existing rows with
+  `saveobj`
 - A default Vue child collection workflow that renders from
   `querydatadetail.Items[].properties` and sends legacy
   `saveobj.Itemproperties.Items`, `AddedItems`, and `DelteItems` payloads
@@ -1183,9 +1190,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `inputquery`
 - Metadata-driven Vue operation buttons using legacy View operations and
   operation parameter metadata
-- A Vue backend smoke panel that calls `/test` and renders the Docker seed rows
 - A migration-map strip showing current server module mapping
-- Vite and Nginx proxies for `/api/*` and `/test` to the backend service
+- Vite and Nginx proxies for `/api/*` to the backend service
 
 ## Remaining Migration Work
 

@@ -257,6 +257,9 @@ explicitly named as authoritative for fool-service.
       runtime doctor fail if the exchange/filter precision columns are missing.
 - [x] Remove seeded `ViewId=100` bootstrap defaults from the Vue workflow so
       data queries only run after a View has been loaded from app/view metadata.
+- [x] Remove the Vue `/test` seed-data panel and frontend proxy so the browser
+      workspace proves data loading through View metadata and `querydata`
+      instead of the backend `Order` smoke DTO.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

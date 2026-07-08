@@ -57,7 +57,6 @@ import {
   detailItemValues,
   detailResultItems,
   detailResultSimpleData,
-  displayValue,
   emptyGroupDraft,
   fieldEditType,
   fieldKey,
@@ -103,8 +102,6 @@ import {
   listTotalItems,
   listTotalPages,
   operationId as operationInfoId, operationKey, operationLabel, operationTargetViewId,
-  recordColumns,
-  recordRowKey,
   reportGridCells,
   reportModelColumnId,
   reportModelColumnName,
@@ -236,7 +233,6 @@ const reportModelResponse = ref<CommonResponse<ReportModelResult> | null>(null);
 const saveReportResponse = ref<CommonResponse<void> | null>(null);
 const messageResponse = ref<CommonResponse<GetMessageResult> | null>(null);
 const notifyResponse = ref<CommonResponse<GetNotifyResult> | null>(null);
-const backendSmokeResponse = ref<CommonResponse<Record<string, unknown>[]> | null>(null);
 const errorMessage = ref("");
 const pendingAction = ref("");
 
@@ -285,7 +281,6 @@ const notifyItems = computed(() => legacyNotifies(notifyResponse.value?.data));
 const enumItems = computed(() => legacyEnumValues(enumResponse.value?.data));
 const inputQueryItems = computed(() => legacyInputQueryItems(inputQueryResponse.value?.data));
 const reportModelColumnItems = computed(() => reportModelColumns(reportModelResponse.value?.data));
-const backendSmokeColumns = computed(() => recordColumns(backendSmokeResponse.value?.data || []));
 const viewCanEdit = computed(() => Boolean(selectedObject.value || isCreatingObject.value));
 const fieldEditorContext = computed(() => ({
   isAdded: isCreatingObject.value,
@@ -307,8 +302,7 @@ const responseDump = computed(() =>
       detail: detailResponse.value, initNew: initNewResponse.value, enums: enumResponse.value,
       inputQuery: inputQueryResponse.value, saveObj: saveObjResponse.value, saveNewObj: saveNewObjResponse.value,
       runOperation: runOperationResponse.value, reportModel: reportModelResponse.value, report: reportResponse.value,
-      saveReport: saveReportResponse.value, messages: messageResponse.value, notify: notifyResponse.value,
-      backendSmoke: backendSmokeResponse.value
+      saveReport: saveReportResponse.value, messages: messageResponse.value, notify: notifyResponse.value
     },
     null,
     2
@@ -766,27 +760,6 @@ async function runViewOperation(operation: OperationInfo) {
     await queryCurrentViewData();
     detailObjId.value = selectedObjectId.value;
     await queryDetail(Number(detailViewId.value));
-  }
-}
-
-async function loadBackendSmoke() {
-  const response = await runAction("backend-smoke", async () => {
-    const backendResponse = await fetch("/test");
-    const data = (await backendResponse.json().catch(() => null)) as Record<string, unknown>[] | null;
-    if (!backendResponse.ok) {
-      throw new Error(`GET /test failed with HTTP ${backendResponse.status}`);
-    }
-    if (!Array.isArray(data)) {
-      throw new Error("GET /test returned an unexpected payload.");
-    }
-    return {
-      code: 0,
-      message: "OK",
-      data
-    };
-  });
-  if (response) {
-    backendSmokeResponse.value = response;
   }
 }
 
@@ -1480,34 +1453,6 @@ function syncDetailDrafts() {
           </div>
         </article>
 
-        <article class="panel lookup-panel">
-          <div class="panel-heading">
-            <h2>Backend Smoke</h2>
-            <span>GET /test</span>
-          </div>
-          <button class="primary" type="button" :disabled="pendingAction === 'backend-smoke'" @click="loadBackendSmoke">
-            Load Seed Data
-          </button>
-
-          <div class="table-wrap input-query-results">
-            <table v-if="backendSmokeResponse?.data?.length">
-              <thead>
-                <tr>
-                  <th v-for="column in backendSmokeColumns" :key="column">{{ column }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="(row, rowIndex) in backendSmokeResponse.data"
-                  :key="recordRowKey(row, backendSmokeColumns, rowIndex)"
-                >
-                  <td v-for="column in backendSmokeColumns" :key="column">{{ displayValue(row[column]) }}</td>
-                </tr>
-              </tbody>
-            </table>
-            <div v-else class="empty-state">No backend smoke rows loaded.</div>
-          </div>
-        </article>
       </section>
 
       <section v-if="activeSection === 'tools'" class="grid work-grid" aria-label="View and data tools">

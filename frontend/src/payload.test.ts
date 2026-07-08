@@ -190,7 +190,6 @@ describe("App defaults", () => {
     expect(appSource).toContain("const operationId = ref(0)");
     expect(appSource).toContain('const savePropertyiesJson = ref("[]")');
     expect(appSource).toContain('const saveNewPropertyiesJson = ref("[]")');
-    expect(appSource).toContain("recordColumns");
     expect(appSource).not.toContain('order_state="0"');
     expect(appSource).not.toContain("BTC-USDT");
     expect(appSource).not.toContain("const operationId = ref(7001)");
@@ -199,10 +198,10 @@ describe("App defaults", () => {
     expect(appSource).not.toContain('const operationObjectId = ref("1001")');
   });
 
-  it("exposes the Docker backend smoke route in the Vue console", () => {
-    expect(appSource).toContain("Backend Smoke");
-    expect(appSource).toContain('fetch("/test")');
-    expect(appSource).toContain("backendSmokeResponse");
+  it("does not expose the backend seed DTO smoke route in the Vue workspace", () => {
+    expect(appSource).not.toContain("Backend Smoke");
+    expect(appSource).not.toContain('fetch("/test")');
+    expect(appSource).not.toContain("backendSmokeResponse");
   });
 
   it("exposes the legacy report grid route in the Vue console", () => {
@@ -300,9 +299,11 @@ describe("App defaults", () => {
     expect(appSource).toContain("runOperationResponse");
   });
 
-  it("proxies the backend smoke route in local and Compose frontends", () => {
-    expect(viteConfig).toContain('"/test"');
-    expect(nginxConfig).toContain("location /test");
+  it("keeps the frontend proxy surface on migrated API routes", () => {
+    expect(viteConfig).not.toContain('"/test"');
+    expect(nginxConfig).not.toContain("location /test");
+    expect(viteConfig).toContain('"/api"');
+    expect(nginxConfig).toContain("location /api/");
   });
 
 });
