@@ -253,6 +253,8 @@ explicitly named as authoritative for fool-service.
 - [x] Implement the legacy `QueryResult.GetData` current-page reload surface in
       `fool-query` so changing `CurrentPage` can re-query the current page
       through the existing paged SQL executor.
+- [x] Import the FH_JAVA legacy `market_symbols` schema into Docker and make the
+      runtime doctor fail if the exchange/filter precision columns are missing.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

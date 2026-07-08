@@ -13,6 +13,20 @@ from urllib import error, request
 
 
 REQUIRED_SERVICES = ("backend", "frontend", "mysql", "redis")
+MARKET_SYMBOLS_COLUMNS = (
+    "base_currency",
+    "quote_currency",
+    "price_precision",
+    "amount_precision",
+    "symbol_partition",
+    "symbol",
+    "value_precision",
+    "exchange_type",
+    "price_tick_size",
+    "lot_size_qty_step_size",
+    "market_lot_size_qty_step_size",
+    "max_iceberg_orders_num",
+)
 
 
 @dataclass(frozen=True)
@@ -64,6 +78,38 @@ def run_compose_ps() -> list[CheckResult]:
     except (OSError, subprocess.CalledProcessError) as exc:
         return [CheckResult("compose", False, f"docker compose ps failed: {exc}")]
     return compose_checks(parse_compose_ps(completed.stdout))
+
+
+def market_symbols_schema_ok(raw: str) -> bool:
+    columns = {line.strip() for line in raw.splitlines() if line.strip()}
+    return set(MARKET_SYMBOLS_COLUMNS).issubset(columns)
+
+
+def run_mysql_schema_checks() -> list[CheckResult]:
+    query = (
+        "SELECT COLUMN_NAME FROM information_schema.COLUMNS "
+        "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'market_symbols' "
+        "ORDER BY ORDINAL_POSITION"
+    )
+    try:
+        completed = subprocess.run(
+            [
+                "docker", "compose", "exec", "-T", "mysql",
+                "mysql", "-uroot", "-pPa88word", "-N", "-B", "car_wash",
+                "-e", query,
+            ],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError) as exc:
+        return [CheckResult("mysql:market_symbols", False, f"schema check failed: {exc}")]
+    return [CheckResult(
+        "mysql:market_symbols",
+        market_symbols_schema_ok(completed.stdout),
+        "FH_JAVA legacy market_symbols schema is present",
+    )]
 
 
 def post_json(url: str, payload: Any, timeout: float) -> dict[str, Any]:
@@ -738,6 +784,7 @@ def main() -> int:
     results: list[CheckResult] = []
     if not args.skip_compose:
         results.extend(run_compose_ps())
+    results.extend(run_mysql_schema_checks())
     results.extend(api_checks(args.backend_url.rstrip("/"), args.frontend_url.rstrip("/"), args.timeout))
 
     for result in results:

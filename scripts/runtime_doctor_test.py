@@ -16,6 +16,7 @@ from runtime_doctor import (
     legacy_app_alias_ok,
     legacy_app_default_view_id,
     legacy_login_token,
+    market_symbols_schema_ok,
     legacy_response_list,
     list_view_operation_labels_ok,
     list_rows,
@@ -59,6 +60,25 @@ class RuntimeDoctorTest(unittest.TestCase):
             },
             {result.name: result.ok for result in results},
         )
+
+    def test_market_symbols_schema_requires_fh_java_columns(self) -> None:
+        raw = "\n".join([
+            "base_currency",
+            "quote_currency",
+            "price_precision",
+            "amount_precision",
+            "symbol_partition",
+            "symbol",
+            "value_precision",
+            "exchange_type",
+            "price_tick_size",
+            "lot_size_qty_step_size",
+            "market_lot_size_qty_step_size",
+            "max_iceberg_orders_num",
+        ])
+
+        self.assertTrue(market_symbols_schema_ok(raw))
+        self.assertFalse(market_symbols_schema_ok(raw.replace("exchange_type", "")))
 
     def test_common_response_list_requires_success_and_nonempty_list(self) -> None:
         self.assertTrue(common_response_list({"code": 0, "data": {"items": [1]}}, "items"))
