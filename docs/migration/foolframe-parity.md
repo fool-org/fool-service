@@ -97,6 +97,14 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue metadata field editors now render legacy Boolean /
+  CheckBox fields as native checkboxes from View field metadata. `PrpType=8`,
+  `PropertyType.Boolean`, and `EditType=CheckBox` flow through the existing
+  shared input helper, while similarly named string fields still render as
+  text. Save payloads keep the legacy string contract at the frontend
+  boundary, and `ModelDataService` coerces Boolean string values by
+  `PropertyType.Boolean` before dynamic persistence so MySQL `BIT` columns do
+  not require a concrete business DTO binding.
 - 2026-07-09: Vue metadata field editors now also honor legacy
   `ItemEditType` picker metadata. `DatePicker`, `TimePicker`, and
   `DateTimePicker` map through the existing native input helper before

@@ -491,6 +491,42 @@ public class ModelDataServiceTest {
     }
 
     @Test
+    public void saveDataCoercesLegacyBooleanStringByPropertyType() {
+        long modelId = 95041L;
+        long idPropertyId = 95042L;
+        long namePropertyId = 95043L;
+        long activePropertyId = 95044L;
+        String modelName = "RuntimeSaveBooleanOrder";
+        String tableName = "runtime_save_boolean_order";
+        cleanupRuntimeDetailModel(modelId, modelName, tableName);
+        try {
+            createRuntimeDetailModel(modelId, idPropertyId, namePropertyId, modelName, tableName);
+            jdbcTemplate.execute("ALTER TABLE `" + tableName + "` ADD `ACTIVE` BIT DEFAULT NULL");
+            insertRuntimeProperty(activePropertyId, "active", null, false, modelId, "ACTIVE", PropertyType.Boolean);
+            jdbcTemplate.update(
+                    "INSERT INTO `" + tableName + "` (`ORDER_ID`,`ORDER_NAME`,`ACTIVE`) VALUES (?,?,?)",
+                    "4051",
+                    "Before boolean save",
+                    true);
+            Model model = modelDataService.getModel(modelName);
+            DbMysqlDynamic data = new DbMysqlDynamic(model);
+            data.set("orderId", "4051");
+            data.set("orderName", "After boolean save");
+            data.set("active", "false");
+
+            assertEquals(Boolean.TRUE, modelDataService.saveData(data));
+
+            Boolean active = jdbcTemplate.queryForObject(
+                    "SELECT `ACTIVE` FROM `" + tableName + "` WHERE `ORDER_ID` = ?",
+                    Boolean.class,
+                    "4051");
+            assertEquals(Boolean.FALSE, active);
+        } finally {
+            cleanupRuntimeDetailModel(modelId, modelName, tableName);
+        }
+    }
+
+    @Test
     public void saveDataUsesLegacyOldIdWhenIdPropertyChanged() {
         long modelId = 95101L;
         long idPropertyId = 95102L;

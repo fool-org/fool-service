@@ -790,6 +790,9 @@ public class ModelDataService {
         if (PropertyType.BusinessObject.equals(property.getPropertyType()) && value instanceof IDynamicData itemData) {
             return dynamicId(itemData, dynamicModel(itemData, property.getPropertyModel()));
         }
+        if (PropertyType.Boolean.equals(property.getPropertyType()) && value instanceof String text) {
+            return Boolean.valueOf(text.trim());
+        }
         return value;
     }
 

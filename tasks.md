@@ -377,6 +377,9 @@ explicitly named as authoritative for fool-service.
 - [x] Honor legacy View `EditType` picker metadata in Vue scalar editors so
       `DatePicker`, `TimePicker`, and `DateTimePicker` select native inputs
       before falling back to property type metadata.
+- [x] Render Vue Boolean / CheckBox metadata fields as native checkboxes from
+      View field metadata and coerce legacy Boolean string save values by
+      `PropertyType.Boolean` during dynamic persistence.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

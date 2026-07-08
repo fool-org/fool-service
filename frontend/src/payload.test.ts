@@ -193,8 +193,10 @@ describe("App defaults", () => {
   });
 
   it("renders native metadata inputs for field-specific widgets", () => {
+    expect(metadataFieldEditorSource).toContain("fieldInputChecked");
     expect(metadataFieldEditorSource).toContain("fieldInputType");
     expect(metadataFieldEditorSource).toContain("fieldInputValue");
+    expect(metadataFieldEditorSource).toContain(':checked="fieldInputChecked(field, value)"');
     expect(metadataFieldEditorSource).toContain(':type="fieldInputType(field)"');
     expect(metadataFieldEditorSource).toContain(':value="fieldInputValue(field, value)"');
   });

@@ -4,6 +4,7 @@ import type { InputQueryItem, InputQueryResult, ListDataValue } from "./api";
 import { postApi } from "./api";
 import { buildInputQueryRequest } from "./payload";
 import {
+  fieldInputChecked,
   fieldInputType,
   fieldInputValue,
   fieldKey,
@@ -90,7 +91,7 @@ function selectLookup(item: InputQueryItem) {
 
 function updateValue(event: Event) {
   if (event.target instanceof HTMLInputElement) {
-    value.value = event.target.value;
+    value.value = event.target.type === "checkbox" ? (event.target.checked ? "true" : "false") : event.target.value;
   }
 }
 </script>
@@ -122,5 +123,11 @@ function updateValue(event: Event) {
     <small v-if="lookupError" class="metadata-lookup-error">{{ lookupError }}</small>
     <small v-if="modelValue">{{ modelValue }}</small>
   </div>
-  <input v-else :type="fieldInputType(field)" :value="fieldInputValue(field, value)" @input="updateValue" />
+  <input
+    v-else
+    :checked="fieldInputChecked(field, value)"
+    :type="fieldInputType(field)"
+    :value="fieldInputValue(field, value)"
+    @input="updateValue"
+  />
 </template>

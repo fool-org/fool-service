@@ -21,6 +21,7 @@ import {
   fieldEditType,
   fieldKey,
   fieldDisplayValue,
+  fieldInputChecked,
   fieldInputType,
   fieldInputValue,
   fieldModelId,
@@ -171,9 +172,19 @@ describe("view workflow helpers", () => {
     expect(fieldInputType({ prpId: "planned", prpType: "String", EditType: "DateTimePicker" })).toBe(
       "datetime-local"
     );
+    expect(fieldInputType({ prpId: "active", PrpType: "8" })).toBe("checkbox");
+    expect(fieldInputType({ prpId: "active", prpType: "String", EditType: "CheckBox" })).toBe("checkbox");
+    expect(fieldInputType({ prpId: "active", prpType: "String" })).toBe("text");
     expect(fieldInputType({ prpId: "amount", prpType: "Decimal" })).toBe("number");
     expect(fieldInputType({ prpId: "count", PrpType: "1" })).toBe("number");
     expect(fieldInputType({ prpId: "name", prpType: "String" })).toBe("text");
+  });
+
+  it("checks Boolean metadata values for native checkbox inputs", () => {
+    expect(fieldInputChecked({ PrpType: "8" }, "true")).toBe(true);
+    expect(fieldInputChecked({ prpType: "Boolean" }, "1")).toBe(true);
+    expect(fieldInputChecked({ EditType: "CheckBox" }, "false")).toBe(false);
+    expect(fieldInputChecked({ prpType: "String" }, "true")).toBe(false);
   });
 
   it("normalizes only DateTime metadata values for native inputs", () => {

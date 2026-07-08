@@ -108,15 +108,23 @@ const numberFieldTypes = new Set([
 
 export function fieldInputType(field: ListDataValue) {
   const editType = String(fieldEditType(field) ?? "").toLowerCase();
+  if (editType === "checkbox") return "checkbox";
   if (editType === "datepicker") return "date";
   if (editType === "timepicker") return "time";
   if (editType === "datetimepicker") return "datetime-local";
   const type = String(fieldType(field) ?? "").toLowerCase();
+  if (type === "boolean" || type === "8") return "checkbox";
   if (type === "date" || type === "12") return "date";
   if (type === "time" || type === "13") return "time";
   if (type === "datetime" || type === "14") return "datetime-local";
   if (numberFieldTypes.has(type)) return "number";
   return "text";
+}
+
+export function fieldInputChecked(field: ListDataValue, value: string) {
+  if (fieldInputType(field) !== "checkbox") return false;
+  const text = String(value ?? "").trim().toLowerCase();
+  return text === "true" || text === "1";
 }
 
 export function fieldInputValue(field: ListDataValue, value: string) {
