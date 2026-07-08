@@ -34,6 +34,7 @@ import {
   groupSelectFromExists,
   groupTitle,
   isEnumField,
+  isMultilineField,
   inputQueryItemId,
   inputQueryItemText,
   isLookupField,
@@ -163,6 +164,12 @@ describe("view workflow helpers", () => {
     expect(isReadonlyField({ prpId: "id", editType: "ReadOnly" })).toBe(true);
     expect(isReadonlyField({ prpId: "id", editType: 0 })).toBe(true);
     expect(isReadonlyField({ prpId: "name", readOnly: false, editType: "TextBox" })).toBe(false);
+  });
+
+  it("identifies RichTextBox fields as multiline metadata editors", () => {
+    expect(isMultilineField({ prpId: "notes", EditType: "RichTextBox" })).toBe(true);
+    expect(isMultilineField({ prpId: "notes", EditType: 5 })).toBe(true);
+    expect(isMultilineField({ prpId: "name", EditType: "TextBox" })).toBe(false);
   });
 
   it("maps metadata field types to native input types", () => {

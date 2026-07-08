@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue metadata editors now render legacy `RichTextBox` /
+  numeric `ItemEditType=5` fields with a native `<textarea>` and shared value
+  update handling. This covers the simplest multiline legacy widget without
+  adding a custom editor framework; `ComboBox`, `SelectLable`, and
+  `DropTextBox` remain future slices.
 - 2026-07-09: Vue metadata editors now accept FoolFrame numeric
   `ItemEditType` enum values as well as Java enum names. Numeric
   `ReadOnly=0`, `CheckBox=2`, `DatePicker=6`, `TimePicker=7`, and

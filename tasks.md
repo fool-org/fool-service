@@ -390,6 +390,8 @@ explicitly named as authoritative for fool-service.
       before falling back to property type metadata.
 - [x] Accept FoolFrame numeric `ItemEditType` enum values in Vue metadata
       editors for readonly, checkbox, date, time, and datetime controls.
+- [x] Render legacy `RichTextBox` / numeric `ItemEditType=5` metadata fields
+      with a native Vue textarea and shared value update handling.
 - [x] Render Vue Boolean / CheckBox metadata fields as native checkboxes from
       View field metadata and coerce legacy Boolean string save values by
       `PropertyType.Boolean` during dynamic persistence.

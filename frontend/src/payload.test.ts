@@ -199,9 +199,12 @@ describe("App defaults", () => {
     expect(metadataFieldEditorSource).toContain("fieldInputChecked");
     expect(metadataFieldEditorSource).toContain("fieldInputType");
     expect(metadataFieldEditorSource).toContain("fieldInputValue");
+    expect(metadataFieldEditorSource).toContain("isMultilineField");
     expect(metadataFieldEditorSource).toContain(':checked="fieldInputChecked(field, value)"');
     expect(metadataFieldEditorSource).toContain(':type="fieldInputType(field)"');
     expect(metadataFieldEditorSource).toContain(':value="fieldInputValue(field, value)"');
+    expect(metadataFieldEditorSource).toContain('<textarea v-else-if="isMultilineField(field)"');
+    expect(metadataFieldEditorSource).toContain("HTMLTextAreaElement");
   });
 
   it("does not keep ViewName as a frontend lookup or workflow shortcut", () => {

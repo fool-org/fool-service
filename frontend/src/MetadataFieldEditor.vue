@@ -12,6 +12,7 @@ import {
   inputQueryItemText,
   isEnumField,
   isLookupField,
+  isMultilineField,
   isReadonlyField,
   legacyInputQueryItems
 } from "./viewWorkflow";
@@ -90,8 +91,10 @@ function selectLookup(item: InputQueryItem) {
 }
 
 function updateValue(event: Event) {
-  if (event.target instanceof HTMLInputElement) {
-    value.value = event.target.type === "checkbox" ? (event.target.checked ? "true" : "false") : event.target.value;
+  if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+    value.value = event.target instanceof HTMLInputElement && event.target.type === "checkbox"
+      ? (event.target.checked ? "true" : "false")
+      : event.target.value;
   }
 }
 </script>
@@ -123,6 +126,7 @@ function updateValue(event: Event) {
     <small v-if="lookupError" class="metadata-lookup-error">{{ lookupError }}</small>
     <small v-if="modelValue">{{ modelValue }}</small>
   </div>
+  <textarea v-else-if="isMultilineField(field)" :value="value" rows="4" @input="updateValue"></textarea>
   <input
     v-else
     :checked="fieldInputChecked(field, value)"

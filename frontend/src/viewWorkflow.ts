@@ -408,6 +408,11 @@ export function isLookupField(field: ListDataValue) {
   return (type === "businessobject" || type === "16") && fieldModelId(field) > 0;
 }
 
+export function isMultilineField(field: ListDataValue) {
+  const editType = normalizedEditType(field);
+  return editType === "richtextbox" || editType === "5";
+}
+
 export function isReadonlyField(field: ListDataValue) {
   const editType = normalizedEditType(field);
   return field.readOnly === true || field.ReadOnly === true || editType === "readonly" || editType === "0";
