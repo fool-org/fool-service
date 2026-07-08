@@ -788,10 +788,10 @@ export function buildDraftsFromRow(fields: ListDataValue[], row: ListDataItem, c
     const byColumn = columns[index] ? rowItemForColumn(row, columns[index]) : undefined;
     const byIndex = items[index];
     drafts[key] = firstDisplayValue([
-      byKey && valueObjId(byKey),
-      byKey && valueFmtValue(byKey),
       byColumn && valueObjId(byColumn),
       byColumn && valueFmtValue(byColumn),
+      byKey && valueObjId(byKey),
+      byKey && valueFmtValue(byKey),
       byIndex && valueObjId(byIndex),
       byIndex && valueFmtValue(byIndex)
     ]);

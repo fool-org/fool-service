@@ -627,6 +627,33 @@ describe("view workflow helpers", () => {
     });
   });
 
+  it("maps selected existing child rows from candidate View columns before DTO item keys", () => {
+    const group = {
+      prpId: "items",
+      properties: [
+        { prpId: "itemId", fmtValue: "", editType: "ReadOnly" },
+        { prpId: "itemName", fmtValue: "", editType: "ReadOnly" }
+      ]
+    };
+    const columns = [
+      { property: "id", title: "ID" },
+      { property: "name", title: "Name" }
+    ];
+    const row = {
+      items: [
+        { prpId: "itemId", objId: "dto-id", fmtValue: "DTO id" },
+        { prpId: "id", objId: "3001", fmtValue: "3001" },
+        { prpId: "name", objId: "Existing item", fmtValue: "Existing item" }
+      ]
+    };
+
+    expect(buildDraftsFromRow(group.properties, row, columns)).toEqual({
+      itemId: "3001",
+      itemName: "Existing item"
+    });
+    expect(buildSelectedExistingItemProperty(group, row, columns).addedItems?.[0].itemId).toBe("3001");
+  });
+
   it("derives child group metadata helpers from View data", () => {
     const group = {
       name: "Items",

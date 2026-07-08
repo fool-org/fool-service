@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue select-existing child row mapping now reads candidate row
+  values through rendered candidate View columns before falling back to same-key
+  row items. A raw `querydata.Items` value that happens to share a child
+  property key can no longer override the candidate View column value when
+  building `Itemproperties[].AddedItems`.
 - 2026-07-09: Vue existing child-row draft state now initializes from rendered
   child group View columns and then merges `querydatadetail` row values by
   property key. DTO-only child values no longer enter `childDrafts`, including

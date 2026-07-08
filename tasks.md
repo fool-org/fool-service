@@ -423,6 +423,9 @@ explicitly named as authoritative for fool-service.
 - [x] Initialize existing child-row draft state from rendered child group View
       columns, merging data values by property key so DTO-only fields cannot
       enter the Vue editor state.
+- [x] Map select-existing child rows from rendered candidate View columns before
+      same-key row items, preventing DTO-only values from overriding
+      `AddedItems` payload fields.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
