@@ -13,6 +13,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -153,6 +154,10 @@ public class LoginControllerLogoutTest {
         assertEquals(true, response.getData().isLoginSucess());
         assertEquals("Fool Service", response.getData().getApp().getAppName());
         assertEquals("Admin", response.getData().getUser().getUserName());
+        String json = new ObjectMapper().writeValueAsString(response.getData());
+        assertTrue(json.contains("\"LoginSucess\":true"));
+        assertTrue(json.contains("\"Token\":\"token-1\""));
+        assertTrue(json.contains("\"AppName\":\"Fool Service\""));
     }
 
     @Test
@@ -173,6 +178,9 @@ public class LoginControllerLogoutTest {
         assertEquals(0, response.getCode());
         assertEquals("token-1", response.getData().getToken());
         assertEquals("2", response.getData().getItems().get(0).getAuthNo());
+        String json = new ObjectMapper().writeValueAsString(response.getData());
+        assertTrue(json.contains("\"Items\""));
+        assertTrue(json.contains("\"AuthNo\":\"2\""));
         verify(authService).getLegacySubMenus("token-1", "1");
     }
 
@@ -202,6 +210,10 @@ public class LoginControllerLogoutTest {
         assertEquals("Views", response.getData().getTopMenu().get(0).getText());
         assertEquals("Fool Service", response.getData().getApp().getAppName());
         assertEquals(100L, response.getData().getApp().getDefaultViewId());
+        String json = new ObjectMapper().writeValueAsString(response.getData());
+        assertTrue(json.contains("\"App\""));
+        assertTrue(json.contains("\"TopMenu\""));
+        assertTrue(json.contains("\"DefaultViewId\":100"));
     }
 
     @Test
@@ -221,6 +233,9 @@ public class LoginControllerLogoutTest {
         assertEquals(0, response.getCode());
         assertEquals("token-1", response.getData().getToken());
         assertEquals("Fool Service", response.getData().getApp().getAppName());
+        String json = new ObjectMapper().writeValueAsString(response.getData());
+        assertTrue(json.contains("\"App\""));
+        assertTrue(json.contains("\"AppId\":\"fool-service\""));
     }
 
     @Test

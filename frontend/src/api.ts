@@ -30,14 +30,23 @@ export interface LegacyUserInfoResult {
 
 export interface LegacyAuthItem {
   text?: string;
+  Text?: string;
   note?: string;
+  Note?: string;
   imageUrl?: string;
+  ImageUrl?: string;
   authType?: number;
+  AuthType?: number;
   viewId?: number;
+  ViewId?: number;
   notifyCount?: number;
+  NotifyCount?: number;
   viewType?: number;
+  ViewType?: number;
   index?: number;
+  Index?: number;
   authNo?: string;
+  AuthNo?: string;
 }
 
 export interface LegacySubMenuResult {
@@ -47,25 +56,39 @@ export interface LegacySubMenuResult {
 
 export interface LegacyAppInfo {
   appName?: string;
+  AppName?: string;
   appVer?: string;
+  AppVer?: string;
   appNote?: string;
+  AppNote?: string;
   appPowerBy?: string;
+  AppPowerBy?: string;
   appPowerUrl?: string;
+  AppPowerUrl?: string;
   appLogoUrl?: string;
+  AppLogoUrl?: string;
   defaultViewId?: number;
+  DefaultViewId?: number;
   appId?: string;
+  AppId?: string;
 }
 
 export interface LegacyMainResult {
   token?: string;
+  Token?: string;
   user?: LegacyUserInfo;
+  User?: LegacyUserInfo;
   app?: LegacyAppInfo;
+  App?: LegacyAppInfo;
   topMenu?: LegacyAuthItem[];
+  TopMenu?: LegacyAuthItem[];
 }
 
 export interface LegacyAppResult {
   token?: string;
+  Token?: string;
   app?: LegacyAppInfo;
+  App?: LegacyAppInfo;
 }
 
 export interface CheckCodeResult {
@@ -107,12 +130,24 @@ export interface LoginVo {
 
 export interface LegacyLoginResult {
   token?: string;
+  Token?: string;
   loginSucess?: boolean;
+  LoginSucess?: boolean;
   user?: LegacyUserInfo;
+  User?: LegacyUserInfo;
   app?: LegacyAppInfo;
+  App?: LegacyAppInfo;
   error?: {
     code?: number;
+    Code?: number;
     message?: string;
+    Message?: string;
+  };
+  Error?: {
+    code?: number;
+    Code?: number;
+    message?: string;
+    Message?: string;
   };
 }
 

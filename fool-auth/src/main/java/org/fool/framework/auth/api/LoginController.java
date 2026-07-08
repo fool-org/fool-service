@@ -2,6 +2,7 @@ package org.fool.framework.auth.api;
 
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.fool.framework.auth.business.model.Auth;
 import org.fool.framework.auth.business.service.AuthService;
 import org.fool.framework.auth.business.service.CheckCodeService;
@@ -182,6 +183,16 @@ public class LoginController {
     public static class LegacyUserInfoResult {
         private final String token;
         private final LegacyUserInfo user;
+
+        @JsonProperty("Token")
+        public String getLegacyToken() {
+            return token;
+        }
+
+        @JsonProperty("User")
+        public LegacyUserInfo getLegacyUser() {
+            return user;
+        }
     }
 
     @Data
@@ -192,6 +203,36 @@ public class LoginController {
         private String companyName = "";
         private String departmentName = "";
         private String userAvtarUrl = "";
+
+        @JsonProperty("LoginName")
+        public String getLegacyLoginName() {
+            return loginName;
+        }
+
+        @JsonProperty("UserName")
+        public String getLegacyUserName() {
+            return userName;
+        }
+
+        @JsonProperty("UserId")
+        public long getLegacyUserId() {
+            return userId;
+        }
+
+        @JsonProperty("CompanyName")
+        public String getLegacyCompanyName() {
+            return companyName;
+        }
+
+        @JsonProperty("DepartmentName")
+        public String getLegacyDepartmentName() {
+            return departmentName;
+        }
+
+        @JsonProperty("UserAvtarUrl")
+        public String getLegacyUserAvtarUrl() {
+            return userAvtarUrl;
+        }
     }
 
     @Data
@@ -260,6 +301,31 @@ public class LoginController {
         private final AuthService.LegacyAppInfo app;
         private final LegacyError error;
 
+        @JsonProperty("Token")
+        public String getLegacyToken() {
+            return token;
+        }
+
+        @JsonProperty("LoginSucess")
+        public boolean getLegacyLoginSucess() {
+            return loginSucess;
+        }
+
+        @JsonProperty("User")
+        public LegacyUserInfo getLegacyUser() {
+            return user;
+        }
+
+        @JsonProperty("App")
+        public AuthService.LegacyAppInfo getLegacyApp() {
+            return app;
+        }
+
+        @JsonProperty("Error")
+        public LegacyError getLegacyError() {
+            return error;
+        }
+
         static LegacyLoginResult success(String token, LegacyUserInfo user, AuthService.LegacyAppInfo app) {
             return new LegacyLoginResult(token, true, user, app, null);
         }
@@ -273,6 +339,16 @@ public class LoginController {
     public static class LegacyError {
         private final int code;
         private final String message;
+
+        @JsonProperty("Code")
+        public int getLegacyCode() {
+            return code;
+        }
+
+        @JsonProperty("Message")
+        public String getLegacyMessage() {
+            return message;
+        }
     }
 
     @Data
@@ -285,6 +361,16 @@ public class LoginController {
     public static class LegacySubMenuResult {
         private final String token;
         private final List<AuthService.LegacyAuthItem> items;
+
+        @JsonProperty("Token")
+        public String getLegacyToken() {
+            return token;
+        }
+
+        @JsonProperty("Items")
+        public List<AuthService.LegacyAuthItem> getLegacyItems() {
+            return items;
+        }
     }
 
     @Data
@@ -293,11 +379,41 @@ public class LoginController {
         private final LegacyUserInfo user;
         private final AuthService.LegacyAppInfo app;
         private final List<AuthService.LegacyAuthItem> topMenu;
+
+        @JsonProperty("Token")
+        public String getLegacyToken() {
+            return token;
+        }
+
+        @JsonProperty("User")
+        public LegacyUserInfo getLegacyUser() {
+            return user;
+        }
+
+        @JsonProperty("App")
+        public AuthService.LegacyAppInfo getLegacyApp() {
+            return app;
+        }
+
+        @JsonProperty("TopMenu")
+        public List<AuthService.LegacyAuthItem> getLegacyTopMenu() {
+            return topMenu;
+        }
     }
 
     @Data
     public static class LegacyAppResult {
         private final String token;
         private final AuthService.LegacyAppInfo app;
+
+        @JsonProperty("Token")
+        public String getLegacyToken() {
+            return token;
+        }
+
+        @JsonProperty("App")
+        public AuthService.LegacyAppInfo getLegacyApp() {
+            return app;
+        }
     }
 }

@@ -26,6 +26,7 @@ import {
   isLookupField,
   isReadonlyField,
   itemKey,
+  legacyAppDefaultViewId,
   listAutoFreshTime,
   listFreshTime,
   listPageIndex,
@@ -417,6 +418,13 @@ describe("view workflow helpers", () => {
     expect(listAutoFreshTime({ AutoFreshTime: 45 })).toBe(45);
     expect(listFreshTime({ freshTime: "2026-07-04T00:16:42" })).toBe("2026-07-04T00:16:42");
     expect(listFreshTime({ FreshTime: "2026-07-04T00:17:00" })).toBe("2026-07-04T00:17:00");
+  });
+
+  it("reads the default View id from legacy app shell payloads", () => {
+    expect(legacyAppDefaultViewId({ app: { defaultViewId: 100 } })).toBe(100);
+    expect(legacyAppDefaultViewId({ App: { DefaultViewId: 101 } })).toBe(101);
+    expect(legacyAppDefaultViewId({ defaultViewId: 102 })).toBe(102);
+    expect(legacyAppDefaultViewId({ App: { DefaultViewId: 0 } })).toBe(0);
   });
 
   it("uses the rendered View detail id before falling back to the list id", () => {

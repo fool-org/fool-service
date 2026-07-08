@@ -103,6 +103,13 @@ def common_response_list(payload: dict[str, Any], key: str) -> bool:
     return isinstance(data.get(key), list) and bool(data[key])
 
 
+def legacy_response_list(payload: dict[str, Any], key: str) -> list[Any]:
+    if not common_response_ok(payload):
+        return []
+    value = payload["data"].get(key)
+    return value if isinstance(value, list) else []
+
+
 def detail_response_ok(payload: dict[str, Any]) -> bool:
     if not common_response_ok(payload):
         return False
@@ -195,6 +202,26 @@ def legacy_login_token(payload: dict[str, Any]) -> str:
     return str(token) if success is True and token else ""
 
 
+def legacy_app_default_view_id(payload: dict[str, Any]) -> int:
+    if not common_response_ok(payload):
+        return 0
+    data = payload["data"]
+    app = data.get("app") or data.get("App")
+    if not isinstance(app, dict):
+        return 0
+    value = app.get("defaultViewId")
+    if not isinstance(value, int):
+        value = app.get("DefaultViewId")
+    return value if isinstance(value, int) else 0
+
+
+def legacy_app_alias_ok(payload: dict[str, Any]) -> bool:
+    if not common_response_ok(payload):
+        return False
+    app = payload["data"].get("App")
+    return isinstance(app, dict) and isinstance(app.get("DefaultViewId"), int) and app["DefaultViewId"] > 0
+
+
 def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[CheckResult]:
     view_state: dict[str, Any] = {}
     auth_state: dict[str, str] = {}
@@ -260,21 +287,28 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         if not token:
             return False
         payload = post_json(f"{frontend_url}/api/v1/auth/getapp", {"Token": token}, timeout)
-        return common_response_ok(payload) and isinstance(payload["data"].get("app"), dict)
+        default_view_id = legacy_app_default_view_id(payload)
+        if default_view_id:
+            view_state["listViewId"] = default_view_id
+        return legacy_app_alias_ok(payload)
 
     def get_main_ok() -> bool:
         token = auth_state.get("token")
         if not token:
             return False
         payload = post_json(f"{frontend_url}/api/v1/auth/getmain", token, timeout)
-        if not common_response_list(payload, "topMenu"):
+        top_menu = legacy_response_list(payload, "TopMenu")
+        if not top_menu:
             return False
-        first = payload["data"]["topMenu"][0]
+        default_view_id = legacy_app_default_view_id(payload)
+        if default_view_id:
+            view_state["listViewId"] = default_view_id
+        first = top_menu[0]
         if isinstance(first, dict):
             auth_no = first.get("authNo") or first.get("AuthNo")
             if auth_no:
                 auth_state["parentAuthCode"] = str(auth_no)
-        return True
+        return legacy_app_alias_ok(payload)
 
     def get_submenu_ok() -> bool:
         token = auth_state.get("token")
@@ -286,7 +320,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             {"Token": token, "ParentAuthCode": parent},
             timeout,
         )
-        return common_response_ok(payload) and isinstance(payload["data"].get("items"), list)
+        return bool(legacy_response_list(payload, "Items"))
 
     def logout_ok() -> bool:
         token = auth_state.get("token")
@@ -295,14 +329,15 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         return common_void_ok(post_json(f"{frontend_url}/api/v1/auth/logout", {"Token": token}, timeout))
 
     def get_list_view() -> bool:
+        view_id = loaded_list_view_id() or LIST_VIEW_ID
         payload = post_json(
             f"{frontend_url}/api/v1/view/getlistview",
-            {"ViewId": LIST_VIEW_ID},
+            {"ViewId": view_id},
             timeout,
         )
         loaded_detail_view_id = detail_view_id(payload)
         if loaded_detail_view_id:
-            view_state["listViewId"] = LIST_VIEW_ID
+            view_state["listViewId"] = view_id
             view_state["detailViewId"] = loaded_detail_view_id
         return loaded_detail_view_id > 0
 
@@ -416,7 +451,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         (
             "view:getlistview",
             get_list_view,
-            f"POST /api/v1/view/getlistview ViewId={LIST_VIEW_ID} returns DetailViewId",
+            "POST /api/v1/view/getlistview uses the App default ViewId and returns DetailViewId",
         ),
         (
             "data:querydata",

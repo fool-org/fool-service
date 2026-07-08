@@ -150,6 +150,18 @@ describe("App defaults", () => {
     expect(querySource).not.toContain("viewId: Number(legacyQueryViewId.value)");
   });
 
+  it("loads the default first-screen View from the legacy app shell", () => {
+    const workflowSource = appSource.slice(
+      appSource.indexOf("async function loadViewWorkflow"),
+      appSource.indexOf("onMounted(()")
+    );
+
+    expect(appSource).toContain("legacyAppDefaultViewId");
+    expect(appSource).toContain("applyDefaultAppView(response.data)");
+    expect(workflowSource.indexOf("await loadMainInfo()")).toBeGreaterThanOrEqual(0);
+    expect(workflowSource.indexOf("await loadMainInfo()")).toBeLessThan(workflowSource.indexOf("await loadLegacyListView()"));
+  });
+
   it("does not prefill business-specific data DTO fields by default", () => {
     expect(appSource).toContain('const enumModelId = ref("102")');
     expect(appSource).toContain('const legacyQueryFilter = ref("")');

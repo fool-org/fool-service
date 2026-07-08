@@ -73,6 +73,12 @@ export function readViewId(view: ReadItemViewInfo | undefined, fallback = 0) {
   return Number(view?.viewId ?? view?.ViewId ?? fallback) || 0;
 }
 
+export function legacyAppDefaultViewId(source?: unknown) {
+  const record = objectRecord(source);
+  const app = objectRecord(record.app || record.App || source);
+  return Number(app.defaultViewId ?? app.DefaultViewId ?? 0) || 0;
+}
+
 export function readViewItems(view: ReadItemViewInfo | undefined) {
   return firstList(view?.items, view?.Items);
 }
@@ -587,6 +593,10 @@ function normalizeKeys(values: unknown[]) {
     }
   }
   return [...keys];
+}
+
+function objectRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" ? value as Record<string, unknown> : {};
 }
 
 function operationRequiresSelect(operation: OperationInfo) {

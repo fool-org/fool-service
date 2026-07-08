@@ -63,6 +63,7 @@ import {
   isEnumField,
   itemKey,
   itemValue,
+  legacyAppDefaultViewId,
   listAutoFreshTime,
   listFreshTime,
   listPageIndex,
@@ -308,7 +309,8 @@ async function loginV2() {
 
   if (response) {
     legacyLoginResponse.value = response;
-    token.value = response.data?.token || token.value;
+    applyDefaultAppView(response.data);
+    token.value = response.data?.token || response.data?.Token || token.value;
     if (token.value) {
       localStorage.setItem("fool-service-token", token.value);
     }
@@ -339,6 +341,7 @@ async function loadMainInfo() {
   const response = await runAction("getmain", () => postApi<LegacyMainResult>("/api/v1/auth/getmain", token.value));
   if (response) {
     mainInfoResponse.value = response;
+    applyDefaultAppView(response.data);
   }
 }
 
@@ -348,6 +351,7 @@ async function loadAppInfo() {
   );
   if (response) {
     appInfoResponse.value = response;
+    applyDefaultAppView(response.data);
   }
 }
 
@@ -728,10 +732,18 @@ function applyLoadedView(view?: ListViewInfo) {
   }
 }
 
+function applyDefaultAppView(source?: unknown) {
+  const defaultViewId = legacyAppDefaultViewId(source);
+  if (defaultViewId) legacyListViewId.value = legacyQueryViewId.value = reportViewId.value = defaultViewId;
+}
+
 async function loadViewWorkflow(resetPage = false) {
   stopAutoRefresh();
   if (resetPage) {
     pageIndex.value = 1;
+  }
+  if (!resetPage && !viewResponse.value && token.value) {
+    await loadMainInfo();
   }
   const loadedView = await loadLegacyListView();
   if (!loadedView) {

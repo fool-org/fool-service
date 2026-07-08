@@ -11,7 +11,10 @@ from runtime_doctor import (
     common_void_ok,
     compose_checks,
     detail_view_id,
+    legacy_app_alias_ok,
+    legacy_app_default_view_id,
     legacy_login_token,
+    legacy_response_list,
     list_rows,
     parse_compose_ps,
     report_grid_ok,
@@ -51,6 +54,10 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertFalse(common_response_list({"code": 1, "data": {"items": [1]}}, "items"))
         self.assertFalse(common_response_list({"code": 0, "data": {"items": []}}, "items"))
 
+    def test_legacy_response_list_requires_pascal_alias(self) -> None:
+        self.assertEqual([1], legacy_response_list({"code": 0, "data": {"Items": [1]}}, "Items"))
+        self.assertEqual([], legacy_response_list({"code": 0, "data": {"items": [1]}}, "Items"))
+
     def test_common_void_ok_accepts_legacy_no_data_success(self) -> None:
         self.assertTrue(common_void_ok({"code": 0, "data": None}))
         self.assertFalse(common_void_ok({"code": 1, "data": None}))
@@ -63,6 +70,15 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertEqual("t1", legacy_login_token({"code": 0, "data": {"loginSucess": True, "token": "t1"}}))
         self.assertEqual("t2", legacy_login_token({"code": 0, "data": {"LoginSucess": True, "Token": "t2"}}))
         self.assertEqual("", legacy_login_token({"code": 0, "data": {"loginSucess": False, "token": "t1"}}))
+
+    def test_legacy_app_default_view_id_accepts_legacy_aliases(self) -> None:
+        self.assertEqual(100, legacy_app_default_view_id({"code": 0, "data": {"app": {"defaultViewId": 100}}}))
+        self.assertEqual(101, legacy_app_default_view_id({"code": 0, "data": {"App": {"DefaultViewId": 101}}}))
+        self.assertEqual(0, legacy_app_default_view_id({"code": 0, "data": {"App": {"DefaultViewId": 0}}}))
+
+    def test_legacy_app_alias_ok_requires_pascal_default_view(self) -> None:
+        self.assertTrue(legacy_app_alias_ok({"code": 0, "data": {"App": {"DefaultViewId": 101}}}))
+        self.assertFalse(legacy_app_alias_ok({"code": 0, "data": {"app": {"defaultViewId": 101}}}))
 
     def test_detail_view_id_reads_loaded_view_metadata(self) -> None:
         self.assertEqual(102, detail_view_id({"code": 0, "data": {"detailViewId": 102}}))

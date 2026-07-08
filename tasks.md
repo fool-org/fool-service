@@ -36,6 +36,9 @@ explicitly named as authoritative for fool-service.
 - [x] Drive the main Vue workflow through legacy `getlistview(viewId)` then
       `querydata(viewId)` so the rendered page follows View metadata instead
       of the newer business-name query shortcut.
+- [x] Load the Vue first-screen View id from legacy `getmain/getapp`
+      `App.DefaultViewId` before `getlistview`, so the default page follows
+      FoolFrame shell configuration instead of a Docker seed DTO shortcut.
 - [x] Hydrate legacy `SW_SYS_OPERATIONVIEW_ITEM` operation parameter metadata
       into View operation DTOs for both list-view and detail-view responses.
 - [x] Persist dynamic `BusinessObject` fields through their foreign-key ids so

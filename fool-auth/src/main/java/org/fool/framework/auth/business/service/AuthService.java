@@ -1,5 +1,6 @@
 package org.fool.framework.auth.business.service;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.fool.framework.auth.business.common.BusinessErrorCode;
 import org.fool.framework.auth.business.model.Auth;
 import org.fool.framework.auth.business.model.User;
@@ -275,6 +276,51 @@ public class AuthService {
         private int viewType;
         private int index;
         private String authNo;
+
+        @JsonProperty("Text")
+        public String getLegacyText() {
+            return text;
+        }
+
+        @JsonProperty("Note")
+        public String getLegacyNote() {
+            return note;
+        }
+
+        @JsonProperty("ImageUrl")
+        public String getLegacyImageUrl() {
+            return imageUrl;
+        }
+
+        @JsonProperty("AuthType")
+        public int getLegacyAuthType() {
+            return authType;
+        }
+
+        @JsonProperty("ViewId")
+        public long getLegacyViewId() {
+            return viewId;
+        }
+
+        @JsonProperty("NotifyCount")
+        public int getLegacyNotifyCount() {
+            return notifyCount;
+        }
+
+        @JsonProperty("ViewType")
+        public int getLegacyViewType() {
+            return viewType;
+        }
+
+        @JsonProperty("Index")
+        public int getLegacyIndex() {
+            return index;
+        }
+
+        @JsonProperty("AuthNo")
+        public String getLegacyAuthNo() {
+            return authNo;
+        }
     }
 
     @Data
@@ -287,6 +333,46 @@ public class AuthService {
         private String appLogoUrl = "";
         private long defaultViewId;
         private String appId = "";
+
+        @JsonProperty("AppName")
+        public String getLegacyAppName() {
+            return appName;
+        }
+
+        @JsonProperty("AppVer")
+        public String getLegacyAppVer() {
+            return appVer;
+        }
+
+        @JsonProperty("AppNote")
+        public String getLegacyAppNote() {
+            return appNote;
+        }
+
+        @JsonProperty("AppPowerBy")
+        public String getLegacyAppPowerBy() {
+            return appPowerBy;
+        }
+
+        @JsonProperty("AppPowerUrl")
+        public String getLegacyAppPowerUrl() {
+            return appPowerUrl;
+        }
+
+        @JsonProperty("AppLogoUrl")
+        public String getLegacyAppLogoUrl() {
+            return appLogoUrl;
+        }
+
+        @JsonProperty("DefaultViewId")
+        public long getLegacyDefaultViewId() {
+            return defaultViewId;
+        }
+
+        @JsonProperty("AppId")
+        public String getLegacyAppId() {
+            return appId;
+        }
     }
 
     @Data

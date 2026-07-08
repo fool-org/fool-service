@@ -97,6 +97,15 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: legacy auth shell responses now expose Pascal aliases such as
+  `App`, `TopMenu`, `Items`, and `App.DefaultViewId` while retaining the
+  existing camel-case fields. The Vue first-screen workflow reads the App
+  default View id from `loginv2` / `getmain` / `getapp` shell payloads before
+  calling `getlistview`, then continues to load rows through `querydata` using
+  the loaded View id. The runtime doctor now carries that default View id into
+  its View/data smoke path and requires Pascal shell aliases to be present
+  instead of treating Docker `ViewId=100` or camel-case DTO fields as the
+  source of truth.
 - 2026-07-04: `getreaditemview.DetailViews` now follows the FoolFrame
   collection metadata shape for configured child edit Views. Collection
   `ViewItem` metadata is emitted as a `DetailViews[]` entry, and the adapter
