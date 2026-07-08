@@ -172,6 +172,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `getcheckcode` / `checkcode` validates a generated legacy code, `loginv2`
   returns a token for the Docker admin user, and `getuserinfo` accepts that
   token.
+- 2026-07-08: the Docker runtime doctor now carries the same logged-in token
+  through the legacy auth shell routes behind the Vue proxy: `getapp`,
+  raw-token `getmain`, top-menu-driven `getsubmenu`, and `logout`.
 - 2026-07-04: `scripts/runtime_doctor.py` now proves the Docker frontend proxy
   `querydata` route with a legacy `QueryFilter`, then verifies returned legacy
   row `Items` carry `state.objId=0`. This covers the main Vue workflow's

@@ -255,6 +255,45 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         payload = post_json(f"{frontend_url}/api/v1/auth/getuserinfo", {"Token": token}, timeout)
         return common_response_ok(payload) and payload["data"].get("user") is not None
 
+    def get_app_ok() -> bool:
+        token = auth_state.get("token")
+        if not token:
+            return False
+        payload = post_json(f"{frontend_url}/api/v1/auth/getapp", {"Token": token}, timeout)
+        return common_response_ok(payload) and isinstance(payload["data"].get("app"), dict)
+
+    def get_main_ok() -> bool:
+        token = auth_state.get("token")
+        if not token:
+            return False
+        payload = post_json(f"{frontend_url}/api/v1/auth/getmain", token, timeout)
+        if not common_response_list(payload, "topMenu"):
+            return False
+        first = payload["data"]["topMenu"][0]
+        if isinstance(first, dict):
+            auth_no = first.get("authNo") or first.get("AuthNo")
+            if auth_no:
+                auth_state["parentAuthCode"] = str(auth_no)
+        return True
+
+    def get_submenu_ok() -> bool:
+        token = auth_state.get("token")
+        parent = auth_state.get("parentAuthCode")
+        if not token or not parent:
+            return False
+        payload = post_json(
+            f"{frontend_url}/api/v1/auth/getsubmenu",
+            {"Token": token, "ParentAuthCode": parent},
+            timeout,
+        )
+        return common_response_ok(payload) and isinstance(payload["data"].get("items"), list)
+
+    def logout_ok() -> bool:
+        token = auth_state.get("token")
+        if not token:
+            return False
+        return common_void_ok(post_json(f"{frontend_url}/api/v1/auth/logout", {"Token": token}, timeout))
+
     def get_list_view() -> bool:
         payload = post_json(
             f"{frontend_url}/api/v1/view/getlistview",
@@ -360,6 +399,21 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "POST /api/v1/auth/getuserinfo accepts the loginv2 token",
         ),
         (
+            "auth:getapp",
+            get_app_ok,
+            "POST /api/v1/auth/getapp accepts the loginv2 token",
+        ),
+        (
+            "auth:getmain",
+            get_main_ok,
+            "POST /api/v1/auth/getmain returns the legacy top menu",
+        ),
+        (
+            "auth:getsubmenu",
+            get_submenu_ok,
+            "POST /api/v1/auth/getsubmenu follows the top-menu auth code",
+        ),
+        (
             "view:getlistview",
             get_list_view,
             f"POST /api/v1/view/getlistview ViewId={LIST_VIEW_ID} returns DetailViewId",
@@ -438,6 +492,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
                 timeout,
             )),
             "POST /api/v1/report/saverpt keeps legacy no-op success surface",
+        ),
+        (
+            "auth:logout",
+            logout_ok,
+            "POST /api/v1/auth/logout invalidates the runtime login token",
         ),
     )
     results: list[CheckResult] = []
