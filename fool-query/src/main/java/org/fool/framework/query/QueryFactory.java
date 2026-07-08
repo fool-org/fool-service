@@ -15,10 +15,9 @@ public interface QueryFactory {
     default QueryTable getTable(String tableName) {
         String normalized = normalize(tableName);
         return getTables().stream()
-                .filter(table -> Objects.equals(normalize(table.getShowName()), normalized)
-                        || Objects.equals(normalize(table.getDbName()), normalized))
+                .filter(table -> Objects.equals(normalize(table.getDbName()), normalized))
                 .findFirst()
-                .orElse(null);
+                .orElseThrow();
     }
 
     default List<QueryColumn> getColumns(QueryTable table) {

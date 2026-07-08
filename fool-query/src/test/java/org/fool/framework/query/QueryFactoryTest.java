@@ -3,12 +3,14 @@ package org.fool.framework.query;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 public class QueryFactoryTest {
     @Test
-    public void queryFactoryFindsTablesAndKeepsEmptyColumnDefault() {
+    public void queryFactoryFindsTablesByLegacyDbNameOnlyAndKeepsEmptyColumnDefault() {
         QueryTable orders = new QueryTable("订单", "orders");
         QueryTable customers = new QueryTable("客户", "customers");
         QueryFactory factory = new QueryFactory() {
@@ -23,12 +25,12 @@ public class QueryFactoryTest {
             }
         };
 
-        assertEquals(orders, factory.getTable("订单"));
         assertEquals(orders, factory.getTable("orders"));
         assertEquals(orders, factory.getTable(" ORDERS "));
         assertEquals(customers, factory.getTable("customers"));
-        assertEquals(customers, factory.getTable(" 客户 "));
-        assertEquals(null, factory.getTable("missing"));
+        assertThrows(NoSuchElementException.class, () -> factory.getTable("订单"));
+        assertThrows(NoSuchElementException.class, () -> factory.getTable(" 客户 "));
+        assertThrows(NoSuchElementException.class, () -> factory.getTable("missing"));
         assertEquals(List.of(), factory.getColumns(orders));
     }
 

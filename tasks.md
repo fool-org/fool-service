@@ -351,6 +351,9 @@ explicitly named as authoritative for fool-service.
 - [x] Remove the remaining Vue API-tool seed defaults for enum model and
       new-object ID so manual tools no longer start from concrete business DTO
       identifiers.
+- [x] Align `QueryFactory.getTable` with FoolFrame `GetTable` by resolving
+      tables from trimmed/case-insensitive DBName only and failing missing
+      tables instead of accepting rendered ShowName labels or returning null.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
