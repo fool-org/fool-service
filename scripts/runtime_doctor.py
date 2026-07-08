@@ -208,9 +208,14 @@ def view_column_key(column: dict[str, Any]) -> str:
 
 def query_rows_match_view(rows: list[Any], columns: list[dict[str, Any]]) -> bool:
     keys = [view_column_key(column) for column in columns if view_column_key(column)]
-    if not rows or not keys or not isinstance(rows[0], dict):
+    if not rows or not keys:
         return False
-    return all(list_row_item(rows[0], key) is not None for key in keys)
+    for row in rows:
+        if not isinstance(row, dict):
+            return False
+        if not all(list_row_item(row, key) is not None for key in keys):
+            return False
+    return True
 
 
 def lookup_view_item_id(columns: list[dict[str, Any]]) -> str:

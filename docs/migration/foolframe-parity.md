@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-08: the Docker runtime doctor now requires every returned
+  `querydata` row to match the loaded `getlistview` View columns through row
+  `Items`. DTO-only `values` rows are explicitly rejected in the helper tests,
+  keeping runtime proof aligned with FoolFrame's View-first render-then-data
+  workflow instead of accepting concrete business DTO bindings.
 - 2026-07-08: `runoperation` result payloads now expose FoolFrame aliases
   (`Value`, `IsSuccess`, `ReturnObjId`, `ReturnViewId`, `ReturnMsg`) while
   preserving camel-case fields. Vue operation refresh logic reads success

@@ -119,14 +119,21 @@ class RuntimeDoctorTest(unittest.TestCase):
             {"PropertyName": "recordId", "Name": "Record ID"},
             {"PropertyName": "status", "Name": "Status"},
         ]}})
-        rows = [{"Items": [
-            {"PrpId": "recordId", "ObjId": "9001"},
-            {"PrpId": "status", "ObjId": "ready"},
-        ]}]
+        rows = [
+            {"Items": [
+                {"PrpId": "recordId", "ObjId": "9001"},
+                {"PrpId": "status", "ObjId": "ready"},
+            ]},
+            {"Items": [
+                {"PrpId": "recordId", "ObjId": "9002"},
+                {"PrpId": "status", "ObjId": "done"},
+            ]},
+        ]
 
         self.assertEqual("recordId", view_column_key(columns[0]))
         self.assertTrue(query_rows_match_view(rows, columns))
         self.assertFalse(query_rows_match_view(rows, columns + [{"PropertyName": "missing"}]))
+        self.assertFalse(query_rows_match_view([{"values": {"recordId": "dto-only", "status": "ready"}}], columns))
 
     def test_lookup_view_item_id_uses_business_object_view_metadata(self) -> None:
         self.assertEqual("owner", lookup_view_item_id([
