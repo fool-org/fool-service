@@ -32,6 +32,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -265,6 +266,71 @@ public class ModelDataServiceTest {
                     String.class,
                     "2001");
             assertEquals("triggered", name);
+        } finally {
+            cleanupRuntimeTriggerModel(modelId, modelName, tableName);
+        }
+    }
+
+    @Test
+    public void saveDataStopsLegacySaveTriggerWhenFilterCommandDoesNotMatch() {
+        long modelId = 92621L;
+        long idPropertyId = 92622L;
+        long namePropertyId = 92623L;
+        long triggerId = 92624L;
+        long filterCommandId = 92625L;
+        long setValueCommandId = 92626L;
+        String modelName = "RuntimeSaveTriggerFilterOrder";
+        String tableName = "runtime_save_trigger_filter_order";
+        cleanupRuntimeTriggerModel(modelId, modelName, tableName);
+        try {
+            createRuntimeDetailModel(modelId, idPropertyId, namePropertyId, modelName, tableName);
+            jdbcTemplate.update(
+                    "INSERT INTO `" + tableName + "` (`ORDER_ID`,`ORDER_NAME`) VALUES (?,?)",
+                    "2001",
+                    "before trigger");
+            jdbcTemplate.update(
+                    "INSERT INTO `SW_SYS_MODEL_TRIGGER` "
+                            + "(`SysId`,`SW_SYS_MODEL_TriggersMODEL_ID`,`SW_MODEL_TRIGGER_TYPE`,"
+                            + "`SW_MODEL_TRIGGER_OPERATIONTYPE`) VALUES (?,?,?,?)",
+                    triggerId,
+                    modelId,
+                    ModelTriggerType.SAVE.code(),
+                    OperationBaseType.UPDATE.code());
+            jdbcTemplate.update(
+                    "INSERT INTO `SW_SYS_MODEL_TRIGGER_COMMANDS` "
+                            + "(`SysId`,`SW_SYS_MODEL_TRIGGER_CommandsSysId`,`SW_SYS_COMMAND_TYPE`,"
+                            + "`SW_SYS_COMMAND_EXP`,`SW_SYS_COMMAND_PROPERTY_EXP`,`SW_SYS_COMMAND_Index`) "
+                            + "VALUES (?,?,?,?,?,?)",
+                    filterCommandId,
+                    triggerId,
+                    CommandsType.FILTER.code(),
+                    "`ORDER_NAME` = 'allowed'",
+                    "filter blocked",
+                    1);
+            jdbcTemplate.update(
+                    "INSERT INTO `SW_SYS_MODEL_TRIGGER_COMMANDS` "
+                            + "(`SysId`,`SW_SYS_MODEL_TRIGGER_CommandsSysId`,`SW_SYS_COMMAND_TYPE`,"
+                            + "`SW_SYS_COMMAND_PROPERTY`,`SW_SYS_COMMAND_EXP`,`SW_SYS_COMMAND_Index`) "
+                            + "VALUES (?,?,?,?,?,?)",
+                    setValueCommandId,
+                    triggerId,
+                    CommandsType.SET_VALUE.code(),
+                    namePropertyId,
+                    "$triggered",
+                    2);
+            Model model = modelDataService.getModel(modelName);
+            DbMysqlDynamic data = new DbMysqlDynamic(model);
+            data.set("orderId", "2001");
+            data.set("orderName", "blocked");
+
+            IllegalStateException error = assertThrows(IllegalStateException.class, () -> modelDataService.saveData(data));
+
+            assertEquals("filter blocked", error.getMessage());
+            String name = jdbcTemplate.queryForObject(
+                    "SELECT `ORDER_NAME` FROM `" + tableName + "` WHERE `ORDER_ID` = ?",
+                    String.class,
+                    "2001");
+            assertEquals("blocked", name);
         } finally {
             cleanupRuntimeTriggerModel(modelId, modelName, tableName);
         }

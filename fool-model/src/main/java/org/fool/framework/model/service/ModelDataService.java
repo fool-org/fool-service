@@ -23,6 +23,7 @@ import org.fool.framework.model.sqlscript.SqlGenerator;
 import org.fool.framework.query.CompareFilter;
 import org.fool.framework.query.CompareOp;
 import org.fool.framework.query.IQueryFilter;
+import org.fool.framework.query.SimpleFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -476,7 +477,7 @@ public class ModelDataService {
     }
 
     private void executeModelTrigger(Model model, IDynamicData data, Trigger trigger) {
-        applySetValueCommands(model, data, trigger.getCommands());
+        executeTriggerCommands(model, data, trigger.getCommands());
         OperationBaseType type = trigger.getBaseOperationType();
         if (type == OperationBaseType.UPDATE) {
             saveData(data, null, null, false, false);
@@ -492,7 +493,7 @@ public class ModelDataService {
                 .filter(property -> property != null && propertyTouched(data, property, creating))
                 .flatMap(property -> property.getTriggerList().stream())
                 .filter(trigger -> trigger != null && trigger.getTriggerType() == PropertyTriggerType.SET)
-                .forEach(trigger -> applySetValueCommands(model, data, trigger.getCommands()));
+                .forEach(trigger -> executeTriggerCommands(model, data, trigger.getCommands()));
     }
 
     private boolean propertyTouched(DbMysqlDynamic data, Property property, boolean creating) {
@@ -502,17 +503,58 @@ public class ModelDataService {
         return creating ? data.toMap().containsKey(property.getName()) : data.hasOld(property.getName());
     }
 
-    private void applySetValueCommands(Model model, IDynamicData data, List<OperationCommand> commands) {
+    private void executeTriggerCommands(Model model, IDynamicData data, List<OperationCommand> commands) {
         if (commands == null) {
             return;
         }
         commands.stream()
-                .filter(command -> command != null && command.getCommandType() == CommandsType.SET_VALUE)
+                .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(command -> command.getIndex() == null ? 0 : command.getIndex()))
-                .forEach(command -> property(model, command.getPropertyId())
-                        .ifPresent(property -> data.set(
-                                property.getName(),
-                                triggerCommandValue(property, data, command.getExpression()))));
+                .forEach(command -> executeTriggerCommand(model, data, command));
+    }
+
+    private void executeTriggerCommand(Model model, IDynamicData data, OperationCommand command) {
+        if (command.getCommandType() == CommandsType.SET_VALUE) {
+            property(model, command.getPropertyId())
+                    .ifPresent(property -> data.set(
+                            property.getName(),
+                            triggerCommandValue(property, data, command.getExpression())));
+        } else if (command.getCommandType() == CommandsType.FILTER) {
+            checkFilterCommand(model, data, command);
+        }
+    }
+
+    private void checkFilterCommand(Model model, IDynamicData data, OperationCommand command) {
+        if (model == null || data == null || command.getExpression() == null || command.getExpression().isBlank()) {
+            return;
+        }
+        String idColumn = model.getIdProperty() != null
+                && model.getIdProperty().getColumn() != null
+                && !model.getIdProperty().getColumn().isBlank()
+                ? model.getIdProperty().getColumn()
+                : "SYSID";
+        Object idValue = dynamicId(data, model);
+        IQueryFilter filter = new CompareFilter(idColumn, CompareOp.EQUAL, idValue == null ? "" : String.valueOf(idValue))
+                .and(rawFilter(command.getExpression()));
+        List<IDynamicData> matched = getDataList(
+                model.getName(),
+                filter,
+                model.getProperties() == null ? List.of() : model.getProperties());
+        if (matched.isEmpty()) {
+            throw new IllegalStateException(command.getPropertyExpression() == null ? "" : command.getPropertyExpression());
+        }
+    }
+
+    private IQueryFilter rawFilter(String filter) {
+        return new SimpleFilter() {
+            @Override
+            public QueryAndArgs generateSql() {
+                QueryAndArgs queryAndArgs = new QueryAndArgs();
+                queryAndArgs.setSql(filter);
+                queryAndArgs.setArgs(new Object[]{});
+                return queryAndArgs;
+            }
+        };
     }
 
     private java.util.Optional<Property> property(Model model, Long propertyId) {
@@ -610,7 +652,7 @@ public class ModelDataService {
         Model itemModel = dynamicModel(itemData, property.getPropertyModel());
         property.getTriggerList().stream()
                 .filter(trigger -> trigger != null && trigger.getTriggerType() == triggerType)
-                .forEach(trigger -> applySetValueCommands(itemModel, itemData, trigger.getCommands()));
+                .forEach(trigger -> executeTriggerCommands(itemModel, itemData, trigger.getCommands()));
     }
 
     private boolean isWritableOwnedRelation(Relation relation) {

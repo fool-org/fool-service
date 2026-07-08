@@ -159,6 +159,9 @@ explicitly named as authoritative for fool-service.
 - [x] Execute legacy model SAVE trigger `SET_VALUE` side effects through
       `ModelDataService` writes, reusing the shared operation command value
       resolver instead of adding a second expression parser.
+- [x] Execute legacy trigger `FILTER` commands for model/property/collection
+      triggers through the shared trigger-command path, stopping later trigger
+      commands when the current persisted row does not match.
 - [x] Make the Vue API-tools `Query Data` path load the selected View
       definition before calling `querydata`, so shared row state stays bound to
       the rendered View context instead of a standalone business DTO shortcut.
