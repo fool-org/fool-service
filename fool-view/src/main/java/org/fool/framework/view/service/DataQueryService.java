@@ -6,6 +6,7 @@ import org.fool.framework.dao.PageResult;
 import org.fool.framework.dao.QueryAndArgs;
 import org.fool.framework.dto.CommonException;
 import org.fool.framework.common.PropertyType;
+import org.fool.framework.common.context.LegacyContextValueService;
 import org.fool.framework.common.data.SubItemList;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.model.model.DbMysqlDynamic;
@@ -71,6 +72,8 @@ public class DataQueryService {
     private ViewDataService viewDataService;
 
     private final OperationCommandValueResolver commandValueResolver = new OperationCommandValueResolver();
+    @Autowired(required = false)
+    private LegacyContextValueService contextValueService;
 
     public record QueryOrder(List<Item> items) {
         public QueryOrder {
@@ -143,10 +146,10 @@ public class DataQueryService {
             throw new CommonException(ErrorCode.MODEL_NOT_FOUND, "没有查到元数据定义");
         }
         return viewAdapter.getDetailViewResult(view,
-                modelDataService.getOneData(view.getViewModel(), legacyDetailObjectId(dataId, idExp, view, model)));
+                modelDataService.getOneData(view.getViewModel(), legacyDetailObjectId(dataId, idExp, view, model, token)));
     }
 
-    private String legacyDetailObjectId(String dataId, String idExp, View view, Model model) {
+    private String legacyDetailObjectId(String dataId, String idExp, View view, Model model, String token) {
         if (StringUtils.hasText(dataId)) {
             return dataId;
         }
@@ -163,7 +166,7 @@ public class DataQueryService {
                     : result.getItems().get(0).getId();
         }
         String expression = idExp.trim();
-        Object resolved = commandValue(null, null, expression);
+        Object resolved = commandValue(null, null, expression, token);
         String resolvedId = resolved == null ? "" : String.valueOf(resolved);
         return StringUtils.hasText(resolvedId) ? resolvedId : dataId;
     }
@@ -666,6 +669,19 @@ public class DataQueryService {
 
     private Object commandValue(Property property, IDynamicData data, String expression) {
         return commandValueResolver.resolve(property, data, expression, this::businessObjectValue);
+    }
+
+    private Object commandValue(Property property, IDynamicData data, String expression, String token) {
+        return commandValueResolver.resolve(
+                property,
+                data,
+                expression,
+                this::businessObjectValue,
+                key -> contextValue(token, key));
+    }
+
+    private Object contextValue(String token, String key) {
+        return contextValueService == null ? "" : contextValueService.getValue(token, key);
     }
 
     private Object businessObjectValue(Property property, String value) {

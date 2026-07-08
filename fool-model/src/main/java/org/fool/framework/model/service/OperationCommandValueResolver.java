@@ -14,16 +14,30 @@ public class OperationCommandValueResolver {
         Object load(Property property, String value);
     }
 
+    @FunctionalInterface
+    public interface ContextValueLoader {
+        Object load(String key);
+    }
+
     public Object resolve(
             Property property,
             IDynamicData data,
             String expression,
             BusinessObjectLoader businessObjectLoader) {
+        return resolve(property, data, expression, businessObjectLoader, key -> "");
+    }
+
+    public Object resolve(
+            Property property,
+            IDynamicData data,
+            String expression,
+            BusinessObjectLoader businessObjectLoader,
+            ContextValueLoader contextValueLoader) {
         String value = expression == null ? "" : expression.trim();
         if (isCompositeMathExpression(value)) {
             String result = new MathExpression().calculateParenthesesExpression(
                     value,
-                    part -> String.valueOf(resolve(property, data, part, businessObjectLoader)));
+                    part -> String.valueOf(resolve(property, data, part, businessObjectLoader, contextValueLoader)));
             return staticValue(property, result, businessObjectLoader);
         }
         if (value.startsWith("$")) {
@@ -36,16 +50,17 @@ public class OperationCommandValueResolver {
             return data == null ? null : data.get(value.substring(2));
         }
         if (value.startsWith("@")) {
-            return contextValue(value.substring(1));
+            return contextValue(value.substring(1), contextValueLoader);
         }
         return "";
     }
 
-    private Object contextValue(String expression) {
-        return switch ((expression == null ? "" : expression.trim()).toLowerCase(Locale.ROOT)) {
+    private Object contextValue(String expression, ContextValueLoader contextValueLoader) {
+        String key = (expression == null ? "" : expression.trim()).toLowerCase(Locale.ROOT);
+        return switch (key) {
             case "datetime", "time" -> LocalDateTime.now();
             case "date" -> LocalDateTime.now().toLocalDate().atStartOfDay();
-            default -> "";
+            default -> contextValueLoader == null ? "" : contextValueLoader.load(key);
         };
     }
 
