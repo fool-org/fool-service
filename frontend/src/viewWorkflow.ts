@@ -421,8 +421,10 @@ export function isMultilineField(field: ListDataValue) {
 }
 
 export function isReadonlyField(field: ListDataValue) {
+  const readOnly = field.readOnly ?? field.ReadOnly;
+  if (readOnly !== undefined) return readOnly === true;
   const editType = normalizedEditType(field);
-  return field.readOnly === true || field.ReadOnly === true || editType === "readonly" || editType === "0";
+  return editType === "readonly" || editType === "0";
 }
 
 export function fieldDraftValue(field: ListDataValue) {

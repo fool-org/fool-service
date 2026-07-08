@@ -165,6 +165,8 @@ describe("view workflow helpers", () => {
     expect(isReadonlyField({ prpId: "id", readOnly: true })).toBe(true);
     expect(isReadonlyField({ prpId: "id", editType: "ReadOnly" })).toBe(true);
     expect(isReadonlyField({ prpId: "id", editType: 0 })).toBe(true);
+    expect(isReadonlyField({ prpId: "id", readOnly: false, editType: "ReadOnly" })).toBe(false);
+    expect(isReadonlyField({ prpId: "id", ReadOnly: false, EditType: 0 })).toBe(false);
     expect(isReadonlyField({ prpId: "name", readOnly: false, editType: "TextBox" })).toBe(false);
   });
 

@@ -388,6 +388,9 @@ explicitly named as authoritative for fool-service.
 - [x] Keep Vue scalar editor control selection on FoolFrame's detail render
       path: `PrpType` / `PropertyType` selects native inputs first, while
       `EditType` picker names only fill missing property-type metadata.
+- [x] Keep Vue readonly detection on FoolFrame's detail render path:
+      explicit `ReadOnly` / `readOnly` wins before `EditType=ReadOnly`
+      compatibility fallback.
 - [x] Accept numeric `PrpType` / `PropertyType` codes in Vue metadata editors
       for enum, lookup, Boolean, date, time, datetime, and numeric controls;
       keep numeric `ItemEditType` only as a compatibility fallback or

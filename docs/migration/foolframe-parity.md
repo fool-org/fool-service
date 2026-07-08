@@ -106,6 +106,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   picker values only as compatibility fallback when property type metadata is
   absent. String fields no longer become date/time/checkbox controls just
   because a business DTO or imported item carries a numeric `EditType`.
+- 2026-07-09: Vue readonly detection now follows the same detail-page
+  metadata priority: explicit `ReadOnly` / `readOnly` wins before
+  `EditType=ReadOnly` fallback. Imported rows with `ReadOnly=false` no longer
+  become disabled controls just because stale item edit-type metadata is still
+  set to readonly.
 - 2026-07-09: Vue metadata editors now render legacy `RichTextBox` /
   numeric `ItemEditType=5` fields with a native `<textarea>` and shared value
   update handling. This covers the simplest multiline legacy widget without
