@@ -249,13 +249,18 @@ const resultTotalPages = computed(() => listTotalPages(dataResponse.value?.data)
 const resultFreshTime = computed(() => listFreshTime(dataResponse.value?.data));
 const selectedObject = computed(() => resultRows.value.find((row) => rowObjectId(row, resultColumns.value) === selectedObjectId.value));
 const detailDataRows = computed(() => detailResultSimpleData(detailResponse.value?.data));
-const initNewRows = computed(() => detailResultSimpleData(initNewResponse.value?.data));
+const initNewDataRows = computed(() => detailResultSimpleData(initNewResponse.value?.data));
 const currentReadItemView = computed(() => {
   const view = readItemViewResponse.value?.data;
   return readViewId(view) === Number(detailViewId.value) ? view : undefined;
 });
+const currentInitNewReadItemView = computed(() => {
+  const view = readItemViewResponse.value?.data;
+  return readViewId(view) === Number(initNewViewId.value) ? view : undefined;
+});
 const readItemFields = computed(() => readViewFields(readItemViewResponse.value?.data));
 const detailRows = computed(() => renderedDetailFields(currentReadItemView.value, detailDataRows.value));
+const initNewRows = computed(() => renderedDetailFields(currentInitNewReadItemView.value, initNewDataRows.value));
 const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() =>
   renderedDetailGroups(currentReadItemView.value, detailResultItems(detailResponse.value?.data))
 );
@@ -1729,7 +1734,7 @@ function syncDetailDrafts() {
           </button>
 
           <div class="table-wrap input-query-results">
-            <table v-if="detailDataRows.length">
+            <table v-if="detailRows.length">
               <thead>
                 <tr>
                   <th>Property</th>
@@ -1737,7 +1742,7 @@ function syncDetailDrafts() {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in detailDataRows" :key="fieldKey(item) || fieldTitle(item)">
+                <tr v-for="item in detailRows" :key="fieldKey(item) || fieldTitle(item)">
                   <td>{{ fieldTitle(item) }}</td>
                   <td>{{ fieldDisplayValue(item) }}</td>
                 </tr>

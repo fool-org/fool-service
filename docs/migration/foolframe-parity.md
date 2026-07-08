@@ -97,6 +97,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue detail rendering no longer falls back to
+  `querydatadetail` / `initnew` DTO fields when the read-item View metadata is
+  missing or empty. Detail fields, child-group columns, and API-tool detail
+  tables now render only from loaded `getreaditemview` metadata merged with
+  data values; raw DTO groups may carry values, but they cannot define page
+  structure.
 - 2026-07-09: Vue View workflow and lookup payloads no longer keep or send a
   `ViewName` shortcut. Legacy `getlistview`, `getreaditemview`, and
   `inputquery` now require `ViewId`, keeping the runtime flow as

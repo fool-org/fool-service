@@ -204,6 +204,13 @@ describe("App defaults", () => {
     expect(detailSource).toContain("if (!readView?.data) return null");
   });
 
+  it("renders detail tool tables from read-item View metadata, not raw DTO rows", () => {
+    expect(appSource).toContain("renderedDetailFields(currentReadItemView.value");
+    expect(appSource).toContain("renderedDetailFields(currentInitNewReadItemView.value");
+    expect(appSource).not.toContain('v-if="detailDataRows.length"');
+    expect(appSource).not.toContain('v-for="item in detailDataRows"');
+  });
+
   it("does not bootstrap View/data rendering from the seeded business View", () => {
     expect(appSource).not.toContain("ref(100)");
     expect(appSource).toContain("const currentViewId = computed(() => viewId(viewResponse.value?.data))");

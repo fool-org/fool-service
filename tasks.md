@@ -36,6 +36,9 @@ explicitly named as authoritative for fool-service.
 - [x] Drive the main Vue workflow through legacy `getlistview(viewId)` then
       `querydata(viewId)` so the rendered page follows View metadata instead
       of the newer business-name query shortcut.
+- [x] Keep Vue detail/initnew rendering tied to loaded read-item View metadata;
+      raw `querydatadetail` DTO fields and child groups can no longer define
+      page structure when the View metadata is missing or empty.
 - [x] Render legacy `getmain/getsubmenu` menu entries in the Vue sidebar and
       open menu `ViewId` entries through the existing
       `getlistview(ViewId)` -> `querydata(ViewId)` workflow, including stale

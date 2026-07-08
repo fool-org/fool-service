@@ -255,9 +255,12 @@ export function detailFieldsFromReadView(
   view: ReadItemViewInfo | undefined,
   dataFields: ListDataValue[] = []
 ): ListDataValue[] {
+  if (!view) {
+    return [];
+  }
   const metadata = readViewItems(view);
   if (!metadata.length) {
-    return dataFields;
+    return [];
   }
   const valuesByKey = new Map<string, ListDataValue>();
   for (const field of dataFields) {
@@ -283,9 +286,12 @@ export function detailGroupsFromReadView(
   view: ReadItemViewInfo | undefined,
   dataGroups: QueryDataDetailItemGroup[] = []
 ): QueryDataDetailItemGroup[] {
+  if (!view) {
+    return [];
+  }
   const detailViews = readViewDetailViews(view);
   if (!detailViews.length) {
-    return dataGroups;
+    return [];
   }
 
   const dataGroupsByKey = new Map<string, QueryDataDetailItemGroup>();
@@ -310,7 +316,7 @@ export function detailGroupsFromReadView(
       name: firstDisplayValue([detail.name, detail.Name, dataGroup?.name]),
       itemName: firstDisplayValue([detail.name, detail.Name, dataGroup?.itemName]),
       prpId: fieldKey(field) || dataGroup?.prpId,
-      properties: properties.length ? properties : dataGroup?.properties || [],
+      properties,
       items: dataGroup?.items || []
     };
   });
@@ -398,7 +404,7 @@ export function itemKey(group: QueryDataDetailItemGroup, item: QueryDataDetailDa
 }
 
 export function groupColumns(group: QueryDataDetailItemGroup) {
-  return group.properties?.length ? group.properties : detailItemValues(group.items?.[0]);
+  return group.properties || [];
 }
 
 export function itemValue(item: QueryDataDetailDataItem, field: ListDataValue) {

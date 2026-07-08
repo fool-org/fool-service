@@ -269,7 +269,7 @@ describe("view workflow helpers", () => {
     expect(groups[0].items).toBe(dataGroup.items);
     expect(groupColumns(groups[0]).map(fieldKey)).toEqual(["itemId", "itemName"]);
     expect(fieldTitle(groupColumns(groups[0])[0])).toBe("Item ID");
-    expect(detailGroupsFromReadView(undefined, [dataGroup])).toEqual([dataGroup]);
+    expect(detailGroupsFromReadView(undefined, [dataGroup])).toEqual([]);
     expect(renderedDetailGroups(undefined, [dataGroup])).toEqual([]);
     expect(renderedDetailGroups(view, [dataGroup])).toEqual(groups);
   });
@@ -279,9 +279,31 @@ describe("view workflow helpers", () => {
     const view = { ViewId: 102, Items: [{ PrpId: "name", PrpShowName: "Name" }] };
 
     expect(renderedDetailFields(undefined, dataFields)).toEqual([]);
+    expect(detailFieldsFromReadView(undefined, dataFields)).toEqual([]);
+    expect(renderedDetailFields({ ViewId: 102, Items: [] }, dataFields)).toEqual([]);
     expect(renderedDetailFields(view, [{ PrpId: "name", ObjId: "Ada", FmtValue: "Ada" }])).toMatchObject([
       { prpId: "name", objId: "Ada" }
     ]);
+  });
+
+  it("does not let detail DTO groups define child view columns", () => {
+    const dataGroup = {
+      name: "DTO Items",
+      prpId: "items",
+      properties: [{ prpId: "dtoOnly", prpShowName: "DTO Only" }],
+      items: [
+        {
+          dataId: "2001",
+          values: [{ prpId: "dtoOnly", objId: "ignored", fmtValue: "Ignored" }]
+        }
+      ]
+    };
+
+    expect(renderedDetailGroups({ ViewId: 102, DetailViews: [] }, [dataGroup])).toEqual([]);
+    expect(groupColumns(renderedDetailGroups({
+      ViewId: 102,
+      DetailViews: [{ Name: "Items", PrpId: "items", Items: [] }]
+    }, [dataGroup])[0])).toEqual([]);
   });
 
   it("reads querydatadetail rows and child items from legacy or camel result payloads", () => {
