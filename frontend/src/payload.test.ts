@@ -185,6 +185,13 @@ describe("App defaults", () => {
     expect(metadataFieldEditorSource).not.toContain("viewName");
   });
 
+  it("passes parent context into child lookup editors", () => {
+    expect(metadataFieldEditorSource).toContain("ownerId: props.ownerId");
+    expect(appSource).toContain(':owner-id="selectedObjectId"');
+    expect(appSource).toContain(':is-added="true"');
+    expect(appSource).toContain(':object-id="itemDataId(item)"');
+  });
+
   it("does not keep ViewName as a frontend lookup or workflow shortcut", () => {
     const inputQueryRequestSource = apiSource.slice(
       apiSource.indexOf("export interface InputQueryRequest"),

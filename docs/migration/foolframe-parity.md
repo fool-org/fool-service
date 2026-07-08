@@ -97,6 +97,14 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: legacy `inputquery` source-list lookup now treats `#.` as
+  owner-context for both added and existing child items. Backend lookup loads
+  the owner model by `OwnerId`, strips the `#.` prefix for the source-list
+  key, and still falls back to the normal target-model candidate query when
+  no source list is available. Vue metadata lookup editors now pass child-row
+  owner context through `ownerId` and use child item ids for existing child
+  lookups, keeping candidate loading tied to rendered View metadata plus the
+  parent object context instead of a concrete business DTO shortcut.
 - 2026-07-09: legacy `querydatadetail.IdExp` now reuses the shared
   `OperationCommandValueResolver` before detail data lookup. Empty `objId`
   requests still load the `View` first, resolve the target model from

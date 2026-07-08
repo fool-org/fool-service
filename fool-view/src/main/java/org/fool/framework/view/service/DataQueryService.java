@@ -247,14 +247,14 @@ public class DataQueryService {
         String sourceExpression = sourceExpression(viewItem, property);
         if (!StringUtils.hasText(sourceExpression)
                 || showProperty == null
-                || !StringUtils.hasText(sourceKey(sourceExpression, request.isAdded()))) {
+                || !StringUtils.hasText(sourceKey(sourceExpression))) {
             return null;
         }
         List<IDynamicData> owners = sourceOwners(request, modelId, model, sourceExpression);
         if (owners.isEmpty()) {
             return null;
         }
-        Object source = owners.get(0).get(sourceKey(sourceExpression, request.isAdded()));
+        Object source = owners.get(0).get(sourceKey(sourceExpression));
         if (!(source instanceof Iterable<?> items)) {
             return null;
         }
@@ -277,11 +277,10 @@ public class DataQueryService {
             String modelId,
             Model model,
             String sourceExpression) {
-        if (request.isAdded()) {
+        if (sourceExpression != null && sourceExpression.trim().startsWith("#.")) {
             Model ownerModel = model.getOwner();
             if (!StringUtils.hasText(request.getOwnerId())
                     || ownerModel == null
-                    || !sourceExpression.trim().startsWith("#.")
                     || ownerModel.getIdProperty() == null
                     || !StringUtils.hasText(ownerModel.getIdProperty().getColumn())
                     || ownerModel.getProperties() == null) {
@@ -291,6 +290,9 @@ public class DataQueryService {
                     ownerModel.getName(),
                     new CompareFilter(ownerModel.getIdProperty().getColumn(), CompareOp.EQUAL, request.getOwnerId()),
                     ownerModel.getProperties());
+        }
+        if (request.isAdded()) {
+            return List.of();
         }
         if (!StringUtils.hasText(request.getObjID())
                 || model.getIdProperty() == null
@@ -303,9 +305,9 @@ public class DataQueryService {
                 model.getProperties());
     }
 
-    private String sourceKey(String sourceExpression, boolean ownerContext) {
+    private String sourceKey(String sourceExpression) {
         String expression = sourceExpression == null ? "" : sourceExpression.trim();
-        if (ownerContext && expression.startsWith("#.")) {
+        if (expression.startsWith("#.")) {
             return expression.substring(2);
         }
         if (expression.startsWith(".")) {

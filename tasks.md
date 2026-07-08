@@ -366,6 +366,9 @@ explicitly named as authoritative for fool-service.
 - [x] Evaluate legacy `querydatadetail.IdExp` through the shared
       `OperationCommandValueResolver` before detail data lookup, keeping
       empty-`objId` loading View-first and avoiding a second expression parser.
+- [x] Let legacy `inputquery` owner source-list expressions (`#.`) work for
+      existing child rows as well as added rows, and pass Vue child lookup
+      owner context through the shared metadata field editor.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

@@ -425,6 +425,65 @@ public class DataQueryServiceInputQueryTest {
                 eq(true));
     }
 
+    @Test
+    public void inputQueryFiltersExistingItemSourceListFromOwnerContext() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        DataQueryService service = new DataQueryService();
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+        ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
+        ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
+
+        Model customer = model("Customer", "customer", "customerId", "customer_id", "customerName", "customer_name");
+        Property customerProperty = property("customer", "customer_id");
+        customerProperty.setPropertyType(PropertyType.BusinessObject);
+        customerProperty.setPropertyModel(customer);
+        Model order = model("Order", "market_order", "orderId", "order_id", "orderId", "order_id");
+        Model orderItem = model("OrderItem", "market_order_item", "itemId", "item_id", "itemName", "item_name");
+        orderItem.setOwner(order);
+        orderItem.setProperties(List.of(orderItem.getIdProperty(), customerProperty));
+        ViewItem customerItem = viewItem("Customer", "customer");
+        customerItem.setSourceExpression("#.availableCustomers");
+        View view = new View();
+        view.setViewName("OrderItemEdit");
+        view.setViewModel("OrderItem");
+        view.setListItems(List.of(customerItem));
+        IDynamicData owner = mock(IDynamicData.class);
+        IDynamicData alice = dynamic("1001", "Alice");
+        IDynamicData bob = dynamic("1002", "Bob");
+        IDynamicData alina = dynamic("1003", "ALINA");
+        when(owner.get("availableCustomers")).thenReturn(List.of(alice, bob, alina));
+        when(daoService.getOneDetailByKey(View.class, "200")).thenReturn(view);
+        when(daoService.getOneDetailByKey(Model.class, "OrderItem")).thenReturn(orderItem);
+        when(modelDataService.getDataList(eq("OrderItem"), any(IQueryFilter.class), eq(orderItem.getProperties())))
+                .thenReturn(List.of(mock(IDynamicData.class)));
+        when(modelDataService.getDataList(eq("Order"), any(IQueryFilter.class), eq(order.getProperties())))
+                .thenReturn(List.of(owner));
+        InputQueryRequest request = new InputQueryRequest();
+        request.setViewId(200L);
+        request.setViewItemId("Customer");
+        request.setObjID("6001");
+        request.setOwnerId("5001");
+        request.setText("ali");
+
+        InputQueryResult result = service.inputQuery(request);
+
+        assertEquals(2, result.getItems().size());
+        assertEquals("1001", result.getItems().get(0).getId());
+        assertEquals("1003", result.getItems().get(1).getId());
+        ArgumentCaptor<IQueryFilter> filterCaptor = ArgumentCaptor.forClass(IQueryFilter.class);
+        verify(modelDataService).getDataList(eq("Order"), filterCaptor.capture(), eq(order.getProperties()));
+        assertEquals("`order_id`= ?", filterCaptor.getValue().generateSql().getSql());
+        assertArrayEquals(new Object[]{"5001"}, filterCaptor.getValue().generateSql().getArgs());
+        verify(modelDataService, never()).getDataListWithPageInfo(
+                eq("Customer"),
+                any(IQueryFilter.class),
+                anyList(),
+                any(PageNavigator.class),
+                eq("customer_id"),
+                eq(true));
+    }
+
     private static ViewItem viewItem(String itemName, String modelProperty) {
         ViewItem item = new ViewItem();
         item.setItemName(itemName);

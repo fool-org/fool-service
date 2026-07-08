@@ -1250,6 +1250,9 @@ function syncDetailDrafts() {
                       :field="field"
                       :options="enumFieldOptions(enumOptions, field)"
                       v-bind="fieldEditorContext"
+                      :is-added="true"
+                      :object-id="''"
+                      :owner-id="selectedObjectId"
                     />
                   </label>
                   <button type="button" :disabled="Boolean(pendingAction)" @click="addDetailItem(group)">Add</button>
@@ -1308,6 +1311,9 @@ function syncDetailDrafts() {
                       :options="enumFieldOptions(enumOptions, field)"
                       :readonly-value="itemValue(item, field)"
                       v-bind="fieldEditorContext"
+                      :is-added="false"
+                      :object-id="itemDataId(item)"
+                      :owner-id="selectedObjectId"
                     />
                   </label>
                   <button type="button" :disabled="Boolean(pendingAction)" @click="updateDetailItem(group, item)">

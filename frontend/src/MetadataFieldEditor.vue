@@ -21,6 +21,7 @@ const props = withDefaults(
     token?: string;
     viewId?: number;
     objectId?: string;
+    ownerId?: string;
     isAdded?: boolean;
     lookupDisabled?: boolean;
     readonlyValue?: string;
@@ -29,6 +30,7 @@ const props = withDefaults(
     isAdded: false,
     lookupDisabled: false,
     objectId: "",
+    ownerId: "",
     options: () => [],
     readonlyValue: "",
     token: "",
@@ -62,6 +64,7 @@ async function searchLookup() {
         viewItemId: fieldKey(props.field),
         text: lookupTerm.value,
         objID: props.objectId,
+        ownerId: props.ownerId,
         isAdded: props.isAdded
       })
     );
