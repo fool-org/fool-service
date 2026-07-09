@@ -565,6 +565,8 @@ explicitly named as authoritative for fool-service.
       Docker runtime doctor schema contract used by the Vue View-first flow.
 - [x] Preserve FoolFrame no-op semantics for missing legacy trigger
       `ExuteListMethod` list methods while keeping real Java list invocation.
+- [x] Remove stale WCF/JSON base-operation wording from remaining migration
+      work after rechecking the current no-op runtime/test evidence.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

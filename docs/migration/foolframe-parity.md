@@ -1004,7 +1004,7 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   model layer, so View-driven `saveobj` writes can pick up metadata-defined
   side effects without binding the migrated page to concrete business DTOs.
   ItemsAdd/ItemsDelete property triggers, non-`SET_VALUE` commands, trigger
-  filters, and external/WCF/JSON invocation paths remain backlog.
+  filters, and external-model invocation paths remain backlog.
 - 2026-07-04: the Vue API-tools `Query Data` action now loads
   `getlistview(ViewId)` before calling `querydata` and sends the query through
   the loaded `currentViewId`. This keeps the shared row/table state aligned
@@ -1320,8 +1320,8 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   test evidence for the FoolFrame `db.GetDetail(model, id)` behavior: it loads
   the target object by `SW_SYS_COMMAND_ARGID`, maps
   `SW_SYS_COMMAND_ARGEXP` back to the source object, and does not persist the
-  target object. Richer nested external-model edge cases, WCF/JSON operation
-  types, and trigger side effects remain future work.
+  target object. Richer nested external-model edge cases and trigger side
+  effects remain future work.
 - 2026-07-03: added legacy `runoperation`
   `BaseOperationType.Assebmly` execution for Java classpath handlers.
   `CommandsType.SetParamValue` and `CommandsType.SetConStrValue` now collect
@@ -1329,8 +1329,7 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   migrated path instantiates `SW_MODEL_OPERATION_INVOKECLASS` and invokes
   `SW_MODEL_OPERATION_INVOKEMETHOD` with the current `IDynamicData` plus method
   parameters. `SW_MODEL_OPERATION_INVOKEDLL` is intentionally not loaded yet;
-  WCF/JSON operation types, richer external-model edge cases, and trigger side
-  effects remain future work.
+  richer external-model edge cases and trigger side effects remain future work.
 - 2026-07-03: added legacy `runoperation`
   `CommandsType.ExuteListMethod` for list proxy objects. When a command targets
   a property whose current value exposes the named no-arg method, the migrated
@@ -1361,16 +1360,15 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-03: extended legacy `runoperation` to `BaseOperationType.Create`.
   The existing hydrated object and command pipeline now runs through
   `ModelDataService.createData` before returning the legacy operation success
-  message. WCF, JSON, richer external-model edge cases, and trigger side
-  effects remain future work.
+  message. Richer external-model edge cases and trigger side effects remain
+  future work.
 - 2026-07-03: hydrated legacy `SW_SYS_OPERATION` runtime metadata for
   `runoperation`. View-operation loading now carries
   `SW_MODEL_OPERATION_FILTER`, `SW_MODEL_OPERATION_ARGMODEL`,
   `SW_MODEL_OPERATION_ARGFILTER`, `SW_MODEL_OPERATION_INVOKEDLL`,
   `SW_MODEL_OPERATION_INVOKECLASS`, `SW_MODEL_OPERATION_INVOKEMETHOD`, and
-  `SW_MODEL_OPERATION_RETURNMODEL` onto the runtime `Operation` object.
-  WCF/JSON operation types and richer external-model edge cases remain future
-  work.
+  `SW_MODEL_OPERATION_RETURNMODEL` onto the runtime `Operation` object. Richer
+  external-model edge cases remain future work.
 - 2026-07-03: added legacy `runoperation` `Filter` command execution.
   `SW_SYS_COMMANDS` runtime hydration now includes arg/property/temp columns,
   command execution preserves command index order, and `Filter` guards query the
@@ -1813,10 +1811,12 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Complete remaining `SCPB05-Soway.Model` runtime data mutations only for
   richer collection state parity, richer external-model edge cases, and
   cross/routed-connection transaction behavior. The previously listed
-  command-type gap is no longer counted as open work: the Java enum preserves
-  the FoolFrame ordinals, mutating command slices are covered by the shared
-  trigger/runoperation command path, `SetAccess` is event-only in FoolFrame,
-  and `SetSource` is not executed by `ModelMethodContext`.
+  command-type and WCF/JSON base-operation items are closed: the Java enum
+  preserves the FoolFrame ordinals, mutating command slices are covered by the
+  shared trigger/runoperation command path, WCF/JSON base operations
+  intentionally keep FoolFrame's no-op success surface, `SetAccess` is
+  event-only in FoolFrame, and `SetSource` is not executed by
+  `ModelMethodContext`.
 - Continue `SWDQ01-Soway.Query` only when a new legacy query surface is
   identified beyond the currently migrated bool-expression SQL generation,
   selected table/column state, query/report parameter containers,
