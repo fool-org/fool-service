@@ -26,6 +26,8 @@ explicitly named as authoritative for fool-service.
       generated item SQL.
 - [x] Roll back legacy model parent and owned collection writes together
       through the public `ModelDataService` mutation entrypoints.
+- [x] Create missing target rows before writing legacy Many2Many/Recurve
+      relation rows through the shared dynamic create path.
 - [x] Recheck legacy `runoperation` model-trigger side effects against
       FoolFrame and remove the stale remaining-work item after focused
       runoperation/persistence trigger tests.

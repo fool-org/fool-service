@@ -834,6 +834,9 @@ public class ModelDataService {
                 if (item instanceof IDynamicData itemData) {
                     attachOwner(itemData, data);
                     Object itemId = dynamicId(itemData, relation.getProperty().getPropertyModel());
+                    if (itemId != null && !dataExists(itemData, relation.getProperty().getPropertyModel())) {
+                        createData(itemData, null, null, false, false);
+                    }
                     if (itemId != null && !relationExists(relation, parentId, itemId)) {
                         executePropertyItemTriggers(relation.getProperty(), itemData, PropertyTriggerType.ITEMS_ADD);
                         insertRelation(relation, parentId, itemId);

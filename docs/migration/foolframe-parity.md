@@ -99,6 +99,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: legacy Many2Many/Recurve relation writes now create missing
+  target rows before inserting relation rows, matching FoolFrame
+  `CreateComplexRelationBuild` while reusing the existing dynamic
+  `createData` path.
 - 2026-07-09: legacy recursive `#` owner expressions now resolve through the
   shared `OperationCommandValueResolver`, so nested owner paths such as
   `##.accountName` reuse the same expression path as one-level `#.` values.

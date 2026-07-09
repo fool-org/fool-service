@@ -1027,6 +1027,36 @@ public class ModelDataServiceTest {
     }
 
     @Test
+    public void createDataCreatesMissingLegacyManyToManyTargetRows() {
+        String orderTable = "runtime_create_relation_new_order";
+        String roleTable = "runtime_create_relation_new_role";
+        String relationTable = "runtime_create_new_order_role";
+        cleanupRuntimeManyToManyTables(orderTable, roleTable, relationTable);
+        try {
+            createRuntimeManyToManyTables(orderTable, roleTable, relationTable);
+            Model order = manyToManyOrderModel(orderTable, roleTable, relationTable);
+            DbMysqlDynamic data = manyToManyOrderData(order, "9002", "Created relation", "R9", "New role");
+
+            assertEquals(Boolean.TRUE, modelDataService.createData(data));
+
+            Integer roleCount = jdbcTemplate.queryForObject(
+                    "SELECT COUNT(*) FROM `" + roleTable + "` WHERE `ROLE_ID` = ? AND `ROLE_NAME` = ?",
+                    Integer.class,
+                    "R9",
+                    "New role");
+            Integer relationCount = jdbcTemplate.queryForObject(
+                    "SELECT COUNT(*) FROM `" + relationTable + "` WHERE `ROLE_ID` = ? AND `ORDER_ID` = ?",
+                    Integer.class,
+                    "R9",
+                    "9002");
+            assertEquals(1, roleCount.intValue());
+            assertEquals(1, relationCount.intValue());
+        } finally {
+            cleanupRuntimeManyToManyTables(orderTable, roleTable, relationTable);
+        }
+    }
+
+    @Test
     public void saveDataWritesLegacyManyToManyRelationRows() {
         String orderTable = "runtime_save_relation_order";
         String roleTable = "runtime_save_relation_role";
