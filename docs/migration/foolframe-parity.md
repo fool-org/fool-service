@@ -99,6 +99,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: the Docker runtime doctor now guards the legacy event/message
+  schema used by the migrated scheduler and message polling path:
+  `SW_EVT_DEF`, `SW_EVT_EVENT`, and `SW_SYS_MSG` columns read or written by
+  event definition loading, event de-duplication, message persistence, and
+  `getmsg` push-state updates.
 - 2026-07-09: the Docker runtime doctor now guards the remaining AppManage
   mapped schema columns used by installed modules, model metadata,
   enum-value metadata, trigger/operation primary keys, and company/department

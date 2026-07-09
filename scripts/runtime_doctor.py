@@ -298,6 +298,37 @@ LEGACY_CORE_SCHEMA_COLUMNS = (
     ("SW_SYS_PROPERTY_TRIGGER_COMMANDS", "SW_SYS_COMMAND_INDEX"),
     ("SW_SYS_PROPERTY_TRIGGER_COMMANDS", "SW_SYS_COMMAND_PROPERTY_EXP"),
     ("SW_SYS_PROPERTY_TRIGGER_COMMANDS", "SW_SYS_COMMAND_TEMPVALUE"),
+    ("SW_EVT_DEF", "EVTDEF_ID"),
+    ("SW_EVT_DEF", "EVTDEF_FILTER"),
+    ("SW_EVT_DEF", "EVTDEF_VIEW"),
+    ("SW_EVT_DEF", "EVTDEF_OPERATION"),
+    ("SW_EVT_DEF", "EVTDEF_MSGFMT"),
+    ("SW_EVT_DEF", "EVTDEF_TIMEOUTSECS"),
+    ("SW_EVT_DEF", "EVTDEF_MODEL"),
+    ("SW_EVT_DEF", "EVTDEF_MODELREF"),
+    ("SW_EVT_DEF", "EVTDEF_STATE"),
+    ("SW_EVT_EVENT", "EVT_ID"),
+    ("SW_EVT_EVENT", "EVT_CREATETIME"),
+    ("SW_EVT_EVENT", "EVT_MSG"),
+    ("SW_EVT_EVENT", "EVT_DEALMSG"),
+    ("SW_EVT_EVENT", "EVT_DEALTIME"),
+    ("SW_EVT_EVENT", "EVT_DEALUSER"),
+    ("SW_EVT_EVENT", "EVT_VIEW"),
+    ("SW_EVT_EVENT", "EVT_DEF"),
+    ("SW_EVT_EVENT", "EVT_Defination"),
+    ("SW_SYS_MSG", "MSG_ID"),
+    ("SW_SYS_MSG", "MSG_EVT"),
+    ("SW_SYS_MSG", "MSG_VIEW"),
+    ("SW_SYS_MSG", "MSG_OBJ"),
+    ("SW_SYS_MSG", "MSG_MSG"),
+    ("SW_SYS_MSG", "MSG_CREATETIME"),
+    ("SW_SYS_MSG", "MSG_READTIME"),
+    ("SW_SYS_MSG", "MSG_PUSHTIME"),
+    ("SW_SYS_MSG", "MSG_ENDLINETIME"),
+    ("SW_SYS_MSG", "MSG_STATE"),
+    ("SW_SYS_MSG", "MSG_READOPERATION"),
+    ("SW_SYS_MSG", "MSG_USERID"),
+    ("SW_SYS_MSG", "MSG_MSGTYPE"),
 )
 
 
@@ -416,7 +447,7 @@ def run_mysql_schema_checks() -> list[CheckResult]:
     results.append(CheckResult(
         "mysql:legacy-core-schema",
         legacy_core_schema_ok(completed.stdout),
-        "View-first legacy auth/app/model/view/operation schema is present",
+        "View-first legacy auth/app/model/view/operation/event/message schema is present",
     ))
     return results
 

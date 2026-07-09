@@ -252,6 +252,39 @@ class RuntimeDoctorTest(unittest.TestCase):
             ("SW_SYS_EMUNVALUE", "EMUN_VALUE"),
             ("SW_SYS_EMUNVALUE", "SW_SYS_MODEL_EnumValuesMODEL_ID"),
         )
+        event_message_columns = (
+            ("SW_EVT_DEF", "EVTDEF_ID"),
+            ("SW_EVT_DEF", "EVTDEF_FILTER"),
+            ("SW_EVT_DEF", "EVTDEF_VIEW"),
+            ("SW_EVT_DEF", "EVTDEF_OPERATION"),
+            ("SW_EVT_DEF", "EVTDEF_MSGFMT"),
+            ("SW_EVT_DEF", "EVTDEF_TIMEOUTSECS"),
+            ("SW_EVT_DEF", "EVTDEF_MODEL"),
+            ("SW_EVT_DEF", "EVTDEF_MODELREF"),
+            ("SW_EVT_DEF", "EVTDEF_STATE"),
+            ("SW_EVT_EVENT", "EVT_ID"),
+            ("SW_EVT_EVENT", "EVT_CREATETIME"),
+            ("SW_EVT_EVENT", "EVT_MSG"),
+            ("SW_EVT_EVENT", "EVT_DEALMSG"),
+            ("SW_EVT_EVENT", "EVT_DEALTIME"),
+            ("SW_EVT_EVENT", "EVT_DEALUSER"),
+            ("SW_EVT_EVENT", "EVT_VIEW"),
+            ("SW_EVT_EVENT", "EVT_DEF"),
+            ("SW_EVT_EVENT", "EVT_Defination"),
+            ("SW_SYS_MSG", "MSG_ID"),
+            ("SW_SYS_MSG", "MSG_EVT"),
+            ("SW_SYS_MSG", "MSG_VIEW"),
+            ("SW_SYS_MSG", "MSG_OBJ"),
+            ("SW_SYS_MSG", "MSG_MSG"),
+            ("SW_SYS_MSG", "MSG_CREATETIME"),
+            ("SW_SYS_MSG", "MSG_READTIME"),
+            ("SW_SYS_MSG", "MSG_PUSHTIME"),
+            ("SW_SYS_MSG", "MSG_ENDLINETIME"),
+            ("SW_SYS_MSG", "MSG_STATE"),
+            ("SW_SYS_MSG", "MSG_READOPERATION"),
+            ("SW_SYS_MSG", "MSG_USERID"),
+            ("SW_SYS_MSG", "MSG_MSGTYPE"),
+        )
         raw = "\n".join(
             f"{table}\t{column}" for table, column in runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS
         )
@@ -259,6 +292,7 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertTrue(set(view_render_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
         self.assertTrue(set(auth_shell_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
         self.assertTrue(set(app_manage_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
+        self.assertTrue(set(event_message_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
         self.assertTrue(schema_ok(raw))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_VIEW_ITEM\tVIEW_ITEM_PROPERTY\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_VIEW_ITEM\tVIEW_ITEM_NAME\n", "")))
@@ -275,6 +309,9 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertFalse(schema_ok(raw.replace("SW_APP_AUTH_MENU\tAUTH_MENU_VIEWID\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_MODULE\tMODULE_NAME\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_EMUNVALUE\tEMUN_STR\n", "")))
+        self.assertFalse(schema_ok(raw.replace("SW_EVT_DEF\tEVTDEF_STATE\n", "")))
+        self.assertFalse(schema_ok(raw.replace("SW_EVT_EVENT\tEVT_Defination\n", "")))
+        self.assertFalse(schema_ok(raw.replace("SW_SYS_MSG\tMSG_STATE\n", "")))
 
     def test_common_response_list_requires_success_and_nonempty_list(self) -> None:
         self.assertTrue(common_response_list({"code": 0, "data": {"items": [1]}}, "items"))

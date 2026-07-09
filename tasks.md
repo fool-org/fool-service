@@ -514,6 +514,9 @@ explicitly named as authoritative for fool-service.
 - [x] Extend Docker runtime-doctor coverage to the remaining AppManage mapped
       schema columns for installed modules, model metadata, enum values,
       trigger/operation primary keys, and company/department auth graph tables.
+- [x] Extend Docker runtime-doctor coverage to the legacy event/message schema
+      used by the migrated scheduler and message polling path:
+      `SW_EVT_DEF`, `SW_EVT_EVENT`, and `SW_SYS_MSG`.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
