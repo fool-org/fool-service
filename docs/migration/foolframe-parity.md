@@ -135,6 +135,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   DBMaps runtime/query and arbitrary classpath dependency-enumeration gaps
   instead of relisting covered install, reflection, metadata, enum, and routed
   transaction slices.
+- 2026-07-09: legacy collection item SQL now selects DBMaps columns for child
+  rows with the same `property_mapName` aliases used by list-query DBMaps
+  loading. Child collection rows with multi-column BusinessObject snapshots can
+  therefore hydrate through the existing `Mapper` DBMaps path instead of losing
+  those values during `generateItems`.
 - 2026-07-09: legacy trigger command execution now covers
   `ExuteProprtyModelMethod` and `ExuteListMethod` in the shared
   `ModelDataService` trigger path. Model, property, and collection triggers
@@ -1673,13 +1678,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 ## Remaining Migration Work
 
 - Continue concrete `AppInstallGateway` parity only for deeper DBMaps
-  query/runtime behavior beyond same-row dynamic loading and list-query alias
-  mapping, and arbitrary classpath dependency enumeration beyond model-type
-  references. Application/user/menu/role install records, configured
-  model/static/reflective module-source schema wiring, reflection relation
-  generation, `ColumnAttribute` metadata, enum metadata persistence, routed
-  DAO reuse, and per-routed-connection transaction boundaries are covered by
-  the current module map and tests.
+  query/runtime behavior beyond same-row dynamic loading, list-query alias
+  mapping, and collection item selection, plus arbitrary classpath dependency
+  enumeration beyond model-type references. Application/user/menu/role install
+  records, configured model/static/reflective module-source schema wiring,
+  reflection relation generation, `ColumnAttribute` metadata, enum metadata
+  persistence, routed DAO reuse, and per-routed-connection transaction
+  boundaries are covered by the current module map and tests.
 - Complete remaining `SCPB05-Soway.Model` runtime data mutations only for
   richer collection state parity, richer external-model edge cases, and
   model-runtime routed-connection transaction behavior. The previously listed

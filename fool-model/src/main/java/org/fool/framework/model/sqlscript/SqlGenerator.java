@@ -295,10 +295,34 @@ public class SqlGenerator {
     private List<String> itemColumns(Model model, boolean qualify) {
         return model.getProperties().stream()
                 .filter(property -> !Boolean.TRUE.equals(property.getIsCollection()))
-                .map(Property::getColumn)
-                .filter(StringUtils::hasText)
-                .map(column -> qualify ? "`" + model.getTableName() + "`.`" + column + "` AS `" + column + "`" : column)
+                .flatMap(property -> itemColumnExpressions(model, property, qualify).stream())
                 .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private List<String> itemColumnExpressions(Model model, Property property, boolean qualify) {
+        if (Boolean.TRUE.equals(property.getMultiMap())) {
+            return safeDbMaps(property).stream()
+                    .filter(map -> map != null)
+                    .filter(map -> StringUtils.hasText(map.getColumnName()))
+                    .map(map -> itemColumnExpression(
+                            model,
+                            map.getColumnName(),
+                            property.getName() + "_"
+                                    + (StringUtils.hasText(map.getPropertyName())
+                                    ? map.getPropertyName()
+                                    : map.getColumnName()),
+                            qualify))
+                    .toList();
+        }
+        if (!StringUtils.hasText(property.getColumn())) {
+            return List.of();
+        }
+        return List.of(itemColumnExpression(model, property.getColumn(), property.getColumn(), qualify));
+    }
+
+    private String itemColumnExpression(Model model, String column, String alias, boolean qualify) {
+        String expression = qualify ? "`" + model.getTableName() + "`.`" + column + "`" : column;
+        return qualify || !Objects.equals(column, alias) ? expression + " AS `" + alias + "`" : expression;
     }
 
     private Relation itemRelation(Model parentModel, Property property) {

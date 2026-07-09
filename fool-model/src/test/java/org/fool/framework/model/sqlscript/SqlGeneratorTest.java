@@ -266,6 +266,39 @@ public class SqlGeneratorTest {
     }
 
     @Test
+    public void generateItemsSelectsLegacyMultiDbMapColumnsForCollectionRows() {
+        Model customer = model("Customer", "customer");
+        customer.setProperties(List.of(property("customerId", "customer_id"), property("customerName", "customer_name")));
+
+        Model order = model("Order", "market_order");
+        Property lines = property("lines", "lines");
+        Model line = model("Line", "order_line");
+        Property customerSnapshot = property("customer", null);
+        customerSnapshot.setPropertyType(PropertyType.BusinessObject);
+        customerSnapshot.setPropertyModel(customer);
+        customerSnapshot.setMultiMap(true);
+        customerSnapshot.setDbMaps(List.of(
+                new org.fool.framework.model.model.MultiDbMap("customerId", "customer_id"),
+                new org.fool.framework.model.model.MultiDbMap("customerName", "customer_name")));
+        line.setProperties(List.of(property("lineId", "line_id"), customerSnapshot));
+        lines.setPropertyModel(line);
+        lines.setIsCollection(true);
+        Relation relation = relation(lines, RelationType.One2Many, "order_line", "line_id", "order_id");
+        order.setRelations(List.of(relation));
+
+        QueryAndArgs query = new SqlGenerator().generateItems(order, lines, List.of("1001"));
+
+        assertEquals(
+                "SELECT `order_line`.`line_id` AS `line_id`,"
+                        + "`order_line`.`customer_id` AS `customer_customerId`,"
+                        + "`order_line`.`customer_name` AS `customer_customerName`,"
+                        + "`order_line`.`order_id` AS `__parent_id`"
+                        + " FROM `order_line` WHERE 1=1  AND `order_line`.`order_id` in (?)",
+                query.getSql());
+        assertArrayEquals(new Object[]{"1001"}, query.getArgs());
+    }
+
+    @Test
     public void generateItemsUsesLegacyManyToManyRelationTableForParentIds() {
         Model order = model("Order", "market_order");
         Property roles = property("roles", "roles");
