@@ -1262,6 +1262,28 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         columns = view_state.get("columns")
         return bool(object_id) and isinstance(columns, list) and query_rows_match_view(rows, columns)
 
+    def querylist_legacy_web_payload_ok() -> bool:
+        view_id = loaded_list_view_id()
+        if not view_id:
+            return False
+        payload = post_json(
+            f"{frontend_url}/api/v1/data/querylist",
+            {
+                "viewid": view_id,
+                "filter": None,
+                "page": 1,
+                "pagesize": 2,
+                "orderitem": 0,
+                "ordertype": 0,
+            },
+            timeout,
+        )
+        if not common_response_ok(payload):
+            return False
+        rows = list_rows(payload["data"])
+        columns = view_state.get("columns")
+        return bool(rows) and isinstance(columns, list) and query_rows_match_view(rows, columns)
+
     def runoperation_aliases_ok() -> bool:
         view_id = loaded_list_view_id()
         object_id = view_state.get("objectId")
@@ -1427,6 +1449,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "data:querydata",
             querydata_ok,
             "POST /api/v1/data/querydata uses loaded list view id and returns a row object id",
+        ),
+        (
+            "data:querylist-legacy-web-payload",
+            querylist_legacy_web_payload_ok,
+            "POST /api/v1/data/querylist accepts legacy Web viewid/filter/page/pagesize aliases",
         ),
         (
             "data:querydata-items",

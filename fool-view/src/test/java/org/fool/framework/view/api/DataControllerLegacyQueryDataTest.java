@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -35,6 +36,30 @@ public class DataControllerLegacyQueryDataTest {
         assertEquals("state=0", request.getQueryFilter());
         assertEquals(Integer.valueOf(2), request.getOrderByItem());
         assertEquals(Integer.valueOf(1), request.getOrderByType());
+    }
+
+    @Test
+    public void queryDataRequestAcceptsLegacyWebQueryListFields() throws Exception {
+        LegacyQueryDataRequest request = new ObjectMapper().readValue(
+                "{\"Token\":\"token-1\",\"viewid\":42,\"pagesize\":20,\"page\":3,\"filter\":\"state=0\",\"orderitem\":2,\"ordertype\":1}",
+                LegacyQueryDataRequest.class);
+
+        assertEquals("token-1", request.getToken());
+        assertEquals(Long.valueOf(42), request.getViewId());
+        assertEquals(Integer.valueOf(20), request.getPageSize());
+        assertEquals(Integer.valueOf(3), request.getPageIndex());
+        assertEquals("state=0", request.getQueryFilter());
+        assertEquals(Integer.valueOf(2), request.getOrderByItem());
+        assertEquals(Integer.valueOf(1), request.getOrderByType());
+    }
+
+    @Test
+    public void queryDataAlsoExposesLegacyQueryListRoute() throws Exception {
+        var mapping = DataController.class
+                .getMethod("queryData", LegacyQueryDataRequest.class)
+                .getAnnotation(org.springframework.web.bind.annotation.PostMapping.class);
+
+        assertEquals(true, List.of(mapping.value()).contains("/querylist"));
     }
 
     @Test

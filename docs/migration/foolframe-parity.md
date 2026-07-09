@@ -30,6 +30,7 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"pageInfo":{"pageSize":10,"pageIndex":1},"filter":{"orderId":{"values":["1001","1002"]}}}' http://localhost:8080/api/v1/data/query-list`
   `curl -H 'Content-Type: application/json' -d '{"viewId":100,"pageSize":10,"pageIndex":1,"queryFilter":"order_state=\"0\""}' http://localhost:8080/api/v1/data/querydata`
   `curl -H 'Content-Type: application/json' -d '{"Token":"token-1","ViewId":100,"PageSize":2,"PageIndex":1,"QueryFilter":"order_state=\"0\"","OrderByItem":0,"OrderByType":0}' http://localhost:8080/api/v1/data/querydata`
+  `curl -H 'Content-Type: application/json' -d '{"viewid":100,"filter":null,"page":1,"pagesize":2,"orderitem":0,"ordertype":0}' http://localhost:8081/api/v1/data/querylist`
   `curl -H 'Content-Type: application/json' -d '{"viewId":100,"objId":"1001"}' http://localhost:8080/api/v1/data/querydatadetail`
   `curl -H 'Content-Type: application/json' -d '{"viewId":100,"objId":"","IdExp":"$1001"}' http://localhost:8081/api/v1/data/querydatadetail`
   `curl -H 'Content-Type: application/json' -d '{"viewId":100,"objId":"","IdExp":""}' http://localhost:8081/api/v1/data/querydatadetail`
@@ -101,6 +102,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: the backend now accepts the old FoolFrame Web list-query
+  protocol at `/api/v1/data/querylist`, including `viewid` / `filter` /
+  `page` / `pagesize` / `orderitem` / `ordertype` aliases from
+  `querylistdata.js`, while reusing the existing View-first `querydata`
+  service path. The Docker runtime doctor proves the route through the Vue
+  proxy.
 - 2026-07-10: the backend now accepts the old FoolFrame Web report execution
   route at `/api/v1/report/mkrpt`, including the `viewid` / `cols` /
   `pagesize` / `pageindex` / `exp` payload from `mkreport.js`, while reusing

@@ -89,6 +89,10 @@ explicitly named as authoritative for fool-service.
 - [x] Drive the main Vue workflow through legacy `getlistview(viewId)` then
       `querydata(viewId)` so the rendered page follows View metadata instead
       of the newer business-name query shortcut.
+- [x] Accept the old FoolFrame Web `/data/querylist` protocol shape at the
+      backend data boundary as `/api/v1/data/querylist`, including
+      `viewid` / `filter` / `page` / `pagesize` / `orderitem` / `ordertype`
+      aliases.
 - [x] Keep Vue detail/initnew rendering tied to loaded read-item View metadata;
       raw `querydatadetail` DTO fields and child groups can no longer define
       page structure when the View metadata is missing or empty.

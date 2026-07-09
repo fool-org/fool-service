@@ -53,7 +53,7 @@ public class DataController {
                         request.getKeyword()));
     }
 
-    @PostMapping("/querydata")
+    @PostMapping({"/querydata", "/querylist"})
     @ResponseBody
     public CommonResponse<ListViewResult> queryData(@RequestBody LegacyQueryDataRequest request) {
         PageNavigator pageInfo = new PageNavigator();

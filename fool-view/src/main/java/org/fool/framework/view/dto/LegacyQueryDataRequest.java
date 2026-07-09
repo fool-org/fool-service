@@ -6,17 +6,17 @@ import org.fool.framework.dto.CommonRequest;
 
 @Data
 public class LegacyQueryDataRequest extends CommonRequest {
-    @JsonAlias("ViewId")
+    @JsonAlias({"ViewId", "viewid"})
     private Long viewId;
-    @JsonAlias("PageSize")
+    @JsonAlias({"PageSize", "pagesize"})
     private Integer pageSize;
-    @JsonAlias("PageIndex")
+    @JsonAlias({"PageIndex", "page"})
     private Integer pageIndex;
-    @JsonAlias("OrderByItem")
+    @JsonAlias({"OrderByItem", "orderitem"})
     private Integer orderByItem;
-    @JsonAlias("OrderByType")
+    @JsonAlias({"OrderByType", "ordertype"})
     private Integer orderByType;
-    @JsonAlias("QueryFilter")
+    @JsonAlias({"QueryFilter", "filter"})
     private String queryFilter;
     private String keyword;
 }
