@@ -586,6 +586,14 @@ function sudokuPanelRows(panel: TableColumnInfo) {
   return listRows(sudokuPanelResult(panel)?.data || undefined);
 }
 
+function sudokuPanelChart(panel: TableColumnInfo) {
+  return legacyChartData(sudokuPanelRows(panel));
+}
+
+function sudokuPanelChartMax(panel: TableColumnInfo) {
+  return Math.max(1, ...sudokuPanelChart(panel).series.flatMap((series) => series.values));
+}
+
 async function loadResultPage(nextPage: number) {
   pageIndex.value = Math.max(1, nextPage);
   await queryCurrentViewData();
@@ -1158,6 +1166,19 @@ function syncDetailDrafts() {
                   :rows="sudokuPanelRows(panel)"
                   :show-default-action="false"
                 />
+              </div>
+              <div v-else-if="sudokuPanelKind(panel) === 'linechart' && sudokuPanelChart(panel).series.length" class="legacy-chart-pane sudoku-panel-body">
+                <section v-for="series in sudokuPanelChart(panel).series" :key="`${sudokuPanelViewId(panel)}-${series.name}`" class="chart-series">
+                  <header>
+                    <strong>{{ series.name }}</strong>
+                    <span>{{ series.type }}</span>
+                  </header>
+                  <div v-for="(value, index) in series.values" :key="`${series.name}-${index}`" class="chart-row">
+                    <span>{{ sudokuPanelChart(panel).labels[index] || index + 1 }}</span>
+                    <meter :value="value" min="0" :max="sudokuPanelChartMax(panel)"></meter>
+                    <strong>{{ value }}</strong>
+                  </div>
+                </section>
               </div>
               <div v-else class="empty-state compact">
                 {{ sudokuPanelResult(panel) ? `${sudokuPanelRows(panel).length} rows loaded` : "No panel data loaded." }}

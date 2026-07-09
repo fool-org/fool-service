@@ -132,6 +132,12 @@ describe("App defaults", () => {
     expect(source.indexOf("await loadSudokuPanels()")).toBeLessThan(source.indexOf("queryCurrentViewDataBase()"));
   });
 
+  it("renders Sudoku linechart panels from child row chart items", () => {
+    expect(appSource).toContain("sudokuPanelKind(panel) === 'linechart'");
+    expect(appSource).toContain("sudokuPanelChart(panel).series");
+    expect(appSource).toContain("sudokuPanelChartMax(panel)");
+  });
+
   it("resets the main View search to the first page", () => {
     expect(appSource).toContain("async function loadViewWorkflow(resetPage = false)");
     expect(appSource).toContain("pageIndex.value = 1");

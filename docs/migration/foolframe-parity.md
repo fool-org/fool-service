@@ -99,6 +99,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue Sudoku `linechart` panels now render chart rows from the
+  child panel's loaded View/data result, reusing the same legacy chart
+  `EditType` (`11` axis, `12` line, `13` bar, `14` scatter) projection used by
+  `viewWithChart`. Unsupported Sudoku `Map`, `Group`, and `Item` panels still
+  stay as explicit empty states instead of binding to DTO fields.
 - 2026-07-09: Vue Sudoku panels now load their own child View/data chain from
   each item `ListViewId`: `getlistview(ListViewId)` first, then
   `querydata(ListViewId)` only when the child View has renderable columns.

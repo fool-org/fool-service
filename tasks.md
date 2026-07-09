@@ -612,6 +612,8 @@ explicitly named as authoritative for fool-service.
 - [x] Load Vue Sudoku child panels through each panel `ListViewId`
       `getlistview` -> `querydata` chain, skipping root View `querydata` so
       panel rows stay bound to child View metadata.
+- [x] Render Vue Sudoku `linechart` panels from child row chart `EditType`
+      metadata by reusing the existing `legacyChartData` path.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
