@@ -624,14 +624,20 @@ public class DataQueryService {
     }
 
     private void checkFilterCommand(Model model, IDynamicData data, OperationCommand command) {
-        if (model == null || !StringUtils.hasText(command.getExpression())) {
+        if (model == null || data == null || !StringUtils.hasText(command.getExpression())) {
             return;
         }
         IQueryFilter filter = rawFilter(command.getExpression());
         Property idProperty = model.getIdProperty();
-        if (idProperty != null && StringUtils.hasText(idProperty.getColumn()) && data.getId() != null) {
-            filter = new CompareFilter(idProperty.getColumn(), CompareOp.EQUAL, data.getId()).and(filter);
+        String idColumn = idProperty != null && StringUtils.hasText(idProperty.getColumn())
+                ? idProperty.getColumn()
+                : "SYSID";
+        Object idValue = data.getId();
+        if (idValue == null) {
+            idValue = data.get(idColumn);
         }
+        filter = new CompareFilter(idColumn, CompareOp.EQUAL, idValue == null ? "" : String.valueOf(idValue))
+                .and(filter);
         List<IDynamicData> matched = modelDataService.getDataList(
                 model.getName(), filter, model.getProperties() == null ? List.of() : model.getProperties());
         if (matched.isEmpty()) {

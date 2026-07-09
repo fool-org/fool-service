@@ -41,6 +41,8 @@ explicitly named as authoritative for fool-service.
 - [x] Execute legacy runoperation `ArgModel` operations against the target
       model selected by `ArgFilter`, matching FoolFrame object operation invoke
       behavior without binding to concrete DTOs.
+- [x] Bind legacy runoperation `Filter` commands to the current object with a
+      `SYSID` fallback when the model has no explicit id property.
 - [x] Execute legacy model-trigger assembly handlers through the shared Java
       classpath assembly invoker with trigger constructor/parameter commands.
 - [x] Execute legacy property and collection trigger assembly handlers through

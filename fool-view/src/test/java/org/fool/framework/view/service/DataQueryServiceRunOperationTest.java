@@ -19,6 +19,7 @@ import org.fool.framework.view.dto.LegacyRunOperationResult;
 import org.fool.framework.view.model.View;
 import org.fool.framework.view.model.ViewOperation;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
@@ -26,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -348,6 +350,36 @@ public class DataQueryServiceRunOperationTest {
         assertFalse(result.isSuccess());
         assertTrue(result.getReturnMsg().startsWith("保存失败"));
         assertTrue(result.getReturnMsg().contains("状态不允许"));
+    }
+
+    @Test
+    public void runLegacyUpdateOperationFilterUsesSysIdWhenModelHasNoIdProperty() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataService viewDataService = mock(ViewDataService.class);
+        DataQueryService service = service(daoService, modelDataService, viewDataService);
+        Model model = model();
+        model.setIdProperty(null);
+        OperationCommand filter = command(CommandsType.FILTER, null, "`order_state`='1'", 1);
+        View view = view(operationWithCommand(7002L, OperationBaseType.UPDATE, "保存成功", filter));
+        DbMysqlDynamic data = new DbMysqlDynamic(model);
+        data.set("SYSID", "1001");
+        data.set("state", "1");
+        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(modelDataService.getModel("Order")).thenReturn(model);
+        when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
+        when(modelDataService.getDataList(eq("Order"), any(IQueryFilter.class), eq(model.getProperties())))
+                .thenReturn(List.of(data));
+        when(modelDataService.saveData(data)).thenReturn(true);
+
+        LegacyRunOperationResult result = service.runLegacyOperation(request("1001", 100L, 7002L));
+
+        ArgumentCaptor<IQueryFilter> filterCaptor = ArgumentCaptor.forClass(IQueryFilter.class);
+        verify(modelDataService).getDataList(eq("Order"), filterCaptor.capture(), eq(model.getProperties()));
+        var sql = filterCaptor.getValue().generateSql();
+        assertEquals("(`SYSID`= ?) And (`order_state`='1')", sql.getSql());
+        assertArrayEquals(new Object[]{"1001"}, sql.getArgs());
+        assertTrue(result.isSuccess());
     }
 
     @Test

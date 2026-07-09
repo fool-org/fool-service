@@ -99,6 +99,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: legacy runoperation `Filter` commands now bind the current
+  object predicate even when the migrated model has no explicit id property,
+  falling back to FoolFrame-style `SYSID` before applying the configured raw
+  command expression.
 - 2026-07-09: legacy runoperation now honors operation-level `ArgModel` /
   `ArgFilter` by loading or creating the target model object, executing the
   operation commands with the source row as the value source, and persisting
