@@ -508,6 +508,9 @@ explicitly named as authoritative for fool-service.
       ViewOperation, OperationView, and OperationViewItem columns.
 - [x] Deduplicate the runtime-doctor schema test fixture so schema guard tests
       reuse `LEGACY_CORE_SCHEMA_COLUMNS` instead of carrying a second full copy.
+- [x] Extend Docker runtime-doctor coverage to the auth/app shell schema used
+      before Vue loads View metadata: `auth_user`, `SW_AUTH_USER`,
+      `SW_APPLICATION`, `SW_STOREDB`, and `SW_APP_AUTH_*` menu relations.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

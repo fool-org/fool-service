@@ -99,6 +99,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: the Docker runtime doctor now guards the legacy auth/app shell
+  schema used before the Vue View-first workflow starts: modern `auth_user`
+  login rows, legacy `SW_AUTH_USER`, `SW_APPLICATION`, `SW_STOREDB`,
+  application-store relations, and `SW_APP_AUTH_*` menu/user/role relations
+  used by `initapp`, `loginv2`, `getmain`, and `getsubmenu`.
 - 2026-07-09: the Docker runtime doctor now guards the full legacy View
   render schema used by the Vue View-first workflow: `SW_SYS_VIEW`,
   `SW_SYS_VIEW_FILE`, `SW_SYS_VIEW_ITEM`, `SW_SYS_VIEW_OPERATION`,

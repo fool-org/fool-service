@@ -80,7 +80,7 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertTrue(market_symbols_schema_ok(raw))
         self.assertFalse(market_symbols_schema_ok(raw.replace("exchange_type", "")))
 
-    def test_legacy_core_schema_requires_view_first_columns(self) -> None:
+    def test_legacy_core_schema_requires_view_first_and_auth_shell_columns(self) -> None:
         schema_ok = getattr(runtime_doctor, "legacy_core_schema_ok", lambda _raw: False)
         view_render_columns = (
             ("SW_SYS_VIEW", "VIEW_ID"),
@@ -141,11 +141,88 @@ class RuntimeDoctorTest(unittest.TestCase):
             ("SW_SYS_OPERATIONVIEW_ITEM", "SW_SYS_OPVIEWITEM_INDEX"),
             ("SW_SYS_OPERATIONVIEW_ITEM", "SW_SYS_OPVIEWITEM_PARAM"),
         )
+        auth_shell_columns = (
+            ("auth_user", "id"),
+            ("auth_user", "mobile"),
+            ("auth_user", "name"),
+            ("auth_user", "password"),
+            ("auth_user", "created_at"),
+            ("auth_user", "last_login"),
+            ("auth_item", "id"),
+            ("auth_item", "name"),
+            ("auth_item", "auth_type"),
+            ("auth_item", "auth_name"),
+            ("auth_user_role", "user_id"),
+            ("auth_user_role", "role_id"),
+            ("auth_role_auth", "role_id"),
+            ("auth_role_auth", "auth_id"),
+            ("SW_AUTH_USER", "USER_UID"),
+            ("SW_AUTH_USER", "USER_UUID"),
+            ("SW_AUTH_USER", "USER_LOGINNAME"),
+            ("SW_AUTH_USER", "USER_PHONE"),
+            ("SW_AUTH_USER", "USER_MAIL"),
+            ("SW_AUTH_USER", "USER_FIRSTNAME"),
+            ("SW_AUTH_USER", "USER_LASTNAME"),
+            ("SW_AUTH_USER", "USER_SHOWNAME"),
+            ("SW_AUTH_USER", "USER_TITLE"),
+            ("SW_AUTH_USER", "USER_AVTAR"),
+            ("SW_AUTH_USER", "USER_PWD"),
+            ("SW_AUTH_USER", "USER_REGTIME"),
+            ("SW_AUTH_USER", "USER_LASTLOGINTIME"),
+            ("SW_AUTH_USER", "USER_LASTMODIFYTIME"),
+            ("SW_AUTH_USER", "USER_SEX"),
+            ("SW_AUTH_USER", "USER_DEFAULTVIEW"),
+            ("SW_APPLICATION", "SW_APP_APPLICATIONID"),
+            ("SW_APPLICATION", "SW_APP_KEY"),
+            ("SW_APPLICATION", "SW_APP_TYPE"),
+            ("SW_APPLICATION", "SW_APP_AVATAR"),
+            ("SW_APPLICATION", "SW_APP_COMPANY"),
+            ("SW_APPLICATION", "SW_APP_CREATEIME"),
+            ("SW_APPLICATION", "SW_APP_CREATOR"),
+            ("SW_APPLICATION", "SW_APP_INITPIC"),
+            ("SW_APPLICATION", "SW_APP_NAME"),
+            ("SW_APPLICATION", "SW_APP_NOTE"),
+            ("SW_APPLICATION", "SW_APP_OWNER"),
+            ("SW_APPLICATION", "SW_APP_RELEASETIME"),
+            ("SW_APPLICATION", "SW_APP_UPDATETIME"),
+            ("SW_APPLICATION", "SW_APP_URL"),
+            ("SW_APPLICATION", "SW_APP_VERSION"),
+            ("SW_APPLICATION", "SW_APP_CON"),
+            ("SW_APPLICATION", "SW_APP_VIEW"),
+            ("SW_STOREDB", "SW_STORE_STOREID"),
+            ("SW_STOREDB", "SW_STORE_NAME"),
+            ("SW_STOREDB", "SW_STORE_CON"),
+            ("SW_STOREDB", "SW_STORE_Note"),
+            ("SW_APPLICATION_SW_STOREDB", "SW_APPLICATION_ID"),
+            ("SW_APPLICATION_SW_STOREDB", "SW_STOREDB_ID"),
+            ("SW_APP_AUTH_USER", "APP_AUTH_ID"),
+            ("SW_APP_AUTH_USER", "APP_AUTH_USERID"),
+            ("SW_APP_AUTH_USER", "APP_AUTH_USERLOGINNAME"),
+            ("SW_APP_AUTH_USER", "APP_AUTH_DEP"),
+            ("SW_APP_AUTH_MENU", "AUTH_MENU_ID"),
+            ("SW_APP_AUTH_MENU", "AUTH_MENU_TEXT"),
+            ("SW_APP_AUTH_MENU", "AUTH_MENU_SHORTCUTKEY"),
+            ("SW_APP_AUTH_MENU", "AUTH_MENU_IMAGE"),
+            ("SW_APP_AUTH_MENU", "AUTH_MENU_VISIABLE"),
+            ("SW_APP_AUTH_MENU", "AUTH_MENU_ENABLE"),
+            ("SW_APP_AUTH_MENU", "AUTH_MENU_VIEWID"),
+            ("SW_APP_AUTH_MENU", "AUTH_MENU_TEMPLATEFILE"),
+            ("SW_APP_AUTH_MENU", "AUTH_MENU_INDEX"),
+            ("SW_APP_AUTH_MENU_SubItems", "SW_APP_AUTH_MENU_SubItemsAUTH_MENU_ID"),
+            ("SW_APP_AUTH_MENU_SubItems", "SW_APP_AUTH_MENU_SUBITEMS_ITEM"),
+            ("SW_APP_AUTH_ROLE", "AUTH_ROLE_ID"),
+            ("SW_APP_AUTH_ROLE", "AUTH_ROLE_NAME"),
+            ("SW_APP_AUTH_ROLE_SW_APP_AUTH_USER", "SW_APP_AUTH_ROLE_ID"),
+            ("SW_APP_AUTH_ROLE_SW_APP_AUTH_USER", "SW_APP_AUTH_USER_ID"),
+            ("SW_APP_AUTH_MENU_SW_APP_AUTH_ROLE", "SW_APP_AUTH_MENU_ID"),
+            ("SW_APP_AUTH_MENU_SW_APP_AUTH_ROLE", "SW_APP_AUTH_ROLE_ID"),
+        )
         raw = "\n".join(
             f"{table}\t{column}" for table, column in runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS
         )
 
         self.assertTrue(set(view_render_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
+        self.assertTrue(set(auth_shell_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
         self.assertTrue(schema_ok(raw))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_VIEW_ITEM\tVIEW_ITEM_PROPERTY\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_VIEW_ITEM\tVIEW_ITEM_NAME\n", "")))
@@ -158,6 +235,8 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertFalse(schema_ok(raw.replace("SW_SYS_OPERATION\tSW_MODEL_OPERATION_INVOKECLASS\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_MODEL_TRIGGER_COMMANDS\tSW_SYS_COMMAND_Index\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_PROPERTY_TRIGGER\tSW_PROPERTY_TRIGGER_BASETYPE\n", "")))
+        self.assertFalse(schema_ok(raw.replace("SW_APPLICATION\tSW_APP_VIEW\n", "")))
+        self.assertFalse(schema_ok(raw.replace("SW_APP_AUTH_MENU\tAUTH_MENU_VIEWID\n", "")))
 
     def test_common_response_list_requires_success_and_nonempty_list(self) -> None:
         self.assertTrue(common_response_list({"code": 0, "data": {"items": [1]}}, "items"))
