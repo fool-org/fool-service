@@ -500,6 +500,9 @@ explicitly named as authoritative for fool-service.
 - [x] Add idempotent Docker repair blocks and runtime-doctor coverage for legacy
       `SW_SYS_RELATION` collection relation columns and `SW_SYS_MULTIMAP`
       DBMaps columns used by Model/AppInstall paths.
+- [x] Extend Docker runtime-doctor coverage to legacy operation, operation
+      parameter, command, model-trigger, and property-trigger columns used by
+      migrated runoperation, trigger hydration, and AppInstall paths.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

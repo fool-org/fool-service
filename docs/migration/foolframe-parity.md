@@ -99,6 +99,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: the Docker runtime doctor now guards the legacy
+  `SW_SYS_OPERATION`, `SW_SYS_OPERATION_PARAM`, `SW_SYS_COMMANDS`,
+  `SW_SYS_MODEL_TRIGGER`, `SW_SYS_MODEL_TRIGGER_COMMANDS`,
+  `SW_SYS_PROPERTY_TRIGGER`, and `SW_SYS_PROPERTY_TRIGGER_COMMANDS` columns
+  read by migrated runoperation, model-trigger, property-trigger, and
+  AppInstall paths.
 - 2026-07-09: legacy `SW_SYS_RELATION` and `SW_SYS_MULTIMAP` Docker schema
   migration now has idempotent repair blocks for the relation columns used by
   collection writes and the DBMaps columns used by multi-column property
