@@ -190,7 +190,7 @@ public class DataQueryServiceDetailTest {
         PageResult<IDynamicData> page = new PageResult<>();
         page.setItems(List.of(first));
         QueryDataDetailResult expected = new QueryDataDetailResult();
-        when(first.getId()).thenReturn("1001");
+        when(first.get("SYSID")).thenReturn("1001");
         when(viewDataService.getViewData("100", null)).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
         when(modelDataService.getDataListWithPageInfo(

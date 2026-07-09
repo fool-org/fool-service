@@ -44,7 +44,8 @@ public class ViewDataAdapterTest {
         view.setListItems(List.of(orderId, rowClass));
 
         PageResult<IDynamicData> page = new PageResult<>();
-        page.setItems(List.of(new MapDynamicData("order-1", new LinkedHashMap<>(Map.of(
+        page.setItems(List.of(new MapDynamicData(null, new LinkedHashMap<>(Map.of(
+                "SYSID", "order-1",
                 "orderId", 1001,
                 "rowClass", "warning")))));
 
@@ -224,7 +225,9 @@ public class ViewDataAdapterTest {
         values.put("tradeDate", LocalDate.of(2026, 7, 3));
         values.put("tradeTime", LocalTime.of(9, 5, 6));
         values.put("state", 2);
-        values.put("customer", new MapDynamicData("C-7", new LinkedHashMap<>(Map.of("name", "Alice"))));
+        values.put("customer", new MapDynamicData(null, new LinkedHashMap<>(Map.of(
+                "SYSID", "C-7",
+                "name", "Alice"))));
 
         View view = new View();
         view.setListItems(List.of(tradeDate, tradeTime, state, customer));
@@ -296,7 +299,8 @@ public class ViewDataAdapterTest {
         view.setAutoFreshInterval(15);
         view.setListItems(List.of(orderId, symbol));
         view.setOperations(List.of(edit));
-        MapDynamicData data = new MapDynamicData("1001", new LinkedHashMap<>(Map.of(
+        MapDynamicData data = new MapDynamicData(null, new LinkedHashMap<>(Map.of(
+                "SYSID", "1001",
                 "orderId", 1001,
                 "symbol", "BTC-USDT")));
 
@@ -393,7 +397,8 @@ public class ViewDataAdapterTest {
         childValues.put("itemName", "Updated item");
         Map<String, Object> values = new LinkedHashMap<>();
         values.put("symbol", "BTC-USDT");
-        values.put("items", List.of(new MapDynamicData("2001", childValues)));
+        childValues.put("SYSID", "2001");
+        values.put("items", List.of(new MapDynamicData(null, childValues)));
 
         QueryDataDetailResult result = new ViewDataAdapter().getDetailViewResult(
                 view,

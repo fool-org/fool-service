@@ -580,6 +580,8 @@ explicitly named as authoritative for fool-service.
 - [x] Extract the Vue View-first detail and child-collection panel into a
       reusable component so `App.vue` stays under the repo line budget while
       preserving metadata-driven save, lookup, operation, and child-row flows.
+- [x] Fall back to FoolFrame `SYSID` for View/data protocol object ids when a
+      migrated dynamic model has no explicit id property.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

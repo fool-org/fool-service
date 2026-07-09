@@ -10,6 +10,7 @@ import org.fool.framework.model.model.EnumValue;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.model.service.ModelDisplayProperties;
+import org.fool.framework.view.LegacyDynamicIds;
 import org.fool.framework.view.dto.ListDataItem;
 import org.fool.framework.view.dto.ListDataValue;
 import org.fool.framework.view.dto.ListViewResult;
@@ -81,7 +82,7 @@ public class ViewDataAdapter {
                     dataItem.getValues().put(viewItem.getModelProperty(), listCellValue(viewItem, formattedValue, valueItem));
                     dataItem.getItems().add(valueItem);
                 }
-                dataItem.setId(p.getId());
+                dataItem.setId(LegacyDynamicIds.id(p));
                 result.getItems().add(dataItem);
 
             }
@@ -98,7 +99,7 @@ public class ViewDataAdapter {
         result.setCanEdit(true);
         result.setOperations(view.getOperations().stream().map(this::legacyOperation).toList());
         QueryDataDetailResult.DataDetail detail = new QueryDataDetailResult.DataDetail();
-        detail.setObjId(data == null ? "" : formatRow(data.getId()));
+        detail.setObjId(formatRow(LegacyDynamicIds.id(data)));
         detail.setName(view.getViewName());
         detail.setModel(view.getViewModel());
         detail.setParentId("");
@@ -274,7 +275,7 @@ public class ViewDataAdapter {
         for (Object childValue : values) {
             QueryDataDetailResult.DataItem item = new QueryDataDetailResult.DataItem();
             if (childValue instanceof IDynamicData childData) {
-                item.setDataId(formatRow(childData.getId()));
+                item.setDataId(formatRow(LegacyDynamicIds.id(childData)));
                 item.setValues(childProperties.stream()
                         .map(childProperty -> {
                             Object rawValue = childData.get(childProperty.getName());
@@ -316,7 +317,7 @@ public class ViewDataAdapter {
 
     private String legacyObjId(PropertyType propertyType, Object rawValue) {
         if (propertyType == PropertyType.BusinessObject && rawValue instanceof IDynamicData data) {
-            return formatRow(data.getId());
+            return formatRow(LegacyDynamicIds.id(data));
         }
         return formatRow(rawValue);
     }
@@ -371,7 +372,7 @@ public class ViewDataAdapter {
             if (showProperty != null && showProperty.getName() != null) {
                 return formatRow(data.get(showProperty.getName()));
             }
-            return formatRow(data.getId());
+            return formatRow(LegacyDynamicIds.id(data));
         }
         return formatRow(value);
     }

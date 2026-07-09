@@ -27,6 +27,7 @@ import org.fool.framework.query.CompareFilter;
 import org.fool.framework.query.CompareOp;
 import org.fool.framework.query.IQueryFilter;
 import org.fool.framework.query.SimpleFilter;
+import org.fool.framework.view.LegacyDynamicIds;
 import org.fool.framework.view.adapter.ViewDataAdapter;
 import org.fool.framework.view.common.ErrorCode;
 import org.fool.framework.view.dto.InputQueryRequest;
@@ -160,7 +161,7 @@ public class DataQueryService {
                     page);
             return result == null || CollectionUtils.isEmpty(result.getItems())
                     ? dataId
-                    : result.getItems().get(0).getId();
+                    : LegacyDynamicIds.id(result.getItems().get(0));
         }
         String expression = idExp.trim();
         Object resolved = commandValue(null, null, expression, token);
@@ -224,7 +225,7 @@ public class DataQueryService {
         InputQueryResult result = new InputQueryResult();
         if (pageResult.getItems() != null) {
             result.setItems(pageResult.getItems().stream()
-                    .map(data -> new InputQueryResult.QueryItem(data.getId(), formatRow(data.get(showProperty.getName()))))
+                    .map(data -> new InputQueryResult.QueryItem(LegacyDynamicIds.id(data), formatRow(data.get(showProperty.getName()))))
                     .toList());
         }
         return result;
@@ -265,7 +266,7 @@ public class DataQueryService {
             if (item instanceof IDynamicData data) {
                 String text = formatRow(data.get(showProperty.getName()));
                 if (text.trim().toUpperCase(Locale.ROOT).contains(needle)) {
-                    result.getItems().add(new InputQueryResult.QueryItem(data.getId(), text));
+                    result.getItems().add(new InputQueryResult.QueryItem(LegacyDynamicIds.id(data), text));
                 }
             }
         }

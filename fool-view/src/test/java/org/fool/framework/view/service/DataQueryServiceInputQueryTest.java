@@ -54,7 +54,7 @@ public class DataQueryServiceInputQueryTest {
         view.setViewModel("Order");
         view.setListItems(List.of(viewItem("Customer", "customer")));
         PageResult<IDynamicData> pageResult = new PageResult<>();
-        pageResult.setItems(List.of(dynamic("1001", "Ada"), dynamic("1002", "Adam")));
+        pageResult.setItems(List.of(dynamicWithSysid("1001", "Ada"), dynamicWithSysid("1002", "Adam")));
         when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
         when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(order);
         when(modelDataService.getDataListWithPageInfo(
@@ -277,9 +277,9 @@ public class DataQueryServiceInputQueryTest {
         view.setViewModel("Order");
         view.setListItems(List.of(viewItem("Customer", "customer")));
         IDynamicData owner = mock(IDynamicData.class);
-        IDynamicData alice = dynamic("1001", "Alice");
-        IDynamicData bob = dynamic("1002", "Bob");
-        IDynamicData alina = dynamic("1003", "ALINA");
+        IDynamicData alice = dynamicWithSysid("1001", "Alice");
+        IDynamicData bob = dynamicWithSysid("1002", "Bob");
+        IDynamicData alina = dynamicWithSysid("1003", "ALINA");
         when(owner.get("availableCustomers")).thenReturn(List.of(alice, bob, alina));
         when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
         when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(order);
@@ -514,6 +514,12 @@ public class DataQueryServiceInputQueryTest {
         IDynamicData data = mock(IDynamicData.class);
         when(data.getId()).thenReturn(id);
         when(data.get("customerName")).thenReturn(text);
+        return data;
+    }
+
+    private static IDynamicData dynamicWithSysid(String sysid, String text) {
+        IDynamicData data = dynamic(null, text);
+        when(data.get("SYSID")).thenReturn(sysid);
         return data;
     }
 }
