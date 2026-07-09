@@ -69,6 +69,7 @@ import {
   legacyNotifyCount,
   legacyRunOperationSuccess,
   legacySubMenuItems,
+  legacyViewPathId,
   listAutoFreshTime,
   listFreshTime,
   listPageIndex,
@@ -924,6 +925,13 @@ describe("view workflow helpers", () => {
     expect(legacyAppDefaultViewId({ App: { DefaultViewId: 101 } })).toBe(101);
     expect(legacyAppDefaultViewId({ defaultViewId: 102 })).toBe(102);
     expect(legacyAppDefaultViewId({ App: { DefaultViewId: 0 } })).toBe(0);
+  });
+
+  it("reads the old FoolFrame Web list route View id", () => {
+    expect(legacyViewPathId("/view100")).toBe(100);
+    expect(legacyViewPathId("/view100/")).toBe(100);
+    expect(legacyViewPathId("/view100/1001")).toBe(0);
+    expect(legacyViewPathId("/new100")).toBe(0);
   });
 
   it("reads initapp and check-code fields from Pascal or camel legacy payloads", () => {

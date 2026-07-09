@@ -679,6 +679,8 @@ explicitly named as authoritative for fool-service.
       titles from ViewItem `Name` metadata instead of only template kind text.
 - [x] Align Vue Sudoku `ListViewType=1` group child placeholder text with the
       legacy FoolFrame `GroupViewController` simple-item branch.
+- [x] Start Vue from the old FoolFrame Web `/view:id` list route by applying
+      the path View id before loading app-default View metadata.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

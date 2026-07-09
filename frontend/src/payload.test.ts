@@ -379,6 +379,12 @@ describe("App defaults", () => {
     expect(workflowSource.indexOf("await loadMainInfo()")).toBeLessThan(workflowSource.indexOf("await loadLegacyListView()"));
   });
 
+  it("starts old Web /view:id paths through the same View-first workflow", () => {
+    expect(appSource).toContain("legacyViewPathId(window.location.pathname)");
+    expect(appSource).toContain("if (routeViewId) applyRequestedViewId(routeViewId)");
+    expect(appSource).toContain("if (defaultViewId && !legacyListViewId.value) applyRequestedViewId(defaultViewId)");
+  });
+
   it("retries the first-screen legacy shell after a stale stored token", () => {
     const workflowSource = appSource.slice(
       appSource.indexOf("async function loadViewWorkflow"),

@@ -629,6 +629,11 @@ export function viewId(view: ListViewInfo | undefined, fallback = 0) {
   return Number(view?.viewId ?? view?.ViewId ?? view?.ViewID ?? view?.id ?? view?.ID ?? fallback) || 0;
 }
 
+export function legacyViewPathId(pathname: string) {
+  const match = pathname.match(/^\/view(\d+)\/?$/);
+  return match ? Number(match[1]) || 0 : 0;
+}
+
 export function viewOperations(view: ListViewInfo | undefined) {
   return firstList(view?.operations, view?.Operations);
 }

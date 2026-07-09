@@ -99,6 +99,7 @@ import {
   listRows,
   listTotalItems,
   listTotalPages,
+  legacyViewPathId,
   operationId as operationInfoId, operationKey, operationLabel, operationTargetViewId,
   reportGridCells,
   reportModelColumnId,
@@ -826,7 +827,11 @@ async function runViewOperation(operation: OperationInfo) {
 
 function applyDefaultAppView(source?: unknown) {
   const defaultViewId = legacyAppDefaultViewId(source);
-  if (defaultViewId) legacyListViewId.value = legacyQueryViewId.value = reportViewId.value = defaultViewId;
+  if (defaultViewId && !legacyListViewId.value) applyRequestedViewId(defaultViewId);
+}
+
+function applyRequestedViewId(requestedViewId: number) {
+  legacyListViewId.value = legacyQueryViewId.value = reportViewId.value = requestedViewId;
 }
 
 async function ensureLegacySession() {
@@ -865,6 +870,8 @@ async function loadViewWorkflow(resetPage = false) {
 }
 
 onMounted(() => {
+  const routeViewId = legacyViewPathId(window.location.pathname);
+  if (routeViewId) applyRequestedViewId(routeViewId);
   void loadViewWorkflow();
 });
 

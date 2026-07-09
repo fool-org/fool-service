@@ -114,6 +114,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: Vue startup now reads the old FoolFrame Web list route
+  `/view:id` from `window.location.pathname` and uses that View id before the
+  legacy app default, keeping the startup path on `getlistview(ViewId)` then
+  `querydata(ViewId)` instead of falling back to a seeded business DTO.
 - 2026-07-10: backend message polling now exposes the old FoolFrame Web
   root `POST /getmsg` shape as `/api/v1/getmsg`, reusing the migrated
   `getmsg` service path and legacy `Messages` aliases. The Docker runtime
