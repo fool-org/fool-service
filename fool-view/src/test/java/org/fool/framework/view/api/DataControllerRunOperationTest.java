@@ -7,6 +7,7 @@ import org.fool.framework.view.dto.LegacyRunOperationRequest;
 import org.fool.framework.view.dto.LegacyRunOperationResult;
 import org.fool.framework.view.service.DataQueryService;
 import org.junit.Test;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -50,6 +51,27 @@ public class DataControllerRunOperationTest {
         assertEquals("1001", serialized.get("ReturnObjId"));
         assertEquals(200L, serialized.get("ReturnViewId"));
         assertTrue(serialized.containsKey("Value"));
+    }
+
+    @Test
+    public void runOperationAcceptsLegacyWebPayloadAliases() throws Exception {
+        LegacyRunOperationRequest request = new ObjectMapper().readValue(
+                "{\"objid\":\"1001\",\"viewid\":100,\"opid\":7002}",
+                LegacyRunOperationRequest.class);
+
+        assertEquals("1001", request.getObjectId());
+        assertEquals(Long.valueOf(100L), request.getViewId());
+        assertEquals(Long.valueOf(7002L), request.getOperationId());
+    }
+
+    @Test
+    public void runOperationKeepsLegacyExoperationRouteAlias() throws Exception {
+        PostMapping mapping = DataController.class
+                .getMethod("runOperation", LegacyRunOperationRequest.class)
+                .getAnnotation(PostMapping.class);
+
+        assertTrue(List.of(mapping.value()).contains("/runoperation"));
+        assertTrue(List.of(mapping.value()).contains("/exoperation"));
     }
 
     private static void setField(Object target, String name, Object value) throws Exception {

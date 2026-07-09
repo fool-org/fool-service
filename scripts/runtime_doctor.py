@@ -1273,6 +1273,17 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             timeout,
         ))
 
+    def exoperation_legacy_aliases_ok() -> bool:
+        view_id = loaded_list_view_id()
+        object_id = view_state.get("objectId")
+        if not view_id or not object_id:
+            return False
+        return runoperation_result_aliases_ok(post_json(
+            f"{frontend_url}/api/v1/data/exoperation",
+            {"viewid": view_id, "objid": object_id, "opid": 0},
+            timeout,
+        ))
+
     def inputquery_ok() -> bool:
         view_id = loaded_list_view_id()
         columns = view_state.get("columns")
@@ -1425,6 +1436,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "data:runoperation-aliases",
             runoperation_aliases_ok,
             "POST /api/v1/data/runoperation returns legacy result aliases on a no-op operation",
+        ),
+        (
+            "data:exoperation-legacy-aliases",
+            exoperation_legacy_aliases_ok,
+            "POST /api/v1/data/exoperation accepts legacy Web objid/viewid/opid aliases",
         ),
         (
             "data:querydatadetail",

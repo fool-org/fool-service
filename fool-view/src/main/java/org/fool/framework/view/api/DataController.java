@@ -117,7 +117,7 @@ public class DataController {
         return new CommonResponse<>((Void) null);
     }
 
-    @PostMapping("/runoperation")
+    @PostMapping({"/runoperation", "/exoperation"})
     @ResponseBody
     public CommonResponse<LegacyRunOperationResult> runOperation(@RequestBody LegacyRunOperationRequest request) {
         return new CommonResponse<>(dataQueryService.runLegacyOperation(request));

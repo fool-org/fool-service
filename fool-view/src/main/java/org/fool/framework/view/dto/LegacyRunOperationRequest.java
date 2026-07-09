@@ -6,10 +6,10 @@ import org.fool.framework.dto.CommonRequest;
 
 @Data
 public class LegacyRunOperationRequest extends CommonRequest {
-    @JsonAlias("ObjectId")
+    @JsonAlias({"ObjectId", "objid"})
     private String objectId;
-    @JsonAlias("OperationId")
+    @JsonAlias({"OperationId", "opid"})
     private Long operationId;
-    @JsonAlias("ViewId")
+    @JsonAlias({"ViewId", "viewid"})
     private Long viewId;
 }
