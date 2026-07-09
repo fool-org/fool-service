@@ -82,6 +82,65 @@ class RuntimeDoctorTest(unittest.TestCase):
 
     def test_legacy_core_schema_requires_view_first_columns(self) -> None:
         schema_ok = getattr(runtime_doctor, "legacy_core_schema_ok", lambda _raw: False)
+        view_render_columns = (
+            ("SW_SYS_VIEW", "VIEW_ID"),
+            ("SW_SYS_VIEW", "VIEW_MODEL"),
+            ("SW_SYS_VIEW", "VIEW_NAME"),
+            ("SW_SYS_VIEW", "VIEW_FILTER"),
+            ("SW_SYS_VIEW", "VIEW_DEFAULT"),
+            ("SW_SYS_VIEW", "VIEW_TYPE"),
+            ("SW_SYS_VIEW", "VIEW_CONTYPE"),
+            ("SW_SYS_VIEW", "VIEW_FILE"),
+            ("SW_SYS_VIEW", "VIEW_CHECKAUTH"),
+            ("SW_SYS_VIEW", "VIEW_AUTOFRESHINTERVAL"),
+            ("SW_SYS_VIEW", "VIEW_CANEDIT"),
+            ("SW_SYS_VIEW_FILE", "VIEW_FILE_ID"),
+            ("SW_SYS_VIEW_FILE", "VIEW_FILE_NAME"),
+            ("SW_SYS_VIEW_FILE", "VIEW_FILE_VIEWTYPE"),
+            ("SW_SYS_VIEW_FILE", "VIEW_FILE_FILENAME"),
+            ("SW_SYS_VIEW_FILE", "VIEW_FILE_FILECONTENT"),
+            ("SW_SYS_VIEW_ITEM", "SysId"),
+            ("SW_SYS_VIEW_ITEM", "SW_SYS_VIEW_ItemsVIEW_ID"),
+            ("SW_SYS_VIEW_ITEM", "VIEW_ITEM_NAME"),
+            ("SW_SYS_VIEW_ITEM", "VIEW_ITEM_NOTE"),
+            ("SW_SYS_VIEW_ITEM", "VIEW_ITEM_FORMAT"),
+            ("SW_SYS_VIEW_ITEM", "VIEW_ITEM_PROPERTY"),
+            ("SW_SYS_VIEW_ITEM", "VIEW_ITEM_PROPERTY_SHOW"),
+            ("SW_SYS_VIEW_ITEM", "VIEW_ITEM_PROPERTY_VALUE"),
+            ("SW_SYS_VIEW_ITEM", "VIEW_ITEM_READONLY"),
+            ("SW_SYS_VIEW_ITEM", "VIEW_ITEM_INDEX"),
+            ("SW_SYS_VIEW_ITEM", "VIEW_ITEM_SUBVIEW"),
+            ("SW_SYS_VIEW_ITEM", "VIEW_ITEM_EDITVIEW"),
+            ("SW_SYS_VIEW_ITEM", "VIEW_ITEM_SELECTVIEW"),
+            ("SW_SYS_VIEW_ITEM", "VIEW_ITEM_WIDTH"),
+            ("SW_SYS_VIEW_ITEM", "VIEW_ITEM_ISSHOW"),
+            ("SW_SYS_VIEW_ITEM", "VIEW_ITEM_FILE"),
+            ("SW_SYS_VIEW_ITEM", "VIEW_ITEM_EDITTYPE"),
+            ("SW_SYS_VIEW_ITEM", "VIEW_ITEM_SOURCEEXP"),
+            ("SW_SYS_VIEW_OPERATION", "SysId"),
+            ("SW_SYS_VIEW_OPERATION", "SW_SYS_VIEW_OperationsVIEW_ID"),
+            ("SW_SYS_VIEW_OPERATION", "SW_VIEW_OPERATION_NAME"),
+            ("SW_SYS_VIEW_OPERATION", "SW_VIEW_OPERATION_MODELOPERATION"),
+            ("SW_SYS_VIEW_OPERATION", "SW_VIEW_OPERATION_RESULTVIEW"),
+            ("SW_SYS_VIEW_OPERATION", "SW_VIEW_OPERATION_SHOWPROCESS"),
+            ("SW_SYS_VIEW_OPERATION", "SW_VIEW_OPERATION_INDEX"),
+            ("SW_SYS_VIEW_OPERATION", "SW_VIEW_OPERATION_REQUIRESELECTB"),
+            ("SW_SYS_VIEW_OPERATION", "SW_VIEW_OPERATION_IMAGE"),
+            ("SW_SYS_OPERATIONVIEW", "SysId"),
+            ("SW_SYS_OPERATIONVIEW", "SW_SYS_OPVIEW_NAME"),
+            ("SW_SYS_OPERATIONVIEW", "SW_SYS_OPVIEW_RESULT"),
+            ("SW_SYS_OPERATIONVIEW", "SW_SYS_OPVIEW_OPREATION"),
+            ("SW_SYS_OPERATIONVIEW", "SW_SYS_OPVIEW_SUCCESMSG"),
+            ("SW_SYS_OPERATIONVIEW", "SW_SYS_OPVIEW_ERRORMSG"),
+            ("SW_SYS_OPERATIONVIEW", "SW_SYS_OPVIEW_MSG"),
+            ("SW_SYS_OPERATIONVIEW", "SW_SYS_OPVIEW_SHOW"),
+            ("SW_SYS_OPERATIONVIEW", "SW_SYS_OPVIEW_ConfirmMSG"),
+            ("SW_SYS_OPERATIONVIEW_ITEM", "SysId"),
+            ("SW_SYS_OPERATIONVIEW_ITEM", "SW_SYS_OPERATIONVIEW_ParamsSysId"),
+            ("SW_SYS_OPERATIONVIEW_ITEM", "SW_SYS_OPVIEWITEM_NAME"),
+            ("SW_SYS_OPERATIONVIEW_ITEM", "SW_SYS_OPVIEWITEM_INDEX"),
+            ("SW_SYS_OPERATIONVIEW_ITEM", "SW_SYS_OPVIEWITEM_PARAM"),
+        )
         raw = "\n".join([
             "SW_SYS_MODEL\tMODEL_ID",
             "SW_SYS_MODEL\tMODEL_NAME",
@@ -124,14 +183,7 @@ class RuntimeDoctorTest(unittest.TestCase):
             "SW_SYS_MULTIMAP\tMAP_NAME",
             "SW_SYS_MULTIMAP\tMAP_COLNAME",
             "SW_SYS_MULTIMAP\tSW_SYS_PROPERTY_DBMapsSysId",
-            "SW_SYS_VIEW\tVIEW_ID",
-            "SW_SYS_VIEW\tVIEW_MODEL",
-            "SW_SYS_VIEW\tVIEW_DEFAULT",
-            "SW_SYS_VIEW_ITEM\tSW_SYS_VIEW_ItemsVIEW_ID",
-            "SW_SYS_VIEW_ITEM\tVIEW_ITEM_PROPERTY",
-            "SW_SYS_VIEW_ITEM\tVIEW_ITEM_EDITTYPE",
-            "SW_SYS_VIEW_OPERATION\tSW_SYS_VIEW_OperationsVIEW_ID",
-            "SW_SYS_VIEW_OPERATION\tSW_VIEW_OPERATION_MODELOPERATION",
+            *[f"{table}\t{column}" for table, column in view_render_columns],
             "SW_SYS_OPERATION\tSW_SYS_MODEL_OperationsMODEL_ID",
             "SW_SYS_OPERATION\tSW_MODEL_OPERATION_NAME",
             "SW_SYS_OPERATION\tSW_MODEL_OPERATION_FILTER",
@@ -197,12 +249,13 @@ class RuntimeDoctorTest(unittest.TestCase):
             "SW_SYS_PROPERTY_TRIGGER_COMMANDS\tSW_SYS_COMMAND_INDEX",
             "SW_SYS_PROPERTY_TRIGGER_COMMANDS\tSW_SYS_COMMAND_PROPERTY_EXP",
             "SW_SYS_PROPERTY_TRIGGER_COMMANDS\tSW_SYS_COMMAND_TEMPVALUE",
-            "SW_SYS_OPERATIONVIEW\tSW_SYS_OPVIEW_OPREATION",
-            "SW_SYS_OPERATIONVIEW_ITEM\tSW_SYS_OPERATIONVIEW_ParamsSysId",
         ])
 
+        self.assertTrue(set(view_render_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
         self.assertTrue(schema_ok(raw))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_VIEW_ITEM\tVIEW_ITEM_PROPERTY\n", "")))
+        self.assertFalse(schema_ok(raw.replace("SW_SYS_VIEW_ITEM\tVIEW_ITEM_NAME\n", "")))
+        self.assertFalse(schema_ok(raw.replace("SW_SYS_OPERATIONVIEW\tSW_SYS_OPVIEW_ConfirmMSG\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_MODEL\tMODEL_PARENT\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_PROPERTY\tPROPERTY_CONTYPE\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_PROPERTY\tPROPERTY_SOURCE\n", "")))

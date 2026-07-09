@@ -99,6 +99,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: the Docker runtime doctor now guards the full legacy View
+  render schema used by the Vue View-first workflow: `SW_SYS_VIEW`,
+  `SW_SYS_VIEW_FILE`, `SW_SYS_VIEW_ITEM`, `SW_SYS_VIEW_OPERATION`,
+  `SW_SYS_OPERATIONVIEW`, and `SW_SYS_OPERATIONVIEW_ITEM` columns used for
+  list/detail metadata, operation buttons, and operation parameters.
 - 2026-07-09: the Docker runtime doctor now guards the legacy
   `SW_SYS_OPERATION`, `SW_SYS_OPERATION_PARAM`, `SW_SYS_COMMANDS`,
   `SW_SYS_MODEL_TRIGGER`, `SW_SYS_MODEL_TRIGGER_COMMANDS`,

@@ -503,6 +503,9 @@ explicitly named as authoritative for fool-service.
 - [x] Extend Docker runtime-doctor coverage to legacy operation, operation
       parameter, command, model-trigger, and property-trigger columns used by
       migrated runoperation, trigger hydration, and AppInstall paths.
+- [x] Extend Docker runtime-doctor coverage to the full legacy View render
+      schema used by the Vue View-first workflow: View, ViewFile, ViewItem,
+      ViewOperation, OperationView, and OperationViewItem columns.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
