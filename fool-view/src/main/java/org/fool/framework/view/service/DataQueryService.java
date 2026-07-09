@@ -379,7 +379,8 @@ public class DataQueryService {
         IDynamicData data = modelDataService.getOneData(view.getViewModel(), request.getObjectId());
         boolean success;
         try {
-            OperationCommandValues commandValues = applyOperationCommands(operation.getOperation(), model, data, data);
+            OperationCommandValues commandValues = applyOperationCommands(
+                    operation.getOperation(), model, data, data, request.getToken());
             if (operationType == OperationBaseType.DELETE) {
                 success = Boolean.TRUE.equals(modelDataService.deleteData(data));
             } else if (operationType == OperationBaseType.UPDATE) {
@@ -414,7 +415,8 @@ public class DataQueryService {
             Operation operation,
             Model model,
             IDynamicData data,
-            IDynamicData valueSource) {
+            IDynamicData valueSource,
+            String token) {
         OperationCommandValues values = new OperationCommandValues();
         if (operation == null || CollectionUtils.isEmpty(operation.getCommands()) || data == null) {
             return values;
@@ -422,7 +424,7 @@ public class DataQueryService {
         operation.getCommands().stream()
                 .filter(command -> command != null)
                 .sorted(Comparator.comparing(command -> command.getIndex() == null ? 0 : command.getIndex()))
-                .forEach(command -> applyOperationCommand(model, data, valueSource, command, values));
+                .forEach(command -> applyOperationCommand(model, data, valueSource, command, values, token));
         return values;
     }
 
@@ -431,11 +433,12 @@ public class DataQueryService {
             IDynamicData data,
             IDynamicData valueSource,
             OperationCommand command,
-            OperationCommandValues values) {
+            OperationCommandValues values,
+            String token) {
         if (command.getCommandType() == CommandsType.SET_VALUE) {
             property(model, command.getPropertyId())
                     .ifPresent(property -> data.set(property.getName(),
-                            commandValue(property, valueSource, command.getExpression())));
+                            commandValue(property, valueSource, command.getExpression(), token)));
         } else if (command.getCommandType() == CommandsType.FILTER) {
             checkFilterCommand(model, data, command);
         } else if (command.getCommandType() == CommandsType.EXUTE_PROPRTY_MODEL_METHOD) {
@@ -445,22 +448,26 @@ public class DataQueryService {
             property(model, command.getPropertyId())
                     .ifPresent(property -> invokeListMethod(data, property, command.getExpression()));
         } else if (command.getCommandType() == CommandsType.EXUTE_OUT_MODEL_METHOD) {
-            IDynamicData result = executeOutModelCommand(model, data, command);
+            IDynamicData result = executeOutModelCommand(model, data, command, token);
             if (result != null) {
                 property(model, command.getPropertyId())
                         .ifPresent(property -> data.set(property.getName(),
-                                commandValue(property, result, command.getArgExpression())));
+                                commandValue(property, result, command.getArgExpression(), token)));
             }
         } else if (command.getCommandType() == CommandsType.SET_PARAM_VALUE) {
             values.params.add(commandValue(
-                    property(model, command.getPropertyId()).orElse(null), valueSource, command.getExpression()));
+                    property(model, command.getPropertyId()).orElse(null), valueSource, command.getExpression(), token));
         } else if (command.getCommandType() == CommandsType.SET_CON_STR_VALUE) {
             values.constructorValues.add(commandValue(
-                    property(model, command.getPropertyId()).orElse(null), valueSource, command.getExpression()));
+                    property(model, command.getPropertyId()).orElse(null), valueSource, command.getExpression(), token));
         }
     }
 
-    private IDynamicData executeOutModelCommand(Model sourceModel, IDynamicData sourceData, OperationCommand command) {
+    private IDynamicData executeOutModelCommand(
+            Model sourceModel,
+            IDynamicData sourceData,
+            OperationCommand command,
+            String token) {
         if (command.getArgModelId() == null) {
             return null;
         }
@@ -472,7 +479,8 @@ public class DataQueryService {
                 ? commandValue(
                         property(sourceModel, command.getPropertyId()).orElse(null),
                         sourceData,
-                        command.getArgSourceIdExpression())
+                        command.getArgSourceIdExpression(),
+                        token)
                 : "";
         Operation targetOperation = modelOperation(targetModel, command.getExpression());
         if (targetOperation == null) {
@@ -492,7 +500,7 @@ public class DataQueryService {
         if (targetData == null) {
             return null;
         }
-        applyOperationCommands(targetOperation, targetModel, targetData, sourceData);
+        applyOperationCommands(targetOperation, targetModel, targetData, sourceData, token);
         boolean success;
         if (type == OperationBaseType.CREATE) {
             success = Boolean.TRUE.equals(modelDataService.createData(targetData));

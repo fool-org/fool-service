@@ -1,6 +1,7 @@
 package org.fool.framework.view.service;
 
 import org.fool.framework.common.PropertyType;
+import org.fool.framework.common.context.LegacyContextValueService;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.dao.DaoService;
 import org.fool.framework.model.model.CommandsType;
@@ -266,6 +267,33 @@ public class DataQueryServiceRunOperationTest {
         verify(modelDataService).saveData(data);
         assertTrue(result.isSuccess());
         assertTrue(data.get("startsAt") instanceof LocalDateTime);
+    }
+
+    @Test
+    public void runLegacyUpdateOperationResolvesContextValueFromRequestToken() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataService viewDataService = mock(ViewDataService.class);
+        LegacyContextValueService contextValueService = mock(LegacyContextValueService.class);
+        DataQueryService service = service(daoService, modelDataService, viewDataService, contextValueService);
+        Model model = model();
+        View view = view(operationWithCommand(7002L, OperationBaseType.UPDATE, "保存成功",
+                command(CommandsType.SET_VALUE, 1003L, "@userid", 1)));
+        DbMysqlDynamic data = new DbMysqlDynamic(model);
+        data.set("orderId", "1001");
+        when(viewDataService.getViewData("100", "token-1")).thenReturn(view);
+        when(modelDataService.getModel("Order")).thenReturn(model);
+        when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
+        when(contextValueService.getValue("token-1", "userid")).thenReturn("admin");
+        when(modelDataService.saveData(data)).thenReturn(true);
+        LegacyRunOperationRequest request = request("1001", 100L, 7002L);
+        request.setToken("token-1");
+
+        LegacyRunOperationResult result = service.runLegacyOperation(request);
+
+        verify(modelDataService).saveData(data);
+        assertTrue(result.isSuccess());
+        assertEquals("admin", data.get("state"));
     }
 
     @Test
@@ -569,11 +597,22 @@ public class DataQueryServiceRunOperationTest {
             DaoService daoService,
             ModelDataService modelDataService,
             ViewDataService viewDataService) {
+        return service(daoService, modelDataService, viewDataService, null);
+    }
+
+    private static DataQueryService service(
+            DaoService daoService,
+            ModelDataService modelDataService,
+            ViewDataService viewDataService,
+            LegacyContextValueService contextValueService) {
         DataQueryService service = new DataQueryService();
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
         ReflectionTestUtils.setField(service, "viewDataService", viewDataService);
+        if (contextValueService != null) {
+            ReflectionTestUtils.setField(service, "contextValueService", contextValueService);
+        }
         return service;
     }
 
