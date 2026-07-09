@@ -56,7 +56,7 @@ import {
   legacyInitAppCheckCode,
   legacyInitAppDbId,
   legacyInputQueryItems,
-  legacyItemFields,
+  legacyItemDetailFields,
   legacyMapMarkers,
   legacyMainMenuItems,
   legacyMessageContent,
@@ -323,23 +323,19 @@ describe("view workflow helpers", () => {
     ]);
   });
 
-  it("builds item panel fields from the first legacy row items", () => {
-    expect(legacyItemFields([
-      {
-        Items: [
+  it("builds item panel fields from legacy detail SimpleData", () => {
+    expect(legacyItemDetailFields({
+      Data: {
+        SimpleData: [
           { PrpShowName: "Name", FmtValue: "Main Store" },
           { PrpShowName: "State", FmtValue: "Open" }
-        ],
-        values: { dtoOnly: "ignored" }
-      } as unknown as ListDataItem,
-      {
-        Items: [{ PrpShowName: "Other", FmtValue: "Hidden" }]
+        ]
       }
-    ])).toEqual([
+    })).toEqual([
       { label: "Name", text: "Main Store" },
       { label: "State", text: "Open" }
     ]);
-    expect(legacyItemFields([{ values: { dtoOnly: "ignored" } } as unknown as ListDataItem])).toEqual([]);
+    expect(legacyItemDetailFields({ Data: { Items: [] } })).toEqual([]);
   });
 
   it("does not use values DTO fields for view row identity or cells", () => {

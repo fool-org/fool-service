@@ -145,16 +145,20 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
     return response;
   }
 
-  async function loadViewDataById(requestedViewId: number, label = "view-data", pageSize = 10) {
+  async function loadViewById(requestedViewId: number, label = "view") {
     if (requestedViewId <= 0) {
       return null;
     }
-    const viewResponse = await options.runAction(`${label}-view`, () =>
+    return options.runAction(`${label}-view`, () =>
       postApi<ListViewInfo>("/api/v1/view/getlistview", buildLegacyListViewRequest({
         token: options.token.value,
         viewId: requestedViewId
       }))
     );
+  }
+
+  async function loadViewDataById(requestedViewId: number, label = "view-data", pageSize = 10) {
+    const viewResponse = await loadViewById(requestedViewId, label);
     if (!viewResponse) {
       return null;
     }
@@ -226,6 +230,7 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
     readItemViewFor,
     loadLegacyListView,
     loadReadItemView,
+    loadViewById,
     loadViewDataById,
     queryLegacyData,
     queryCurrentViewData

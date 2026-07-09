@@ -141,6 +141,26 @@ describe("useViewDataWorkflow", () => {
     expect(response?.view.ViewId).toBe(201);
     expect(response?.data?.Data).toEqual([{ Items: [{ PrpId: "childName", FmtValue: "One" }] }]);
   });
+
+  it("loads a child panel View without querying row data", async () => {
+    const calls: { path: string; payload: Record<string, unknown> }[] = [];
+    vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+      const payload = JSON.parse(String(init?.body || "{}")) as Record<string, unknown>;
+      calls.push({ path, payload });
+      return jsonResponse({
+        ViewId: 301,
+        Name: "Item",
+        Items: [{ Name: "Name", PropertyName: "name" }]
+      });
+    }));
+    const workflow = useViewDataWorkflow(workflowRefs());
+
+    const response = await workflow.loadViewById(300, "sudoku-item");
+
+    expect(calls.map((call) => call.path)).toEqual(["/api/v1/view/getlistview"]);
+    expect(calls[0].payload).toMatchObject({ viewId: 300 });
+    expect(response?.data.ViewId).toBe(301);
+  });
 });
 
 function workflowRefs(overrides: Partial<ReturnType<typeof baseRefs>> = {}) {

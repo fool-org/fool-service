@@ -99,6 +99,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: Vue Sudoku `Item` panels now follow FoolFrame
+  `includes/Item` / `subitem.js`: the frontend loads the panel View with
+  `getlistview(ListViewId)`, calls `querydatadetail(ListViewId, ObjId="")`,
+  and renders detail `SimpleData`. List, chart, and map panels continue to use
+  their View-first `querydata` paths.
 - 2026-07-09: Docker now seeds a real `CustomerMap` child View for the Vue
   Sudoku `Map` panel. The panel points to that child View through
   `ListViewId`, `querydata` returns Customer row `Items` with legacy map
@@ -132,10 +137,6 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   their own `ListViewId` through the existing View/data path, while simple
   child tabs (`ListViewType=1`) remain explicit simple-item placeholders
   matching the old `groupview.js` surface without adding recursive loading.
-- 2026-07-09: Vue Sudoku `Item` panels now render a simple key/value item
-  table from the first child row's legacy `Items`, matching the old
-  `Item.jade` / `subitem.js` simple item surface without reading raw row
-  `values` DTO maps.
 - 2026-07-09: Vue Sudoku `Map` panels now render marker tables from the child
   panel's loaded View/data result. Longitude, latitude, and title are derived
   only from legacy map `EditType` values `16`, `17`, and `18`; extra marker

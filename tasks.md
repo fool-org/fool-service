@@ -623,9 +623,9 @@ explicitly named as authoritative for fool-service.
 - [x] Seed and prove a real Docker `CustomerMap` child View for Vue Sudoku
       `Map` panels, using the panel `ListViewId` before querying legacy map
       `EditType` row data.
-- [x] Render Vue Sudoku `Item` panels as simple key/value tables from the
-      first child row's legacy `Items`, without reading raw row `values` DTO
-      maps.
+- [x] Render Vue Sudoku `Item` panels through the legacy detail path:
+      `getlistview(ListViewId)` then `querydatadetail(ListViewId, ObjId="")`,
+      showing `SimpleData` without reading list-row DTO maps.
 - [x] Render Vue Sudoku `Group` panels as one-level child tabs, loading
       `ListViewType=0` child lists through their own `ListViewId` and keeping
       `ListViewType=1` simple children as explicit placeholders.

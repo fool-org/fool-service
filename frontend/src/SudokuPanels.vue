@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { ListViewInfo, ListViewResult, TableColumnInfo } from "./api";
+import type { ListViewInfo, ListViewResult, QueryDataDetailResult, TableColumnInfo } from "./api";
 import ListDataTable from "./ListDataTable.vue";
 import {
   fieldTitle,
   legacyChartData,
-  legacyItemFields,
+  legacyItemDetailFields,
   legacyMapMarkers,
   listRows,
   sudokuPanelKind,
@@ -15,7 +15,7 @@ import {
 
 const props = defineProps<{
   disabled?: boolean;
-  panelData: Record<number, { view: ListViewInfo; data: ListViewResult | null }>;
+  panelData: Record<number, { view: ListViewInfo; data: ListViewResult | null; detail?: QueryDataDetailResult | null }>;
   panels: TableColumnInfo[];
 }>();
 
@@ -48,7 +48,7 @@ function sudokuPanelMarkers(panel: TableColumnInfo) {
 }
 
 function sudokuPanelItemFields(panel: TableColumnInfo) {
-  return legacyItemFields(sudokuPanelRows(panel));
+  return legacyItemDetailFields(sudokuPanelResult(panel)?.detail || undefined);
 }
 </script>
 

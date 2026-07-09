@@ -218,6 +218,13 @@ def detail_response_ok(payload: dict[str, Any]) -> bool:
     return bool(detail_simple_fields(payload))
 
 
+def detail_simple_fields_have_values(payload: dict[str, Any]) -> bool:
+    return any(
+        str(field.get("FmtValue") or field.get("fmtValue") or "").strip()
+        for field in detail_simple_fields(payload)
+    )
+
+
 def detail_simple_fields(payload: dict[str, Any]) -> list[dict[str, Any]]:
     if not common_response_ok(payload):
         return []
@@ -404,7 +411,12 @@ def sudoku_view_metadata_ok(root_payload: dict[str, Any], group_payload: dict[st
         for column in root_columns
         if normalized_view_file(column) == "./includes/map"
     ), 0)
-    if not required_files.issubset(root_files) or not group_view_id or not map_view_id:
+    item_view_id = next((
+        column_list_view_id(column)
+        for column in root_columns
+        if normalized_view_file(column) == "./includes/item"
+    ), 0)
+    if not required_files.issubset(root_files) or not group_view_id or not map_view_id or not item_view_id:
         return False
     group_columns = view_columns(group_payload)
     def group_child_matches(view_file: str, view_type: int) -> bool:
@@ -1186,6 +1198,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             for column in view_columns(payload)
             if normalized_view_file(column) == "./includes/map"
         ), 0)
+        item_view_id = next((
+            column_list_view_id(column)
+            for column in view_columns(payload)
+            if normalized_view_file(column) == "./includes/item"
+        ), 0)
         if not group_view_id:
             return False
         group_payload = post_json(
@@ -1196,7 +1213,19 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         ok = sudoku_view_metadata_ok(payload, group_payload)
         if ok:
             view_state["mapViewId"] = map_view_id
+            view_state["itemViewId"] = item_view_id
         return ok
+
+    def querydatadetail_sudoku_item_ok() -> bool:
+        view_id = view_state.get("itemViewId")
+        if not isinstance(view_id, int) or not view_id:
+            return False
+        payload = post_json(
+            f"{frontend_url}/api/v1/data/querydatadetail",
+            {"ViewId": view_id, "ObjId": ""},
+            timeout,
+        )
+        return detail_response_ok(payload) and detail_simple_fields_have_values(payload)
 
     def get_enums_ok() -> bool:
         columns = view_state.get("columns")
@@ -1386,6 +1415,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "data:querydata-map-items",
             querydata_map_items_ok,
             "POST /api/v1/data/querydata uses the Sudoku Map panel ListViewId and exposes legacy map items",
+        ),
+        (
+            "data:querydatadetail-sudoku-item",
+            querydatadetail_sudoku_item_ok,
+            "POST /api/v1/data/querydatadetail uses the Sudoku Item panel ListViewId and exposes SimpleData",
         ),
         (
             "data:runoperation-aliases",

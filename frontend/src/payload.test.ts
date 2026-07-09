@@ -145,9 +145,19 @@ describe("App defaults", () => {
     expect(sudokuPanelsSource).toContain("sudokuPanelMarkers(panel)");
   });
 
-  it("renders Sudoku item panels from child row items", () => {
+  it("renders Sudoku item panels from legacy detail SimpleData", () => {
+    const sudokuLoadSource = appSource.slice(
+      appSource.indexOf("async function loadSudokuPanel"),
+      appSource.indexOf("function sudokuPanelResult")
+    );
+
     expect(sudokuPanelsSource).toContain("sudokuPanelKind(panel) === 'item'");
     expect(sudokuPanelsSource).toContain("sudokuPanelItemFields(panel)");
+    expect(sudokuLoadSource).toContain('sudokuPanelKind(panel) !== "item"');
+    expect(sudokuLoadSource).toContain("/api/v1/data/querydatadetail");
+    expect(sudokuLoadSource).toContain("buildQueryDataDetailRequest");
+    expect(sudokuPanelsSource).toContain("legacyItemDetailFields");
+    expect(sudokuPanelsSource).not.toContain("legacyItemFields");
   });
 
   it("loads and renders Sudoku group child list panels", () => {

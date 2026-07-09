@@ -629,6 +629,9 @@ class RuntimeDoctorTest(unittest.TestCase):
         root["data"]["Items"][2]["ListViewId"] = 0
         self.assertFalse(sudoku_view_metadata_ok(root, group))
         root["data"]["Items"][2]["ListViewId"] = 100
+        root["data"]["Items"][3]["ListViewId"] = 0
+        self.assertFalse(sudoku_view_metadata_ok(root, group))
+        root["data"]["Items"][3]["ListViewId"] = 100
         group["data"]["Items"][1]["ListViewType"] = 0
         self.assertFalse(sudoku_view_metadata_ok(root, group))
 

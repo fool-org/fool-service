@@ -120,6 +120,7 @@ import {
   viewDisplayTitle,
   viewDisplayType,
   viewInputCount,
+  viewId,
   viewUsesChartTemplate,
   viewUsesSudokuTemplate,
   readViewFields,
@@ -257,6 +258,7 @@ const {
   readItemViewFor,
   loadLegacyListView,
   loadReadItemView: loadReadItemViewBase,
+  loadViewById,
   queryLegacyData,
   loadViewDataById,
   queryCurrentViewData: queryCurrentViewDataBase
@@ -321,7 +323,7 @@ const reportRows = computed(() => reportRowsFromCells(reportGridCells(reportResp
 const isChartView = computed(() => viewUsesChartTemplate(viewResponse.value?.data));
 const isSudokuView = computed(() => viewUsesSudokuTemplate(viewResponse.value?.data));
 const sudokuPanels = computed(() => viewColumns(viewResponse.value?.data));
-const sudokuPanelData = ref<Record<number, { view: ListViewInfo; data: ListViewResult | null }>>({});
+const sudokuPanelData = ref<Record<number, { view: ListViewInfo; data: ListViewResult | null; detail?: QueryDataDetailResult | null }>>({});
 const chartData = computed(() => legacyChartData(resultRows.value));
 const chartMax = computed(() => Math.max(1, ...chartData.value.series.flatMap((series) => series.values)));
 const responseDump = computed(() =>
@@ -563,11 +565,11 @@ async function loadSudokuPanels() {
     sudokuPanelData.value = {};
     return;
   }
-  const loaded: Record<number, { view: ListViewInfo; data: ListViewResult | null }> = {};
+  const loaded: Record<number, { view: ListViewInfo; data: ListViewResult | null; detail?: QueryDataDetailResult | null }> = {};
   for (const panel of sudokuPanels.value) {
     const panelViewId = sudokuPanelViewId(panel);
     if (!panelViewId) continue;
-    const response = await loadViewDataById(panelViewId, "sudoku-panel", 5);
+    const response = await loadSudokuPanel(panel);
     if (response) {
       loaded[panelViewId] = response;
       sudokuPanelData.value = { ...loaded };
@@ -582,6 +584,29 @@ async function loadSudokuPanels() {
     }
   }
   sudokuPanelData.value = { ...loaded };
+}
+
+async function loadSudokuPanel(panel: TableColumnInfo) {
+  const panelViewId = sudokuPanelViewId(panel);
+  if (sudokuPanelKind(panel) !== "item") {
+    return loadViewDataById(panelViewId, "sudoku-panel", 5);
+  }
+  const panelViewResponse = await loadViewById(panelViewId, "sudoku-item");
+  if (!panelViewResponse) {
+    return null;
+  }
+  const loadedViewId = viewId(panelViewResponse.data, panelViewId);
+  if (!loadedViewId) {
+    return { view: panelViewResponse.data, data: null, detail: null };
+  }
+  const detailResponse = await runAction("sudoku-item-detail", () =>
+    postApi<QueryDataDetailResult>("/api/v1/data/querydatadetail", buildQueryDataDetailRequest({
+      token: token.value,
+      viewId: loadedViewId,
+      objId: ""
+    }))
+  );
+  return { view: panelViewResponse.data, data: null, detail: detailResponse?.data ?? null };
 }
 
 function sudokuPanelResult(panel: TableColumnInfo) {

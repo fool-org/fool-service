@@ -746,8 +746,8 @@ export function legacyMapMarkers(rows: ListDataItem[]): LegacyMapMarker[] {
   return markers;
 }
 
-export function legacyItemFields(rows: ListDataItem[]) {
-  return rowItems(rows[0])
+export function legacyItemDetailFields(result: QueryDataDetailResult | undefined) {
+  return detailResultSimpleData(result)
     .map((item) => ({ label: fieldTitle(item), text: fieldDisplayValue(item) }))
     .filter((item) => item.label || item.text);
 }
