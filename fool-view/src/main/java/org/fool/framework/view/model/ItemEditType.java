@@ -15,7 +15,10 @@ public enum ItemEditType {
     ChartAxis(11),
     ChartLine(12),
     ChartBar(13),
-    ChartScatter(14);
+    ChartScatter(14),
+    MapLongitude(16),
+    MapLatitude(17),
+    MapTitle(18);
 
     private final int code;
 

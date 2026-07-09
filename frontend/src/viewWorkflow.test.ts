@@ -301,9 +301,9 @@ describe("view workflow helpers", () => {
     expect(legacyMapMarkers([
       {
         Items: [
-          { PrpShowName: "Longitude", ObjId: "116.32", EditType: 16 },
-          { PrpShowName: "Latitude", ObjId: "39.94917", EditType: 17 },
-          { PrpShowName: "Shop", FmtValue: "Main Store", EditType: 18 },
+          { PrpShowName: "Longitude", ObjId: "116.32", EditType: "MapLongitude" },
+          { PrpShowName: "Latitude", ObjId: "39.94917", EditType: "MapLatitude" },
+          { PrpShowName: "Shop", FmtValue: "Main Store", EditType: "MapTitle" },
           { PrpShowName: "Address", FmtValue: "Beijing", EditType: 0 }
         ]
       },

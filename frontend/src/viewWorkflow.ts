@@ -727,11 +727,11 @@ export function legacyMapMarkers(rows: ListDataItem[]): LegacyMapMarker[] {
     const info: LegacyMapMarkerInfo[] = [];
     for (const item of rowItems(row)) {
       const editType = String(item.editType ?? item.EditType ?? "").toLowerCase();
-      if (editType === "16") {
+      if (editType === "16" || editType === "maplongitude") {
         longitude = firstDisplayValue([item.objId, item.ObjId, item.fmtValue, item.FmtValue]);
-      } else if (editType === "17") {
+      } else if (editType === "17" || editType === "maplatitude") {
         latitude = firstDisplayValue([item.objId, item.ObjId, item.fmtValue, item.FmtValue]);
-      } else if (editType === "18") {
+      } else if (editType === "18" || editType === "maptitle") {
         title = { label: fieldTitle(item), text: fieldDisplayValue(item) };
       } else {
         const text = fieldDisplayValue(item);

@@ -26,6 +26,7 @@ from runtime_doctor import (
     parse_compose_ps,
     query_rows_match_view,
     query_rows_include_chart_items,
+    query_rows_include_map_items,
     report_grid_ok,
     report_model_columns,
     response_list_field_present,
@@ -595,6 +596,22 @@ class RuntimeDoctorTest(unittest.TestCase):
             {"PrpId": "recordId", "FmtValue": "1001", "EditType": "ReadOnly"},
         ]}]))
 
+    def test_query_rows_include_legacy_map_items(self) -> None:
+        self.assertTrue(query_rows_include_map_items([{"Items": [
+            {"PrpId": "longitude", "ObjId": "116.320000", "EditType": "MapLongitude"},
+            {"PrpId": "latitude", "ObjId": "39.949170", "EditType": "MapLatitude"},
+            {"PrpId": "displayName", "FmtValue": "Ada Capital", "EditType": "MapTitle"},
+        ]}]))
+        self.assertTrue(query_rows_include_map_items([{"Items": [
+            {"PrpId": "longitude", "ObjId": "116.320000", "EditType": 16},
+            {"PrpId": "latitude", "ObjId": "39.949170", "EditType": 17},
+            {"PrpId": "displayName", "FmtValue": "Ada Capital", "EditType": 18},
+        ]}]))
+        self.assertFalse(query_rows_include_map_items([{"Items": [
+            {"PrpId": "longitude", "ObjId": "116.320000", "EditType": 16},
+            {"PrpId": "displayName", "FmtValue": "Ada Capital", "EditType": 18},
+        ]}]))
+
     def test_sudoku_template_metadata_requires_panel_files_and_group_types(self) -> None:
         root = {"code": 0, "data": {"TempFile": "Sudoku", "Items": [
             {"ViewFile": "./includes/List", "ListViewId": 100, "ListViewType": 0},
@@ -609,6 +626,9 @@ class RuntimeDoctorTest(unittest.TestCase):
         ]}}
 
         self.assertTrue(sudoku_view_metadata_ok(root, group))
+        root["data"]["Items"][2]["ListViewId"] = 0
+        self.assertFalse(sudoku_view_metadata_ok(root, group))
+        root["data"]["Items"][2]["ListViewId"] = 100
         group["data"]["Items"][1]["ListViewType"] = 0
         self.assertFalse(sudoku_view_metadata_ok(root, group))
 

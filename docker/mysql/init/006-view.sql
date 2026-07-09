@@ -577,6 +577,30 @@ SET `property_type` = 11,
 WHERE `owner` = 103 AND `name` = 'displayName';
 
 INSERT INTO `fool_sys_model_property` (`id`, `name`, `remark`, `property_model`, `is_collection`, `owner`, `filter`, `format`, `column`, `property_type`, `allow_db_null`, `is_check`, `ix_group`, `multi_map`)
+SELECT 1033, 'longitude', 'Longitude', NULL, 0, 103, NULL, NULL, 'longitude', 7, 0, 0, NULL, 0
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_model_property` WHERE `owner` = 103 AND `name` = 'longitude');
+
+UPDATE `fool_sys_model_property`
+SET `property_type` = 7,
+    `allow_db_null` = 0,
+    `is_check` = 0,
+    `ix_group` = NULL,
+    `multi_map` = 0
+WHERE `owner` = 103 AND `name` = 'longitude';
+
+INSERT INTO `fool_sys_model_property` (`id`, `name`, `remark`, `property_model`, `is_collection`, `owner`, `filter`, `format`, `column`, `property_type`, `allow_db_null`, `is_check`, `ix_group`, `multi_map`)
+SELECT 1034, 'latitude', 'Latitude', NULL, 0, 103, NULL, NULL, 'latitude', 7, 0, 0, NULL, 0
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_model_property` WHERE `owner` = 103 AND `name` = 'latitude');
+
+UPDATE `fool_sys_model_property`
+SET `property_type` = 7,
+    `allow_db_null` = 0,
+    `is_check` = 0,
+    `ix_group` = NULL,
+    `multi_map` = 0
+WHERE `owner` = 103 AND `name` = 'latitude';
+
+INSERT INTO `fool_sys_model_property` (`id`, `name`, `remark`, `property_model`, `is_collection`, `owner`, `filter`, `format`, `column`, `property_type`, `allow_db_null`, `is_check`, `ix_group`, `multi_map`)
 SELECT 1004, 'items', 'Items', 101, 1, 100, NULL, NULL, NULL, 16, 1, 0, NULL, 0
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_model_property` WHERE `owner` = 100 AND `name` = 'items');
 
@@ -609,7 +633,9 @@ VALUES
   (1011, 3, 3, 'itemId', NULL, 0, 'item_id', 'itemId', 0, '', 1, NULL, 0, 1, 1, NULL, NULL, NULL, NULL, 101),
   (1012, 11, 3, 'itemName', NULL, 0, 'item_name', 'itemName', 0, NULL, 0, NULL, 0, 1, 1, NULL, NULL, NULL, NULL, 101),
   (1031, 3, 3, 'customerId', NULL, 0, 'customer_id', 'customerId', 0, '', 1, NULL, 0, 1, 1, NULL, NULL, NULL, NULL, 103),
-  (1032, 11, 3, 'displayName', NULL, 0, 'display_name', 'displayName', 0, NULL, 0, NULL, 0, 1, 1, NULL, NULL, NULL, NULL, 103)
+  (1032, 11, 3, 'displayName', NULL, 0, 'display_name', 'displayName', 0, NULL, 0, NULL, 0, 1, 1, NULL, NULL, NULL, NULL, 103),
+  (1033, 7, 3, 'longitude', NULL, 0, 'longitude', 'longitude', 0, NULL, 0, NULL, 0, 1, 1, NULL, NULL, NULL, NULL, 103),
+  (1034, 7, 3, 'latitude', NULL, 0, 'latitude', 'latitude', 0, NULL, 0, NULL, 0, 1, 1, NULL, NULL, NULL, NULL, 103)
 ON DUPLICATE KEY UPDATE
   `PROPERTY_TYPE` = VALUES(`PROPERTY_TYPE`),
   `PROPERTY_CONTYPE` = VALUES(`PROPERTY_CONTYPE`),
@@ -949,7 +975,8 @@ INSERT INTO `fool_sys_view` (
 )
 VALUES
   (103, 'OrderSudoku', 'OrderSudoku', 'Seeded Docker Sudoku view', 'Order Sudoku', 0, 'Order', '', 0, 'org.fool.framework.market.Order'),
-  (104, 'OrderSudokuGroup', 'OrderSudokuGroup', 'Seeded Docker Sudoku group view', 'Order Sudoku Group', 0, 'Order', '', 0, 'org.fool.framework.market.Order')
+  (104, 'OrderSudokuGroup', 'OrderSudokuGroup', 'Seeded Docker Sudoku group view', 'Order Sudoku Group', 0, 'Order', '', 0, 'org.fool.framework.market.Order'),
+  (105, 'CustomerMap', 'CustomerMap', 'Seeded Docker customer map view', 'Customer Map', 3, 'Customer', '', 0, 'org.fool.framework.market.Customer')
 ON DUPLICATE KEY UPDATE
   `view_text` = VALUES(`view_text`),
   `view_remark` = VALUES(`view_remark`),
@@ -966,7 +993,8 @@ INSERT INTO `SW_SYS_VIEW` (
 )
 VALUES
   (103, 100, 'OrderSudoku', '', 102, 0, 3, 990003, 0, 0, 0),
-  (104, 100, 'OrderSudokuGroup', '', 102, 0, 3, NULL, 0, 0, 0)
+  (104, 100, 'OrderSudokuGroup', '', 102, 0, 3, NULL, 0, 0, 0),
+  (105, 103, 'CustomerMap', '', NULL, 3, 3, NULL, 0, 0, 0)
 ON DUPLICATE KEY UPDATE
   `VIEW_MODEL` = VALUES(`VIEW_MODEL`),
   `VIEW_NAME` = VALUES(`VIEW_NAME`),
@@ -987,11 +1015,15 @@ INSERT INTO `fool_sys_view_item` (
 VALUES
   (1301, 'Orders List', 'Orders List', 'Orders List', 'orderId', 0, 0, NULL, NULL, NULL, 0, 1, 100, 103),
   (1302, 'Price Chart', 'Price Chart', 'Price Chart', 'price', 0, 0, NULL, NULL, NULL, 0, 2, 100, 103),
-  (1303, 'Customer Map', 'Customer Map', 'Customer Map', 'customer', 0, 0, NULL, NULL, NULL, 0, 3, 100, 103),
+  (1303, 'Customer Map', 'Customer Map', 'Customer Map', 'customer', 0, 0, NULL, NULL, NULL, 0, 3, 105, 103),
   (1304, 'Order Item', 'Order Item', 'Order Item', 'symbol', 0, 0, NULL, NULL, NULL, 0, 4, 100, 103),
   (1305, 'Order Group', 'Order Group', 'Order Group', 'amount', 0, 0, NULL, NULL, NULL, 0, 5, 104, 103),
   (1401, 'Group Orders', 'Group Orders', 'Group Orders', 'orderId', 0, 0, NULL, NULL, NULL, 0, 1, 100, 104),
-  (1402, 'Group Detail', 'Group Detail', 'Group Detail', 'symbol', 0, 0, NULL, NULL, NULL, 0, 2, 102, 104)
+  (1402, 'Group Detail', 'Group Detail', 'Group Detail', 'symbol', 0, 0, NULL, NULL, NULL, 0, 2, 102, 104),
+  (1501, 'Customer Longitude', 'Customer Longitude', 'Customer Longitude', 'longitude', 0, 0, NULL, NULL, NULL, 16, 1, NULL, 105),
+  (1502, 'Customer Latitude', 'Customer Latitude', 'Customer Latitude', 'latitude', 0, 0, NULL, NULL, NULL, 17, 2, NULL, 105),
+  (1503, 'Customer Name', 'Customer Name', 'Customer Name', 'displayName', 0, 0, NULL, NULL, NULL, 18, 3, NULL, 105),
+  (1504, 'Customer ID', 'Customer ID', 'Customer ID', 'customerId', 0, 0, NULL, NULL, NULL, 0, 4, NULL, 105)
 ON DUPLICATE KEY UPDATE
   `item_name` = VALUES(`item_name`),
   `item_label` = VALUES(`item_label`),
@@ -1014,11 +1046,15 @@ INSERT INTO `SW_SYS_VIEW_ITEM` (
 VALUES
   (1301, 103, 'Orders List', 'Orders List', NULL, 1001, NULL, NULL, 1, 1, 100, NULL, NULL, 0, 1, 990002, 0, NULL),
   (1302, 103, 'Price Chart', 'Price Chart', NULL, 1007, NULL, NULL, 1, 2, 100, NULL, NULL, 0, 1, 990007, 0, NULL),
-  (1303, 103, 'Customer Map', 'Customer Map', NULL, 1005, NULL, NULL, 1, 3, 100, NULL, NULL, 0, 1, 990005, 0, NULL),
+  (1303, 103, 'Customer Map', 'Customer Map', NULL, 1005, NULL, NULL, 1, 3, 105, NULL, NULL, 0, 1, 990005, 0, NULL),
   (1304, 103, 'Order Item', 'Order Item', NULL, 1002, NULL, NULL, 1, 4, 100, NULL, NULL, 0, 1, 990006, 0, NULL),
   (1305, 103, 'Order Group', 'Order Group', NULL, 1006, NULL, NULL, 1, 5, 104, NULL, NULL, 0, 1, 990004, 0, NULL),
   (1401, 104, 'Group Orders', 'Group Orders', NULL, 1001, NULL, NULL, 1, 1, 100, NULL, NULL, 0, 1, 990002, 0, NULL),
-  (1402, 104, 'Group Detail', 'Group Detail', NULL, 1002, NULL, NULL, 1, 2, 102, NULL, NULL, 0, 1, 990006, 0, NULL)
+  (1402, 104, 'Group Detail', 'Group Detail', NULL, 1002, NULL, NULL, 1, 2, 102, NULL, NULL, 0, 1, 990006, 0, NULL),
+  (1501, 105, 'Customer Longitude', 'Customer Longitude', NULL, 1033, NULL, NULL, 1, 1, NULL, NULL, NULL, 0, 1, NULL, 16, NULL),
+  (1502, 105, 'Customer Latitude', 'Customer Latitude', NULL, 1034, NULL, NULL, 1, 2, NULL, NULL, NULL, 0, 1, NULL, 17, NULL),
+  (1503, 105, 'Customer Name', 'Customer Name', NULL, 1032, NULL, NULL, 1, 3, NULL, NULL, NULL, 0, 1, NULL, 18, NULL),
+  (1504, 105, 'Customer ID', 'Customer ID', NULL, 1031, NULL, NULL, 1, 4, NULL, NULL, NULL, 0, 1, NULL, 0, NULL)
 ON DUPLICATE KEY UPDATE
   `SW_SYS_VIEW_ItemsVIEW_ID` = VALUES(`SW_SYS_VIEW_ItemsVIEW_ID`),
   `VIEW_ITEM_NAME` = VALUES(`VIEW_ITEM_NAME`),
@@ -1038,11 +1074,14 @@ ON DUPLICATE KEY UPDATE
   `VIEW_ITEM_EDITTYPE` = VALUES(`VIEW_ITEM_EDITTYPE`),
   `VIEW_ITEM_SOURCEEXP` = VALUES(`VIEW_ITEM_SOURCEEXP`);
 
-INSERT INTO `market_customer` (`customer_id`, `display_name`)
+INSERT INTO `market_customer` (`customer_id`, `display_name`, `longitude`, `latitude`)
 VALUES
-  (3001, 'Ada Capital'),
-  (3002, 'Grace Trading')
-ON DUPLICATE KEY UPDATE `display_name` = VALUES(`display_name`);
+  (3001, 'Ada Capital', 116.320000, 39.949170),
+  (3002, 'Grace Trading', 121.473700, 31.230400)
+ON DUPLICATE KEY UPDATE
+  `display_name` = VALUES(`display_name`),
+  `longitude` = VALUES(`longitude`),
+  `latitude` = VALUES(`latitude`);
 
 INSERT INTO `market_order` (
   `order_id`, `order_symbol`, `order_amount`, `order_price`, `order_type`, `order_state`, `order_user_id`, `order_customer_id`, `order_auth_id`, `status`

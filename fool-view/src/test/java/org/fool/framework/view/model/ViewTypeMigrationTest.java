@@ -24,6 +24,13 @@ public class ViewTypeMigrationTest {
     }
 
     @Test
+    public void itemEditTypeKeepsLegacyWebMapCodes() {
+        assertEquals(16, ItemEditType.MapLongitude.code());
+        assertEquals(17, ItemEditType.MapLatitude.code());
+        assertEquals(18, ItemEditType.MapTitle.code());
+    }
+
+    @Test
     public void mapperReadsLegacyViewTypeCodes() throws Exception {
         ResultSet resultSet = mock(ResultSet.class);
         when(resultSet.getString("name")).thenReturn("order");
@@ -35,9 +42,27 @@ public class ViewTypeMigrationTest {
         assertEquals(ViewType.DetailView, record.viewType);
     }
 
+    @Test
+    public void mapperReadsLegacyWebMapEditTypeCodes() throws Exception {
+        ResultSet resultSet = mock(ResultSet.class);
+        when(resultSet.getString("name")).thenReturn("longitude");
+        when(resultSet.getInt("edit_type")).thenReturn(16);
+
+        ViewItemRecord record = new Mapper<>(ViewItemRecord.class).mapRow(resultSet, 0);
+
+        assertEquals("longitude", record.name);
+        assertEquals(ItemEditType.MapLongitude, record.editType);
+    }
+
     @Table("view_record")
     public static class ViewRecord {
         private String name;
         private ViewType viewType;
+    }
+
+    @Table("view_item_record")
+    public static class ViewItemRecord {
+        private String name;
+        private ItemEditType editType;
     }
 }

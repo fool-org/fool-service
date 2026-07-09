@@ -64,7 +64,39 @@ CREATE TABLE IF NOT EXISTS `market_customer` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `customer_id` bigint NOT NULL DEFAULT '0',
   `display_name` varchar(200) NOT NULL DEFAULT '',
+  `longitude` decimal(10,6) NOT NULL DEFAULT '0.000000',
+  `latitude` decimal(10,6) NOT NULL DEFAULT '0.000000',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_market_customer_customer_id` (`customer_id`),
   KEY `ix_market_customer_display_name` (`display_name`)
 );
+
+SET @ddl = (
+  SELECT IF(
+    COUNT(*) = 0,
+    'ALTER TABLE `market_customer` ADD COLUMN `longitude` decimal(10,6) NOT NULL DEFAULT ''0.000000'' AFTER `display_name`',
+    'SELECT 1'
+  )
+  FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'market_customer'
+    AND COLUMN_NAME = 'longitude'
+);
+PREPARE stmt FROM @ddl;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @ddl = (
+  SELECT IF(
+    COUNT(*) = 0,
+    'ALTER TABLE `market_customer` ADD COLUMN `latitude` decimal(10,6) NOT NULL DEFAULT ''0.000000'' AFTER `longitude`',
+    'SELECT 1'
+  )
+  FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'market_customer'
+    AND COLUMN_NAME = 'latitude'
+);
+PREPARE stmt FROM @ddl;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;

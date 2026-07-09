@@ -99,6 +99,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Docker now seeds a real `CustomerMap` child View for the Vue
+  Sudoku `Map` panel. The panel points to that child View through
+  `ListViewId`, `querydata` returns Customer row `Items` with legacy map
+  `EditType` values `16` longitude, `17` latitude, and `18` title, and the
+  runtime doctor proves the View-first `getlistview` -> `querydata` path
+  through the Vue proxy.
 - 2026-07-09: the Docker runtime doctor now guards the DB-management base
   schema already seeded for the local `car_wash` runtime: `DB_App`,
   `WorkDataBase`, `DB_AppDB`, and `DS_DataSourceSet` columns are part of the
