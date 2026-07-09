@@ -126,7 +126,7 @@ function sudokuPanelItemFields(panel: TableColumnInfo) {
               :show-default-action="false"
             />
           </div>
-          <div v-else-if="sudokuPanelListViewType(childPanel) === 1" class="empty-state compact">Simple item</div>
+          <div v-else-if="sudokuPanelListViewType(childPanel) === 1" class="empty-state compact">简单项</div>
           <div v-else class="empty-state compact">
             {{ sudokuPanelResult(childPanel) ? `${sudokuPanelRows(childPanel).length} rows loaded` : "No group data loaded." }}
           </div>

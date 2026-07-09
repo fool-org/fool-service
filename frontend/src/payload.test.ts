@@ -156,6 +156,7 @@ describe("App defaults", () => {
     expect(appSource).toContain("sudokuPanelListViewType(childPanel) !== 0");
     expect(appSource).toContain("sudokuPanelData.value = { ...loaded }");
     expect(sudokuPanelsSource).toContain("sudokuPanelKind(panel) === 'group'");
+    expect(sudokuPanelsSource).toContain("简单项");
   });
 
   it("resets the main View search to the first page", () => {

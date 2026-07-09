@@ -628,6 +628,8 @@ explicitly named as authoritative for fool-service.
       detail/simple child surfaces.
 - [x] Browser-verify Docker-rendered Vue Sudoku panels and render child panel
       titles from ViewItem `Name` metadata instead of only template kind text.
+- [x] Align Vue Sudoku `ListViewType=1` group child placeholder text with the
+      legacy FoolFrame `GroupViewController` simple-item branch.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

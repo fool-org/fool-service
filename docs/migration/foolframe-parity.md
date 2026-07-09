@@ -99,6 +99,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue Sudoku `Group` simple child panels now use the legacy
+  FoolFrame `GroupViewController` placeholder text (`简单项`) for
+  `ListViewType=1`, keeping this branch aligned with
+  `../FoolFrame/src/Web/public/javascripts/app/groupview.js` while avoiding a
+  new DTO-bound detail shortcut.
 - 2026-07-09: Vue Sudoku browser smoke now proves the Docker-rendered
   `OrderSudoku` page shows all five root panels plus `Group Orders` and
   `Group Detail` child panels. Shared `fieldTitle` rendering now falls back to
