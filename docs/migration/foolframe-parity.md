@@ -105,6 +105,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `SW_SYS_OPERATIONVIEW`, and `SW_SYS_OPERATIONVIEW_ITEM` columns needed by
   the default View-first data/operation path. This keeps the Docker baseline
   from passing on API behavior alone when required legacy schema has drifted.
+- 2026-07-09: legacy `#.` owner expressions now resolve through the shared
+  `OperationCommandValueResolver` by reading `DbMysqlDynamic` owner metadata.
+  Dynamic collection loading and collection writes attach the parent row to
+  child rows before item triggers, so child expressions read parent fields
+  without binding to a concrete business DTO.
 - 2026-07-09: legacy `loginv2` now records the selected App id and `DbId`
   beside the runtime token. `getapp` / `getmain` resolve AppInfo from that
   token session, and `@appcon` / `@datacon` context values resolve through
@@ -120,8 +125,8 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `LegacyContextValueService`. The token is carried through normal
   `SetValue`, assembly parameter/constructor commands, and nested external
   model command execution. No business DTO shortcut or new expression parser
-  was added; `#` owner expressions remain out of scope until dynamic data has
-  an owner-object carrier.
+  was added; later owner traversal uses the same resolver after dynamic data
+  gained an owner-object carrier.
 - 2026-07-09: cleaned stale remaining-work entries for
   `SWDQ01-Soway.Query` and `SWRPT01-Soway.Report` after re-checking the
   current module map, focused tests, and `../FoolFrame` sources. The listed
@@ -1196,20 +1201,21 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   evaluation. Composite expressions such as `.retryCount+$2` now reuse the
   migrated `MathExpression` parser, resolve operands through the existing
   current-object and static-value branches, and convert the result back to the
-  target property type. Auth/user/app/database context values, owner traversal
-  beyond the current object shell, and other command types remain future work.
+  target property type. Later slices cover auth/user/app/database context
+  values and owner traversal; other command types remain future work.
 - 2026-07-03: widened legacy `runoperation` `SetValue` static-value
   conversion. `$...` command expressions now follow the simple scalar
   `GetStaticVlue` branches for Boolean, Byte, Char, DateTime, Int/UInt,
   Long/ULong, Decimal, and Double/Float target properties, while string-like
-  property types keep the literal value. Auth/user/app/database context values,
-  owner traversal, and other command types remain future work.
+  property types keep the literal value. Later slices cover
+  auth/user/app/database context values and owner traversal; other command
+  types remain future work.
 - 2026-07-03: extended legacy `runoperation` `SetValue` expression parity.
   FoolFrame-style current-object property expressions such as `.symbol` now
   read from the target object before UPDATE save, and static `$...` values are
   converted for `Int`/`UInt` target properties before assignment.
-  Auth/user/app/database context values, owner traversal, and other command
-  types remain future work.
+  Later slices cover auth/user/app/database context values and owner
+  traversal; other command types remain future work.
 - 2026-07-03: migrated the first legacy `runoperation` command execution
   slice. Persisted `SW_SYS_COMMANDS` rows now hydrate onto operations,
   `CommandsType.SetValue` literal expressions such as `$1` are applied before

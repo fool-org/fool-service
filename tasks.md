@@ -11,6 +11,9 @@ explicitly named as authoritative for fool-service.
       Docker stack stabilizes.
 - [x] Make the Docker runtime doctor fail when core legacy model/view/operation
       schema columns required by the View-first workflow drift.
+- [x] Resolve legacy `#.` owner expressions through the shared
+      operation-command resolver and attach parent rows to dynamic collection
+      children during load/write.
 - [x] Render persisted `Order Items` in the Vue `OrderList` detail workflow via
       backend `querydatadetail` collection rows.
 - [x] Replace the hand-shaped Vue `OrderList` screen with View metadata-driven

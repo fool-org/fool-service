@@ -15,6 +15,7 @@ public class DbMysqlDynamic implements IDynamicData {
     private final Model model;
     private final Map<String, Object> propertyMaps;
     private final Map<String, Object> oldPropertyMaps;
+    private IDynamicData owner;
 
 
     public DbMysqlDynamic(Model model) {
@@ -25,6 +26,14 @@ public class DbMysqlDynamic implements IDynamicData {
 
     public Model getModel() {
         return this.model;
+    }
+
+    public IDynamicData getOwner() {
+        return owner;
+    }
+
+    public void setOwner(IDynamicData owner) {
+        this.owner = owner;
     }
 
     @Override

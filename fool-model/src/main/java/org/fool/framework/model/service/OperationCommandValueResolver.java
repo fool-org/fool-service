@@ -2,6 +2,7 @@ package org.fool.framework.model.service;
 
 import org.fool.framework.common.data.math.MathExpression;
 import org.fool.framework.common.dynamic.IDynamicData;
+import org.fool.framework.model.model.DbMysqlDynamic;
 import org.fool.framework.model.model.Property;
 
 import java.math.BigDecimal;
@@ -47,7 +48,10 @@ public class OperationCommandValueResolver {
             return value.length() == 1 || data == null ? null : data.get(value.substring(1));
         }
         if (value.startsWith("#.")) {
-            return data == null ? null : data.get(value.substring(2));
+            if (value.length() == 2 || !(data instanceof DbMysqlDynamic dynamicData) || dynamicData.getOwner() == null) {
+                return null;
+            }
+            return dynamicData.getOwner().get(value.substring(2));
         }
         if (value.startsWith("@")) {
             return contextValue(value.substring(1), contextValueLoader);

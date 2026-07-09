@@ -32,6 +32,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThrows;
 
 @Slf4j
@@ -162,6 +163,52 @@ public class ModelDataServiceTest {
             assertEquals("Legacy detail", data.get("orderName"));
         } finally {
             cleanupRuntimeDetailModel(modelId, modelName, tableName);
+        }
+    }
+
+    @Test
+    public void getOneDataAttachesLegacyCollectionOwnerForChildExpressions() {
+        long orderModelId = 92101L;
+        long itemModelId = 92102L;
+        long orderIdPropertyId = 92103L;
+        long itemsPropertyId = 92104L;
+        long itemIdPropertyId = 92105L;
+        String orderModelName = "RuntimeOwnerExpressionOrder";
+        String itemModelName = "RuntimeOwnerExpressionItem";
+        cleanupRuntimeRelationDataTables();
+        cleanupRuntimeRelationModel(orderModelId, itemModelId, orderModelName, itemModelName);
+        try {
+            createRuntimeRelationModel(
+                    orderModelId,
+                    itemModelId,
+                    orderIdPropertyId,
+                    itemsPropertyId,
+                    itemIdPropertyId,
+                    orderModelName,
+                    itemModelName);
+            jdbcTemplate.execute("CREATE TABLE `runtime_relation_order` ("
+                    + "`ORDER_ID` varchar(64) NOT NULL,"
+                    + "PRIMARY KEY (`ORDER_ID`))");
+            jdbcTemplate.execute("CREATE TABLE `runtime_relation_item` ("
+                    + "`ITEM_ID` varchar(64) NOT NULL,"
+                    + "`ORDER_ID` varchar(64) DEFAULT NULL,"
+                    + "PRIMARY KEY (`ITEM_ID`))");
+            jdbcTemplate.update("INSERT INTO `runtime_relation_order` (`ORDER_ID`) VALUES (?)", "6101");
+            jdbcTemplate.update(
+                    "INSERT INTO `runtime_relation_item` (`ITEM_ID`,`ORDER_ID`) VALUES (?,?)",
+                    "I1",
+                    "6101");
+
+            IDynamicData data = modelDataService.getOneData(orderModelName, "6101");
+
+            assertNotNull(data);
+            List<?> items = (List<?>) data.get("items");
+            assertEquals(1, items.size());
+            DbMysqlDynamic child = (DbMysqlDynamic) items.get(0);
+            assertSame(data, child.getOwner());
+        } finally {
+            cleanupRuntimeRelationDataTables();
+            cleanupRuntimeRelationModel(orderModelId, itemModelId, orderModelName, itemModelName);
         }
     }
 
@@ -862,8 +909,8 @@ public class ModelDataServiceTest {
             Property itemName = items.getPropertyModel().getProperties().get(1);
             itemName.setId(93503L);
             items.setTriggerList(List.of(
-                    propertyTrigger(PropertyTriggerType.ITEMS_ADD, itemName.getId(), "$added-trigger"),
-                    propertyTrigger(PropertyTriggerType.ITEMS_DELETE, itemName.getId(), "$deleted-trigger")));
+                    propertyTrigger(PropertyTriggerType.ITEMS_ADD, itemName.getId(), "#.orderName"),
+                    propertyTrigger(PropertyTriggerType.ITEMS_DELETE, itemName.getId(), "#.orderName")));
 
             SubItemList<IDynamicData> itemList = new SubItemList<>();
             itemList.add(orderItemData(order, "A1", "Before add"));
@@ -882,8 +929,8 @@ public class ModelDataServiceTest {
                     "SELECT COUNT(*) FROM `" + itemTable + "` WHERE `ITEM_ID` = ?",
                     Integer.class,
                     "D1");
-            assertEquals("added-trigger", addedName);
-            assertEquals("deleted-trigger", removed.get("itemName"));
+            assertEquals("After save", addedName);
+            assertEquals("After save", removed.get("itemName"));
             assertEquals(0, deletedCount.intValue());
         } finally {
             cleanupRuntimeOneToManyTables(orderTable, itemTable);
@@ -1331,6 +1378,11 @@ public class ModelDataServiceTest {
                 itemModelId,
                 orderModelName,
                 itemModelName);
+    }
+
+    private void cleanupRuntimeRelationDataTables() {
+        jdbcTemplate.execute("DROP TABLE IF EXISTS `runtime_relation_item`");
+        jdbcTemplate.execute("DROP TABLE IF EXISTS `runtime_relation_order`");
     }
 
     private void createRuntimeDbMapsTable(String tableName) {

@@ -288,6 +288,9 @@ public class ModelDataService {
         if (ids.isEmpty()) {
             return;
         }
+        Map<String, IDynamicData> owners = items.stream()
+                .filter(item -> item.getId() != null && !item.getId().isBlank())
+                .collect(Collectors.toMap(IDynamicData::getId, item -> item, (first, second) -> first, LinkedHashMap::new));
         for (var property : properties.stream()
                 .filter(p -> Boolean.TRUE.equals(p.getIsCollection()))
                 .collect(Collectors.toList())) {
@@ -306,6 +309,7 @@ public class ModelDataService {
                     var item = itemsMapper.mapRow(resultSet, i);
                     var id = resultSet.getString(SqlGenerator.ITEM_PARENT_ID_COLUMN);
                     if (infos.containsKey(id)) {
+                        attachOwner(item, owners.get(id));
                         infos.get(id).add(item);
                     }
                     return item;
@@ -588,7 +592,7 @@ public class ModelDataService {
         }
         for (Relation relation : model.getRelations()) {
             if (isWritableOwnedRelation(relation)) {
-                writeOwnedCollection(relation, data.get(relation.getProperty().getName()), parentId);
+                writeOwnedCollection(relation, data.get(relation.getProperty().getName()), parentId, data);
                 continue;
             }
             if (!isWritableComplexRelation(relation)) {
@@ -600,6 +604,7 @@ public class ModelDataService {
             }
             for (Object item : items) {
                 if (item instanceof IDynamicData itemData) {
+                    attachOwner(itemData, data);
                     Object itemId = dynamicId(itemData, relation.getProperty().getPropertyModel());
                     if (itemId != null && !relationExists(relation, parentId, itemId)) {
                         executePropertyItemTriggers(relation.getProperty(), itemData, PropertyTriggerType.ITEMS_ADD);
@@ -610,6 +615,7 @@ public class ModelDataService {
             if (value instanceof SubItemList<?> subItems) {
                 for (Object item : subItems.getDeleteList()) {
                     if (item instanceof IDynamicData itemData) {
+                        attachOwner(itemData, data);
                         Object itemId = dynamicId(itemData, relation.getProperty().getPropertyModel());
                         if (itemId != null) {
                             executePropertyItemTriggers(relation.getProperty(), itemData, PropertyTriggerType.ITEMS_DELETE);
@@ -621,10 +627,11 @@ public class ModelDataService {
         }
     }
 
-    private void writeOwnedCollection(Relation relation, Object value, Object parentId) {
+    private void writeOwnedCollection(Relation relation, Object value, Object parentId, IDynamicData owner) {
         if (value instanceof Iterable<?> items) {
             for (Object item : items) {
                 if (item instanceof IDynamicData itemData) {
+                    attachOwner(itemData, owner);
                     Model itemModel = dynamicModel(itemData, relation.getProperty().getPropertyModel());
                     if (dataExists(itemData, itemModel)) {
                         saveData(itemData, relation.getTargetColumn(), parentId, false);
@@ -638,10 +645,17 @@ public class ModelDataService {
         if (value instanceof SubItemList<?> subItems) {
             for (Object item : subItems.getDeleteList()) {
                 if (item instanceof IDynamicData itemData) {
+                    attachOwner(itemData, owner);
                     executePropertyItemTriggers(relation.getProperty(), itemData, PropertyTriggerType.ITEMS_DELETE);
                     deleteData(itemData);
                 }
             }
+        }
+    }
+
+    private void attachOwner(IDynamicData itemData, IDynamicData owner) {
+        if (itemData instanceof DbMysqlDynamic dynamicData) {
+            dynamicData.setOwner(owner);
         }
     }
 
