@@ -541,6 +541,9 @@ explicitly named as authoritative for fool-service.
 - [x] Extend the Docker runtime doctor to prove legacy `savenewobj` through
       the Vue proxy using loaded detail View fields and cleanup for the fixed
       smoke id.
+- [x] Extend the Docker runtime doctor to prove legacy `saveobj` through the
+      Vue proxy by updating a temporary detail-View object and reading the
+      changed field back.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

@@ -261,6 +261,17 @@ def runtime_save_properties(fields: list[dict[str, Any]], object_id: str) -> lis
     return properties
 
 
+def detail_field_fmt_value(payload: dict[str, Any], key: str) -> str:
+    for field in detail_simple_fields(payload):
+        if detail_field_key(field) != key:
+            continue
+        value = field.get("fmtValue")
+        if value is None:
+            value = field.get("FmtValue")
+        return "" if value is None else str(value)
+    return ""
+
+
 def detail_view_id(payload: dict[str, Any]) -> int:
     if not common_response_ok(payload):
         return 0
@@ -696,6 +707,55 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             cleaned = cleanup_runtime_smoke_order(object_id)
         return ok and cleaned
 
+    def save_existing_object_from_loaded_detail_view() -> bool:
+        view_id = view_state.get("detailViewId")
+        fields = view_state.get("newFields")
+        if not view_id or not isinstance(fields, list):
+            return False
+        object_id = "989903"
+        create_properties = runtime_save_properties(fields, object_id)
+        update_properties = runtime_save_properties(fields, f"{object_id}-UPDATE")
+        expected = next((item for item in update_properties if item["Value"].startswith("RUNTIME-")), None)
+        if not create_properties or not update_properties or expected is None or not cleanup_runtime_smoke_order(object_id):
+            return False
+        ok = False
+        try:
+            ok = common_void_ok(post_json(
+                f"{frontend_url}/api/v1/data/savenewobj",
+                {
+                    "SaveObj": {
+                        "Id": object_id,
+                        "ViewID": str(view_id),
+                        "Propertyies": create_properties,
+                        "Itemproperties": [],
+                    },
+                },
+                timeout,
+            ))
+            if ok:
+                ok = common_void_ok(post_json(
+                    f"{frontend_url}/api/v1/data/saveobj",
+                    {
+                        "SaveObj": {
+                            "Id": object_id,
+                            "ViewID": str(view_id),
+                            "Propertyies": update_properties,
+                            "Itemproperties": [],
+                        },
+                    },
+                    timeout,
+                ))
+            if ok:
+                detail = post_json(
+                    f"{frontend_url}/api/v1/data/querydatadetail",
+                    {"ViewId": view_id, "ObjId": object_id},
+                    timeout,
+                )
+                ok = detail_field_fmt_value(detail, expected["Key"]) == expected["Value"]
+        finally:
+            cleaned = cleanup_runtime_smoke_order(object_id)
+        return ok and cleaned
+
     def read_item_view_from_loaded_view() -> bool:
         view_id = view_state.get("detailViewId")
         if not view_id:
@@ -924,6 +984,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "data:savenewobj",
             save_new_object_from_loaded_detail_view,
             "POST /api/v1/data/savenewobj uses loaded detail View fields",
+        ),
+        (
+            "data:saveobj",
+            save_existing_object_from_loaded_detail_view,
+            "POST /api/v1/data/saveobj updates a detail View object",
         ),
         (
             "data:inputquery",

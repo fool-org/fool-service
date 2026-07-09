@@ -99,6 +99,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: the Docker runtime doctor now proves legacy `saveobj` through
+  the Vue proxy by creating a temporary detail-View object, updating it with
+  loaded detail fields, reading the changed field back, and cleaning up.
 - 2026-07-09: the Docker runtime doctor now proves legacy `savenewobj`
   through the Vue proxy using fields loaded from the detail View metadata, and
   cleans up the fixed smoke order id after the check.
