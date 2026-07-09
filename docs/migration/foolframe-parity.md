@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: explicit query/report ordering now resolves only through
+  rendered View items. Hidden Model properties can no longer be used as order
+  tokens when absent from the loaded View metadata; unknown order tokens fall
+  back to the default rendered View ordering instead of binding directly to a
+  concrete business DTO property.
 - 2026-07-09: legacy `runoperation` command expressions now resolve
   token-backed `@userid` / `@username` values through the existing
   `LegacyContextValueService`. The token is carried through normal
@@ -862,10 +867,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   candidate columns from the loaded View metadata and emits View/property keys
   such as `symbol` as `QueryCol.ID`; `getrpt`, `makereport`, `FilterExp`, and
   `SelectedTypeId` resolution now share a single View context that checks
-  ViewItem names/labels/model properties before falling back to model property
-  metadata. Numeric Java property ids remain accepted for compatibility, but
-  the Vue report flow no longer depends on those ids or any concrete business
-  DTO.
+  ViewItem names/labels/model properties from the rendered View. Hidden model
+  properties that are absent from the loaded View are not accepted as explicit
+  report/query order tokens. Numeric Java property ids remain accepted through
+  rendered View metadata for compatibility, but the Vue report flow no longer
+  depends on those ids or any concrete business DTO.
 - 2026-07-04: the Vue report workflow now converts loaded `getmkqview`
   candidate columns into FoolFrame-style `ReportCols` payload JSON. Loading
   report columns fills `ColName`, `ColId`, first `SelectedTypeId`, `Index`, and

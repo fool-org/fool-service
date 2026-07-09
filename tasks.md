@@ -439,6 +439,8 @@ explicitly named as authoritative for fool-service.
 - [x] Remove stale `SWDQ01-Soway.Query` / `SWRPT01-Soway.Report` remaining-work
       wording after re-checking the current module map, focused tests, and
       legacy empty-shell report sources.
+- [x] Restrict explicit query/report ordering to rendered View items so hidden
+      Model properties cannot bypass loaded View metadata.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

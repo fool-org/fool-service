@@ -1102,10 +1102,7 @@ public class DataQueryService {
                 return property;
             }
         }
-        return model.getProperties().stream()
-                .filter(property -> matchesProperty(property, trimmed))
-                .findFirst()
-                .orElse(null);
+        return null;
     }
 
     private Property propertyForItem(Model model, ViewItem item) {
