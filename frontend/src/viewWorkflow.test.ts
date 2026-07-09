@@ -264,6 +264,7 @@ describe("view workflow helpers", () => {
     expect(sudokuPanelKind({ ViewFile: "" })).toBe("unknown");
     expect(sudokuPanelListViewType({ ListViewType: 1 })).toBe(1);
     expect(sudokuPanelListViewType({ listViewType: 0 })).toBe(0);
+    expect(fieldTitle({ Name: "Group Detail" })).toBe("Group Detail");
   });
 
   it("builds chart data only from legacy chart edit types", () => {

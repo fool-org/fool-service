@@ -626,6 +626,8 @@ explicitly named as authoritative for fool-service.
 - [x] Hydrate backend `ListViewType` from each child `ListViewId` View type
       and prove Docker-seeded Sudoku `Group` metadata exposes both list and
       detail/simple child surfaces.
+- [x] Browser-verify Docker-rendered Vue Sudoku panels and render child panel
+      titles from ViewItem `Name` metadata instead of only template kind text.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

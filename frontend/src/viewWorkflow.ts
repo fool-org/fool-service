@@ -93,8 +93,15 @@ export function fieldKey(field: ListDataValue) {
   return field.prpId || field.PrpId || field.prpShowName || field.PrpShowName || "";
 }
 
-export function fieldTitle(field: ListDataValue) {
-  return field.prpShowName || field.PrpShowName || field.prpId || field.PrpId || "";
+export function fieldTitle(field: Partial<ListDataValue & TableColumnInfo>) {
+  return firstDisplayValue([
+    field.prpShowName,
+    field.PrpShowName,
+    field.name,
+    field.Name,
+    field.prpId,
+    field.PrpId
+  ]);
 }
 
 export function fieldType(field: ListDataValue) {

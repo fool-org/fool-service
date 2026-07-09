@@ -99,6 +99,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue Sudoku browser smoke now proves the Docker-rendered
+  `OrderSudoku` page shows all five root panels plus `Group Orders` and
+  `Group Detail` child panels. Shared `fieldTitle` rendering now falls back to
+  ViewItem `Name`/`name`, so panel labels come from View metadata rather than
+  generic template kinds.
 - 2026-07-09: backend `getlistview` now hydrates legacy `ListViewType` from
   each configured child `ListViewId`'s View type instead of hard-coding `0`,
   matching FoolFrame `item.ListView.ViewType`. Docker now seeds a real
