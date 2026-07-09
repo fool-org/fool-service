@@ -497,6 +497,9 @@ explicitly named as authoritative for fool-service.
 - [x] Align the `fool-view` runoperation scalar-conversion test with the shared
       `PropertyType.Long` -> Java `Long` resolver semantics, restoring the
       broader `fool-app-manage -am` Maven gate.
+- [x] Add idempotent Docker repair blocks and runtime-doctor coverage for legacy
+      `SW_SYS_RELATION` collection relation columns and `SW_SYS_MULTIMAP`
+      DBMaps columns used by Model/AppInstall paths.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

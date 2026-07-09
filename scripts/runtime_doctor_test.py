@@ -113,6 +113,17 @@ class RuntimeDoctorTest(unittest.TestCase):
             "SW_SYS_PROPERTY\tPROPERTY_FORMAT",
             "SW_SYS_PROPERTY\tPROPERTY_SQLCON",
             "SW_SYS_PROPERTY\tSW_SYS_MODEL_PropertiesSysId",
+            "SW_SYS_RELATION\tSW_SYS_RELATION_TYPE",
+            "SW_SYS_RELATION\tSW_SYS_RELATION_SOURCEPROPERTY",
+            "SW_SYS_RELATION\tSW_SYS_RELATION_TARGETPROPERTY",
+            "SW_SYS_RELATION\tSW_SYS_RELATION_TABLE",
+            "SW_SYS_RELATION\tSW_SYS_RELATION_SOURCECOL",
+            "SW_SYS_RELATION\tSW_SYS_RELATION_TARGETCOL",
+            "SW_SYS_RELATION\tSW_SYS_RELATION_CANBENULL",
+            "SW_SYS_MULTIMAP\tSysId",
+            "SW_SYS_MULTIMAP\tMAP_NAME",
+            "SW_SYS_MULTIMAP\tMAP_COLNAME",
+            "SW_SYS_MULTIMAP\tSW_SYS_PROPERTY_DBMapsSysId",
             "SW_SYS_VIEW\tVIEW_ID",
             "SW_SYS_VIEW\tVIEW_MODEL",
             "SW_SYS_VIEW\tVIEW_DEFAULT",
@@ -134,6 +145,8 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertFalse(schema_ok(raw.replace("SW_SYS_MODEL\tMODEL_PARENT\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_PROPERTY\tPROPERTY_CONTYPE\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_PROPERTY\tPROPERTY_SOURCE\n", "")))
+        self.assertFalse(schema_ok(raw.replace("SW_SYS_RELATION\tSW_SYS_RELATION_TABLE\n", "")))
+        self.assertFalse(schema_ok(raw.replace("SW_SYS_MULTIMAP\tMAP_COLNAME\n", "")))
 
     def test_common_response_list_requires_success_and_nonempty_list(self) -> None:
         self.assertTrue(common_response_list({"code": 0, "data": {"items": [1]}}, "items"))
