@@ -60,6 +60,7 @@ class RuntimeDoctorTest(unittest.TestCase):
             "/data/new": {"code": 0, "data": None},
             "/data/saveobj": {"code": 0, "data": None},
             "/data/save": {"code": 0, "data": None},
+            "/data/inputquery": {"code": 0, "data": {"items": [{}], "Items": [{}]}},
         }
         for suffix, response in suffixes.items():
             if url.endswith(suffix):
@@ -947,6 +948,47 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertIn("view:getlistview-legacy-web-payload", by_name)
         self.assertTrue(by_name["view:getlistview-legacy-web-payload"].ok)
         self.assertIn(("http://frontend/api/v1/view/getlistview", {"id": 200}), calls)
+
+    def test_api_checks_inputquery_accepts_legacy_cloud_payload(self) -> None:
+        calls: list[tuple[str, object]] = []
+        original_get_json = runtime_doctor.get_json
+        original_post_json = runtime_doctor.post_json
+
+        def fake_get_json(_url: str, _timeout: float) -> object:
+            return []
+
+        def fake_post_json(url: str, payload: object, _timeout: float) -> dict[str, object]:
+            calls.append((url, payload))
+            if url.endswith("/view/getlistview"):
+                return {"code": 0, "data": {
+                    "DetailViewId": 202,
+                    "TempFile": "viewWithChart",
+                    "Items": [
+                        {"PropertyName": "recordId", "PropertyType": "String", "PropertyModel": 0},
+                        {"PropertyName": "customer", "PropertyType": "BusinessObject", "PropertyModel": 300},
+                    ],
+                    "Operations": [{"Name": "\u5220\u9664"}, {"Name": "\u4fdd\u5b58"}],
+                }}
+            return self.runtime_default_post_response(url, payload) or {"code": 0, "data": None}
+
+        try:
+            runtime_doctor.get_json = fake_get_json
+            runtime_doctor.post_json = fake_post_json
+            results = api_checks("http://backend", "http://frontend", 1.0)
+        finally:
+            runtime_doctor.get_json = original_get_json
+            runtime_doctor.post_json = original_post_json
+
+        by_name = {result.name: result for result in results}
+        self.assertTrue(by_name["data:inputquery-legacy-cloud-payload"].ok)
+        self.assertIn(("http://frontend/api/v1/data/inputquery", {
+            "ViewName": "200",
+            "ViewItemId": "customer",
+            "Text": "",
+            "ObjID": "9001",
+            "OwnerId": "",
+            "IsAdded": False,
+        }), calls)
 
     def test_api_checks_initnew_uses_loaded_detail_view(self) -> None:
         calls: list[tuple[str, object]] = []

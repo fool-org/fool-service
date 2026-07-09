@@ -162,6 +162,9 @@ explicitly named as authoritative for fool-service.
       boundary without introducing concrete business DTO binding.
 - [x] Accept legacy Web `inputquery` lower-case request fields from
       `setextype.js` at the same protocol DTO boundary.
+- [x] Accept the old FoolFrame Cloud-Social `inputquery` payload where numeric
+      `ViewName` carries the View id, while keeping business-name-only
+      `ViewName` rejected.
 - [x] Remove the unused Vue business-name `query-list` payload builder so the
       frontend keeps a single view-id driven data-loading path.
 - [x] Move reusable Vue child-group View workflow helpers out of `App.vue`

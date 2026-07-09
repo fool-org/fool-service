@@ -44,6 +44,7 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"ViewItemId":"Customer","Text":"Ada","IsAdded":false}' http://localhost:8080/api/v1/data/inputquery`
   `curl -H 'Content-Type: application/json' -d '{"Text":"Ada","ViewId":100,"ViewItemId":"Customer","ModelID":"103","ObjID":"1001","OwnerId":"5001","IsAdded":false}' http://localhost:8080/api/v1/data/inputquery`
   `curl -H 'Content-Type: application/json' -d '{"viewid":100,"itemid":"Customer","text":"Ada","objid":"1001","ownerid":"","newadd":false}' http://localhost:8081/api/v1/data/inputquery`
+  `curl -H 'Content-Type: application/json' -d '{"ViewName":"100","ViewItemId":"Customer","Text":"","ObjID":"1001","OwnerId":"","IsAdded":false}' http://localhost:8081/api/v1/data/inputquery`
   `curl -H 'Content-Type: application/json' -d '{"saveObj":{"id":"1001","viewID":"100","propertyies":[{"key":"symbol","value":"BTC-USDT"},{"key":"state","value":"0"}]}}' http://localhost:8080/api/v1/data/saveobj`
   `curl -H 'Content-Type: application/json' -d '{"saveObj":{"id":"1001","viewID":"100","propertyies":[{"key":"symbol","value":"BTC-USDT"},{"key":"state","value":"0"}],"itemproperties":[{"key":"items","items":[{"itemId":"2001","isExist":true,"propertyies":[{"key":"itemName","value":"Updated item"}]}],"addedItems":[{"itemId":"2003","isExist":true,"propertyies":[{"key":"itemName","value":"New item"}]}],"delteItems":[{"itemId":"2004","isExist":true,"propertyies":[]}]}]}}}' http://localhost:8080/api/v1/data/saveobj`
   `curl -H 'Content-Type: application/json' -d '{"obj":{"Id":"930003","ViewID":"100","Propertyies":[{"Key":"symbol","Value":"SOL-USDT"}],"Itemproperties":[]}}' http://localhost:8081/api/v1/data/save`
@@ -112,6 +113,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: backend `inputquery` now accepts the old FoolFrame
+  Cloud-Social payload where `soway.inputquery` sends the numeric View id in
+  `ViewName`, while nonnumeric business-name `ViewName` remains rejected. The
+  Docker runtime doctor proves the shape through the Vue proxy.
 - 2026-07-10: backend `getlistview` now accepts the old FoolFrame Web `/view`
   body shape from `routes.getqueryview`, including the `id` alias at the
   shared `ViewDataRequest` boundary. The Docker runtime doctor proves the
