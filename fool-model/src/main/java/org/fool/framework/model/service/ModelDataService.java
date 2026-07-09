@@ -740,6 +740,8 @@ public class ModelDataService {
         }
         try {
             value.getClass().getMethod(methodName).invoke(value);
+        } catch (NoSuchMethodException ignored) {
+            // ponytail: legacy dynamic binder returns null when a list method is absent.
         } catch (ReflectiveOperationException | SecurityException e) {
             throw new IllegalStateException(e);
         }

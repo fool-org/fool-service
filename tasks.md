@@ -563,6 +563,8 @@ explicitly named as authoritative for fool-service.
       existing owned child rows through `ModelDataService`.
 - [x] Guard modern `fool_sys_model` / property / View metadata columns in the
       Docker runtime doctor schema contract used by the Vue View-first flow.
+- [x] Preserve FoolFrame no-op semantics for missing legacy trigger
+      `ExuteListMethod` list methods while keeping real Java list invocation.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

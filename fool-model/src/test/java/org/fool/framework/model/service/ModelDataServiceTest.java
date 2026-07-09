@@ -469,17 +469,20 @@ public class ModelDataServiceTest {
             items.setId(92714L);
             Property children = collectionProperty("children");
             children.setId(92715L);
+            Property missingItems = collectionProperty("missingItems");
+            missingItems.setId(92716L);
             Model model = new Model();
             model.setTableName(tableName);
             model.setIdProperty(orderId);
-            model.setProperties(List.of(orderId, orderName, child, items, children));
+            model.setProperties(List.of(orderId, orderName, child, items, children, missingItems));
             Trigger trigger = new Trigger();
             trigger.setTriggerType(ModelTriggerType.SAVE);
             trigger.setBaseOperationType(OperationBaseType.NULL);
             trigger.setCommands(List.of(
                     triggerCommand(CommandsType.EXUTE_PROPRTY_MODEL_METHOD, child.getId(), "Close", 1),
                     triggerCommand(CommandsType.EXUTE_PROPRTY_MODEL_METHOD, children.getId(), "Close", 2),
-                    triggerCommand(CommandsType.EXUTE_LIST_METHOD, items.getId(), "CloseAll", 3)));
+                    triggerCommand(CommandsType.EXUTE_LIST_METHOD, items.getId(), "CloseAll", 3),
+                    triggerCommand(CommandsType.EXUTE_LIST_METHOD, missingItems.getId(), "Missing", 4)));
             model.setTriggers(List.of(trigger));
             RecordingDynamic childData = new RecordingDynamic();
             RecordingDynamic childItem = new RecordingDynamic();
@@ -490,6 +493,7 @@ public class ModelDataServiceTest {
             data.set("child", childData);
             data.set("items", itemList);
             data.set("children", List.of(childItem));
+            data.set("missingItems", new java.util.ArrayList<>());
 
             assertEquals(Boolean.TRUE, modelDataService.saveData(data));
 
