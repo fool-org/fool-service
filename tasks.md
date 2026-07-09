@@ -554,6 +554,9 @@ explicitly named as authoritative for fool-service.
       while keeping saveobj/savenewobj proof assertions scoped.
 - [x] Add a repository harness guard that checks Docker init SQL declares every
       runtime-doctor legacy schema column, including FH_JAVA `market_symbols`.
+- [x] Let reflective AppInstall module sources include declared dependency
+      packages as legacy module dependencies without scanning the whole
+      classpath.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

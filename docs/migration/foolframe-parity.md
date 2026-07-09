@@ -99,6 +99,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: `ReflectiveAppModuleSource` now accepts declared dependency
+  packages, scans their annotated models with the existing package scanner, and
+  wires them as root-module dependencies. This covers the practical Java
+  replacement for FoolFrame `AssemblyModelFactory.GetReferencedAssemblies`
+  without scanning the whole classpath.
 - 2026-07-09: the repository harness now checks Docker init SQL against the
   runtime doctor schema catalog, failing if any legacy runtime column or
   FH_JAVA `market_symbols` column covered by `scripts/runtime_schema.py` is
@@ -1778,8 +1783,10 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 
 ## Remaining Migration Work
 
-- Continue concrete `AppInstallGateway` parity only for arbitrary Java
-  classpath dependency enumeration beyond explicit package/model references.
+- Continue concrete `AppInstallGateway` parity only if a real migrated module
+  needs fully automatic Java classpath dependency inference without declared
+  dependency packages. Declared dependency packages now cover the practical
+  Java replacement for FoolFrame assembly-reference module discovery.
   Application/user/menu/role install records, configured model/static/reflective
   module-source schema wiring, recursive file/jar package scanning, referenced
   model package traversal, module dependency ordering, reflection relation

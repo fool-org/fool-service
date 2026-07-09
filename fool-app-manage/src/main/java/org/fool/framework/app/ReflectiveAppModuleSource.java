@@ -76,7 +76,33 @@ public class ReflectiveAppModuleSource implements AppModuleSource {
                 remark,
                 version,
                 packageName,
+                List.of(),
                 classLoader));
+    }
+
+    public ReflectiveAppModuleSource(
+            String moduleName,
+            String remark,
+            String version,
+            String packageName,
+            List<String> dependencyPackageNames,
+            ClassLoader classLoader) {
+        this.delegate = new StaticAppModuleSource(buildPackageModules(
+                moduleName,
+                remark,
+                version,
+                packageName,
+                dependencyPackageNames,
+                classLoader));
+    }
+
+    public ReflectiveAppModuleSource(
+            String moduleName,
+            String remark,
+            String version,
+            String packageName,
+            List<String> dependencyPackageNames) {
+        this(moduleName, remark, version, packageName, dependencyPackageNames, Thread.currentThread().getContextClassLoader());
     }
 
     public ReflectiveAppModuleSource(
@@ -112,12 +138,18 @@ public class ReflectiveAppModuleSource implements AppModuleSource {
             String remark,
             String version,
             String packageName,
+            List<String> dependencyPackageNames,
             ClassLoader classLoader) {
         List<Class<?>> rootTypes = scanPackage(packageName, classLoader);
         Set<Class<?>> rootTypeSet = Collections.newSetFromMap(new IdentityHashMap<>());
         rootTypeSet.addAll(rootTypes);
         for (Class<?> modelType : rootTypes) {
             modelFor(modelType);
+        }
+        for (String dependencyPackageName : safePackageNames(dependencyPackageNames)) {
+            for (Class<?> modelType : scanPackage(dependencyPackageName, classLoader)) {
+                modelFor(modelType);
+            }
         }
         wireRelations();
 
@@ -139,7 +171,48 @@ public class ReflectiveAppModuleSource implements AppModuleSource {
         }
         modules.add(AppModuleDefinition.legacy(moduleName, remark, version, rootModels));
         wireModuleDependencies(modules);
+        addDeclaredPackageDependencies(modules, moduleName, safePackageNames(dependencyPackageNames));
         return modules;
+    }
+
+    private List<String> safePackageNames(List<String> packageNames) {
+        if (packageNames == null) {
+            return List.of();
+        }
+        return packageNames.stream()
+                .filter(packageName -> packageName != null && !packageName.isBlank())
+                .distinct()
+                .toList();
+    }
+
+    private void addDeclaredPackageDependencies(
+            List<AppModuleDefinition> modules,
+            String moduleName,
+            List<String> dependencyPackageNames) {
+        if (dependencyPackageNames.isEmpty()) {
+            return;
+        }
+        AppModuleDefinition rootModule = null;
+        Map<String, AppModuleDefinition> moduleByName = new LinkedHashMap<>();
+        for (AppModuleDefinition module : modules) {
+            moduleByName.put(module.getName(), module);
+            if (module.getName().equals(moduleName)) {
+                rootModule = module;
+            }
+        }
+        if (rootModule == null) {
+            return;
+        }
+        List<AppModuleDefinition> dependencies = new ArrayList<>(rootModule.getDependencies());
+        for (String packageName : dependencyPackageNames) {
+            AppModuleDefinition dependency = moduleByName.get(packageName);
+            if (dependency != null
+                    && dependency != rootModule
+                    && dependencies.stream().noneMatch(existing -> existing == dependency)) {
+                dependencies.add(dependency);
+            }
+        }
+        rootModule.setDependencies(dependencies);
     }
 
     private void wireModuleDependencies(List<AppModuleDefinition> modules) {
