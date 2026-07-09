@@ -592,6 +592,8 @@ explicitly named as authoritative for fool-service.
       model has no explicit id property.
 - [x] Write legacy `saveobj` / `savenewobj` request ids into FoolFrame `SYSID`
       when dynamic model metadata has no explicit id property.
+- [x] Insert FoolFrame `SYSID` during dynamic creates when model metadata has
+      no explicit id property.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

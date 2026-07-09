@@ -551,6 +551,12 @@ public class ModelDataService {
             executePropertySetTriggers(model, dynamicData, true);
         }
         Map<String, Object> columnValues = writableColumnValues(model, data, null);
+        if (model.getIdProperty() == null) {
+            Object idValue = fallbackId(data);
+            if (idValue != null) {
+                addColumnValue(columnValues, "SYSID", idValue, null);
+            }
+        }
         addColumnValue(columnValues, extraColumn, extraValue, null);
         if (columnValues.isEmpty()) {
             return false;
