@@ -14,6 +14,8 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `docker compose up -d --build`
 - Docker runtime smoke is repeatable through:
   `python scripts/runtime_doctor.py`
+  The smoke now fails if the Docker `car_wash` database is missing the core
+  legacy model/view/operation columns required by the View-first workflow.
 - Full backend Maven tests run inside the Compose network without datasource
   command-line overrides:
   `docker run --rm --network fool-service_default -v "$PWD":/workspace -v "$HOME/.m2":/root/.m2 -w /workspace maven:3.9-eclipse-temurin-17 mvn test`
@@ -97,6 +99,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: `scripts/runtime_doctor.py` now checks the core legacy
+  `SW_SYS_MODEL`, `SW_SYS_PROPERTY`, `SW_SYS_VIEW`, `SW_SYS_VIEW_ITEM`,
+  `SW_SYS_VIEW_OPERATION`, `SW_SYS_OPERATION`, `SW_SYS_COMMANDS`,
+  `SW_SYS_OPERATIONVIEW`, and `SW_SYS_OPERATIONVIEW_ITEM` columns needed by
+  the default View-first data/operation path. This keeps the Docker baseline
+  from passing on API behavior alone when required legacy schema has drifted.
 - 2026-07-09: legacy `loginv2` now records the selected App id and `DbId`
   beside the runtime token. `getapp` / `getmain` resolve AppInfo from that
   token session, and `@appcon` / `@datacon` context values resolve through

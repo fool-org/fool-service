@@ -80,6 +80,34 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertTrue(market_symbols_schema_ok(raw))
         self.assertFalse(market_symbols_schema_ok(raw.replace("exchange_type", "")))
 
+    def test_legacy_core_schema_requires_view_first_columns(self) -> None:
+        schema_ok = getattr(runtime_doctor, "legacy_core_schema_ok", lambda _raw: False)
+        raw = "\n".join([
+            "SW_SYS_MODEL\tMODEL_ID",
+            "SW_SYS_MODEL\tMODEL_NAME",
+            "SW_SYS_MODEL\tMODEL_DATABASETABLE",
+            "SW_SYS_PROPERTY\tSysId",
+            "SW_SYS_PROPERTY\tPROPERTY_NAME",
+            "SW_SYS_PROPERTY\tPROPERTY_TYPE",
+            "SW_SYS_VIEW\tVIEW_ID",
+            "SW_SYS_VIEW\tVIEW_MODEL",
+            "SW_SYS_VIEW\tVIEW_DEFAULT",
+            "SW_SYS_VIEW_ITEM\tSW_SYS_VIEW_ItemsVIEW_ID",
+            "SW_SYS_VIEW_ITEM\tVIEW_ITEM_PROPERTY",
+            "SW_SYS_VIEW_ITEM\tVIEW_ITEM_EDITTYPE",
+            "SW_SYS_VIEW_OPERATION\tSW_SYS_VIEW_OperationsVIEW_ID",
+            "SW_SYS_VIEW_OPERATION\tSW_VIEW_OPERATION_MODELOPERATION",
+            "SW_SYS_OPERATION\tSW_SYS_MODEL_OperationsMODEL_ID",
+            "SW_SYS_OPERATION\tSW_MODEL_OPERATION_BASETYPE",
+            "SW_SYS_COMMANDS\tSW_SYS_OPERATION_CommandsSysId",
+            "SW_SYS_COMMANDS\tSW_SYS_COMMAND_TYPE",
+            "SW_SYS_OPERATIONVIEW\tSW_SYS_OPVIEW_OPREATION",
+            "SW_SYS_OPERATIONVIEW_ITEM\tSW_SYS_OPERATIONVIEW_ParamsSysId",
+        ])
+
+        self.assertTrue(schema_ok(raw))
+        self.assertFalse(schema_ok(raw.replace("SW_SYS_VIEW_ITEM\tVIEW_ITEM_PROPERTY\n", "")))
+
     def test_common_response_list_requires_success_and_nonempty_list(self) -> None:
         self.assertTrue(common_response_list({"code": 0, "data": {"items": [1]}}, "items"))
         self.assertFalse(common_response_list({"code": 1, "data": {"items": [1]}}, "items"))

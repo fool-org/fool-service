@@ -9,6 +9,8 @@ explicitly named as authoritative for fool-service.
 - [x] Add a repo-local validation matrix and checker.
 - [x] Add runtime evidence bundles for Docker/browser smoke checks after the
       Docker stack stabilizes.
+- [x] Make the Docker runtime doctor fail when core legacy model/view/operation
+      schema columns required by the View-first workflow drift.
 - [x] Render persisted `Order Items` in the Vue `OrderList` detail workflow via
       backend `querydatadetail` collection rows.
 - [x] Replace the hand-shaped Vue `OrderList` screen with View metadata-driven

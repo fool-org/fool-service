@@ -27,6 +27,28 @@ MARKET_SYMBOLS_COLUMNS = (
     "market_lot_size_qty_step_size",
     "max_iceberg_orders_num",
 )
+LEGACY_CORE_SCHEMA_COLUMNS = (
+    ("SW_SYS_MODEL", "MODEL_ID"),
+    ("SW_SYS_MODEL", "MODEL_NAME"),
+    ("SW_SYS_MODEL", "MODEL_DATABASETABLE"),
+    ("SW_SYS_PROPERTY", "SysId"),
+    ("SW_SYS_PROPERTY", "PROPERTY_NAME"),
+    ("SW_SYS_PROPERTY", "PROPERTY_TYPE"),
+    ("SW_SYS_VIEW", "VIEW_ID"),
+    ("SW_SYS_VIEW", "VIEW_MODEL"),
+    ("SW_SYS_VIEW", "VIEW_DEFAULT"),
+    ("SW_SYS_VIEW_ITEM", "SW_SYS_VIEW_ItemsVIEW_ID"),
+    ("SW_SYS_VIEW_ITEM", "VIEW_ITEM_PROPERTY"),
+    ("SW_SYS_VIEW_ITEM", "VIEW_ITEM_EDITTYPE"),
+    ("SW_SYS_VIEW_OPERATION", "SW_SYS_VIEW_OperationsVIEW_ID"),
+    ("SW_SYS_VIEW_OPERATION", "SW_VIEW_OPERATION_MODELOPERATION"),
+    ("SW_SYS_OPERATION", "SW_SYS_MODEL_OperationsMODEL_ID"),
+    ("SW_SYS_OPERATION", "SW_MODEL_OPERATION_BASETYPE"),
+    ("SW_SYS_COMMANDS", "SW_SYS_OPERATION_CommandsSysId"),
+    ("SW_SYS_COMMANDS", "SW_SYS_COMMAND_TYPE"),
+    ("SW_SYS_OPERATIONVIEW", "SW_SYS_OPVIEW_OPREATION"),
+    ("SW_SYS_OPERATIONVIEW_ITEM", "SW_SYS_OPERATIONVIEW_ParamsSysId"),
+)
 
 
 @dataclass(frozen=True)
@@ -85,6 +107,15 @@ def market_symbols_schema_ok(raw: str) -> bool:
     return set(MARKET_SYMBOLS_COLUMNS).issubset(columns)
 
 
+def legacy_core_schema_ok(raw: str) -> bool:
+    present = set()
+    for line in raw.splitlines():
+        parts = line.rstrip("\n").split("\t", 1)
+        if len(parts) == 2:
+            present.add((parts[0], parts[1]))
+    return set(LEGACY_CORE_SCHEMA_COLUMNS).issubset(present)
+
+
 def run_mysql_schema_checks() -> list[CheckResult]:
     query = (
         "SELECT COLUMN_NAME FROM information_schema.COLUMNS "
@@ -105,11 +136,39 @@ def run_mysql_schema_checks() -> list[CheckResult]:
         )
     except (OSError, subprocess.CalledProcessError) as exc:
         return [CheckResult("mysql:market_symbols", False, f"schema check failed: {exc}")]
-    return [CheckResult(
+    results = [CheckResult(
         "mysql:market_symbols",
         market_symbols_schema_ok(completed.stdout),
         "FH_JAVA legacy market_symbols schema is present",
     )]
+    legacy_tables = ",".join(f"'{table}'" for table in dict.fromkeys(
+        table for table, _column in LEGACY_CORE_SCHEMA_COLUMNS))
+    legacy_query = (
+        "SELECT TABLE_NAME, COLUMN_NAME FROM information_schema.COLUMNS "
+        f"WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME IN ({legacy_tables}) "
+        "ORDER BY TABLE_NAME, ORDINAL_POSITION"
+    )
+    try:
+        completed = subprocess.run(
+            [
+                "docker", "compose", "exec", "-T", "mysql",
+                "mysql", "-uroot", "-pPa88word", "-N", "-B", "car_wash",
+                "-e", legacy_query,
+            ],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError) as exc:
+        results.append(CheckResult("mysql:legacy-core-schema", False, f"schema check failed: {exc}"))
+        return results
+    results.append(CheckResult(
+        "mysql:legacy-core-schema",
+        legacy_core_schema_ok(completed.stdout),
+        "View-first legacy model/view/operation schema is present",
+    ))
+    return results
 
 
 def post_json(url: str, payload: Any, timeout: float) -> dict[str, Any]:
