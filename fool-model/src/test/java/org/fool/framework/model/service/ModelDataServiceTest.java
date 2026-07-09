@@ -547,6 +547,74 @@ public class ModelDataServiceTest {
     }
 
     @Test
+    public void saveDataExecutesLegacyPropertySetTriggerAssembly() {
+        long modelId = 92731L;
+        long idPropertyId = 92732L;
+        long namePropertyId = 92733L;
+        long triggerId = 92734L;
+        long constructorCommandId = 92735L;
+        long paramCommandId = 92736L;
+        String modelName = "RuntimePropertyTriggerAssemblyOrder";
+        String tableName = "runtime_property_trigger_assembly_order";
+        RecordingAssemblyHandler.reset();
+        cleanupRuntimePropertyTriggerModel(modelId, modelName, tableName);
+        try {
+            createRuntimeDetailModel(modelId, idPropertyId, namePropertyId, modelName, tableName);
+            jdbcTemplate.update(
+                    "INSERT INTO `" + tableName + "` (`ORDER_ID`,`ORDER_NAME`) VALUES (?,?)",
+                    "2001",
+                    "before trigger");
+            jdbcTemplate.update(
+                    "INSERT INTO `SW_SYS_PROPERTY_TRIGGER` "
+                            + "(`SysId`,`SW_SYS_PROPERTY_TriggersSysId`,`SW_PROPERTY_TRIGGER_TYPE`,"
+                            + "`SW_PROPERTY_TRIGGER_NAME`,`SW_PROPERTY_TRIGGER_PROPERTY`,"
+                            + "`SW_PROPERTY_TRIGGER_BASETYPE`,`SW_MODEL_TRIGGER_INVOKECLASS`,"
+                            + "`SW_MODEL_TRIGGER_INVOKEMETHOD`) VALUES (?,?,?,?,?,?,?,?)",
+                    triggerId,
+                    namePropertyId,
+                    PropertyTriggerType.SET.code(),
+                    "set orderName assembly",
+                    namePropertyId,
+                    OperationBaseType.ASSEBMLY.code(),
+                    RecordingAssemblyHandler.class.getName(),
+                    "Run");
+            jdbcTemplate.update(
+                    "INSERT INTO `SW_SYS_PROPERTY_TRIGGER_COMMANDS` "
+                            + "(`SysId`,`SW_SYS_PROPERTY_TRIGGER_CommandsSysId`,`SW_SYS_COMMAND_TYPE`,"
+                            + "`SW_SYS_COMMAND_PROPERTY`,`SW_SYS_COMMAND_EXP`,`SW_SYS_COMMAND_INDEX`) "
+                            + "VALUES (?,?,?,?,?,?)",
+                    constructorCommandId,
+                    triggerId,
+                    CommandsType.SET_CON_STR_VALUE.code(),
+                    namePropertyId,
+                    "$ctor",
+                    1);
+            jdbcTemplate.update(
+                    "INSERT INTO `SW_SYS_PROPERTY_TRIGGER_COMMANDS` "
+                            + "(`SysId`,`SW_SYS_PROPERTY_TRIGGER_CommandsSysId`,`SW_SYS_COMMAND_TYPE`,"
+                            + "`SW_SYS_COMMAND_PROPERTY`,`SW_SYS_COMMAND_EXP`,`SW_SYS_COMMAND_INDEX`) "
+                            + "VALUES (?,?,?,?,?,?)",
+                    paramCommandId,
+                    triggerId,
+                    CommandsType.SET_PARAM_VALUE.code(),
+                    namePropertyId,
+                    ".orderName",
+                    2);
+            IDynamicData data = modelDataService.getOneData(modelName, "2001");
+            data.set("orderName", "manual save");
+
+            assertEquals(Boolean.TRUE, modelDataService.saveData(data));
+
+            assertEquals("ctor", RecordingAssemblyHandler.constructorValue);
+            assertSame(data, RecordingAssemblyHandler.receivedData);
+            assertEquals("manual save", RecordingAssemblyHandler.receivedName);
+        } finally {
+            cleanupRuntimePropertyTriggerModel(modelId, modelName, tableName);
+            RecordingAssemblyHandler.reset();
+        }
+    }
+
+    @Test
     public void createDataInsertsLegacySimpleDynamicRow() {
         long modelId = 93001L;
         long idPropertyId = 93002L;

@@ -24,6 +24,8 @@ explicitly named as authoritative for fool-service.
       slices through the shared `ModelDataService` trigger path.
 - [x] Execute legacy model-trigger assembly handlers through the shared Java
       classpath assembly invoker with trigger constructor/parameter commands.
+- [x] Execute legacy property and collection trigger assembly handlers through
+      the same shared Java classpath assembly invoker.
 - [x] Render persisted `Order Items` in the Vue `OrderList` detail workflow via
       backend `querydatadetail` collection rows.
 - [x] Replace the hand-shaped Vue `OrderList` screen with View metadata-driven

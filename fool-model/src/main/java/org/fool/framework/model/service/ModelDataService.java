@@ -490,8 +490,7 @@ public class ModelDataService {
         } else if (type == OperationBaseType.DELETE) {
             deleteData(data, false);
         } else if (type == OperationBaseType.ASSEBMLY) {
-            LegacyAssemblyInvoker.invoke(
-                    trigger.getInvokeClass(), trigger.getInvokeMethod(), data, values.constructorValues, values.params);
+            invokeLegacyAssembly(trigger.getInvokeClass(), trigger.getInvokeMethod(), data, values);
         }
     }
 
@@ -500,7 +499,19 @@ public class ModelDataService {
                 .filter(property -> property != null && propertyTouched(data, property, creating))
                 .flatMap(property -> property.getTriggerList().stream())
                 .filter(trigger -> trigger != null && trigger.getTriggerType() == PropertyTriggerType.SET)
-                .forEach(trigger -> executeTriggerCommands(model, data, trigger.getCommands()));
+                .forEach(trigger -> executePropertyTrigger(model, data, trigger));
+    }
+
+    private void executePropertyTrigger(Model model, IDynamicData data, PropertyTrigger trigger) {
+        TriggerCommandValues values = executeTriggerCommands(model, data, trigger.getCommands());
+        if (trigger.getBaseOperationType() == OperationBaseType.ASSEBMLY) {
+            invokeLegacyAssembly(trigger.getInvokeClass(), trigger.getInvokeMethod(), data, values);
+        }
+    }
+
+    private void invokeLegacyAssembly(
+            String invokeClass, String invokeMethod, IDynamicData data, TriggerCommandValues values) {
+        LegacyAssemblyInvoker.invoke(invokeClass, invokeMethod, data, values.constructorValues, values.params);
     }
 
     private boolean propertyTouched(DbMysqlDynamic data, Property property, boolean creating) {
@@ -726,7 +737,7 @@ public class ModelDataService {
         Model itemModel = dynamicModel(itemData, property.getPropertyModel());
         property.getTriggerList().stream()
                 .filter(trigger -> trigger != null && trigger.getTriggerType() == triggerType)
-                .forEach(trigger -> executeTriggerCommands(itemModel, itemData, trigger.getCommands()));
+                .forEach(trigger -> executePropertyTrigger(itemModel, itemData, trigger));
     }
 
     private boolean isWritableOwnedRelation(Relation relation) {
