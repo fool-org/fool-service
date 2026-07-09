@@ -1308,6 +1308,21 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         values = legacy_response_list(payload, "EnumValues")
         return any(isinstance(value, dict) and value.get("Name") and value.get("Value") is not None for value in values)
 
+    def get_enum_legacy_web_payload_ok() -> bool:
+        columns = view_state.get("columns")
+        if not isinstance(columns, list):
+            return False
+        model_id = enum_view_model_id(columns)
+        if not model_id:
+            return False
+        payload = post_json(
+            f"{frontend_url}/api/v1/data/getenum",
+            {"modelid": str(model_id)},
+            timeout,
+        )
+        values = legacy_response_list(payload, "EnumValues")
+        return any(isinstance(value, dict) and value.get("Name") and value.get("Value") is not None for value in values)
+
     def querydata_ok() -> bool:
         view_id = loaded_list_view_id()
         if not view_id:
@@ -1537,6 +1552,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "data:getenums",
             get_enums_ok,
             "POST /api/v1/data/getenums uses an enum model from the loaded View metadata",
+        ),
+        (
+            "data:getenum-legacy-web-payload",
+            get_enum_legacy_web_payload_ok,
+            "POST /api/v1/data/getenum accepts legacy Web modelid payload",
         ),
         (
             "data:querydata",

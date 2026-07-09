@@ -37,6 +37,7 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"ParentObjId":"5001"}' http://localhost:8080/api/v1/data/initnew`
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"ParentObjId":"5001"}' http://localhost:8081/api/v1/data/initnew`
   `curl -H 'Content-Type: application/json' -d '{"modelId":"102"}' http://localhost:8080/api/v1/data/getenums`
+  `curl -H 'Content-Type: application/json' -d '{"modelid":"102"}' http://localhost:8081/api/v1/data/getenum`
   `curl -H 'Content-Type: application/json' -d '{"viewId":100,"viewItemId":"symbol","text":"BTC"}' http://localhost:8080/api/v1/data/inputquery`
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"ViewItemId":"Customer","Text":"Ada","IsAdded":false}' http://localhost:8080/api/v1/data/inputquery`
   `curl -H 'Content-Type: application/json' -d '{"Text":"Ada","ViewId":100,"ViewItemId":"Customer","ModelID":"103","ObjID":"1001","OwnerId":"5001","IsAdded":false}' http://localhost:8080/api/v1/data/inputquery`
@@ -106,6 +107,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: backend `getenums` now exposes the old FoolFrame Web
+  `/model/getenum` wrapper as `/api/v1/data/getenum`, accepting the lowercase
+  `modelid` payload while reusing the migrated enum lookup service. The Docker
+  runtime doctor proves the route through the Vue proxy.
 - 2026-07-10: backend save routes now accept the old FoolFrame Web
   `detailview.js` wrappers as `/api/v1/data/save` and `/api/v1/data/new`,
   including `obj` plus `ownerviewid` / `ownerid` / `prpid`, while reusing the

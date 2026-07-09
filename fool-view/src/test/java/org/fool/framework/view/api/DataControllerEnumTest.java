@@ -64,6 +64,15 @@ public class DataControllerEnumTest {
         assertEquals(Integer.valueOf(2), response.getData().getEnumValues().get(1).getValue());
     }
 
+    @Test
+    public void getEnumsAlsoExposesLegacyWebGetEnumRoute() throws Exception {
+        var mapping = DataController.class
+                .getMethod("getEnums", GetEnumRequest.class)
+                .getAnnotation(org.springframework.web.bind.annotation.PostMapping.class);
+
+        assertTrue(List.of(mapping.value()).contains("/getenum"));
+    }
+
     private static EnumValue enumValue(String name, String value) {
         EnumValue enumValue = new EnumValue();
         enumValue.setName(name);

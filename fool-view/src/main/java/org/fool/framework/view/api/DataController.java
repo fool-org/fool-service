@@ -83,7 +83,7 @@ public class DataController {
         return new CommonResponse<>(dataQueryService.initLegacyNewObject(viewId, request.getParentObjId()));
     }
 
-    @PostMapping("/getenums")
+    @PostMapping({"/getenums", "/getenum"})
     @ResponseBody
     public CommonResponse<GetEnumResult> getEnums(@RequestBody GetEnumRequest request) {
         GetEnumResult result = new GetEnumResult();

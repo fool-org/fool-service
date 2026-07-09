@@ -784,7 +784,7 @@ class RuntimeDoctorTest(unittest.TestCase):
                     ],
                     "Operations": [{"Name": "\u5220\u9664"}, {"Name": "\u4fdd\u5b58"}],
                 }}
-            if url.endswith("/data/getenums"):
+            if url.endswith("/data/getenums") or url.endswith("/data/getenum"):
                 return {"code": 0, "data": {"EnumValues": [{"Name": "Open", "Value": 0}]}}
             return {"code": 0, "data": None}
 
@@ -799,7 +799,9 @@ class RuntimeDoctorTest(unittest.TestCase):
         by_name = {result.name: result for result in results}
         self.assertIn("data:getenums", by_name)
         self.assertTrue(by_name["data:getenums"].ok)
+        self.assertTrue(by_name["data:getenum-legacy-web-payload"].ok)
         self.assertIn(("http://frontend/api/v1/data/getenums", {"ModelId": "300"}), calls)
+        self.assertIn(("http://frontend/api/v1/data/getenum", {"modelid": "300"}), calls)
 
     def test_api_checks_getmenu_uses_legacy_web_authcode_payload(self) -> None:
         calls: list[tuple[str, object]] = []
