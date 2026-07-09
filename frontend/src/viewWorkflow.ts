@@ -634,6 +634,18 @@ export function legacyViewPathId(pathname: string) {
   return match ? Number(match[1]) || 0 : 0;
 }
 
+export function legacyDetailPath(pathname: string) {
+  const match = pathname.match(/^\/view(\d+)\/([^/]+)\/?$/);
+  const viewId = match ? Number(match[1]) || 0 : 0;
+  return viewId && match?.[2] ? { viewId, objectId: match[2] } : null;
+}
+
+export function legacyNewPath(pathname: string) {
+  const match = pathname.match(/^\/new(\d+)(?:\/([^&/]*)&([^&/]*)&([^/]*))?\/?$/);
+  const viewId = match ? Number(match[1]) || 0 : 0;
+  return viewId ? { viewId, parentObjId: match?.[2] || "", ownerViewId: match?.[3] || "", property: match?.[4] || "" } : null;
+}
+
 export function viewOperations(view: ListViewInfo | undefined) {
   return firstList(view?.operations, view?.Operations);
 }

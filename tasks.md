@@ -681,6 +681,9 @@ explicitly named as authoritative for fool-service.
       legacy FoolFrame `GroupViewController` simple-item branch.
 - [x] Start Vue from the old FoolFrame Web `/view:id` list route by applying
       the path View id before loading app-default View metadata.
+- [x] Start Vue from the old FoolFrame Web detail/new routes by reusing
+      `queryDetail` and `startNewObject` with parsed path View/object/owner
+      context.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

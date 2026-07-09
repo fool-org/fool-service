@@ -84,6 +84,7 @@ import {
   legacyInitAppDbId,
   legacyInputQueryItems,
   legacyChartData,
+  legacyDetailPath,
   legacyMainMenuItems,
   legacyMessageContent,
   legacyMessageId,
@@ -99,6 +100,7 @@ import {
   listRows,
   listTotalItems,
   listTotalPages,
+  legacyNewPath,
   legacyViewPathId,
   operationId as operationInfoId, operationKey, operationLabel, operationTargetViewId,
   reportGridCells,
@@ -844,18 +846,21 @@ async function ensureLegacySession() {
   return Boolean(token.value);
 }
 
+async function ensureLegacyShell() {
+  if (!(await ensureLegacySession())) return false;
+  if (await loadMainInfo()) return true;
+  token.value = "";
+  localStorage.removeItem("fool-service-token");
+  return (await ensureLegacySession()) && Boolean(await loadMainInfo());
+}
+
 async function loadViewWorkflow(resetPage = false) {
   stopAutoRefresh();
   if (resetPage) {
     pageIndex.value = 1;
   }
   if (!resetPage && !viewResponse.value) {
-    if (!(await ensureLegacySession())) return;
-    if (!(await loadMainInfo())) {
-      token.value = "";
-      localStorage.removeItem("fool-service-token");
-      if (!(await ensureLegacySession()) || !(await loadMainInfo())) return;
-    }
+    if (!(await ensureLegacyShell())) return;
   }
   const loadedView = await loadLegacyListView();
   if (!loadedView) {
@@ -869,7 +874,38 @@ async function loadViewWorkflow(resetPage = false) {
   }
 }
 
+async function loadLegacyDetailPath(route: { viewId: number; objectId: string }) {
+  stopAutoRefresh();
+  activeSection.value = "views";
+  applyRequestedViewId(route.viewId);
+  if (!(await ensureLegacyShell())) return;
+  isCreatingObject.value = false;
+  selectedObjectId.value = route.objectId;
+  detailObjId.value = route.objectId;
+  saveObjId.value = route.objectId;
+  operationObjectId.value = route.objectId;
+  await queryDetail(route.viewId);
+}
+
+async function loadLegacyNewPath(route: { viewId: number; parentObjId: string; ownerViewId: string; property: string }) {
+  stopAutoRefresh();
+  activeSection.value = "views";
+  applyRequestedViewId(route.viewId);
+  if (!(await ensureLegacyShell())) return;
+  await startNewObject(route.viewId, route.parentObjId, route.ownerViewId, route.property);
+}
+
 onMounted(() => {
+  const detailRoute = legacyDetailPath(window.location.pathname);
+  if (detailRoute) {
+    void loadLegacyDetailPath(detailRoute);
+    return;
+  }
+  const newRoute = legacyNewPath(window.location.pathname);
+  if (newRoute) {
+    void loadLegacyNewPath(newRoute);
+    return;
+  }
   const routeViewId = legacyViewPathId(window.location.pathname);
   if (routeViewId) applyRequestedViewId(routeViewId);
   void loadViewWorkflow();
@@ -911,16 +947,19 @@ async function selectObject(row: ListDataItem, viewId = Number(detailViewId.valu
   await queryDetail(viewId);
 }
 
-async function startNewObject(viewId = Number(detailViewId.value)) {
+async function startNewObject(viewId = Number(detailViewId.value), parentObjId = "", ownerViewId = "", property = "") {
   detailViewId.value = viewId;
   detailResponse.value = null;
   initNewViewId.value = viewId;
-  initNewParentObjId.value = "";
+  initNewParentObjId.value = parentObjId;
+  saveNewOwnerViewId.value = ownerViewId;
+  saveNewOwnerId.value = parentObjId;
+  saveNewProperty.value = property;
   const initialized = await initNew();
   if (!initialized) {
     return;
   }
-  if (!resultRows.value.length) {
+  if (!resultRows.value.length && currentViewId.value) {
     await queryCurrentViewData();
   }
   detailResponse.value = initialized;
@@ -944,9 +983,6 @@ async function saveSelectedObject() {
     saveNewObjId.value = selectedObjectId.value;
     saveNewViewId.value = String(initNewViewId.value);
     saveNewPropertyiesJson.value = propertyiesJson;
-    saveNewOwnerViewId.value = "";
-    saveNewOwnerId.value = "";
-    saveNewProperty.value = "";
     saved = await saveNewObj();
   } else {
     saveObjId.value = selectedObjectId.value;

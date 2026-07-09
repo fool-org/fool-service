@@ -50,6 +50,7 @@ import {
   legacyCheckCodeCode,
   legacyCheckCodeImage,
   legacyCheckCodeKey,
+  legacyDetailPath,
   legacyEnumName,
   legacyEnumValue,
   legacyEnumValues,
@@ -64,6 +65,7 @@ import {
   legacyMessageResultKey,
   legacyMessageResultView,
   legacyMessages,
+  legacyNewPath,
   legacyNotifies,
   legacyNotifyAuthNo,
   legacyNotifyCount,
@@ -932,6 +934,18 @@ describe("view workflow helpers", () => {
     expect(legacyViewPathId("/view100/")).toBe(100);
     expect(legacyViewPathId("/view100/1001")).toBe(0);
     expect(legacyViewPathId("/new100")).toBe(0);
+  });
+
+  it("reads the old FoolFrame Web detail and new routes", () => {
+    expect(legacyDetailPath("/view100/1001")).toEqual({ viewId: 100, objectId: "1001" });
+    expect(legacyDetailPath("/view100")).toBeNull();
+    expect(legacyNewPath("/new200")).toEqual({ viewId: 200, parentObjId: "", ownerViewId: "", property: "" });
+    expect(legacyNewPath("/new200/1001&100&items")).toEqual({
+      viewId: 200,
+      parentObjId: "1001",
+      ownerViewId: "100",
+      property: "items"
+    });
   });
 
   it("reads initapp and check-code fields from Pascal or camel legacy payloads", () => {

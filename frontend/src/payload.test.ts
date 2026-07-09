@@ -180,7 +180,7 @@ describe("App defaults", () => {
     expect(viewDataWorkflowSource).toContain("/api/v1/data/querydata");
     expect(viewDataWorkflowSource).toContain("viewDetailViewId(view, loadedViewId)");
     expect(appSource).toContain("async function selectObject(row: ListDataItem, viewId = Number(detailViewId.value))");
-    expect(appSource).toContain("async function startNewObject(viewId = Number(detailViewId.value))");
+    expect(appSource).toContain("async function startNewObject(viewId = Number(detailViewId.value)");
     expect(appSource).toContain("await queryDetail(Number(detailViewId.value))");
     expect(appSource).toContain("saveViewId.value = String(detailViewId.value)");
     expect(viewDataWorkflowSource).toContain("listRenderColumns(viewResponse.value?.data)");
@@ -368,15 +368,20 @@ describe("App defaults", () => {
       appSource.indexOf("async function loadViewWorkflow"),
       appSource.indexOf("onMounted(()")
     );
+    const shellSource = appSource.slice(
+      appSource.indexOf("async function ensureLegacyShell"),
+      appSource.indexOf("async function loadViewWorkflow")
+    );
 
     expect(appSource).toContain('const password = ref("admin")');
     expect(appSource).toContain("async function ensureLegacySession");
-    expect(workflowSource.indexOf("await ensureLegacySession()")).toBeGreaterThanOrEqual(0);
-    expect(workflowSource.indexOf("await ensureLegacySession()")).toBeLessThan(workflowSource.indexOf("await loadMainInfo()"));
+    expect(shellSource.indexOf("await ensureLegacySession()")).toBeGreaterThanOrEqual(0);
+    expect(shellSource.indexOf("await ensureLegacySession()")).toBeLessThan(shellSource.indexOf("await loadMainInfo()"));
     expect(appSource).toContain("legacyAppDefaultViewId");
     expect(appSource).toContain("applyDefaultAppView(response.data)");
-    expect(workflowSource.indexOf("await loadMainInfo()")).toBeGreaterThanOrEqual(0);
-    expect(workflowSource.indexOf("await loadMainInfo()")).toBeLessThan(workflowSource.indexOf("await loadLegacyListView()"));
+    expect(shellSource.indexOf("await loadMainInfo()")).toBeGreaterThanOrEqual(0);
+    expect(workflowSource).toContain("if (!(await ensureLegacyShell())) return");
+    expect(workflowSource.indexOf("await ensureLegacyShell()")).toBeLessThan(workflowSource.indexOf("await loadLegacyListView()"));
   });
 
   it("starts old Web /view:id paths through the same View-first workflow", () => {
@@ -385,16 +390,30 @@ describe("App defaults", () => {
     expect(appSource).toContain("if (defaultViewId && !legacyListViewId.value) applyRequestedViewId(defaultViewId)");
   });
 
+  it("starts old Web detail and new paths through existing View-first detail flows", () => {
+    expect(appSource).toContain("legacyDetailPath(window.location.pathname)");
+    expect(appSource).toContain("void loadLegacyDetailPath(detailRoute)");
+    expect(appSource).toContain("await queryDetail(route.viewId)");
+    expect(appSource).toContain("legacyNewPath(window.location.pathname)");
+    expect(appSource).toContain("void loadLegacyNewPath(newRoute)");
+    expect(appSource).toContain("await startNewObject(route.viewId, route.parentObjId, route.ownerViewId, route.property)");
+    expect(appSource).toContain('async function startNewObject(viewId = Number(detailViewId.value), parentObjId = "", ownerViewId = "", property = "")');
+    expect(appSource).toContain("saveNewOwnerViewId.value = ownerViewId");
+    expect(appSource).toContain("saveNewOwnerId.value = parentObjId");
+    expect(appSource).toContain("saveNewProperty.value = property");
+    expect(appSource).not.toContain('saveNewOwnerViewId.value = ""');
+  });
+
   it("retries the first-screen legacy shell after a stale stored token", () => {
-    const workflowSource = appSource.slice(
-      appSource.indexOf("async function loadViewWorkflow"),
-      appSource.indexOf("onMounted(()")
+    const shellSource = appSource.slice(
+      appSource.indexOf("async function ensureLegacyShell"),
+      appSource.indexOf("async function loadViewWorkflow")
     );
 
-    expect(workflowSource).toContain("if (!(await loadMainInfo()))");
-    expect(workflowSource).toContain("token.value = \"\"");
-    expect(workflowSource).toContain('localStorage.removeItem("fool-service-token")');
-    expect(workflowSource).toContain("if (!(await ensureLegacySession()) || !(await loadMainInfo())) return");
+    expect(shellSource).toContain("if (await loadMainInfo()) return true");
+    expect(shellSource).toContain("token.value = \"\"");
+    expect(shellSource).toContain('localStorage.removeItem("fool-service-token")');
+    expect(shellSource).toContain("return (await ensureLegacySession()) && Boolean(await loadMainInfo())");
   });
 
   it("renders legacy shell menu entries and opens their View ids", () => {

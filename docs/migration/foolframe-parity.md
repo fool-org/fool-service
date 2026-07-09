@@ -114,6 +114,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: Vue startup now also recognizes the old FoolFrame Web
+  detail/new routes `/view:id/:objid`, `/new:id`, and
+  `/new:id/:objid&:ownerviewid&:prpid`. Detail routes load
+  `getreaditemview(ViewId)` before `querydatadetail(ViewId, ObjId)`, and new
+  routes reuse `initnew(ViewId, ParentObjId)` while preserving owner view,
+  owner id, and property for the existing `savenewobj` path.
 - 2026-07-10: Vue startup now reads the old FoolFrame Web list route
   `/view:id` from `window.location.pathname` and uses that View id before the
   legacy app default, keeping the startup path on `getlistview(ViewId)` then
