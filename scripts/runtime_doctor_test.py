@@ -86,6 +86,13 @@ class RuntimeDoctorTest(unittest.TestCase):
             "SW_SYS_MODEL\tMODEL_ID",
             "SW_SYS_MODEL\tMODEL_NAME",
             "SW_SYS_MODEL\tMODEL_DATABASETABLE",
+            "SW_SYS_MODEL\tMODEL_PARENT",
+            "SW_SYS_MODEL\tMODEL_IDPROPERTY",
+            "SW_SYS_MODEL\tMODEL_DEFAULTFORMAT",
+            "SW_SYS_MODEL\tMODEL_TYPE",
+            "SW_SYS_MODEL\tMODEL_ISVIEW",
+            "SW_SYS_MODEL\tMODEL_DEFAULTLISTVIEW",
+            "SW_SYS_MODEL\tMODEL_DEFAULTITEMVIEW",
             "SW_SYS_PROPERTY\tSysId",
             "SW_SYS_PROPERTY\tPROPERTY_NAME",
             "SW_SYS_PROPERTY\tPROPERTY_TYPE",
@@ -107,6 +114,7 @@ class RuntimeDoctorTest(unittest.TestCase):
 
         self.assertTrue(schema_ok(raw))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_VIEW_ITEM\tVIEW_ITEM_PROPERTY\n", "")))
+        self.assertFalse(schema_ok(raw.replace("SW_SYS_MODEL\tMODEL_PARENT\n", "")))
 
     def test_common_response_list_requires_success_and_nonempty_list(self) -> None:
         self.assertTrue(common_response_list({"code": 0, "data": {"items": [1]}}, "items"))

@@ -484,6 +484,9 @@ explicitly named as authoritative for fool-service.
       DBMaps coverage, and routed transaction tests against FoolFrame
       `AssemblyModelFactory`, trimming stale remaining-work wording without
       adding speculative classpath APIs.
+- [x] Complete the legacy `SW_SYS_MODEL` parent/id-property/type/is-view,
+      default-format/default-view schema and `AppInstalledModel` mapping, and
+      guard those columns in the Docker runtime doctor.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

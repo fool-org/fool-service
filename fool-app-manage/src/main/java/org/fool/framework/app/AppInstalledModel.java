@@ -26,12 +26,26 @@ public class AppInstalledModel {
     private Integer connectionType;
     @Column("MODEL_DATABASETABLE")
     private String tableName;
+    @Column("MODEL_PARENT")
+    private Long baseModelId;
     @Column("MODEL_MODULE")
     private String moduleName;
     @Column("MODEL_AUTOID")
     private Boolean autoSysId;
+    @Column("MODEL_IDPROPERTY")
+    private Long idPropertyId;
+    @Column("MODEL_DEFAULTFORMAT")
+    private String defaultFormat;
+    @Column("MODEL_TYPE")
+    private Integer modelType;
+    @Column("MODEL_ISVIEW")
+    private Boolean view;
     @Column("MODEL_CON")
     private String connection;
+    @Column("MODEL_DEFAULTLISTVIEW")
+    private Long defaultListViewId;
+    @Column("MODEL_DEFAULTITEMVIEW")
+    private Long defaultItemViewId;
     @Column("MODEL_DEFAULTOWNER")
     private Long defaultOwnerId;
 
@@ -49,6 +63,7 @@ public class AppInstalledModel {
         model.setModuleName(moduleName);
         model.setConnectionType(connectionType);
         model.setAutoSysId(false);
+        model.setView(false);
         model.setConnection(connection);
         return model;
     }
@@ -62,9 +77,13 @@ public class AppInstalledModel {
         model.setModelName(source.getName());
         model.setClassName(source.getClassName());
         model.setTableName(source.getTableName());
+        model.setBaseModelId(source.getBaseModel() == null ? null : source.getBaseModel().getId());
         model.setModuleName(moduleName);
         model.setConnectionType(connectionType);
         model.setAutoSysId(Boolean.TRUE.equals(source.getAutoSysId()));
+        model.setIdPropertyId(source.getIdProperty() == null ? null : source.getIdProperty().getId());
+        model.setModelType(source.getModelType() == null ? null : source.getModelType().code());
+        model.setView(false);
         model.setConnection(connection);
         model.setDefaultOwnerId(source.getOwner() == null ? null : source.getOwner().getId());
         return model;
