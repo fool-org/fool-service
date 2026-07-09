@@ -61,6 +61,16 @@ public class MessageControllerTest {
     }
 
     @Test
+    public void getmsgAlsoExposesLegacyRootRoute() throws Exception {
+        var mapping = MessageController.class
+                .getMethod("getMessages", CommonRequest.class)
+                .getAnnotation(org.springframework.web.bind.annotation.PostMapping.class);
+
+        assertTrue(List.of(mapping.value()).contains("/api/v1/message/getmsg"));
+        assertTrue(List.of(mapping.value()).contains("/api/v1/getmsg"));
+    }
+
+    @Test
     public void getnotifyReturnsEmptyLegacyNotifyList() throws Exception {
         StubAuthService authService = new StubAuthService("admin");
         MessageController controller = new MessageController(authService, new CapturingMessageRepository(List.of()));

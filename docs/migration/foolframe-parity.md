@@ -71,6 +71,7 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `curl -H 'Content-Type: application/json' -d '{"viewid":100,"reportname":"Order Daily","cols":[{"ColName":"Symbol","Index":1}],"exp":null}' http://localhost:8081/api/v1/report/saverpt`
   `curl -H 'Content-Type: application/json' -d '{"token":"<login-token>"}' http://localhost:8080/api/v1/message/getmsg`
   `curl -H 'Content-Type: application/json' -d '{"token":"<login-token>"}' http://localhost:8081/api/v1/message/getmsg`
+  `curl -H 'Content-Type: application/json' -d '{"Token":"<login-token>"}' http://localhost:8081/api/v1/getmsg`
   `curl -H 'Content-Type: application/json' -d '{"token":"<login-token>"}' http://localhost:8080/api/v1/message/getnotify`
   `curl -H 'Content-Type: application/json' -d '{"token":"<login-token>"}' http://localhost:8081/api/v1/message/getnotify`
   `curl -H 'Content-Type: application/json' -d '{"Token":"<login-token>"}' http://localhost:8080/api/v1/auth/getuserinfo`
@@ -113,6 +114,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: backend message polling now exposes the old FoolFrame Web
+  root `POST /getmsg` shape as `/api/v1/getmsg`, reusing the migrated
+  `getmsg` service path and legacy `Messages` aliases. The Docker runtime
+  doctor proves the route through the Vue proxy.
 - 2026-07-10: backend `inputquery` now accepts the old FoolFrame
   Cloud-Social payload where `soway.inputquery` sends the numeric View id in
   `ViewName`, while nonnumeric business-name `ViewName` remains rejected. The

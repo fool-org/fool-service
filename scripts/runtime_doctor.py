@@ -847,6 +847,15 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "Messages",
         )
 
+    def get_messages_legacy_web_route_ok() -> bool:
+        token = auth_state.get("token")
+        if not token:
+            return False
+        return response_list_field_present(
+            post_json(f"{frontend_url}/api/v1/getmsg", {"Token": token}, timeout),
+            "Messages",
+        )
+
     def get_notify_ok() -> bool:
         token = auth_state.get("token")
         if not token:
@@ -1833,6 +1842,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "message:getmsg",
             get_messages_ok,
             "POST /api/v1/message/getmsg returns legacy Messages list",
+        ),
+        (
+            "message:getmsg-legacy-web-route",
+            get_messages_legacy_web_route_ok,
+            "POST /api/v1/getmsg exposes the old FoolFrame Web getmsg route",
         ),
         (
             "message:getnotify",

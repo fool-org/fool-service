@@ -61,6 +61,8 @@ class RuntimeDoctorTest(unittest.TestCase):
             "/data/saveobj": {"code": 0, "data": None},
             "/data/save": {"code": 0, "data": None},
             "/data/inputquery": {"code": 0, "data": {"items": [{}], "Items": [{}]}},
+            "/getmsg": {"code": 0, "data": {"Messages": []}},
+            "/message/getnotify": {"code": 0, "data": {"Notifies": []}},
         }
         for suffix, response in suffixes.items():
             if url.endswith(suffix):
@@ -741,6 +743,8 @@ class RuntimeDoctorTest(unittest.TestCase):
                 ]}}
             if url.endswith("/message/getmsg"):
                 return {"code": 0, "data": {"Messages": []}}
+            if url.endswith("/getmsg"):
+                return {"code": 0, "data": {"Messages": []}}
             if url.endswith("/message/getnotify"):
                 return {"code": 0, "data": {"Notifies": []}}
             return {"code": 0, "data": None}
@@ -835,6 +839,30 @@ class RuntimeDoctorTest(unittest.TestCase):
         by_name = {result.name: result for result in results}
         self.assertTrue(by_name["auth:getmenu-legacy-web-payload"].ok)
         self.assertIn(("http://frontend/api/v1/auth/getmenu", {"Token": "t", "authcode": "0101"}), calls)
+
+    def test_api_checks_getmsg_accepts_legacy_web_route(self) -> None:
+        calls: list[tuple[str, object]] = []
+        original_get_json = runtime_doctor.get_json
+        original_post_json = runtime_doctor.post_json
+
+        def fake_get_json(_url: str, _timeout: float) -> object:
+            return []
+
+        def fake_post_json(url: str, payload: object, _timeout: float) -> dict[str, object]:
+            calls.append((url, payload))
+            return self.runtime_default_post_response(url, payload) or {"code": 0, "data": None}
+
+        try:
+            runtime_doctor.get_json = fake_get_json
+            runtime_doctor.post_json = fake_post_json
+            results = api_checks("http://backend", "http://frontend", 1.0)
+        finally:
+            runtime_doctor.get_json = original_get_json
+            runtime_doctor.post_json = original_post_json
+
+        by_name = {result.name: result for result in results}
+        self.assertTrue(by_name["message:getmsg-legacy-web-route"].ok)
+        self.assertIn(("http://frontend/api/v1/getmsg", {"Token": "t"}), calls)
 
     def test_api_checks_saverpt_accepts_legacy_web_payload(self) -> None:
         calls: list[tuple[str, object]] = []

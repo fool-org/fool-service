@@ -381,6 +381,8 @@ explicitly named as authoritative for fool-service.
 - [x] Expose FoolFrame Pascal message aliases for `getmsg` / `getnotify`
       while keeping the Vue message panel on the existing compatibility
       contract.
+- [x] Expose the old FoolFrame Web root `POST /getmsg` shape as
+      `/api/v1/getmsg`, reusing the migrated message polling service path.
 - [x] Expose FoolFrame Pascal `getcheckcode` / `initapp` response aliases and
       make the runtime doctor require those legacy fields before auth login.
 - [x] Accept the old FoolFrame Web `/user/getchk` route shape as

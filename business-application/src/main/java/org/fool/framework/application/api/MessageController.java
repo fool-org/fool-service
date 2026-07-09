@@ -9,14 +9,12 @@ import org.fool.framework.event.EventMessage;
 import org.fool.framework.event.EventMessageRepository;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/message")
 public class MessageController {
     private final AuthService authService;
     private final EventMessageRepository messageRepository;
@@ -26,7 +24,7 @@ public class MessageController {
         this.messageRepository = messageRepository;
     }
 
-    @PostMapping("/getmsg")
+    @PostMapping({"/api/v1/message/getmsg", "/api/v1/getmsg"})
     public CommonResponse<GetMessageResult> getMessages(@RequestBody CommonRequest request) {
         String userId = authService.getInfoByToken(request.getToken()).getId();
         List<EventMessage> messages = messageRepository.findGeneratedForUser(userId, 1);
@@ -35,7 +33,7 @@ public class MessageController {
         return new CommonResponse<>(new GetMessageResult(messages.stream().map(this::toInfo).toList()));
     }
 
-    @PostMapping("/getnotify")
+    @PostMapping("/api/v1/message/getnotify")
     public CommonResponse<GetNotifyResult> getNotify(@RequestBody CommonRequest request) {
         // ponytail: legacy DataService.GetNotify throws NotImplementedException; keep the migrated shell empty.
         authService.getInfoByToken(request.getToken());
