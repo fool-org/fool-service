@@ -41,7 +41,7 @@ public class ViewAdapter {
         result.setViewType(view.getViewType());
         result.setType(view.getViewType());
         result.setShowType(view.getViewType());
-        result.setTempFile("");
+        result.setTempFile(safeTempFile(view));
         result.setBrowserTitle(view.getViewRemark());
         result.setDetailViewId(safeDetailViewId(view));
         result.setAutoFreshTime(safeAutoFreshTime(view));
@@ -136,6 +136,10 @@ public class ViewAdapter {
 
     private Integer safeAutoFreshTime(View view) {
         return view.getAutoFreshInterval() == null ? 0 : view.getAutoFreshInterval();
+    }
+
+    private String safeTempFile(View view) {
+        return view.getTempFile() == null ? "" : view.getTempFile();
     }
 
     private PropertyType safePropertyType(ViewItem item) {

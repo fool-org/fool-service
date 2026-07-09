@@ -23,6 +23,8 @@ public class View {
     @Column("view_id")
     private List<ViewItem> listItems;
     private String viewModelClass;
+    @Column(noMap = true)
+    private transient String tempFile;
     private transient View defaultDetailView;
     private transient List<ViewOperation> operations = new LinkedList<>();
 }

@@ -59,6 +59,14 @@ public class ViewDataService {
     private static final String DEFAULT_DETAIL_VIEW_SQL = "SELECT `VIEW_DEFAULT` "
             + "FROM `SW_SYS_VIEW` "
             + "WHERE `VIEW_ID` = ? AND `VIEW_DEFAULT` IS NOT NULL";
+    private static final String VIEW_TEMP_FILE_SQL = "SELECT vf.`VIEW_FILE_FILENAME` "
+            + "FROM `SW_SYS_VIEW` v "
+            + "JOIN `SW_SYS_VIEW_FILE` vf ON vf.`VIEW_FILE_ID` = v.`VIEW_FILE` "
+            + "WHERE v.`VIEW_ID` = ?";
+    private static final String VIEW_ITEM_FILE_SQL = "SELECT vi.`SysId`, vf.`VIEW_FILE_FILENAME` "
+            + "FROM `SW_SYS_VIEW_ITEM` vi "
+            + "JOIN `SW_SYS_VIEW_FILE` vf ON vf.`VIEW_FILE_ID` = vi.`VIEW_ITEM_FILE` "
+            + "WHERE vi.`SW_SYS_VIEW_ItemsVIEW_ID` = ?";
 
     @Autowired
     private DaoService daoService;
@@ -67,6 +75,7 @@ public class ViewDataService {
         var view = daoService.getOneDetailByKey(View.class, requireViewId(viewId));
         attachProperties(view);
         attachDefaultDetailView(view);
+        attachTemplateFiles(view);
         attachOperations(view);
         return view;
     }
@@ -91,6 +100,32 @@ public class ViewDataService {
         View detailView = new View();
         detailView.setId(rows.get(0).viewId);
         view.setDefaultDetailView(detailView);
+    }
+
+    private void attachTemplateFiles(View view) {
+        if (view == null || view.getId() == null) {
+            return;
+        }
+        List<ViewTempFileRow> viewFiles = daoService.selectList(ViewTempFileRow.class, VIEW_TEMP_FILE_SQL, view.getId());
+        if (!CollectionUtils.isEmpty(viewFiles) && StringUtils.hasText(viewFiles.get(0).fileName)) {
+            view.setTempFile(viewFiles.get(0).fileName);
+        }
+        if (CollectionUtils.isEmpty(view.getListItems())) {
+            return;
+        }
+        List<ViewItemFileRow> itemFiles = daoService.selectList(ViewItemFileRow.class, VIEW_ITEM_FILE_SQL, view.getId());
+        if (CollectionUtils.isEmpty(itemFiles)) {
+            return;
+        }
+        for (ViewItemFileRow row : itemFiles) {
+            if (row.itemId == null || !StringUtils.hasText(row.fileName)) {
+                continue;
+            }
+            view.getListItems().stream()
+                    .filter(item -> row.itemId.equals(item.getId()))
+                    .findFirst()
+                    .ifPresent(item -> item.setViewFile(row.fileName));
+        }
     }
 
     private void attachOperations(View view) {
@@ -138,5 +173,17 @@ public class ViewDataService {
     public static final class DefaultDetailViewRow {
         @Column("VIEW_DEFAULT")
         public Long viewId;
+    }
+
+    public static final class ViewTempFileRow {
+        @Column("VIEW_FILE_FILENAME")
+        public String fileName;
+    }
+
+    public static final class ViewItemFileRow {
+        @Column("SysId")
+        public Long itemId;
+        @Column("VIEW_FILE_FILENAME")
+        public String fileName;
     }
 }

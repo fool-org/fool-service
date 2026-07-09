@@ -139,6 +139,37 @@ public class ViewDataServiceTest {
     }
 
     @Test
+    public void getViewDataHydratesLegacyViewAndItemTemplateFiles() {
+        DaoService daoService = mock(DaoService.class);
+        ViewDataService service = new ViewDataService();
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+
+        ViewItem item = new ViewItem();
+        item.setId(901L);
+        View view = new View();
+        view.setId(100L);
+        view.setViewModel("Order");
+        view.setListItems(List.of(item));
+        ViewDataService.ViewTempFileRow viewFile = new ViewDataService.ViewTempFileRow();
+        viewFile.fileName = "viewWithChart";
+        ViewDataService.ViewItemFileRow itemFile = new ViewDataService.ViewItemFileRow();
+        itemFile.itemId = 901L;
+        itemFile.fileName = "./includes/List";
+
+        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
+        when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(new Model());
+        when(daoService.selectList(eq(ViewDataService.ViewTempFileRow.class), anyString(), eq(100L)))
+                .thenReturn(List.of(viewFile));
+        when(daoService.selectList(eq(ViewDataService.ViewItemFileRow.class), anyString(), eq(100L)))
+                .thenReturn(List.of(itemFile));
+
+        View result = service.getViewData("100", "");
+
+        assertEquals("viewWithChart", result.getTempFile());
+        assertEquals("./includes/List", result.getListItems().get(0).getViewFile());
+    }
+
+    @Test
     public void getViewDataHydratesLegacyOperationViewParams() {
         DaoService daoService = mock(DaoService.class);
         ViewDataService service = new ViewDataService();

@@ -11,6 +11,8 @@ explicitly named as authoritative for fool-service.
       Docker stack stabilizes.
 - [x] Make the Docker runtime doctor fail when core legacy model/view/operation
       schema columns required by the View-first workflow drift.
+- [x] Hydrate legacy View and View-item template file metadata from
+      `SW_SYS_VIEW_FILE` into `getlistview` responses.
 - [x] Resolve legacy recursive `#` owner expressions through the shared
       operation-command resolver and attach parent rows to dynamic collection
       children during load/write.

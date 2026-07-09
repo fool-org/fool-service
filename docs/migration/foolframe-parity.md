@@ -99,6 +99,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: legacy `getlistview` now hydrates View-level `TempFile` and
+  item-level `ViewFile` metadata from `SW_SYS_VIEW_FILE`, matching FoolFrame's
+  Web render dispatch surface before Vue decides how to render the loaded
+  View metadata.
 - 2026-07-09: dynamic `saveData` now uses the old FoolFrame `SYSID` when a
   no-idProperty row changes `SYSID`, matching the existing explicit-id
   old-value update behavior and avoiding missed updates on legacy dynamic rows.

@@ -268,6 +268,17 @@ public class ViewAdapterTest {
     }
 
     @Test
+    public void viewInfoIncludesLegacyTempFile() {
+        View view = new View();
+        view.setTempFile("viewWithChart");
+        view.setListItems(List.of());
+
+        ListViewInfo info = new ViewAdapter().getViewInfo(view);
+
+        assertEquals("viewWithChart", legacyTempFile(info));
+    }
+
+    @Test
     public void viewInfoIncludesLegacyNameAndShowType() {
         View view = new View();
         view.setViewName("OrderList");
