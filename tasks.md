@@ -588,6 +588,8 @@ explicitly named as authoritative for fool-service.
       `SYSID` instead of explicit id metadata.
 - [x] Let legacy `inputquery` source-list owner/current lookups use
       FoolFrame `SYSID` when model metadata has no explicit id property.
+- [x] Return FoolFrame `SYSID` from `DbMysqlDynamic.getId()` when a dynamic
+      model has no explicit id property.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

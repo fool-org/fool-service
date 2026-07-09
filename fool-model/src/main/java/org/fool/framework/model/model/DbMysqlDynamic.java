@@ -77,11 +77,12 @@ public class DbMysqlDynamic implements IDynamicData {
     @Override
     public String getId() {
 
-        if (model.getIdProperty() != null) {
+        if (model != null && model.getIdProperty() != null) {
             Object id = this.propertyMaps.get(model.getIdProperty().getName());
             return id == null ? null : id.toString();
         }
-        return null;
+        Object sysid = this.propertyMaps.get("SYSID");
+        return sysid == null ? null : sysid.toString();
     }
 
     @Override

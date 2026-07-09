@@ -99,6 +99,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: `DbMysqlDynamic.getId()` now falls back to FoolFrame `SYSID`
+  when model metadata has no explicit id property, so shared dynamic row id
+  consumers no longer need caller-specific fallback logic.
 - 2026-07-09: legacy `inputquery` source-list owner lookups now fall back to
   FoolFrame `SYSID` when the owner/current model has no explicit id property,
   keeping child lookup candidate loading on the View metadata path.
