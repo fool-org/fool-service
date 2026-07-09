@@ -1682,12 +1682,12 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 
 ## Remaining Migration Work
 
-- Continue concrete `AppInstallGateway` parity only for deeper DBMaps
-  query/runtime behavior beyond same-row dynamic loading, list-query alias
-  mapping, and collection item selection, plus arbitrary classpath dependency
-  enumeration beyond model-type references. Application/user/menu/role install
-  records, configured model/static/reflective module-source schema wiring,
-  reflection relation generation, `ColumnAttribute` metadata, enum metadata
+- Continue concrete `AppInstallGateway` parity only for arbitrary Java
+  classpath dependency enumeration beyond explicit package/model references.
+  Application/user/menu/role install records, configured model/static/reflective
+  module-source schema wiring, recursive file/jar package scanning, referenced
+  model package traversal, module dependency ordering, reflection relation
+  generation, `ColumnAttribute` metadata including DBMaps, enum metadata
   persistence, routed DAO reuse, and per-routed-connection transaction
   boundaries are covered by the current module map and tests.
 - Complete remaining `SCPB05-Soway.Model` runtime data mutations only for

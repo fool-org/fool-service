@@ -480,6 +480,10 @@ explicitly named as authoritative for fool-service.
 - [x] Preserve the legacy `loginv2` selected `DbId` in token session state so
       `@appcon` and `@datacon` resolve from token-selected App/store database
       connection strings.
+- [x] Recheck AppInstall package scanning, referenced model package traversal,
+      DBMaps coverage, and routed transaction tests against FoolFrame
+      `AssemblyModelFactory`, trimming stale remaining-work wording without
+      adding speculative classpath APIs.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
