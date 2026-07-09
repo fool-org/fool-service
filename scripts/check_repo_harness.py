@@ -7,6 +7,7 @@ import argparse
 from dataclasses import dataclass, field
 import json
 from pathlib import Path
+import re
 import sys
 from xml.sax.saxutils import escape
 
@@ -16,6 +17,7 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from standard_engine import STANDARDS, standard_catalog_payload  # noqa: E402
+from runtime_schema import LEGACY_CORE_SCHEMA_COLUMNS, MARKET_SYMBOLS_COLUMNS  # noqa: E402
 
 
 ROOT = SCRIPT_DIR.parent
@@ -66,6 +68,14 @@ MIGRATION_PARITY_MARKERS = (
     "SWDQ01-Soway.Query",
     "SCPB09-SOWAY.EVENT",
     "SWRPT01-Soway.Report",
+)
+CREATE_TABLE_RE = re.compile(
+    r"CREATE TABLE IF NOT EXISTS\s+`([^`]+)`\s*\((.*?)\)\s*(?:ENGINE\b[^;]*)?;",
+    re.IGNORECASE | re.DOTALL,
+)
+ALTER_ADD_COLUMN_RE = re.compile(
+    r"ALTER TABLE\s+`([^`]+)`\s+ADD COLUMN\s+`([^`]+)`",
+    re.IGNORECASE,
 )
 
 
@@ -346,6 +356,44 @@ def check_migration_parity_contract(root: Path, report: HarnessReport) -> None:
             )
 
 
+def docker_init_schema_columns(sql_text: str) -> set[tuple[str, str]]:
+    columns: set[tuple[str, str]] = set()
+    for table_match in CREATE_TABLE_RE.finditer(sql_text):
+        table_name = table_match.group(1)
+        for line in table_match.group(2).splitlines():
+            column_match = re.match(r"\s*`([^`]+)`\s+", line)
+            if column_match:
+                columns.add((table_name, column_match.group(1)))
+    for alter_match in ALTER_ADD_COLUMN_RE.finditer(sql_text):
+        columns.add((alter_match.group(1), alter_match.group(2)))
+    return columns
+
+
+def check_docker_init_schema_contract(root: Path, report: HarnessReport) -> None:
+    init_dir = root / "docker/mysql/init"
+    sql_files = sorted(init_dir.glob("*.sql"))
+    if not sql_files:
+        report.errors.append("Missing Docker init SQL files under docker/mysql/init")
+        return
+
+    sql_text = ""
+    for path in sql_files:
+        relative_path = path.relative_to(root).as_posix()
+        report.add_checked(relative_path)
+        sql_text += path.read_text(encoding="utf-8", errors="ignore") + "\n"
+
+    columns = docker_init_schema_columns(sql_text)
+    required_columns = LEGACY_CORE_SCHEMA_COLUMNS + tuple(
+        ("market_symbols", column) for column in MARKET_SYMBOLS_COLUMNS
+    )
+    for table_name, column_name in required_columns:
+        if (table_name, column_name) not in columns:
+            report.errors.append(
+                "Docker init schema missing runtime-doctor column: "
+                f"{table_name}.{column_name}"
+            )
+
+
 def validate_repo(root: Path | str = ROOT) -> HarnessReport:
     repo_root = Path(root).resolve()
     report = HarnessReport(root=repo_root)
@@ -357,6 +405,7 @@ def validate_repo(root: Path | str = ROOT) -> HarnessReport:
     check_java_package_boundaries(repo_root, report)
     check_vue_view_data_boundaries(repo_root, report)
     check_migration_parity_contract(repo_root, report)
+    check_docker_init_schema_contract(repo_root, report)
     return report
 
 

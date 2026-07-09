@@ -99,6 +99,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: the repository harness now checks Docker init SQL against the
+  runtime doctor schema catalog, failing if any legacy runtime column or
+  FH_JAVA `market_symbols` column covered by `scripts/runtime_schema.py` is
+  missing from `docker/mysql/init/*.sql`.
 - 2026-07-09: the Docker runtime doctor now proves legacy
   `saveobj.Itemproperties[].Items[]` update and `DelteItems[]` delete through
   the Vue proxy, reading the updated child value back and then confirming the

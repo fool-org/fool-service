@@ -552,6 +552,8 @@ explicitly named as authoritative for fool-service.
       through the Vue proxy using loaded detail child metadata.
 - [x] Refactor runtime doctor tests to reuse shared fake legacy API responses
       while keeping saveobj/savenewobj proof assertions scoped.
+- [x] Add a repository harness guard that checks Docker init SQL declares every
+      runtime-doctor legacy schema column, including FH_JAVA `market_symbols`.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

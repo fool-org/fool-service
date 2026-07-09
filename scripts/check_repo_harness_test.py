@@ -7,6 +7,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
+import check_repo_harness as harness
 from check_repo_harness import (
     HarnessReport,
     check_java_package_boundaries,
@@ -17,6 +18,54 @@ from check_repo_harness import (
 
 
 class SourceFileSizeContractTest(unittest.TestCase):
+    def test_parses_docker_init_create_and_repair_columns(self) -> None:
+        columns = harness.docker_init_schema_columns(
+            """
+            CREATE TABLE IF NOT EXISTS `SE_COMPARETYPE` (
+              `SysID` bigint NOT NULL,
+              `SE_COMPARESHOW` varchar(64) NOT NULL,
+              PRIMARY KEY (`SysID`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            SET @ddl = 'ALTER TABLE `SW_SYS_MODEL` ADD COLUMN `MODEL_PARENT` bigint DEFAULT NULL';
+            """
+        )
+
+        self.assertIn(("SE_COMPARETYPE", "SysID"), columns)
+        self.assertIn(("SE_COMPARETYPE", "SE_COMPARESHOW"), columns)
+        self.assertIn(("SW_SYS_MODEL", "MODEL_PARENT"), columns)
+
+    def test_reports_docker_init_schema_drift_from_runtime_doctor_catalog(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            init_dir = root / "docker" / "mysql" / "init"
+            init_dir.mkdir(parents=True)
+            (init_dir / "001.sql").write_text(
+                "CREATE TABLE IF NOT EXISTS `SW_SYS_MODEL` (`MODEL_ID` bigint NOT NULL);\n",
+                encoding="utf-8",
+            )
+            report = HarnessReport(root=root)
+            original_legacy = harness.LEGACY_CORE_SCHEMA_COLUMNS
+            original_market = harness.MARKET_SYMBOLS_COLUMNS
+
+            try:
+                harness.LEGACY_CORE_SCHEMA_COLUMNS = (
+                    ("SW_SYS_MODEL", "MODEL_ID"),
+                    ("SW_SYS_MODEL", "MODEL_PARENT"),
+                )
+                harness.MARKET_SYMBOLS_COLUMNS = ()
+                harness.check_docker_init_schema_contract(root, report)
+            finally:
+                harness.LEGACY_CORE_SCHEMA_COLUMNS = original_legacy
+                harness.MARKET_SYMBOLS_COLUMNS = original_market
+
+            self.assertEqual(
+                [
+                    "Docker init schema missing runtime-doctor column: "
+                    "SW_SYS_MODEL.MODEL_PARENT"
+                ],
+                report.errors,
+            )
+
     def test_reports_oversized_source_files(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
