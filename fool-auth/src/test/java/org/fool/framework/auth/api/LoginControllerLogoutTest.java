@@ -181,6 +181,27 @@ public class LoginControllerLogoutTest {
     }
 
     @Test
+    public void loginV2AcceptsLegacyWebLoginPayloadAliases() throws Exception {
+        LoginController.LegacyLoginRequest request = new ObjectMapper().readValue("""
+                {
+                  "name": "admin",
+                  "pwd": "admin",
+                  "dbid": "car_wash",
+                  "chk": "A2BC",
+                  "chkid": "key-1",
+                  "AppId": "fool-service",
+                  "AppKey": "fool-service"
+                }
+                """, LoginController.LegacyLoginRequest.class);
+
+        assertEquals("admin", request.getUserId());
+        assertEquals("admin", request.getPassWord());
+        assertEquals("car_wash", request.getDbId());
+        assertEquals("A2BC", request.getCheckCode());
+        assertEquals("key-1", request.getCheckCodeKey());
+    }
+
+    @Test
     public void getSubMenuReturnsLegacyAuthItems() throws Exception {
         AuthService authService = mock(AuthService.class);
         LoginController controller = new LoginController();

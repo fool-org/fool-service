@@ -835,6 +835,38 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertTrue(by_name["auth:getmenu-legacy-web-payload"].ok)
         self.assertIn(("http://frontend/api/v1/auth/getmenu", {"Token": "t", "authcode": "0101"}), calls)
 
+    def test_api_checks_loginv2_accepts_legacy_web_payload(self) -> None:
+        calls: list[tuple[str, object]] = []
+        original_get_json = runtime_doctor.get_json
+        original_post_json = runtime_doctor.post_json
+
+        def fake_get_json(_url: str, _timeout: float) -> object:
+            return []
+
+        def fake_post_json(url: str, payload: object, _timeout: float) -> dict[str, object]:
+            calls.append((url, payload))
+            return self.runtime_default_post_response(url, payload) or {"code": 0, "data": None}
+
+        try:
+            runtime_doctor.get_json = fake_get_json
+            runtime_doctor.post_json = fake_post_json
+            results = api_checks("http://backend", "http://frontend", 1.0)
+        finally:
+            runtime_doctor.get_json = original_get_json
+            runtime_doctor.post_json = original_post_json
+
+        by_name = {result.name: result for result in results}
+        self.assertTrue(by_name["auth:loginv2-legacy-web-payload"].ok)
+        self.assertIn(("http://frontend/api/v1/auth/loginv2", {
+            "name": "admin",
+            "pwd": "admin",
+            "dbid": "car_wash",
+            "chk": "c2",
+            "chkid": "k2",
+            "AppId": "fool-service",
+            "AppKey": "fool-service",
+        }), calls)
+
     def test_api_checks_getlistview_requires_template_metadata(self) -> None:
         original_get_json = runtime_doctor.get_json
         original_post_json = runtime_doctor.post_json

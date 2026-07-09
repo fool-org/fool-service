@@ -318,19 +318,19 @@ public class LoginController {
 
     @Data
     public static class LegacyLoginRequest {
-        @JsonAlias("UserId")
+        @JsonAlias({"UserId", "name"})
         private String userId;
-        @JsonAlias("PassWord")
+        @JsonAlias({"PassWord", "pwd"})
         private String passWord;
-        @JsonAlias("DbId")
+        @JsonAlias({"DbId", "dbid"})
         private String dbId;
-        @JsonAlias("CheckCode")
+        @JsonAlias({"CheckCode", "chk"})
         private String checkCode;
         @JsonAlias("AppId")
         private String appId;
         @JsonAlias("AppKey")
         private String appKey;
-        @JsonAlias("CheckCodeKey")
+        @JsonAlias({"CheckCodeKey", "chkid"})
         private String checkCodeKey;
     }
 

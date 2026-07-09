@@ -88,6 +88,7 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `curl -H 'Content-Type: application/json' -d '{"key":"<check-key>","code":"<check-code>"}' http://localhost:8081/api/v1/auth/checkcode`
   `curl -H 'Content-Type: application/json' -d '{"UserId":"admin","PassWord":"admin","DbId":"car_wash","CheckCode":"<check-code>","AppId":"fool-service","AppKey":"fool-service","CheckCodeKey":"<check-key>"}' http://localhost:8080/api/v1/auth/loginv2`
   `curl -H 'Content-Type: application/json' -d '{"UserId":"admin","PassWord":"admin","DbId":"car_wash","CheckCode":"<check-code>","AppId":"fool-service","AppKey":"fool-service","CheckCodeKey":"<check-key>"}' http://localhost:8081/api/v1/auth/loginv2`
+  `curl -H 'Content-Type: application/json' -d '{"name":"admin","pwd":"admin","dbid":"car_wash","chk":"<check-code>","chkid":"<check-key>","AppId":"fool-service","AppKey":"fool-service"}' http://localhost:8081/api/v1/auth/loginv2`
   `docker compose exec -T mysql mysql -uroot -pPa88word car_wash -e 'SELECT item_id,order_id,item_name FROM market_order_item WHERE order_id = 1001 ORDER BY item_id;'`
 - Auth smoke verified with Docker-seeded admin user:
   `POST /api/v1/auth/login`, `POST /api/v1/auth/profile`, and
@@ -108,6 +109,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: `loginv2` now accepts the old FoolFrame Web login field names
+  from `login.js` (`name`, `pwd`, `dbid`, `chk`, `chkid`) at the shared
+  legacy auth DTO boundary while still requiring explicit `AppId` / `AppKey`.
+  The Docker runtime doctor proves the payload through the Vue proxy.
 - 2026-07-10: the Docker runtime doctor now proves the old FoolFrame Web
   `/report/mkqview` candidate-column route through `/api/v1/report/mkqview`
   with the lower-case `viewid` payload from `mkreport.js`, reusing the

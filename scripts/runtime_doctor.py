@@ -747,6 +747,32 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             auth_state["token"] = token
         return bool(token)
 
+    def login_v2_legacy_web_payload_ok() -> bool:
+        check = post_json(f"{frontend_url}/api/v1/auth/getchk", {}, timeout)
+        if not common_response_ok(check):
+            return False
+        data = check["data"]
+        key = str(data.get("Key") or "")
+        code = str(data.get("Code") or "")
+        if not key or not code:
+            return False
+        token = legacy_login_token(post_json(
+            f"{frontend_url}/api/v1/auth/loginv2",
+            {
+                "name": "admin",
+                "pwd": "admin",
+                "dbid": "car_wash",
+                "chk": code,
+                "chkid": key,
+                "AppId": "fool-service",
+                "AppKey": "fool-service",
+            },
+            timeout,
+        ))
+        if token:
+            auth_state["token"] = token
+        return bool(token)
+
     def get_userinfo_ok() -> bool:
         token = auth_state.get("token")
         if not token:
@@ -1540,6 +1566,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "auth:loginv2",
             login_v2_ok,
             "POST /api/v1/auth/loginv2 returns a legacy token for Docker admin",
+        ),
+        (
+            "auth:loginv2-legacy-web-payload",
+            login_v2_legacy_web_payload_ok,
+            "POST /api/v1/auth/loginv2 accepts legacy Web name/pwd/dbid/chk/chkid aliases",
         ),
         (
             "auth:getuserinfo",
