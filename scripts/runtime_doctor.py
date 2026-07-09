@@ -194,8 +194,11 @@ def runoperation_result_aliases_ok(payload: dict[str, Any]) -> bool:
 def detail_response_ok(payload: dict[str, Any]) -> bool:
     if not common_response_ok(payload):
         return False
-    detail = payload["data"].get("data")
-    return isinstance(detail, dict) and bool(detail.get("simpleData"))
+    detail = payload["data"].get("data") or payload["data"].get("Data")
+    if not isinstance(detail, dict):
+        return False
+    simple_data = detail.get("simpleData") or detail.get("SimpleData")
+    return isinstance(simple_data, list) and bool(simple_data)
 
 
 def detail_view_id(payload: dict[str, Any]) -> int:
@@ -575,6 +578,16 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             timeout,
         ))
 
+    def init_new_from_loaded_detail_view() -> bool:
+        view_id = view_state.get("detailViewId")
+        if not view_id:
+            return False
+        return detail_response_ok(post_json(
+            f"{frontend_url}/api/v1/data/initnew",
+            {"ViewId": view_id},
+            timeout,
+        ))
+
     def read_item_view_from_loaded_view() -> bool:
         view_id = view_state.get("detailViewId")
         if not view_id:
@@ -788,6 +801,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "view:getreaditemview-detailviews",
             read_item_view_from_loaded_view,
             "POST /api/v1/view/getreaditemview returns DetailViews child metadata",
+        ),
+        (
+            "data:initnew",
+            init_new_from_loaded_detail_view,
+            "POST /api/v1/data/initnew uses loaded DetailViewId",
         ),
         (
             "data:inputquery",

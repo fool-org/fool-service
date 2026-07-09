@@ -530,6 +530,8 @@ explicitly named as authoritative for fool-service.
 - [x] Move runtime-doctor schema guard catalogs into a reusable module so the
       executable Docker smoke script stays smaller while migration coverage
       grows.
+- [x] Extend the Docker runtime doctor to prove legacy `initnew` through the
+      Vue proxy using the loaded detail View metadata.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
