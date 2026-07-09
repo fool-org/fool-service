@@ -370,6 +370,28 @@ class RuntimeDoctorTest(unittest.TestCase):
             ("SW_SYS_CON", "SW_SYS_CON_INTEGRATEDSECURITY"),
             ("SW_SYS_CON", "SW_SYS_CON_ISLOACL"),
         )
+        runtime_view_metadata_columns = (
+            ("fool_sys_model", "id"),
+            ("fool_sys_model", "name"),
+            ("fool_sys_model", "table_name"),
+            ("fool_sys_model", "default_owner"),
+            ("fool_sys_model_property", "id"),
+            ("fool_sys_model_property", "name"),
+            ("fool_sys_model_property", "owner"),
+            ("fool_sys_model_property", "column"),
+            ("fool_sys_model_property", "property_type"),
+            ("fool_sys_model_property", "multi_map"),
+            ("fool_sys_view", "id"),
+            ("fool_sys_view", "view_name"),
+            ("fool_sys_view", "view_model"),
+            ("fool_sys_view", "auto_fresh_interval"),
+            ("fool_sys_view_item", "id"),
+            ("fool_sys_view_item", "model_property"),
+            ("fool_sys_view_item", "edit_type"),
+            ("fool_sys_view_item", "show_index"),
+            ("fool_sys_view_item", "width"),
+            ("fool_sys_view_item", "view_id"),
+        )
         raw = "\n".join(
             f"{table}\t{column}" for table, column in runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS
         )
@@ -382,6 +404,7 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertTrue(set(query_catalog_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
         self.assertTrue(set(runtime_enum_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
         self.assertTrue(set(legacy_connection_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
+        self.assertTrue(set(runtime_view_metadata_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
         self.assertTrue(schema_ok(raw))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_VIEW_ITEM\tVIEW_ITEM_PROPERTY\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_VIEW_ITEM\tVIEW_ITEM_NAME\n", "")))
@@ -398,6 +421,7 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertFalse(schema_ok(raw.replace("SW_APP_AUTH_MENU\tAUTH_MENU_VIEWID\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_MODULE\tMODULE_NAME\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_EMUNVALUE\tEMUN_STR\n", "")))
+        self.assertFalse(schema_ok(raw.replace("fool_sys_view_item\tshow_index\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_EVT_DEF\tEVTDEF_STATE\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_EVT_EVENT\tEVT_Defination\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_MSG\tMSG_STATE\n", "")))

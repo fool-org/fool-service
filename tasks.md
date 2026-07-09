@@ -561,6 +561,8 @@ explicitly named as authoritative for fool-service.
       classpath.
 - [x] Execute legacy `ItemsSet` collection property triggers when saving
       existing owned child rows through `ModelDataService`.
+- [x] Guard modern `fool_sys_model` / property / View metadata columns in the
+      Docker runtime doctor schema contract used by the Vue View-first flow.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

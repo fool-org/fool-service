@@ -99,6 +99,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: the Docker runtime doctor now guards modern runtime metadata
+  tables used by the Vue View-first workflow: `fool_sys_model`,
+  `fool_sys_model_property`, `fool_sys_view`, and `fool_sys_view_item`.
 - 2026-07-09: legacy Many2Many/Recurve relation writes now create missing
   target rows before inserting relation rows, matching FoolFrame
   `CreateComplexRelationBuild` while reusing the existing dynamic
