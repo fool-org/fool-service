@@ -140,6 +140,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   loading. Child collection rows with multi-column BusinessObject snapshots can
   therefore hydrate through the existing `Mapper` DBMaps path instead of losing
   those values during `generateItems`.
+- 2026-07-09: legacy model runtime public write entrypoints now run inside the
+  Spring transaction for the active datasource. Parent row writes and owned
+  collection writes roll back together when a later write fails, while model
+  triggers keep FoolFrame's post-commit `Create`/`Save` and pre-delete
+  ordering.
 - 2026-07-09: legacy trigger command execution now covers
   `ExuteProprtyModelMethod` and `ExuteListMethod` in the shared
   `ModelDataService` trigger path. Model, property, and collection triggers
@@ -1687,7 +1692,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   boundaries are covered by the current module map and tests.
 - Complete remaining `SCPB05-Soway.Model` runtime data mutations only for
   richer collection state parity, richer external-model edge cases, and
-  model-runtime routed-connection transaction behavior. The previously listed
+  cross/routed-connection transaction behavior. The previously listed
   command-type gap is no longer counted as open work: the Java enum preserves
   the FoolFrame ordinals, mutating command slices are covered by the shared
   trigger/runoperation command path, `SetAccess` is event-only in FoolFrame,

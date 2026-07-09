@@ -24,6 +24,8 @@ explicitly named as authoritative for fool-service.
       FoolFrame sources and current tests, trimming stale remaining items.
 - [x] Select legacy DBMaps columns when loading collection item rows through
       generated item SQL.
+- [x] Roll back legacy model parent and owned collection writes together
+      through the public `ModelDataService` mutation entrypoints.
 - [x] Recheck legacy `runoperation` model-trigger side effects against
       FoolFrame and remove the stale remaining-work item after focused
       runoperation/persistence trigger tests.

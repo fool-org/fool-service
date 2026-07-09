@@ -1193,6 +1193,35 @@ public class ModelDataServiceTest {
     }
 
     @Test
+    public void saveDataRollsBackLegacyParentWhenOwnedChildWriteFails() {
+        String orderTable = "runtime_tx_child_order";
+        String itemTable = "runtime_tx_child_order_item";
+        cleanupRuntimeOneToManyTables(orderTable, itemTable);
+        try {
+            createRuntimeOneToManyTables(orderTable, itemTable);
+            jdbcTemplate.update(
+                    "ALTER TABLE `" + itemTable + "` MODIFY `ITEM_NAME` varchar(255) NOT NULL");
+            jdbcTemplate.update(
+                    "INSERT INTO `" + orderTable + "` (`ORDER_ID`,`ORDER_NAME`) VALUES (?,?)",
+                    "9361",
+                    "Before save");
+            Model order = oneToManyOrderModel(orderTable, itemTable);
+            DbMysqlDynamic data = oneToManyOrderData(order, "9361", "After save",
+                    List.of(orderItemData(order, "I5", null)));
+
+            assertThrows(RuntimeException.class, () -> modelDataService.saveData(data));
+
+            String name = jdbcTemplate.queryForObject(
+                    "SELECT `ORDER_NAME` FROM `" + orderTable + "` WHERE `ORDER_ID` = ?",
+                    String.class,
+                    "9361");
+            assertEquals("Before save", name);
+        } finally {
+            cleanupRuntimeOneToManyTables(orderTable, itemTable);
+        }
+    }
+
+    @Test
     public void saveDataExecutesLegacyCollectionItemTriggers() {
         String orderTable = "runtime_collection_trigger_order";
         String itemTable = "runtime_collection_trigger_order_item";

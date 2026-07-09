@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionOperations;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -40,6 +41,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 
@@ -58,6 +60,8 @@ public class ModelDataService {
     private DaoService daoService;
     @Autowired
     private SqlGenerator sqlGenerator;
+    @Autowired(required = false)
+    private TransactionOperations transactionOperations;
 
     private final OperationCommandValueResolver commandValueResolver = new OperationCommandValueResolver();
 
@@ -354,7 +358,11 @@ public class ModelDataService {
     }
 
     public Boolean saveData(IDynamicData data) {
-        return saveData(data, null, null, true, true);
+        Boolean saved = inTransaction(() -> saveData(data, null, null, true, true, false));
+        if (Boolean.TRUE.equals(saved) && data instanceof DbMysqlDynamic dynamicData) {
+            executeModelTriggers(dynamicData.getModel(), data, ModelTriggerType.SAVE);
+        }
+        return saved;
     }
 
     private Boolean saveData(IDynamicData data, String extraColumn, Object extraValue, boolean writeCollections) {
@@ -367,6 +375,16 @@ public class ModelDataService {
             Object extraValue,
             boolean writeCollections,
             boolean runTriggers) {
+        return saveData(data, extraColumn, extraValue, writeCollections, runTriggers, runTriggers);
+    }
+
+    private Boolean saveData(
+            IDynamicData data,
+            String extraColumn,
+            Object extraValue,
+            boolean writeCollections,
+            boolean runTriggers,
+            boolean runModelTriggers) {
         if (!(data instanceof DbMysqlDynamic dynamicData)) {
             return false;
         }
@@ -404,7 +422,7 @@ public class ModelDataService {
         if (saved && writeCollections) {
             writeCollectionRelations(model, data);
         }
-        if (saved && runTriggers) {
+        if (saved && runTriggers && runModelTriggers) {
             executeModelTriggers(model, data, ModelTriggerType.SAVE);
         }
         return saved;
@@ -423,7 +441,14 @@ public class ModelDataService {
     }
 
     public Boolean deleteData(IDynamicData data) {
-        return deleteData(data, true);
+        if (data instanceof DbMysqlDynamic dynamicData) {
+            Model model = dynamicData.getModel();
+            if (model != null) {
+                hydrateModelTriggers(model);
+                executeModelTriggers(model, data, ModelTriggerType.DELETE);
+            }
+        }
+        return inTransaction(() -> deleteData(data, false));
     }
 
     private Boolean deleteData(IDynamicData data, boolean runTriggers) {
@@ -451,11 +476,19 @@ public class ModelDataService {
     }
 
     public Boolean createData(IDynamicData data) {
-        return createData(data, null, null, true, true);
+        Boolean created = inTransaction(() -> createData(data, null, null, true, true, false));
+        if (Boolean.TRUE.equals(created) && data instanceof DbMysqlDynamic dynamicData) {
+            executeModelTriggers(dynamicData.getModel(), data, ModelTriggerType.CREATE);
+        }
+        return created;
     }
 
     public Boolean createData(IDynamicData data, String extraColumn, Object extraValue) {
-        return createData(data, extraColumn, extraValue, false, true);
+        Boolean created = inTransaction(() -> createData(data, extraColumn, extraValue, false, true, false));
+        if (Boolean.TRUE.equals(created) && data instanceof DbMysqlDynamic dynamicData) {
+            executeModelTriggers(dynamicData.getModel(), data, ModelTriggerType.CREATE);
+        }
+        return created;
     }
 
     private Boolean createData(IDynamicData data, String extraColumn, Object extraValue, boolean writeCollections) {
@@ -468,6 +501,16 @@ public class ModelDataService {
             Object extraValue,
             boolean writeCollections,
             boolean runTriggers) {
+        return createData(data, extraColumn, extraValue, writeCollections, runTriggers, runTriggers);
+    }
+
+    private Boolean createData(
+            IDynamicData data,
+            String extraColumn,
+            Object extraValue,
+            boolean writeCollections,
+            boolean runTriggers,
+            boolean runModelTriggers) {
         if (!(data instanceof DbMysqlDynamic dynamicData)) {
             return false;
         }
@@ -497,10 +540,17 @@ public class ModelDataService {
         if (created && writeCollections) {
             writeCollectionRelations(model, data);
         }
-        if (created && runTriggers) {
+        if (created && runTriggers && runModelTriggers) {
             executeModelTriggers(model, data, ModelTriggerType.CREATE);
         }
         return created;
+    }
+
+    private <T> T inTransaction(Supplier<T> action) {
+        if (transactionOperations == null) {
+            return action.get();
+        }
+        return transactionOperations.execute(status -> action.get());
     }
 
     private void executeModelTriggers(Model model, IDynamicData data, ModelTriggerType triggerType) {
