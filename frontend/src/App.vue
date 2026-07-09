@@ -81,6 +81,7 @@ import {
   legacyInitAppCheckCode,
   legacyInitAppDbId,
   legacyInputQueryItems,
+  legacyChartData,
   legacyMainMenuItems,
   legacyMessageContent,
   legacyMessageId,
@@ -114,6 +115,7 @@ import {
   viewDisplayTitle,
   viewDisplayType,
   viewInputCount,
+  viewUsesChartTemplate,
   readViewFields,
   renderedDetailFields,
   renderedDetailGroups,
@@ -231,6 +233,7 @@ const messageResponse = ref<CommonResponse<GetMessageResult> | null>(null);
 const notifyResponse = ref<CommonResponse<GetNotifyResult> | null>(null);
 const errorMessage = ref("");
 const pendingAction = ref("");
+const activeViewPane = ref("table");
 
 const {
   viewResponse,
@@ -308,6 +311,9 @@ function fieldEnumOptions(field: ListDataValue) {
 }
 
 const reportRows = computed(() => reportRowsFromCells(reportGridCells(reportResponse.value?.data)));
+const isChartView = computed(() => viewUsesChartTemplate(viewResponse.value?.data));
+const chartData = computed(() => legacyChartData(resultRows.value));
+const chartMax = computed(() => Math.max(1, ...chartData.value.series.flatMap((series) => series.values)));
 const responseDump = computed(() =>
   JSON.stringify(
     {
@@ -1086,7 +1092,16 @@ function syncDetailDrafts() {
 
           <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
 
-          <div class="table-wrap view-table">
+          <div v-if="isChartView" class="view-template-tabs" role="tablist">
+            <button type="button" :class="{ active: activeViewPane === 'table' }" @click="activeViewPane = 'table'">
+              数据
+            </button>
+            <button type="button" :class="{ active: activeViewPane === 'chart' }" @click="activeViewPane = 'chart'">
+              图表
+            </button>
+          </div>
+
+          <div v-show="!isChartView || activeViewPane === 'table'" class="table-wrap view-table">
             <ListDataTable
               :columns="resultColumns"
               :disabled="Boolean(pendingAction)"
@@ -1095,6 +1110,22 @@ function syncDetailDrafts() {
               :selected-object-id="selectedObjectId"
               @select="selectObject"
             />
+          </div>
+          <div v-if="isChartView && activeViewPane === 'chart'" class="legacy-chart-pane">
+            <div v-if="chartData.series.length" class="chart-series-list">
+              <section v-for="series in chartData.series" :key="series.name" class="chart-series">
+                <header>
+                  <strong>{{ series.name }}</strong>
+                  <span>{{ series.type }}</span>
+                </header>
+                <div v-for="(value, index) in series.values" :key="`${series.name}-${index}`" class="chart-row">
+                  <span>{{ chartData.labels[index] || index + 1 }}</span>
+                  <meter :value="value" min="0" :max="chartMax"></meter>
+                  <strong>{{ value }}</strong>
+                </div>
+              </section>
+            </div>
+            <div v-else class="empty-state compact">No chart data.</div>
           </div>
           <div v-if="resultRows.length || resultTotalItems || resultFreshTime" class="button-row">
             <button type="button" :disabled="Boolean(pendingAction) || resultPageIndex <= 1" @click="loadResultPage(resultPageIndex - 1)">

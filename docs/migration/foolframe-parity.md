@@ -99,6 +99,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue now consumes legacy `TempFile=viewWithChart` metadata and
+  renders data/chart panes before binding data rows. Chart rows are derived
+  only from FoolFrame chart item `EditType` values (`11` axis and `12`/`13`/`14`
+  series), so ordinary business DTO fields cannot invent a chart.
 - 2026-07-09: the Docker runtime doctor now seeds and proves legacy
   `getlistview.TempFile` plus item `ViewFile` render metadata through the Vue
   proxy, so runtime smoke fails if the View render template link disappears

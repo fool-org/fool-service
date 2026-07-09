@@ -16,6 +16,9 @@ explicitly named as authoritative for fool-service.
 - [x] Extend the Docker runtime doctor to prove legacy View `TempFile` and
       item `ViewFile` render metadata through the Vue proxy before data
       binding.
+- [x] Render Vue `viewWithChart` pages from loaded `TempFile` metadata as
+      legacy data/chart panes, deriving chart rows only from FoolFrame chart
+      `EditType` item metadata.
 - [x] Resolve legacy recursive `#` owner expressions through the shared
       operation-command resolver and attach parent rows to dynamic collection
       children during load/write.

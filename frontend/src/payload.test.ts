@@ -109,6 +109,14 @@ describe("App defaults", () => {
     expect(appSource).toContain("Updated {{ resultFreshTime }}");
   });
 
+  it("renders the legacy viewWithChart template as data and chart panes", () => {
+    expect(appSource).toContain("viewUsesChartTemplate(viewResponse.value?.data)");
+    expect(appSource).toContain("legacyChartData(resultRows.value)");
+    expect(appSource).toContain("activeViewPane");
+    expect(appSource).toContain('class="view-template-tabs"');
+    expect(appSource).toContain('class="legacy-chart-pane"');
+  });
+
   it("resets the main View search to the first page", () => {
     expect(appSource).toContain("async function loadViewWorkflow(resetPage = false)");
     expect(appSource).toContain("pageIndex.value = 1");

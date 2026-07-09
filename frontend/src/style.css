@@ -293,6 +293,63 @@ label {
   min-width: 96px;
 }
 
+.view-template-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(80px, 1fr));
+  border: 1px solid #cbd5df;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.view-template-tabs button {
+  border: 0;
+  border-radius: 0;
+}
+
+.view-template-tabs button + button {
+  border-left: 1px solid #cbd5df;
+}
+
+.view-template-tabs button.active {
+  background: #0f766e;
+  color: #ffffff;
+}
+
+.legacy-chart-pane {
+  min-height: 280px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.chart-series-list {
+  display: grid;
+  gap: 12px;
+}
+
+.chart-series {
+  display: grid;
+  gap: 8px;
+}
+
+.chart-series header,
+.chart-row {
+  display: grid;
+  grid-template-columns: minmax(72px, 0.25fr) minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.chart-series header span {
+  grid-column: 3;
+  color: #647484;
+  font-size: 0.78rem;
+}
+
+.chart-row meter {
+  width: 100%;
+}
+
 .view-edit-grid {
   display: grid;
   gap: 12px;

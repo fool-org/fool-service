@@ -168,6 +168,14 @@ export function viewDisplayType(view: ListViewInfo | undefined) {
   return firstDisplayValue([view?.viewType, view?.type, view?.Type, view?.showType, view?.ShowType]);
 }
 
+export function viewTemplateName(view: ListViewInfo | undefined) {
+  return firstDisplayValue([view?.tempFile, view?.TempFile]);
+}
+
+export function viewUsesChartTemplate(view: ListViewInfo | undefined) {
+  return viewTemplateName(view) === "viewWithChart";
+}
+
 export function viewInputCount(view: ListViewInfo | undefined) {
   return firstList(view?.inputInfo).length;
 }
@@ -624,6 +632,58 @@ export function listFreshTime(result?: ListViewResult) {
 
 export function listRows(result?: ListViewResult) {
   return firstList(result?.items, result?.data, result?.Data);
+}
+
+export interface LegacyChartSeries {
+  name: string;
+  type: "line" | "bar" | "scatter";
+  values: number[];
+}
+
+export interface LegacyChartData {
+  labels: string[];
+  series: LegacyChartSeries[];
+}
+
+export function legacyChartData(rows: ListDataItem[]): LegacyChartData {
+  const labels: string[] = [];
+  const series: LegacyChartSeries[] = [];
+
+  for (const row of rows) {
+    let seriesIndex = 0;
+    for (const item of rowItems(row)) {
+      const editType = String(item.editType ?? item.EditType ?? "");
+      if (editType === "11") {
+        labels.push(firstDisplayValue([item.fmtValue, item.FmtValue]));
+        continue;
+      }
+      const type = chartSeriesType(editType);
+      if (!type) {
+        continue;
+      }
+      if (!series[seriesIndex]) {
+        series.push({
+          name: firstDisplayValue([item.prpShowName, item.PrpShowName, item.prpId, item.PrpId]),
+          type,
+          values: []
+        });
+      }
+      const value = Number(firstDisplayValue([item.fmtValue, item.FmtValue, item.objId, item.ObjId]));
+      if (Number.isFinite(value)) {
+        series[seriesIndex].values.push(value);
+      }
+      seriesIndex += 1;
+    }
+  }
+
+  return { labels, series };
+}
+
+function chartSeriesType(editType: string): LegacyChartSeries["type"] | "" {
+  if (editType === "12") return "line";
+  if (editType === "13") return "bar";
+  if (editType === "14") return "scatter";
+  return "";
 }
 
 export function viewDetailViewId(view: ListViewInfo | undefined, fallback = 0) {

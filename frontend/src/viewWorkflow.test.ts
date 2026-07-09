@@ -70,6 +70,7 @@ import {
   listFreshTime,
   listPageIndex,
   listRows,
+  legacyChartData,
   listTotalItems,
   listTotalPages,
   operationParamKey,
@@ -107,6 +108,8 @@ import {
   viewDetailViewId,
   viewId,
   viewInputCount,
+  viewTemplateName,
+  viewUsesChartTemplate,
   withDraftFieldValue,
   viewOperations
 } from "./viewWorkflow";
@@ -234,6 +237,44 @@ describe("view workflow helpers", () => {
     expect(listRenderColumns(undefined)).toEqual([]);
     expect(listRenderColumns({ ID: 100, Items: [] })).toEqual([]);
     expect(listRenderColumns({ ID: 100, Items: declared })).toEqual(declared);
+  });
+
+  it("reads legacy view template names without data DTO fallback", () => {
+    expect(viewTemplateName({ TempFile: "viewWithChart" })).toBe("viewWithChart");
+    expect(viewTemplateName({ tempFile: "Sudoku" })).toBe("Sudoku");
+    expect(viewTemplateName(undefined)).toBe("");
+    expect(viewUsesChartTemplate({ TempFile: "viewWithChart" })).toBe(true);
+    expect(viewUsesChartTemplate({ TempFile: "Sudoku" })).toBe(false);
+  });
+
+  it("builds chart data only from legacy chart edit types", () => {
+    expect(legacyChartData([
+      {
+        Items: [
+          { PrpShowName: "Day", FmtValue: "Mon", EditType: 11 },
+          { PrpShowName: "Orders", FmtValue: "7", EditType: 12 },
+          { PrpShowName: "Volume", FmtValue: "12", EditType: 13 },
+          { PrpShowName: "Noise", FmtValue: "ignored", EditType: 0 }
+        ]
+      },
+      {
+        Items: [
+          { PrpShowName: "Day", FmtValue: "Tue", EditType: 11 },
+          { PrpShowName: "Orders", FmtValue: "9", EditType: 12 },
+          { PrpShowName: "Volume", FmtValue: "11", EditType: 13 }
+        ]
+      }
+    ])).toEqual({
+      labels: ["Mon", "Tue"],
+      series: [
+        { name: "Orders", type: "line", values: [7, 9] },
+        { name: "Volume", type: "bar", values: [12, 11] }
+      ]
+    });
+    expect(legacyChartData([{ Items: [{ PrpShowName: "DTO", FmtValue: "5", EditType: 0 }] }])).toEqual({
+      labels: [],
+      series: []
+    });
   });
 
   it("does not use values DTO fields for view row identity or cells", () => {
