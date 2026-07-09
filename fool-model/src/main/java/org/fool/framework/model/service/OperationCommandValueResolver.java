@@ -98,7 +98,8 @@ public class OperationCommandValueResolver {
             case Byte -> Byte.valueOf(value);
             case Char -> value.charAt(0);
             case DateTime -> LocalDateTime.parse(value.replace(' ', 'T'));
-            case Int, UInt, Long, ULong -> Integer.valueOf(value);
+            case Int, UInt -> Integer.valueOf(value);
+            case Long, ULong -> Long.valueOf(value);
             case Decimal -> new BigDecimal(value);
             case Double, Float -> Double.valueOf(value);
             case BusinessObject -> businessObjectLoader == null

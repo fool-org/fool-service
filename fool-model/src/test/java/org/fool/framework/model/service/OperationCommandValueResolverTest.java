@@ -1,7 +1,9 @@
 package org.fool.framework.model.service;
 
+import org.fool.framework.common.PropertyType;
 import org.fool.framework.model.model.DbMysqlDynamic;
 import org.fool.framework.model.model.Model;
+import org.fool.framework.model.model.Property;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -34,5 +36,19 @@ public class OperationCommandValueResolverTest {
                 (property, raw) -> raw);
 
         assertEquals("parent order", value);
+    }
+
+    @Test
+    public void resolvesLegacyLongStaticValuesAsLong() {
+        Property property = new Property();
+        property.setPropertyType(PropertyType.Long);
+
+        Object value = new OperationCommandValueResolver().resolve(
+                property,
+                null,
+                "$1000",
+                (targetProperty, raw) -> raw);
+
+        assertEquals(Long.valueOf(1000L), value);
     }
 }

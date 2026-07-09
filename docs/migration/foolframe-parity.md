@@ -110,6 +110,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   Dynamic collection loading and collection writes attach the parent row to
   child rows before item triggers, so child expressions read parent fields
   without binding to a concrete business DTO.
+- 2026-07-09: legacy static command values for `PropertyType.Long` and
+  `PropertyType.ULong` now resolve as Java `Long` values through the shared
+  `OperationCommandValueResolver`. This keeps runoperation and trigger command
+  paths aligned with legacy long/id field semantics instead of narrowing those
+  values to `Integer`.
 - 2026-07-09: legacy trigger command execution now covers
   `ExuteProprtyModelMethod` and `ExuteListMethod` in the shared
   `ModelDataService` trigger path. Model, property, and collection triggers
