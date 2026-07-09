@@ -196,6 +196,15 @@ public class LoginControllerLogoutTest {
     }
 
     @Test
+    public void getSubMenuAlsoExposesLegacyGetMenuRoute() throws Exception {
+        var mapping = LoginController.class
+                .getMethod("getSubMenu", LoginController.LegacySubMenuRequest.class)
+                .getAnnotation(org.springframework.web.bind.annotation.PostMapping.class);
+
+        assertTrue(List.of(mapping.value()).contains("/getmenu"));
+    }
+
+    @Test
     public void getMainReturnsLegacyUserAndTopMenus() throws Exception {
         AuthService authService = mock(AuthService.class);
         LoginController controller = new LoginController();
@@ -253,6 +262,16 @@ public class LoginControllerLogoutTest {
     public void subMenuRequestAcceptsLegacyParentAuthCode() throws Exception {
         LoginController.LegacySubMenuRequest request = new ObjectMapper().readValue(
                 "{\"Token\":\"token-1\",\"ParentAuthCode\":\"1\"}",
+                LoginController.LegacySubMenuRequest.class);
+
+        assertEquals("token-1", request.getToken());
+        assertEquals("1", request.getParentAuthCode());
+    }
+
+    @Test
+    public void subMenuRequestAcceptsLegacyWebAuthCode() throws Exception {
+        LoginController.LegacySubMenuRequest request = new ObjectMapper().readValue(
+                "{\"Token\":\"token-1\",\"authcode\":\"1\"}",
                 LoginController.LegacySubMenuRequest.class);
 
         assertEquals("token-1", request.getToken());

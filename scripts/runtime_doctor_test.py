@@ -51,6 +51,7 @@ class RuntimeDoctorTest(unittest.TestCase):
             "/auth/getapp": {"code": 0, "data": {"App": {"DefaultViewId": 200}}},
             "/auth/getmain": {"code": 0, "data": {"App": {"DefaultViewId": 200}, "TopMenu": [{"AuthNo": "0101"}]}},
             "/auth/getsubmenu": {"code": 0, "data": {"Items": [{}]}},
+            "/auth/getmenu": {"code": 0, "data": {"Items": [{}]}},
             "/view/getreaditemview": {"code": 0, "data": {"DetailViews": [{"Items": [{"PrpId": "itemId"}]}]}},
             "/data/savenewobj": {"code": 0, "data": None},
             "/data/saveobj": {"code": 0, "data": None},
@@ -797,6 +798,30 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertIn("data:getenums", by_name)
         self.assertTrue(by_name["data:getenums"].ok)
         self.assertIn(("http://frontend/api/v1/data/getenums", {"ModelId": "300"}), calls)
+
+    def test_api_checks_getmenu_uses_legacy_web_authcode_payload(self) -> None:
+        calls: list[tuple[str, object]] = []
+        original_get_json = runtime_doctor.get_json
+        original_post_json = runtime_doctor.post_json
+
+        def fake_get_json(_url: str, _timeout: float) -> object:
+            return []
+
+        def fake_post_json(url: str, payload: object, _timeout: float) -> dict[str, object]:
+            calls.append((url, payload))
+            return self.runtime_default_post_response(url, payload) or {"code": 0, "data": None}
+
+        try:
+            runtime_doctor.get_json = fake_get_json
+            runtime_doctor.post_json = fake_post_json
+            results = api_checks("http://backend", "http://frontend", 1.0)
+        finally:
+            runtime_doctor.get_json = original_get_json
+            runtime_doctor.post_json = original_post_json
+
+        by_name = {result.name: result for result in results}
+        self.assertTrue(by_name["auth:getmenu-legacy-web-payload"].ok)
+        self.assertIn(("http://frontend/api/v1/auth/getmenu", {"Token": "t", "authcode": "0101"}), calls)
 
     def test_api_checks_getlistview_requires_template_metadata(self) -> None:
         original_get_json = runtime_doctor.get_json

@@ -107,7 +107,7 @@ public class LoginController {
     }
 
     @ApiOperation("得到旧版子菜单")
-    @PostMapping("/getsubmenu")
+    @PostMapping({"/getsubmenu", "/getmenu"})
     @ResponseBody
     public CommonResponse<LegacySubMenuResult> getSubMenu(@RequestBody LegacySubMenuRequest request) {
         return new CommonResponse<>(
@@ -394,7 +394,7 @@ public class LoginController {
 
     @Data
     public static class LegacySubMenuRequest extends CommonRequest {
-        @JsonAlias("ParentAuthCode")
+        @JsonAlias({"ParentAuthCode", "authcode"})
         private String parentAuthCode;
     }
 

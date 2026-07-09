@@ -115,6 +115,9 @@ explicitly named as authoritative for fool-service.
       open menu `ViewId` entries through the existing
       `getlistview(ViewId)` -> `querydata(ViewId)` workflow, including stale
       stored-token recovery before first-screen rendering.
+- [x] Accept the old FoolFrame Web `/user/getmenu` submenu protocol shape as
+      `/api/v1/auth/getmenu`, including the `authcode` payload from
+      `menuinfo.js`.
 - [x] Tighten the Docker runtime doctor so every `querydata` row must expose
       View-column-matched `Items`; DTO-only `values` rows no longer satisfy the
       view-first smoke contract.

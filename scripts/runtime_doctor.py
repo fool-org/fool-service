@@ -787,6 +787,18 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         )
         return bool(legacy_response_list(payload, "Items"))
 
+    def get_menu_legacy_web_payload_ok() -> bool:
+        token = auth_state.get("token")
+        parent = auth_state.get("parentAuthCode")
+        if not token or not parent:
+            return False
+        payload = post_json(
+            f"{frontend_url}/api/v1/auth/getmenu",
+            {"Token": token, "authcode": parent},
+            timeout,
+        )
+        return bool(legacy_response_list(payload, "Items"))
+
     def logout_ok() -> bool:
         token = auth_state.get("token")
         if not token:
@@ -1456,6 +1468,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "auth:getsubmenu",
             get_submenu_ok,
             "POST /api/v1/auth/getsubmenu follows the top-menu auth code",
+        ),
+        (
+            "auth:getmenu-legacy-web-payload",
+            get_menu_legacy_web_payload_ok,
+            "POST /api/v1/auth/getmenu accepts legacy Web authcode payload",
         ),
         (
             "view:getlistview",

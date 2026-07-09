@@ -77,6 +77,7 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `curl -H 'Content-Type: application/json' -d '{"Token":"<login-token>"}' http://localhost:8080/api/v1/auth/getsubmenu`
   `curl -H 'Content-Type: application/json' -d '{"Token":"<login-token>","ParentAuthCode":"1"}' http://localhost:8080/api/v1/auth/getsubmenu`
   `curl -H 'Content-Type: application/json' -d '{"Token":"<login-token>","ParentAuthCode":"1"}' http://localhost:8081/api/v1/auth/getsubmenu`
+  `curl -H 'Content-Type: application/json' -d '{"Token":"<login-token>","authcode":"1"}' http://localhost:8081/api/v1/auth/getmenu`
   `curl -H 'Content-Type: application/json' -d '{}' http://localhost:8080/api/v1/auth/getcheckcode`
   `curl -H 'Content-Type: application/json' -d '{"key":"<check-key>","code":"<check-code>"}' http://localhost:8080/api/v1/auth/checkcode`
   `curl -H 'Content-Type: application/json' -d '{}' http://localhost:8081/api/v1/auth/getcheckcode`
@@ -103,6 +104,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: auth now exposes the old FoolFrame Web menu wrapper as
+  `/api/v1/auth/getmenu`, accepting the `authcode` payload from
+  `menuinfo.js` while reusing the migrated `getsubmenu` service path. The
+  Docker runtime doctor proves the route through the Vue proxy.
 - 2026-07-10: backend `inputquery` now accepts the old FoolFrame Web lookup
   payload from `setextype.js`, including `viewid` / `itemid` / `text` /
   `objid` / `ownerid` / `newadd` aliases, while reusing the existing
