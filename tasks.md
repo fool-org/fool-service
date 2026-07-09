@@ -14,6 +14,9 @@ explicitly named as authoritative for fool-service.
 - [x] Resolve legacy `#.` owner expressions through the shared
       operation-command resolver and attach parent rows to dynamic collection
       children during load/write.
+- [x] Recheck legacy `runoperation` model-trigger side effects against
+      FoolFrame and remove the stale remaining-work item after focused
+      runoperation/persistence trigger tests.
 - [x] Render persisted `Order Items` in the Vue `OrderList` detail workflow via
       backend `querydatadetail` collection rows.
 - [x] Replace the hand-shaped Vue `OrderList` screen with View metadata-driven
