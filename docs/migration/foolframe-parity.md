@@ -99,6 +99,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: dynamic model mutations without an explicit id property now use
+  FoolFrame-style `SYSID` values for save/update id resolution and model
+  trigger `Filter` current-object checks, reusing the existing dynamic
+  mutation and trigger command path.
 - 2026-07-09: legacy runoperation `Filter` commands now bind the current
   object predicate even when the migrated model has no explicit id property,
   falling back to FoolFrame-style `SYSID` before applying the configured raw

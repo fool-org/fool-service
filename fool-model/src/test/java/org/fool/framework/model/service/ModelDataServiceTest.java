@@ -384,6 +384,87 @@ public class ModelDataServiceTest {
     }
 
     @Test
+    public void saveDataAndTriggerFilterUseSysIdWhenModelHasNoIdProperty() {
+        long modelId = 92631L;
+        long namePropertyId = 92633L;
+        long triggerId = 92634L;
+        long filterCommandId = 92635L;
+        long setValueCommandId = 92636L;
+        String modelName = "RuntimeSaveTriggerSysId";
+        String tableName = "runtime_save_trigger_sysid";
+        cleanupRuntimeTriggerModel(modelId, modelName, tableName);
+        try {
+            jdbcTemplate.execute("CREATE TABLE `" + tableName + "` ("
+                    + "`SYSID` varchar(64) NOT NULL,"
+                    + "`ORDER_NAME` varchar(255) DEFAULT NULL,"
+                    + "PRIMARY KEY (`SYSID`))");
+            jdbcTemplate.update(
+                    "INSERT INTO `fool_sys_model` "
+                            + "(`id`,`name`,`text`,`remark`,`model_type`,`class_name`,`table_name`,`auto_sys_id`,`id_property`) "
+                            + "VALUES (?,?,?,?,?,?,?,?,?)",
+                    modelId,
+                    modelName,
+                    modelName,
+                    "runtime detail test",
+                    ModelType.DYNAMIC.code(),
+                    "example." + modelName,
+                    tableName,
+                    false,
+                    null);
+            insertRuntimeProperty(
+                    namePropertyId, "orderName", null, false, modelId, "ORDER_NAME", PropertyType.String);
+            jdbcTemplate.update(
+                    "INSERT INTO `" + tableName + "` (`SYSID`,`ORDER_NAME`) VALUES (?,?)",
+                    "2001",
+                    "before trigger");
+            jdbcTemplate.update(
+                    "INSERT INTO `SW_SYS_MODEL_TRIGGER` "
+                            + "(`SysId`,`SW_SYS_MODEL_TriggersMODEL_ID`,`SW_MODEL_TRIGGER_TYPE`,"
+                            + "`SW_MODEL_TRIGGER_OPERATIONTYPE`) VALUES (?,?,?,?)",
+                    triggerId,
+                    modelId,
+                    ModelTriggerType.SAVE.code(),
+                    OperationBaseType.UPDATE.code());
+            jdbcTemplate.update(
+                    "INSERT INTO `SW_SYS_MODEL_TRIGGER_COMMANDS` "
+                            + "(`SysId`,`SW_SYS_MODEL_TRIGGER_CommandsSysId`,`SW_SYS_COMMAND_TYPE`,"
+                            + "`SW_SYS_COMMAND_EXP`,`SW_SYS_COMMAND_PROPERTY_EXP`,`SW_SYS_COMMAND_Index`) "
+                            + "VALUES (?,?,?,?,?,?)",
+                    filterCommandId,
+                    triggerId,
+                    CommandsType.FILTER.code(),
+                    "`ORDER_NAME` = 'allowed'",
+                    "filter blocked",
+                    1);
+            jdbcTemplate.update(
+                    "INSERT INTO `SW_SYS_MODEL_TRIGGER_COMMANDS` "
+                            + "(`SysId`,`SW_SYS_MODEL_TRIGGER_CommandsSysId`,`SW_SYS_COMMAND_TYPE`,"
+                            + "`SW_SYS_COMMAND_PROPERTY`,`SW_SYS_COMMAND_EXP`,`SW_SYS_COMMAND_Index`) "
+                            + "VALUES (?,?,?,?,?,?)",
+                    setValueCommandId,
+                    triggerId,
+                    CommandsType.SET_VALUE.code(),
+                    namePropertyId,
+                    "$triggered",
+                    2);
+            Model model = modelDataService.getModel(modelName);
+            DbMysqlDynamic data = new DbMysqlDynamic(model);
+            data.set("SYSID", "2001");
+            data.set("orderName", "allowed");
+
+            assertEquals(Boolean.TRUE, modelDataService.saveData(data));
+
+            String name = jdbcTemplate.queryForObject(
+                    "SELECT `ORDER_NAME` FROM `" + tableName + "` WHERE `SYSID` = ?",
+                    String.class,
+                    "2001");
+            assertEquals("triggered", name);
+        } finally {
+            cleanupRuntimeTriggerModel(modelId, modelName, tableName);
+        }
+    }
+
+    @Test
     public void saveDataExecutesLegacyPropertySetTriggerSetValue() {
         long modelId = 92701L;
         long idPropertyId = 92702L;

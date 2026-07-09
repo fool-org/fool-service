@@ -938,7 +938,7 @@ public class ModelDataService {
                 return id;
             }
         }
-        return data.getId();
+        return fallbackId(data);
     }
 
     private boolean dataExists(IDynamicData data, Model model) {
@@ -977,7 +977,12 @@ public class ModelDataService {
             }
             return data.get(idName);
         }
-        return data.getId();
+        return fallbackId(data);
+    }
+
+    private Object fallbackId(IDynamicData data) {
+        Object id = data.getId();
+        return id == null ? data.get("SYSID") : id;
     }
 
     private boolean relationExists(Relation relation, Object parentId, Object itemId) {
