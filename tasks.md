@@ -494,6 +494,9 @@ explicitly named as authoritative for fool-service.
       coverage to the remaining mapped property scalar columns: connection type,
       collection, DB/property names, multi-map, key/check/generation, and
       nullable/get/set flags.
+- [x] Align the `fool-view` runoperation scalar-conversion test with the shared
+      `PropertyType.Long` -> Java `Long` resolver semantics, restoring the
+      broader `fool-app-manage -am` Maven gate.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

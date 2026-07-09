@@ -99,6 +99,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: `fool-view` runoperation scalar-conversion proof now expects
+  `PropertyType.Long` static SetValue results as Java `Long`, matching the
+  shared `OperationCommandValueResolver` and model-layer resolver tests. The
+  broader `fool-app-manage -am` Maven gate no longer fails on the stale
+  `Integer<123>` expectation.
 - 2026-07-09: legacy `SW_SYS_PROPERTY` Docker schema migration now has
   idempotent repair blocks for connection type, collection, DB column/property
   name, multi-map, key/check/generation, nullable/get/set flags,

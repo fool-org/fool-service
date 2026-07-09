@@ -208,7 +208,7 @@ public class DataQueryServiceRunOperationTest {
         assertEquals(Boolean.TRUE, data.get("confirmed"));
         assertEquals(Byte.valueOf((byte) 2), data.get("byteCode"));
         assertEquals(Character.valueOf('A'), data.get("marker"));
-        assertEquals(Integer.valueOf(123), data.get("longCode"));
+        assertEquals(Long.valueOf(123L), data.get("longCode"));
         assertEquals(new BigDecimal("12.50"), data.get("amount"));
         assertEquals(Double.valueOf(1.5D), data.get("ratio"));
         assertEquals(LocalDateTime.of(2026, 7, 3, 10, 0), data.get("startsAt"));
