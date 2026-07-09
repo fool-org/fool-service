@@ -99,6 +99,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: the Docker runtime doctor now guards the remaining AppManage
+  mapped schema columns used by installed modules, model metadata,
+  enum-value metadata, trigger/operation primary keys, and company/department
+  auth graph tables used by event recipient expansion.
 - 2026-07-09: the Docker runtime doctor now guards the legacy auth/app shell
   schema used before the Vue View-first workflow starts: modern `auth_user`
   login rows, legacy `SW_AUTH_USER`, `SW_APPLICATION`, `SW_STOREDB`,

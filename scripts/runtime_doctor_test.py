@@ -217,12 +217,48 @@ class RuntimeDoctorTest(unittest.TestCase):
             ("SW_APP_AUTH_MENU_SW_APP_AUTH_ROLE", "SW_APP_AUTH_MENU_ID"),
             ("SW_APP_AUTH_MENU_SW_APP_AUTH_ROLE", "SW_APP_AUTH_ROLE_ID"),
         )
+        app_manage_columns = (
+            ("SW_APP_AUTH_COMPANY", "APP_COR_ID"),
+            ("SW_APP_AUTH_COMPANY", "APP_COR_NAME"),
+            ("SW_APP_AUTH_DEPARTMENT", "APP_DEP_ID"),
+            ("SW_APP_AUTH_DEPARTMENT", "SW_APP_AUTH_COMPANY_DepsAPP_COR_ID"),
+            ("SW_APP_AUTH_DEPARTMENT", "APP_DEP_NAME"),
+            ("SW_APP_AUTH_DEPARTMENT", "APP_DEP_DEFAULTVIEW"),
+            ("SW_APP_AUTH_DEPARTMENT_SubDepartments", "SW_APP_AUTH_DEPARTMENT_SubDepartmentsAPP_DEP_ID"),
+            ("SW_APP_AUTH_DEPARTMENT_SubDepartments", "SW_APP_AUTH_DEPARTMENT_SUBDEPARTMENTS_ITEM"),
+            ("SW_APP_AUTH_DEPARTMENT_SW_APP_AUTH_ROLE", "SW_APP_AUTH_DEPARTMENT_ID"),
+            ("SW_APP_AUTH_DEPARTMENT_SW_APP_AUTH_ROLE", "SW_APP_AUTH_ROLE_ID"),
+            ("SW_SYS_MODULE", "MODULE_NAME"),
+            ("SW_SYS_MODULE", "MODULE_REMARK"),
+            ("SW_SYS_MODULE", "MODULE_ASSEMBLY"),
+            ("SW_SYS_MODULE", "MODULE_FILENAME"),
+            ("SW_SYS_MODULE", "MODULE_VERSION"),
+            ("SW_SYS_MODULE", "MODULE_GENERATIONCODE"),
+            ("SW_SYS_MODULE", "MODULE_CON"),
+            ("SW_SYS_MODEL", "MODEL_CLASS"),
+            ("SW_SYS_MODEL", "MODEL_CONTYPE"),
+            ("SW_SYS_MODEL", "MODEL_MODULE"),
+            ("SW_SYS_MODEL", "MODEL_AUTOID"),
+            ("SW_SYS_MODEL", "MODEL_CON"),
+            ("SW_SYS_MODEL", "MODEL_DEFAULTOWNER"),
+            ("SW_SYS_MODEL_TRIGGER", "SysId"),
+            ("SW_SYS_MODEL_TRIGGER_COMMANDS", "SysId"),
+            ("SW_SYS_PROPERTY_TRIGGER", "SysId"),
+            ("SW_SYS_PROPERTY_TRIGGER_COMMANDS", "SysId"),
+            ("SW_SYS_OPERATION", "SysId"),
+            ("SW_SYS_COMMANDS", "SysId"),
+            ("SW_SYS_OPERATION_PARAM", "SysId"),
+            ("SW_SYS_EMUNVALUE", "EMUN_STR"),
+            ("SW_SYS_EMUNVALUE", "EMUN_VALUE"),
+            ("SW_SYS_EMUNVALUE", "SW_SYS_MODEL_EnumValuesMODEL_ID"),
+        )
         raw = "\n".join(
             f"{table}\t{column}" for table, column in runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS
         )
 
         self.assertTrue(set(view_render_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
         self.assertTrue(set(auth_shell_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
+        self.assertTrue(set(app_manage_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
         self.assertTrue(schema_ok(raw))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_VIEW_ITEM\tVIEW_ITEM_PROPERTY\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_VIEW_ITEM\tVIEW_ITEM_NAME\n", "")))
@@ -237,6 +273,8 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertFalse(schema_ok(raw.replace("SW_SYS_PROPERTY_TRIGGER\tSW_PROPERTY_TRIGGER_BASETYPE\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_APPLICATION\tSW_APP_VIEW\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_APP_AUTH_MENU\tAUTH_MENU_VIEWID\n", "")))
+        self.assertFalse(schema_ok(raw.replace("SW_SYS_MODULE\tMODULE_NAME\n", "")))
+        self.assertFalse(schema_ok(raw.replace("SW_SYS_EMUNVALUE\tEMUN_STR\n", "")))
 
     def test_common_response_list_requires_success_and_nonempty_list(self) -> None:
         self.assertTrue(common_response_list({"code": 0, "data": {"items": [1]}}, "items"))

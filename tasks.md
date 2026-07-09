@@ -511,6 +511,9 @@ explicitly named as authoritative for fool-service.
 - [x] Extend Docker runtime-doctor coverage to the auth/app shell schema used
       before Vue loads View metadata: `auth_user`, `SW_AUTH_USER`,
       `SW_APPLICATION`, `SW_STOREDB`, and `SW_APP_AUTH_*` menu relations.
+- [x] Extend Docker runtime-doctor coverage to the remaining AppManage mapped
+      schema columns for installed modules, model metadata, enum values,
+      trigger/operation primary keys, and company/department auth graph tables.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
