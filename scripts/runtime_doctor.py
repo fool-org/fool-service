@@ -890,6 +890,16 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             view_state["newGroups"] = groups
         return bool(fields)
 
+    def save_object_payload(key: str, object_id: str, view_id: object, properties: list[dict[str, object]]) -> dict:
+        return {
+            key: {
+                "Id": object_id,
+                "ViewID": str(view_id),
+                "Propertyies": properties,
+                "Itemproperties": [],
+            }
+        }
+
     def save_new_object_from_loaded_detail_view() -> bool:
         view_id = view_state.get("detailViewId")
         fields = view_state.get("newFields")
@@ -903,14 +913,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         try:
             ok = common_void_ok(post_json(
                 f"{frontend_url}/api/v1/data/savenewobj",
-                {
-                    "SaveObj": {
-                        "Id": object_id,
-                        "ViewID": str(view_id),
-                        "Propertyies": properties,
-                        "Itemproperties": [],
-                    },
-                },
+                save_object_payload("SaveObj", object_id, view_id, properties),
                 timeout,
             ))
             if ok:
@@ -938,27 +941,78 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         try:
             ok = common_void_ok(post_json(
                 f"{frontend_url}/api/v1/data/savenewobj",
-                {
-                    "SaveObj": {
-                        "Id": object_id,
-                        "ViewID": str(view_id),
-                        "Propertyies": create_properties,
-                        "Itemproperties": [],
-                    },
-                },
+                save_object_payload("SaveObj", object_id, view_id, create_properties),
                 timeout,
             ))
             if ok:
                 ok = common_void_ok(post_json(
                     f"{frontend_url}/api/v1/data/saveobj",
-                    {
-                        "SaveObj": {
-                            "Id": object_id,
-                            "ViewID": str(view_id),
-                            "Propertyies": update_properties,
-                            "Itemproperties": [],
-                        },
-                    },
+                    save_object_payload("SaveObj", object_id, view_id, update_properties),
+                    timeout,
+                ))
+            if ok:
+                detail = post_json(
+                    f"{frontend_url}/api/v1/data/querydatadetail",
+                    {"ViewId": view_id, "ObjId": object_id},
+                    timeout,
+                )
+                ok = detail_field_fmt_value(detail, expected["Key"]) == expected["Value"]
+        finally:
+            cleaned = cleanup_runtime_smoke_order(object_id)
+        return ok and cleaned
+
+    def save_new_object_legacy_web_payload_ok() -> bool:
+        view_id = view_state.get("detailViewId")
+        fields = view_state.get("newFields")
+        if not view_id or not isinstance(fields, list):
+            return False
+        object_id = "989906"
+        properties = runtime_save_properties(fields, object_id)
+        if not properties or not cleanup_runtime_smoke_order(object_id):
+            return False
+        ok = False
+        try:
+            ok = common_void_ok(post_json(
+                f"{frontend_url}/api/v1/data/new",
+                save_object_payload("obj", object_id, view_id, properties) | {
+                    "ownerviewid": "",
+                    "ownerid": "",
+                    "prpid": "",
+                },
+                timeout,
+            ))
+            if ok:
+                ok = detail_response_ok(post_json(
+                    f"{frontend_url}/api/v1/data/querydatadetail",
+                    {"ViewId": view_id, "ObjId": object_id},
+                    timeout,
+                ))
+        finally:
+            cleaned = cleanup_runtime_smoke_order(object_id)
+        return ok and cleaned
+
+    def save_existing_object_legacy_web_payload_ok() -> bool:
+        view_id = view_state.get("detailViewId")
+        fields = view_state.get("newFields")
+        if not view_id or not isinstance(fields, list):
+            return False
+        object_id = "989907"
+        create_properties = runtime_save_properties(fields, object_id)
+        update_properties = runtime_save_properties(fields, f"{object_id}-UPDATE")
+        expected = next((item for item in update_properties if item["Value"].startswith("RUNTIME-")), None)
+        if not create_properties or not update_properties or expected is None or not cleanup_runtime_smoke_order(object_id):
+            return False
+        ok = False
+        try:
+            ok = common_void_ok(post_json(
+                f"{frontend_url}/api/v1/data/savenewobj",
+                save_object_payload("SaveObj", object_id, view_id, create_properties),
+                timeout,
+            ))
+            if ok:
+                ok = common_void_ok(post_json(
+                    f"{frontend_url}/api/v1/data/save",
+                    save_object_payload("obj", object_id, view_id, update_properties),
                     timeout,
                 ))
             if ok:
@@ -1555,9 +1609,19 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "POST /api/v1/data/savenewobj uses loaded detail View fields",
         ),
         (
+            "data:new-legacy-web-payload",
+            save_new_object_legacy_web_payload_ok,
+            "POST /api/v1/data/new accepts legacy Web obj/owner payload",
+        ),
+        (
             "data:saveobj",
             save_existing_object_from_loaded_detail_view,
             "POST /api/v1/data/saveobj updates a detail View object",
+        ),
+        (
+            "data:save-legacy-web-payload",
+            save_existing_object_legacy_web_payload_ok,
+            "POST /api/v1/data/save accepts legacy Web obj payload",
         ),
         (
             "data:saveobj-addeditems",

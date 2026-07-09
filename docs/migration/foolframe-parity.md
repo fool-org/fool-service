@@ -43,8 +43,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `curl -H 'Content-Type: application/json' -d '{"viewid":100,"itemid":"Customer","text":"Ada","objid":"1001","ownerid":"","newadd":false}' http://localhost:8081/api/v1/data/inputquery`
   `curl -H 'Content-Type: application/json' -d '{"saveObj":{"id":"1001","viewID":"100","propertyies":[{"key":"symbol","value":"BTC-USDT"},{"key":"state","value":"0"}]}}' http://localhost:8080/api/v1/data/saveobj`
   `curl -H 'Content-Type: application/json' -d '{"saveObj":{"id":"1001","viewID":"100","propertyies":[{"key":"symbol","value":"BTC-USDT"},{"key":"state","value":"0"}],"itemproperties":[{"key":"items","items":[{"itemId":"2001","isExist":true,"propertyies":[{"key":"itemName","value":"Updated item"}]}],"addedItems":[{"itemId":"2003","isExist":true,"propertyies":[{"key":"itemName","value":"New item"}]}],"delteItems":[{"itemId":"2004","isExist":true,"propertyies":[]}]}]}}}' http://localhost:8080/api/v1/data/saveobj`
+  `curl -H 'Content-Type: application/json' -d '{"obj":{"Id":"930003","ViewID":"100","Propertyies":[{"Key":"symbol","Value":"SOL-USDT"}],"Itemproperties":[]}}' http://localhost:8081/api/v1/data/save`
   `curl -H 'Content-Type: application/json' -d '{"SaveObj":{"id":"930001","viewID":"100","propertyies":[{"key":"symbol","value":"SOL-USDT"},{"key":"state","value":"0"}],"itemproperties":[]}}' http://localhost:8080/api/v1/data/savenewobj`
   `curl -H 'Content-Type: application/json' -d '{"SaveObj":{"id":"930002","viewID":"100","propertyies":[{"key":"symbol","value":"SOL-USDT"},{"key":"state","value":"0"}],"itemproperties":[]}}' http://localhost:8081/api/v1/data/savenewobj`
+  `curl -H 'Content-Type: application/json' -d '{"obj":{"Id":"930004","ViewID":"100","Propertyies":[{"Key":"symbol","Value":"SOL-USDT"}],"Itemproperties":[]},"ownerviewid":"","ownerid":"","prpid":""}' http://localhost:8081/api/v1/data/new`
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"ObjectId":"970731","OperationId":7001}' http://localhost:8080/api/v1/data/runoperation`
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"ObjectId":"970732","OperationId":7001}' http://localhost:8081/api/v1/data/runoperation`
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"ObjectId":"1001","OperationId":7002}' http://localhost:8080/api/v1/data/runoperation`
@@ -104,6 +106,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: backend save routes now accept the old FoolFrame Web
+  `detailview.js` wrappers as `/api/v1/data/save` and `/api/v1/data/new`,
+  including `obj` plus `ownerviewid` / `ownerid` / `prpid`, while reusing the
+  existing `saveobj` and `savenewobj` service paths. The Docker runtime doctor
+  proves both routes through the Vue proxy.
 - 2026-07-10: auth now exposes the old FoolFrame Web menu wrapper as
   `/api/v1/auth/getmenu`, accepting the `authcode` payload from
   `menuinfo.js` while reusing the migrated `getsubmenu` service path. The

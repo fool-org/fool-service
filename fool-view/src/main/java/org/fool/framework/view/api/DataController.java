@@ -103,14 +103,14 @@ public class DataController {
         return new CommonResponse<>(dataQueryService.inputQuery(request));
     }
 
-    @PostMapping("/saveobj")
+    @PostMapping({"/saveobj", "/save"})
     @ResponseBody
     public CommonResponse<Void> saveObj(@RequestBody SaveObjRequest request) {
         dataQueryService.saveLegacyObject(request);
         return new CommonResponse<>((Void) null);
     }
 
-    @PostMapping("/savenewobj")
+    @PostMapping({"/savenewobj", "/new"})
     @ResponseBody
     public CommonResponse<Void> saveNewObj(@RequestBody LegacySaveNewObjRequest request) {
         dataQueryService.saveLegacyNewObject(request);

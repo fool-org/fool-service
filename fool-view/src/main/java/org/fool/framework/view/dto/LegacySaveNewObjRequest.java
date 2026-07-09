@@ -6,12 +6,12 @@ import org.fool.framework.dto.CommonRequest;
 
 @Data
 public class LegacySaveNewObjRequest extends CommonRequest {
-    @JsonAlias("SaveObj")
+    @JsonAlias({"SaveObj", "obj"})
     private SaveObjRequest.SaveObject saveObj;
-    @JsonAlias("OwnerViewId")
+    @JsonAlias({"OwnerViewId", "ownerviewid"})
     private String ownerViewId;
-    @JsonAlias("OwnerId")
+    @JsonAlias({"OwnerId", "ownerid"})
     private String ownerId;
-    @JsonAlias("Property")
+    @JsonAlias({"Property", "prpid"})
     private String property;
 }

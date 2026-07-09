@@ -42,6 +42,22 @@ public class SaveObjRequestTest {
     }
 
     @Test
+    public void requestReadsLegacyWebSaveObjectPayload() throws Exception {
+        SaveObjRequest request = new ObjectMapper().readValue(
+                "{"
+                        + "\"obj\":{"
+                        + "\"Id\":\"1001\","
+                        + "\"ViewID\":\"100\","
+                        + "\"Propertyies\":[{\"Key\":\"symbol\",\"Value\":\"BTC-USDT\"}]"
+                        + "}}",
+                SaveObjRequest.class);
+
+        assertEquals("1001", request.getSaveObj().getId());
+        assertEquals("100", request.getSaveObj().getViewID());
+        assertEquals("symbol", request.getSaveObj().getPropertyies().get(0).getKey());
+    }
+
+    @Test
     public void itemReadsLegacyIsExistField() throws Exception {
         SaveObjRequest.Item item = new ObjectMapper().readValue(
                 "{\"isExist\":true,\"itemId\":\"2003\"}",

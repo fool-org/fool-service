@@ -86,6 +86,9 @@ explicitly named as authoritative for fool-service.
       candidates.
 - [x] Preserve existing object state during legacy partial `saveobj` and prove
       Vue select-existing child rows save through `AddedItems`.
+- [x] Accept the old FoolFrame Web `/data/save` and `/data/new` protocol
+      shapes as `/api/v1/data/save` and `/api/v1/data/new`, including the
+      `obj` / `ownerviewid` / `ownerid` / `prpid` payload from `detailview.js`.
 - [x] Drive the main Vue workflow through legacy `getlistview(viewId)` then
       `querydata(viewId)` so the rendered page follows View metadata instead
       of the newer business-name query shortcut.

@@ -11,7 +11,7 @@ import java.util.List;
 
 @Data
 public class SaveObjRequest extends CommonRequest {
-    @JsonAlias("SaveObj")
+    @JsonAlias({"SaveObj", "obj"})
     private SaveObject saveObj;
 
     @Data

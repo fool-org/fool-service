@@ -54,7 +54,9 @@ class RuntimeDoctorTest(unittest.TestCase):
             "/auth/getmenu": {"code": 0, "data": {"Items": [{}]}},
             "/view/getreaditemview": {"code": 0, "data": {"DetailViews": [{"Items": [{"PrpId": "itemId"}]}]}},
             "/data/savenewobj": {"code": 0, "data": None},
+            "/data/new": {"code": 0, "data": None},
             "/data/saveobj": {"code": 0, "data": None},
+            "/data/save": {"code": 0, "data": None},
         }
         for suffix, response in suffixes.items():
             if url.endswith(suffix):
@@ -990,6 +992,75 @@ class RuntimeDoctorTest(unittest.TestCase):
                     "ViewID": "202",
                     "Propertyies": [
                         {"Key": "symbol", "Value": "RUNTIME-989903-UPDATE"},
+                        {"Key": "state", "Value": "0"},
+                    ],
+                    "Itemproperties": [],
+                },
+            }),
+            calls,
+        )
+
+    def test_api_checks_save_and_new_use_legacy_web_payloads(self) -> None:
+        calls: list[tuple[str, object]] = []
+        cleanup_ids: list[str] = []
+        original_get_json = runtime_doctor.get_json
+        original_post_json = runtime_doctor.post_json
+        original_cleanup = runtime_doctor.cleanup_runtime_smoke_order
+
+        def fake_get_json(_url: str, _timeout: float) -> object:
+            return []
+
+        def fake_cleanup(object_id: str) -> bool:
+            cleanup_ids.append(object_id)
+            return True
+
+        def fake_post_json(url: str, payload: object, _timeout: float) -> dict[str, object]:
+            calls.append((url, payload))
+            if url.endswith("/data/querydatadetail") and isinstance(payload, dict) and payload.get("ObjId") == "989907":
+                return {"code": 0, "data": {"Data": {"SimpleData": [
+                    {"PrpId": "symbol", "FmtValue": "RUNTIME-989907-UPDATE"},
+                ]}}}
+            return self.runtime_default_post_response(url, payload) or {"code": 0, "data": None}
+
+        try:
+            runtime_doctor.get_json = fake_get_json
+            runtime_doctor.post_json = fake_post_json
+            runtime_doctor.cleanup_runtime_smoke_order = fake_cleanup
+            results = api_checks("http://backend", "http://frontend", 1.0)
+        finally:
+            runtime_doctor.get_json = original_get_json
+            runtime_doctor.post_json = original_post_json
+            runtime_doctor.cleanup_runtime_smoke_order = original_cleanup
+
+        by_name = {result.name: result for result in results}
+        self.assertTrue(by_name["data:new-legacy-web-payload"].ok)
+        self.assertTrue(by_name["data:save-legacy-web-payload"].ok)
+        self.assertIn("989906", cleanup_ids)
+        self.assertIn("989907", cleanup_ids)
+        self.assertIn(
+            ("http://frontend/api/v1/data/new", {
+                "obj": {
+                    "Id": "989906",
+                    "ViewID": "202",
+                    "Propertyies": [
+                        {"Key": "symbol", "Value": "RUNTIME-989906"},
+                        {"Key": "state", "Value": "0"},
+                    ],
+                    "Itemproperties": [],
+                },
+                "ownerviewid": "",
+                "ownerid": "",
+                "prpid": "",
+            }),
+            calls,
+        )
+        self.assertIn(
+            ("http://frontend/api/v1/data/save", {
+                "obj": {
+                    "Id": "989907",
+                    "ViewID": "202",
+                    "Propertyies": [
+                        {"Key": "symbol", "Value": "RUNTIME-989907-UPDATE"},
                         {"Key": "state", "Value": "0"},
                     ],
                     "Itemproperties": [],
