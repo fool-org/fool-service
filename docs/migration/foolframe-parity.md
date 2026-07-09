@@ -99,6 +99,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: legacy recursive `#` owner expressions now resolve through the
+  shared `OperationCommandValueResolver`, so nested owner paths such as
+  `##.accountName` reuse the same expression path as one-level `#.` values.
 - 2026-07-09: legacy owned collection updates now execute
   `PropertyTriggerType.ITEMS_SET` before saving an existing child row, reusing
   the same collection trigger path already used for `ItemsAdd` and
@@ -210,7 +213,7 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `SW_SYS_OPERATIONVIEW`, and `SW_SYS_OPERATIONVIEW_ITEM` columns needed by
   the default View-first data/operation path. This keeps the Docker baseline
   from passing on API behavior alone when required legacy schema has drifted.
-- 2026-07-09: legacy `#.` owner expressions now resolve through the shared
+- 2026-07-09: legacy owner expressions now resolve through the shared
   `OperationCommandValueResolver` by reading `DbMysqlDynamic` owner metadata.
   Dynamic collection loading and collection writes attach the parent row to
   child rows before item triggers, so child expressions read parent fields

@@ -42,6 +42,25 @@ public class OperationCommandValueResolverTest {
     }
 
     @Test
+    public void resolvesLegacyNestedOwnerPropertyExpressions() {
+        Model model = new Model();
+        DbMysqlDynamic grandparent = new DbMysqlDynamic(model);
+        grandparent.set("accountName", "root account");
+        DbMysqlDynamic parent = new DbMysqlDynamic(model);
+        parent.setOwner(grandparent);
+        DbMysqlDynamic child = new DbMysqlDynamic(model);
+        child.setOwner(parent);
+
+        Object value = new OperationCommandValueResolver().resolve(
+                null,
+                child,
+                "##.accountName",
+                (property, raw) -> raw);
+
+        assertEquals("root account", value);
+    }
+
+    @Test
     public void resolvesLegacyLongStaticValuesAsLong() {
         Property property = new Property();
         property.setPropertyType(PropertyType.Long);

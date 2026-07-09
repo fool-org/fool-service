@@ -48,11 +48,12 @@ public class OperationCommandValueResolver {
         if (value.startsWith(".")) {
             return value.length() == 1 || data == null ? null : data.get(value.substring(1));
         }
-        if (value.startsWith("#.")) {
-            if (value.length() == 2 || !(data instanceof DbMysqlDynamic dynamicData) || dynamicData.getOwner() == null) {
+        if (value.startsWith("#")) {
+            if (value.length() == 1) {
                 return null;
             }
-            return dynamicData.getOwner().get(value.substring(2));
+            IDynamicData owner = data instanceof DbMysqlDynamic dynamicData ? dynamicData.getOwner() : null;
+            return resolve(property, owner, value.substring(1), businessObjectLoader, contextValueLoader);
         }
         if (value.startsWith("@")) {
             return contextValue(value.substring(1), contextValueLoader);

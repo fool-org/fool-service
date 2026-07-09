@@ -11,7 +11,7 @@ explicitly named as authoritative for fool-service.
       Docker stack stabilizes.
 - [x] Make the Docker runtime doctor fail when core legacy model/view/operation
       schema columns required by the View-first workflow drift.
-- [x] Resolve legacy `#.` owner expressions through the shared
+- [x] Resolve legacy recursive `#` owner expressions through the shared
       operation-command resolver and attach parent rows to dynamic collection
       children during load/write.
 - [x] Preserve legacy Long/ULong static command values as Java `Long` through
