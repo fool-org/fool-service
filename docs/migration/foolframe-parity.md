@@ -99,6 +99,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: the Docker runtime doctor now guards the event definition
+  recipient relation schema used by notification expansion:
+  `SW_APP_AUTH_USER_SW_EVT_DEF`, `SW_APP_AUTH_ROLE_SW_EVT_DEF`,
+  `SW_APP_AUTH_DEPARTMENT_SW_EVT_DEF`, and
+  `SW_APP_AUTH_COMPANY_SW_EVT_DEF`.
 - 2026-07-09: the Docker runtime doctor now guards the legacy event/message
   schema used by the migrated scheduler and message polling path:
   `SW_EVT_DEF`, `SW_EVT_EVENT`, and `SW_SYS_MSG` columns read or written by

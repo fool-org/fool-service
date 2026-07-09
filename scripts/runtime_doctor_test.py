@@ -285,6 +285,16 @@ class RuntimeDoctorTest(unittest.TestCase):
             ("SW_SYS_MSG", "MSG_USERID"),
             ("SW_SYS_MSG", "MSG_MSGTYPE"),
         )
+        event_recipient_relation_columns = (
+            ("SW_APP_AUTH_USER_SW_EVT_DEF", "SW_APP_AUTH_USER_ID"),
+            ("SW_APP_AUTH_USER_SW_EVT_DEF", "SW_EVT_DEF_ID"),
+            ("SW_APP_AUTH_ROLE_SW_EVT_DEF", "SW_APP_AUTH_ROLE_ID"),
+            ("SW_APP_AUTH_ROLE_SW_EVT_DEF", "SW_EVT_DEF_ID"),
+            ("SW_APP_AUTH_DEPARTMENT_SW_EVT_DEF", "SW_APP_AUTH_DEPARTMENT_ID"),
+            ("SW_APP_AUTH_DEPARTMENT_SW_EVT_DEF", "SW_EVT_DEF_ID"),
+            ("SW_APP_AUTH_COMPANY_SW_EVT_DEF", "SW_APP_AUTH_COMPANY_ID"),
+            ("SW_APP_AUTH_COMPANY_SW_EVT_DEF", "SW_EVT_DEF_ID"),
+        )
         raw = "\n".join(
             f"{table}\t{column}" for table, column in runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS
         )
@@ -293,6 +303,7 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertTrue(set(auth_shell_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
         self.assertTrue(set(app_manage_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
         self.assertTrue(set(event_message_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
+        self.assertTrue(set(event_recipient_relation_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
         self.assertTrue(schema_ok(raw))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_VIEW_ITEM\tVIEW_ITEM_PROPERTY\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_VIEW_ITEM\tVIEW_ITEM_NAME\n", "")))
@@ -312,6 +323,8 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertFalse(schema_ok(raw.replace("SW_EVT_DEF\tEVTDEF_STATE\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_EVT_EVENT\tEVT_Defination\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_MSG\tMSG_STATE\n", "")))
+        self.assertFalse(schema_ok(raw.replace("SW_APP_AUTH_USER_SW_EVT_DEF\tSW_EVT_DEF_ID\n", "")))
+        self.assertFalse(schema_ok(raw.replace("SW_APP_AUTH_COMPANY_SW_EVT_DEF\tSW_APP_AUTH_COMPANY_ID\n", "")))
 
     def test_common_response_list_requires_success_and_nonempty_list(self) -> None:
         self.assertTrue(common_response_list({"code": 0, "data": {"items": [1]}}, "items"))
