@@ -99,6 +99,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Java View item metadata, Docker seed data, Vue chart helpers, and
+  the runtime doctor now carry FoolFrame chart `EditType` values `11` through
+  `14` for `viewWithChart`. Docker `querydata` rows expose a chart axis plus
+  line/bar series through row `Items`, and browser verification shows the Vue
+  chart pane rendering non-empty `bar` and `line` series from the loaded View
+  metadata.
 - 2026-07-09: Vue now consumes legacy `TempFile=viewWithChart` metadata and
   renders data/chart panes before binding data rows. Chart rows are derived
   only from FoolFrame chart item `EditType` values (`11` axis and `12`/`13`/`14`

@@ -259,9 +259,9 @@ describe("view workflow helpers", () => {
       },
       {
         Items: [
-          { PrpShowName: "Day", FmtValue: "Tue", EditType: 11 },
-          { PrpShowName: "Orders", FmtValue: "9", EditType: 12 },
-          { PrpShowName: "Volume", FmtValue: "11", EditType: 13 }
+          { PrpShowName: "Day", FmtValue: "Tue", EditType: "ChartAxis" },
+          { PrpShowName: "Orders", FmtValue: "9", EditType: "ChartLine" },
+          { PrpShowName: "Volume", FmtValue: "11", EditType: "ChartBar" }
         ]
       }
     ])).toEqual({

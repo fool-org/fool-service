@@ -652,8 +652,8 @@ export function legacyChartData(rows: ListDataItem[]): LegacyChartData {
   for (const row of rows) {
     let seriesIndex = 0;
     for (const item of rowItems(row)) {
-      const editType = String(item.editType ?? item.EditType ?? "");
-      if (editType === "11") {
+      const editType = String(item.editType ?? item.EditType ?? "").toLowerCase();
+      if (editType === "11" || editType === "chartaxis") {
         labels.push(firstDisplayValue([item.fmtValue, item.FmtValue]));
         continue;
       }
@@ -680,9 +680,9 @@ export function legacyChartData(rows: ListDataItem[]): LegacyChartData {
 }
 
 function chartSeriesType(editType: string): LegacyChartSeries["type"] | "" {
-  if (editType === "12") return "line";
-  if (editType === "13") return "bar";
-  if (editType === "14") return "scatter";
+  if (editType === "12" || editType === "chartline") return "line";
+  if (editType === "13" || editType === "chartbar") return "bar";
+  if (editType === "14" || editType === "chartscatter") return "scatter";
   return "";
 }
 

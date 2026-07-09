@@ -477,6 +477,30 @@ SET `property_type` = 11,
 WHERE `owner` = 100 AND `name` = 'symbol';
 
 INSERT INTO `fool_sys_model_property` (`id`, `name`, `remark`, `property_model`, `is_collection`, `owner`, `filter`, `format`, `column`, `property_type`, `allow_db_null`, `is_check`, `ix_group`, `multi_map`)
+SELECT 1006, 'amount', 'Amount', NULL, 0, 100, NULL, NULL, 'order_amount', 7, 0, 0, NULL, 0
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_model_property` WHERE `owner` = 100 AND `name` = 'amount');
+
+UPDATE `fool_sys_model_property`
+SET `property_type` = 7,
+    `allow_db_null` = 0,
+    `is_check` = 0,
+    `ix_group` = NULL,
+    `multi_map` = 0
+WHERE `owner` = 100 AND `name` = 'amount';
+
+INSERT INTO `fool_sys_model_property` (`id`, `name`, `remark`, `property_model`, `is_collection`, `owner`, `filter`, `format`, `column`, `property_type`, `allow_db_null`, `is_check`, `ix_group`, `multi_map`)
+SELECT 1007, 'price', 'Price', NULL, 0, 100, NULL, NULL, 'order_price', 7, 0, 0, NULL, 0
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_model_property` WHERE `owner` = 100 AND `name` = 'price');
+
+UPDATE `fool_sys_model_property`
+SET `property_type` = 7,
+    `allow_db_null` = 0,
+    `is_check` = 0,
+    `ix_group` = NULL,
+    `multi_map` = 0
+WHERE `owner` = 100 AND `name` = 'price';
+
+INSERT INTO `fool_sys_model_property` (`id`, `name`, `remark`, `property_model`, `is_collection`, `owner`, `filter`, `format`, `column`, `property_type`, `allow_db_null`, `is_check`, `ix_group`, `multi_map`)
 SELECT 1003, 'state', 'State', 102, 0, 100, NULL, NULL, 'order_state', 15, 1, 0, NULL, 0
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_model_property` WHERE `owner` = 100 AND `name` = 'state');
 
@@ -577,6 +601,8 @@ INSERT INTO `SW_SYS_PROPERTY` (
 VALUES
   (1001, 3, 3, 'orderId', NULL, 0, 'order_id', 'orderId', 0, '', 1, NULL, 0, 1, 1, NULL, NULL, NULL, NULL, 100),
   (1002, 11, 3, 'symbol', NULL, 0, 'order_symbol', 'symbol', 0, NULL, 0, NULL, 0, 1, 1, NULL, NULL, NULL, NULL, 100),
+  (1006, 7, 3, 'amount', NULL, 0, 'order_amount', 'amount', 0, NULL, 0, NULL, 0, 1, 1, NULL, NULL, NULL, NULL, 100),
+  (1007, 7, 3, 'price', NULL, 0, 'order_price', 'price', 0, NULL, 0, NULL, 0, 1, 1, NULL, NULL, NULL, NULL, 100),
   (1003, 15, 3, 'state', 102, 0, 'order_state', 'state', 0, NULL, 0, NULL, 1, 1, 1, NULL, NULL, NULL, NULL, 100),
   (1004, 16, 3, 'items', 101, 1, NULL, 'items', 0, NULL, 0, NULL, 1, 1, 1, NULL, NULL, NULL, NULL, 100),
   (1005, 16, 3, 'customer', 103, 0, 'order_customer_id', 'customer', 0, NULL, 0, NULL, 1, 1, 1, NULL, NULL, NULL, NULL, 100),
@@ -635,7 +661,8 @@ SELECT 1001, 'Order ID', 'Order ID', 'Order ID', 'orderId', 0, 0, NULL, NULL, NU
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 100 AND `model_property` = 'orderId');
 
 UPDATE `fool_sys_view_item`
-SET `show_index` = 1
+SET `show_index` = 1,
+    `edit_type` = 11
 WHERE `view_id` = 100 AND `model_property` = 'orderId';
 
 INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `show_index`, `view_id`)
@@ -647,11 +674,29 @@ SET `show_index` = 2
 WHERE `view_id` = 100 AND `model_property` = 'symbol';
 
 INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `show_index`, `view_id`)
+SELECT 1006, 'Amount', 'Amount', 'Amount', 'amount', 0, 0, NULL, NULL, NULL, 13, 3, 100
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 100 AND `model_property` = 'amount');
+
+UPDATE `fool_sys_view_item`
+SET `show_index` = 3,
+    `edit_type` = 13
+WHERE `view_id` = 100 AND `model_property` = 'amount';
+
+INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `show_index`, `view_id`)
+SELECT 1007, 'Price', 'Price', 'Price', 'price', 0, 0, NULL, NULL, NULL, 12, 4, 100
+WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 100 AND `model_property` = 'price');
+
+UPDATE `fool_sys_view_item`
+SET `show_index` = 4,
+    `edit_type` = 12
+WHERE `view_id` = 100 AND `model_property` = 'price';
+
+INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `show_index`, `view_id`)
 SELECT 1003, 'State', 'State', 'State', 'state', 0, 0, NULL, NULL, NULL, 0, 3, 100
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 100 AND `model_property` = 'state');
 
 UPDATE `fool_sys_view_item`
-SET `show_index` = 4
+SET `show_index` = 6
 WHERE `view_id` = 100 AND `model_property` = 'state';
 
 INSERT INTO `fool_sys_view_item` (`id`, `item_name`, `item_label`, `item_legend`, `model_property`, `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`, `edit_type`, `show_index`, `view_id`)
@@ -659,7 +704,7 @@ SELECT 1005, 'Customer', 'Customer', 'Customer', 'customer', 0, 1, NULL, NULL, N
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 100 AND `model_property` = 'customer');
 
 UPDATE `fool_sys_view_item`
-SET `show_index` = 3,
+SET `show_index` = 5,
     `can_edit` = 1,
     `edit_type` = 1
 WHERE `view_id` = 100 AND `model_property` = 'customer';
@@ -669,7 +714,7 @@ SELECT 1004, 'Items', 'Items', 'Items', 'items', 0, 0, NULL, NULL, NULL, 0, 4, 1
 WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_view_item` WHERE `view_id` = 100 AND `model_property` = 'items');
 
 UPDATE `fool_sys_view_item`
-SET `show_index` = 5,
+SET `show_index` = 7,
     `list_view_id` = 101,
     `edit_view_id` = 101,
     `selected_view_id` = 101
@@ -757,11 +802,13 @@ INSERT INTO `SW_SYS_VIEW_ITEM` (
   `VIEW_ITEM_EDITTYPE`, `VIEW_ITEM_SOURCEEXP`
 )
 VALUES
-  (1001, 100, 'Order ID', 'Order ID', NULL, 1001, NULL, NULL, 1, 1, NULL, NULL, NULL, 0, 1, 990002, 0, NULL),
+  (1001, 100, 'Order ID', 'Order ID', NULL, 1001, NULL, NULL, 1, 1, NULL, NULL, NULL, 0, 1, 990002, 11, NULL),
   (1002, 100, 'Symbol', 'Symbol', NULL, 1002, NULL, NULL, 1, 2, NULL, NULL, NULL, 0, 1, NULL, 0, NULL),
-  (1005, 100, 'Customer', 'Customer', NULL, 1005, NULL, NULL, 0, 3, NULL, NULL, NULL, 0, 1, NULL, 1, NULL),
-  (1003, 100, 'State', 'State', NULL, 1003, NULL, NULL, 1, 4, NULL, NULL, NULL, 0, 1, NULL, 0, NULL),
-  (1004, 100, 'Items', 'Items', NULL, 1004, NULL, NULL, 1, 5, 101, NULL, 101, 0, 1, NULL, 0, NULL),
+  (1006, 100, 'Amount', 'Amount', NULL, 1006, NULL, NULL, 1, 3, NULL, NULL, NULL, 0, 1, NULL, 13, NULL),
+  (1007, 100, 'Price', 'Price', NULL, 1007, NULL, NULL, 1, 4, NULL, NULL, NULL, 0, 1, NULL, 12, NULL),
+  (1005, 100, 'Customer', 'Customer', NULL, 1005, NULL, NULL, 0, 5, NULL, NULL, NULL, 0, 1, NULL, 1, NULL),
+  (1003, 100, 'State', 'State', NULL, 1003, NULL, NULL, 1, 6, NULL, NULL, NULL, 0, 1, NULL, 0, NULL),
+  (1004, 100, 'Items', 'Items', NULL, 1004, NULL, NULL, 1, 7, 101, NULL, 101, 0, 1, NULL, 0, NULL),
   (1101, 101, 'Item ID', 'Item ID', NULL, 1011, NULL, NULL, 1, 1, NULL, NULL, NULL, 0, 1, NULL, 0, NULL),
   (1102, 101, 'Item Name', 'Item Name', NULL, 1012, NULL, NULL, 1, 2, NULL, NULL, NULL, 0, 1, NULL, 0, NULL)
 ON DUPLICATE KEY UPDATE

@@ -25,6 +25,7 @@ from runtime_doctor import (
     lookup_view_item_id,
     parse_compose_ps,
     query_rows_match_view,
+    query_rows_include_chart_items,
     report_grid_ok,
     report_model_columns,
     response_list_field_present,
@@ -63,7 +64,10 @@ class RuntimeDoctorTest(unittest.TestCase):
                 "Operations": [{"Name": "\u5220\u9664"}, {"Name": "\u4fdd\u5b58"}],
             }}
         if url.endswith("/data/querydata"):
-            return {"code": 0, "data": {"Data": [{"Items": [{"PrpId": "recordId", "ObjId": "9001"}]}]}}
+            return {"code": 0, "data": {"Data": [{"Items": [
+                {"PrpId": "recordId", "ObjId": "9001", "FmtValue": "9001", "EditType": "ChartAxis"},
+                {"PrpId": "price", "ObjId": "12.50", "FmtValue": "12.50", "EditType": "ChartLine"},
+            ]}]}}
         if url.endswith("/data/initnew"):
             return {"code": 0, "data": {"Data": {"SimpleData": [
                 {"PrpId": "orderId", "PrpType": "Long", "ReadOnly": True},
@@ -534,6 +538,21 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertTrue(query_rows_match_view(rows, columns))
         self.assertFalse(query_rows_match_view(rows, columns + [{"PropertyName": "missing"}]))
         self.assertFalse(query_rows_match_view([{"values": {"recordId": "dto-only", "status": "ready"}}], columns))
+
+    def test_query_rows_include_legacy_chart_items(self) -> None:
+        rows = [{"Items": [
+            {"PrpId": "recordId", "FmtValue": "1001", "EditType": "ChartAxis"},
+            {"PrpId": "price", "FmtValue": "12.50", "EditType": "ChartLine"},
+        ]}]
+
+        self.assertTrue(query_rows_include_chart_items(rows))
+        self.assertTrue(query_rows_include_chart_items([{"Items": [
+            {"PrpId": "recordId", "FmtValue": "1001", "EditType": 11},
+            {"PrpId": "price", "FmtValue": "12.50", "EditType": 12},
+        ]}]))
+        self.assertFalse(query_rows_include_chart_items([{"Items": [
+            {"PrpId": "recordId", "FmtValue": "1001", "EditType": "ReadOnly"},
+        ]}]))
 
     def test_lookup_view_item_id_uses_business_object_view_metadata(self) -> None:
         self.assertEqual("owner", lookup_view_item_id([

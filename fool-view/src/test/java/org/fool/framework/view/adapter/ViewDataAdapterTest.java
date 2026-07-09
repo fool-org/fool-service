@@ -61,6 +61,33 @@ public class ViewDataAdapterTest {
     }
 
     @Test
+    public void listRowsExposeLegacyChartEditTypes() {
+        ViewItem axis = viewItem("orderId", ItemEditType.ChartAxis);
+        axis.setItemName("Order ID");
+        setProperty(axis, property("orderId", PropertyType.Long));
+        ViewItem price = viewItem("price", ItemEditType.ChartLine);
+        price.setItemName("Price");
+        setProperty(price, property("price", PropertyType.Decimal));
+
+        View view = new View();
+        view.setListItems(List.of(axis, price));
+
+        PageResult<IDynamicData> page = new PageResult<>();
+        page.setItems(List.of(new MapDynamicData("order-1", new LinkedHashMap<>(Map.of(
+                "orderId", 1001,
+                "price", "12.50")))));
+
+        ListDataItem row = new ViewDataAdapter().getListViewResult(view, page).getItems().get(0);
+        Map<?, ?> serialized = new ObjectMapper().convertValue(row, Map.class);
+        List<?> legacyItems = (List<?>) serialized.get("Items");
+
+        assertEquals(11, ItemEditType.ChartAxis.code());
+        assertEquals(12, ItemEditType.ChartLine.code());
+        assertEquals("ChartAxis", String.valueOf(((Map<?, ?>) legacyItems.get(0)).get("EditType")));
+        assertEquals("ChartLine", String.valueOf(((Map<?, ?>) legacyItems.get(1)).get("EditType")));
+    }
+
+    @Test
     public void listResultIncludesLegacyRefreshMetadata() {
         View view = new View();
         view.setAutoFreshInterval(30);

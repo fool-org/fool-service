@@ -438,6 +438,33 @@ def query_rows_match_view(rows: list[Any], columns: list[dict[str, Any]]) -> boo
     return True
 
 
+def query_rows_include_chart_items(rows: list[Any]) -> bool:
+    has_axis = False
+    has_series = False
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        items = row.get("items") or row.get("Items")
+        if not isinstance(items, list):
+            continue
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            edit_type = str(item.get("editType") or item.get("EditType") or "").lower()
+            value = item.get("fmtValue")
+            if value is None:
+                value = item.get("FmtValue")
+            if edit_type in {"11", "chartaxis"} and str(value or ""):
+                has_axis = True
+            if edit_type in {"12", "13", "14", "chartline", "chartbar", "chartscatter"}:
+                try:
+                    float(str(value or ""))
+                    has_series = True
+                except ValueError:
+                    pass
+    return has_axis and has_series
+
+
 def view_column_property_type(column: dict[str, Any]) -> str:
     return str(column.get("PropertyType") or column.get("propertyType") or "").lower()
 
@@ -699,6 +726,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         if loaded_detail_view_id:
             view_state["listViewId"] = view_id
             view_state["detailViewId"] = loaded_detail_view_id
+        view_state["tempFile"] = str(payload["data"].get("TempFile") or payload["data"].get("tempFile") or "")
         if columns:
             view_state["columns"] = columns
         return (
@@ -1029,6 +1057,19 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         columns = view_state.get("columns")
         return isinstance(columns, list) and query_rows_match_view(rows, columns)
 
+    def querydata_chart_items_ok() -> bool:
+        if view_state.get("tempFile") != "viewWithChart":
+            return True
+        view_id = loaded_list_view_id()
+        if not view_id:
+            return False
+        payload = post_json(
+            f"{frontend_url}/api/v1/data/querydata",
+            {"ViewId": view_id, "PageSize": 5, "PageIndex": 1},
+            timeout,
+        )
+        return common_response_ok(payload) and query_rows_include_chart_items(list_rows(payload["data"]))
+
     def get_enums_ok() -> bool:
         columns = view_state.get("columns")
         if not isinstance(columns, list):
@@ -1202,6 +1243,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "data:querydata-items",
             querydata_view_items_ok,
             "POST /api/v1/data/querydata rows expose Items matching the loaded View columns",
+        ),
+        (
+            "data:querydata-chart-items",
+            querydata_chart_items_ok,
+            "POST /api/v1/data/querydata rows expose legacy chart EditType axis and series items for viewWithChart",
         ),
         (
             "data:runoperation-aliases",

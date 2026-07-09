@@ -604,6 +604,9 @@ explicitly named as authoritative for fool-service.
       no explicit id property.
 - [x] Use the old FoolFrame `SYSID` when saving dynamic rows whose model
       metadata has no explicit id property.
+- [x] Seed and prove FoolFrame chart `EditType` values `11` through `14` for
+      `viewWithChart`, so Vue chart rows come from loaded View row `Items`
+      instead of concrete business DTO fields.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
