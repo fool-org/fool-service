@@ -525,6 +525,8 @@ explicitly named as authoritative for fool-service.
       model id discovered from loaded View metadata.
 - [x] Extend Docker runtime-doctor schema coverage to `fool_sys_model_enum`
       columns used by View-derived enum loading.
+- [x] Extend Docker runtime-doctor schema coverage to the legacy `SW_SYS_CON`
+      connection table seeded for routed runtime paths.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

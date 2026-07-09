@@ -352,6 +352,12 @@ LEGACY_CORE_SCHEMA_COLUMNS = (
     ("fool_sys_model_enum", "value"),
     ("fool_sys_model_enum", "remark"),
     ("fool_sys_model_enum", "owner"),
+    ("SW_SYS_CON", "SW_SYS_CON_DATASOURCE"),
+    ("SW_SYS_CON", "SW_SYS_CON_INITALCATALOG"),
+    ("SW_SYS_CON", "SW_SYS_CON_USERNAME"),
+    ("SW_SYS_CON", "SW_SYS_CON_PASSWORD"),
+    ("SW_SYS_CON", "SW_SYS_CON_INTEGRATEDSECURITY"),
+    ("SW_SYS_CON", "SW_SYS_CON_ISLOACL"),
 )
 
 
@@ -470,7 +476,7 @@ def run_mysql_schema_checks() -> list[CheckResult]:
     results.append(CheckResult(
         "mysql:legacy-core-schema",
         legacy_core_schema_ok(completed.stdout),
-        "View-first legacy auth/app/model/view/operation/event/message/query/enum schema is present",
+        "View-first legacy auth/app/model/view/operation/event/message/query/enum/connection schema is present",
     ))
     return results
 

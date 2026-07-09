@@ -315,6 +315,14 @@ class RuntimeDoctorTest(unittest.TestCase):
             ("fool_sys_model_enum", "remark"),
             ("fool_sys_model_enum", "owner"),
         )
+        legacy_connection_columns = (
+            ("SW_SYS_CON", "SW_SYS_CON_DATASOURCE"),
+            ("SW_SYS_CON", "SW_SYS_CON_INITALCATALOG"),
+            ("SW_SYS_CON", "SW_SYS_CON_USERNAME"),
+            ("SW_SYS_CON", "SW_SYS_CON_PASSWORD"),
+            ("SW_SYS_CON", "SW_SYS_CON_INTEGRATEDSECURITY"),
+            ("SW_SYS_CON", "SW_SYS_CON_ISLOACL"),
+        )
         raw = "\n".join(
             f"{table}\t{column}" for table, column in runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS
         )
@@ -326,6 +334,7 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertTrue(set(event_recipient_relation_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
         self.assertTrue(set(query_catalog_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
         self.assertTrue(set(runtime_enum_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
+        self.assertTrue(set(legacy_connection_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
         self.assertTrue(schema_ok(raw))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_VIEW_ITEM\tVIEW_ITEM_PROPERTY\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_VIEW_ITEM\tVIEW_ITEM_NAME\n", "")))
@@ -350,6 +359,7 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertFalse(schema_ok(raw.replace("SE_COMPARETYPE\tSE_COMPAREEXP\n", "")))
         self.assertFalse(schema_ok(raw.replace("SE_SELECTEDTYPE_PROPERTYINDEX\tPROPERTYTYPE_VALUE", "")))
         self.assertFalse(schema_ok(raw.replace("fool_sys_model_enum\towner", "")))
+        self.assertFalse(schema_ok(raw.replace("SW_SYS_CON\tSW_SYS_CON_INITALCATALOG\n", "")))
 
     def test_common_response_list_requires_success_and_nonempty_list(self) -> None:
         self.assertTrue(common_response_list({"code": 0, "data": {"items": [1]}}, "items"))

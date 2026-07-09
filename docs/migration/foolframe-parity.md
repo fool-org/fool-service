@@ -99,6 +99,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: the Docker runtime doctor now guards the legacy `SW_SYS_CON`
+  connection schema seeded for routed model/query/app runtime paths, including
+  FoolFrame's original `INITALCATALOG` and `ISLOACL` spellings.
 - 2026-07-09: the Docker runtime doctor now guards the `fool_sys_model_enum`
   schema behind the View-derived legacy `getenums` runtime check, including the
   `owner` column used to load enum values for a model.
