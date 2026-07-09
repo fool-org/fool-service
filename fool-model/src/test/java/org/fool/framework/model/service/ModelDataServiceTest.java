@@ -449,6 +449,59 @@ public class ModelDataServiceTest {
     }
 
     @Test
+    public void saveDataExecutesLegacyTriggerPropertyAndListMethods() {
+        String tableName = "runtime_trigger_method_order";
+        jdbcTemplate.execute("DROP TABLE IF EXISTS `" + tableName + "`");
+        try {
+            jdbcTemplate.execute("CREATE TABLE `" + tableName + "` ("
+                    + "`ORDER_ID` varchar(64) NOT NULL,"
+                    + "`ORDER_NAME` varchar(255) DEFAULT NULL,"
+                    + "PRIMARY KEY (`ORDER_ID`))");
+            jdbcTemplate.update(
+                    "INSERT INTO `" + tableName + "` (`ORDER_ID`,`ORDER_NAME`) VALUES (?,?)",
+                    "2001",
+                    "before trigger");
+            Property orderId = columnProperty("orderId", "ORDER_ID", PropertyType.String);
+            Property orderName = columnProperty("orderName", "ORDER_NAME", PropertyType.String);
+            Property child = simpleProperty("child", PropertyType.BusinessObject);
+            child.setId(92713L);
+            Property items = collectionProperty("items");
+            items.setId(92714L);
+            Property children = collectionProperty("children");
+            children.setId(92715L);
+            Model model = new Model();
+            model.setTableName(tableName);
+            model.setIdProperty(orderId);
+            model.setProperties(List.of(orderId, orderName, child, items, children));
+            Trigger trigger = new Trigger();
+            trigger.setTriggerType(ModelTriggerType.SAVE);
+            trigger.setBaseOperationType(OperationBaseType.NULL);
+            trigger.setCommands(List.of(
+                    triggerCommand(CommandsType.EXUTE_PROPRTY_MODEL_METHOD, child.getId(), "Close", 1),
+                    triggerCommand(CommandsType.EXUTE_PROPRTY_MODEL_METHOD, children.getId(), "Close", 2),
+                    triggerCommand(CommandsType.EXUTE_LIST_METHOD, items.getId(), "CloseAll", 3)));
+            model.setTriggers(List.of(trigger));
+            RecordingDynamic childData = new RecordingDynamic();
+            RecordingDynamic childItem = new RecordingDynamic();
+            RecordingList itemList = new RecordingList();
+            DbMysqlDynamic data = new DbMysqlDynamic(model);
+            data.set("orderId", "2001");
+            data.set("orderName", "manual save");
+            data.set("child", childData);
+            data.set("items", itemList);
+            data.set("children", List.of(childItem));
+
+            assertEquals(Boolean.TRUE, modelDataService.saveData(data));
+
+            assertEquals("Close", childData.methodName);
+            assertEquals("Close", childItem.methodName);
+            assertEquals(true, itemList.closed);
+        } finally {
+            jdbcTemplate.execute("DROP TABLE IF EXISTS `" + tableName + "`");
+        }
+    }
+
+    @Test
     public void createDataInsertsLegacySimpleDynamicRow() {
         long modelId = 93001L;
         long idPropertyId = 93002L;
@@ -1154,13 +1207,17 @@ public class ModelDataServiceTest {
     private PropertyTrigger propertyTrigger(PropertyTriggerType type, Long propertyId, String expression) {
         PropertyTrigger trigger = new PropertyTrigger();
         trigger.setTriggerType(type);
+        trigger.setCommands(List.of(triggerCommand(CommandsType.SET_VALUE, propertyId, expression, 1)));
+        return trigger;
+    }
+
+    private OperationCommand triggerCommand(CommandsType type, Long propertyId, String expression, int index) {
         OperationCommand command = new OperationCommand();
-        command.setCommandType(CommandsType.SET_VALUE);
+        command.setCommandType(type);
         command.setPropertyId(propertyId);
         command.setExpression(expression);
-        command.setIndex(1);
-        trigger.setCommands(List.of(command));
-        return trigger;
+        command.setIndex(index);
+        return command;
     }
 
     private Property simpleProperty(String name, PropertyType type) {
@@ -1182,6 +1239,27 @@ public class ModelDataServiceTest {
         Property property = simpleProperty(name, PropertyType.BusinessObject);
         property.setIsCollection(true);
         return property;
+    }
+
+    private static class RecordingDynamic extends DbMysqlDynamic {
+        private String methodName;
+
+        RecordingDynamic() {
+            super(new Model());
+        }
+
+        @Override
+        public void invoke(String methodName, Object... args) {
+            this.methodName = methodName;
+        }
+    }
+
+    private static class RecordingList extends java.util.ArrayList<IDynamicData> {
+        private boolean closed;
+
+        public void CloseAll() {
+            closed = true;
+        }
     }
 
     private void cleanupRuntimeEnumModel(long modelId, String modelName) {

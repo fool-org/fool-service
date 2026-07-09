@@ -20,6 +20,8 @@ explicitly named as authoritative for fool-service.
 - [x] Recheck legacy `runoperation` WCF/JSON base-operation behavior against
       FoolFrame and remove the stale remaining-work marker for that no-op
       success surface.
+- [x] Execute legacy trigger direct property-model and list-method command
+      slices through the shared `ModelDataService` trigger path.
 - [x] Render persisted `Order Items` in the Vue `OrderList` detail workflow via
       backend `querydatadetail` collection rows.
 - [x] Replace the hand-shaped Vue `OrderList` screen with View metadata-driven

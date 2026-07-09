@@ -525,6 +525,49 @@ public class ModelDataService {
                             triggerCommandValue(property, data, command.getExpression())));
         } else if (command.getCommandType() == CommandsType.FILTER) {
             checkFilterCommand(model, data, command);
+        } else if (command.getCommandType() == CommandsType.EXUTE_PROPRTY_MODEL_METHOD) {
+            property(model, command.getPropertyId())
+                    .ifPresent(property -> invokePropertyModelMethod(data, property, command.getExpression()));
+        } else if (command.getCommandType() == CommandsType.EXUTE_LIST_METHOD) {
+            property(model, command.getPropertyId())
+                    .ifPresent(property -> invokeListMethod(data, property, command.getExpression()));
+        }
+    }
+
+    private void invokePropertyModelMethod(IDynamicData data, Property property, String methodName) {
+        if (data == null || property == null || property.getName() == null || methodName == null || methodName.isBlank()) {
+            return;
+        }
+        Object value = data.get(property.getName());
+        if (Boolean.TRUE.equals(property.getIsCollection()) && value instanceof Iterable<?> items) {
+            items.forEach(item -> invokeDynamic(item, methodName));
+            return;
+        }
+        invokeDynamic(value, methodName);
+    }
+
+    private void invokeListMethod(IDynamicData data, Property property, String methodName) {
+        if (data == null || property == null || property.getName() == null || methodName == null || methodName.isBlank()) {
+            return;
+        }
+        Object value = data.get(property.getName());
+        if (value instanceof IDynamicData dynamicData) {
+            dynamicData.invoke(methodName);
+            return;
+        }
+        if (value == null) {
+            return;
+        }
+        try {
+            value.getClass().getMethod(methodName).invoke(value);
+        } catch (ReflectiveOperationException | SecurityException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private void invokeDynamic(Object value, String methodName) {
+        if (value instanceof IDynamicData dynamicData) {
+            dynamicData.invoke(methodName);
         }
     }
 
