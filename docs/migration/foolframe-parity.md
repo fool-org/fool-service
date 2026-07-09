@@ -99,6 +99,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: dynamic `saveData` now uses the old FoolFrame `SYSID` when a
+  no-idProperty row changes `SYSID`, matching the existing explicit-id
+  old-value update behavior and avoiding missed updates on legacy dynamic rows.
 - 2026-07-09: dynamic `createData` now inserts FoolFrame `SYSID` when model
   metadata has no explicit id property and the dynamic row carries a legacy
   id, so `savenewobj` can create no-idProperty rows instead of relying on a

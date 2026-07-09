@@ -1009,6 +1009,9 @@ public class ModelDataService {
             }
             return data.get(idName);
         }
+        if (data.hasOld("SYSID")) {
+            return data.getOld("SYSID");
+        }
         return fallbackId(data);
     }
 

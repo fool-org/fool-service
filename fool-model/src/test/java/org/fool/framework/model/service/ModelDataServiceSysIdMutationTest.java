@@ -32,42 +32,7 @@ public class ModelDataServiceSysIdMutationTest {
         String tableName = "runtime_create_sysid_object";
         cleanup(modelId, modelName, tableName);
         try {
-            jdbcTemplate.execute("CREATE TABLE `" + tableName + "` ("
-                    + "`SYSID` varchar(64) NOT NULL,"
-                    + "`OBJECT_NAME` varchar(255) DEFAULT NULL,"
-                    + "PRIMARY KEY (`SYSID`))");
-            jdbcTemplate.update(
-                    "INSERT INTO `fool_sys_model` "
-                            + "(`id`,`name`,`text`,`remark`,`model_type`,`class_name`,`table_name`,`auto_sys_id`,`id_property`) "
-                            + "VALUES (?,?,?,?,?,?,?,?,?)",
-                    modelId,
-                    modelName,
-                    modelName,
-                    "runtime sysid create test",
-                    ModelType.DYNAMIC.code(),
-                    "example." + modelName,
-                    tableName,
-                    false,
-                    null);
-            jdbcTemplate.update(
-                    "INSERT INTO `fool_sys_model_property` "
-                            + "(`id`,`name`,`remark`,`property_model`,`is_collection`,`owner`,`filter`,`format`,`column`,"
-                            + "`property_type`,`allow_db_null`,`is_check`,`ix_group`,`multi_map`) "
-                            + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                    namePropertyId,
-                    "objectName",
-                    "object name",
-                    null,
-                    false,
-                    modelId,
-                    null,
-                    null,
-                    "OBJECT_NAME",
-                    PropertyType.String.code(),
-                    true,
-                    false,
-                    null,
-                    false);
+            createSysIdModel(modelId, namePropertyId, modelName, tableName);
             Model model = modelDataService.getModel(modelName);
             DbMysqlDynamic data = new DbMysqlDynamic(model);
             data.set("SYSID", "9701");
@@ -83,6 +48,81 @@ public class ModelDataServiceSysIdMutationTest {
         } finally {
             cleanup(modelId, modelName, tableName);
         }
+    }
+
+    @Test
+    public void saveDataUsesOldSysIdWhenModelHasNoIdProperty() {
+        long modelId = 97011L;
+        long namePropertyId = 97012L;
+        String modelName = "RuntimeSaveOldSysIdObject";
+        String tableName = "runtime_save_old_sysid_object";
+        cleanup(modelId, modelName, tableName);
+        try {
+            createSysIdModel(modelId, namePropertyId, modelName, tableName);
+            jdbcTemplate.update(
+                    "INSERT INTO `" + tableName + "` (`SYSID`,`OBJECT_NAME`) VALUES (?,?)",
+                    "9702",
+                    "Before save");
+            Model model = modelDataService.getModel(modelName);
+            DbMysqlDynamic data = new DbMysqlDynamic(model);
+            data.set("SYSID", "9702");
+            data.set("SYSID", "9703");
+            data.set("objectName", "After save");
+
+            assertEquals(Boolean.TRUE, modelDataService.saveData(data));
+
+            String name = jdbcTemplate.queryForObject(
+                    "SELECT `OBJECT_NAME` FROM `" + tableName + "` WHERE `SYSID` = ?",
+                    String.class,
+                    "9702");
+            Integer changedIdCount = jdbcTemplate.queryForObject(
+                    "SELECT COUNT(*) FROM `" + tableName + "` WHERE `SYSID` = ?",
+                    Integer.class,
+                    "9703");
+            assertEquals("After save", name);
+            assertEquals(0, changedIdCount.intValue());
+        } finally {
+            cleanup(modelId, modelName, tableName);
+        }
+    }
+
+    private void createSysIdModel(long modelId, long namePropertyId, String modelName, String tableName) {
+        jdbcTemplate.execute("CREATE TABLE `" + tableName + "` ("
+                + "`SYSID` varchar(64) NOT NULL,"
+                + "`OBJECT_NAME` varchar(255) DEFAULT NULL,"
+                + "PRIMARY KEY (`SYSID`))");
+        jdbcTemplate.update(
+                "INSERT INTO `fool_sys_model` "
+                        + "(`id`,`name`,`text`,`remark`,`model_type`,`class_name`,`table_name`,`auto_sys_id`,`id_property`) "
+                        + "VALUES (?,?,?,?,?,?,?,?,?)",
+                modelId,
+                modelName,
+                modelName,
+                "runtime sysid mutation test",
+                ModelType.DYNAMIC.code(),
+                "example." + modelName,
+                tableName,
+                false,
+                null);
+        jdbcTemplate.update(
+                "INSERT INTO `fool_sys_model_property` "
+                        + "(`id`,`name`,`remark`,`property_model`,`is_collection`,`owner`,`filter`,`format`,`column`,"
+                        + "`property_type`,`allow_db_null`,`is_check`,`ix_group`,`multi_map`) "
+                        + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                namePropertyId,
+                "objectName",
+                "object name",
+                null,
+                false,
+                modelId,
+                null,
+                null,
+                "OBJECT_NAME",
+                PropertyType.String.code(),
+                true,
+                false,
+                null,
+                false);
     }
 
     private void cleanup(long modelId, String modelName, String tableName) {

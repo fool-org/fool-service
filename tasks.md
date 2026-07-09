@@ -594,6 +594,8 @@ explicitly named as authoritative for fool-service.
       when dynamic model metadata has no explicit id property.
 - [x] Insert FoolFrame `SYSID` during dynamic creates when model metadata has
       no explicit id property.
+- [x] Use the old FoolFrame `SYSID` when saving dynamic rows whose model
+      metadata has no explicit id property.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
