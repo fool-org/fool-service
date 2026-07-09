@@ -43,6 +43,8 @@ public class ViewItem {
     @Column("selected_view_id")
     private Long selectedViewId;
     @Column(noMap = true)
+    private transient Integer listViewType;
+    @Column(noMap = true)
     private transient Property property;
     @Column(noMap = true)
     private transient String viewFile;

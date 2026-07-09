@@ -170,6 +170,37 @@ public class ViewDataServiceTest {
     }
 
     @Test
+    public void getViewDataHydratesLinkedListViewTypeFromChildView() {
+        DaoService daoService = mock(DaoService.class);
+        ViewDataService service = new ViewDataService();
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+
+        ViewItem item = new ViewItem();
+        item.setId(901L);
+        item.setListViewId(201L);
+        View view = new View();
+        view.setId(100L);
+        view.setViewModel("Order");
+        view.setListItems(List.of(item));
+        ViewDataService.LinkedViewTypeRow row = new ViewDataService.LinkedViewTypeRow();
+        row.itemId = 901L;
+        row.viewType = 1;
+
+        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
+        when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(new Model());
+        when(daoService.selectList(eq(ViewDataService.LinkedViewTypeRow.class), anyString(), eq(100L)))
+                .thenReturn(List.of(row));
+
+        View result = service.getViewData("100", "");
+
+        assertEquals(Integer.valueOf(1), result.getListItems().get(0).getListViewType());
+        ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
+        verify(daoService).selectList(eq(ViewDataService.LinkedViewTypeRow.class), sql.capture(), eq(100L));
+        assertTrue(sql.getValue().contains("`list_view_id`"));
+        assertTrue(sql.getValue().contains("`fool_sys_view`"));
+    }
+
+    @Test
     public void getViewDataHydratesLegacyOperationViewParams() {
         DaoService daoService = mock(DaoService.class);
         ViewDataService service = new ViewDataService();

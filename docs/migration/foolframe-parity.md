@@ -99,6 +99,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: backend `getlistview` now hydrates legacy `ListViewType` from
+  each configured child `ListViewId`'s View type instead of hard-coding `0`,
+  matching FoolFrame `item.ListView.ViewType`. Docker now seeds a real
+  `TempFile=Sudoku` fixture with `List`, `linechart`, `Map`, `Item`, and
+  `Group` panel `ViewFile` metadata, and the runtime doctor proves the group
+  child metadata includes both list (`ListViewType=0`) and detail/simple
+  (`ListViewType=1`) child surfaces.
 - 2026-07-09: Vue Sudoku `Group` panels now render one-level child tabs from
   the loaded group View's `Items`. List child tabs (`ListViewType=0`) load
   their own `ListViewId` through the existing View/data path, while simple

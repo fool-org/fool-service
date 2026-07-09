@@ -928,6 +928,116 @@ ON DUPLICATE KEY UPDATE
   `SW_SYS_OPVIEWITEM_INDEX` = VALUES(`SW_SYS_OPVIEWITEM_INDEX`),
   `SW_SYS_OPVIEWITEM_PARAM` = VALUES(`SW_SYS_OPVIEWITEM_PARAM`);
 
+INSERT INTO `SW_SYS_VIEW_FILE` (
+  `VIEW_FILE_ID`, `VIEW_FILE_NAME`, `VIEW_FILE_VIEWTYPE`, `VIEW_FILE_FILENAME`, `VIEW_FILE_FILECONTENT`
+)
+VALUES
+  (990003, 'Runtime Sudoku', 0, 'Sudoku', NULL),
+  (990004, 'Runtime Group Include', 0, './includes/Group', NULL),
+  (990005, 'Runtime Map Include', 0, './includes/Map', NULL),
+  (990006, 'Runtime Item Include', 0, './includes/Item', NULL),
+  (990007, 'Runtime Line Chart Include', 0, './includes/linechart', NULL)
+ON DUPLICATE KEY UPDATE
+  `VIEW_FILE_NAME` = VALUES(`VIEW_FILE_NAME`),
+  `VIEW_FILE_VIEWTYPE` = VALUES(`VIEW_FILE_VIEWTYPE`),
+  `VIEW_FILE_FILENAME` = VALUES(`VIEW_FILE_FILENAME`),
+  `VIEW_FILE_FILECONTENT` = VALUES(`VIEW_FILE_FILECONTENT`);
+
+INSERT INTO `fool_sys_view` (
+  `id`, `view_name`, `view_text`, `view_remark`, `view_title`, `view_type`,
+  `view_model`, `filter`, `auto_fresh_interval`, `view_model_class`
+)
+VALUES
+  (103, 'OrderSudoku', 'OrderSudoku', 'Seeded Docker Sudoku view', 'Order Sudoku', 0, 'Order', '', 0, 'org.fool.framework.market.Order'),
+  (104, 'OrderSudokuGroup', 'OrderSudokuGroup', 'Seeded Docker Sudoku group view', 'Order Sudoku Group', 0, 'Order', '', 0, 'org.fool.framework.market.Order')
+ON DUPLICATE KEY UPDATE
+  `view_text` = VALUES(`view_text`),
+  `view_remark` = VALUES(`view_remark`),
+  `view_title` = VALUES(`view_title`),
+  `view_type` = VALUES(`view_type`),
+  `view_model` = VALUES(`view_model`),
+  `filter` = VALUES(`filter`),
+  `auto_fresh_interval` = VALUES(`auto_fresh_interval`),
+  `view_model_class` = VALUES(`view_model_class`);
+
+INSERT INTO `SW_SYS_VIEW` (
+  `VIEW_ID`, `VIEW_MODEL`, `VIEW_NAME`, `VIEW_FILTER`, `VIEW_DEFAULT`, `VIEW_TYPE`,
+  `VIEW_CONTYPE`, `VIEW_FILE`, `VIEW_CHECKAUTH`, `VIEW_AUTOFRESHINTERVAL`, `VIEW_CANEDIT`
+)
+VALUES
+  (103, 100, 'OrderSudoku', '', 102, 0, 3, 990003, 0, 0, 0),
+  (104, 100, 'OrderSudokuGroup', '', 102, 0, 3, NULL, 0, 0, 0)
+ON DUPLICATE KEY UPDATE
+  `VIEW_MODEL` = VALUES(`VIEW_MODEL`),
+  `VIEW_NAME` = VALUES(`VIEW_NAME`),
+  `VIEW_FILTER` = VALUES(`VIEW_FILTER`),
+  `VIEW_DEFAULT` = VALUES(`VIEW_DEFAULT`),
+  `VIEW_TYPE` = VALUES(`VIEW_TYPE`),
+  `VIEW_CONTYPE` = VALUES(`VIEW_CONTYPE`),
+  `VIEW_FILE` = VALUES(`VIEW_FILE`),
+  `VIEW_CHECKAUTH` = VALUES(`VIEW_CHECKAUTH`),
+  `VIEW_AUTOFRESHINTERVAL` = VALUES(`VIEW_AUTOFRESHINTERVAL`),
+  `VIEW_CANEDIT` = VALUES(`VIEW_CANEDIT`);
+
+INSERT INTO `fool_sys_view_item` (
+  `id`, `item_name`, `item_label`, `item_legend`, `model_property`,
+  `input_type`, `can_edit`, `select_view_name`, `input_regx`, `format_regx`,
+  `edit_type`, `show_index`, `list_view_id`, `view_id`
+)
+VALUES
+  (1301, 'Orders List', 'Orders List', 'Orders List', 'orderId', 0, 0, NULL, NULL, NULL, 0, 1, 100, 103),
+  (1302, 'Price Chart', 'Price Chart', 'Price Chart', 'price', 0, 0, NULL, NULL, NULL, 0, 2, 100, 103),
+  (1303, 'Customer Map', 'Customer Map', 'Customer Map', 'customer', 0, 0, NULL, NULL, NULL, 0, 3, 100, 103),
+  (1304, 'Order Item', 'Order Item', 'Order Item', 'symbol', 0, 0, NULL, NULL, NULL, 0, 4, 100, 103),
+  (1305, 'Order Group', 'Order Group', 'Order Group', 'amount', 0, 0, NULL, NULL, NULL, 0, 5, 104, 103),
+  (1401, 'Group Orders', 'Group Orders', 'Group Orders', 'orderId', 0, 0, NULL, NULL, NULL, 0, 1, 100, 104),
+  (1402, 'Group Detail', 'Group Detail', 'Group Detail', 'symbol', 0, 0, NULL, NULL, NULL, 0, 2, 102, 104)
+ON DUPLICATE KEY UPDATE
+  `item_name` = VALUES(`item_name`),
+  `item_label` = VALUES(`item_label`),
+  `item_legend` = VALUES(`item_legend`),
+  `model_property` = VALUES(`model_property`),
+  `input_type` = VALUES(`input_type`),
+  `can_edit` = VALUES(`can_edit`),
+  `edit_type` = VALUES(`edit_type`),
+  `show_index` = VALUES(`show_index`),
+  `list_view_id` = VALUES(`list_view_id`),
+  `view_id` = VALUES(`view_id`);
+
+INSERT INTO `SW_SYS_VIEW_ITEM` (
+  `SysId`, `SW_SYS_VIEW_ItemsVIEW_ID`, `VIEW_ITEM_NAME`, `VIEW_ITEM_NOTE`, `VIEW_ITEM_FORMAT`,
+  `VIEW_ITEM_PROPERTY`, `VIEW_ITEM_PROPERTY_SHOW`, `VIEW_ITEM_PROPERTY_VALUE`,
+  `VIEW_ITEM_READONLY`, `VIEW_ITEM_INDEX`, `VIEW_ITEM_SUBVIEW`, `VIEW_ITEM_EDITVIEW`,
+  `VIEW_ITEM_SELECTVIEW`, `VIEW_ITEM_WIDTH`, `VIEW_ITEM_ISSHOW`, `VIEW_ITEM_FILE`,
+  `VIEW_ITEM_EDITTYPE`, `VIEW_ITEM_SOURCEEXP`
+)
+VALUES
+  (1301, 103, 'Orders List', 'Orders List', NULL, 1001, NULL, NULL, 1, 1, 100, NULL, NULL, 0, 1, 990002, 0, NULL),
+  (1302, 103, 'Price Chart', 'Price Chart', NULL, 1007, NULL, NULL, 1, 2, 100, NULL, NULL, 0, 1, 990007, 0, NULL),
+  (1303, 103, 'Customer Map', 'Customer Map', NULL, 1005, NULL, NULL, 1, 3, 100, NULL, NULL, 0, 1, 990005, 0, NULL),
+  (1304, 103, 'Order Item', 'Order Item', NULL, 1002, NULL, NULL, 1, 4, 100, NULL, NULL, 0, 1, 990006, 0, NULL),
+  (1305, 103, 'Order Group', 'Order Group', NULL, 1006, NULL, NULL, 1, 5, 104, NULL, NULL, 0, 1, 990004, 0, NULL),
+  (1401, 104, 'Group Orders', 'Group Orders', NULL, 1001, NULL, NULL, 1, 1, 100, NULL, NULL, 0, 1, 990002, 0, NULL),
+  (1402, 104, 'Group Detail', 'Group Detail', NULL, 1002, NULL, NULL, 1, 2, 102, NULL, NULL, 0, 1, 990006, 0, NULL)
+ON DUPLICATE KEY UPDATE
+  `SW_SYS_VIEW_ItemsVIEW_ID` = VALUES(`SW_SYS_VIEW_ItemsVIEW_ID`),
+  `VIEW_ITEM_NAME` = VALUES(`VIEW_ITEM_NAME`),
+  `VIEW_ITEM_NOTE` = VALUES(`VIEW_ITEM_NOTE`),
+  `VIEW_ITEM_FORMAT` = VALUES(`VIEW_ITEM_FORMAT`),
+  `VIEW_ITEM_PROPERTY` = VALUES(`VIEW_ITEM_PROPERTY`),
+  `VIEW_ITEM_PROPERTY_SHOW` = VALUES(`VIEW_ITEM_PROPERTY_SHOW`),
+  `VIEW_ITEM_PROPERTY_VALUE` = VALUES(`VIEW_ITEM_PROPERTY_VALUE`),
+  `VIEW_ITEM_READONLY` = VALUES(`VIEW_ITEM_READONLY`),
+  `VIEW_ITEM_INDEX` = VALUES(`VIEW_ITEM_INDEX`),
+  `VIEW_ITEM_SUBVIEW` = VALUES(`VIEW_ITEM_SUBVIEW`),
+  `VIEW_ITEM_EDITVIEW` = VALUES(`VIEW_ITEM_EDITVIEW`),
+  `VIEW_ITEM_SELECTVIEW` = VALUES(`VIEW_ITEM_SELECTVIEW`),
+  `VIEW_ITEM_WIDTH` = VALUES(`VIEW_ITEM_WIDTH`),
+  `VIEW_ITEM_ISSHOW` = VALUES(`VIEW_ITEM_ISSHOW`),
+  `VIEW_ITEM_FILE` = VALUES(`VIEW_ITEM_FILE`),
+  `VIEW_ITEM_EDITTYPE` = VALUES(`VIEW_ITEM_EDITTYPE`),
+  `VIEW_ITEM_SOURCEEXP` = VALUES(`VIEW_ITEM_SOURCEEXP`);
+
 INSERT INTO `market_customer` (`customer_id`, `display_name`)
 VALUES
   (3001, 'Ada Capital'),

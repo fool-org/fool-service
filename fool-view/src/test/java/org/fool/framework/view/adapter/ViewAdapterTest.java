@@ -477,6 +477,7 @@ public class ViewAdapterTest {
     public void viewInfoIncludesConfiguredLegacyLinkedViewIds() {
         ViewItem customer = viewItem("customer", "Customer", ItemEditType.TextBox);
         customer.setListViewId(201L);
+        customer.setListViewType(1);
         customer.setEditViewId(202L);
 
         View view = new View();
@@ -485,6 +486,7 @@ public class ViewAdapterTest {
         Object column = new ViewAdapter().getViewInfo(view).getTableColumn().get(0);
 
         assertEquals(Long.valueOf(201L), columnListViewId(column));
+        assertEquals(Integer.valueOf(1), columnListViewType(column));
         assertEquals(Long.valueOf(202L), columnEditViewId(column));
     }
 

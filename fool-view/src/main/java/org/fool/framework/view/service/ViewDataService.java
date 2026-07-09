@@ -67,6 +67,10 @@ public class ViewDataService {
             + "FROM `SW_SYS_VIEW_ITEM` vi "
             + "JOIN `SW_SYS_VIEW_FILE` vf ON vf.`VIEW_FILE_ID` = vi.`VIEW_ITEM_FILE` "
             + "WHERE vi.`SW_SYS_VIEW_ItemsVIEW_ID` = ?";
+    private static final String LINKED_VIEW_TYPE_SQL = "SELECT vi.`id`, child.`view_type` "
+            + "FROM `fool_sys_view_item` vi "
+            + "JOIN `fool_sys_view` child ON child.`id` = vi.`list_view_id` "
+            + "WHERE vi.`view_id` = ?";
 
     @Autowired
     private DaoService daoService;
@@ -75,6 +79,7 @@ public class ViewDataService {
         var view = daoService.getOneDetailByKey(View.class, requireViewId(viewId));
         attachProperties(view);
         attachDefaultDetailView(view);
+        attachLinkedViewTypes(view);
         attachTemplateFiles(view);
         attachOperations(view);
         return view;
@@ -125,6 +130,25 @@ public class ViewDataService {
                     .filter(item -> row.itemId.equals(item.getId()))
                     .findFirst()
                     .ifPresent(item -> item.setViewFile(row.fileName));
+        }
+    }
+
+    private void attachLinkedViewTypes(View view) {
+        if (view == null || view.getId() == null || CollectionUtils.isEmpty(view.getListItems())) {
+            return;
+        }
+        List<LinkedViewTypeRow> rows = daoService.selectList(LinkedViewTypeRow.class, LINKED_VIEW_TYPE_SQL, view.getId());
+        if (CollectionUtils.isEmpty(rows)) {
+            return;
+        }
+        for (LinkedViewTypeRow row : rows) {
+            if (row.itemId == null || row.viewType == null) {
+                continue;
+            }
+            view.getListItems().stream()
+                    .filter(item -> row.itemId.equals(item.getId()))
+                    .findFirst()
+                    .ifPresent(item -> item.setListViewType(row.viewType));
         }
     }
 
@@ -185,5 +209,12 @@ public class ViewDataService {
         public Long itemId;
         @Column("VIEW_FILE_FILENAME")
         public String fileName;
+    }
+
+    public static final class LinkedViewTypeRow {
+        @Column("id")
+        public Long itemId;
+        @Column("view_type")
+        public Integer viewType;
     }
 }

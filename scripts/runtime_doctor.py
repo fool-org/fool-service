@@ -364,6 +364,57 @@ def view_template_metadata_ok(payload: dict[str, Any]) -> bool:
     return bool(temp_file) and any(str(column.get("ViewFile") or "").strip() for column in view_columns(payload))
 
 
+def normalized_view_file(column: dict[str, Any]) -> str:
+    return str(column.get("ViewFile") or column.get("viewFile") or "").strip().replace("\\", "/").lower()
+
+
+def column_list_view_id(column: dict[str, Any]) -> int:
+    try:
+        return int(column.get("ListViewId") or column.get("listViewId") or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def column_list_view_type(column: dict[str, Any]) -> int:
+    try:
+        return int(column.get("ListViewType") or column.get("listViewType") or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def sudoku_view_metadata_ok(root_payload: dict[str, Any], group_payload: dict[str, Any]) -> bool:
+    if not common_response_ok(root_payload) or str(root_payload["data"].get("TempFile") or "") != "Sudoku":
+        return False
+    root_columns = view_columns(root_payload)
+    root_files = {normalized_view_file(column) for column in root_columns}
+    required_files = {
+        "./includes/list",
+        "./includes/linechart",
+        "./includes/map",
+        "./includes/item",
+        "./includes/group",
+    }
+    group_view_id = next((
+        column_list_view_id(column)
+        for column in root_columns
+        if normalized_view_file(column) == "./includes/group"
+    ), 0)
+    if not required_files.issubset(root_files) or not group_view_id:
+        return False
+    group_columns = view_columns(group_payload)
+    def group_child_matches(view_file: str, view_type: int) -> bool:
+        return any(
+            normalized_view_file(column) == view_file
+            and column_list_view_id(column)
+            and column_list_view_type(column) == view_type
+            for column in group_columns
+        )
+    return (
+        group_child_matches("./includes/list", 0)
+        and group_child_matches("./includes/item", 1)
+    )
+
+
 def read_item_detail_views_ok(payload: dict[str, Any]) -> bool:
     if not common_response_ok(payload):
         return False
@@ -1070,6 +1121,28 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         )
         return common_response_ok(payload) and query_rows_include_chart_items(list_rows(payload["data"]))
 
+    def get_sudoku_template_metadata_ok() -> bool:
+        if not loaded_list_view_id():
+            return False
+        payload = post_json(
+            f"{frontend_url}/api/v1/view/getlistview",
+            {"ViewId": 103},
+            timeout,
+        )
+        group_view_id = next((
+            column_list_view_id(column)
+            for column in view_columns(payload)
+            if normalized_view_file(column) == "./includes/group"
+        ), 0)
+        if not group_view_id:
+            return False
+        group_payload = post_json(
+            f"{frontend_url}/api/v1/view/getlistview",
+            {"ViewId": group_view_id},
+            timeout,
+        )
+        return sudoku_view_metadata_ok(payload, group_payload)
+
     def get_enums_ok() -> bool:
         columns = view_state.get("columns")
         if not isinstance(columns, list):
@@ -1248,6 +1321,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "data:querydata-chart-items",
             querydata_chart_items_ok,
             "POST /api/v1/data/querydata rows expose legacy chart EditType axis and series items for viewWithChart",
+        ),
+        (
+            "view:sudoku-template-metadata",
+            get_sudoku_template_metadata_ok,
+            "POST /api/v1/view/getlistview exposes Sudoku panel ViewFile and group ListViewType metadata",
         ),
         (
             "data:runoperation-aliases",

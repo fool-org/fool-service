@@ -32,6 +32,7 @@ from runtime_doctor import (
     row_object_id,
     runoperation_result_aliases_ok,
     runtime_report_cols,
+    sudoku_view_metadata_ok,
     view_column_key,
     view_columns,
     view_template_metadata_ok,
@@ -56,6 +57,22 @@ class RuntimeDoctorTest(unittest.TestCase):
         for suffix, response in suffixes.items():
             if url.endswith(suffix):
                 return response
+        if url.endswith("/view/getlistview") and isinstance(_payload, dict) and _payload.get("ViewId") == 103:
+            return {"code": 0, "data": {
+                "TempFile": "Sudoku",
+                "Items": [
+                    {"ViewFile": "./includes/List", "ListViewId": 100, "ListViewType": 0},
+                    {"ViewFile": "./includes/linechart", "ListViewId": 100, "ListViewType": 0},
+                    {"ViewFile": "./includes/Map", "ListViewId": 100, "ListViewType": 0},
+                    {"ViewFile": "./includes/Item", "ListViewId": 100, "ListViewType": 0},
+                    {"ViewFile": "./includes/Group", "ListViewId": 104, "ListViewType": 0},
+                ],
+            }}
+        if url.endswith("/view/getlistview") and isinstance(_payload, dict) and _payload.get("ViewId") == 104:
+            return {"code": 0, "data": {"Items": [
+                {"ViewFile": "./includes/List", "ListViewId": 100, "ListViewType": 0},
+                {"ViewFile": "./includes/Item", "ListViewId": 102, "ListViewType": 1},
+            ]}}
         if url.endswith("/view/getlistview"):
             return {"code": 0, "data": {
                 "DetailViewId": 202,
@@ -553,6 +570,23 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertFalse(query_rows_include_chart_items([{"Items": [
             {"PrpId": "recordId", "FmtValue": "1001", "EditType": "ReadOnly"},
         ]}]))
+
+    def test_sudoku_template_metadata_requires_panel_files_and_group_types(self) -> None:
+        root = {"code": 0, "data": {"TempFile": "Sudoku", "Items": [
+            {"ViewFile": "./includes/List", "ListViewId": 100, "ListViewType": 0},
+            {"ViewFile": "./includes/linechart", "ListViewId": 100, "ListViewType": 0},
+            {"ViewFile": "./includes/Map", "ListViewId": 100, "ListViewType": 0},
+            {"ViewFile": "./includes/Item", "ListViewId": 100, "ListViewType": 0},
+            {"ViewFile": "./includes/Group", "ListViewId": 104, "ListViewType": 0},
+        ]}}
+        group = {"code": 0, "data": {"Items": [
+            {"ViewFile": "./includes/List", "ListViewId": 100, "ListViewType": 0},
+            {"ViewFile": "./includes/Item", "ListViewId": 102, "ListViewType": 1},
+        ]}}
+
+        self.assertTrue(sudoku_view_metadata_ok(root, group))
+        group["data"]["Items"][1]["ListViewType"] = 0
+        self.assertFalse(sudoku_view_metadata_ok(root, group))
 
     def test_lookup_view_item_id_uses_business_object_view_metadata(self) -> None:
         self.assertEqual("owner", lookup_view_item_id([

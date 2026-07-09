@@ -623,6 +623,9 @@ explicitly named as authoritative for fool-service.
 - [x] Render Vue Sudoku `Group` panels as one-level child tabs, loading
       `ListViewType=0` child lists through their own `ListViewId` and keeping
       `ListViewType=1` simple children as explicit placeholders.
+- [x] Hydrate backend `ListViewType` from each child `ListViewId` View type
+      and prove Docker-seeded Sudoku `Group` metadata exposes both list and
+      detail/simple child surfaces.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

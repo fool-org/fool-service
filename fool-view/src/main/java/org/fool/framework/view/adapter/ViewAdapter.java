@@ -60,7 +60,7 @@ public class ViewAdapter {
                             .editType(p.getEditType())
                             .propertyId(0L)
                             .listViewId(safeViewId(p.getListViewId()))
-                            .listViewType(0)
+                            .listViewType(safeListViewType(p))
                             .editViewId(safeViewId(p.getEditViewId()))
                             .editExp(0L)
                             .propertyType(safePropertyType(p))
@@ -157,6 +157,10 @@ public class ViewAdapter {
 
     private long safeViewId(Long viewId) {
         return viewId == null ? 0L : viewId;
+    }
+
+    private int safeListViewType(ViewItem item) {
+        return item.getListViewType() == null ? 0 : item.getListViewType();
     }
 
     private String safePropertyName(ViewItem item) {
