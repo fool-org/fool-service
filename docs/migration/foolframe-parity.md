@@ -99,6 +99,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: legacy owned collection updates now execute
+  `PropertyTriggerType.ITEMS_SET` before saving an existing child row, reusing
+  the same collection trigger path already used for `ItemsAdd` and
+  `ItemsDelete`.
 - 2026-07-09: `ReflectiveAppModuleSource` now accepts declared dependency
   packages, scans their annotated models with the existing package scanner, and
   wires them as root-module dependencies. This covers the practical Java

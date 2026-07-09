@@ -1229,6 +1229,7 @@ public class ModelDataServiceTest {
         try {
             createRuntimeOneToManyTables(orderTable, itemTable);
             jdbcTemplate.update("INSERT INTO `" + orderTable + "` (`ORDER_ID`,`ORDER_NAME`) VALUES (?,?)", "9351", "Before save");
+            jdbcTemplate.update("INSERT INTO `" + itemTable + "` (`ITEM_ID`,`ITEM_NAME`,`ORDER_ID`) VALUES (?,?,?)", "S1", "Before set", "9351");
             jdbcTemplate.update("INSERT INTO `" + itemTable + "` (`ITEM_ID`,`ITEM_NAME`,`ORDER_ID`) VALUES (?,?,?)", "D1", "Before delete", "9351");
             Model order = oneToManyOrderModel(orderTable, itemTable);
             Property items = order.getProperties().get(2);
@@ -1236,10 +1237,12 @@ public class ModelDataServiceTest {
             itemName.setId(93503L);
             items.setTriggerList(List.of(
                     propertyTrigger(PropertyTriggerType.ITEMS_ADD, itemName.getId(), "#.orderName"),
+                    propertyTrigger(PropertyTriggerType.ITEMS_SET, itemName.getId(), "#.orderName"),
                     propertyTrigger(PropertyTriggerType.ITEMS_DELETE, itemName.getId(), "#.orderName")));
 
             SubItemList<IDynamicData> itemList = new SubItemList<>();
             itemList.add(orderItemData(order, "A1", "Before add"));
+            itemList.add(orderItemData(order, "S1", "Before set"));
             IDynamicData removed = orderItemData(order, "D1", "Before delete");
             itemList.add(removed);
             itemList.remove(removed);
@@ -1251,11 +1254,16 @@ public class ModelDataServiceTest {
                     "SELECT `ITEM_NAME` FROM `" + itemTable + "` WHERE `ITEM_ID` = ?",
                     String.class,
                     "A1");
+            String setName = jdbcTemplate.queryForObject(
+                    "SELECT `ITEM_NAME` FROM `" + itemTable + "` WHERE `ITEM_ID` = ?",
+                    String.class,
+                    "S1");
             Integer deletedCount = jdbcTemplate.queryForObject(
                     "SELECT COUNT(*) FROM `" + itemTable + "` WHERE `ITEM_ID` = ?",
                     Integer.class,
                     "D1");
             assertEquals("After save", addedName);
+            assertEquals("After save", setName);
             assertEquals("After save", removed.get("itemName"));
             assertEquals(0, deletedCount.intValue());
         } finally {

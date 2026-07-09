@@ -557,6 +557,8 @@ explicitly named as authoritative for fool-service.
 - [x] Let reflective AppInstall module sources include declared dependency
       packages as legacy module dependencies without scanning the whole
       classpath.
+- [x] Execute legacy `ItemsSet` collection property triggers when saving
+      existing owned child rows through `ModelDataService`.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

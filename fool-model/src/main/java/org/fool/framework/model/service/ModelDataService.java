@@ -862,6 +862,7 @@ public class ModelDataService {
                     attachOwner(itemData, owner);
                     Model itemModel = dynamicModel(itemData, relation.getProperty().getPropertyModel());
                     if (dataExists(itemData, itemModel)) {
+                        executePropertyItemTriggers(relation.getProperty(), itemData, PropertyTriggerType.ITEMS_SET);
                         saveData(itemData, relation.getTargetColumn(), parentId, false);
                     } else {
                         executePropertyItemTriggers(relation.getProperty(), itemData, PropertyTriggerType.ITEMS_ADD);
