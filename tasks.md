@@ -590,6 +590,8 @@ explicitly named as authoritative for fool-service.
       FoolFrame `SYSID` when model metadata has no explicit id property.
 - [x] Return FoolFrame `SYSID` from `DbMysqlDynamic.getId()` when a dynamic
       model has no explicit id property.
+- [x] Write legacy `saveobj` / `savenewobj` request ids into FoolFrame `SYSID`
+      when dynamic model metadata has no explicit id property.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

@@ -151,6 +151,38 @@ public class DataQueryServiceSaveObjTest {
     }
 
     @Test
+    public void saveLegacyObjectWritesSysIdWhenModelHasNoIdProperty() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        DataQueryService service = new DataQueryService();
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+        ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
+        ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
+
+        View view = new View();
+        view.setViewModel("LegacyObject");
+        Model model = noIdModel();
+        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
+        when(modelDataService.getModel("LegacyObject")).thenReturn(model);
+        when(modelDataService.saveData(any(IDynamicData.class))).thenReturn(true);
+        SaveObjRequest request = new SaveObjRequest();
+        SaveObjRequest.SaveObject saveObj = new SaveObjRequest.SaveObject();
+        saveObj.setId("6101");
+        saveObj.setViewID("100");
+        saveObj.setPropertyies(List.of(new SaveObjRequest.SaveKeypair("name", "Updated object")));
+        request.setSaveObj(saveObj);
+
+        service.saveLegacyObject(request);
+
+        ArgumentCaptor<IDynamicData> dataCaptor = ArgumentCaptor.forClass(IDynamicData.class);
+        verify(modelDataService).saveData(dataCaptor.capture());
+        IDynamicData data = dataCaptor.getValue();
+        assertEquals("6101", data.getId());
+        assertEquals("6101", data.get("SYSID"));
+        assertEquals("Updated object", data.get("name"));
+    }
+
+    @Test
     public void saveLegacyObjectUsesModelServiceMetadataForItemProperties() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
@@ -255,6 +287,14 @@ public class DataQueryServiceSaveObjTest {
                 orderId,
                 property("symbol", "order_symbol", PropertyType.String),
                 property("state", "order_state", PropertyType.String)));
+        return model;
+    }
+
+    private static Model noIdModel() {
+        Model model = new Model();
+        model.setName("LegacyObject");
+        model.setTableName("legacy_object");
+        model.setProperties(List.of(property("name", "object_name", PropertyType.String)));
         return model;
     }
 

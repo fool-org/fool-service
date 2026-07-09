@@ -724,10 +724,7 @@ public class DataQueryService {
             throw new CommonException(ErrorCode.MODEL_NOT_FOUND, "没有查到元数据定义");
         }
         DbMysqlDynamic data = legacySaveData(view.getViewModel(), saveObj, model);
-        Property idProperty = model.getIdProperty();
-        if (idProperty != null && idProperty.getName() != null) {
-            data.set(idProperty.getName(), saveObj.getId());
-        }
+        setLegacyId(data, model.getIdProperty(), saveObj.getId());
         for (SaveObjRequest.SaveKeypair pair : saveObj.getPropertyies()) {
             data.set(pair.getKey(), pair.getValue());
         }
@@ -766,6 +763,17 @@ public class DataQueryService {
         return new DbMysqlDynamic(model);
     }
 
+    private void setLegacyId(DbMysqlDynamic data, Property idProperty, String id) {
+        if (!StringUtils.hasText(id)) {
+            return;
+        }
+        if (idProperty != null && StringUtils.hasText(idProperty.getName())) {
+            data.set(idProperty.getName(), id);
+            return;
+        }
+        data.set("SYSID", id);
+    }
+
     private Relation ownerRelation(Model model, String propertyName) {
         if (model == null || model.getRelations() == null || !StringUtils.hasText(propertyName)) {
             return null;
@@ -790,9 +798,8 @@ public class DataQueryService {
 
     private DbMysqlDynamic itemData(Model model, SaveObjRequest.Item item, boolean keepId) {
         DbMysqlDynamic data = new DbMysqlDynamic(model);
-        Property idProperty = model.getIdProperty();
-        if (keepId && idProperty != null && idProperty.getName() != null) {
-            data.set(idProperty.getName(), item.getItemId());
+        if (keepId) {
+            setLegacyId(data, model.getIdProperty(), item.getItemId());
         }
         for (SaveObjRequest.SaveKeypair pair : item.getPropertyies()) {
             data.set(pair.getKey(), pair.getValue());

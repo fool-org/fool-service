@@ -99,6 +99,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: legacy `saveobj` / `savenewobj` dynamic data construction now
+  writes request ids into FoolFrame `SYSID` when model metadata has no
+  explicit id property, keeping save paths aligned with the shared dynamic id
+  fallback.
 - 2026-07-09: `DbMysqlDynamic.getId()` now falls back to FoolFrame `SYSID`
   when model metadata has no explicit id property, so shared dynamic row id
   consumers no longer need caller-specific fallback logic.
