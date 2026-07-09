@@ -99,6 +99,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: the Docker runtime doctor now proves legacy
+  `querydatadetail.IdExp` through the Vue proxy by resolving `$<row id>` with
+  the `DetailViewId` loaded from View metadata.
 - 2026-07-09: the Docker runtime doctor now proves legacy `initnew` through
   the Vue proxy using the `DetailViewId` loaded from View metadata, and the
   shared detail-response check accepts both camel and FoolFrame Pascal aliases.

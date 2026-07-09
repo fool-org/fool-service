@@ -532,6 +532,9 @@ explicitly named as authoritative for fool-service.
       grows.
 - [x] Extend the Docker runtime doctor to prove legacy `initnew` through the
       Vue proxy using the loaded detail View metadata.
+- [x] Extend the Docker runtime doctor to prove legacy
+      `querydatadetail.IdExp` through the Vue proxy using the loaded detail
+      View metadata and row id.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
