@@ -295,6 +295,19 @@ class RuntimeDoctorTest(unittest.TestCase):
             ("SW_APP_AUTH_COMPANY_SW_EVT_DEF", "SW_APP_AUTH_COMPANY_ID"),
             ("SW_APP_AUTH_COMPANY_SW_EVT_DEF", "SW_EVT_DEF_ID"),
         )
+        query_catalog_columns = (
+            ("SE_COMPARETYPE", "SysID"),
+            ("SE_COMPARETYPE", "SE_COMPARESHOW"),
+            ("SE_COMPARETYPE", "SE_COMPAREEXP"),
+            ("SE_COMPARETYPE_PROPERTYINDEX", "COMPARETYPE_ID"),
+            ("SE_COMPARETYPE_PROPERTYINDEX", "PROPERTYTYPE_VALUE"),
+            ("SE_SELECTEDTYPE", "SysID"),
+            ("SE_SELECTEDTYPE", "SE_SELECTEDSHOW"),
+            ("SE_SELECTEDTYPE", "SE_SELECTEDEXP"),
+            ("SE_SELECTEDTYPE", "SE_REQUIREGROUP"),
+            ("SE_SELECTEDTYPE_PROPERTYINDEX", "SELECTEDTYPE_ID"),
+            ("SE_SELECTEDTYPE_PROPERTYINDEX", "PROPERTYTYPE_VALUE"),
+        )
         raw = "\n".join(
             f"{table}\t{column}" for table, column in runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS
         )
@@ -304,6 +317,7 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertTrue(set(app_manage_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
         self.assertTrue(set(event_message_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
         self.assertTrue(set(event_recipient_relation_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
+        self.assertTrue(set(query_catalog_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
         self.assertTrue(schema_ok(raw))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_VIEW_ITEM\tVIEW_ITEM_PROPERTY\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_VIEW_ITEM\tVIEW_ITEM_NAME\n", "")))
@@ -325,6 +339,8 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertFalse(schema_ok(raw.replace("SW_SYS_MSG\tMSG_STATE\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_APP_AUTH_USER_SW_EVT_DEF\tSW_EVT_DEF_ID\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_APP_AUTH_COMPANY_SW_EVT_DEF\tSW_APP_AUTH_COMPANY_ID\n", "")))
+        self.assertFalse(schema_ok(raw.replace("SE_COMPARETYPE\tSE_COMPAREEXP\n", "")))
+        self.assertFalse(schema_ok(raw.replace("SE_SELECTEDTYPE_PROPERTYINDEX\tPROPERTYTYPE_VALUE", "")))
 
     def test_common_response_list_requires_success_and_nonempty_list(self) -> None:
         self.assertTrue(common_response_list({"code": 0, "data": {"items": [1]}}, "items"))

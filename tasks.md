@@ -519,6 +519,8 @@ explicitly named as authoritative for fool-service.
       `SW_EVT_DEF`, `SW_EVT_EVENT`, and `SW_SYS_MSG`.
 - [x] Extend Docker runtime-doctor coverage to event definition recipient
       relation tables used by notification expansion.
+- [x] Extend Docker runtime-doctor coverage to legacy query catalog tables used
+      by report/query metadata loading.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

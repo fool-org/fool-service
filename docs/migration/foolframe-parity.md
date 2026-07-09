@@ -99,6 +99,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: the Docker runtime doctor now guards the legacy query catalog
+  schema read by report/query metadata loading: `SE_COMPARETYPE`,
+  `SE_COMPARETYPE_PROPERTYINDEX`, `SE_SELECTEDTYPE`, and
+  `SE_SELECTEDTYPE_PROPERTYINDEX`.
 - 2026-07-09: the Docker runtime doctor now guards the event definition
   recipient relation schema used by notification expansion:
   `SW_APP_AUTH_USER_SW_EVT_DEF`, `SW_APP_AUTH_ROLE_SW_EVT_DEF`,

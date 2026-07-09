@@ -337,6 +337,17 @@ LEGACY_CORE_SCHEMA_COLUMNS = (
     ("SW_SYS_MSG", "MSG_READOPERATION"),
     ("SW_SYS_MSG", "MSG_USERID"),
     ("SW_SYS_MSG", "MSG_MSGTYPE"),
+    ("SE_COMPARETYPE", "SysID"),
+    ("SE_COMPARETYPE", "SE_COMPARESHOW"),
+    ("SE_COMPARETYPE", "SE_COMPAREEXP"),
+    ("SE_COMPARETYPE_PROPERTYINDEX", "COMPARETYPE_ID"),
+    ("SE_COMPARETYPE_PROPERTYINDEX", "PROPERTYTYPE_VALUE"),
+    ("SE_SELECTEDTYPE", "SysID"),
+    ("SE_SELECTEDTYPE", "SE_SELECTEDSHOW"),
+    ("SE_SELECTEDTYPE", "SE_SELECTEDEXP"),
+    ("SE_SELECTEDTYPE", "SE_REQUIREGROUP"),
+    ("SE_SELECTEDTYPE_PROPERTYINDEX", "SELECTEDTYPE_ID"),
+    ("SE_SELECTEDTYPE_PROPERTYINDEX", "PROPERTYTYPE_VALUE"),
 )
 
 
@@ -455,7 +466,7 @@ def run_mysql_schema_checks() -> list[CheckResult]:
     results.append(CheckResult(
         "mysql:legacy-core-schema",
         legacy_core_schema_ok(completed.stdout),
-        "View-first legacy auth/app/model/view/operation/event/message schema is present",
+        "View-first legacy auth/app/model/view/operation/event/message/query schema is present",
     ))
     return results
 
