@@ -101,6 +101,10 @@ public class DataQueryServiceSaveObjTest {
         assertEquals(2, subItems.size());
         assertItem("I2", "After child", subItems.get(0));
         assertItem("I3", "New child", subItems.get(1));
+        assertEquals(1, subItems.getUpdatedList().size());
+        assertItem("I2", "After child", subItems.getUpdatedList().get(0));
+        assertEquals(1, subItems.getAddedList().size());
+        assertItem("I3", "New child", subItems.getAddedList().get(0));
         assertEquals(1, subItems.getDeleteList().size());
         assertItem("I4", null, subItems.getDeleteList().get(0));
     }

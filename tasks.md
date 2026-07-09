@@ -44,6 +44,9 @@ explicitly named as authoritative for fool-service.
       the same shared Java classpath assembly invoker.
 - [x] Execute legacy property and collection trigger create/update/delete base
       operations through the shared trigger base-operation path.
+- [x] Map legacy `saveobj.Itemproperties[].Items[]` child updates into
+      `SubItemList.UpdatedList`, keeping `AddedItems[]` as added state and
+      `DelteItems[]` as delete state.
 - [x] Render persisted `Order Items` in the Vue `OrderList` detail workflow via
       backend `querydatadetail` collection rows.
 - [x] Replace the hand-shaped Vue `OrderList` screen with View metadata-driven

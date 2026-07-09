@@ -99,6 +99,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: legacy `saveobj.Itemproperties[].Items[]` child updates now map
+  to `SubItemList.UpdatedList`, while `AddedItems[]` and `DelteItems[]`
+  continue to drive added and deleted state. This matches FoolFrame
+  `DataFormator.ObjUpdateToProxy` mutating existing collection items rather
+  than treating them as newly added children.
 - 2026-07-09: extracted the Vue View-first detail and child-collection panel
   into `ViewDetailPanel.vue`, keeping `App.vue` focused on workflow state and
   actions while preserving the existing metadata-driven detail, lookup,

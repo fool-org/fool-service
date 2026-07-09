@@ -663,7 +663,10 @@ public class DataQueryService {
             }
             SubItemList<DbMysqlDynamic> items = new SubItemList<>();
             for (SaveObjRequest.Item item : itemProperty.getItems()) {
-                items.add(itemData(property.getPropertyModel(), item, true));
+                DbMysqlDynamic updated = itemData(property.getPropertyModel(), item, true);
+                items.add(updated);
+                items.getAddedList().remove(updated);
+                items.getUpdatedList().add(updated);
             }
             for (SaveObjRequest.Item item : itemProperty.getAddedItems()) {
                 items.add(itemData(property.getPropertyModel(), item, item.isExist()));
