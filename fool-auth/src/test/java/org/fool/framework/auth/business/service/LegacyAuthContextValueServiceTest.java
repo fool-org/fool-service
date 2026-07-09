@@ -22,4 +22,16 @@ public class LegacyAuthContextValueServiceTest {
         assertEquals("admin", service.getValue("token-1", "userid"));
         assertEquals("Admin User", service.getValue("token-1", "username"));
     }
+
+    @Test
+    public void resolvesLegacyConnectionContextValuesFromToken() {
+        AuthService authService = mock(AuthService.class);
+        LegacyAuthContextValueService service = new LegacyAuthContextValueService();
+        ReflectionTestUtils.setField(service, "authService", authService);
+        when(authService.getLegacyAppConnection("token-1")).thenReturn("app-con");
+        when(authService.getLegacyDataConnection("token-1")).thenReturn("data-con");
+
+        assertEquals("app-con", service.getValue("token-1", "appcon"));
+        assertEquals("data-con", service.getValue("token-1", "datacon"));
+    }
 }

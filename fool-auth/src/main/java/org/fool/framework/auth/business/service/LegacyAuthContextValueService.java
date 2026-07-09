@@ -18,11 +18,18 @@ public class LegacyAuthContextValueService implements LegacyContextValueService 
         if (!StringUtils.hasText(token) || !StringUtils.hasText(key)) {
             return "";
         }
+        String normalized = key.trim().toLowerCase(Locale.ROOT);
+        if ("appcon".equals(normalized)) {
+            return authService.getLegacyAppConnection(token);
+        }
+        if ("datacon".equals(normalized)) {
+            return authService.getLegacyDataConnection(token);
+        }
         UserDTO user = authService.getInfoByToken(token);
         if (user == null) {
             return "";
         }
-        return switch (key.trim().toLowerCase(Locale.ROOT)) {
+        return switch (normalized) {
             case "userid" -> empty(user.getId());
             case "username" -> empty(user.getName());
             default -> "";

@@ -163,19 +163,41 @@ public class AuthService {
     }
 
     public LegacyAppInfo getLegacyAppInfo(String token) {
+        return legacyAppInfo(getLegacyApplication(token));
+    }
+
+    public void rememberLegacyApp(String token, String appId, String dbId) {
+        tokenService.setLegacyAppId(token, appId);
+        tokenService.setLegacyDbId(token, dbId);
+    }
+
+    public String getLegacyAppConnection(String token) {
+        ApplicationDefinition app = getLegacyApplication(token);
+        return app == null ? "" : empty(app.getSysCon());
+    }
+
+    public String getLegacyDataConnection(String token) {
+        ApplicationDefinition app = getLegacyApplication(token);
+        String dbId = tokenService.getLegacyDbId(token);
+        if (app == null || !StringUtils.hasText(dbId)) {
+            return "";
+        }
+        return getLegacyStoreDatabaseRows(app.getAppId()).stream()
+                .filter(db -> dbId.equalsIgnoreCase(empty(db.getStoreBaseId())))
+                .map(StoreDatabase::getConnection)
+                .findFirst()
+                .orElse("");
+    }
+
+    private ApplicationDefinition getLegacyApplication(String token) {
         tokenService.getUidByToken(token);
         String sessionAppId = tokenService.getLegacyAppId(token);
         List<ApplicationDefinition> apps = appFacade.getApps();
-        ApplicationDefinition app = apps.stream()
+        return apps.stream()
                 .filter(candidate -> StringUtils.hasText(sessionAppId)
                         && sessionAppId.equals(candidate.getAppId()))
                 .findFirst()
                 .orElseGet(() -> apps.stream().findFirst().orElse(null));
-        return legacyAppInfo(app);
-    }
-
-    public void rememberLegacyApp(String token, String appId) {
-        tokenService.setLegacyAppId(token, appId);
     }
 
     public LegacyAppInfo getLegacyAppInfo(String appId, String appKey) {
@@ -208,14 +230,18 @@ public class AuthService {
     }
 
     private List<LegacyStoreBaseInfo> getLegacyStoreDatabases(String appId) {
+        return getLegacyStoreDatabaseRows(appId).stream()
+                .map(this::legacyStoreBaseInfo)
+                .toList();
+    }
+
+    private List<StoreDatabase> getLegacyStoreDatabaseRows(String appId) {
         String sql = """
                 select db.* from SW_STOREDB db
                 join SW_APPLICATION_SW_STOREDB rel on rel.SW_STOREDB_ID = db.SW_STORE_STOREID
                 where rel.SW_APPLICATION_ID = ?
                 """;
-        return daoService.selectList(StoreDatabase.class, sql, appId).stream()
-                .map(this::legacyStoreBaseInfo)
-                .toList();
+        return daoService.selectList(StoreDatabase.class, sql, appId);
     }
 
     private LegacyAuthItem legacyAuthItem(MenuItem menu) {

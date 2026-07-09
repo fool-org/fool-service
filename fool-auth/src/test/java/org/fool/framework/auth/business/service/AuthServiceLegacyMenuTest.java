@@ -108,6 +108,32 @@ public class AuthServiceLegacyMenuTest {
     }
 
     @Test
+    public void getLegacyConnectionContextUsesLoginV2SessionAppAndDatabase() throws Exception {
+        DaoService daoService = mock(DaoService.class);
+        TokenService tokenService = mock(TokenService.class);
+        AppFacade appFacade = mock(AppFacade.class);
+        AuthService service = new AuthService();
+        setField(service, "daoService", daoService);
+        setField(service, "tokenService", tokenService);
+        setField(service, "appFacade", appFacade);
+        ApplicationDefinition app = new ApplicationDefinition();
+        app.setAppId("selected");
+        app.setSysCon("app-con");
+        StoreDatabase db = new StoreDatabase();
+        db.setStoreBaseId("car_wash");
+        db.setConnection("data-con");
+        when(tokenService.getUidByToken("token-1")).thenReturn("admin");
+        when(tokenService.getLegacyAppId("token-1")).thenReturn("selected");
+        when(tokenService.getLegacyDbId("token-1")).thenReturn("car_wash");
+        when(appFacade.getApps()).thenReturn(List.of(app));
+        when(daoService.selectList(eq(StoreDatabase.class), anyString(), eq("selected")))
+                .thenReturn(List.of(db));
+
+        assertEquals("app-con", service.getLegacyAppConnection("token-1"));
+        assertEquals("data-con", service.getLegacyDataConnection("token-1"));
+    }
+
+    @Test
     public void getLegacyInitAppInfoMapsApplicationAndDatabases() throws Exception {
         DaoService daoService = mock(DaoService.class);
         AppFacade appFacade = mock(AppFacade.class);

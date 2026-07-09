@@ -97,11 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
-- 2026-07-09: legacy `loginv2` now records the selected App id beside the
-  runtime token, and `getapp` / `getmain` resolve AppInfo from that token
-  session before falling back to the first configured app. Logout deletes the
-  session App key with the normal token keys. Selected database connection
-  context for `@datacon` / `@appcon` remains future work.
+- 2026-07-09: legacy `loginv2` now records the selected App id and `DbId`
+  beside the runtime token. `getapp` / `getmain` resolve AppInfo from that
+  token session, and `@appcon` / `@datacon` context values resolve through
+  `SW_APPLICATION.SW_APP_CON` and the token-selected `SW_STOREDB.SW_STORE_CON`.
+  Logout deletes the session App and DB keys with the normal token keys.
 - 2026-07-09: explicit query/report ordering now resolves only through
   rendered View items. Hidden Model properties can no longer be used as order
   tokens when absent from the loaded View metadata; unknown order tokens fall
@@ -1147,13 +1147,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-03: added legacy `querydatadetail` blank-object fallback. When both
   `objId` and `IdExp` are blank, the migrated service queries the first page of
   the selected view model and loads the first returned object before formatting
-  detail data. Full app/database connection context `IdExp` expressions remain
-  future work.
+  detail data. Token-backed app/data connection context now covers `@appcon`
+  and `@datacon`; broader context expressions remain future work.
 - 2026-07-03: added legacy `querydatadetail` static `IdExp` object-id
   resolution. Blank `objId` requests now map `$...` expressions to the target
   object ID before loading detail data, and the `IdExp` field is preserved from
-  controller to service. Full app/database connection context expressions
-  remain future work.
+  controller to service. Broader context expressions remain future work.
 - 2026-07-03: extended legacy `runoperation` to `BaseOperationType.Create`.
   The existing hydrated object and command pipeline now runs through
   `ModelDataService.createData` before returning the legacy operation success
@@ -1240,8 +1239,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `DbId`, `CheckCode`, `AppId`, `AppKey`, and `CheckCodeKey`, validates the
   migrated check code, app key, and app/database relation, reuses the existing
   admin login/token flow, and returns legacy-style `LoginSucess`, `Token`,
-  `User`, and `App` fields. FoolFrame `CacheStore` app/database session state
-  remains future token-context work.
+  `User`, and `App` fields. The selected App and `DbId` are now kept in token
+  context for AppInfo and `@appcon` / `@datacon`; broader `CacheStore` fields
+  remain future work if a migrated consumer needs them.
 - 2026-07-03: exposed legacy `getapp` at `/api/v1/auth/getapp`
   and in the Vue operator console. It accepts legacy `Token`, validates the
   current token through the existing token service, maps the token-selected
@@ -1252,8 +1252,8 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   and in the Vue operator console. It accepts the legacy raw token request
   body, returns `Token`, legacy `User`, token-selected `AppInfo`, and
   top-level `TopMenu` items by reusing the migrated user-info, app-info, and
-  top-menu paths. Full database connection context for the selected `DbId`
-  remains future work.
+  top-menu paths. The selected `DbId` also feeds `@datacon` while the selected
+  App feeds `@appcon`.
 - 2026-07-03: exposed legacy `getsubmenu` at
   `/api/v1/auth/getsubmenu` and in the Vue operator console. It accepts legacy
   `Token` and `ParentAuthCode`, resolves the current user through the token

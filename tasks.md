@@ -444,6 +444,9 @@ explicitly named as authoritative for fool-service.
 - [x] Preserve the legacy `loginv2` selected App id in token session state so
       `getapp` and `getmain` return token-selected AppInfo instead of the first
       configured app.
+- [x] Preserve the legacy `loginv2` selected `DbId` in token session state so
+      `@appcon` and `@datacon` resolve from token-selected App/store database
+      connection strings.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
