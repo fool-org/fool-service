@@ -722,6 +722,93 @@ class RuntimeDoctorTest(unittest.TestCase):
             calls,
         )
 
+    def test_api_checks_savenewobj_uses_loaded_detail_fields(self) -> None:
+        calls: list[tuple[str, object]] = []
+        cleanup_ids: list[str] = []
+        original_get_json = runtime_doctor.get_json
+        original_post_json = runtime_doctor.post_json
+        original_cleanup = getattr(runtime_doctor, "cleanup_runtime_smoke_order", None)
+
+        def fake_get_json(_url: str, _timeout: float) -> object:
+            return []
+
+        def fake_cleanup(object_id: str) -> bool:
+            cleanup_ids.append(object_id)
+            return True
+
+        def fake_post_json(url: str, payload: object, _timeout: float) -> dict[str, object]:
+            calls.append((url, payload))
+            if url.endswith("/auth/initapp"):
+                return {"code": 0, "data": {"Dbs": [{}], "CheckCode": {"Key": "k", "Code": "c"}}}
+            if url.endswith("/auth/getcheckcode"):
+                return {"code": 0, "data": {"Key": "k", "Code": "c"}}
+            if url.endswith("/auth/checkcode"):
+                return {"code": 0, "data": True}
+            if url.endswith("/auth/loginv2"):
+                return {"code": 0, "data": {"LoginSucess": True, "Token": "t"}}
+            if url.endswith("/auth/getuserinfo"):
+                return {"code": 0, "data": {"user": {"id": "admin"}}}
+            if url.endswith("/auth/getapp"):
+                return {"code": 0, "data": {"App": {"DefaultViewId": 200}}}
+            if url.endswith("/auth/getmain"):
+                return {"code": 0, "data": {"App": {"DefaultViewId": 200}, "TopMenu": [{"AuthNo": "0101"}]}}
+            if url.endswith("/auth/getsubmenu"):
+                return {"code": 0, "data": {"Items": [{}]}}
+            if url.endswith("/view/getlistview"):
+                return {"code": 0, "data": {
+                    "DetailViewId": 202,
+                    "Items": [{"PropertyName": "recordId"}],
+                    "Operations": [{"Name": "\u5220\u9664"}, {"Name": "\u4fdd\u5b58"}],
+                }}
+            if url.endswith("/data/querydata"):
+                return {"code": 0, "data": {"Data": [{"Items": [{"PrpId": "recordId", "ObjId": "9001"}]}]}}
+            if url.endswith("/data/querydatadetail"):
+                return {"code": 0, "data": {"Data": {"SimpleData": [{"PrpId": "recordId"}]}}}
+            if url.endswith("/view/getreaditemview"):
+                return {"code": 0, "data": {"DetailViews": [{"Items": [{"PrpId": "itemId"}]}]}}
+            if url.endswith("/data/initnew"):
+                return {"code": 0, "data": {"Data": {"SimpleData": [
+                    {"PrpId": "orderId", "PrpType": "Long", "ReadOnly": True},
+                    {"PrpId": "symbol", "PrpType": "String", "ReadOnly": False},
+                    {"PrpId": "customer", "PrpType": "BusinessObject", "ReadOnly": False},
+                    {"PrpId": "state", "PrpType": "Enum", "ReadOnly": False},
+                ]}}}
+            if url.endswith("/data/savenewobj"):
+                return {"code": 0, "data": None}
+            return {"code": 0, "data": None}
+
+        try:
+            runtime_doctor.get_json = fake_get_json
+            runtime_doctor.post_json = fake_post_json
+            runtime_doctor.cleanup_runtime_smoke_order = fake_cleanup
+            results = api_checks("http://backend", "http://frontend", 1.0)
+        finally:
+            runtime_doctor.get_json = original_get_json
+            runtime_doctor.post_json = original_post_json
+            if original_cleanup is None:
+                delattr(runtime_doctor, "cleanup_runtime_smoke_order")
+            else:
+                runtime_doctor.cleanup_runtime_smoke_order = original_cleanup
+
+        by_name = {result.name: result for result in results}
+        self.assertIn("data:savenewobj", by_name)
+        self.assertTrue(by_name["data:savenewobj"].ok)
+        self.assertEqual(["989902", "989902"], cleanup_ids)
+        self.assertIn(
+            ("http://frontend/api/v1/data/savenewobj", {
+                "SaveObj": {
+                    "Id": "989902",
+                    "ViewID": "202",
+                    "Propertyies": [
+                        {"Key": "symbol", "Value": "RUNTIME-989902"},
+                        {"Key": "state", "Value": "0"},
+                    ],
+                    "Itemproperties": [],
+                },
+            }),
+            calls,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

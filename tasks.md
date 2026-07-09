@@ -538,6 +538,9 @@ explicitly named as authoritative for fool-service.
 - [x] Let dynamic create/save omit absent scalar fields so legacy
       `savenewobj` can use database defaults for missing BusinessObject
       foreign keys instead of writing null.
+- [x] Extend the Docker runtime doctor to prove legacy `savenewobj` through
+      the Vue proxy using loaded detail View fields and cleanup for the fixed
+      smoke id.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

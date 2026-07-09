@@ -137,6 +137,29 @@ def run_mysql_schema_checks() -> list[CheckResult]:
     return results
 
 
+def cleanup_runtime_smoke_order(object_id: str) -> bool:
+    safe_id = object_id.replace("'", "''")
+    sql = (
+        f"DELETE FROM market_order_item WHERE order_id='{safe_id}'; "
+        f"DELETE FROM market_order WHERE order_id='{safe_id}';"
+    )
+    try:
+        subprocess.run(
+            [
+                "docker", "compose", "exec", "-T", "mysql",
+                "mysql", "-uroot", "-pPa88word", "car_wash",
+                "-e", sql,
+            ],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return False
+    return True
+
+
 def post_json(url: str, payload: Any, timeout: float) -> dict[str, Any]:
     body = json.dumps(payload).encode("utf-8")
     req = request.Request(
@@ -192,13 +215,50 @@ def runoperation_result_aliases_ok(payload: dict[str, Any]) -> bool:
 
 
 def detail_response_ok(payload: dict[str, Any]) -> bool:
+    return bool(detail_simple_fields(payload))
+
+
+def detail_simple_fields(payload: dict[str, Any]) -> list[dict[str, Any]]:
     if not common_response_ok(payload):
-        return False
+        return []
     detail = payload["data"].get("data") or payload["data"].get("Data")
     if not isinstance(detail, dict):
-        return False
+        return []
     simple_data = detail.get("simpleData") or detail.get("SimpleData")
-    return isinstance(simple_data, list) and bool(simple_data)
+    return [field for field in simple_data if isinstance(field, dict)] if isinstance(simple_data, list) else []
+
+
+def detail_field_key(field: dict[str, Any]) -> str:
+    return str(field.get("prpId") or field.get("PrpId") or "")
+
+
+def detail_field_type(field: dict[str, Any]) -> str:
+    return str(field.get("prpType") or field.get("PrpType") or "").lower()
+
+
+def detail_field_readonly(field: dict[str, Any]) -> bool:
+    return field.get("readOnly") is True or field.get("ReadOnly") is True
+
+
+def runtime_save_properties(fields: list[dict[str, Any]], object_id: str) -> list[dict[str, str]]:
+    properties: list[dict[str, str]] = []
+    for field in fields:
+        key = detail_field_key(field)
+        field_type = detail_field_type(field)
+        if not key or detail_field_readonly(field) or field_type in {"businessobject", "16"}:
+            continue
+        if field_type in {"enum", "15"}:
+            value = "0"
+        elif field_type in {"boolean", "bool", "2"}:
+            value = "false"
+        elif field_type in {"datetime", "date", "13"}:
+            value = "2026-07-09"
+        elif field_type in {"decimal", "double", "float", "int", "integer", "long", "ulong", "identifyid"}:
+            value = "0"
+        else:
+            value = f"RUNTIME-{object_id}"
+        properties.append({"Key": key, "Value": value})
+    return properties
 
 
 def detail_view_id(payload: dict[str, Any]) -> int:
@@ -593,11 +653,48 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         view_id = view_state.get("detailViewId")
         if not view_id:
             return False
-        return detail_response_ok(post_json(
+        payload = post_json(
             f"{frontend_url}/api/v1/data/initnew",
             {"ViewId": view_id},
             timeout,
-        ))
+        )
+        fields = detail_simple_fields(payload)
+        if fields:
+            view_state["newFields"] = fields
+        return bool(fields)
+
+    def save_new_object_from_loaded_detail_view() -> bool:
+        view_id = view_state.get("detailViewId")
+        fields = view_state.get("newFields")
+        if not view_id or not isinstance(fields, list):
+            return False
+        object_id = "989902"
+        properties = runtime_save_properties(fields, object_id)
+        if not properties or not cleanup_runtime_smoke_order(object_id):
+            return False
+        ok = False
+        try:
+            ok = common_void_ok(post_json(
+                f"{frontend_url}/api/v1/data/savenewobj",
+                {
+                    "SaveObj": {
+                        "Id": object_id,
+                        "ViewID": str(view_id),
+                        "Propertyies": properties,
+                        "Itemproperties": [],
+                    },
+                },
+                timeout,
+            ))
+            if ok:
+                ok = detail_response_ok(post_json(
+                    f"{frontend_url}/api/v1/data/querydatadetail",
+                    {"ViewId": view_id, "ObjId": object_id},
+                    timeout,
+                ))
+        finally:
+            cleaned = cleanup_runtime_smoke_order(object_id)
+        return ok and cleaned
 
     def read_item_view_from_loaded_view() -> bool:
         view_id = view_state.get("detailViewId")
@@ -822,6 +919,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "data:initnew",
             init_new_from_loaded_detail_view,
             "POST /api/v1/data/initnew uses loaded DetailViewId",
+        ),
+        (
+            "data:savenewobj",
+            save_new_object_from_loaded_detail_view,
+            "POST /api/v1/data/savenewobj uses loaded detail View fields",
         ),
         (
             "data:inputquery",
