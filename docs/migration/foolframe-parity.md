@@ -115,6 +115,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `OperationCommandValueResolver`. This keeps runoperation and trigger command
   paths aligned with legacy long/id field semantics instead of narrowing those
   values to `Integer`.
+- 2026-07-09: legacy static command values for `PropertyType.IdentifyId` now
+  resolve as Java `Long` values through the shared
+  `OperationCommandValueResolver`. This matches the existing default-value and
+  DDL mapping for identify/id fields instead of leaving `$...` command values
+  as strings.
 - 2026-07-09: legacy trigger command execution now covers
   `ExuteProprtyModelMethod` and `ExuteListMethod` in the shared
   `ModelDataService` trigger path. Model, property, and collection triggers

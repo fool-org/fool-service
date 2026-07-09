@@ -51,4 +51,18 @@ public class OperationCommandValueResolverTest {
 
         assertEquals(Long.valueOf(1000L), value);
     }
+
+    @Test
+    public void resolvesLegacyIdentifyIdStaticValuesAsLong() {
+        Property property = new Property();
+        property.setPropertyType(PropertyType.IdentifyId);
+
+        Object value = new OperationCommandValueResolver().resolve(
+                property,
+                null,
+                "$1000",
+                (targetProperty, raw) -> raw);
+
+        assertEquals(Long.valueOf(1000L), value);
+    }
 }
