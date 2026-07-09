@@ -527,6 +527,9 @@ explicitly named as authoritative for fool-service.
       columns used by View-derived enum loading.
 - [x] Extend Docker runtime-doctor schema coverage to the legacy `SW_SYS_CON`
       connection table seeded for routed runtime paths.
+- [x] Move runtime-doctor schema guard catalogs into a reusable module so the
+      executable Docker smoke script stays smaller while migration coverage
+      grows.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

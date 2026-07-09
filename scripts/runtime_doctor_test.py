@@ -6,6 +6,7 @@ from __future__ import annotations
 import unittest
 
 import runtime_doctor
+import runtime_schema
 from runtime_doctor import (
     api_checks,
     common_response_list,
@@ -36,6 +37,10 @@ from runtime_doctor import (
 
 
 class RuntimeDoctorTest(unittest.TestCase):
+    def test_runtime_doctor_reuses_schema_catalog_module(self) -> None:
+        self.assertIs(runtime_doctor.MARKET_SYMBOLS_COLUMNS, runtime_schema.MARKET_SYMBOLS_COLUMNS)
+        self.assertIs(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS, runtime_schema.LEGACY_CORE_SCHEMA_COLUMNS)
+
     def test_parses_compose_ndjson(self) -> None:
         rows = parse_compose_ps(
             '{"Service":"backend","State":"running","Status":"Up"}\n'

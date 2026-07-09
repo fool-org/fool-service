@@ -99,6 +99,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: runtime-doctor schema guard data now lives in
+  `scripts/runtime_schema.py`, keeping the executable Docker smoke script
+  focused on runtime flow while preserving the same schema coverage and output.
 - 2026-07-09: the Docker runtime doctor now guards the legacy `SW_SYS_CON`
   connection schema seeded for routed model/query/app runtime paths, including
   FoolFrame's original `INITALCATALOG` and `ISLOACL` spellings.
