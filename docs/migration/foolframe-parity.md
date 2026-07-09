@@ -126,6 +126,15 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `LocalDateTime` values. This keeps runoperation and trigger command DateTime
   handling aligned with FoolFrame `Convert.ToDateTime` while preserving the
   existing full datetime parser.
+- 2026-07-09: rechecked remaining command-type and AppInstall wording against
+  `../FoolFrame` and the current module map/tests. Legacy `CommandsType`
+  values 0 through 8 are represented; runtime command execution covers the
+  server-side mutating slices, while `SetAccess` only raises
+  `NotifyPropertyCanSet` and `SetSource` is not handled by
+  `ModelMethodContext`. The AppInstall remaining-work entry now keeps only the
+  DBMaps runtime/query and arbitrary classpath dependency-enumeration gaps
+  instead of relisting covered install, reflection, metadata, enum, and routed
+  transaction slices.
 - 2026-07-09: legacy trigger command execution now covers
   `ExuteProprtyModelMethod` and `ExuteListMethod` in the shared
   `ModelDataService` trigger path. Model, property, and collection triggers
@@ -1663,8 +1672,21 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 
 ## Remaining Migration Work
 
-- Complete concrete `AppInstallGateway` side-effect parity beyond application creation, creator authorized-user creation, app-system view preparation, root module/model installation records, menu/role record creation, menu/role relation creation, the model/relation DDL execution hook, configured model/static/reflective module-source schema wiring, static module-source dependency ordering, connection-aware metadata/DDL routing, connection-string `DaoService`/`JdbcTemplate` factory including legacy `SqlCon.ToString()` SQL Server string parsing and routed connection reuse, module-source module/model/property/relation/operation/operation-command/operation-param/custom-View operation metadata persistence, reflective model-reference package traversal, basic reflective collection `One2Many` relation generation, self-collection `Recurve` relation generation, bidirectional collection `Many2Many` relation generation, `ReferToProperyAttrbute`, `MultiTypeAttribute`, legacy `ObjectWithSubItem<>` parent target-property relation generation, legacy `ColumnAttribute` key-group/key-nullability/identity/generation/generation-expression/default-value/format/encryption/no-map/multi-column DBMaps/table column-prefix metadata, and legacy `SW_SYS_EMUNVALUE` enum metadata persistence: transaction boundaries for routed connection strings, deeper DBMaps query/runtime behavior beyond same-row dynamic loading and list-query alias mapping, and arbitrary classpath dependency enumeration beyond model-type references remain.
-- Complete remaining `SCPB05-Soway.Model` runtime data mutations beyond the already-covered simple dynamic row create/update/delete, simple batch saves, old-id dynamic save lookup, BusinessObject foreign-key dynamic save writes, DBMaps create/update writes, One2Many child-row create/update/delete-list sync, Many2Many/Recurve relation-table insert/delete-list sync, legacy `saveobj` `Itemproperties` request mapping, legacy `savenewobj` new-object/owner-relation request mapping, model-trigger metadata hydration, model/property/collection trigger `Filter`, `SetValue`, direct/collection property-model method, list-method command checks, trigger external-model update/map command checks, model/property/collection trigger assembly execution with constructor/parameter command values, property/collection trigger create/update/delete base-operation execution, property `SET` trigger `SET_VALUE` writes, collection `ItemsAdd`/`ItemsDelete` trigger `SET_VALUE` writes, and CREATE/DELETE/UPDATE/NULL/WCF/JSON `runoperation` with legacy operation metadata hydration plus `SetValue`, token-backed context values, `Filter`, direct/collection property-model method, list-method command slices, Java classpath assembly reflection with constructor/parameter command values, external-model create/update/delete/detail-fallback execution, and normal model-trigger side effects through public persistence: richer collection state parity, remaining trigger command types beyond those shared command slices, richer external-model edge cases, and routed-connection transaction behavior remain.
+- Continue concrete `AppInstallGateway` parity only for deeper DBMaps
+  query/runtime behavior beyond same-row dynamic loading and list-query alias
+  mapping, and arbitrary classpath dependency enumeration beyond model-type
+  references. Application/user/menu/role install records, configured
+  model/static/reflective module-source schema wiring, reflection relation
+  generation, `ColumnAttribute` metadata, enum metadata persistence, routed
+  DAO reuse, and per-routed-connection transaction boundaries are covered by
+  the current module map and tests.
+- Complete remaining `SCPB05-Soway.Model` runtime data mutations only for
+  richer collection state parity, richer external-model edge cases, and
+  model-runtime routed-connection transaction behavior. The previously listed
+  command-type gap is no longer counted as open work: the Java enum preserves
+  the FoolFrame ordinals, mutating command slices are covered by the shared
+  trigger/runoperation command path, `SetAccess` is event-only in FoolFrame,
+  and `SetSource` is not executed by `ModelMethodContext`.
 - Continue `SWDQ01-Soway.Query` only when a new legacy query surface is
   identified beyond the currently migrated bool-expression SQL generation,
   selected table/column state, query/report parameter containers,
