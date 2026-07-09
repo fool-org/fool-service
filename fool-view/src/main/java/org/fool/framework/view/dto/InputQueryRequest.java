@@ -6,20 +6,20 @@ import org.fool.framework.dto.CommonRequest;
 
 @Data
 public class InputQueryRequest extends CommonRequest {
-    @JsonAlias("Text")
+    @JsonAlias({"Text", "text"})
     private String text;
-    @JsonAlias("ViewItemId")
+    @JsonAlias({"ViewItemId", "itemid"})
     private String viewItemId;
-    @JsonAlias("ViewId")
+    @JsonAlias({"ViewId", "viewid"})
     private Long viewId;
     @JsonAlias("ViewName")
     private String viewName;
-    @JsonAlias("ModelID")
+    @JsonAlias({"ModelID", "modelid"})
     private String modelID;
-    @JsonAlias("ObjID")
+    @JsonAlias({"ObjID", "objid"})
     private String objID;
-    @JsonAlias({"IsAdded", "isAdded"})
+    @JsonAlias({"IsAdded", "isAdded", "newadd"})
     private boolean isAdded;
-    @JsonAlias("OwnerId")
+    @JsonAlias({"OwnerId", "ownerid"})
     private String ownerId;
 }

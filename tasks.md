@@ -151,6 +151,8 @@ explicitly named as authoritative for fool-service.
       migration parity marker drift.
 - [x] Accept legacy Pascal `inputquery` request fields at the protocol DTO
       boundary without introducing concrete business DTO binding.
+- [x] Accept legacy Web `inputquery` lower-case request fields from
+      `setextype.js` at the same protocol DTO boundary.
 - [x] Remove the unused Vue business-name `query-list` payload builder so the
       frontend keeps a single view-id driven data-loading path.
 - [x] Move reusable Vue child-group View workflow helpers out of `App.vue`

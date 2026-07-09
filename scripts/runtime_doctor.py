@@ -1321,6 +1321,28 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         )
         return common_response_list(payload, "items") and common_response_list(payload, "Items")
 
+    def inputquery_legacy_web_payload_ok() -> bool:
+        view_id = loaded_list_view_id()
+        columns = view_state.get("columns")
+        if not view_id or not isinstance(columns, list):
+            return False
+        item_id = lookup_view_item_id(columns)
+        if not item_id:
+            return False
+        payload = post_json(
+            f"{frontend_url}/api/v1/data/inputquery",
+            {
+                "viewid": view_id,
+                "itemid": item_id,
+                "text": "",
+                "objid": view_state.get("objectId", ""),
+                "ownerid": "",
+                "newadd": False,
+            },
+            timeout,
+        )
+        return common_response_list(payload, "items") and common_response_list(payload, "Items")
+
     def get_report_model_ok() -> bool:
         view_id = loaded_list_view_id()
         if not view_id:
@@ -1534,6 +1556,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "data:inputquery",
             inputquery_ok,
             "POST /api/v1/data/inputquery uses a BusinessObject field from the loaded View",
+        ),
+        (
+            "data:inputquery-legacy-web-payload",
+            inputquery_legacy_web_payload_ok,
+            "POST /api/v1/data/inputquery accepts legacy Web viewid/itemid/text aliases",
         ),
         (
             "report:getmkqview",
