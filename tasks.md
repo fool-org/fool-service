@@ -365,6 +365,8 @@ explicitly named as authoritative for fool-service.
       contract.
 - [x] Expose FoolFrame Pascal `getcheckcode` / `initapp` response aliases and
       make the runtime doctor require those legacy fields before auth login.
+- [x] Accept the old FoolFrame Web `/user/getchk` route shape as
+      `/api/v1/auth/getchk` while reusing the migrated check-code generator.
 - [x] Make Vue auth first-hop controls consume FoolFrame Pascal `initapp` and
       `getcheckcode` fields through shared protocol helpers.
 - [x] Remove the Docker seed operation id from the Vue manual `runoperation`

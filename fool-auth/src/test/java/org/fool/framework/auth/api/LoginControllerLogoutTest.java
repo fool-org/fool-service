@@ -76,6 +76,15 @@ public class LoginControllerLogoutTest {
     }
 
     @Test
+    public void getCheckCodeAlsoExposesLegacyWebGetChkRoute() throws Exception {
+        var mapping = LoginController.class
+                .getMethod("getCheckCode")
+                .getAnnotation(org.springframework.web.bind.annotation.PostMapping.class);
+
+        assertTrue(List.of(mapping.value()).contains("/getchk"));
+    }
+
+    @Test
     public void initAppReturnsLegacyAppDbsAndCheckCode() throws Exception {
         AuthService authService = mock(AuthService.class);
         CheckCodeService checkCodeService = mock(CheckCodeService.class);

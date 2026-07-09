@@ -718,6 +718,13 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             timeout,
         ))
 
+    def get_check_code_legacy_web_route_ok() -> bool:
+        payload = post_json(f"{frontend_url}/api/v1/auth/getchk", {}, timeout)
+        if not common_response_ok(payload):
+            return False
+        data = payload["data"]
+        return bool(data.get("Key")) and bool(data.get("Code"))
+
     def login_v2_ok() -> bool:
         key = auth_state.get("checkCodeKey")
         code = auth_state.get("checkCode")
@@ -1512,6 +1519,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "auth:checkcode",
             check_code_ok,
             "POST /api/v1/auth/getcheckcode then /checkcode validates the legacy code",
+        ),
+        (
+            "auth:getchk-legacy-web-route",
+            get_check_code_legacy_web_route_ok,
+            "POST /api/v1/auth/getchk exposes the legacy Web check-code wrapper",
         ),
         (
             "auth:loginv2",

@@ -82,6 +82,7 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `curl -H 'Content-Type: application/json' -d '{"Token":"<login-token>","ParentAuthCode":"1"}' http://localhost:8081/api/v1/auth/getsubmenu`
   `curl -H 'Content-Type: application/json' -d '{"Token":"<login-token>","authcode":"1"}' http://localhost:8081/api/v1/auth/getmenu`
   `curl -H 'Content-Type: application/json' -d '{}' http://localhost:8080/api/v1/auth/getcheckcode`
+  `curl -H 'Content-Type: application/json' -d '{}' http://localhost:8081/api/v1/auth/getchk`
   `curl -H 'Content-Type: application/json' -d '{"key":"<check-key>","code":"<check-code>"}' http://localhost:8080/api/v1/auth/checkcode`
   `curl -H 'Content-Type: application/json' -d '{}' http://localhost:8081/api/v1/auth/getcheckcode`
   `curl -H 'Content-Type: application/json' -d '{"key":"<check-key>","code":"<check-code>"}' http://localhost:8081/api/v1/auth/checkcode`
@@ -107,6 +108,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: auth now exposes the old FoolFrame Web check-code wrapper as
+  `/api/v1/auth/getchk`, reusing the migrated `getcheckcode` generator. The
+  Docker runtime doctor proves the route through the Vue proxy.
 - 2026-07-10: backend `getenums` now exposes the old FoolFrame Web
   `/model/getenum` wrapper as `/api/v1/data/getenum`, accepting the lowercase
   `modelid` payload while reusing the migrated enum lookup service. The Docker

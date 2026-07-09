@@ -78,7 +78,7 @@ public class LoginController {
     }
 
     @ApiOperation("得到旧版验证码")
-    @PostMapping("/getcheckcode")
+    @PostMapping({"/getcheckcode", "/getchk"})
     @ResponseBody
     public CommonResponse<CheckCodeService.CheckCodeResult> getCheckCode() {
         return new CommonResponse<>(checkCodeService.create());

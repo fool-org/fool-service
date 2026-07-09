@@ -45,6 +45,7 @@ class RuntimeDoctorTest(unittest.TestCase):
         suffixes: dict[str, dict[str, object]] = {
             "/auth/initapp": {"code": 0, "data": {"Dbs": [{}], "CheckCode": {"Key": "k", "Code": "c"}}},
             "/auth/getcheckcode": {"code": 0, "data": {"Key": "k", "Code": "c"}},
+            "/auth/getchk": {"code": 0, "data": {"Key": "k2", "Code": "c2"}},
             "/auth/checkcode": {"code": 0, "data": True},
             "/auth/loginv2": {"code": 0, "data": {"LoginSucess": True, "Token": "t"}},
             "/auth/getuserinfo": {"code": 0, "data": {"user": {"id": "admin"}}},
@@ -690,6 +691,8 @@ class RuntimeDoctorTest(unittest.TestCase):
                 return {"code": 0, "data": {"Dbs": [{}], "CheckCode": {"Key": "k", "Code": "c"}}}
             if url.endswith("/auth/getcheckcode"):
                 return {"code": 0, "data": {"Key": "k", "Code": "c"}}
+            if url.endswith("/auth/getchk"):
+                return {"code": 0, "data": {"Key": "k2", "Code": "c2"}}
             if url.endswith("/auth/checkcode"):
                 return {"code": 0, "data": True}
             if url.endswith("/auth/loginv2"):
@@ -747,6 +750,7 @@ class RuntimeDoctorTest(unittest.TestCase):
 
         by_name = {result.name: result for result in results}
         self.assertFalse(by_name["view:getlistview"].ok)
+        self.assertTrue(by_name["auth:getchk-legacy-web-route"].ok)
         self.assertFalse(any(url.endswith("/view/getlistview") for url, _payload in calls))
 
     def test_api_checks_getenums_uses_loaded_view_enum_model(self) -> None:
