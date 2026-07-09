@@ -168,6 +168,7 @@ public class LoginControllerLogoutTest {
         assertTrue(json.contains("\"LoginSucess\":true"));
         assertTrue(json.contains("\"Token\":\"token-1\""));
         assertTrue(json.contains("\"AppName\":\"Fool Service\""));
+        verify(authService).rememberLegacyApp("token-1", "fool-service");
     }
 
     @Test

@@ -78,6 +78,21 @@ public class TokenService {
 
     }
 
+    public void setLegacyAppId(String token, String appId) {
+        if (!StringUtils.hasText(token) || !StringUtils.hasText(appId)) {
+            return;
+        }
+        redisUtils.set(RedisKeyPrefix.LEGACY_APP_TOKEN_PREFIX + token, appId);
+    }
+
+    public String getLegacyAppId(String token) {
+        if (!StringUtils.hasText(token)) {
+            return "";
+        }
+        String appId = redisUtils.get(RedisKeyPrefix.LEGACY_APP_TOKEN_PREFIX + token);
+        return appId == null ? "" : appId;
+    }
+
     public void logoutToken(String token) {
         if (StringUtils.isEmpty(token)) {
             return;
@@ -85,6 +100,7 @@ public class TokenService {
         String tokenKey = RedisKeyPrefix.USER_TOKEN_PREFIX + token;
         String userId = redisUtils.get(tokenKey);
         redisUtils.del(tokenKey);
+        redisUtils.del(RedisKeyPrefix.LEGACY_APP_TOKEN_PREFIX + token);
         if (!StringUtils.isEmpty(userId)) {
             redisUtils.del(RedisKeyPrefix.USER_ID_TOKEN_PREFIX + userId);
         }

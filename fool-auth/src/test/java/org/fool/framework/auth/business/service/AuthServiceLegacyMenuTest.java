@@ -82,6 +82,32 @@ public class AuthServiceLegacyMenuTest {
     }
 
     @Test
+    public void getLegacyAppInfoUsesLoginV2SessionApplication() throws Exception {
+        TokenService tokenService = mock(TokenService.class);
+        AppFacade appFacade = mock(AppFacade.class);
+        AuthService service = new AuthService();
+        setField(service, "tokenService", tokenService);
+        setField(service, "appFacade", appFacade);
+        ApplicationDefinition fallback = new ApplicationDefinition();
+        fallback.setAppId("fallback");
+        fallback.setName("Fallback");
+        fallback.setDefaultView(100L);
+        ApplicationDefinition selected = new ApplicationDefinition();
+        selected.setAppId("selected");
+        selected.setName("Selected");
+        selected.setDefaultView(200L);
+        when(tokenService.getUidByToken("token-1")).thenReturn("admin");
+        when(tokenService.getLegacyAppId("token-1")).thenReturn("selected");
+        when(appFacade.getApps()).thenReturn(List.of(fallback, selected));
+
+        AuthService.LegacyAppInfo info = service.getLegacyAppInfo("token-1");
+
+        assertEquals("Selected", info.getAppName());
+        assertEquals(200L, info.getDefaultViewId());
+        assertEquals("selected", info.getAppId());
+    }
+
+    @Test
     public void getLegacyInitAppInfoMapsApplicationAndDatabases() throws Exception {
         DaoService daoService = mock(DaoService.class);
         AppFacade appFacade = mock(AppFacade.class);

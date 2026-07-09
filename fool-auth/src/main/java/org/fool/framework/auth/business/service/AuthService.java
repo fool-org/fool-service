@@ -164,9 +164,18 @@ public class AuthService {
 
     public LegacyAppInfo getLegacyAppInfo(String token) {
         tokenService.getUidByToken(token);
-        // ponytail: loginv2 app session is not migrated yet; use the seeded default app until tokens carry app context.
-        ApplicationDefinition app = appFacade.getApps().stream().findFirst().orElse(null);
+        String sessionAppId = tokenService.getLegacyAppId(token);
+        List<ApplicationDefinition> apps = appFacade.getApps();
+        ApplicationDefinition app = apps.stream()
+                .filter(candidate -> StringUtils.hasText(sessionAppId)
+                        && sessionAppId.equals(candidate.getAppId()))
+                .findFirst()
+                .orElseGet(() -> apps.stream().findFirst().orElse(null));
         return legacyAppInfo(app);
+    }
+
+    public void rememberLegacyApp(String token, String appId) {
+        tokenService.setLegacyAppId(token, appId);
     }
 
     public LegacyAppInfo getLegacyAppInfo(String appId, String appKey) {

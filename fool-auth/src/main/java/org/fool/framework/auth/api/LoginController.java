@@ -72,6 +72,7 @@ public class LoginController {
                     10007, "Unauthorized DataBase ."));
         }
         LoginVo login = authService.login(request.getUserId(), request.getPassWord());
+        authService.rememberLegacyApp(login.getToken(), request.getAppId());
         return new CommonResponse<>(LegacyLoginResult.success(
                 login.getToken(), legacyUser(login.getUser()), app));
     }

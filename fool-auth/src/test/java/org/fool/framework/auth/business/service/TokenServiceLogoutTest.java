@@ -22,6 +22,7 @@ public class TokenServiceLogoutTest {
 
         verify(redisUtils).del(RedisKeyPrefix.USER_TOKEN_PREFIX + "token-1");
         verify(redisUtils).del(RedisKeyPrefix.USER_ID_TOKEN_PREFIX + "admin");
+        verify(redisUtils).del(RedisKeyPrefix.LEGACY_APP_TOKEN_PREFIX + "token-1");
     }
 
     private static void setField(Object target, String name, Object value) throws Exception {

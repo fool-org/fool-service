@@ -441,6 +441,9 @@ explicitly named as authoritative for fool-service.
       legacy empty-shell report sources.
 - [x] Restrict explicit query/report ordering to rendered View items so hidden
       Model properties cannot bypass loaded View metadata.
+- [x] Preserve the legacy `loginv2` selected App id in token session state so
+      `getapp` and `getmain` return token-selected AppInfo instead of the first
+      configured app.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

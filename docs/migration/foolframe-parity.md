@@ -97,6 +97,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: legacy `loginv2` now records the selected App id beside the
+  runtime token, and `getapp` / `getmain` resolve AppInfo from that token
+  session before falling back to the first configured app. Logout deletes the
+  session App key with the normal token keys. Selected database connection
+  context for `@datacon` / `@appcon` remains future work.
 - 2026-07-09: explicit query/report ordering now resolves only through
   rendered View items. Hidden Model properties can no longer be used as order
   tokens when absent from the loaded View metadata; unknown order tokens fall
@@ -1239,15 +1244,16 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   remains future token-context work.
 - 2026-07-03: exposed legacy `getapp` at `/api/v1/auth/getapp`
   and in the Vue operator console. It accepts legacy `Token`, validates the
-  current token through the existing token service, maps the Docker-seeded
+  current token through the existing token service, maps the token-selected
   `SW_APPLICATION` record to legacy `AppInfo`, and returns `Token` plus app
   fields such as `AppName`, `AppVer`, `AppPowerBy`, `AppLogoUrl`,
   `DefaultViewId`, and `AppId`.
 - 2026-07-03: exposed legacy `getmain` at `/api/v1/auth/getmain`
   and in the Vue operator console. It accepts the legacy raw token request
-  body, returns `Token`, legacy `User`, seeded default `AppInfo`, and
+  body, returns `Token`, legacy `User`, token-selected `AppInfo`, and
   top-level `TopMenu` items by reusing the migrated user-info, app-info, and
-  top-menu paths. Full `loginv2` app-session selection remains future work.
+  top-menu paths. Full database connection context for the selected `DbId`
+  remains future work.
 - 2026-07-03: exposed legacy `getsubmenu` at
   `/api/v1/auth/getsubmenu` and in the Vue operator console. It accepts legacy
   `Token` and `ParentAuthCode`, resolves the current user through the token
