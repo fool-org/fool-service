@@ -615,6 +615,47 @@ public class ModelDataServiceTest {
     }
 
     @Test
+    public void saveDataExecutesLegacyPropertySetTriggerDeleteOperation() {
+        long modelId = 92741L;
+        long idPropertyId = 92742L;
+        long namePropertyId = 92743L;
+        long triggerId = 92744L;
+        String modelName = "RuntimePropertyTriggerDeleteOrder";
+        String tableName = "runtime_property_trigger_delete_order";
+        cleanupRuntimePropertyTriggerModel(modelId, modelName, tableName);
+        try {
+            createRuntimeDetailModel(modelId, idPropertyId, namePropertyId, modelName, tableName);
+            jdbcTemplate.update(
+                    "INSERT INTO `" + tableName + "` (`ORDER_ID`,`ORDER_NAME`) VALUES (?,?)",
+                    "2001",
+                    "before trigger");
+            jdbcTemplate.update(
+                    "INSERT INTO `SW_SYS_PROPERTY_TRIGGER` "
+                            + "(`SysId`,`SW_SYS_PROPERTY_TriggersSysId`,`SW_PROPERTY_TRIGGER_TYPE`,"
+                            + "`SW_PROPERTY_TRIGGER_NAME`,`SW_PROPERTY_TRIGGER_PROPERTY`,"
+                            + "`SW_PROPERTY_TRIGGER_BASETYPE`) VALUES (?,?,?,?,?,?)",
+                    triggerId,
+                    namePropertyId,
+                    PropertyTriggerType.SET.code(),
+                    "delete order on orderName set",
+                    namePropertyId,
+                    OperationBaseType.DELETE.code());
+            IDynamicData data = modelDataService.getOneData(modelName, "2001");
+            data.set("orderName", "manual save");
+
+            modelDataService.saveData(data);
+
+            Integer count = jdbcTemplate.queryForObject(
+                    "SELECT COUNT(*) FROM `" + tableName + "` WHERE `ORDER_ID` = ?",
+                    Integer.class,
+                    "2001");
+            assertEquals(0, count.intValue());
+        } finally {
+            cleanupRuntimePropertyTriggerModel(modelId, modelName, tableName);
+        }
+    }
+
+    @Test
     public void createDataInsertsLegacySimpleDynamicRow() {
         long modelId = 93001L;
         long idPropertyId = 93002L;

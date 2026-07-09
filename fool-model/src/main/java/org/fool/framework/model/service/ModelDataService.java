@@ -482,16 +482,8 @@ public class ModelDataService {
 
     private void executeModelTrigger(Model model, IDynamicData data, Trigger trigger) {
         TriggerCommandValues values = executeTriggerCommands(model, data, trigger.getCommands());
-        OperationBaseType type = trigger.getBaseOperationType();
-        if (type == OperationBaseType.UPDATE) {
-            saveData(data, null, null, false, false);
-        } else if (type == OperationBaseType.CREATE) {
-            createData(data, null, null, false, false);
-        } else if (type == OperationBaseType.DELETE) {
-            deleteData(data, false);
-        } else if (type == OperationBaseType.ASSEBMLY) {
-            invokeLegacyAssembly(trigger.getInvokeClass(), trigger.getInvokeMethod(), data, values);
-        }
+        executeTriggerBaseOperation(
+                trigger.getBaseOperationType(), data, values, trigger.getInvokeClass(), trigger.getInvokeMethod());
     }
 
     private void executePropertySetTriggers(Model model, DbMysqlDynamic data, boolean creating) {
@@ -504,8 +496,24 @@ public class ModelDataService {
 
     private void executePropertyTrigger(Model model, IDynamicData data, PropertyTrigger trigger) {
         TriggerCommandValues values = executeTriggerCommands(model, data, trigger.getCommands());
-        if (trigger.getBaseOperationType() == OperationBaseType.ASSEBMLY) {
-            invokeLegacyAssembly(trigger.getInvokeClass(), trigger.getInvokeMethod(), data, values);
+        executeTriggerBaseOperation(
+                trigger.getBaseOperationType(), data, values, trigger.getInvokeClass(), trigger.getInvokeMethod());
+    }
+
+    private void executeTriggerBaseOperation(
+            OperationBaseType type,
+            IDynamicData data,
+            TriggerCommandValues values,
+            String invokeClass,
+            String invokeMethod) {
+        if (type == OperationBaseType.UPDATE) {
+            saveData(data, null, null, false, false);
+        } else if (type == OperationBaseType.CREATE) {
+            createData(data, null, null, false, false);
+        } else if (type == OperationBaseType.DELETE) {
+            deleteData(data, false);
+        } else if (type == OperationBaseType.ASSEBMLY) {
+            invokeLegacyAssembly(invokeClass, invokeMethod, data, values);
         }
     }
 
