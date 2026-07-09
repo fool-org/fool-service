@@ -33,6 +33,7 @@ import org.springframework.transaction.support.TransactionOperations;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -218,12 +219,13 @@ public class ModelDataService {
                 && !model.getIdProperty().getColumn().isBlank()
                 ? model.getIdProperty().getColumn()
                 : "SYSID";
+        List<Property> selectProperties = selectProperties(model, model.getProperties());
         QueryAndArgs queryAndArgs = sqlGenerator.generateSelect(
                 model,
-                model.getProperties(),
+                selectProperties,
                 new CompareFilter(idColumn, CompareOp.EQUAL, dataId));
         var items = this.jdbcTemplate.query(queryAndArgs.getSql(), queryAndArgs.getArgs(), mapper);
-        loadCollectionProperties(model, model.getProperties(), items);
+        loadCollectionProperties(model, selectProperties, items);
         return items.isEmpty() ? null : items.get(0);
     }
 
@@ -237,9 +239,11 @@ public class ModelDataService {
      */
     public List<IDynamicData> getDataList(String modelId, IQueryFilter filter, List<Property> properties) {
         var mapper = getMapper(modelId);
-        QueryAndArgs queryAndArgs = sqlGenerator.generateSelect(mapper.getModel(), properties, filter);
+        Model model = mapper.getModel();
+        List<Property> selectProperties = selectProperties(model, properties);
+        QueryAndArgs queryAndArgs = sqlGenerator.generateSelect(model, selectProperties, filter);
         var items = this.jdbcTemplate.query(queryAndArgs.getSql(), queryAndArgs.getArgs(), mapper);
-        loadCollectionProperties(mapper.getModel(), properties, items);
+        loadCollectionProperties(model, selectProperties, items);
 
         return items;
     }
@@ -282,16 +286,18 @@ public class ModelDataService {
             PageNavigator pageNavigator,
             List<OrderColumn> orderColumns) {
         var mapper = getMapper(modelId);
+        Model model = mapper.getModel();
+        List<Property> selectProperties = selectProperties(model, properties);
         QueryAndArgs queryAndArgs = sqlGenerator.generateSelect(
-                mapper.getModel(), properties, filter, pageNavigator, sqlOrderColumns(orderColumns));
+                model, selectProperties, filter, pageNavigator, sqlOrderColumns(orderColumns));
         PageResult<IDynamicData> result = new PageResult<>();
         var items = this.jdbcTemplate.query(queryAndArgs.getSql(), queryAndArgs.getArgs(), mapper);
-        loadCollectionProperties(mapper.getModel(), properties, items);
+        loadCollectionProperties(model, selectProperties, items);
         result.setItems(items);
         result.setPageInfo(new PageNavigatorResult());
         result.getPageInfo().setPageSize(pageNavigator.getPageSize());
         result.getPageInfo().setPageIndex(pageNavigator.getPageIndex());
-        var countArgs = sqlGenerator.generateSelectCount(mapper.getModel(), filter, properties);
+        var countArgs = sqlGenerator.generateSelectCount(model, filter, selectProperties);
         var rowset =
                 this.jdbcTemplate.queryForRowSet(countArgs.getSql(), countArgs.getArgs());
         if (rowset.next()) {
@@ -299,6 +305,26 @@ public class ModelDataService {
             result.getPageInfo().setPageCount(result.getPageInfo().getTotal() / result.getPageInfo().getPageSize() + (result.getPageInfo().getTotal() % result.getPageInfo().getPageSize() > 0 ? 1 : 0));
         }
         return result;
+    }
+
+    private List<Property> selectProperties(Model model, List<Property> properties) {
+        List<Property> selected = properties == null ? new ArrayList<>() : new ArrayList<>(properties);
+        if (model != null && model.getIdProperty() == null
+                && selected.stream().filter(Objects::nonNull)
+                .noneMatch(property -> "SYSID".equalsIgnoreCase(property.getColumn()))) {
+            selected.add(sysIdProperty());
+        }
+        return selected;
+    }
+
+    private Property sysIdProperty() {
+        Property property = new Property();
+        property.setName("SYSID");
+        property.setColumn("SYSID");
+        property.setPropertyType(PropertyType.String);
+        property.setIsCollection(false);
+        property.setMultiMap(false);
+        return property;
     }
 
     private List<SqlGenerator.OrderColumn> sqlOrderColumns(List<OrderColumn> orderColumns) {
@@ -318,15 +344,15 @@ public class ModelDataService {
         }
         hydrateRelations(model);
         var ids = items.stream()
-                .map(IDynamicData::getId)
+                .map(this::legacyId)
                 .filter(id -> id != null && !id.isBlank())
                 .collect(Collectors.toList());
         if (ids.isEmpty()) {
             return;
         }
         Map<String, IDynamicData> owners = items.stream()
-                .filter(item -> item.getId() != null && !item.getId().isBlank())
-                .collect(Collectors.toMap(IDynamicData::getId, item -> item, (first, second) -> first, LinkedHashMap::new));
+                .filter(item -> legacyId(item) != null && !legacyId(item).isBlank())
+                .collect(Collectors.toMap(this::legacyId, item -> item, (first, second) -> first, LinkedHashMap::new));
         for (var property : properties.stream()
                 .filter(p -> Boolean.TRUE.equals(p.getIsCollection()))
                 .collect(Collectors.toList())) {
@@ -352,7 +378,7 @@ public class ModelDataService {
                 }
             });
             for (var item : items) {
-                item.set(property.getName(), infos.getOrDefault(item.getId(), new LinkedList<>()));
+                item.set(property.getName(), infos.getOrDefault(legacyId(item), new LinkedList<>()));
             }
         }
     }
@@ -983,6 +1009,11 @@ public class ModelDataService {
     private Object fallbackId(IDynamicData data) {
         Object id = data.getId();
         return id == null ? data.get("SYSID") : id;
+    }
+
+    private String legacyId(IDynamicData data) {
+        Object id = fallbackId(data);
+        return id == null ? null : id.toString();
     }
 
     private boolean relationExists(Relation relation, Object parentId, Object itemId) {

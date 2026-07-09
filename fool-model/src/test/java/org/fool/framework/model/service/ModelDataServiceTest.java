@@ -213,6 +213,96 @@ public class ModelDataServiceTest {
     }
 
     @Test
+    public void getOneDataLoadsLegacyCollectionsBySysIdWhenModelHasNoIdProperty() {
+        long orderModelId = 92121L;
+        long itemModelId = 92122L;
+        long orderNamePropertyId = 92123L;
+        long itemsPropertyId = 92124L;
+        long itemIdPropertyId = 92125L;
+        long itemNamePropertyId = 92126L;
+        String orderModelName = "RuntimeSysIdRelationOrder";
+        String itemModelName = "RuntimeSysIdRelationItem";
+        String orderTable = "runtime_sysid_relation_order";
+        String itemTable = "runtime_sysid_relation_item";
+        cleanupRuntimeRelationModel(orderModelId, itemModelId, orderModelName, itemModelName);
+        jdbcTemplate.execute("DROP TABLE IF EXISTS `" + itemTable + "`");
+        jdbcTemplate.execute("DROP TABLE IF EXISTS `" + orderTable + "`");
+        try {
+            jdbcTemplate.execute("CREATE TABLE `" + orderTable + "` ("
+                    + "`SYSID` varchar(64) NOT NULL,"
+                    + "`ORDER_NAME` varchar(255) DEFAULT NULL,"
+                    + "PRIMARY KEY (`SYSID`))");
+            jdbcTemplate.execute("CREATE TABLE `" + itemTable + "` ("
+                    + "`ITEM_ID` varchar(64) NOT NULL,"
+                    + "`ORDER_SYSID` varchar(64) DEFAULT NULL,"
+                    + "`ITEM_NAME` varchar(255) DEFAULT NULL,"
+                    + "PRIMARY KEY (`ITEM_ID`))");
+            jdbcTemplate.update(
+                    "INSERT INTO `fool_sys_model` "
+                            + "(`id`,`name`,`text`,`remark`,`model_type`,`class_name`,`table_name`,`auto_sys_id`,`id_property`) "
+                            + "VALUES (?,?,?,?,?,?,?,?,?)",
+                    orderModelId,
+                    orderModelName,
+                    orderModelName,
+                    "runtime sysid relation test",
+                    ModelType.DYNAMIC.code(),
+                    "example." + orderModelName,
+                    orderTable,
+                    false,
+                    null);
+            jdbcTemplate.update(
+                    "INSERT INTO `fool_sys_model` "
+                            + "(`id`,`name`,`text`,`remark`,`model_type`,`class_name`,`table_name`,`auto_sys_id`,`id_property`) "
+                            + "VALUES (?,?,?,?,?,?,?,?,?)",
+                    itemModelId,
+                    itemModelName,
+                    itemModelName,
+                    "runtime sysid relation item test",
+                    ModelType.DYNAMIC.code(),
+                    "example." + itemModelName,
+                    itemTable,
+                    false,
+                    itemIdPropertyId);
+            insertRuntimeProperty(orderNamePropertyId, "orderName", null, false, orderModelId, "ORDER_NAME", PropertyType.String);
+            insertRuntimeProperty(itemsPropertyId, "items", itemModelId, true, orderModelId, null, PropertyType.BusinessObject);
+            insertRuntimeProperty(itemIdPropertyId, "itemId", null, false, itemModelId, "ITEM_ID", PropertyType.String);
+            insertRuntimeProperty(itemNamePropertyId, "itemName", null, false, itemModelId, "ITEM_NAME", PropertyType.String);
+            jdbcTemplate.update(
+                    "INSERT INTO `SW_SYS_RELATION` "
+                            + "(`SW_SYS_RELATION_TYPE`,`SW_SYS_RELATION_SOURCEPROPERTY`,`SW_SYS_RELATION_TARGETPROPERTY`,"
+                            + "`SW_SYS_RELATION_TABLE`,`SW_SYS_RELATION_SOURCECOL`,`SW_SYS_RELATION_TARGETCOL`,`SW_SYS_RELATION_CANBENULL`) "
+                            + "VALUES (?,?,?,?,?,?,?)",
+                    RelationType.One2Many.code(),
+                    itemsPropertyId,
+                    itemIdPropertyId,
+                    itemTable,
+                    "ITEM_ID",
+                    "ORDER_SYSID",
+                    false);
+            jdbcTemplate.update("INSERT INTO `" + orderTable + "` (`SYSID`,`ORDER_NAME`) VALUES (?,?)", "6101", "Order");
+            jdbcTemplate.update(
+                    "INSERT INTO `" + itemTable + "` (`ITEM_ID`,`ORDER_SYSID`,`ITEM_NAME`) VALUES (?,?,?)",
+                    "I1",
+                    "6101",
+                    "Loaded item");
+
+            IDynamicData data = modelDataService.getOneData(orderModelName, "6101");
+
+            assertNotNull(data);
+            assertEquals("6101", data.get("SYSID"));
+            List<?> items = (List<?>) data.get("items");
+            assertEquals(1, items.size());
+            DbMysqlDynamic child = (DbMysqlDynamic) items.get(0);
+            assertEquals("Loaded item", child.get("itemName"));
+            assertSame(data, child.getOwner());
+        } finally {
+            jdbcTemplate.execute("DROP TABLE IF EXISTS `" + itemTable + "`");
+            jdbcTemplate.execute("DROP TABLE IF EXISTS `" + orderTable + "`");
+            cleanupRuntimeRelationModel(orderModelId, itemModelId, orderModelName, itemModelName);
+        }
+    }
+
+    @Test
     public void getModelRehydratesLegacyModelTriggersWithCommands() {
         long modelId = 92501L;
         long idPropertyId = 92502L;

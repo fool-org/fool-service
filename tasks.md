@@ -584,6 +584,8 @@ explicitly named as authoritative for fool-service.
       migrated dynamic model has no explicit id property.
 - [x] Let legacy `inputquery` lookup target models omit explicit id metadata
       without passing null properties into the model query path.
+- [x] Hydrate legacy owned collections for dynamic parent models that rely on
+      `SYSID` instead of explicit id metadata.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

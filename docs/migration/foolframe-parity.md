@@ -99,6 +99,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: dynamic collection hydration for models without explicit id
+  property now selects and maps FoolFrame `SYSID` through `ModelDataService`
+  and uses the same id fallback when loading owned collection rows.
 - 2026-07-09: legacy `inputquery` now supports BusinessObject target models
   without an explicit id property by filtering null id properties from the
   target query property list and continuing to return candidate ids through

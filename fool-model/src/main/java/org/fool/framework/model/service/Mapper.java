@@ -65,11 +65,25 @@ public class Mapper extends AbstratMapper<IDynamicData> {
                     }
                 }
             }
+            mapFallbackSysId(mysqlDynamic, resultSet);
             return mysqlDynamic;
         } catch (Throwable e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private void mapFallbackSysId(DbMysqlDynamic data, ResultSet resultSet) {
+        if (model.getIdProperty() != null) {
+            return;
+        }
+        try {
+            Object sysid = resultSet.getObject("SYSID");
+            if (sysid != null) {
+                data.set("SYSID", sysid);
+            }
+        } catch (SQLException ex) {
+        }
     }
 
     private Object simpleColumnValue(Property property, ResultSet resultSet) throws SQLException {
