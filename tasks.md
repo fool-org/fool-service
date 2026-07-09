@@ -487,6 +487,9 @@ explicitly named as authoritative for fool-service.
 - [x] Complete the legacy `SW_SYS_MODEL` parent/id-property/type/is-view,
       default-format/default-view schema and `AppInstalledModel` mapping, and
       guard those columns in the Docker runtime doctor.
+- [x] Add idempotent Docker repair blocks and runtime-doctor coverage for the
+      legacy `SW_SYS_PROPERTY` model/filter/source/format/sqlcon/owner columns
+      used by migrated View/data/AppInstall metadata.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
