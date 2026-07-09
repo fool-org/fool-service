@@ -53,6 +53,7 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"CurrentPage":1,"PageSize":10,"FilterExp":{"Col":{"ID":"1002"},"CompareOp":{"ID":"7","Name":"包含"},"ValueExp":"BTC","ValueFmt":"BTC"},"ReportCols":[{"ColName":"Symbol","Index":1},{"ColName":"State","Index":2}]}' http://localhost:8080/api/v1/report/makereport`
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"CurrentPage":1,"PageSize":10,"FilterExp":{"FirstExp":{"Col":{"Name":"order_state"},"CompareOp":{"ID":"1","Name":"等于"},"ValueExp":"0","ValueFmt":"Open"},"Sequences":[{"BoolOp":{"DBName":"and","ShowName":"与"},"AddedExp":{"Col":{"Name":"symbol"},"CompareOp":{"ID":"7","Name":"包含"},"ValueExp":"BTC","ValueFmt":"BTC"}},{"BoolOp":{"DBName":"or","ShowName":"或"},"AddedExp":{"Col":{"Name":"order_price"},"CompareOp":{"ID":"3","Name":"大于"},"ValueExp":"100","ValueFmt":"100"}}]},"ReportCols":[{"ColName":"Symbol","Index":1},{"ColName":"State","Index":2}]}' http://localhost:8080/api/v1/report/makereport`
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"CurrentPage":1,"PageSize":10,"QueryFilter":"order_state=\"0\"","ReportCols":[{"ColName":"Symbol","Index":1},{"ColName":"State","Index":2}]}' http://localhost:8080/api/v1/report/getrpt`
+  `curl -H 'Content-Type: application/json' -d '{"viewid":100,"pageindex":1,"pagesize":10,"cols":[{"ColName":"Symbol","Index":1},{"ColName":"State","Index":2}],"exp":null}' http://localhost:8081/api/v1/report/mkrpt`
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100}' http://localhost:8080/api/v1/report/getmkqview`
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100}' http://localhost:8080/api/v1/report/mkqview`
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"ReportName":"Order Daily","ReportCols":[{"ColName":"Symbol","Index":1}],"FilterExp":{"Col":{"Name":"order_state"},"CompareOp":{"ID":"1","Name":"等于"},"ValueExp":"0","ValueFmt":"Open"}}' http://localhost:8080/api/v1/report/saverpt`
@@ -100,6 +101,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: the backend now accepts the old FoolFrame Web report execution
+  route at `/api/v1/report/mkrpt`, including the `viewid` / `cols` /
+  `pagesize` / `pageindex` / `exp` payload from `mkreport.js`, while reusing
+  the existing report grid renderer. The Docker runtime doctor proves the path
+  through the Vue proxy.
 - 2026-07-10: the backend now accepts the old FoolFrame Web operation
   protocol at `/api/v1/data/exoperation`, including legacy
   `objid` / `viewid` / `opid` request aliases from `operation.js`, while

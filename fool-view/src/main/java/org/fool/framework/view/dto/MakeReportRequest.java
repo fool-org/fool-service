@@ -8,19 +8,19 @@ import java.util.List;
 
 @Data
 public class MakeReportRequest extends CommonRequest {
-    @JsonAlias("ViewId")
+    @JsonAlias({"ViewId", "viewid"})
     private Long viewId;
-    @JsonAlias("ReportCols")
+    @JsonAlias({"ReportCols", "cols"})
     private List<ReportCol> reportCols;
-    @JsonAlias("CurrentPage")
+    @JsonAlias({"CurrentPage", "pageindex"})
     private Integer currentPage;
-    @JsonAlias("PageSize")
+    @JsonAlias({"PageSize", "pagesize"})
     private Integer pageSize;
-    @JsonAlias("QueryFilter")
+    @JsonAlias({"QueryFilter", "queryfilter"})
     private String queryFilter;
-    @JsonAlias("FilterExp")
+    @JsonAlias({"FilterExp", "exp"})
     private BoolExp filterExp;
-    @JsonAlias("ReportName")
+    @JsonAlias({"ReportName", "reportname"})
     private String reportName;
 
     @Data

@@ -308,6 +308,33 @@ public class ReportControllerTest {
                 .getAnnotation(org.springframework.web.bind.annotation.PostMapping.class);
 
         assertEquals(true, List.of(mapping.value()).contains("/getrpt"));
+        assertEquals(true, List.of(mapping.value()).contains("/mkrpt"));
+    }
+
+    @Test
+    public void makeReportAcceptsLegacyWebMkrptPayloadAliases() throws Exception {
+        MakeReportRequest request = new ObjectMapper().readValue("""
+                {
+                  "viewid": 100,
+                  "cols": [{"ColName": "State", "ColId": "state", "SelectedTypeId": "1", "Index": 2, "OrderType": "0"}],
+                  "pagesize": 10,
+                  "pageindex": 2,
+                  "exp": {"Col": {"Name": "order_state"}, "CompareOp": {"ID": "1", "Name": "等于"}, "ValueExp": "0", "ValueFmt": "Open"},
+                  "reportname": "Order Daily"
+                }
+                """, MakeReportRequest.class);
+
+        assertEquals(Long.valueOf(100L), request.getViewId());
+        assertEquals(Integer.valueOf(10), request.getPageSize());
+        assertEquals(Integer.valueOf(2), request.getCurrentPage());
+        assertEquals("Order Daily", request.getReportName());
+        assertEquals("State", request.getReportCols().get(0).getColName());
+        assertEquals("state", request.getReportCols().get(0).getColId());
+        assertEquals("1", request.getReportCols().get(0).getSelectedTypeId());
+        assertEquals("0", request.getReportCols().get(0).getOrderType());
+        assertEquals("order_state", request.getFilterExp().getCol().getName());
+        assertEquals("1", request.getFilterExp().getCompareOp().getId());
+        assertEquals("0", request.getFilterExp().getValueExp());
     }
 
     @Test

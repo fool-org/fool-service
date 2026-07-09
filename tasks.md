@@ -137,6 +137,9 @@ explicitly named as authoritative for fool-service.
       backend data boundary as `/api/v1/data/exoperation`, including
       `objid` / `viewid` / `opid` aliases, while reusing the shared
       `runoperation` service path.
+- [x] Accept the old FoolFrame Web `/report/mkrpt` report execution protocol
+      shape at the backend report boundary as `/api/v1/report/mkrpt`,
+      including `viewid` / `cols` / `pagesize` / `pageindex` / `exp` aliases.
 - [x] Remove the Vue workspace's visible business-name `get-view/query-list`
       shortcuts so View rendering and data loading stay `viewId` driven.
 - [x] Add a repository harness guard for oversized source files.

@@ -62,7 +62,7 @@ public class ReportController {
         return new CommonResponse<>(result);
     }
 
-    @PostMapping({"/makereport", "/getrpt"})
+    @PostMapping({"/makereport", "/getrpt", "/mkrpt"})
     @ResponseBody
     public CommonResponse<ReportGridResult> makeReport(@RequestBody MakeReportRequest request) {
         ReportViewContext context = viewContext(request);

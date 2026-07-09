@@ -1333,6 +1333,27 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         )
         return report_grid_ok(payload, [str(column["ColName"]) for column in report_cols]) and response_list_field_present(payload, "Cells")
 
+    def make_report_legacy_web_payload_ok() -> bool:
+        view_id = loaded_list_view_id()
+        columns = view_state.get("reportColumns")
+        if not view_id or not isinstance(columns, list):
+            return False
+        report_cols = runtime_report_cols(columns)
+        if not report_cols:
+            return False
+        payload = post_json(
+            f"{frontend_url}/api/v1/report/mkrpt",
+            {
+                "viewid": view_id,
+                "pageindex": 1,
+                "pagesize": 10,
+                "cols": report_cols,
+                "exp": None,
+            },
+            timeout,
+        )
+        return report_grid_ok(payload, [str(column["ColName"]) for column in report_cols]) and response_list_field_present(payload, "Cells")
+
     def save_report_ok() -> bool:
         view_id = loaded_list_view_id()
         columns = view_state.get("reportColumns")
@@ -1496,6 +1517,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "report:getrpt",
             get_report_ok,
             "POST /api/v1/report/getrpt uses getmkqview columns from the loaded View",
+        ),
+        (
+            "report:mkrpt-legacy-web-payload",
+            make_report_legacy_web_payload_ok,
+            "POST /api/v1/report/mkrpt accepts legacy Web viewid/cols/pageindex/pagesize/exp aliases",
         ),
         (
             "report:saverpt",
