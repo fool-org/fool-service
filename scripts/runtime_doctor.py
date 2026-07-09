@@ -1445,6 +1445,17 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             view_state["reportColumns"] = columns
         return bool(columns) and response_list_field_present(payload, "Cols")
 
+    def get_report_model_legacy_web_payload_ok() -> bool:
+        view_id = loaded_list_view_id()
+        if not view_id:
+            return False
+        payload = post_json(
+            f"{frontend_url}/api/v1/report/mkqview",
+            {"viewid": view_id},
+            timeout,
+        )
+        return bool(report_model_columns(payload)) and response_list_field_present(payload, "Cols")
+
     def get_report_ok() -> bool:
         view_id = loaded_list_view_id()
         columns = view_state.get("reportColumns")
@@ -1679,6 +1690,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "report:getmkqview",
             get_report_model_ok,
             "POST /api/v1/report/getmkqview uses the loaded ViewId",
+        ),
+        (
+            "report:mkqview-legacy-web-payload",
+            get_report_model_legacy_web_payload_ok,
+            "POST /api/v1/report/mkqview accepts legacy Web viewid payload",
         ),
         (
             "report:getrpt",

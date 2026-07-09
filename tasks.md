@@ -150,6 +150,9 @@ explicitly named as authoritative for fool-service.
 - [x] Accept the old FoolFrame Web `/report/mkrpt` report execution protocol
       shape at the backend report boundary as `/api/v1/report/mkrpt`,
       including `viewid` / `cols` / `pagesize` / `pageindex` / `exp` aliases.
+- [x] Prove the old FoolFrame Web `/report/mkqview` candidate-column protocol
+      shape through `/api/v1/report/mkqview` with the lower-case `viewid`
+      payload from `mkreport.js`.
 - [x] Remove the Vue workspace's visible business-name `get-view/query-list`
       shortcuts so View rendering and data loading stay `viewId` driven.
 - [x] Add a repository harness guard for oversized source files.

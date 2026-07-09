@@ -54,6 +54,8 @@ class RuntimeDoctorTest(unittest.TestCase):
             "/auth/getsubmenu": {"code": 0, "data": {"Items": [{}]}},
             "/auth/getmenu": {"code": 0, "data": {"Items": [{}]}},
             "/view/getreaditemview": {"code": 0, "data": {"DetailViews": [{"Items": [{"PrpId": "itemId"}]}]}},
+            "/report/getmkqview": {"code": 0, "data": {"Cols": [{"ID": "recordId", "Name": "Record ID"}]}},
+            "/report/mkqview": {"code": 0, "data": {"Cols": [{"ID": "recordId", "Name": "Record ID"}]}},
             "/data/savenewobj": {"code": 0, "data": None},
             "/data/new": {"code": 0, "data": None},
             "/data/saveobj": {"code": 0, "data": None},
@@ -728,6 +730,8 @@ class RuntimeDoctorTest(unittest.TestCase):
             if url.endswith("/data/inputquery"):
                 return {"code": 0, "data": {"items": [{}], "Items": [{}]}}
             if url.endswith("/report/getmkqview"):
+                return {"code": 0, "data": {"Cols": [{"ID": "recordId", "Name": "Record ID"}]}}
+            if url.endswith("/report/mkqview"):
                 return {"code": 0, "data": {"Cols": [{"ID": "recordId", "Name": "Record ID"}]}}
             if url.endswith("/report/getrpt"):
                 return {"code": 0, "data": {"Cells": [

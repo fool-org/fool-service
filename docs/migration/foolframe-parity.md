@@ -60,7 +60,7 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"CurrentPage":1,"PageSize":10,"QueryFilter":"order_state=\"0\"","ReportCols":[{"ColName":"Symbol","Index":1},{"ColName":"State","Index":2}]}' http://localhost:8080/api/v1/report/getrpt`
   `curl -H 'Content-Type: application/json' -d '{"viewid":100,"pageindex":1,"pagesize":10,"cols":[{"ColName":"Symbol","Index":1},{"ColName":"State","Index":2}],"exp":null}' http://localhost:8081/api/v1/report/mkrpt`
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100}' http://localhost:8080/api/v1/report/getmkqview`
-  `curl -H 'Content-Type: application/json' -d '{"ViewId":100}' http://localhost:8080/api/v1/report/mkqview`
+  `curl -H 'Content-Type: application/json' -d '{"viewid":100}' http://localhost:8080/api/v1/report/mkqview`
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"ReportName":"Order Daily","ReportCols":[{"ColName":"Symbol","Index":1}],"FilterExp":{"Col":{"Name":"order_state"},"CompareOp":{"ID":"1","Name":"等于"},"ValueExp":"0","ValueFmt":"Open"}}' http://localhost:8080/api/v1/report/saverpt`
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100}' http://localhost:8081/api/v1/report/getmkqview`
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"CurrentPage":1,"PageSize":10,"QueryFilter":"order_state=\"0\"","ReportCols":[{"ColName":"Symbol","Index":1},{"ColName":"State","Index":2}]}' http://localhost:8081/api/v1/report/getrpt`
@@ -108,6 +108,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: the Docker runtime doctor now proves the old FoolFrame Web
+  `/report/mkqview` candidate-column route through `/api/v1/report/mkqview`
+  with the lower-case `viewid` payload from `mkreport.js`, reusing the
+  migrated `getmkqview` report model path.
 - 2026-07-10: auth now exposes the old FoolFrame Web check-code wrapper as
   `/api/v1/auth/getchk`, reusing the migrated `getcheckcode` generator. The
   Docker runtime doctor proves the route through the Vue proxy.

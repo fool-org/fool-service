@@ -312,6 +312,15 @@ public class ReportControllerTest {
     }
 
     @Test
+    public void getReportModelAlsoExposesLegacyMkqviewRoute() throws Exception {
+        var mapping = ReportController.class
+                .getMethod("getReportModel", MakeReportRequest.class)
+                .getAnnotation(org.springframework.web.bind.annotation.PostMapping.class);
+
+        assertTrue(List.of(mapping.value()).contains("/mkqview"));
+    }
+
+    @Test
     public void makeReportAcceptsLegacyWebMkrptPayloadAliases() throws Exception {
         MakeReportRequest request = new ObjectMapper().readValue("""
                 {
