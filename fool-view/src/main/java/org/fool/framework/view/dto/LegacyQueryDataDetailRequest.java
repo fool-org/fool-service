@@ -6,10 +6,10 @@ import org.fool.framework.dto.CommonRequest;
 
 @Data
 public class LegacyQueryDataDetailRequest extends CommonRequest {
-    @JsonAlias("ViewId")
+    @JsonAlias({"ViewId", "id"})
     private Long viewId;
-    @JsonAlias("ObjId")
+    @JsonAlias({"ObjId", "objid"})
     private Object objId;
-    @JsonAlias("IdExp")
+    @JsonAlias({"IdExp", "idexp", "idxep"})
     private String idExp;
 }

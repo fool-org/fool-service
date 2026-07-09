@@ -48,6 +48,28 @@ public class DataControllerLegacyQueryDataDetailTest {
         assertEquals("#.id", request.getIdExp());
     }
 
+    @Test
+    public void queryDataDetailAcceptsLegacyWebItemviewAliases() throws Exception {
+        LegacyQueryDataDetailRequest request = new ObjectMapper().readValue(
+                "{\"id\":100,\"objid\":\"1001\",\"idexp\":\"#.id\"}",
+                LegacyQueryDataDetailRequest.class);
+
+        assertEquals(Long.valueOf(100L), request.getViewId());
+        assertEquals("1001", request.getObjId());
+        assertEquals("#.id", request.getIdExp());
+    }
+
+    @Test
+    public void queryDataDetailAcceptsLegacyItemviewIdexpTypo() throws Exception {
+        LegacyQueryDataDetailRequest request = new ObjectMapper().readValue(
+                "{\"id\":100,\"objid\":\"1001\",\"idxep\":\"#.id\"}",
+                LegacyQueryDataDetailRequest.class);
+
+        assertEquals(Long.valueOf(100L), request.getViewId());
+        assertEquals("1001", request.getObjId());
+        assertEquals("#.id", request.getIdExp());
+    }
+
     private static void setField(Object target, String name, Object value) throws Exception {
         Field field = target.getClass().getDeclaredField(name);
         field.setAccessible(true);

@@ -33,6 +33,7 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `curl -H 'Content-Type: application/json' -d '{"viewid":100,"filter":null,"page":1,"pagesize":2,"orderitem":0,"ordertype":0}' http://localhost:8081/api/v1/data/querylist`
   `curl -H 'Content-Type: application/json' -d '{"viewId":100,"objId":"1001"}' http://localhost:8080/api/v1/data/querydatadetail`
   `curl -H 'Content-Type: application/json' -d '{"viewId":100,"objId":"","IdExp":"$1001"}' http://localhost:8081/api/v1/data/querydatadetail`
+  `curl -H 'Content-Type: application/json' -d '{"id":100,"objid":"1001","idexp":""}' http://localhost:8081/api/v1/data/querydatadetail`
   `curl -H 'Content-Type: application/json' -d '{"viewId":100,"objId":"","IdExp":""}' http://localhost:8081/api/v1/data/querydatadetail`
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"ParentObjId":"5001"}' http://localhost:8080/api/v1/data/initnew`
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"ParentObjId":"5001"}' http://localhost:8081/api/v1/data/initnew`
@@ -110,6 +111,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: backend `querydatadetail` now accepts the old FoolFrame Web
+  `/itemview` payload shape from `routes.getItemPost`, including
+  `id` / `objid` / `idexp` aliases at the shared DTO boundary. The Docker
+  runtime doctor proves the shape through the Vue proxy.
 - 2026-07-10: the Docker runtime doctor now proves the old FoolFrame Web
   `/report/saverpt` report-definition payload through `/api/v1/report/saverpt`
   with `viewid` / `cols` / `exp` / `reportname`, reusing the migrated

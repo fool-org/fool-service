@@ -976,6 +976,34 @@ class RuntimeDoctorTest(unittest.TestCase):
             calls,
         )
 
+    def test_api_checks_querydatadetail_accepts_legacy_web_payload(self) -> None:
+        calls: list[tuple[str, object]] = []
+        original_get_json = runtime_doctor.get_json
+        original_post_json = runtime_doctor.post_json
+
+        def fake_get_json(_url: str, _timeout: float) -> object:
+            return []
+
+        def fake_post_json(url: str, payload: object, _timeout: float) -> dict[str, object]:
+            calls.append((url, payload))
+            return self.runtime_default_post_response(url, payload) or {"code": 0, "data": None}
+
+        try:
+            runtime_doctor.get_json = fake_get_json
+            runtime_doctor.post_json = fake_post_json
+            results = api_checks("http://backend", "http://frontend", 1.0)
+        finally:
+            runtime_doctor.get_json = original_get_json
+            runtime_doctor.post_json = original_post_json
+
+        by_name = {result.name: result for result in results}
+        self.assertIn("data:querydatadetail-legacy-web-payload", by_name)
+        self.assertTrue(by_name["data:querydatadetail-legacy-web-payload"].ok)
+        self.assertIn(
+            ("http://frontend/api/v1/data/querydatadetail", {"id": 202, "objid": "9001", "idexp": ""}),
+            calls,
+        )
+
     def test_api_checks_savenewobj_uses_loaded_detail_fields(self) -> None:
         calls: list[tuple[str, object]] = []
         cleanup_ids: list[str] = []

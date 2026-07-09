@@ -355,6 +355,9 @@ explicitly named as authoritative for fool-service.
 - [x] Prove the old FoolFrame Web `/report/saverpt` report-definition payload
       shape through `/api/v1/report/saverpt`, including `viewid` / `cols` /
       `exp` / `reportname`.
+- [x] Accept the old FoolFrame Web `/itemview` detail-data payload shape at
+      `/api/v1/data/querydatadetail`, including `id` / `objid` / `idexp`
+      aliases at the shared DTO boundary.
 - [x] Remove hard-coded seed object IDs from Vue API-tool defaults and make
       runtime detail smoke use the object id returned by `querydata`.
 - [x] Extend the Docker runtime doctor to prove the legacy auth first-hop
