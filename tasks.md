@@ -550,6 +550,8 @@ explicitly named as authoritative for fool-service.
 - [x] Extend the Docker runtime doctor to prove legacy
       `saveobj.Itemproperties[].Items[]` update and `DelteItems[]` delete
       through the Vue proxy using loaded detail child metadata.
+- [x] Refactor runtime doctor tests to reuse shared fake legacy API responses
+      while keeping saveobj/savenewobj proof assertions scoped.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

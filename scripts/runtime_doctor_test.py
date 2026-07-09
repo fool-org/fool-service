@@ -37,6 +37,48 @@ from runtime_doctor import (
 
 
 class RuntimeDoctorTest(unittest.TestCase):
+    def runtime_default_post_response(self, url: str, _payload: object) -> dict[str, object] | None:
+        suffixes: dict[str, dict[str, object]] = {
+            "/auth/initapp": {"code": 0, "data": {"Dbs": [{}], "CheckCode": {"Key": "k", "Code": "c"}}},
+            "/auth/getcheckcode": {"code": 0, "data": {"Key": "k", "Code": "c"}},
+            "/auth/checkcode": {"code": 0, "data": True},
+            "/auth/loginv2": {"code": 0, "data": {"LoginSucess": True, "Token": "t"}},
+            "/auth/getuserinfo": {"code": 0, "data": {"user": {"id": "admin"}}},
+            "/auth/getapp": {"code": 0, "data": {"App": {"DefaultViewId": 200}}},
+            "/auth/getmain": {"code": 0, "data": {"App": {"DefaultViewId": 200}, "TopMenu": [{"AuthNo": "0101"}]}},
+            "/auth/getsubmenu": {"code": 0, "data": {"Items": [{}]}},
+            "/view/getreaditemview": {"code": 0, "data": {"DetailViews": [{"Items": [{"PrpId": "itemId"}]}]}},
+            "/data/savenewobj": {"code": 0, "data": None},
+            "/data/saveobj": {"code": 0, "data": None},
+        }
+        for suffix, response in suffixes.items():
+            if url.endswith(suffix):
+                return response
+        if url.endswith("/view/getlistview"):
+            return {"code": 0, "data": {
+                "DetailViewId": 202,
+                "Items": [{"PropertyName": "recordId"}],
+                "Operations": [{"Name": "\u5220\u9664"}, {"Name": "\u4fdd\u5b58"}],
+            }}
+        if url.endswith("/data/querydata"):
+            return {"code": 0, "data": {"Data": [{"Items": [{"PrpId": "recordId", "ObjId": "9001"}]}]}}
+        if url.endswith("/data/initnew"):
+            return {"code": 0, "data": {"Data": {"SimpleData": [
+                {"PrpId": "orderId", "PrpType": "Long", "ReadOnly": True},
+                {"PrpId": "symbol", "PrpType": "String", "ReadOnly": False},
+                {"PrpId": "customer", "PrpType": "BusinessObject", "ReadOnly": False},
+                {"PrpId": "state", "PrpType": "Enum", "ReadOnly": False},
+            ], "Items": [{
+                "PrpId": "items",
+                "Properties": [
+                    {"PrpId": "itemId", "ReadOnly": True},
+                    {"PrpId": "itemName", "ReadOnly": True},
+                ],
+            }]}}}
+        if url.endswith("/data/querydatadetail"):
+            return {"code": 0, "data": {"Data": {"SimpleData": [{"PrpId": "recordId"}]}}}
+        return None
+
     def test_runtime_doctor_reuses_schema_catalog_module(self) -> None:
         self.assertIs(runtime_doctor.MARKET_SYMBOLS_COLUMNS, runtime_schema.MARKET_SYMBOLS_COLUMNS)
         self.assertIs(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS, runtime_schema.LEGACY_CORE_SCHEMA_COLUMNS)
@@ -627,33 +669,7 @@ class RuntimeDoctorTest(unittest.TestCase):
 
         def fake_post_json(url: str, payload: object, _timeout: float) -> dict[str, object]:
             calls.append((url, payload))
-            if url.endswith("/auth/initapp"):
-                return {"code": 0, "data": {"Dbs": [{}], "CheckCode": {"Key": "k", "Code": "c"}}}
-            if url.endswith("/auth/getcheckcode"):
-                return {"code": 0, "data": {"Key": "k", "Code": "c"}}
-            if url.endswith("/auth/checkcode"):
-                return {"code": 0, "data": True}
-            if url.endswith("/auth/loginv2"):
-                return {"code": 0, "data": {"LoginSucess": True, "Token": "t"}}
-            if url.endswith("/auth/getuserinfo"):
-                return {"code": 0, "data": {"user": {"id": "admin"}}}
-            if url.endswith("/auth/getapp"):
-                return {"code": 0, "data": {"App": {"DefaultViewId": 200}}}
-            if url.endswith("/auth/getmain"):
-                return {"code": 0, "data": {"App": {"DefaultViewId": 200}, "TopMenu": [{"AuthNo": "0101"}]}}
-            if url.endswith("/auth/getsubmenu"):
-                return {"code": 0, "data": {"Items": [{}]}}
-            if url.endswith("/view/getlistview"):
-                return {"code": 0, "data": {
-                    "DetailViewId": 202,
-                    "Items": [{"PropertyName": "recordId"}],
-                    "Operations": [{"Name": "\u5220\u9664"}, {"Name": "\u4fdd\u5b58"}],
-                }}
-            if url.endswith("/view/getreaditemview"):
-                return {"code": 0, "data": {"DetailViews": [{"Items": [{"PrpId": "recordId"}]}]}}
-            if url.endswith("/data/initnew"):
-                return {"code": 0, "data": {"Data": {"SimpleData": [{"PrpId": "recordId"}]}}}
-            return {"code": 0, "data": None}
+            return self.runtime_default_post_response(url, payload) or {"code": 0, "data": None}
 
         try:
             runtime_doctor.get_json = fake_get_json
@@ -678,33 +694,7 @@ class RuntimeDoctorTest(unittest.TestCase):
 
         def fake_post_json(url: str, payload: object, _timeout: float) -> dict[str, object]:
             calls.append((url, payload))
-            if url.endswith("/auth/initapp"):
-                return {"code": 0, "data": {"Dbs": [{}], "CheckCode": {"Key": "k", "Code": "c"}}}
-            if url.endswith("/auth/getcheckcode"):
-                return {"code": 0, "data": {"Key": "k", "Code": "c"}}
-            if url.endswith("/auth/checkcode"):
-                return {"code": 0, "data": True}
-            if url.endswith("/auth/loginv2"):
-                return {"code": 0, "data": {"LoginSucess": True, "Token": "t"}}
-            if url.endswith("/auth/getuserinfo"):
-                return {"code": 0, "data": {"user": {"id": "admin"}}}
-            if url.endswith("/auth/getapp"):
-                return {"code": 0, "data": {"App": {"DefaultViewId": 200}}}
-            if url.endswith("/auth/getmain"):
-                return {"code": 0, "data": {"App": {"DefaultViewId": 200}, "TopMenu": [{"AuthNo": "0101"}]}}
-            if url.endswith("/auth/getsubmenu"):
-                return {"code": 0, "data": {"Items": [{}]}}
-            if url.endswith("/view/getlistview"):
-                return {"code": 0, "data": {
-                    "DetailViewId": 202,
-                    "Items": [{"PropertyName": "recordId"}],
-                    "Operations": [{"Name": "\u5220\u9664"}, {"Name": "\u4fdd\u5b58"}],
-                }}
-            if url.endswith("/data/querydata"):
-                return {"code": 0, "data": {"Data": [{"Items": [{"PrpId": "recordId", "ObjId": "9001"}]}]}}
-            if url.endswith("/data/querydatadetail"):
-                return {"code": 0, "data": {"Data": {"SimpleData": [{"PrpId": "recordId"}]}}}
-            return {"code": 0, "data": None}
+            return self.runtime_default_post_response(url, payload) or {"code": 0, "data": None}
 
         try:
             runtime_doctor.get_json = fake_get_json
@@ -738,44 +728,7 @@ class RuntimeDoctorTest(unittest.TestCase):
 
         def fake_post_json(url: str, payload: object, _timeout: float) -> dict[str, object]:
             calls.append((url, payload))
-            if url.endswith("/auth/initapp"):
-                return {"code": 0, "data": {"Dbs": [{}], "CheckCode": {"Key": "k", "Code": "c"}}}
-            if url.endswith("/auth/getcheckcode"):
-                return {"code": 0, "data": {"Key": "k", "Code": "c"}}
-            if url.endswith("/auth/checkcode"):
-                return {"code": 0, "data": True}
-            if url.endswith("/auth/loginv2"):
-                return {"code": 0, "data": {"LoginSucess": True, "Token": "t"}}
-            if url.endswith("/auth/getuserinfo"):
-                return {"code": 0, "data": {"user": {"id": "admin"}}}
-            if url.endswith("/auth/getapp"):
-                return {"code": 0, "data": {"App": {"DefaultViewId": 200}}}
-            if url.endswith("/auth/getmain"):
-                return {"code": 0, "data": {"App": {"DefaultViewId": 200}, "TopMenu": [{"AuthNo": "0101"}]}}
-            if url.endswith("/auth/getsubmenu"):
-                return {"code": 0, "data": {"Items": [{}]}}
-            if url.endswith("/view/getlistview"):
-                return {"code": 0, "data": {
-                    "DetailViewId": 202,
-                    "Items": [{"PropertyName": "recordId"}],
-                    "Operations": [{"Name": "\u5220\u9664"}, {"Name": "\u4fdd\u5b58"}],
-                }}
-            if url.endswith("/data/querydata"):
-                return {"code": 0, "data": {"Data": [{"Items": [{"PrpId": "recordId", "ObjId": "9001"}]}]}}
-            if url.endswith("/data/querydatadetail"):
-                return {"code": 0, "data": {"Data": {"SimpleData": [{"PrpId": "recordId"}]}}}
-            if url.endswith("/view/getreaditemview"):
-                return {"code": 0, "data": {"DetailViews": [{"Items": [{"PrpId": "itemId"}]}]}}
-            if url.endswith("/data/initnew"):
-                return {"code": 0, "data": {"Data": {"SimpleData": [
-                    {"PrpId": "orderId", "PrpType": "Long", "ReadOnly": True},
-                    {"PrpId": "symbol", "PrpType": "String", "ReadOnly": False},
-                    {"PrpId": "customer", "PrpType": "BusinessObject", "ReadOnly": False},
-                    {"PrpId": "state", "PrpType": "Enum", "ReadOnly": False},
-                ]}}}
-            if url.endswith("/data/savenewobj"):
-                return {"code": 0, "data": None}
-            return {"code": 0, "data": None}
+            return self.runtime_default_post_response(url, payload) or {"code": 0, "data": None}
 
         try:
             runtime_doctor.get_json = fake_get_json
@@ -825,42 +778,11 @@ class RuntimeDoctorTest(unittest.TestCase):
 
         def fake_post_json(url: str, payload: object, _timeout: float) -> dict[str, object]:
             calls.append((url, payload))
-            suffixes: dict[str, dict[str, object]] = {
-                "/auth/initapp": {"code": 0, "data": {"Dbs": [{}], "CheckCode": {"Key": "k", "Code": "c"}}},
-                "/auth/getcheckcode": {"code": 0, "data": {"Key": "k", "Code": "c"}},
-                "/auth/checkcode": {"code": 0, "data": True},
-                "/auth/loginv2": {"code": 0, "data": {"LoginSucess": True, "Token": "t"}},
-                "/auth/getuserinfo": {"code": 0, "data": {"user": {"id": "admin"}}},
-                "/auth/getapp": {"code": 0, "data": {"App": {"DefaultViewId": 200}}},
-                "/auth/getmain": {"code": 0, "data": {"App": {"DefaultViewId": 200}, "TopMenu": [{"AuthNo": "0101"}]}},
-                "/auth/getsubmenu": {"code": 0, "data": {"Items": [{}]}},
-                "/view/getreaditemview": {"code": 0, "data": {"DetailViews": [{"Items": [{"PrpId": "itemId"}]}]}},
-                "/data/savenewobj": {"code": 0, "data": None},
-                "/data/saveobj": {"code": 0, "data": None},
-            }
-            for suffix, response in suffixes.items():
-                if url.endswith(suffix):
-                    return response
-            if url.endswith("/view/getlistview"):
-                return {"code": 0, "data": {
-                    "DetailViewId": 202,
-                    "Items": [{"PropertyName": "recordId"}],
-                    "Operations": [{"Name": "\u5220\u9664"}, {"Name": "\u4fdd\u5b58"}],
-                }}
-            if url.endswith("/data/querydata"):
-                return {"code": 0, "data": {"Data": [{"Items": [{"PrpId": "recordId", "ObjId": "9001"}]}]}}
-            if url.endswith("/data/initnew"):
-                return {"code": 0, "data": {"Data": {"SimpleData": [
-                    {"PrpId": "orderId", "PrpType": "Long", "ReadOnly": True},
-                    {"PrpId": "symbol", "PrpType": "String", "ReadOnly": False},
-                    {"PrpId": "customer", "PrpType": "BusinessObject", "ReadOnly": False},
-                    {"PrpId": "state", "PrpType": "Enum", "ReadOnly": False},
-                ]}}}
             if url.endswith("/data/querydatadetail"):
                 return {"code": 0, "data": {"Data": {"SimpleData": [
                     {"PrpId": "symbol", "FmtValue": "RUNTIME-989903-UPDATE"},
                 ]}}}
-            return {"code": 0, "data": None}
+            return self.runtime_default_post_response(url, payload) or {"code": 0, "data": None}
 
         try:
             runtime_doctor.get_json = fake_get_json
@@ -907,42 +829,6 @@ class RuntimeDoctorTest(unittest.TestCase):
 
         def fake_post_json(url: str, payload: object, _timeout: float) -> dict[str, object]:
             calls.append((url, payload))
-            suffixes: dict[str, dict[str, object]] = {
-                "/auth/initapp": {"code": 0, "data": {"Dbs": [{}], "CheckCode": {"Key": "k", "Code": "c"}}},
-                "/auth/getcheckcode": {"code": 0, "data": {"Key": "k", "Code": "c"}},
-                "/auth/checkcode": {"code": 0, "data": True},
-                "/auth/loginv2": {"code": 0, "data": {"LoginSucess": True, "Token": "t"}},
-                "/auth/getuserinfo": {"code": 0, "data": {"user": {"id": "admin"}}},
-                "/auth/getapp": {"code": 0, "data": {"App": {"DefaultViewId": 200}}},
-                "/auth/getmain": {"code": 0, "data": {"App": {"DefaultViewId": 200}, "TopMenu": [{"AuthNo": "0101"}]}},
-                "/auth/getsubmenu": {"code": 0, "data": {"Items": [{}]}},
-                "/view/getreaditemview": {"code": 0, "data": {"DetailViews": [{"Items": [{"PrpId": "itemId"}]}]}},
-                "/data/savenewobj": {"code": 0, "data": None},
-                "/data/saveobj": {"code": 0, "data": None},
-            }
-            for suffix, response in suffixes.items():
-                if url.endswith(suffix):
-                    return response
-            if url.endswith("/view/getlistview"):
-                return {"code": 0, "data": {
-                    "DetailViewId": 202,
-                    "Items": [{"PropertyName": "recordId"}],
-                    "Operations": [{"Name": "\u5220\u9664"}, {"Name": "\u4fdd\u5b58"}],
-                }}
-            if url.endswith("/data/querydata"):
-                return {"code": 0, "data": {"Data": [{"Items": [{"PrpId": "recordId", "ObjId": "9001"}]}]}}
-            if url.endswith("/data/initnew"):
-                return {"code": 0, "data": {"Data": {"SimpleData": [
-                    {"PrpId": "orderId", "PrpType": "Long", "ReadOnly": True},
-                    {"PrpId": "symbol", "PrpType": "String", "ReadOnly": False},
-                    {"PrpId": "state", "PrpType": "Enum", "ReadOnly": False},
-                ], "Items": [{
-                    "PrpId": "items",
-                    "Properties": [
-                        {"PrpId": "itemId", "ReadOnly": True},
-                        {"PrpId": "itemName", "ReadOnly": True},
-                    ],
-                }]}}}
             if url.endswith("/data/querydatadetail"):
                 return {"code": 0, "data": {"Data": {"SimpleData": [
                     {"PrpId": "symbol", "FmtValue": "RUNTIME-989904"},
@@ -953,7 +839,7 @@ class RuntimeDoctorTest(unittest.TestCase):
                         "Values": [{"PrpId": "itemName", "FmtValue": "Runtime child"}],
                     }],
                 }]}}}
-            return {"code": 0, "data": None}
+            return self.runtime_default_post_response(url, payload) or {"code": 0, "data": None}
 
         try:
             runtime_doctor.get_json = fake_get_json
@@ -1022,41 +908,6 @@ class RuntimeDoctorTest(unittest.TestCase):
 
         def fake_post_json(url: str, payload: object, _timeout: float) -> dict[str, object]:
             calls.append((url, payload))
-            suffixes: dict[str, dict[str, object]] = {
-                "/auth/initapp": {"code": 0, "data": {"Dbs": [{}], "CheckCode": {"Key": "k", "Code": "c"}}},
-                "/auth/getcheckcode": {"code": 0, "data": {"Key": "k", "Code": "c"}},
-                "/auth/checkcode": {"code": 0, "data": True},
-                "/auth/loginv2": {"code": 0, "data": {"LoginSucess": True, "Token": "t"}},
-                "/auth/getuserinfo": {"code": 0, "data": {"user": {"id": "admin"}}},
-                "/auth/getapp": {"code": 0, "data": {"App": {"DefaultViewId": 200}}},
-                "/auth/getmain": {"code": 0, "data": {"App": {"DefaultViewId": 200}, "TopMenu": [{"AuthNo": "0101"}]}},
-                "/auth/getsubmenu": {"code": 0, "data": {"Items": [{}]}},
-                "/view/getreaditemview": {"code": 0, "data": {"DetailViews": [{"Items": [{"PrpId": "itemId"}]}]}},
-                "/data/savenewobj": {"code": 0, "data": None},
-            }
-            for suffix, response in suffixes.items():
-                if url.endswith(suffix):
-                    return response
-            if url.endswith("/view/getlistview"):
-                return {"code": 0, "data": {
-                    "DetailViewId": 202,
-                    "Items": [{"PropertyName": "recordId"}],
-                    "Operations": [{"Name": "\u5220\u9664"}, {"Name": "\u4fdd\u5b58"}],
-                }}
-            if url.endswith("/data/querydata"):
-                return {"code": 0, "data": {"Data": [{"Items": [{"PrpId": "recordId", "ObjId": "9001"}]}]}}
-            if url.endswith("/data/initnew"):
-                return {"code": 0, "data": {"Data": {"SimpleData": [
-                    {"PrpId": "orderId", "PrpType": "Long", "ReadOnly": True},
-                    {"PrpId": "symbol", "PrpType": "String", "ReadOnly": False},
-                    {"PrpId": "state", "PrpType": "Enum", "ReadOnly": False},
-                ], "Items": [{
-                    "PrpId": "items",
-                    "Properties": [
-                        {"PrpId": "itemId", "ReadOnly": True},
-                        {"PrpId": "itemName", "ReadOnly": True},
-                    ],
-                }]}}}
             if url.endswith("/data/saveobj") and isinstance(payload, dict):
                 save_obj = payload.get("SaveObj") if isinstance(payload.get("SaveObj"), dict) else {}
                 object_id = str(save_obj.get("Id") or "")
@@ -1073,7 +924,7 @@ class RuntimeDoctorTest(unittest.TestCase):
                 return {"code": 0, "data": None}
             if url.endswith("/data/querydatadetail") and isinstance(payload, dict):
                 return child_payload(str(payload.get("ObjId") or ""))
-            return {"code": 0, "data": None}
+            return self.runtime_default_post_response(url, payload) or {"code": 0, "data": None}
 
         try:
             runtime_doctor.get_json = fake_get_json
