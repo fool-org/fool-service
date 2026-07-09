@@ -99,6 +99,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: extracted the Vue View-first detail and child-collection panel
+  into `ViewDetailPanel.vue`, keeping `App.vue` focused on workflow state and
+  actions while preserving the existing metadata-driven detail, lookup,
+  operation, and child-row save paths.
 - 2026-07-09: legacy trigger `ExuteListMethod` now keeps FoolFrame's dynamic
   binder no-op behavior when the target list object does not expose the named
   method, while still invoking real Java list methods when present.

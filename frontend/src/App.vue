@@ -20,6 +20,7 @@ import {
   type QueryDataDetailResult,
   type QueryDataDetailDataItem,
   type QueryDataDetailItemGroup,
+  type ListDataValue,
   type ListDataItem,
   type ListViewInfo,
   type ListViewResult,
@@ -33,9 +34,9 @@ import {
   postApi
 } from "./api";
 import ListDataTable from "./ListDataTable.vue";
-import MetadataFieldEditor from "./MetadataFieldEditor.vue";
 import MigrationMap from "./MigrationMap.vue";
 import ResultsPanel from "./ResultsPanel.vue";
+import ViewDetailPanel from "./ViewDetailPanel.vue";
 import { useChildCandidates } from "./useChildCandidates";
 import { useChildDrafts } from "./useChildDrafts";
 import { useFieldEnums } from "./useFieldEnums";
@@ -62,14 +63,10 @@ import {
   fieldTitle,
   groupKey,
   groupColumns,
-  groupItems,
-  groupSelectFromExists,
-  groupTitle,
   inputQueryItemId,
   inputQueryItemText,
   itemDataId,
   itemKey,
-  itemValue,
   legacyAppDefaultViewId,
   legacyAuthIndex,
   legacyAuthNo,
@@ -99,7 +96,7 @@ import {
   listRows,
   listTotalItems,
   listTotalPages,
-  operationId as operationInfoId, operationKey, operationLabel, operationParamKey, operationParamLabel, operationParams, operationTargetViewId,
+  operationId as operationInfoId, operationKey, operationLabel, operationTargetViewId,
   reportGridCells,
   reportModelColumnId,
   reportModelColumnName,
@@ -138,7 +135,6 @@ import {
 } from "./payload";
 
 const token = ref(localStorage.getItem("fool-service-token") || "");
-const noRowOperations: OperationInfo[] = [];
 const userId = ref("admin");
 const password = ref("admin");
 const legacyAppId = ref("fool-service");
@@ -306,6 +302,10 @@ const fieldEditorContext = computed(() => ({
   token: token.value,
   viewId: Number(detailViewId.value)
 }));
+
+function fieldEnumOptions(field: ListDataValue) {
+  return enumFieldOptions(enumOptions.value, field);
+}
 
 const reportRows = computed(() => reportRowsFromCells(reportGridCells(reportResponse.value?.data)));
 const responseDump = computed(() =>
@@ -1108,149 +1108,37 @@ function syncDetailDrafts() {
           </div>
         </article>
 
-        <article class="panel view-detail-panel">
-          <div class="panel-heading">
-            <h2>Detail</h2>
-            <span>{{ selectedObjectId || "No row selected" }}</span>
-          </div>
-
-          <div v-if="viewCanEdit" class="view-edit-grid">
-            <label v-for="field in detailRows" :key="fieldKey(field)">
-              {{ fieldTitle(field) }}
-              <MetadataFieldEditor
-                v-model="detailDrafts[fieldKey(field)]"
-                :field="field"
-                :options="enumFieldOptions(enumOptions, field)"
-                :readonly-value="fieldDisplayValue(field)"
-                v-bind="fieldEditorContext"
-              />
-            </label>
-            <button class="primary" type="button" :disabled="Boolean(pendingAction)" @click="saveSelectedObject">
-              {{ isCreatingObject ? "Create Row" : "Save Row" }}
-            </button>
-          </div>
-          <div v-else class="empty-state compact">Select a row from the list.</div>
-
-          <div class="detail-fields">
-            <div v-for="item in detailRows" :key="fieldKey(item)">
-              <span>{{ fieldTitle(item) }}</span>
-              <strong>{{ fieldDisplayValue(item) }}</strong>
-            </div>
-          </div>
-
-          <div v-if="selectedObject && !isCreatingObject && detailViewOperations.length" class="view-operations">
-            <h3>View Operations</h3>
-            <div class="button-row">
-              <button v-for="operation in detailViewOperations" :key="operationKey(operation)" type="button" :disabled="Boolean(pendingAction)" @click="runViewOperation(operation)">
-                {{ operationLabel(operation) }}
-              </button>
-            </div>
-            <div v-for="operation in detailViewOperations" :key="`params-${operationKey(operation)}`">
-              <span
-                v-for="(param, index) in operationParams(operation)"
-                :key="operationParamKey(param, index)"
-                class="operation-param"
-              >
-                {{ operationParamLabel(param) }}
-              </span>
-            </div>
-          </div>
-
-          <div v-if="selectedObject && !isCreatingObject" class="view-items-panel">
-            <div v-if="detailItemGroups.length" class="detail-fields">
-              <template v-for="group in detailItemGroups" :key="groupKey(group)">
-                <div>
-                  <span>{{ groupTitle(group) }}</span>
-                  <strong>{{ groupItems(group).length }} rows</strong>
-                </div>
-                <div class="item-add-row">
-                  <label v-for="field in groupColumns(group)" :key="fieldKey(field)">
-                    {{ fieldTitle(field) }}
-                    <MetadataFieldEditor
-                      :model-value="newChildDraftValue(group, field)"
-                      :field="field"
-                      :options="enumFieldOptions(enumOptions, field)"
-                      v-bind="fieldEditorContext"
-                      :is-added="true"
-                      :object-id="''"
-                      :owner-id="selectedObjectId"
-                      @update:model-value="(value) => setNewChildDraftValue(group, field, value)"
-                    />
-                  </label>
-                  <button type="button" :disabled="Boolean(pendingAction)" @click="addDetailItem(group)">Add</button>
-                </div>
-                <div v-if="groupSelectFromExists(group)" class="table-wrap">
-                  <div class="inline-fields">
-                    <label>
-                      Search
-                      <input :value="candidateState(group).keyword" @input="updateCandidateKeyword(group, $event)" />
-                    </label>
-                    <label>
-                      Page
-                      <input min="1" type="number" :value="candidateState(group).pageIndex" @input="updateCandidatePage(group, $event)" />
-                    </label>
-                    <label>
-                      Page size
-                      <input min="1" type="number" :value="candidateState(group).pageSize" @input="updateCandidatePageSize(group, $event)" />
-                    </label>
-                    <button type="button" :disabled="Boolean(pendingAction)" @click="loadExistingDetailItems(group)">
-                      Load Existing
-                    </button>
-                  </div>
-                  <div v-if="candidateRows(group).length || candidateState(group).totalPage" class="button-row">
-                    <button type="button" :disabled="Boolean(pendingAction) || candidateState(group).pageIndex <= 1" @click="loadCandidatePage(group, candidateState(group).pageIndex - 1)">
-                      Previous
-                    </button>
-                    <span>
-                      Page {{ candidateState(group).pageIndex }} / {{ candidateState(group).totalPage || 1 }}
-                    </span>
-                    <button type="button" :disabled="Boolean(pendingAction) || candidateState(group).totalPage === 0 || candidateState(group).pageIndex >= candidateState(group).totalPage" @click="loadCandidatePage(group, candidateState(group).pageIndex + 1)">
-                      Next
-                    </button>
-                  </div>
-                  <ListDataTable
-                    v-if="candidateRows(group).length"
-                    :columns="candidateColumns(group)"
-                    default-action-label="Select"
-                    :disabled="Boolean(pendingAction)"
-                    :row-operations="noRowOperations"
-                    :rows="candidateRows(group)"
-                    selected-object-id=""
-                    @select="(row) => addExistingDetailItem(group, row)"
-                  />
-                </div>
-                <div
-                  v-for="item in groupItems(group)"
-                  :key="itemKey(group, item)"
-                  class="detail-item-row"
-                >
-                  <span>{{ itemDataId(item) }}</span>
-                  <label v-for="field in groupColumns(group)" :key="fieldKey(field)">
-                    {{ fieldTitle(field) }}
-                    <MetadataFieldEditor
-                      :model-value="childDraftValue(group, item, field)"
-                      :field="field"
-                      :options="enumFieldOptions(enumOptions, field)"
-                      :readonly-value="itemValue(item, field)"
-                      v-bind="fieldEditorContext"
-                      :is-added="false"
-                      :object-id="itemDataId(item)"
-                      :owner-id="selectedObjectId"
-                      @update:model-value="(value) => setChildDraftValue(group, item, field, value)"
-                    />
-                  </label>
-                  <button type="button" :disabled="Boolean(pendingAction)" @click="updateDetailItem(group, item)">
-                    Save
-                  </button>
-                  <button type="button" :disabled="Boolean(pendingAction)" @click="deleteDetailItem(group, item)">
-                    Delete
-                  </button>
-                </div>
-              </template>
-            </div>
-            <div v-else class="empty-state compact">No child rows loaded.</div>
-          </div>
-        </article>
+        <ViewDetailPanel
+          :candidate-columns="candidateColumns"
+          :candidate-rows="candidateRows"
+          :candidate-state="candidateState"
+          :child-draft-value="childDraftValue"
+          :detail-drafts="detailDrafts"
+          :detail-item-groups="detailItemGroups"
+          :detail-rows="detailRows"
+          :detail-view-operations="detailViewOperations"
+          :enum-field-options="fieldEnumOptions"
+          :field-editor-context="fieldEditorContext"
+          :is-creating-object="isCreatingObject"
+          :new-child-draft-value="newChildDraftValue"
+          :pending="Boolean(pendingAction)"
+          :selected-object-id="selectedObjectId"
+          :view-can-edit="viewCanEdit"
+          @add-detail-item="addDetailItem"
+          @add-existing-detail-item="addExistingDetailItem"
+          @delete-detail-item="deleteDetailItem"
+          @load-candidate-page="loadCandidatePage"
+          @load-existing-detail-items="loadExistingDetailItems"
+          @run-view-operation="runViewOperation"
+          @save-selected-object="saveSelectedObject"
+          @set-child-draft-value="setChildDraftValue"
+          @set-new-child-draft-value="setNewChildDraftValue"
+          @update-candidate-keyword="updateCandidateKeyword"
+          @update-candidate-page="updateCandidatePage"
+          @update-candidate-page-size="updateCandidatePageSize"
+          @update-detail-draft="(key, value) => detailDrafts[key] = value"
+          @update-detail-item="updateDetailItem"
+        />
       </section>
 
       <section v-if="activeSection === 'tools'" class="grid auth-grid" aria-labelledby="auth-heading">

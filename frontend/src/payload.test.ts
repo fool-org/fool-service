@@ -7,6 +7,7 @@ import listDataTableSource from "./ListDataTable.vue?raw";
 import metadataFieldEditorSource from "./MetadataFieldEditor.vue?raw";
 import payloadSource from "./payload.ts?raw";
 import resultsPanelSource from "./ResultsPanel.vue?raw";
+import viewDetailPanelSource from "./ViewDetailPanel.vue?raw";
 import viewShellSource from "./viewShell.ts?raw";
 import viewDataWorkflowSource from "./useViewDataWorkflow.ts?raw";
 import viewWorkflowSource from "./viewWorkflow.ts?raw";
@@ -37,8 +38,8 @@ describe("App defaults", () => {
     expect(appSource).toContain("useViewDataWorkflow");
     expect(appSource).toContain('v-model.number="legacyListViewId"');
     expect(appSource).toContain("New Row");
-    expect(appSource).toContain("Create Row");
-    expect(appSource).toContain("Save Row");
+    expect(viewDetailPanelSource).toContain("Create Row");
+    expect(viewDetailPanelSource).toContain("Save Row");
     expect(appSource).toContain("async function selectObject");
     expect(appSource).toContain("async function startNewObject");
     expect(appSource).toContain("async function addDetailItem");
@@ -51,8 +52,8 @@ describe("App defaults", () => {
   });
 
   it("routes every view row table through the shared metadata renderer", () => {
-    expect(appSource).toContain("const noRowOperations");
-    expect(appSource).toContain('default-action-label="Select"');
+    expect(viewDetailPanelSource).toContain(':row-operations="[]"');
+    expect(viewDetailPanelSource).toContain('default-action-label="Select"');
     expect(resultsPanelSource).toContain(':show-default-action="false"');
     expect(appSource).not.toContain("rowValue(row, column)");
     expect(listDataTableSource).toContain("defaultActionLabel");
@@ -70,15 +71,15 @@ describe("App defaults", () => {
   });
 
   it("renders detail View operations from the loaded detail payload", () => {
-    expect(appSource).toContain("View Operations");
+    expect(viewDetailPanelSource).toContain("View Operations");
     expect(appSource).toContain("dataOperations(detailResponse.value?.data)");
     expect(appSource).toContain("detailViewOperations");
-    expect(appSource).toContain("runViewOperation(operation)");
-    expect(appSource).toContain("operationParams(operation)");
-    expect(appSource).toContain("operationParamKey(param, index)");
-    expect(appSource).toContain("operationParamLabel(param)");
-    expect(appSource).not.toContain("operation.params");
-    expect(appSource).not.toContain("param.paramName");
+    expect(appSource).toContain('@run-view-operation="runViewOperation"');
+    expect(viewDetailPanelSource).toContain("operationParams(operation)");
+    expect(viewDetailPanelSource).toContain("operationParamKey(param, index)");
+    expect(viewDetailPanelSource).toContain("operationParamLabel(param)");
+    expect(viewDetailPanelSource).not.toContain("operation.params");
+    expect(viewDetailPanelSource).not.toContain("param.paramName");
   });
 
   it("renders row operations through their target detail View id", () => {
@@ -167,18 +168,18 @@ describe("App defaults", () => {
   });
 
   it("renders select-existing child controls through the shared group helper", () => {
-    expect(appSource).toContain("groupSelectFromExists(group)");
-    expect(appSource).not.toContain("group.selectFromExists");
+    expect(viewDetailPanelSource).toContain("groupSelectFromExists(group)");
+    expect(viewDetailPanelSource).not.toContain("group.selectFromExists");
   });
 
   it("renders child group labels and rows through shared group helpers", () => {
-    expect(appSource).toContain("groupTitle(group)");
-    expect(appSource).toContain("groupItems(group).length");
-    expect(appSource).toContain("v-for=\"item in groupItems(group)\"");
-    expect(appSource).toContain("itemDataId(item)");
-    expect(appSource).not.toContain("group.itemName");
-    expect(appSource).not.toContain("group.items");
-    expect(appSource).not.toContain("item.dataId");
+    expect(viewDetailPanelSource).toContain("groupTitle(group)");
+    expect(viewDetailPanelSource).toContain("groupItems(group).length");
+    expect(viewDetailPanelSource).toContain("v-for=\"item in groupItems(group)\"");
+    expect(viewDetailPanelSource).toContain("itemDataId(item)");
+    expect(viewDetailPanelSource).not.toContain("group.itemName");
+    expect(viewDetailPanelSource).not.toContain("group.items");
+    expect(viewDetailPanelSource).not.toContain("item.dataId");
   });
 
   it("refreshes the main View workflow from legacy AutoFreshTime", () => {
@@ -197,9 +198,9 @@ describe("App defaults", () => {
 
   it("passes parent context into child lookup editors", () => {
     expect(metadataFieldEditorSource).toContain("ownerId: props.ownerId");
-    expect(appSource).toContain(':owner-id="selectedObjectId"');
-    expect(appSource).toContain(':is-added="true"');
-    expect(appSource).toContain(':object-id="itemDataId(item)"');
+    expect(viewDetailPanelSource).toContain(':owner-id="selectedObjectId"');
+    expect(viewDetailPanelSource).toContain(':is-added="true"');
+    expect(viewDetailPanelSource).toContain(':object-id="itemDataId(item)"');
   });
 
   it("renders native metadata inputs for field-specific widgets", () => {

@@ -567,6 +567,9 @@ explicitly named as authoritative for fool-service.
       `ExuteListMethod` list methods while keeping real Java list invocation.
 - [x] Remove stale WCF/JSON base-operation wording from remaining migration
       work after rechecking the current no-op runtime/test evidence.
+- [x] Extract the Vue View-first detail and child-collection panel into a
+      reusable component so `App.vue` stays under the repo line budget while
+      preserving metadata-driven save, lookup, operation, and child-row flows.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
