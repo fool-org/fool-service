@@ -6,6 +6,7 @@ import org.fool.framework.model.model.DbMysqlDynamic;
 import org.fool.framework.model.model.Property;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Locale;
 
@@ -97,7 +98,7 @@ public class OperationCommandValueResolver {
             case Boolean -> Boolean.valueOf(value);
             case Byte -> Byte.valueOf(value);
             case Char -> value.charAt(0);
-            case DateTime -> LocalDateTime.parse(value.replace(' ', 'T'));
+            case DateTime -> dateTimeValue(value);
             case Int, UInt -> Integer.valueOf(value);
             case Long, ULong, IdentifyId -> Long.valueOf(value);
             case Decimal -> new BigDecimal(value);
@@ -107,5 +108,12 @@ public class OperationCommandValueResolver {
                     : businessObjectLoader.load(property, value);
             default -> value;
         };
+    }
+
+    private LocalDateTime dateTimeValue(String value) {
+        String normalized = value.replace(' ', 'T');
+        return normalized.length() == 10
+                ? LocalDate.parse(normalized).atStartOfDay()
+                : LocalDateTime.parse(normalized);
     }
 }

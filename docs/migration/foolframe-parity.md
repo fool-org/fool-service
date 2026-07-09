@@ -120,6 +120,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `OperationCommandValueResolver`. This matches the existing default-value and
   DDL mapping for identify/id fields instead of leaving `$...` command values
   as strings.
+- 2026-07-09: legacy static command values for `PropertyType.DateTime` now
+  accept date-only `$yyyy-MM-dd` expressions through the shared
+  `OperationCommandValueResolver`, mapping them to start-of-day
+  `LocalDateTime` values. This keeps runoperation and trigger command DateTime
+  handling aligned with FoolFrame `Convert.ToDateTime` while preserving the
+  existing full datetime parser.
 - 2026-07-09: legacy trigger command execution now covers
   `ExuteProprtyModelMethod` and `ExuteListMethod` in the shared
   `ModelDataService` trigger path. Model, property, and collection triggers

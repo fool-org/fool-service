@@ -6,7 +6,10 @@ import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
 import org.junit.Test;
 
+import java.time.LocalDateTime;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class OperationCommandValueResolverTest {
     @Test
@@ -64,5 +67,23 @@ public class OperationCommandValueResolverTest {
                 (targetProperty, raw) -> raw);
 
         assertEquals(Long.valueOf(1000L), value);
+    }
+
+    @Test
+    public void resolvesLegacyDateTimeStaticDateOnlyValues() {
+        Property property = new Property();
+        property.setPropertyType(PropertyType.DateTime);
+
+        try {
+            Object value = new OperationCommandValueResolver().resolve(
+                    property,
+                    null,
+                    "$2026-07-03",
+                    (targetProperty, raw) -> raw);
+
+            assertEquals(LocalDateTime.of(2026, 7, 3, 0, 0), value);
+        } catch (RuntimeException ex) {
+            fail("date-only DateTime static values should parse: " + ex.getMessage());
+        }
     }
 }

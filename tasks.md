@@ -18,6 +18,8 @@ explicitly named as authoritative for fool-service.
       the shared operation-command resolver.
 - [x] Preserve legacy IdentifyId static command values as Java `Long` through
       the shared operation-command resolver.
+- [x] Accept legacy date-only DateTime static command values through the shared
+      operation-command resolver.
 - [x] Recheck legacy `runoperation` model-trigger side effects against
       FoolFrame and remove the stale remaining-work item after focused
       runoperation/persistence trigger tests.
