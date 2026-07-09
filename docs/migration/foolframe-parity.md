@@ -100,6 +100,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 ## Recent Parity Increments
 
 - 2026-07-09: the Docker runtime doctor now proves legacy
+  `saveobj.Itemproperties[].Items[]` update and `DelteItems[]` delete through
+  the Vue proxy, reading the updated child value back and then confirming the
+  child row is absent after delete.
+- 2026-07-09: the Docker runtime doctor now proves legacy
   `saveobj.Itemproperties[].AddedItems[]` through the Vue proxy by creating a
   temporary parent row, adding a child row from loaded detail child metadata,
   reading the child value back through `querydatadetail`, and cleaning up.

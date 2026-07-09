@@ -994,6 +994,147 @@ class RuntimeDoctorTest(unittest.TestCase):
             calls,
         )
 
+    def test_api_checks_saveobj_items_and_delteitems_update_then_delete_child(self) -> None:
+        calls: list[tuple[str, object]] = []
+        cleanup_ids: list[str] = []
+        child_values: dict[str, str] = {}
+        original_get_json = runtime_doctor.get_json
+        original_post_json = runtime_doctor.post_json
+        original_cleanup = runtime_doctor.cleanup_runtime_smoke_order
+
+        def fake_get_json(_url: str, _timeout: float) -> object:
+            return []
+
+        def fake_cleanup(object_id: str) -> bool:
+            cleanup_ids.append(object_id)
+            child_values.pop(object_id, None)
+            return True
+
+        def child_payload(object_id: str) -> dict[str, object]:
+            value = child_values.get(object_id)
+            rows = [] if value is None else [{
+                "DataId": object_id,
+                "Values": [{"PrpId": "itemName", "FmtValue": value}],
+            }]
+            return {"code": 0, "data": {"Data": {"SimpleData": [
+                {"PrpId": "symbol", "FmtValue": f"RUNTIME-{object_id}"},
+            ], "Items": [{"PrpId": "items", "Items": rows}]}}}
+
+        def fake_post_json(url: str, payload: object, _timeout: float) -> dict[str, object]:
+            calls.append((url, payload))
+            suffixes: dict[str, dict[str, object]] = {
+                "/auth/initapp": {"code": 0, "data": {"Dbs": [{}], "CheckCode": {"Key": "k", "Code": "c"}}},
+                "/auth/getcheckcode": {"code": 0, "data": {"Key": "k", "Code": "c"}},
+                "/auth/checkcode": {"code": 0, "data": True},
+                "/auth/loginv2": {"code": 0, "data": {"LoginSucess": True, "Token": "t"}},
+                "/auth/getuserinfo": {"code": 0, "data": {"user": {"id": "admin"}}},
+                "/auth/getapp": {"code": 0, "data": {"App": {"DefaultViewId": 200}}},
+                "/auth/getmain": {"code": 0, "data": {"App": {"DefaultViewId": 200}, "TopMenu": [{"AuthNo": "0101"}]}},
+                "/auth/getsubmenu": {"code": 0, "data": {"Items": [{}]}},
+                "/view/getreaditemview": {"code": 0, "data": {"DetailViews": [{"Items": [{"PrpId": "itemId"}]}]}},
+                "/data/savenewobj": {"code": 0, "data": None},
+            }
+            for suffix, response in suffixes.items():
+                if url.endswith(suffix):
+                    return response
+            if url.endswith("/view/getlistview"):
+                return {"code": 0, "data": {
+                    "DetailViewId": 202,
+                    "Items": [{"PropertyName": "recordId"}],
+                    "Operations": [{"Name": "\u5220\u9664"}, {"Name": "\u4fdd\u5b58"}],
+                }}
+            if url.endswith("/data/querydata"):
+                return {"code": 0, "data": {"Data": [{"Items": [{"PrpId": "recordId", "ObjId": "9001"}]}]}}
+            if url.endswith("/data/initnew"):
+                return {"code": 0, "data": {"Data": {"SimpleData": [
+                    {"PrpId": "orderId", "PrpType": "Long", "ReadOnly": True},
+                    {"PrpId": "symbol", "PrpType": "String", "ReadOnly": False},
+                    {"PrpId": "state", "PrpType": "Enum", "ReadOnly": False},
+                ], "Items": [{
+                    "PrpId": "items",
+                    "Properties": [
+                        {"PrpId": "itemId", "ReadOnly": True},
+                        {"PrpId": "itemName", "ReadOnly": True},
+                    ],
+                }]}}}
+            if url.endswith("/data/saveobj") and isinstance(payload, dict):
+                save_obj = payload.get("SaveObj") if isinstance(payload.get("SaveObj"), dict) else {}
+                object_id = str(save_obj.get("Id") or "")
+                itemproperties = save_obj.get("Itemproperties")
+                if isinstance(itemproperties, list) and itemproperties:
+                    first = itemproperties[0]
+                    if isinstance(first, dict):
+                        if first.get("AddedItems"):
+                            child_values[object_id] = "Runtime child"
+                        if first.get("Items"):
+                            child_values[object_id] = "Runtime child updated"
+                        if first.get("DelteItems"):
+                            child_values.pop(object_id, None)
+                return {"code": 0, "data": None}
+            if url.endswith("/data/querydatadetail") and isinstance(payload, dict):
+                return child_payload(str(payload.get("ObjId") or ""))
+            return {"code": 0, "data": None}
+
+        try:
+            runtime_doctor.get_json = fake_get_json
+            runtime_doctor.post_json = fake_post_json
+            runtime_doctor.cleanup_runtime_smoke_order = fake_cleanup
+            results = api_checks("http://backend", "http://frontend", 1.0)
+        finally:
+            runtime_doctor.get_json = original_get_json
+            runtime_doctor.post_json = original_post_json
+            runtime_doctor.cleanup_runtime_smoke_order = original_cleanup
+
+        by_name = {result.name: result for result in results}
+        self.assertIn("data:saveobj-items-delete", by_name)
+        self.assertTrue(by_name["data:saveobj-items-delete"].ok)
+        self.assertIn("989905", cleanup_ids)
+        self.assertIn(
+            ("http://frontend/api/v1/data/saveobj", {
+                "SaveObj": {
+                    "Id": "989905",
+                    "ViewID": "202",
+                    "Propertyies": [
+                        {"Key": "symbol", "Value": "RUNTIME-989905"},
+                        {"Key": "state", "Value": "0"},
+                    ],
+                    "Itemproperties": [{
+                        "Key": "items",
+                        "Items": [{
+                            "ItemId": "989905",
+                            "IsExist": True,
+                            "Propertyies": [
+                                {"Key": "itemId", "Value": "989905"},
+                                {"Key": "itemName", "Value": "Runtime child updated"},
+                            ],
+                        }],
+                    }],
+                },
+            }),
+            calls,
+        )
+        self.assertIn(
+            ("http://frontend/api/v1/data/saveobj", {
+                "SaveObj": {
+                    "Id": "989905",
+                    "ViewID": "202",
+                    "Propertyies": [
+                        {"Key": "symbol", "Value": "RUNTIME-989905"},
+                        {"Key": "state", "Value": "0"},
+                    ],
+                    "Itemproperties": [{
+                        "Key": "items",
+                        "DelteItems": [{
+                            "ItemId": "989905",
+                            "IsExist": True,
+                            "Propertyies": [],
+                        }],
+                    }],
+                },
+            }),
+            calls,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
