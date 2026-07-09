@@ -99,6 +99,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: legacy runoperation now honors operation-level `ArgModel` /
+  `ArgFilter` by loading or creating the target model object, executing the
+  operation commands with the source row as the value source, and persisting
+  the target object. This matches FoolFrame `ObjectProxyClass.TryInvokeMember`
+  routing before falling back to direct source-object operation execution.
 - 2026-07-09: legacy `saveobj.Itemproperties[].Items[]` child updates now map
   to `SubItemList.UpdatedList`, while `AddedItems[]` and `DelteItems[]`
   continue to drive added and deleted state. This matches FoolFrame

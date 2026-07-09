@@ -531,6 +531,41 @@ public class DataQueryServiceRunOperationTest {
     }
 
     @Test
+    public void runLegacyOperationWithArgModelExecutesAgainstTargetModel() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        ViewDataService viewDataService = mock(ViewDataService.class);
+        DataQueryService service = service(daoService, modelDataService, viewDataService);
+        Model model = model();
+        Model shipmentModel = shipmentModel();
+        ViewOperation operation = operationWithCommand(7007L, OperationBaseType.UPDATE, "保存成功",
+                command(CommandsType.SET_VALUE, 2002L, ".symbol", 1));
+        operation.getOperation().setArgModelId(200L);
+        operation.getOperation().setArgFilter(".customer");
+        View view = view(operation);
+        DbMysqlDynamic data = new DbMysqlDynamic(model);
+        data.set("orderId", "1001");
+        data.set("symbol", "BTC-USDT");
+        data.set("customer", "S001");
+        DbMysqlDynamic shipment = new DbMysqlDynamic(shipmentModel);
+        shipment.set("shipmentId", "S001");
+        shipment.set("status", "pending");
+        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(modelDataService.getModel("Order")).thenReturn(model);
+        when(modelDataService.getModel("200")).thenReturn(shipmentModel);
+        when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
+        when(modelDataService.getOneData("Shipment", "S001")).thenReturn(shipment);
+        when(modelDataService.saveData(shipment)).thenReturn(true);
+
+        LegacyRunOperationResult result = service.runLegacyOperation(request("1001", 100L, 7007L));
+
+        assertTrue(result.isSuccess());
+        assertEquals("BTC-USDT", shipment.get("status"));
+        verify(modelDataService).saveData(shipment);
+        verify(modelDataService, never()).saveData(data);
+    }
+
+    @Test
     public void runLegacyOperationReturnsLegacyErrorMessageWhenExecutionFails() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);

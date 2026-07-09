@@ -38,6 +38,9 @@ explicitly named as authoritative for fool-service.
       slices through the shared `ModelDataService` trigger path.
 - [x] Execute legacy trigger external-model update/map command checks through
       the shared `ModelDataService` trigger path.
+- [x] Execute legacy runoperation `ArgModel` operations against the target
+      model selected by `ArgFilter`, matching FoolFrame object operation invoke
+      behavior without binding to concrete DTOs.
 - [x] Execute legacy model-trigger assembly handlers through the shared Java
       classpath assembly invoker with trigger constructor/parameter commands.
 - [x] Execute legacy property and collection trigger assembly handlers through

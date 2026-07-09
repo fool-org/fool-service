@@ -372,34 +372,39 @@ public class DataQueryService {
         if (operation == null || operation.getOperation() == null) {
             return result;
         }
-        OperationBaseType operationType = operation.getOperation().getBaseOperationType();
+        Operation legacyOperation = operation.getOperation();
+        OperationBaseType operationType = legacyOperation.getBaseOperationType();
         IDynamicData data = modelDataService.getOneData(view.getViewModel(), request.getObjectId());
         boolean success;
         try {
-            OperationCommandValues commandValues = applyOperationCommands(
-                    operation.getOperation(), model, data, data, request.getToken());
-            if (operationType == OperationBaseType.DELETE) {
-                success = Boolean.TRUE.equals(modelDataService.deleteData(data));
-            } else if (operationType == OperationBaseType.UPDATE) {
-                success = Boolean.TRUE.equals(modelDataService.saveData(data));
-            } else if (operationType == OperationBaseType.CREATE) {
-                success = Boolean.TRUE.equals(modelDataService.createData(data));
-            } else if (operationType == OperationBaseType.ASSEBMLY) {
-                LegacyAssemblyInvoker.invoke(
-                        operation.getOperation().getInvokeClass(),
-                        operation.getOperation().getInvokeMethod(),
-                        data,
-                        commandValues.constructorValues,
-                        commandValues.params);
-                success = true;
-            } else if (operationType == OperationBaseType.NULL) {
-                success = true;
-            } else if (operationType == OperationBaseType.WCF
-                    || operationType == OperationBaseType.JSONPOST
-                    || operationType == OperationBaseType.JSONGET) {
-                success = true;
+            if (legacyOperation.getArgModelId() != null) {
+                success = executeArgModelOperation(legacyOperation, data, request.getToken());
             } else {
-                return result;
+                OperationCommandValues commandValues = applyOperationCommands(
+                        legacyOperation, model, data, data, request.getToken());
+                if (operationType == OperationBaseType.DELETE) {
+                    success = Boolean.TRUE.equals(modelDataService.deleteData(data));
+                } else if (operationType == OperationBaseType.UPDATE) {
+                    success = Boolean.TRUE.equals(modelDataService.saveData(data));
+                } else if (operationType == OperationBaseType.CREATE) {
+                    success = Boolean.TRUE.equals(modelDataService.createData(data));
+                } else if (operationType == OperationBaseType.ASSEBMLY) {
+                    LegacyAssemblyInvoker.invoke(
+                            legacyOperation.getInvokeClass(),
+                            legacyOperation.getInvokeMethod(),
+                            data,
+                            commandValues.constructorValues,
+                            commandValues.params);
+                    success = true;
+                } else if (operationType == OperationBaseType.NULL) {
+                    success = true;
+                } else if (operationType == OperationBaseType.WCF
+                        || operationType == OperationBaseType.JSONPOST
+                        || operationType == OperationBaseType.JSONGET) {
+                    success = true;
+                } else {
+                    return result;
+                }
             }
         } catch (RuntimeException e) {
             result.setSuccess(false);
@@ -411,6 +416,50 @@ public class DataQueryService {
             result.setReturnMsg(operation.getSuccessMsg() == null ? "" : operation.getSuccessMsg());
         }
         return result;
+    }
+
+    private boolean executeArgModelOperation(
+            Operation operation,
+            IDynamicData sourceData,
+            String token) {
+        Model targetModel = modelDataService.getModel(operation.getArgModelId().toString());
+        if (targetModel == null || !StringUtils.hasText(targetModel.getName())) {
+            return false;
+        }
+        IDynamicData targetData = argModelData(operation, targetModel, sourceData, token);
+        if (targetData == null) {
+            return false;
+        }
+        applyOperationCommands(operation, targetModel, targetData, sourceData, token);
+        OperationBaseType type = operation.getBaseOperationType();
+        if (type == OperationBaseType.CREATE) {
+            return Boolean.TRUE.equals(modelDataService.createData(targetData));
+        }
+        if (type == OperationBaseType.UPDATE) {
+            return Boolean.TRUE.equals(modelDataService.saveData(targetData));
+        }
+        if (type == OperationBaseType.DELETE) {
+            return Boolean.TRUE.equals(modelDataService.deleteData(targetData));
+        }
+        return false;
+    }
+
+    private IDynamicData argModelData(
+            Operation operation,
+            Model targetModel,
+            IDynamicData sourceData,
+            String token) {
+        if (operation.getBaseOperationType() == OperationBaseType.CREATE) {
+            return new DbMysqlDynamic(targetModel);
+        }
+        if (operation.getBaseOperationType() != OperationBaseType.UPDATE
+                && operation.getBaseOperationType() != OperationBaseType.DELETE) {
+            return null;
+        }
+        Object targetId = StringUtils.hasText(operation.getArgFilter())
+                ? commandValue(null, sourceData, operation.getArgFilter(), token)
+                : "";
+        return modelDataService.getOneData(targetModel.getName(), targetId == null ? null : String.valueOf(targetId));
     }
 
     private OperationCommandValues applyOperationCommands(
