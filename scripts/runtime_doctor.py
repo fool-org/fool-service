@@ -348,6 +348,10 @@ LEGACY_CORE_SCHEMA_COLUMNS = (
     ("SE_SELECTEDTYPE", "SE_REQUIREGROUP"),
     ("SE_SELECTEDTYPE_PROPERTYINDEX", "SELECTEDTYPE_ID"),
     ("SE_SELECTEDTYPE_PROPERTYINDEX", "PROPERTYTYPE_VALUE"),
+    ("fool_sys_model_enum", "name"),
+    ("fool_sys_model_enum", "value"),
+    ("fool_sys_model_enum", "remark"),
+    ("fool_sys_model_enum", "owner"),
 )
 
 
@@ -466,7 +470,7 @@ def run_mysql_schema_checks() -> list[CheckResult]:
     results.append(CheckResult(
         "mysql:legacy-core-schema",
         legacy_core_schema_ok(completed.stdout),
-        "View-first legacy auth/app/model/view/operation/event/message/query schema is present",
+        "View-first legacy auth/app/model/view/operation/event/message/query/enum schema is present",
     ))
     return results
 

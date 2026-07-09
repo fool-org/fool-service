@@ -523,6 +523,8 @@ explicitly named as authoritative for fool-service.
       by report/query metadata loading.
 - [x] Extend the Docker runtime doctor to prove legacy `getenums` using an enum
       model id discovered from loaded View metadata.
+- [x] Extend Docker runtime-doctor schema coverage to `fool_sys_model_enum`
+      columns used by View-derived enum loading.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

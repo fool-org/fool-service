@@ -99,6 +99,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: the Docker runtime doctor now guards the `fool_sys_model_enum`
+  schema behind the View-derived legacy `getenums` runtime check, including the
+  `owner` column used to load enum values for a model.
 - 2026-07-09: the Docker runtime doctor now proves legacy `getenums` through
   the Vue proxy using an enum model id discovered from the loaded View metadata,
   keeping enum option loading View-first instead of falling back to a seeded
