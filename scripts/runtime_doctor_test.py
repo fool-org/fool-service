@@ -33,6 +33,7 @@ from runtime_doctor import (
     runtime_report_cols,
     view_column_key,
     view_columns,
+    view_template_metadata_ok,
 )
 
 
@@ -57,7 +58,8 @@ class RuntimeDoctorTest(unittest.TestCase):
         if url.endswith("/view/getlistview"):
             return {"code": 0, "data": {
                 "DetailViewId": 202,
-                "Items": [{"PropertyName": "recordId"}],
+                "TempFile": "viewWithChart",
+                "Items": [{"PropertyName": "recordId", "ViewFile": "./includes/List"}],
                 "Operations": [{"Name": "\u5220\u9664"}, {"Name": "\u4fdd\u5b58"}],
             }}
         if url.endswith("/data/querydata"):
@@ -492,6 +494,19 @@ class RuntimeDoctorTest(unittest.TestCase):
             {"Name": "\u00e4\u00bf\u009d\u00e5\u00ad\u02dc"},
         ]}}))
 
+    def test_view_template_metadata_requires_legacy_render_fields(self) -> None:
+        self.assertTrue(view_template_metadata_ok({"code": 0, "data": {
+            "TempFile": "viewWithChart",
+            "Items": [{"PropertyName": "recordId", "ViewFile": "./includes/List"}],
+        }}))
+        self.assertFalse(view_template_metadata_ok({"code": 0, "data": {
+            "Items": [{"PropertyName": "recordId", "ViewFile": "./includes/List"}],
+        }}))
+        self.assertFalse(view_template_metadata_ok({"code": 0, "data": {
+            "TempFile": "viewWithChart",
+            "Items": [{"PropertyName": "recordId"}],
+        }}))
+
     def test_query_rows_and_object_id_accept_legacy_aliases(self) -> None:
         row = {"Items": [{"PrpId": "recordId", "ObjId": "9001"}]}
 
@@ -682,6 +697,27 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertIn("data:getenums", by_name)
         self.assertTrue(by_name["data:getenums"].ok)
         self.assertIn(("http://frontend/api/v1/data/getenums", {"ModelId": "300"}), calls)
+
+    def test_api_checks_getlistview_requires_template_metadata(self) -> None:
+        original_get_json = runtime_doctor.get_json
+        original_post_json = runtime_doctor.post_json
+
+        def fake_get_json(_url: str, _timeout: float) -> object:
+            return []
+
+        def fake_post_json(url: str, payload: object, _timeout: float) -> dict[str, object]:
+            return self.runtime_default_post_response(url, payload) or {"code": 0, "data": None}
+
+        try:
+            runtime_doctor.get_json = fake_get_json
+            runtime_doctor.post_json = fake_post_json
+            results = api_checks("http://backend", "http://frontend", 1.0)
+        finally:
+            runtime_doctor.get_json = original_get_json
+            runtime_doctor.post_json = original_post_json
+
+        by_name = {result.name: result for result in results}
+        self.assertTrue(by_name["view:getlistview"].ok)
 
     def test_api_checks_initnew_uses_loaded_detail_view(self) -> None:
         calls: list[tuple[str, object]] = []

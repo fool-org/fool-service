@@ -99,6 +99,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: the Docker runtime doctor now seeds and proves legacy
+  `getlistview.TempFile` plus item `ViewFile` render metadata through the Vue
+  proxy, so runtime smoke fails if the View render template link disappears
+  before data binding starts.
 - 2026-07-09: legacy `getlistview` now hydrates View-level `TempFile` and
   item-level `ViewFile` metadata from `SW_SYS_VIEW_FILE`, matching FoolFrame's
   Web render dispatch surface before Vue decides how to render the loaded

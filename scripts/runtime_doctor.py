@@ -357,6 +357,13 @@ def list_view_operation_labels_ok(payload: dict[str, Any]) -> bool:
     return {"\u5220\u9664", "\u4fdd\u5b58"}.issubset(labels)
 
 
+def view_template_metadata_ok(payload: dict[str, Any]) -> bool:
+    if not common_response_ok(payload):
+        return False
+    temp_file = str(payload["data"].get("TempFile") or "").strip()
+    return bool(temp_file) and any(str(column.get("ViewFile") or "").strip() for column in view_columns(payload))
+
+
 def read_item_detail_views_ok(payload: dict[str, Any]) -> bool:
     if not common_response_ok(payload):
         return False
@@ -694,7 +701,12 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             view_state["detailViewId"] = loaded_detail_view_id
         if columns:
             view_state["columns"] = columns
-        return loaded_detail_view_id > 0 and bool(columns) and list_view_operation_labels_ok(payload)
+        return (
+            loaded_detail_view_id > 0
+            and bool(columns)
+            and list_view_operation_labels_ok(payload)
+            and view_template_metadata_ok(payload)
+        )
 
     def loaded_list_view_id() -> int:
         view_id = view_state.get("listViewId")
