@@ -581,6 +581,9 @@ explicitly named as authoritative for fool-service.
       existing owned child rows through `ModelDataService`.
 - [x] Guard modern `fool_sys_model` / property / View metadata columns in the
       Docker runtime doctor schema contract used by the Vue View-first flow.
+- [x] Guard DB-management base schema columns in the Docker runtime doctor
+      schema contract: `DB_App`, `WorkDataBase`, `DB_AppDB`, and
+      `DS_DataSourceSet`.
 - [x] Preserve FoolFrame no-op semantics for missing legacy trigger
       `ExuteListMethod` list methods while keeping real Java list invocation.
 - [x] Remove stale WCF/JSON base-operation wording from remaining migration

@@ -323,6 +323,29 @@ class RuntimeDoctorTest(unittest.TestCase):
             ("SW_SYS_EMUNVALUE", "EMUN_VALUE"),
             ("SW_SYS_EMUNVALUE", "SW_SYS_MODEL_EnumValuesMODEL_ID"),
         )
+        db_manage_columns = (
+            ("DB_App", "BO_Id"),
+            ("DB_App", "BO_AppName"),
+            ("WorkDataBase", "DBID"),
+            ("WorkDataBase", "DBName"),
+            ("WorkDataBase", "DBYear"),
+            ("WorkDataBase", "DBSysName"),
+            ("WorkDataBase", "IsActive"),
+            ("WorkDataBase", "DBNo"),
+            ("WorkDataBase", "pwd1"),
+            ("WorkDataBase", "pwd2"),
+            ("WorkDataBase", "pwd3"),
+            ("WorkDataBase", "pwd4"),
+            ("WorkDataBase", "pwd5"),
+            ("WorkDataBase", "UserName"),
+            ("WorkDataBase", "CompanyName"),
+            ("WorkDataBase", "ServerIp"),
+            ("WorkDataBase", "IsLocal"),
+            ("DB_AppDB", "App_Id"),
+            ("DB_AppDB", "DBNo"),
+            ("DS_DataSourceSet", "DS_Key"),
+            ("DS_DataSourceSet", "DS_DBNo"),
+        )
         event_message_columns = (
             ("SW_EVT_DEF", "EVTDEF_ID"),
             ("SW_EVT_DEF", "EVTDEF_FILTER"),
@@ -422,6 +445,7 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertTrue(set(view_render_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
         self.assertTrue(set(auth_shell_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
         self.assertTrue(set(app_manage_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
+        self.assertTrue(set(db_manage_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
         self.assertTrue(set(event_message_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
         self.assertTrue(set(event_recipient_relation_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))
         self.assertTrue(set(query_catalog_columns).issubset(set(runtime_doctor.LEGACY_CORE_SCHEMA_COLUMNS)))

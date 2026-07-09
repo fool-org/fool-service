@@ -99,6 +99,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: the Docker runtime doctor now guards the DB-management base
+  schema already seeded for the local `car_wash` runtime: `DB_App`,
+  `WorkDataBase`, `DB_AppDB`, and `DS_DataSourceSet` columns are part of the
+  shared schema catalog, so Docker schema drift is caught before DB-management
+  wiring is extended.
 - 2026-07-09: Vue Sudoku `Group` simple child panels now use the legacy
   FoolFrame `GroupViewController` placeholder text (`简单项`) for
   `ListViewType=1`, keeping this branch aligned with
