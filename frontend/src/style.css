@@ -293,6 +293,32 @@ label {
   min-width: 96px;
 }
 
+.sudoku-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.sudoku-panel {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  min-height: 180px;
+  overflow: hidden;
+}
+
+.sudoku-panel header {
+  align-items: center;
+  background: #f8fafc;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+}
+
+.sudoku-panel header span {
+  color: #647484;
+  font-size: 0.78rem;
+}
+
 .view-template-tabs {
   display: grid;
   grid-template-columns: repeat(2, minmax(80px, 1fr));

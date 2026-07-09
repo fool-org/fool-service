@@ -607,6 +607,8 @@ explicitly named as authoritative for fool-service.
 - [x] Seed and prove FoolFrame chart `EditType` values `11` through `14` for
       `viewWithChart`, so Vue chart rows come from loaded View row `Items`
       instead of concrete business DTO fields.
+- [x] Recognize legacy Vue `TempFile=Sudoku` and render child panel shells from
+      View item `ViewFile` metadata before adding any child-panel data binding.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

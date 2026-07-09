@@ -112,10 +112,12 @@ import {
   rowObjectId,
   rowOperations,
   selectedChildViewId,
+  sudokuPanelKind,
   viewDisplayTitle,
   viewDisplayType,
   viewInputCount,
   viewUsesChartTemplate,
+  viewUsesSudokuTemplate,
   readViewFields,
   renderedDetailFields,
   renderedDetailGroups,
@@ -312,6 +314,8 @@ function fieldEnumOptions(field: ListDataValue) {
 
 const reportRows = computed(() => reportRowsFromCells(reportGridCells(reportResponse.value?.data)));
 const isChartView = computed(() => viewUsesChartTemplate(viewResponse.value?.data));
+const isSudokuView = computed(() => viewUsesSudokuTemplate(viewResponse.value?.data));
+const sudokuPanels = computed(() => viewColumns(viewResponse.value?.data));
 const chartData = computed(() => legacyChartData(resultRows.value));
 const chartMax = computed(() => Math.max(1, ...chartData.value.series.flatMap((series) => series.values)));
 const responseDump = computed(() =>
@@ -1101,7 +1105,16 @@ function syncDetailDrafts() {
             </button>
           </div>
 
-          <div v-show="!isChartView || activeViewPane === 'table'" class="table-wrap view-table">
+          <div v-if="isSudokuView" class="sudoku-grid">
+            <section v-for="panel in sudokuPanels" :key="`${fieldTitle(panel)}-${sudokuPanelKind(panel)}`" class="sudoku-panel">
+              <header>
+                <strong>{{ fieldTitle(panel) }}</strong>
+                <span>{{ sudokuPanelKind(panel) }}</span>
+              </header>
+            </section>
+          </div>
+
+          <div v-show="(!isChartView && !isSudokuView) || activeViewPane === 'table'" class="table-wrap view-table">
             <ListDataTable
               :columns="resultColumns"
               :disabled="Boolean(pendingAction)"

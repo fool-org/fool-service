@@ -117,6 +117,12 @@ describe("App defaults", () => {
     expect(appSource).toContain('class="legacy-chart-pane"');
   });
 
+  it("renders the legacy Sudoku template from ViewFile panels", () => {
+    expect(appSource).toContain("viewUsesSudokuTemplate(viewResponse.value?.data)");
+    expect(appSource).toContain("sudokuPanelKind(panel)");
+    expect(appSource).toContain('class="sudoku-grid"');
+  });
+
   it("resets the main View search to the first page", () => {
     expect(appSource).toContain("async function loadViewWorkflow(resetPage = false)");
     expect(appSource).toContain("pageIndex.value = 1");

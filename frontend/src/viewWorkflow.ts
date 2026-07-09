@@ -176,6 +176,18 @@ export function viewUsesChartTemplate(view: ListViewInfo | undefined) {
   return viewTemplateName(view) === "viewWithChart";
 }
 
+export function viewUsesSudokuTemplate(view: ListViewInfo | undefined) {
+  return viewTemplateName(view) === "Sudoku";
+}
+
+export function sudokuPanelKind(column: Pick<TableColumnInfo, "viewFile" | "ViewFile">) {
+  const name = firstDisplayValue([column.viewFile, column.ViewFile]).split("/").pop()?.toLowerCase() || "";
+  if (["list", "group", "map", "item", "linechart"].includes(name)) {
+    return name;
+  }
+  return "unknown";
+}
+
 export function viewInputCount(view: ListViewInfo | undefined) {
   return firstList(view?.inputInfo).length;
 }

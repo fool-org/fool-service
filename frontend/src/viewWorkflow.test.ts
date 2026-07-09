@@ -101,6 +101,7 @@ import {
   renderedDetailFields,
   renderedDetailGroups,
   rememberReadView,
+  sudokuPanelKind,
   viewColumns,
   viewDisplayName,
   viewDisplayTitle,
@@ -109,6 +110,7 @@ import {
   viewId,
   viewInputCount,
   viewTemplateName,
+  viewUsesSudokuTemplate,
   viewUsesChartTemplate,
   withDraftFieldValue,
   viewOperations
@@ -245,6 +247,17 @@ describe("view workflow helpers", () => {
     expect(viewTemplateName(undefined)).toBe("");
     expect(viewUsesChartTemplate({ TempFile: "viewWithChart" })).toBe(true);
     expect(viewUsesChartTemplate({ TempFile: "Sudoku" })).toBe(false);
+    expect(viewUsesSudokuTemplate({ TempFile: "Sudoku" })).toBe(true);
+    expect(viewUsesSudokuTemplate({ TempFile: "viewWithChart" })).toBe(false);
+  });
+
+  it("normalizes legacy Sudoku child ViewFile names", () => {
+    expect(sudokuPanelKind({ ViewFile: "./includes/List" })).toBe("list");
+    expect(sudokuPanelKind({ viewFile: "./includes/Group" })).toBe("group");
+    expect(sudokuPanelKind({ ViewFile: "./includes/linechart" })).toBe("linechart");
+    expect(sudokuPanelKind({ ViewFile: "./includes/Map" })).toBe("map");
+    expect(sudokuPanelKind({ ViewFile: "./includes/Item" })).toBe("item");
+    expect(sudokuPanelKind({ ViewFile: "" })).toBe("unknown");
   });
 
   it("builds chart data only from legacy chart edit types", () => {
