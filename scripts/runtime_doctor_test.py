@@ -13,6 +13,7 @@ from runtime_doctor import (
     common_void_ok,
     compose_checks,
     detail_view_id,
+    enum_view_model_id,
     legacy_app_alias_ok,
     legacy_app_default_view_id,
     legacy_login_token,
@@ -437,6 +438,16 @@ class RuntimeDoctorTest(unittest.TestCase):
         ]))
         self.assertEqual("", lookup_view_item_id([{"PropertyName": "name", "PropertyType": "String"}]))
 
+    def test_enum_view_model_id_uses_loaded_view_metadata(self) -> None:
+        self.assertEqual(102, enum_view_model_id([
+            {"PropertyName": "name", "PropertyType": "String", "PropertyModel": 0},
+            {"PropertyName": "state", "PropertyType": "Enum", "PropertyModel": 102},
+        ]))
+        self.assertEqual(103, enum_view_model_id([
+            {"propertyName": "state", "propertyType": "15", "propertyModel": "103"},
+        ]))
+        self.assertEqual(0, enum_view_model_id([{"PropertyName": "name", "PropertyType": "String"}]))
+
     def test_runtime_report_cols_come_from_report_model(self) -> None:
         columns = report_model_columns({"code": 0, "data": {"cols": [
             {"id": "recordId", "name": "Record ID", "queryTypes": [{"id": "1", "name": "原值"}]},
@@ -530,6 +541,58 @@ class RuntimeDoctorTest(unittest.TestCase):
         by_name = {result.name: result for result in results}
         self.assertFalse(by_name["view:getlistview"].ok)
         self.assertFalse(any(url.endswith("/view/getlistview") for url, _payload in calls))
+
+    def test_api_checks_getenums_uses_loaded_view_enum_model(self) -> None:
+        calls: list[tuple[str, object]] = []
+        original_get_json = runtime_doctor.get_json
+        original_post_json = runtime_doctor.post_json
+
+        def fake_get_json(_url: str, _timeout: float) -> object:
+            return []
+
+        def fake_post_json(url: str, payload: object, _timeout: float) -> dict[str, object]:
+            calls.append((url, payload))
+            if url.endswith("/auth/initapp"):
+                return {"code": 0, "data": {"Dbs": [{}], "CheckCode": {"Key": "k", "Code": "c"}}}
+            if url.endswith("/auth/getcheckcode"):
+                return {"code": 0, "data": {"Key": "k", "Code": "c"}}
+            if url.endswith("/auth/checkcode"):
+                return {"code": 0, "data": True}
+            if url.endswith("/auth/loginv2"):
+                return {"code": 0, "data": {"LoginSucess": True, "Token": "t"}}
+            if url.endswith("/auth/getuserinfo"):
+                return {"code": 0, "data": {"user": {"id": "admin"}}}
+            if url.endswith("/auth/getapp"):
+                return {"code": 0, "data": {"App": {"DefaultViewId": 200}}}
+            if url.endswith("/auth/getmain"):
+                return {"code": 0, "data": {"App": {"DefaultViewId": 200}, "TopMenu": [{"AuthNo": "0101"}]}}
+            if url.endswith("/auth/getsubmenu"):
+                return {"code": 0, "data": {"Items": [{}]}}
+            if url.endswith("/view/getlistview"):
+                return {"code": 0, "data": {
+                    "DetailViewId": 202,
+                    "Items": [
+                        {"PropertyName": "recordId", "PropertyType": "String", "PropertyModel": 0},
+                        {"PropertyName": "state", "PropertyType": "Enum", "PropertyModel": 300},
+                    ],
+                    "Operations": [{"Name": "\u5220\u9664"}, {"Name": "\u4fdd\u5b58"}],
+                }}
+            if url.endswith("/data/getenums"):
+                return {"code": 0, "data": {"EnumValues": [{"Name": "Open", "Value": 0}]}}
+            return {"code": 0, "data": None}
+
+        try:
+            runtime_doctor.get_json = fake_get_json
+            runtime_doctor.post_json = fake_post_json
+            results = api_checks("http://backend", "http://frontend", 1.0)
+        finally:
+            runtime_doctor.get_json = original_get_json
+            runtime_doctor.post_json = original_post_json
+
+        by_name = {result.name: result for result in results}
+        self.assertIn("data:getenums", by_name)
+        self.assertTrue(by_name["data:getenums"].ok)
+        self.assertIn(("http://frontend/api/v1/data/getenums", {"ModelId": "300"}), calls)
 
 
 if __name__ == "__main__":

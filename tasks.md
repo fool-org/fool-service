@@ -521,6 +521,8 @@ explicitly named as authoritative for fool-service.
       relation tables used by notification expansion.
 - [x] Extend Docker runtime-doctor coverage to legacy query catalog tables used
       by report/query metadata loading.
+- [x] Extend the Docker runtime doctor to prove legacy `getenums` using an enum
+      model id discovered from loaded View metadata.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

@@ -629,17 +629,33 @@ def query_rows_match_view(rows: list[Any], columns: list[dict[str, Any]]) -> boo
     return True
 
 
+def view_column_property_type(column: dict[str, Any]) -> str:
+    return str(column.get("PropertyType") or column.get("propertyType") or "").lower()
+
+
+def view_column_property_model(column: dict[str, Any]) -> int:
+    try:
+        return int(column.get("PropertyModel") or column.get("propertyModel") or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
 def lookup_view_item_id(columns: list[dict[str, Any]]) -> str:
     for column in columns:
-        property_type = str(column.get("PropertyType") or column.get("propertyType") or "").lower()
-        property_model = column.get("PropertyModel") or column.get("propertyModel") or 0
-        try:
-            model_id = int(property_model or 0)
-        except (TypeError, ValueError):
-            model_id = 0
+        property_type = view_column_property_type(column)
+        model_id = view_column_property_model(column)
         if property_type in {"businessobject", "16"} and model_id > 0:
             return view_column_key(column)
     return ""
+
+
+def enum_view_model_id(columns: list[dict[str, Any]]) -> int:
+    for column in columns:
+        if view_column_property_type(column) in {"enum", "15"}:
+            model_id = view_column_property_model(column)
+            if model_id > 0:
+                return model_id
+    return 0
 
 
 def report_model_columns(payload: dict[str, Any]) -> list[dict[str, Any]]:
@@ -918,6 +934,21 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         columns = view_state.get("columns")
         return isinstance(columns, list) and query_rows_match_view(rows, columns)
 
+    def get_enums_ok() -> bool:
+        columns = view_state.get("columns")
+        if not isinstance(columns, list):
+            return False
+        model_id = enum_view_model_id(columns)
+        if not model_id:
+            return False
+        payload = post_json(
+            f"{frontend_url}/api/v1/data/getenums",
+            {"ModelId": str(model_id)},
+            timeout,
+        )
+        values = legacy_response_list(payload, "EnumValues")
+        return any(isinstance(value, dict) and value.get("Name") and value.get("Value") is not None for value in values)
+
     def querydata_ok() -> bool:
         view_id = loaded_list_view_id()
         if not view_id:
@@ -1061,6 +1092,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "view:getlistview",
             get_list_view,
             "POST /api/v1/view/getlistview uses the App default ViewId and returns DetailViewId",
+        ),
+        (
+            "data:getenums",
+            get_enums_ok,
+            "POST /api/v1/data/getenums uses an enum model from the loaded View metadata",
         ),
         (
             "data:querydata",

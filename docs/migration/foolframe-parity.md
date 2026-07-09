@@ -99,6 +99,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: the Docker runtime doctor now proves legacy `getenums` through
+  the Vue proxy using an enum model id discovered from the loaded View metadata,
+  keeping enum option loading View-first instead of falling back to a seeded
+  model id.
 - 2026-07-09: the Docker runtime doctor now guards the legacy query catalog
   schema read by report/query metadata loading: `SE_COMPARETYPE`,
   `SE_COMPARETYPE_PROPERTYINDEX`, `SE_SELECTEDTYPE`, and
