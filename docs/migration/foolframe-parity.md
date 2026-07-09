@@ -99,6 +99,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: the Docker runtime doctor now proves legacy
+  `saveobj.Itemproperties[].AddedItems[]` through the Vue proxy by creating a
+  temporary parent row, adding a child row from loaded detail child metadata,
+  reading the child value back through `querydatadetail`, and cleaning up.
 - 2026-07-09: the Docker runtime doctor now proves legacy `saveobj` through
   the Vue proxy by creating a temporary detail-View object, updating it with
   loaded detail fields, reading the changed field back, and cleaning up.

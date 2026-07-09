@@ -891,6 +891,109 @@ class RuntimeDoctorTest(unittest.TestCase):
             calls,
         )
 
+    def test_api_checks_saveobj_addeditems_writes_child_collection(self) -> None:
+        calls: list[tuple[str, object]] = []
+        cleanup_ids: list[str] = []
+        original_get_json = runtime_doctor.get_json
+        original_post_json = runtime_doctor.post_json
+        original_cleanup = runtime_doctor.cleanup_runtime_smoke_order
+
+        def fake_get_json(_url: str, _timeout: float) -> object:
+            return []
+
+        def fake_cleanup(object_id: str) -> bool:
+            cleanup_ids.append(object_id)
+            return True
+
+        def fake_post_json(url: str, payload: object, _timeout: float) -> dict[str, object]:
+            calls.append((url, payload))
+            suffixes: dict[str, dict[str, object]] = {
+                "/auth/initapp": {"code": 0, "data": {"Dbs": [{}], "CheckCode": {"Key": "k", "Code": "c"}}},
+                "/auth/getcheckcode": {"code": 0, "data": {"Key": "k", "Code": "c"}},
+                "/auth/checkcode": {"code": 0, "data": True},
+                "/auth/loginv2": {"code": 0, "data": {"LoginSucess": True, "Token": "t"}},
+                "/auth/getuserinfo": {"code": 0, "data": {"user": {"id": "admin"}}},
+                "/auth/getapp": {"code": 0, "data": {"App": {"DefaultViewId": 200}}},
+                "/auth/getmain": {"code": 0, "data": {"App": {"DefaultViewId": 200}, "TopMenu": [{"AuthNo": "0101"}]}},
+                "/auth/getsubmenu": {"code": 0, "data": {"Items": [{}]}},
+                "/view/getreaditemview": {"code": 0, "data": {"DetailViews": [{"Items": [{"PrpId": "itemId"}]}]}},
+                "/data/savenewobj": {"code": 0, "data": None},
+                "/data/saveobj": {"code": 0, "data": None},
+            }
+            for suffix, response in suffixes.items():
+                if url.endswith(suffix):
+                    return response
+            if url.endswith("/view/getlistview"):
+                return {"code": 0, "data": {
+                    "DetailViewId": 202,
+                    "Items": [{"PropertyName": "recordId"}],
+                    "Operations": [{"Name": "\u5220\u9664"}, {"Name": "\u4fdd\u5b58"}],
+                }}
+            if url.endswith("/data/querydata"):
+                return {"code": 0, "data": {"Data": [{"Items": [{"PrpId": "recordId", "ObjId": "9001"}]}]}}
+            if url.endswith("/data/initnew"):
+                return {"code": 0, "data": {"Data": {"SimpleData": [
+                    {"PrpId": "orderId", "PrpType": "Long", "ReadOnly": True},
+                    {"PrpId": "symbol", "PrpType": "String", "ReadOnly": False},
+                    {"PrpId": "state", "PrpType": "Enum", "ReadOnly": False},
+                ], "Items": [{
+                    "PrpId": "items",
+                    "Properties": [
+                        {"PrpId": "itemId", "ReadOnly": True},
+                        {"PrpId": "itemName", "ReadOnly": True},
+                    ],
+                }]}}}
+            if url.endswith("/data/querydatadetail"):
+                return {"code": 0, "data": {"Data": {"SimpleData": [
+                    {"PrpId": "symbol", "FmtValue": "RUNTIME-989904"},
+                ], "Items": [{
+                    "PrpId": "items",
+                    "Items": [{
+                        "DataId": "989904",
+                        "Values": [{"PrpId": "itemName", "FmtValue": "Runtime child"}],
+                    }],
+                }]}}}
+            return {"code": 0, "data": None}
+
+        try:
+            runtime_doctor.get_json = fake_get_json
+            runtime_doctor.post_json = fake_post_json
+            runtime_doctor.cleanup_runtime_smoke_order = fake_cleanup
+            results = api_checks("http://backend", "http://frontend", 1.0)
+        finally:
+            runtime_doctor.get_json = original_get_json
+            runtime_doctor.post_json = original_post_json
+            runtime_doctor.cleanup_runtime_smoke_order = original_cleanup
+
+        by_name = {result.name: result for result in results}
+        self.assertIn("data:saveobj-addeditems", by_name)
+        self.assertTrue(by_name["data:saveobj-addeditems"].ok)
+        self.assertIn("989904", cleanup_ids)
+        self.assertIn(
+            ("http://frontend/api/v1/data/saveobj", {
+                "SaveObj": {
+                    "Id": "989904",
+                    "ViewID": "202",
+                    "Propertyies": [
+                        {"Key": "symbol", "Value": "RUNTIME-989904"},
+                        {"Key": "state", "Value": "0"},
+                    ],
+                    "Itemproperties": [{
+                        "Key": "items",
+                        "AddedItems": [{
+                            "ItemId": "989904",
+                            "IsExist": False,
+                            "Propertyies": [
+                                {"Key": "itemId", "Value": "989904"},
+                                {"Key": "itemName", "Value": "Runtime child"},
+                            ],
+                        }],
+                    }],
+                },
+            }),
+            calls,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

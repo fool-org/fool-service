@@ -272,6 +272,64 @@ def detail_field_fmt_value(payload: dict[str, Any], key: str) -> str:
     return ""
 
 
+def detail_item_groups(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    if not common_response_ok(payload):
+        return []
+    detail = payload["data"].get("data") or payload["data"].get("Data")
+    if not isinstance(detail, dict):
+        return []
+    groups = detail.get("items") or detail.get("Items")
+    return [group for group in groups if isinstance(group, dict)] if isinstance(groups, list) else []
+
+
+def detail_group_key(group: dict[str, Any]) -> str:
+    return str(group.get("prpId") or group.get("PrpId") or group.get("key") or group.get("Key") or "")
+
+
+def detail_group_columns(group: dict[str, Any]) -> list[dict[str, Any]]:
+    columns = group.get("properties") or group.get("Properties")
+    return [column for column in columns if isinstance(column, dict)] if isinstance(columns, list) else []
+
+
+def runtime_child_properties(columns: list[dict[str, Any]], item_id: str) -> list[dict[str, str]]:
+    properties: list[dict[str, str]] = []
+    for column in columns:
+        key = detail_field_key(column)
+        if not key:
+            continue
+        field_type = detail_field_type(column)
+        value = "Runtime child"
+        if "id" in key.lower() or field_type in {"long", "ulong", "identifyid", "int", "integer"}:
+            value = item_id
+        properties.append({"Key": key, "Value": value})
+    return properties
+
+
+def detail_child_field_fmt_value(payload: dict[str, Any], group_key: str, item_id: str, field_key: str) -> str:
+    for group in detail_item_groups(payload):
+        if detail_group_key(group) != group_key:
+            continue
+        rows = group.get("items") or group.get("Items")
+        if not isinstance(rows, list):
+            continue
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            data_id = row.get("dataId") or row.get("DataId") or row.get("itemId") or row.get("ItemId")
+            if str(data_id or "") != item_id:
+                continue
+            values = row.get("values") or row.get("Values")
+            if not isinstance(values, list):
+                continue
+            for value in values:
+                if isinstance(value, dict) and detail_field_key(value) == field_key:
+                    fmt = value.get("fmtValue")
+                    if fmt is None:
+                        fmt = value.get("FmtValue")
+                    return "" if fmt is None else str(fmt)
+    return ""
+
+
 def detail_view_id(payload: dict[str, Any]) -> int:
     if not common_response_ok(payload):
         return 0
@@ -672,6 +730,9 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         fields = detail_simple_fields(payload)
         if fields:
             view_state["newFields"] = fields
+        groups = detail_item_groups(payload)
+        if groups:
+            view_state["newGroups"] = groups
         return bool(fields)
 
     def save_new_object_from_loaded_detail_view() -> bool:
@@ -752,6 +813,67 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
                     timeout,
                 )
                 ok = detail_field_fmt_value(detail, expected["Key"]) == expected["Value"]
+        finally:
+            cleaned = cleanup_runtime_smoke_order(object_id)
+        return ok and cleaned
+
+    def save_added_item_from_loaded_detail_view() -> bool:
+        view_id = view_state.get("detailViewId")
+        fields = view_state.get("newFields")
+        groups = view_state.get("newGroups")
+        if not view_id or not isinstance(fields, list) or not isinstance(groups, list) or not groups:
+            return False
+        object_id = "989904"
+        group = groups[0]
+        group_key = detail_group_key(group)
+        child_properties = runtime_child_properties(detail_group_columns(group), object_id)
+        expected = next((item for item in child_properties if item["Value"] == "Runtime child"), None)
+        create_properties = runtime_save_properties(fields, object_id)
+        if not group_key or not create_properties or not child_properties or expected is None:
+            return False
+        if not cleanup_runtime_smoke_order(object_id):
+            return False
+        ok = False
+        try:
+            ok = common_void_ok(post_json(
+                f"{frontend_url}/api/v1/data/savenewobj",
+                {
+                    "SaveObj": {
+                        "Id": object_id,
+                        "ViewID": str(view_id),
+                        "Propertyies": create_properties,
+                        "Itemproperties": [],
+                    },
+                },
+                timeout,
+            ))
+            if ok:
+                ok = common_void_ok(post_json(
+                    f"{frontend_url}/api/v1/data/saveobj",
+                    {
+                        "SaveObj": {
+                            "Id": object_id,
+                            "ViewID": str(view_id),
+                            "Propertyies": create_properties,
+                            "Itemproperties": [{
+                                "Key": group_key,
+                                "AddedItems": [{
+                                    "ItemId": object_id,
+                                    "IsExist": False,
+                                    "Propertyies": child_properties,
+                                }],
+                            }],
+                        },
+                    },
+                    timeout,
+                ))
+            if ok:
+                detail = post_json(
+                    f"{frontend_url}/api/v1/data/querydatadetail",
+                    {"ViewId": view_id, "ObjId": object_id},
+                    timeout,
+                )
+                ok = detail_child_field_fmt_value(detail, group_key, object_id, expected["Key"]) == expected["Value"]
         finally:
             cleaned = cleanup_runtime_smoke_order(object_id)
         return ok and cleaned
@@ -989,6 +1111,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "data:saveobj",
             save_existing_object_from_loaded_detail_view,
             "POST /api/v1/data/saveobj updates a detail View object",
+        ),
+        (
+            "data:saveobj-addeditems",
+            save_added_item_from_loaded_detail_view,
+            "POST /api/v1/data/saveobj writes AddedItems child rows",
         ),
         (
             "data:inputquery",
