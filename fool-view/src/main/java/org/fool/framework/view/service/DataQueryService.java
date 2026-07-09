@@ -18,6 +18,7 @@ import org.fool.framework.model.model.OperationCommand;
 import org.fool.framework.model.model.MultiDbMap;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.model.model.Relation;
+import org.fool.framework.model.service.LegacyAssemblyInvoker;
 import org.fool.framework.model.service.ModelDisplayProperties;
 import org.fool.framework.model.service.ModelDataService;
 import org.fool.framework.model.service.OperationCommandValueResolver;
@@ -46,12 +47,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -388,7 +385,12 @@ public class DataQueryService {
             } else if (operationType == OperationBaseType.CREATE) {
                 success = Boolean.TRUE.equals(modelDataService.createData(data));
             } else if (operationType == OperationBaseType.ASSEBMLY) {
-                invokeAssemblyOperation(operation.getOperation(), data, commandValues);
+                LegacyAssemblyInvoker.invoke(
+                        operation.getOperation().getInvokeClass(),
+                        operation.getOperation().getInvokeMethod(),
+                        data,
+                        commandValues.constructorValues,
+                        commandValues.params);
                 success = true;
             } else if (operationType == OperationBaseType.NULL) {
                 success = true;
@@ -522,84 +524,6 @@ public class DataQueryService {
                 .filter(operation -> operation.getName().trim().toUpperCase(Locale.ROOT).equals(name))
                 .findFirst()
                 .orElse(null);
-    }
-
-    private void invokeAssemblyOperation(Operation operation, IDynamicData data, OperationCommandValues values) {
-        if (!StringUtils.hasText(operation.getInvokeClass()) || !StringUtils.hasText(operation.getInvokeMethod())) {
-            throw new IllegalStateException("Missing assembly invoke target");
-        }
-        try {
-            Class<?> type = Class.forName(operation.getInvokeClass().trim());
-            // ponytail: invokeDll plugin loading waits until real migrated handlers need it.
-            Object target = instantiate(type, values.constructorValues);
-            Object[] args = new Object[values.params.size() + 1];
-            args[0] = data;
-            for (int i = 0; i < values.params.size(); i++) {
-                args[i + 1] = values.params.get(i);
-            }
-            Method method = method(type, operation.getInvokeMethod().trim(), args);
-            method.invoke(Modifier.isStatic(method.getModifiers()) ? null : target, args);
-        } catch (InvocationTargetException e) {
-            rethrowInvocation(e);
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private Object instantiate(Class<?> type, List<Object> args) throws ReflectiveOperationException {
-        Constructor<?> constructor = Arrays.stream(type.getConstructors())
-                .filter(candidate -> accepts(candidate.getParameterTypes(), args.toArray()))
-                .findFirst()
-                .orElseThrow(NoSuchMethodException::new);
-        return constructor.newInstance(args.toArray());
-    }
-
-    private Method method(Class<?> type, String name, Object[] args) throws NoSuchMethodException {
-        return Arrays.stream(type.getMethods())
-                .filter(candidate -> candidate.getName().equals(name))
-                .filter(candidate -> accepts(candidate.getParameterTypes(), args))
-                .findFirst()
-                .orElseThrow(NoSuchMethodException::new);
-    }
-
-    private boolean accepts(Class<?>[] parameterTypes, Object[] args) {
-        if (parameterTypes.length != args.length) {
-            return false;
-        }
-        for (int i = 0; i < parameterTypes.length; i++) {
-            if (args[i] != null && !boxed(parameterTypes[i]).isInstance(args[i])) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private Class<?> boxed(Class<?> type) {
-        if (!type.isPrimitive()) {
-            return type;
-        }
-        if (type == boolean.class) {
-            return Boolean.class;
-        }
-        if (type == byte.class) {
-            return Byte.class;
-        }
-        if (type == char.class) {
-            return Character.class;
-        }
-        if (type == double.class) {
-            return Double.class;
-        }
-        if (type == float.class) {
-            return Float.class;
-        }
-        if (type == long.class) {
-            return Long.class;
-        }
-        if (type == short.class) {
-            return Short.class;
-        }
-        return Integer.class;
     }
 
     private void invokeListMethod(IDynamicData data, Property property, String methodName) {

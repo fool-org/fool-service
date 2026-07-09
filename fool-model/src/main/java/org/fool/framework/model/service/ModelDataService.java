@@ -481,7 +481,7 @@ public class ModelDataService {
     }
 
     private void executeModelTrigger(Model model, IDynamicData data, Trigger trigger) {
-        executeTriggerCommands(model, data, trigger.getCommands());
+        TriggerCommandValues values = executeTriggerCommands(model, data, trigger.getCommands());
         OperationBaseType type = trigger.getBaseOperationType();
         if (type == OperationBaseType.UPDATE) {
             saveData(data, null, null, false, false);
@@ -489,6 +489,9 @@ public class ModelDataService {
             createData(data, null, null, false, false);
         } else if (type == OperationBaseType.DELETE) {
             deleteData(data, false);
+        } else if (type == OperationBaseType.ASSEBMLY) {
+            LegacyAssemblyInvoker.invoke(
+                    trigger.getInvokeClass(), trigger.getInvokeMethod(), data, values.constructorValues, values.params);
         }
     }
 
@@ -507,17 +510,20 @@ public class ModelDataService {
         return creating ? data.toMap().containsKey(property.getName()) : data.hasOld(property.getName());
     }
 
-    private void executeTriggerCommands(Model model, IDynamicData data, List<OperationCommand> commands) {
+    private TriggerCommandValues executeTriggerCommands(Model model, IDynamicData data, List<OperationCommand> commands) {
+        TriggerCommandValues values = new TriggerCommandValues();
         if (commands == null) {
-            return;
+            return values;
         }
         commands.stream()
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(command -> command.getIndex() == null ? 0 : command.getIndex()))
-                .forEach(command -> executeTriggerCommand(model, data, command));
+                .forEach(command -> executeTriggerCommand(model, data, command, values));
+        return values;
     }
 
-    private void executeTriggerCommand(Model model, IDynamicData data, OperationCommand command) {
+    private void executeTriggerCommand(
+            Model model, IDynamicData data, OperationCommand command, TriggerCommandValues values) {
         if (command.getCommandType() == CommandsType.SET_VALUE) {
             property(model, command.getPropertyId())
                     .ifPresent(property -> data.set(
@@ -531,6 +537,12 @@ public class ModelDataService {
         } else if (command.getCommandType() == CommandsType.EXUTE_LIST_METHOD) {
             property(model, command.getPropertyId())
                     .ifPresent(property -> invokeListMethod(data, property, command.getExpression()));
+        } else if (command.getCommandType() == CommandsType.SET_PARAM_VALUE) {
+            values.params.add(triggerCommandValue(
+                    property(model, command.getPropertyId()).orElse(null), data, command.getExpression()));
+        } else if (command.getCommandType() == CommandsType.SET_CON_STR_VALUE) {
+            values.constructorValues.add(triggerCommandValue(
+                    property(model, command.getPropertyId()).orElse(null), data, command.getExpression()));
         }
     }
 
@@ -623,6 +635,11 @@ public class ModelDataService {
                 || property.getPropertyModel().getName().isBlank()
                 ? value
                 : getOneData(property.getPropertyModel().getName(), value);
+    }
+
+    private static class TriggerCommandValues {
+        private final List<Object> params = new LinkedList<>();
+        private final List<Object> constructorValues = new LinkedList<>();
     }
 
     private void writeCollectionRelations(Model model, IDynamicData data) {

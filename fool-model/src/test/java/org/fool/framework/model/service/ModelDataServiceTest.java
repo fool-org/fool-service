@@ -502,6 +502,51 @@ public class ModelDataServiceTest {
     }
 
     @Test
+    public void saveDataExecutesLegacyModelTriggerAssembly() {
+        String tableName = "runtime_trigger_assembly_order";
+        RecordingAssemblyHandler.reset();
+        jdbcTemplate.execute("DROP TABLE IF EXISTS `" + tableName + "`");
+        try {
+            jdbcTemplate.execute("CREATE TABLE `" + tableName + "` ("
+                    + "`ORDER_ID` varchar(64) NOT NULL,"
+                    + "`ORDER_NAME` varchar(255) DEFAULT NULL,"
+                    + "PRIMARY KEY (`ORDER_ID`))");
+            jdbcTemplate.update(
+                    "INSERT INTO `" + tableName + "` (`ORDER_ID`,`ORDER_NAME`) VALUES (?,?)",
+                    "2001",
+                    "before trigger");
+            Property orderId = columnProperty("orderId", "ORDER_ID", PropertyType.String);
+            Property orderName = columnProperty("orderName", "ORDER_NAME", PropertyType.String);
+            orderName.setId(92723L);
+            Model model = new Model();
+            model.setTableName(tableName);
+            model.setIdProperty(orderId);
+            model.setProperties(List.of(orderId, orderName));
+            Trigger trigger = new Trigger();
+            trigger.setTriggerType(ModelTriggerType.SAVE);
+            trigger.setBaseOperationType(OperationBaseType.ASSEBMLY);
+            trigger.setInvokeClass(RecordingAssemblyHandler.class.getName());
+            trigger.setInvokeMethod("Run");
+            trigger.setCommands(List.of(
+                    triggerCommand(CommandsType.SET_CON_STR_VALUE, orderName.getId(), "$ctor", 1),
+                    triggerCommand(CommandsType.SET_PARAM_VALUE, orderName.getId(), ".orderName", 2)));
+            model.setTriggers(List.of(trigger));
+            DbMysqlDynamic data = new DbMysqlDynamic(model);
+            data.set("orderId", "2001");
+            data.set("orderName", "manual save");
+
+            assertEquals(Boolean.TRUE, modelDataService.saveData(data));
+
+            assertEquals("ctor", RecordingAssemblyHandler.constructorValue);
+            assertSame(data, RecordingAssemblyHandler.receivedData);
+            assertEquals("manual save", RecordingAssemblyHandler.receivedName);
+        } finally {
+            jdbcTemplate.execute("DROP TABLE IF EXISTS `" + tableName + "`");
+            RecordingAssemblyHandler.reset();
+        }
+    }
+
+    @Test
     public void createDataInsertsLegacySimpleDynamicRow() {
         long modelId = 93001L;
         long idPropertyId = 93002L;
@@ -1259,6 +1304,27 @@ public class ModelDataServiceTest {
 
         public void CloseAll() {
             closed = true;
+        }
+    }
+
+    public static class RecordingAssemblyHandler {
+        private static String constructorValue;
+        private static IDynamicData receivedData;
+        private static String receivedName;
+
+        public RecordingAssemblyHandler(String constructorValue) {
+            RecordingAssemblyHandler.constructorValue = constructorValue;
+        }
+
+        public void Run(IDynamicData data, String name) {
+            receivedData = data;
+            receivedName = name;
+        }
+
+        private static void reset() {
+            constructorValue = null;
+            receivedData = null;
+            receivedName = null;
         }
     }
 
