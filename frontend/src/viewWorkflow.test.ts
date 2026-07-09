@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { ListDataItem } from "./api";
 import {
   buildAddedItemProperty,
   buildDeletedItemProperty,
@@ -55,6 +56,7 @@ import {
   legacyInitAppCheckCode,
   legacyInitAppDbId,
   legacyInputQueryItems,
+  legacyItemFields,
   legacyMapMarkers,
   legacyMainMenuItems,
   legacyMessageContent,
@@ -315,6 +317,25 @@ describe("view workflow helpers", () => {
         info: [{ label: "Address", text: "Beijing" }]
       }
     ]);
+  });
+
+  it("builds item panel fields from the first legacy row items", () => {
+    expect(legacyItemFields([
+      {
+        Items: [
+          { PrpShowName: "Name", FmtValue: "Main Store" },
+          { PrpShowName: "State", FmtValue: "Open" }
+        ],
+        values: { dtoOnly: "ignored" }
+      } as unknown as ListDataItem,
+      {
+        Items: [{ PrpShowName: "Other", FmtValue: "Hidden" }]
+      }
+    ])).toEqual([
+      { label: "Name", text: "Main Store" },
+      { label: "State", text: "Open" }
+    ]);
+    expect(legacyItemFields([{ values: { dtoOnly: "ignored" } } as unknown as ListDataItem])).toEqual([]);
   });
 
   it("does not use values DTO fields for view row identity or cells", () => {

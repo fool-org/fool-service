@@ -83,6 +83,7 @@ import {
   legacyInitAppDbId,
   legacyInputQueryItems,
   legacyChartData,
+  legacyItemFields,
   legacyMapMarkers,
   legacyMainMenuItems,
   legacyMessageContent,
@@ -597,6 +598,10 @@ function sudokuPanelChartMax(panel: TableColumnInfo) {
 
 function sudokuPanelMarkers(panel: TableColumnInfo) {
   return legacyMapMarkers(sudokuPanelRows(panel));
+}
+
+function sudokuPanelItemFields(panel: TableColumnInfo) {
+  return legacyItemFields(sudokuPanelRows(panel));
 }
 
 async function loadResultPage(nextPage: number) {
@@ -1201,6 +1206,16 @@ function syncDetailDrafts() {
                       <td>{{ marker.longitude }}</td>
                       <td>{{ marker.latitude }}</td>
                       <td>{{ marker.info.map((item) => `${item.label}: ${item.text}`).join("; ") || "-" }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div v-else-if="sudokuPanelKind(panel) === 'item' && sudokuPanelItemFields(panel).length" class="table-wrap sudoku-panel-body">
+                <table>
+                  <tbody>
+                    <tr v-for="(item, index) in sudokuPanelItemFields(panel)" :key="`${item.label}-${index}`">
+                      <th>{{ item.label }}</th>
+                      <td>{{ item.text }}</td>
                     </tr>
                   </tbody>
                 </table>

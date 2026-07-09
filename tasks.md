@@ -617,6 +617,9 @@ explicitly named as authoritative for fool-service.
 - [x] Render Vue Sudoku `Map` panels from child row map `EditType` metadata
       (`16` longitude, `17` latitude, `18` title) as marker tables without
       binding to concrete business DTO fields.
+- [x] Render Vue Sudoku `Item` panels as simple key/value tables from the
+      first child row's legacy `Items`, without reading raw row `values` DTO
+      maps.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

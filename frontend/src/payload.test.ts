@@ -143,6 +143,11 @@ describe("App defaults", () => {
     expect(appSource).toContain("sudokuPanelMarkers(panel)");
   });
 
+  it("renders Sudoku item panels from child row items", () => {
+    expect(appSource).toContain("sudokuPanelKind(panel) === 'item'");
+    expect(appSource).toContain("sudokuPanelItemFields(panel)");
+  });
+
   it("resets the main View search to the first page", () => {
     expect(appSource).toContain("async function loadViewWorkflow(resetPage = false)");
     expect(appSource).toContain("pageIndex.value = 1");

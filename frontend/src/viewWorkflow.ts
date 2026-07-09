@@ -731,6 +731,12 @@ export function legacyMapMarkers(rows: ListDataItem[]): LegacyMapMarker[] {
   return markers;
 }
 
+export function legacyItemFields(rows: ListDataItem[]) {
+  return rowItems(rows[0])
+    .map((item) => ({ label: fieldTitle(item), text: fieldDisplayValue(item) }))
+    .filter((item) => item.label || item.text);
+}
+
 function chartSeriesType(editType: string): LegacyChartSeries["type"] | "" {
   if (editType === "12" || editType === "chartline") return "line";
   if (editType === "13" || editType === "chartbar") return "bar";
