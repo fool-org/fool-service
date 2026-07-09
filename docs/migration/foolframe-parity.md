@@ -65,6 +65,7 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100}' http://localhost:8081/api/v1/report/getmkqview`
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"CurrentPage":1,"PageSize":10,"QueryFilter":"order_state=\"0\"","ReportCols":[{"ColName":"Symbol","Index":1},{"ColName":"State","Index":2}]}' http://localhost:8081/api/v1/report/getrpt`
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"ReportName":"Order Daily","ReportCols":[{"ColName":"Symbol","Index":1}],"FilterExp":{"Col":{"Name":"order_state"},"CompareOp":{"ID":"1","Name":"等于"},"ValueExp":"0","ValueFmt":"Open"}}' http://localhost:8081/api/v1/report/saverpt`
+  `curl -H 'Content-Type: application/json' -d '{"viewid":100,"reportname":"Order Daily","cols":[{"ColName":"Symbol","Index":1}],"exp":null}' http://localhost:8081/api/v1/report/saverpt`
   `curl -H 'Content-Type: application/json' -d '{"token":"<login-token>"}' http://localhost:8080/api/v1/message/getmsg`
   `curl -H 'Content-Type: application/json' -d '{"token":"<login-token>"}' http://localhost:8081/api/v1/message/getmsg`
   `curl -H 'Content-Type: application/json' -d '{"token":"<login-token>"}' http://localhost:8080/api/v1/message/getnotify`
@@ -109,6 +110,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: the Docker runtime doctor now proves the old FoolFrame Web
+  `/report/saverpt` report-definition payload through `/api/v1/report/saverpt`
+  with `viewid` / `cols` / `exp` / `reportname`, reusing the migrated
+  no-op success surface.
 - 2026-07-10: `loginv2` now accepts the old FoolFrame Web login field names
   from `login.js` (`name`, `pwd`, `dbid`, `chk`, `chkid`) at the shared
   legacy auth DTO boundary while still requiring explicit `AppId` / `AppKey`.

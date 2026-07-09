@@ -1541,6 +1541,25 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             timeout,
         ))
 
+    def save_report_legacy_web_payload_ok() -> bool:
+        view_id = loaded_list_view_id()
+        columns = view_state.get("reportColumns")
+        if not view_id or not isinstance(columns, list):
+            return False
+        report_cols = runtime_report_cols(columns[:1])
+        if not report_cols:
+            return False
+        return common_void_ok(post_json(
+            f"{frontend_url}/api/v1/report/saverpt",
+            {
+                "viewid": view_id,
+                "reportname": f"View {view_id} Runtime",
+                "cols": report_cols,
+                "exp": None,
+            },
+            timeout,
+        ))
+
     checks = (
         (
             "backend:test",
@@ -1741,6 +1760,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "report:saverpt",
             save_report_ok,
             "POST /api/v1/report/saverpt keeps legacy no-op success surface",
+        ),
+        (
+            "report:saverpt-legacy-web-payload",
+            save_report_legacy_web_payload_ok,
+            "POST /api/v1/report/saverpt accepts legacy Web viewid/cols/exp/reportname aliases",
         ),
         (
             "message:getmsg",

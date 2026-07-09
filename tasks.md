@@ -352,6 +352,9 @@ explicitly named as authoritative for fool-service.
       report-grid cells through the Vue proxy.
 - [x] Extend the Docker runtime doctor to prove legacy `saverpt` returns the
       FoolFrame no-op success surface through the Vue proxy.
+- [x] Prove the old FoolFrame Web `/report/saverpt` report-definition payload
+      shape through `/api/v1/report/saverpt`, including `viewid` / `cols` /
+      `exp` / `reportname`.
 - [x] Remove hard-coded seed object IDs from Vue API-tool defaults and make
       runtime detail smoke use the object id returned by `querydata`.
 - [x] Extend the Docker runtime doctor to prove the legacy auth first-hop
