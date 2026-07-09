@@ -502,6 +502,96 @@ public class ModelDataServiceTest {
     }
 
     @Test
+    public void saveDataExecutesLegacyTriggerOutModelCommand() {
+        long sourceModelId = 92751L;
+        long sourceIdPropertyId = 92752L;
+        long sourceNamePropertyId = 92753L;
+        long targetModelId = 92754L;
+        long targetIdPropertyId = 92755L;
+        long targetNamePropertyId = 92756L;
+        long triggerId = 92757L;
+        long triggerCommandId = 92758L;
+        long targetOperationId = 92759L;
+        long targetCommandId = 92760L;
+        String sourceModelName = "RuntimeOutTriggerOrder";
+        String targetModelName = "RuntimeOutTriggerShipment";
+        String sourceTable = "runtime_out_trigger_order";
+        String targetTable = "runtime_out_trigger_shipment";
+        cleanupRuntimeOutModelTrigger(
+                sourceModelId, targetModelId, sourceModelName, targetModelName, sourceTable, targetTable);
+        try {
+            createRuntimeDetailModel(sourceModelId, sourceIdPropertyId, sourceNamePropertyId, sourceModelName, sourceTable);
+            createRuntimeDetailModel(targetModelId, targetIdPropertyId, targetNamePropertyId, targetModelName, targetTable);
+            jdbcTemplate.update(
+                    "INSERT INTO `" + sourceTable + "` (`ORDER_ID`,`ORDER_NAME`) VALUES (?,?)",
+                    "2001",
+                    "S001");
+            jdbcTemplate.update(
+                    "INSERT INTO `" + targetTable + "` (`ORDER_ID`,`ORDER_NAME`) VALUES (?,?)",
+                    "S001",
+                    "pending");
+            jdbcTemplate.update(
+                    "INSERT INTO `SW_SYS_OPERATION` "
+                            + "(`SysId`,`SW_SYS_MODEL_OperationsMODEL_ID`,`SW_MODEL_OPERATION_NAME`,"
+                            + "`SW_MODEL_OPERATION_BASETYPE`) VALUES (?,?,?,?)",
+                    targetOperationId,
+                    targetModelId,
+                    "Close",
+                    OperationBaseType.UPDATE.code());
+            jdbcTemplate.update(
+                    "INSERT INTO `SW_SYS_COMMANDS` "
+                            + "(`SysId`,`SW_SYS_OPERATION_CommandsSysId`,`SW_SYS_COMMAND_TYPE`,"
+                            + "`SW_SYS_COMMAND_PROPERTY`,`SW_SYS_COMMAND_EXP`,`SW_SYS_COMMAND_INDEX`) "
+                            + "VALUES (?,?,?,?,?,?)",
+                    targetCommandId,
+                    targetOperationId,
+                    CommandsType.SET_VALUE.code(),
+                    targetNamePropertyId,
+                    "$closed",
+                    1);
+            jdbcTemplate.update(
+                    "INSERT INTO `SW_SYS_MODEL_TRIGGER` "
+                            + "(`SysId`,`SW_SYS_MODEL_TriggersMODEL_ID`,`SW_MODEL_TRIGGER_TYPE`,"
+                            + "`SW_MODEL_TRIGGER_OPERATIONTYPE`) VALUES (?,?,?,?)",
+                    triggerId,
+                    sourceModelId,
+                    ModelTriggerType.SAVE.code(),
+                    OperationBaseType.UPDATE.code());
+            jdbcTemplate.update(
+                    "INSERT INTO `SW_SYS_MODEL_TRIGGER_COMMANDS` "
+                            + "(`SysId`,`SW_SYS_MODEL_TRIGGER_CommandsSysId`,`SW_SYS_COMMAND_TYPE`,"
+                            + "`SW_SYS_COMMAND_PROPERTY`,`SW_SYS_COMMAND_EXP`,`SW_SYS_COMMAND_ARGMODEL`,"
+                            + "`SW_SYS_COMMAND_ARGEXP`,`SW_SYS_COMMAND_ARGID`,`SW_SYS_COMMAND_Index`) "
+                            + "VALUES (?,?,?,?,?,?,?,?,?)",
+                    triggerCommandId,
+                    triggerId,
+                    CommandsType.EXUTE_OUT_MODEL_METHOD.code(),
+                    sourceNamePropertyId,
+                    "Close",
+                    targetModelId,
+                    ".orderName",
+                    ".orderName",
+                    1);
+
+            IDynamicData data = modelDataService.getOneData(sourceModelName, "2001");
+
+            assertEquals(Boolean.TRUE, modelDataService.saveData(data));
+
+            assertEquals("closed", jdbcTemplate.queryForObject(
+                    "SELECT `ORDER_NAME` FROM `" + targetTable + "` WHERE `ORDER_ID` = ?",
+                    String.class,
+                    "S001"));
+            assertEquals("closed", jdbcTemplate.queryForObject(
+                    "SELECT `ORDER_NAME` FROM `" + sourceTable + "` WHERE `ORDER_ID` = ?",
+                    String.class,
+                    "2001"));
+        } finally {
+            cleanupRuntimeOutModelTrigger(
+                    sourceModelId, targetModelId, sourceModelName, targetModelName, sourceTable, targetTable);
+        }
+    }
+
+    @Test
     public void saveDataExecutesLegacyModelTriggerAssembly() {
         String tableName = "runtime_trigger_assembly_order";
         RecordingAssemblyHandler.reset();
@@ -1612,6 +1702,26 @@ public class ModelDataServiceTest {
                         + "(SELECT `id` FROM `fool_sys_model_property` WHERE `owner` = ?)",
                 modelId);
         cleanupRuntimeTriggerModel(modelId, modelName, tableName);
+    }
+
+    private void cleanupRuntimeOutModelTrigger(
+            long sourceModelId,
+            long targetModelId,
+            String sourceModelName,
+            String targetModelName,
+            String sourceTable,
+            String targetTable) {
+        cleanupRuntimeModelOperations(targetModelId);
+        cleanupRuntimeTriggerModel(sourceModelId, sourceModelName, sourceTable);
+        cleanupRuntimeDetailModel(targetModelId, targetModelName, targetTable);
+    }
+
+    private void cleanupRuntimeModelOperations(long modelId) {
+        jdbcTemplate.update(
+                "DELETE FROM `SW_SYS_COMMANDS` WHERE `SW_SYS_OPERATION_CommandsSysId` IN "
+                        + "(SELECT `SysId` FROM `SW_SYS_OPERATION` WHERE `SW_SYS_MODEL_OperationsMODEL_ID` = ?)",
+                modelId);
+        jdbcTemplate.update("DELETE FROM `SW_SYS_OPERATION` WHERE `SW_SYS_MODEL_OperationsMODEL_ID` = ?", modelId);
     }
 
     private void cleanupRuntimeRelationModel(

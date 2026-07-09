@@ -22,6 +22,8 @@ explicitly named as authoritative for fool-service.
       success surface.
 - [x] Execute legacy trigger direct property-model and list-method command
       slices through the shared `ModelDataService` trigger path.
+- [x] Execute legacy trigger external-model update/map command checks through
+      the shared `ModelDataService` trigger path.
 - [x] Execute legacy model-trigger assembly handlers through the shared Java
       classpath assembly invoker with trigger constructor/parameter commands.
 - [x] Execute legacy property and collection trigger assembly handlers through

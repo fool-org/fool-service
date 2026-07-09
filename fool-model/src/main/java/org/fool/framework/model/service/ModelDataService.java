@@ -11,6 +11,7 @@ import org.fool.framework.model.model.CommandsType;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.ModelTriggerType;
 import org.fool.framework.model.model.MultiDbMap;
+import org.fool.framework.model.model.Operation;
 import org.fool.framework.model.model.OperationBaseType;
 import org.fool.framework.model.model.OperationCommand;
 import org.fool.framework.model.model.Property;
@@ -35,6 +36,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -76,6 +78,7 @@ public class ModelDataService {
     public Model getModel(String modelId) {
         Model model = daoService.getOneDetailByKey(Model.class, modelId);
         hydrateRelations(model);
+        hydrateOperations(model);
         hydratePropertyTriggers(model);
         hydrateModelTriggers(model);
         return model;
@@ -129,6 +132,35 @@ public class ModelDataService {
                     trigger.getId()));
         }
         model.setTriggers(triggers);
+    }
+
+    private void hydrateOperations(Model model) {
+        if (model == null || model.getId() == null) {
+            return;
+        }
+        List<Operation> operations = daoService.selectList(
+                Operation.class,
+                "SELECT `SysId`,`SW_SYS_MODEL_OperationsMODEL_ID`,`SW_MODEL_OPERATION_NAME`,"
+                        + "`SW_MODEL_OPERATION_FILTER`,`SW_MODEL_OPERATION_BASETYPE`,"
+                        + "`SW_MODEL_OPERATION_ARGMODEL`,`SW_MODEL_OPERATION_ARGFILTER`,"
+                        + "`SW_MODEL_OPERATION_INVOKEDLL`,`SW_MODEL_OPERATION_INVOKECLASS`,"
+                        + "`SW_MODEL_OPERATION_INVOKEMETHOD`,`SW_MODEL_OPERATION_RETURNMODEL` "
+                        + "FROM `SW_SYS_OPERATION` "
+                        + "WHERE `SW_SYS_MODEL_OperationsMODEL_ID` = ? ORDER BY `SysId`",
+                model.getId());
+        for (Operation operation : operations) {
+            operation.setCommands(daoService.selectList(
+                    OperationCommand.class,
+                    "SELECT `SysId`,`SW_SYS_OPERATION_CommandsSysId`,`SW_SYS_COMMAND_TYPE`,"
+                            + "`SW_SYS_COMMAND_PROPERTY`,`SW_SYS_COMMAND_EXP`,"
+                            + "`SW_SYS_COMMAND_ARGMODEL`,`SW_SYS_COMMAND_ARGEXP`,`SW_SYS_COMMAND_ARGID`,"
+                            + "`SW_SYS_COMMAND_INDEX`,`SW_SYS_COMMAND_PROPERTY_EXP`,"
+                            + "`SW_SYS_COMMAND_TEMPVALUE` FROM `SW_SYS_COMMANDS` "
+                            + "WHERE `SW_SYS_OPERATION_CommandsSysId` = ? "
+                            + "ORDER BY `SW_SYS_COMMAND_INDEX`, `SysId`",
+                    operation.getId()));
+        }
+        model.setOperations(operations);
     }
 
     private void hydratePropertyTriggers(Model model) {
@@ -530,6 +562,11 @@ public class ModelDataService {
     }
 
     private TriggerCommandValues executeTriggerCommands(Model model, IDynamicData data, List<OperationCommand> commands) {
+        return executeTriggerCommands(model, data, data, commands);
+    }
+
+    private TriggerCommandValues executeTriggerCommands(
+            Model model, IDynamicData data, IDynamicData valueSource, List<OperationCommand> commands) {
         TriggerCommandValues values = new TriggerCommandValues();
         if (commands == null) {
             return values;
@@ -537,17 +574,17 @@ public class ModelDataService {
         commands.stream()
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(command -> command.getIndex() == null ? 0 : command.getIndex()))
-                .forEach(command -> executeTriggerCommand(model, data, command, values));
+                .forEach(command -> executeTriggerCommand(model, data, valueSource, command, values));
         return values;
     }
 
     private void executeTriggerCommand(
-            Model model, IDynamicData data, OperationCommand command, TriggerCommandValues values) {
+            Model model, IDynamicData data, IDynamicData valueSource, OperationCommand command, TriggerCommandValues values) {
         if (command.getCommandType() == CommandsType.SET_VALUE) {
             property(model, command.getPropertyId())
                     .ifPresent(property -> data.set(
                             property.getName(),
-                            triggerCommandValue(property, data, command.getExpression())));
+                            triggerCommandValue(property, valueSource, command.getExpression())));
         } else if (command.getCommandType() == CommandsType.FILTER) {
             checkFilterCommand(model, data, command);
         } else if (command.getCommandType() == CommandsType.EXUTE_PROPRTY_MODEL_METHOD) {
@@ -556,13 +593,75 @@ public class ModelDataService {
         } else if (command.getCommandType() == CommandsType.EXUTE_LIST_METHOD) {
             property(model, command.getPropertyId())
                     .ifPresent(property -> invokeListMethod(data, property, command.getExpression()));
+        } else if (command.getCommandType() == CommandsType.EXUTE_OUT_MODEL_METHOD) {
+            IDynamicData result = executeOutModelCommand(model, data, command);
+            if (result != null) {
+                property(model, command.getPropertyId())
+                        .ifPresent(property -> data.set(
+                                property.getName(),
+                                triggerCommandValue(property, result, command.getArgExpression())));
+            }
         } else if (command.getCommandType() == CommandsType.SET_PARAM_VALUE) {
             values.params.add(triggerCommandValue(
-                    property(model, command.getPropertyId()).orElse(null), data, command.getExpression()));
+                    property(model, command.getPropertyId()).orElse(null), valueSource, command.getExpression()));
         } else if (command.getCommandType() == CommandsType.SET_CON_STR_VALUE) {
             values.constructorValues.add(triggerCommandValue(
-                    property(model, command.getPropertyId()).orElse(null), data, command.getExpression()));
+                    property(model, command.getPropertyId()).orElse(null), valueSource, command.getExpression()));
         }
+    }
+
+    private IDynamicData executeOutModelCommand(Model sourceModel, IDynamicData sourceData, OperationCommand command) {
+        if (command.getArgModelId() == null) {
+            return null;
+        }
+        Model targetModel = getModel(command.getArgModelId().toString());
+        if (targetModel == null || targetModel.getName() == null || targetModel.getName().isBlank()) {
+            return null;
+        }
+        Object targetId = command.getArgSourceIdExpression() == null || command.getArgSourceIdExpression().isBlank()
+                ? ""
+                : triggerCommandValue(
+                        property(sourceModel, command.getPropertyId()).orElse(null),
+                        sourceData,
+                        command.getArgSourceIdExpression());
+        Operation targetOperation = modelOperation(targetModel, command.getExpression());
+        if (targetOperation == null) {
+            return getOneData(targetModel.getName(), targetId == null ? null : String.valueOf(targetId));
+        }
+        OperationBaseType type = targetOperation.getBaseOperationType();
+        IDynamicData targetData;
+        if (type == OperationBaseType.CREATE) {
+            targetData = new DbMysqlDynamic(targetModel);
+        } else if (type == OperationBaseType.UPDATE || type == OperationBaseType.DELETE) {
+            targetData = getOneData(targetModel.getName(), targetId == null ? null : String.valueOf(targetId));
+        } else {
+            return null;
+        }
+        if (targetData == null) {
+            return null;
+        }
+        executeTriggerCommands(targetModel, targetData, sourceData, targetOperation.getCommands());
+        boolean success;
+        if (type == OperationBaseType.CREATE) {
+            success = Boolean.TRUE.equals(createData(targetData));
+        } else if (type == OperationBaseType.UPDATE) {
+            success = Boolean.TRUE.equals(saveData(targetData));
+        } else {
+            success = Boolean.TRUE.equals(deleteData(targetData));
+        }
+        return success ? targetData : null;
+    }
+
+    private Operation modelOperation(Model model, String operationName) {
+        if (model == null || model.getOperations() == null || operationName == null || operationName.isBlank()) {
+            return null;
+        }
+        String name = operationName.trim().toUpperCase(Locale.ROOT);
+        return model.getOperations().stream()
+                .filter(operation -> operation != null && operation.getName() != null)
+                .filter(operation -> operation.getName().trim().toUpperCase(Locale.ROOT).equals(name))
+                .findFirst()
+                .orElse(null);
     }
 
     private void invokePropertyModelMethod(IDynamicData data, Property property, String methodName) {
