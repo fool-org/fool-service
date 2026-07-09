@@ -99,6 +99,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: dynamic create/save now omits scalar properties that are absent
+  from the legacy save DTO, so `savenewobj` can use database defaults for
+  missing BusinessObject foreign-key columns while explicit submitted nulls
+  still write null.
 - 2026-07-09: the Docker runtime doctor now proves legacy
   `querydatadetail.IdExp` through the Vue proxy by resolving `$<row id>` with
   the `DetailViewId` loaded from View metadata.

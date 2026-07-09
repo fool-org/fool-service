@@ -1012,6 +1012,9 @@ public class ModelDataService {
             if (Boolean.TRUE.equals(property.getIsCollection())) {
                 continue;
             }
+            if (!data.toMap().containsKey(property.getName())) {
+                continue;
+            }
             if (Boolean.TRUE.equals(property.getMultiMap())) {
                 Object propertyValue = data.get(property.getName());
                 if (propertyValue instanceof IDynamicData mappedData) {

@@ -535,6 +535,9 @@ explicitly named as authoritative for fool-service.
 - [x] Extend the Docker runtime doctor to prove legacy
       `querydatadetail.IdExp` through the Vue proxy using the loaded detail
       View metadata and row id.
+- [x] Let dynamic create/save omit absent scalar fields so legacy
+      `savenewobj` can use database defaults for missing BusinessObject
+      foreign keys instead of writing null.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

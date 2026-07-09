@@ -59,6 +59,31 @@ public class ModelDataServiceBusinessObjectSaveTest {
         }
     }
 
+    @Test
+    public void createDataLetsMissingBusinessObjectUseLegacyColumnDefault() {
+        String tableName = "runtime_create_business_order";
+        cleanupTable(tableName);
+        try {
+            jdbcTemplate.execute("CREATE TABLE `" + tableName + "` ("
+                    + "`ORDER_ID` varchar(64) NOT NULL,"
+                    + "`CUSTOMER_ID` bigint NOT NULL DEFAULT 0,"
+                    + "PRIMARY KEY (`ORDER_ID`))");
+            Model order = businessObjectOrderModel(tableName);
+            DbMysqlDynamic data = new DbMysqlDynamic(order);
+            data.set("orderId", "7001");
+
+            assertEquals(Boolean.TRUE, modelDataService.createData(data));
+
+            Long customerId = jdbcTemplate.queryForObject(
+                    "SELECT `CUSTOMER_ID` FROM `" + tableName + "` WHERE `ORDER_ID` = ?",
+                    Long.class,
+                    "7001");
+            assertEquals(Long.valueOf(0L), customerId);
+        } finally {
+            cleanupTable(tableName);
+        }
+    }
+
     private Model businessObjectOrderModel(String tableName) {
         Model customer = new Model();
         Property customerId = columnProperty("customerId", "CUSTOMER_ID", PropertyType.Long);
