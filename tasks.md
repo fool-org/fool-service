@@ -582,6 +582,8 @@ explicitly named as authoritative for fool-service.
       preserving metadata-driven save, lookup, operation, and child-row flows.
 - [x] Fall back to FoolFrame `SYSID` for View/data protocol object ids when a
       migrated dynamic model has no explicit id property.
+- [x] Let legacy `inputquery` lookup target models omit explicit id metadata
+      without passing null properties into the model query path.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

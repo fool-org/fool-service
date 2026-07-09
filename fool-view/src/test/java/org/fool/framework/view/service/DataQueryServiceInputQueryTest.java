@@ -27,6 +27,7 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -88,6 +89,61 @@ public class DataQueryServiceInputQueryTest {
         assertArrayEquals(new Object[]{"%Ad%"}, filterCaptor.getValue().generateSql().getArgs());
         assertEquals(1, pageCaptor.getValue().getPageIndex());
         assertEquals(5, pageCaptor.getValue().getPageSize());
+    }
+
+    @Test
+    public void inputQueryAllowsTargetModelWithoutExplicitIdProperty() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
+        DataQueryService service = new DataQueryService();
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+        ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
+        ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
+
+        Property displayName = property("displayName", "display_name");
+        displayName.setPropertyType(PropertyType.String);
+        Model customer = new Model();
+        customer.setName("Customer");
+        customer.setShowProperty(displayName);
+        customer.setProperties(List.of(displayName));
+        Property customerProperty = property("customer", "customer_id");
+        customerProperty.setPropertyType(PropertyType.BusinessObject);
+        customerProperty.setPropertyModel(customer);
+        Model order = new Model();
+        order.setName("Order");
+        order.setProperties(List.of(customerProperty));
+        View view = new View();
+        view.setViewName("OrderList");
+        view.setViewModel("Order");
+        view.setListItems(List.of(viewItem("Customer", "customer")));
+        PageResult<IDynamicData> pageResult = new PageResult<>();
+        pageResult.setItems(List.of(dynamicWithSysid("1001", "displayName", "Ada")));
+        when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
+        when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(order);
+        when(modelDataService.getDataListWithPageInfo(
+                eq("Customer"),
+                any(IQueryFilter.class),
+                anyList(),
+                any(PageNavigator.class),
+                isNull(),
+                eq(true)))
+                .thenReturn(pageResult);
+        InputQueryRequest request = new InputQueryRequest();
+        request.setViewId(100L);
+        request.setViewItemId("Customer");
+        request.setText("Ada");
+
+        InputQueryResult result = service.inputQuery(request);
+
+        assertEquals("1001", result.getItems().get(0).getId());
+        assertEquals("Ada", result.getItems().get(0).getText());
+        verify(modelDataService).getDataListWithPageInfo(
+                eq("Customer"),
+                any(IQueryFilter.class),
+                eq(List.of(displayName)),
+                any(PageNavigator.class),
+                isNull(),
+                eq(true));
     }
 
     @Test
@@ -518,7 +574,12 @@ public class DataQueryServiceInputQueryTest {
     }
 
     private static IDynamicData dynamicWithSysid(String sysid, String text) {
-        IDynamicData data = dynamic(null, text);
+        return dynamicWithSysid(sysid, "customerName", text);
+    }
+
+    private static IDynamicData dynamicWithSysid(String sysid, String field, String text) {
+        IDynamicData data = mock(IDynamicData.class);
+        when(data.get(field)).thenReturn(text);
         when(data.get("SYSID")).thenReturn(sysid);
         return data;
     }

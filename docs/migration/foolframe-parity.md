@@ -99,6 +99,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: legacy `inputquery` now supports BusinessObject target models
+  without an explicit id property by filtering null id properties from the
+  target query property list and continuing to return candidate ids through
+  the shared `SYSID` fallback.
 - 2026-07-09: View/data protocol IDs now fall back to FoolFrame-style `SYSID`
   when dynamic rows have no explicit id property, covering list row ids,
   detail `ObjId`, child collection `DataID`, BusinessObject lookup ids,

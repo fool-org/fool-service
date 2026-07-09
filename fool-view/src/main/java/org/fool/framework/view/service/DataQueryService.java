@@ -218,7 +218,7 @@ public class DataQueryService {
         PageResult<IDynamicData> pageResult = modelDataService.getDataListWithPageInfo(
                 targetModel.getName(),
                 queryFilter,
-                List.of(idProperty, showProperty),
+                inputQueryProperties(idProperty, showProperty),
                 page,
                 idProperty == null ? null : idProperty.getColumn(),
                 true);
@@ -229,6 +229,17 @@ public class DataQueryService {
                     .toList());
         }
         return result;
+    }
+
+    private List<Property> inputQueryProperties(Property idProperty, Property showProperty) {
+        List<Property> properties = new ArrayList<>();
+        if (idProperty != null) {
+            properties.add(idProperty);
+        }
+        if (showProperty != null && !Objects.equals(idProperty, showProperty)) {
+            properties.add(showProperty);
+        }
+        return properties;
     }
 
     private View inputQueryView(InputQueryRequest request) {
