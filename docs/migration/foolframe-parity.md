@@ -99,10 +99,15 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue Sudoku `Map` panels now render marker tables from the child
+  panel's loaded View/data result. Longitude, latitude, and title are derived
+  only from legacy map `EditType` values `16`, `17`, and `18`; extra marker
+  info is projected from the same row `Items`. No map SDK or business DTO
+  binding was added.
 - 2026-07-09: Vue Sudoku `linechart` panels now render chart rows from the
   child panel's loaded View/data result, reusing the same legacy chart
   `EditType` (`11` axis, `12` line, `13` bar, `14` scatter) projection used by
-  `viewWithChart`. Unsupported Sudoku `Map`, `Group`, and `Item` panels still
+  `viewWithChart`. Unsupported Sudoku `Group` and `Item` panels still
   stay as explicit empty states instead of binding to DTO fields.
 - 2026-07-09: Vue Sudoku panels now load their own child View/data chain from
   each item `ListViewId`: `getlistview(ListViewId)` first, then

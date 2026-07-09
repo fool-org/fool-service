@@ -138,6 +138,11 @@ describe("App defaults", () => {
     expect(appSource).toContain("sudokuPanelChartMax(panel)");
   });
 
+  it("renders Sudoku map panels from child row map items", () => {
+    expect(appSource).toContain("sudokuPanelKind(panel) === 'map'");
+    expect(appSource).toContain("sudokuPanelMarkers(panel)");
+  });
+
   it("resets the main View search to the first page", () => {
     expect(appSource).toContain("async function loadViewWorkflow(resetPage = false)");
     expect(appSource).toContain("pageIndex.value = 1");

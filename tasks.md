@@ -614,6 +614,9 @@ explicitly named as authoritative for fool-service.
       panel rows stay bound to child View metadata.
 - [x] Render Vue Sudoku `linechart` panels from child row chart `EditType`
       metadata by reusing the existing `legacyChartData` path.
+- [x] Render Vue Sudoku `Map` panels from child row map `EditType` metadata
+      (`16` longitude, `17` latitude, `18` title) as marker tables without
+      binding to concrete business DTO fields.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

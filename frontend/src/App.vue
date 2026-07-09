@@ -83,6 +83,7 @@ import {
   legacyInitAppDbId,
   legacyInputQueryItems,
   legacyChartData,
+  legacyMapMarkers,
   legacyMainMenuItems,
   legacyMessageContent,
   legacyMessageId,
@@ -592,6 +593,10 @@ function sudokuPanelChart(panel: TableColumnInfo) {
 
 function sudokuPanelChartMax(panel: TableColumnInfo) {
   return Math.max(1, ...sudokuPanelChart(panel).series.flatMap((series) => series.values));
+}
+
+function sudokuPanelMarkers(panel: TableColumnInfo) {
+  return legacyMapMarkers(sudokuPanelRows(panel));
 }
 
 async function loadResultPage(nextPage: number) {
@@ -1179,6 +1184,26 @@ function syncDetailDrafts() {
                     <strong>{{ value }}</strong>
                   </div>
                 </section>
+              </div>
+              <div v-else-if="sudokuPanelKind(panel) === 'map' && sudokuPanelMarkers(panel).length" class="table-wrap sudoku-panel-body">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Longitude</th>
+                      <th>Latitude</th>
+                      <th>Info</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="marker in sudokuPanelMarkers(panel)" :key="`${marker.longitude}-${marker.latitude}-${marker.title?.text || ''}`">
+                      <td>{{ marker.title?.text || "-" }}</td>
+                      <td>{{ marker.longitude }}</td>
+                      <td>{{ marker.latitude }}</td>
+                      <td>{{ marker.info.map((item) => `${item.label}: ${item.text}`).join("; ") || "-" }}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
               <div v-else class="empty-state compact">
                 {{ sudokuPanelResult(panel) ? `${sudokuPanelRows(panel).length} rows loaded` : "No panel data loaded." }}

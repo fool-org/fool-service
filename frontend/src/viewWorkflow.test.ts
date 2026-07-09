@@ -55,6 +55,7 @@ import {
   legacyInitAppCheckCode,
   legacyInitAppDbId,
   legacyInputQueryItems,
+  legacyMapMarkers,
   legacyMainMenuItems,
   legacyMessageContent,
   legacyMessageId,
@@ -288,6 +289,32 @@ describe("view workflow helpers", () => {
       labels: [],
       series: []
     });
+  });
+
+  it("builds map markers only from legacy map edit types", () => {
+    expect(legacyMapMarkers([
+      {
+        Items: [
+          { PrpShowName: "Longitude", ObjId: "116.32", EditType: 16 },
+          { PrpShowName: "Latitude", ObjId: "39.94917", EditType: 17 },
+          { PrpShowName: "Shop", FmtValue: "Main Store", EditType: 18 },
+          { PrpShowName: "Address", FmtValue: "Beijing", EditType: 0 }
+        ]
+      },
+      {
+        Items: [
+          { PrpShowName: "Longitude", ObjId: "", EditType: 16 },
+          { PrpShowName: "Latitude", ObjId: "39", EditType: 17 }
+        ]
+      }
+    ])).toEqual([
+      {
+        longitude: "116.32",
+        latitude: "39.94917",
+        title: { label: "Shop", text: "Main Store" },
+        info: [{ label: "Address", text: "Beijing" }]
+      }
+    ]);
   });
 
   it("does not use values DTO fields for view row identity or cells", () => {

@@ -657,6 +657,18 @@ export interface LegacyChartData {
   series: LegacyChartSeries[];
 }
 
+export interface LegacyMapMarkerInfo {
+  label: string;
+  text: string;
+}
+
+export interface LegacyMapMarker {
+  longitude: string;
+  latitude: string;
+  title?: LegacyMapMarkerInfo;
+  info: LegacyMapMarkerInfo[];
+}
+
 export function legacyChartData(rows: ListDataItem[]): LegacyChartData {
   const labels: string[] = [];
   const series: LegacyChartSeries[] = [];
@@ -689,6 +701,34 @@ export function legacyChartData(rows: ListDataItem[]): LegacyChartData {
   }
 
   return { labels, series };
+}
+
+export function legacyMapMarkers(rows: ListDataItem[]): LegacyMapMarker[] {
+  const markers: LegacyMapMarker[] = [];
+  for (const row of rows) {
+    let longitude = "";
+    let latitude = "";
+    let title: LegacyMapMarkerInfo | undefined;
+    const info: LegacyMapMarkerInfo[] = [];
+    for (const item of rowItems(row)) {
+      const editType = String(item.editType ?? item.EditType ?? "").toLowerCase();
+      if (editType === "16") {
+        longitude = firstDisplayValue([item.objId, item.ObjId, item.fmtValue, item.FmtValue]);
+      } else if (editType === "17") {
+        latitude = firstDisplayValue([item.objId, item.ObjId, item.fmtValue, item.FmtValue]);
+      } else if (editType === "18") {
+        title = { label: fieldTitle(item), text: fieldDisplayValue(item) };
+      } else {
+        const text = fieldDisplayValue(item);
+        const label = fieldTitle(item);
+        if (label || text) info.push({ label, text });
+      }
+    }
+    if (longitude && latitude) {
+      markers.push({ longitude, latitude, title, info });
+    }
+  }
+  return markers;
 }
 
 function chartSeriesType(editType: string): LegacyChartSeries["type"] | "" {
