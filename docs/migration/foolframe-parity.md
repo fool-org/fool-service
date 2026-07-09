@@ -25,6 +25,7 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `curl -H 'Content-Type: application/json' -d '{"viewId":100}' http://localhost:8080/api/v1/view/get-view`
   `curl -H 'Content-Type: application/json' -d '{"viewId":100}' http://localhost:8080/api/v1/view/getlistview`
   `curl -H 'Content-Type: application/json' -d '{"Token":"token-1","ViewId":100}' http://localhost:8080/api/v1/view/getlistview`
+  `curl -H 'Content-Type: application/json' -d '{"id":100}' http://localhost:8081/api/v1/view/getlistview`
   `curl -H 'Content-Type: application/json' -d '{"viewId":100}' http://localhost:8080/api/v1/view/getreaditemview`
   `curl -H 'Content-Type: application/json' -d '{"viewId":100,"pageInfo":{"pageSize":10,"pageIndex":1},"filter":null}' http://localhost:8080/api/v1/data/query-list`
   `curl -H 'Content-Type: application/json' -d '{"ViewId":100,"pageInfo":{"pageSize":10,"pageIndex":1},"filter":{"orderId":{"values":["1001","1002"]}}}' http://localhost:8080/api/v1/data/query-list`
@@ -111,6 +112,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: backend `getlistview` now accepts the old FoolFrame Web `/view`
+  body shape from `routes.getqueryview`, including the `id` alias at the
+  shared `ViewDataRequest` boundary. The Docker runtime doctor proves the
+  shape through the Vue proxy.
 - 2026-07-10: backend `querydatadetail` now accepts the old FoolFrame Web
   `/itemview` payload shape from `routes.getItemPost`, including
   `id` / `objid` / `idexp` aliases at the shared DTO boundary. The Docker

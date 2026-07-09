@@ -880,6 +880,21 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             and view_template_metadata_ok(payload)
         )
 
+    def get_list_view_legacy_web_payload() -> bool:
+        view_id = loaded_list_view_id()
+        if not view_id:
+            return False
+        payload = post_json(
+            f"{frontend_url}/api/v1/view/getlistview",
+            {"id": view_id},
+            timeout,
+        )
+        return (
+            detail_view_id(payload) > 0
+            and bool(view_columns(payload))
+            and view_template_metadata_ok(payload)
+        )
+
     def loaded_list_view_id() -> int:
         view_id = view_state.get("listViewId")
         return view_id if isinstance(view_id, int) else 0
@@ -1631,6 +1646,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "view:getlistview",
             get_list_view,
             "POST /api/v1/view/getlistview uses the App default ViewId and returns DetailViewId",
+        ),
+        (
+            "view:getlistview-legacy-web-payload",
+            get_list_view_legacy_web_payload,
+            "POST /api/v1/view/getlistview accepts legacy Web view id payload",
         ),
         (
             "data:getenums",

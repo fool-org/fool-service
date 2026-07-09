@@ -10,6 +10,6 @@ import org.fool.framework.dto.CommonRequest;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ViewDataRequest extends CommonRequest {
-    @JsonAlias("ViewId")
+    @JsonAlias({"ViewId", "viewid", "id"})
     private Long viewId;
 }

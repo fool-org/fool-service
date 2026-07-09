@@ -31,6 +31,16 @@ public class ViewControllerLegacyGetListViewTest {
     }
 
     @Test
+    public void viewDataRequestAcceptsLegacyWebViewIdAliases() throws Exception {
+        ViewDataRequest request = new ObjectMapper().readValue(
+                "{\"Token\":\"token-1\",\"id\":100}",
+                ViewDataRequest.class);
+
+        assertEquals("token-1", request.getToken());
+        assertEquals(Long.valueOf(100), request.getViewId());
+    }
+
+    @Test
     public void viewDataRequestDoesNotDeclareBusinessNameShortcut() {
         assertThrows(NoSuchFieldException.class, () -> ViewDataRequest.class.getDeclaredField("viewName"));
     }

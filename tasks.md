@@ -171,6 +171,9 @@ explicitly named as authoritative for fool-service.
 - [x] Tighten the repository source-size harness limit from 2200 to 2100 lines.
 - [x] Accept FoolFrame Pascal `getlistview` / `querydata` request fields at
       the generic View/data protocol boundary without binding to business DTOs.
+- [x] Accept the old FoolFrame Web `/view` get-list payload shape at
+      `/api/v1/view/getlistview`, including the `id` alias at the shared
+      View request DTO boundary.
 - [x] Remove visible `OrderList` / trading-field defaults from the Vue View
       workflow so first-screen rendering stays `viewId` and View metadata
       driven.
