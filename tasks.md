@@ -586,6 +586,8 @@ explicitly named as authoritative for fool-service.
       without passing null properties into the model query path.
 - [x] Hydrate legacy owned collections for dynamic parent models that rely on
       `SYSID` instead of explicit id metadata.
+- [x] Let legacy `inputquery` source-list owner/current lookups use
+      FoolFrame `SYSID` when model metadata has no explicit id property.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

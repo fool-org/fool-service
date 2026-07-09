@@ -99,6 +99,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: legacy `inputquery` source-list owner lookups now fall back to
+  FoolFrame `SYSID` when the owner/current model has no explicit id property,
+  keeping child lookup candidate loading on the View metadata path.
 - 2026-07-09: dynamic collection hydration for models without explicit id
   property now selects and maps FoolFrame `SYSID` through `ModelDataService`
   and uses the same id fallback when loading owned collection rows.

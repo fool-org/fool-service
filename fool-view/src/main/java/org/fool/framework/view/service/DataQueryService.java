@@ -291,30 +291,38 @@ public class DataQueryService {
             String sourceExpression) {
         if (sourceExpression != null && sourceExpression.trim().startsWith("#.")) {
             Model ownerModel = model.getOwner();
+            String ownerIdColumn = idColumn(ownerModel);
             if (!StringUtils.hasText(request.getOwnerId())
                     || ownerModel == null
-                    || ownerModel.getIdProperty() == null
-                    || !StringUtils.hasText(ownerModel.getIdProperty().getColumn())
+                    || !StringUtils.hasText(ownerIdColumn)
                     || ownerModel.getProperties() == null) {
                 return List.of();
             }
             return modelDataService.getDataList(
                     ownerModel.getName(),
-                    new CompareFilter(ownerModel.getIdProperty().getColumn(), CompareOp.EQUAL, request.getOwnerId()),
+                    new CompareFilter(ownerIdColumn, CompareOp.EQUAL, request.getOwnerId()),
                     ownerModel.getProperties());
         }
         if (request.isAdded()) {
             return List.of();
         }
+        String idColumn = idColumn(model);
         if (!StringUtils.hasText(request.getObjID())
-                || model.getIdProperty() == null
-                || !StringUtils.hasText(model.getIdProperty().getColumn())) {
+                || !StringUtils.hasText(idColumn)) {
             return List.of();
         }
         return modelDataService.getDataList(
                 modelId,
-                new CompareFilter(model.getIdProperty().getColumn(), CompareOp.EQUAL, request.getObjID()),
+                new CompareFilter(idColumn, CompareOp.EQUAL, request.getObjID()),
                 model.getProperties());
+    }
+
+    private String idColumn(Model model) {
+        if (model == null || model.getIdProperty() == null
+                || !StringUtils.hasText(model.getIdProperty().getColumn())) {
+            return "SYSID";
+        }
+        return model.getIdProperty().getColumn();
     }
 
     private String sourceKey(String sourceExpression) {
