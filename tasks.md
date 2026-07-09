@@ -490,6 +490,10 @@ explicitly named as authoritative for fool-service.
 - [x] Add idempotent Docker repair blocks and runtime-doctor coverage for the
       legacy `SW_SYS_PROPERTY` model/filter/source/format/sqlcon/owner columns
       used by migrated View/data/AppInstall metadata.
+- [x] Extend the legacy `SW_SYS_PROPERTY` Docker repair and runtime-doctor
+      coverage to the remaining mapped property scalar columns: connection type,
+      collection, DB/property names, multi-map, key/check/generation, and
+      nullable/get/set flags.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

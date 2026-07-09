@@ -96,7 +96,18 @@ class RuntimeDoctorTest(unittest.TestCase):
             "SW_SYS_PROPERTY\tSysId",
             "SW_SYS_PROPERTY\tPROPERTY_NAME",
             "SW_SYS_PROPERTY\tPROPERTY_TYPE",
+            "SW_SYS_PROPERTY\tPROPERTY_CONTYPE",
             "SW_SYS_PROPERTY\tPROPERTY_MODEL",
+            "SW_SYS_PROPERTY\tPROPERTY_ISARRAY",
+            "SW_SYS_PROPERTY\tPROPERTY_COLNAME",
+            "SW_SYS_PROPERTY\tPROPERTY_PROPERTYNAME",
+            "SW_SYS_PROPERTY\tPROPERTY_MULTIMAP",
+            "SW_SYS_PROPERTY\tPROPERTY_IXGRPOUP",
+            "SW_SYS_PROPERTY\tPROPERTY_ISCHECK",
+            "SW_SYS_PROPERTY\tPROPERTY_GENERATIONTYPE",
+            "SW_SYS_PROPERTY\tPROPERTY_ALLOWDBNULL",
+            "SW_SYS_PROPERTY\tPROPERTY_CANGET",
+            "SW_SYS_PROPERTY\tPROPERTY_CANSET",
             "SW_SYS_PROPERTY\tPROPERTY_FILTER",
             "SW_SYS_PROPERTY\tPROPERTY_SOURCE",
             "SW_SYS_PROPERTY\tPROPERTY_FORMAT",
@@ -121,6 +132,7 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertTrue(schema_ok(raw))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_VIEW_ITEM\tVIEW_ITEM_PROPERTY\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_MODEL\tMODEL_PARENT\n", "")))
+        self.assertFalse(schema_ok(raw.replace("SW_SYS_PROPERTY\tPROPERTY_CONTYPE\n", "")))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_PROPERTY\tPROPERTY_SOURCE\n", "")))
 
     def test_common_response_list_requires_success_and_nonempty_list(self) -> None:
