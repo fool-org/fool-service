@@ -97,6 +97,7 @@ import {
   rowRenderKey,
   rowValue,
   selectedChildViewId,
+  sudokuPanelListViewType,
   readViewDetailViews,
   readViewFields,
   readViewId,
@@ -261,6 +262,8 @@ describe("view workflow helpers", () => {
     expect(sudokuPanelKind({ ViewFile: "./includes/Map" })).toBe("map");
     expect(sudokuPanelKind({ ViewFile: "./includes/Item" })).toBe("item");
     expect(sudokuPanelKind({ ViewFile: "" })).toBe("unknown");
+    expect(sudokuPanelListViewType({ ListViewType: 1 })).toBe(1);
+    expect(sudokuPanelListViewType({ listViewType: 0 })).toBe(0);
   });
 
   it("builds chart data only from legacy chart edit types", () => {

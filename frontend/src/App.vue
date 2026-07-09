@@ -37,6 +37,7 @@ import {
 import ListDataTable from "./ListDataTable.vue";
 import MigrationMap from "./MigrationMap.vue";
 import ResultsPanel from "./ResultsPanel.vue";
+import SudokuPanels from "./SudokuPanels.vue";
 import ViewDetailPanel from "./ViewDetailPanel.vue";
 import { useChildCandidates } from "./useChildCandidates";
 import { useChildDrafts } from "./useChildDrafts";
@@ -83,8 +84,6 @@ import {
   legacyInitAppDbId,
   legacyInputQueryItems,
   legacyChartData,
-  legacyItemFields,
-  legacyMapMarkers,
   legacyMainMenuItems,
   legacyMessageContent,
   legacyMessageId,
@@ -116,6 +115,8 @@ import {
   rowOperations,
   selectedChildViewId,
   sudokuPanelKind,
+  sudokuPanelListViewType,
+  sudokuPanelViewId,
   viewDisplayTitle,
   viewDisplayType,
   viewInputCount,
@@ -567,41 +568,28 @@ async function loadSudokuPanels() {
     const panelViewId = sudokuPanelViewId(panel);
     if (!panelViewId) continue;
     const response = await loadViewDataById(panelViewId, "sudoku-panel", 5);
-    if (response) loaded[panelViewId] = response;
+    if (response) {
+      loaded[panelViewId] = response;
+      sudokuPanelData.value = { ...loaded };
+      if (sudokuPanelKind(panel) === "group") {
+        for (const childPanel of sudokuGroupPanels(panel)) {
+          const childViewId = sudokuPanelViewId(childPanel);
+          if (!childViewId || loaded[childViewId] || sudokuPanelListViewType(childPanel) !== 0) continue;
+          const childResponse = await loadViewDataById(childViewId, "sudoku-panel", 5);
+          if (childResponse) loaded[childViewId] = childResponse;
+        }
+      }
+    }
   }
-  sudokuPanelData.value = loaded;
-}
-
-function sudokuPanelViewId(panel: TableColumnInfo) {
-  return Number(panel.listViewId ?? panel.ListViewId ?? 0) || 0;
+  sudokuPanelData.value = { ...loaded };
 }
 
 function sudokuPanelResult(panel: TableColumnInfo) {
   return sudokuPanelData.value[sudokuPanelViewId(panel)];
 }
 
-function sudokuPanelColumns(panel: TableColumnInfo) {
+function sudokuGroupPanels(panel: TableColumnInfo) {
   return viewColumns(sudokuPanelResult(panel)?.view);
-}
-
-function sudokuPanelRows(panel: TableColumnInfo) {
-  return listRows(sudokuPanelResult(panel)?.data || undefined);
-}
-
-function sudokuPanelChart(panel: TableColumnInfo) {
-  return legacyChartData(sudokuPanelRows(panel));
-}
-
-function sudokuPanelChartMax(panel: TableColumnInfo) {
-  return Math.max(1, ...sudokuPanelChart(panel).series.flatMap((series) => series.values));
-}
-
-function sudokuPanelMarkers(panel: TableColumnInfo) {
-  return legacyMapMarkers(sudokuPanelRows(panel));
-}
-
-function sudokuPanelItemFields(panel: TableColumnInfo) {
-  return legacyItemFields(sudokuPanelRows(panel));
 }
 
 async function loadResultPage(nextPage: number) {
@@ -1162,69 +1150,7 @@ function syncDetailDrafts() {
             </button>
           </div>
 
-          <div v-if="isSudokuView" class="sudoku-grid">
-            <section v-for="panel in sudokuPanels" :key="`${sudokuPanelViewId(panel)}-${fieldTitle(panel)}-${sudokuPanelKind(panel)}`" class="sudoku-panel">
-              <header>
-                <strong>{{ fieldTitle(panel) }}</strong>
-                <span>{{ sudokuPanelKind(panel) }}</span>
-              </header>
-              <div v-if="sudokuPanelKind(panel) === 'list' && sudokuPanelRows(panel).length" class="table-wrap sudoku-panel-body">
-                <ListDataTable
-                  :columns="sudokuPanelColumns(panel)"
-                  :disabled="Boolean(pendingAction)"
-                  :row-operations="[]"
-                  :rows="sudokuPanelRows(panel)"
-                  :show-default-action="false"
-                />
-              </div>
-              <div v-else-if="sudokuPanelKind(panel) === 'linechart' && sudokuPanelChart(panel).series.length" class="legacy-chart-pane sudoku-panel-body">
-                <section v-for="series in sudokuPanelChart(panel).series" :key="`${sudokuPanelViewId(panel)}-${series.name}`" class="chart-series">
-                  <header>
-                    <strong>{{ series.name }}</strong>
-                    <span>{{ series.type }}</span>
-                  </header>
-                  <div v-for="(value, index) in series.values" :key="`${series.name}-${index}`" class="chart-row">
-                    <span>{{ sudokuPanelChart(panel).labels[index] || index + 1 }}</span>
-                    <meter :value="value" min="0" :max="sudokuPanelChartMax(panel)"></meter>
-                    <strong>{{ value }}</strong>
-                  </div>
-                </section>
-              </div>
-              <div v-else-if="sudokuPanelKind(panel) === 'map' && sudokuPanelMarkers(panel).length" class="table-wrap sudoku-panel-body">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Title</th>
-                      <th>Longitude</th>
-                      <th>Latitude</th>
-                      <th>Info</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="marker in sudokuPanelMarkers(panel)" :key="`${marker.longitude}-${marker.latitude}-${marker.title?.text || ''}`">
-                      <td>{{ marker.title?.text || "-" }}</td>
-                      <td>{{ marker.longitude }}</td>
-                      <td>{{ marker.latitude }}</td>
-                      <td>{{ marker.info.map((item) => `${item.label}: ${item.text}`).join("; ") || "-" }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div v-else-if="sudokuPanelKind(panel) === 'item' && sudokuPanelItemFields(panel).length" class="table-wrap sudoku-panel-body">
-                <table>
-                  <tbody>
-                    <tr v-for="(item, index) in sudokuPanelItemFields(panel)" :key="`${item.label}-${index}`">
-                      <th>{{ item.label }}</th>
-                      <td>{{ item.text }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div v-else class="empty-state compact">
-                {{ sudokuPanelResult(panel) ? `${sudokuPanelRows(panel).length} rows loaded` : "No panel data loaded." }}
-              </div>
-            </section>
-          </div>
+          <SudokuPanels v-if="isSudokuView" :disabled="Boolean(pendingAction)" :panel-data="sudokuPanelData" :panels="sudokuPanels" />
 
           <div v-show="(!isChartView && !isSudokuView) || activeViewPane === 'table'" class="table-wrap view-table">
             <ListDataTable

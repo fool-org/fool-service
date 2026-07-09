@@ -7,6 +7,7 @@ import listDataTableSource from "./ListDataTable.vue?raw";
 import metadataFieldEditorSource from "./MetadataFieldEditor.vue?raw";
 import payloadSource from "./payload.ts?raw";
 import resultsPanelSource from "./ResultsPanel.vue?raw";
+import sudokuPanelsSource from "./SudokuPanels.vue?raw";
 import viewDetailPanelSource from "./ViewDetailPanel.vue?raw";
 import viewShellSource from "./viewShell.ts?raw";
 import viewDataWorkflowSource from "./useViewDataWorkflow.ts?raw";
@@ -119,10 +120,11 @@ describe("App defaults", () => {
 
   it("renders the legacy Sudoku template from ViewFile panels", () => {
     expect(appSource).toContain("viewUsesSudokuTemplate(viewResponse.value?.data)");
+    expect(appSource).toContain("SudokuPanels");
     expect(appSource).toContain("sudokuPanelKind(panel)");
     expect(appSource).toContain("loadSudokuPanels");
     expect(appSource).toContain("loadViewDataById(panelViewId, \"sudoku-panel\", 5)");
-    expect(appSource).toContain('class="sudoku-grid"');
+    expect(sudokuPanelsSource).toContain('class="sudoku-grid"');
   });
 
   it("loads Sudoku child panels without requiring root querydata", () => {
@@ -133,19 +135,27 @@ describe("App defaults", () => {
   });
 
   it("renders Sudoku linechart panels from child row chart items", () => {
-    expect(appSource).toContain("sudokuPanelKind(panel) === 'linechart'");
-    expect(appSource).toContain("sudokuPanelChart(panel).series");
-    expect(appSource).toContain("sudokuPanelChartMax(panel)");
+    expect(sudokuPanelsSource).toContain("sudokuPanelKind(panel) === 'linechart'");
+    expect(sudokuPanelsSource).toContain("sudokuPanelChart(panel).series");
+    expect(sudokuPanelsSource).toContain("sudokuPanelChartMax(panel)");
   });
 
   it("renders Sudoku map panels from child row map items", () => {
-    expect(appSource).toContain("sudokuPanelKind(panel) === 'map'");
-    expect(appSource).toContain("sudokuPanelMarkers(panel)");
+    expect(sudokuPanelsSource).toContain("sudokuPanelKind(panel) === 'map'");
+    expect(sudokuPanelsSource).toContain("sudokuPanelMarkers(panel)");
   });
 
   it("renders Sudoku item panels from child row items", () => {
-    expect(appSource).toContain("sudokuPanelKind(panel) === 'item'");
-    expect(appSource).toContain("sudokuPanelItemFields(panel)");
+    expect(sudokuPanelsSource).toContain("sudokuPanelKind(panel) === 'item'");
+    expect(sudokuPanelsSource).toContain("sudokuPanelItemFields(panel)");
+  });
+
+  it("loads and renders Sudoku group child list panels", () => {
+    expect(appSource).toContain("sudokuPanelKind(panel) === \"group\"");
+    expect(appSource).toContain("for (const childPanel of sudokuGroupPanels(panel))");
+    expect(appSource).toContain("sudokuPanelListViewType(childPanel) !== 0");
+    expect(appSource).toContain("sudokuPanelData.value = { ...loaded }");
+    expect(sudokuPanelsSource).toContain("sudokuPanelKind(panel) === 'group'");
   });
 
   it("resets the main View search to the first page", () => {

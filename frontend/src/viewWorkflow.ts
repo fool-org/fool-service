@@ -188,6 +188,14 @@ export function sudokuPanelKind(column: Pick<TableColumnInfo, "viewFile" | "View
   return "unknown";
 }
 
+export function sudokuPanelViewId(column: Pick<TableColumnInfo, "listViewId" | "ListViewId">) {
+  return Number(column.listViewId ?? column.ListViewId ?? 0) || 0;
+}
+
+export function sudokuPanelListViewType(column: Pick<TableColumnInfo, "listViewType" | "ListViewType">) {
+  return Number(column.listViewType ?? column.ListViewType ?? 0) || 0;
+}
+
 export function viewInputCount(view: ListViewInfo | undefined) {
   return firstList(view?.inputInfo).length;
 }
