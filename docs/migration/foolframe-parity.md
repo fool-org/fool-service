@@ -99,11 +99,15 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-09: Vue Sudoku panels now load their own child View/data chain from
+  each item `ListViewId`: `getlistview(ListViewId)` first, then
+  `querydata(ListViewId)` only when the child View has renderable columns.
+  The shared current-data refresh path skips root `querydata` for
+  `TempFile=Sudoku`, so panel tables cannot bind to the root View's data DTO.
 - 2026-07-09: Vue now recognizes legacy `TempFile=Sudoku` and normalizes each
   View item `ViewFile` (`./includes/List`, `Group`, `Map`, `Item`,
-  `linechart`) before data binding. The current slice renders the configured
-  Sudoku child panels from View metadata only; independent child-panel
-  `querydata` loading remains separate follow-up work.
+  `linechart`) before data binding. This first slice rendered the configured
+  Sudoku child panel shells from View metadata only.
 - 2026-07-09: Java View item metadata, Docker seed data, Vue chart helpers, and
   the runtime doctor now carry FoolFrame chart `EditType` values `11` through
   `14` for `viewWithChart`. Docker `querydata` rows expose a chart axis plus

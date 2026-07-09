@@ -609,6 +609,9 @@ explicitly named as authoritative for fool-service.
       instead of concrete business DTO fields.
 - [x] Recognize legacy Vue `TempFile=Sudoku` and render child panel shells from
       View item `ViewFile` metadata before adding any child-panel data binding.
+- [x] Load Vue Sudoku child panels through each panel `ListViewId`
+      `getlistview` -> `querydata` chain, skipping root View `querydata` so
+      panel rows stay bound to child View metadata.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

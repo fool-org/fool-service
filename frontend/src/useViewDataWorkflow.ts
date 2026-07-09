@@ -145,6 +145,35 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
     return response;
   }
 
+  async function loadViewDataById(requestedViewId: number, label = "view-data", pageSize = 10) {
+    if (requestedViewId <= 0) {
+      return null;
+    }
+    const viewResponse = await options.runAction(`${label}-view`, () =>
+      postApi<ListViewInfo>("/api/v1/view/getlistview", buildLegacyListViewRequest({
+        token: options.token.value,
+        viewId: requestedViewId
+      }))
+    );
+    if (!viewResponse) {
+      return null;
+    }
+    const loadedViewId = viewId(viewResponse.data, requestedViewId);
+    if (!loadedViewId || !listRenderColumns(viewResponse.data).length) {
+      return { view: viewResponse.data, data: null };
+    }
+    const dataResponse = await options.runAction(`${label}-data`, () =>
+      postApi<ListViewResult>("/api/v1/data/querydata", buildLegacyQueryDataRequest({
+        token: options.token.value,
+        viewId: loadedViewId,
+        pageIndex: 1,
+        pageSize,
+        queryFilter: ""
+      }))
+    );
+    return { view: viewResponse.data, data: dataResponse?.data ?? null };
+  }
+
   async function queryLegacyData() {
     options.listViewId.value = Number(options.queryViewId.value);
     if (!(await loadLegacyListView())) {
@@ -197,6 +226,7 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
     readItemViewFor,
     loadLegacyListView,
     loadReadItemView,
+    loadViewDataById,
     queryLegacyData,
     queryCurrentViewData
   };

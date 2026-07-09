@@ -120,7 +120,16 @@ describe("App defaults", () => {
   it("renders the legacy Sudoku template from ViewFile panels", () => {
     expect(appSource).toContain("viewUsesSudokuTemplate(viewResponse.value?.data)");
     expect(appSource).toContain("sudokuPanelKind(panel)");
+    expect(appSource).toContain("loadSudokuPanels");
+    expect(appSource).toContain("loadViewDataById(panelViewId, \"sudoku-panel\", 5)");
     expect(appSource).toContain('class="sudoku-grid"');
+  });
+
+  it("loads Sudoku child panels without requiring root querydata", () => {
+    const start = appSource.indexOf("async function queryCurrentViewData");
+    const source = appSource.slice(start, appSource.indexOf("async function loadSudokuPanels", start));
+    expect(source).toContain("if (isSudokuView.value)");
+    expect(source.indexOf("await loadSudokuPanels()")).toBeLessThan(source.indexOf("queryCurrentViewDataBase()"));
   });
 
   it("resets the main View search to the first page", () => {

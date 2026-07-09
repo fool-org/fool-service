@@ -110,6 +110,37 @@ describe("useViewDataWorkflow", () => {
     expect(response?.data.ViewId).toBe(60);
     expect(workflow.readItemViewFor(60)).toEqual(response?.data);
   });
+
+  it("loads a child panel by getlistview before querydata", async () => {
+    const calls: { path: string; payload: Record<string, unknown> }[] = [];
+    vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+      const payload = JSON.parse(String(init?.body || "{}")) as Record<string, unknown>;
+      calls.push({ path, payload });
+      if (path === "/api/v1/view/getlistview") {
+        return jsonResponse({
+          ViewId: 201,
+          Name: "Child",
+          Items: [{ Name: "Child Name", PropertyName: "childName" }]
+        });
+      }
+      return jsonResponse({
+        Data: [{ Items: [{ PrpId: "childName", FmtValue: "One" }] }]
+      });
+    }));
+    const workflow = useViewDataWorkflow(workflowRefs());
+
+    const response = await workflow.loadViewDataById(200, "sudoku-panel", 5);
+
+    expect(calls.map((call) => call.path)).toEqual([
+      "/api/v1/view/getlistview",
+      "/api/v1/data/querydata"
+    ]);
+    expect(calls[0].payload).toMatchObject({ viewId: 200 });
+    expect(calls[1].payload).toMatchObject({ viewId: 201, pageIndex: 1, pageSize: 5 });
+    expect(calls[1].payload).not.toHaveProperty("queryFilter");
+    expect(response?.view.ViewId).toBe(201);
+    expect(response?.data?.Data).toEqual([{ Items: [{ PrpId: "childName", FmtValue: "One" }] }]);
+  });
 });
 
 function workflowRefs(overrides: Partial<ReturnType<typeof baseRefs>> = {}) {
