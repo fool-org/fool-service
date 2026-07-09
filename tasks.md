@@ -506,6 +506,8 @@ explicitly named as authoritative for fool-service.
 - [x] Extend Docker runtime-doctor coverage to the full legacy View render
       schema used by the Vue View-first workflow: View, ViewFile, ViewItem,
       ViewOperation, OperationView, and OperationViewItem columns.
+- [x] Deduplicate the runtime-doctor schema test fixture so schema guard tests
+      reuse `LEGACY_CORE_SCHEMA_COLUMNS` instead of carrying a second full copy.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
