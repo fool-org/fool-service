@@ -17,6 +17,8 @@ from runtime_schema import LEGACY_CORE_SCHEMA_COLUMNS, MARKET_SYMBOLS_COLUMNS
 REQUIRED_SERVICES = ("backend", "frontend", "mysql", "redis")
 LEGACY_FRONTEND_PATHS = (
     ("frontend:root-path", "/"),
+    ("frontend:about-path", "/about"),
+    ("frontend:contact-path", "/contact"),
     ("frontend:main-path", "/main"),
     ("frontend:view-path", "/view100"),
     ("frontend:view-detail-path", "/view100/1001"),

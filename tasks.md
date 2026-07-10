@@ -701,6 +701,8 @@ explicitly named as authoritative for fool-service.
       cannot silently lose their property-type bindings.
 - [x] Prove `getmkqview` and legacy `mkqview` return query catalog
       `CompareTypes` / `QueryTypes` through the Docker Vue proxy.
+- [x] Guard old FoolFrame Web static `/about` and `/contact` GET routes in the
+      Docker runtime doctor through the Vue frontend fallback.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

@@ -114,6 +114,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: the Docker runtime doctor now proves the old FoolFrame Web
+  static `GET /about` and `GET /contact` routes return the built Vue HTML
+  through the frontend fallback, matching the remaining static Jade route
+  entries without adding duplicate Vue pages.
 - 2026-07-10: the Docker runtime doctor now proves both `getmkqview` and the
   legacy Web `mkqview` wrapper return query catalog `CompareTypes` and
   `QueryTypes` through the Vue proxy, tying the seeded catalog relation rows
