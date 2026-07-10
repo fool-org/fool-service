@@ -693,6 +693,7 @@ explicitly named as authoritative for fool-service.
       workflow.
 - [x] Guard Docker runtime seed rows in the runtime doctor, including the
       query catalogs that old MySQL volumes can miss.
+- [x] Guard the old FoolFrame Web root entry `/` in the Docker runtime doctor.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

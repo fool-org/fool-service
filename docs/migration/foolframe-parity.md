@@ -114,6 +114,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: the Docker runtime doctor now proves the old FoolFrame Web root
+  entry `GET /` returns the built Vue HTML bundle, matching the legacy
+  `app.get('/', routes.index)` entry before the `/main` and View deep-link
+  paths.
 - 2026-07-10: the Docker runtime doctor now proves the running `car_wash`
   database has the seed rows required by the Vue/runtime smoke workflow:
   app shell, admin user, Order list/Sudoku views, query compare/select
