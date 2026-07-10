@@ -31,6 +31,24 @@ services:
       timeout: 5s
       retries: 10
 
+  db-migrate:
+    image: mysql:8.0
+    environment:
+      MYSQL_PWD: Pa88word
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - ./docker/mysql/init:/migrations:ro
+    entrypoint: ["/bin/sh", "-ec"]
+    command:
+      - |
+        for file in /migrations/*.sql; do
+          echo "Applying $${file}"
+          mysql --protocol=tcp --host=mysql --user=root car_wash < "$${file}" > /dev/null
+        done
+    restart: "no"
+
   backend:
     build:
       context: .
@@ -47,6 +65,8 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+      db-migrate:
+        condition: service_completed_successfully
       redis:
         condition: service_healthy
 

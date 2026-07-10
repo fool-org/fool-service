@@ -729,6 +729,8 @@ explicitly named as authoritative for fool-service.
 - [x] Replace default `admin/admin` auto-login and API Tools auth controls with
       a signed-out Vue `initapp` / captcha / `loginv2` page that resumes legacy
       View/detail/new deep links after authentication.
+- [x] Replay the ordered idempotent Docker MySQL init catalog on every Compose
+      startup and block backend startup when existing-volume migration fails.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

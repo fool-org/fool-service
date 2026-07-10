@@ -131,6 +131,19 @@ class SourceFileSizeContractTest(unittest.TestCase):
                 report.errors,
             )
 
+    def test_reports_missing_docker_migration_wiring(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / "docker-compose.yml").write_text("services:\n  mysql:\n", encoding="utf-8")
+            report = HarnessReport(root=root)
+
+            harness.check_docker_migration_contract(root, report)
+
+            self.assertIn(
+                "Docker Compose migration wiring missing marker: db-migrate:",
+                report.errors,
+            )
+
     def test_reports_oversized_source_files(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)

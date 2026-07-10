@@ -92,6 +92,12 @@ REQUIRED_DOCKER_INIT_SQL_MARKERS = (
     "INSERT INTO `SE_SELECTEDTYPE`",
     "INSERT IGNORE INTO `SE_SELECTEDTYPE_PROPERTYINDEX`",
 )
+DOCKER_MIGRATION_MARKERS = (
+    "db-migrate:",
+    "./docker/mysql/init:/migrations:ro",
+    "for file in /migrations/*.sql",
+    "condition: service_completed_successfully",
+)
 CREATE_TABLE_RE = re.compile(
     r"CREATE TABLE IF NOT EXISTS\s+`([^`]+)`\s*\((.*?)\)\s*(?:ENGINE\b[^;]*)?;",
     re.IGNORECASE | re.DOTALL,
@@ -424,6 +430,18 @@ def check_docker_init_schema_contract(root: Path, report: HarnessReport) -> None
             )
 
 
+def check_docker_migration_contract(root: Path, report: HarnessReport) -> None:
+    path = root / "docker-compose.yml"
+    if not path.is_file():
+        report.errors.append("Missing Docker Compose file: docker-compose.yml")
+        return
+    report.add_checked("docker-compose.yml")
+    content = path.read_text(encoding="utf-8")
+    for marker in DOCKER_MIGRATION_MARKERS:
+        if marker not in content:
+            report.errors.append(f"Docker Compose migration wiring missing marker: {marker}")
+
+
 def validate_repo(root: Path | str = ROOT) -> HarnessReport:
     repo_root = Path(root).resolve()
     report = HarnessReport(root=repo_root)
@@ -436,6 +454,7 @@ def validate_repo(root: Path | str = ROOT) -> HarnessReport:
     check_vue_view_data_boundaries(repo_root, report)
     check_migration_parity_contract(repo_root, report)
     check_docker_init_schema_contract(repo_root, report)
+    check_docker_migration_contract(repo_root, report)
     return report
 
 

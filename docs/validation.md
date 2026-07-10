@@ -24,6 +24,7 @@ the heaviest runtime path for every edit.
 - `docker run --rm --network fool-service_default -v "$PWD":/workspace -v "$HOME/.m2":/root/.m2 -w /workspace maven:3.9-eclipse-temurin-17 mvn test`
 - `cd frontend && npm test && npm run build`
 - `docker compose up -d --build`
+- `docker compose ps -a` (`db-migrate` must finish with exit code `0`)
 - `python scripts/runtime_doctor.py`
 - `python scripts/runtime_doctor_test.py`
 
@@ -48,6 +49,13 @@ runs `python scripts/check_repo_harness.py`.
 
 Keep CI and local commands consistent: if a command becomes required in CI,
 document it in this file and make the failure actionable locally.
+
+## Database Startup
+
+`db-migrate` replays the idempotent `docker/mysql/init/*.sql` catalog after
+MySQL becomes healthy. The backend depends on its successful completion, so
+the same schema repair path applies to fresh and existing Docker volumes and a
+failed migration prevents the application from starting on stale schema.
 
 ## Fallback / Skip Policy
 

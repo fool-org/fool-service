@@ -15,6 +15,7 @@ from runtime_schema import LEGACY_CORE_SCHEMA_COLUMNS, MARKET_SYMBOLS_COLUMNS
 
 
 REQUIRED_SERVICES = ("backend", "frontend", "mysql", "redis")
+MIGRATION_SERVICE = "db-migrate"
 LEGACY_FRONTEND_PATHS = (
     ("frontend:root-path", "/"),
     ("frontend:about-path", "/about"),
@@ -70,13 +71,27 @@ def compose_checks(rows: list[dict[str, Any]]) -> list[CheckResult]:
         ok = state == "running" and health not in {"unhealthy", "starting"}
         detail = str(row.get("Status") or f"state={state} health={health}")
         results.append(CheckResult(f"compose:{service}", ok, detail))
+    migration = by_service.get(MIGRATION_SERVICE)
+    if migration is None:
+        results.append(CheckResult(f"compose:{MIGRATION_SERVICE}", False, "service missing"))
+    else:
+        state = str(migration.get("State", "")).lower()
+        try:
+            exit_code = int(migration.get("ExitCode", -1))
+        except (TypeError, ValueError):
+            exit_code = -1
+        results.append(CheckResult(
+            f"compose:{MIGRATION_SERVICE}",
+            state == "exited" and exit_code == 0,
+            str(migration.get("Status") or f"state={state} exit={exit_code}"),
+        ))
     return results
 
 
 def run_compose_ps() -> list[CheckResult]:
     try:
         completed = subprocess.run(
-            ["docker", "compose", "ps", "--format", "json"],
+            ["docker", "compose", "ps", "-a", "--format", "json"],
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,

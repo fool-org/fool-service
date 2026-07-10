@@ -156,6 +156,7 @@ class RuntimeDoctorTest(unittest.TestCase):
             {"Service": "frontend", "State": "exited", "Status": "Exited"},
             {"Service": "mysql", "State": "running", "Health": "healthy", "Status": "Up"},
             {"Service": "redis", "State": "running", "Health": "unhealthy", "Status": "Up"},
+            {"Service": "db-migrate", "State": "exited", "ExitCode": 0, "Status": "Exited (0)"},
         ])
 
         self.assertEqual(
@@ -164,9 +165,18 @@ class RuntimeDoctorTest(unittest.TestCase):
                 "compose:frontend": False,
                 "compose:mysql": True,
                 "compose:redis": False,
+                "compose:db-migrate": True,
             },
             {result.name: result.ok for result in results},
         )
+
+    def test_compose_checks_reject_failed_database_migration(self) -> None:
+        results = compose_checks([
+            {"Service": "db-migrate", "State": "exited", "ExitCode": 1, "Status": "Exited (1)"},
+        ])
+
+        migration = next(result for result in results if result.name == "compose:db-migrate")
+        self.assertFalse(migration.ok)
 
     def test_market_symbols_schema_requires_fh_java_columns(self) -> None:
         raw = "\n".join([

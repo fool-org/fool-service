@@ -29,7 +29,8 @@ Run the smallest check that matches the change:
   module test when the scope is isolated.
 - Frontend changes: `cd frontend && npm test && npm run build`.
 - Docker/runtime changes: `docker compose up -d --build`, then
-  `curl http://localhost:8080/test` and inspect `docker compose ps`.
+  `curl http://localhost:8080/test` and inspect `docker compose ps -a`,
+  including `db-migrate` at `Exited (0)`.
 
 When validation is skipped or downgraded, record the missing prerequisite and
 residual risk in the delivery evidence.

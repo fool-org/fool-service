@@ -12,6 +12,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `docker compose build backend`
 - Full Compose stack starts backend, frontend, MySQL, and Redis:
   `docker compose up -d --build`
+- The one-shot Compose `db-migrate` service replays every idempotent
+  `docker/mysql/init/*.sql` file after MySQL is healthy and must exit `0`
+  before backend startup. This upgrades existing named volumes instead of
+  relying only on MySQL's first-boot `/docker-entrypoint-initdb.d` behavior.
 - Docker runtime smoke is repeatable through:
   `python scripts/runtime_doctor.py`
   The smoke now fails if the Docker `car_wash` database is missing the core
@@ -114,6 +118,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: Docker startup now upgrades existing `car_wash` volumes through
+  a one-shot `db-migrate` service that reuses all nine ordered, idempotent init
+  SQL files before backend startup. Full replay passed twice against the
+  existing 45-hour MySQL volume; runtime doctor now requires
+  `compose:db-migrate` at `Exited (0)`, and the repository harness guards the
+  migration mount, ordered loop, and backend success dependency.
 - 2026-07-10: the Vue app now has a real signed-out login page matching the
   old `index.jade` / `login.js` flow: `initapp` supplies application and
   database metadata, `getcheckcode` supplies the rendered captcha, and
@@ -2146,4 +2156,10 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   identified beyond the currently migrated report definitions, source-row
   matrix construction, static subtotal behavior, flat-grid rendering, and
   empty `ReportFactory` / `IReportSource` shells.
-- Add complete database schema/migration scripts for `car_wash`; Compose currently seeds smoke/order, FH_JAVA legacy `market_symbols` schema with exchange/filter precision columns, app-management base tables plus app/store-db relation table, DB-management base tables, event/message base tables plus one Docker `Order` event definition and direct admin notification relation, legacy `SW_AUTH_USER`, modern Vue auth base tables and auth relation tables with admin/menu smoke data, the legacy All-authorized-user source table, direct event NotifyUsers/NotifyRoles/NotifyDeps/NotifyCompanies relation tables, the minimum auth graph tables needed for role/department/company recipient expansion, auth menu/role tables with menu-subitem, role-user, and role-menu relation tables, legacy `SW_SYS_VIEW`/`SW_SYS_VIEW_FILE`/`SW_SYS_VIEW_ITEM`/`SW_SYS_VIEW_OPERATION`/`SW_SYS_OPERATIONVIEW`/`SW_SYS_OPERATIONVIEW_ITEM` schema including collection owner columns, the legacy `SW_SYS_MODULE` table for root and module-source module installation records, the legacy `SW_SYS_MODEL` table for root and module-source model records including parent, id-property, model type/is-view, default format/view, connection, and default-owner columns, legacy `SW_SYS_CON` connection schema, legacy `SW_SYS_EMUNVALUE` enum metadata, runtime `fool_sys_model_enum` enum metadata, `SW_SYS_PROPERTY` schema including connection type, collection, DB column/property name, multi-map, key/check/generation, nullable/get/set flags, model/filter/source/format/sqlcon/owner columns, `SW_SYS_MULTIMAP` DBMaps schema, `SW_SYS_RELATION` collection relation schema, `SW_SYS_OPERATION`, `SW_SYS_OPERATION_PARAM`, `SW_SYS_COMMANDS`, `SW_SYS_MODEL_TRIGGER`, `SW_SYS_MODEL_TRIGGER_COMMANDS`, `SW_SYS_PROPERTY_TRIGGER`, `SW_SYS_PROPERTY_TRIGGER_COMMANDS`, model/property metadata tables needed for event object table and ID-column resolution plus legacy DDL type/key/generation-expression/default-value metadata, legacy `SE_COMPARETYPE` and `SE_SELECTEDTYPE` query catalogs, and `fool_sys_view`/`fool_sys_view_item` metadata including `auto_fresh_interval`, `edit_type`, `show_index`, and `width` for the Vue `OrderList` smoke workflow.
+- Continue database schema coverage only when remaining model/runtime parity
+  identifies a concrete missing table or column. Compose now replays the same
+  ordered, idempotent catalog for fresh and existing `car_wash` volumes before
+  backend startup. The catalog currently covers smoke/order, FH_JAVA legacy
+  `market_symbols`, app/DB management, event/message, auth graph, View/model/
+  operation/trigger/relation metadata, query catalogs, and the Vue `OrderList`
+  workflow guarded by the runtime doctor.
