@@ -820,7 +820,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         if not common_response_ok(payload):
             return False
         data = payload["data"]
-        return bool(data.get("Key")) and bool(data.get("Code"))
+        return bool(data.get("Key")) and bool(data.get("Code")) and bool(data.get("chkkey")) and bool(data.get("chkimg"))
 
     def login_v2_ok() -> bool:
         key = auth_state.get("checkCodeKey")

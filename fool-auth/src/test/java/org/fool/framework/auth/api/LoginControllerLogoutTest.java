@@ -72,6 +72,8 @@ public class LoginControllerLogoutTest {
         assertTrue(json.contains("\"Key\":\"key-1\""));
         assertTrue(json.contains("\"Code\":\"A2BC\""));
         assertTrue(json.contains("\"ChkCodeImg\":\"image\""));
+        assertTrue(json.contains("\"chkkey\":\"key-1\""));
+        assertTrue(json.contains("\"chkimg\":\"image\""));
         verify(checkCodeService).create();
     }
 

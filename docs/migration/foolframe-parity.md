@@ -114,6 +114,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: check-code responses now also expose the old FoolFrame Web
+  `getchk` payload aliases `chkkey` and `chkimg` from the shared DTO, so the
+  legacy `login.js` field names are present on `/api/v1/auth/getchk`; the
+  Docker runtime doctor proves the aliases through the Vue proxy.
 - 2026-07-10: the Docker runtime doctor now proves the old FoolFrame Web
   static `GET /about` and `GET /contact` routes return the built Vue HTML
   through the frontend fallback, matching the remaining static Jade route

@@ -703,6 +703,9 @@ explicitly named as authoritative for fool-service.
       `CompareTypes` / `QueryTypes` through the Docker Vue proxy.
 - [x] Guard old FoolFrame Web static `/about` and `/contact` GET routes in the
       Docker runtime doctor through the Vue frontend fallback.
+- [x] Expose old FoolFrame Web `getchk` response aliases `chkkey` / `chkimg`
+      from the shared check-code DTO and prove them through the Docker Vue
+      proxy.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

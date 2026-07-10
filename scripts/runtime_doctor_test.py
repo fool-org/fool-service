@@ -48,7 +48,7 @@ class RuntimeDoctorTest(unittest.TestCase):
         suffixes: dict[str, dict[str, object]] = {
             "/auth/initapp": {"code": 0, "data": {"Dbs": [{}], "CheckCode": {"Key": "k", "Code": "c"}}},
             "/auth/getcheckcode": {"code": 0, "data": {"Key": "k", "Code": "c"}},
-            "/auth/getchk": {"code": 0, "data": {"Key": "k2", "Code": "c2"}},
+            "/auth/getchk": {"code": 0, "data": {"Key": "k2", "Code": "c2", "chkkey": "k2", "chkimg": "img"}},
             "/auth/checkcode": {"code": 0, "data": True},
             "/auth/loginv2": {"code": 0, "data": {"LoginSucess": True, "Token": "t"}},
             "/auth/getuserinfo": {"code": 0, "data": {"user": {"id": "admin"}}},
@@ -731,7 +731,7 @@ class RuntimeDoctorTest(unittest.TestCase):
             if url.endswith("/auth/getcheckcode"):
                 return {"code": 0, "data": {"Key": "k", "Code": "c"}}
             if url.endswith("/auth/getchk"):
-                return {"code": 0, "data": {"Key": "k2", "Code": "c2"}}
+                return {"code": 0, "data": {"Key": "k2", "Code": "c2", "chkkey": "k2", "chkimg": "img"}}
             if url.endswith("/auth/checkcode"):
                 return {"code": 0, "data": True}
             if url.endswith("/auth/loginv2"):

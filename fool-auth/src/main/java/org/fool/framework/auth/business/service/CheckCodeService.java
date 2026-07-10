@@ -98,6 +98,16 @@ public class CheckCodeService {
         public String getLegacyChkCodeImg() {
             return chkCodeImg;
         }
+
+        @JsonProperty("chkkey")
+        public String getLegacyWebChkKey() {
+            return key;
+        }
+
+        @JsonProperty("chkimg")
+        public String getLegacyWebChkImg() {
+            return chkCodeImg;
+        }
     }
 
     @Data
