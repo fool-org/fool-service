@@ -24,7 +24,10 @@ LEGACY_FRONTEND_PATHS = (
     ("frontend:new-path", "/new100"),
     ("frontend:new-owner-path", "/new100/1001&100&items"),
 )
-RUNTIME_SEED_ROWS = ("app", "admin", "orderlist", "sudoku", "compare", "selected", "event", "order")
+RUNTIME_SEED_ROWS = (
+    "app", "admin", "orderlist", "sudoku", "compare", "compare-index",
+    "selected", "selected-index", "event", "order",
+)
 
 
 @dataclass(frozen=True)
@@ -162,7 +165,9 @@ def run_mysql_schema_checks() -> list[CheckResult]:
         "UNION ALL SELECT 'orderlist', COUNT(*) FROM fool_sys_view WHERE view_name='OrderList' "
         "UNION ALL SELECT 'sudoku', COUNT(*) FROM fool_sys_view WHERE view_name='OrderSudoku' "
         "UNION ALL SELECT 'compare', COUNT(*) FROM SE_COMPARETYPE WHERE SysID=7 AND SE_COMPARESHOW='包含' "
+        "UNION ALL SELECT 'compare-index', COUNT(*) FROM SE_COMPARETYPE_PROPERTYINDEX "
         "UNION ALL SELECT 'selected', COUNT(*) FROM SE_SELECTEDTYPE WHERE SysID=1 AND SE_SELECTEDSHOW='原值' "
+        "UNION ALL SELECT 'selected-index', COUNT(*) FROM SE_SELECTEDTYPE_PROPERTYINDEX "
         "UNION ALL SELECT 'event', COUNT(*) FROM SW_EVT_DEF WHERE EVTDEF_ID='00000000-0000-0000-0000-000000000100' "
         "UNION ALL SELECT 'order', COUNT(*) FROM market_order WHERE order_id=1001 AND order_symbol='BTC-USDT'"
     )

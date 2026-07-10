@@ -496,7 +496,9 @@ class RuntimeDoctorTest(unittest.TestCase):
 
         self.assertTrue(runtime_seed_rows_ok(raw))
         self.assertFalse(runtime_seed_rows_ok(raw.replace("compare\t1", "compare\t0")))
+        self.assertFalse(runtime_seed_rows_ok(raw.replace("compare-index\t1", "compare-index\t0")))
         self.assertFalse(runtime_seed_rows_ok(raw.replace("selected\t1\n", "")))
+        self.assertFalse(runtime_seed_rows_ok(raw.replace("selected-index\t1\n", "")))
 
     def test_common_response_list_requires_success_and_nonempty_list(self) -> None:
         self.assertTrue(common_response_list({"code": 0, "data": {"items": [1]}}, "items"))

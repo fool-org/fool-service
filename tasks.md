@@ -696,6 +696,9 @@ explicitly named as authoritative for fool-service.
 - [x] Guard the old FoolFrame Web root entry `/` in the Docker runtime doctor.
 - [x] Render the Vue detail panel title from loaded read-item View metadata
       instead of a hard-coded generic heading.
+- [x] Guard Docker query catalog relation seed rows in the runtime doctor and
+      repository harness so report column `CompareTypes` / `QueryTypes`
+      cannot silently lose their property-type bindings.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

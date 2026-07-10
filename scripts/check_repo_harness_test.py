@@ -112,7 +112,10 @@ class SourceFileSizeContractTest(unittest.TestCase):
             try:
                 harness.LEGACY_CORE_SCHEMA_COLUMNS = ()
                 harness.MARKET_SYMBOLS_COLUMNS = ()
-                harness.REQUIRED_DOCKER_INIT_SQL_MARKERS = ("'OrderSudoku'",)
+                harness.REQUIRED_DOCKER_INIT_SQL_MARKERS = (
+                    "'OrderSudoku'",
+                    "INSERT IGNORE INTO `SE_COMPARETYPE_PROPERTYINDEX`",
+                )
                 harness.check_docker_init_schema_contract(root, report)
             finally:
                 harness.LEGACY_CORE_SCHEMA_COLUMNS = original_legacy
@@ -120,7 +123,11 @@ class SourceFileSizeContractTest(unittest.TestCase):
                 harness.REQUIRED_DOCKER_INIT_SQL_MARKERS = original_markers
 
             self.assertEqual(
-                ["Docker init SQL missing required seed marker: 'OrderSudoku'"],
+                [
+                    "Docker init SQL missing required seed marker: 'OrderSudoku'",
+                    "Docker init SQL missing required seed marker: "
+                    "INSERT IGNORE INTO `SE_COMPARETYPE_PROPERTYINDEX`",
+                ],
                 report.errors,
             )
 

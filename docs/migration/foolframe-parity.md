@@ -114,6 +114,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: the Docker runtime doctor and repository harness now prove the
+  query catalog property-index seed rows exist, not just the parent
+  `SE_COMPARETYPE` / `SE_SELECTEDTYPE` rows, so report column `CompareTypes`
+  and `QueryTypes` cannot silently lose their property-type bindings.
 - 2026-07-10: the Vue detail panel now renders its heading from the loaded
   read-item View metadata, including the FoolFrame Pascal `ViewName` alias,
   instead of the hard-coded `Detail` heading. This keeps detail-page chrome
