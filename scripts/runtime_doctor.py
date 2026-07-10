@@ -30,6 +30,10 @@ RUNTIME_SEED_ROWS = (
     "app", "admin", "orderlist", "sudoku", "compare", "compare-index",
     "selected", "selected-index", "event", "order",
 )
+RUNTIME_MESSAGE_ID = "00000000-0000-0000-0000-000000000900"
+RUNTIME_MESSAGE_TEXT = "Runtime doctor message"
+RUNTIME_MESSAGE_VIEW_ID = "100"
+RUNTIME_MESSAGE_OBJECT_ID = "1001"
 
 
 @dataclass(frozen=True)
@@ -107,6 +111,35 @@ def runtime_seed_rows_ok(raw: str) -> bool:
             except ValueError:
                 return False
     return all(rows.get(label, 0) > 0 for label in RUNTIME_SEED_ROWS)
+
+
+def seed_runtime_message() -> bool:
+    safe_text = RUNTIME_MESSAGE_TEXT.replace("'", "''")
+    sql = (
+        "INSERT INTO SW_SYS_MSG "
+        "(MSG_ID, MSG_EVT, MSG_VIEW, MSG_OBJ, MSG_MSG, MSG_CREATETIME, MSG_STATE, MSG_USERID, MSG_MSGTYPE) "
+        f"VALUES ('{RUNTIME_MESSAGE_ID}', NULL, '{RUNTIME_MESSAGE_VIEW_ID}', "
+        f"'{RUNTIME_MESSAGE_OBJECT_ID}', '{safe_text}', '2099-01-01 00:00:00', 0, 'admin', 0) "
+        "ON DUPLICATE KEY UPDATE "
+        f"MSG_VIEW=VALUES(MSG_VIEW), MSG_OBJ=VALUES(MSG_OBJ), MSG_MSG=VALUES(MSG_MSG), "
+        "MSG_CREATETIME=VALUES(MSG_CREATETIME), MSG_STATE=VALUES(MSG_STATE), "
+        "MSG_USERID=VALUES(MSG_USERID), MSG_MSGTYPE=VALUES(MSG_MSGTYPE), MSG_PUSHTIME=NULL"
+    )
+    try:
+        subprocess.run(
+            [
+                "docker", "compose", "exec", "-T", "mysql",
+                "mysql", "-uroot", "-pPa88word", "car_wash",
+                "-e", sql,
+            ],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return False
+    return True
 
 
 def run_mysql_schema_checks() -> list[CheckResult]:
@@ -192,6 +225,11 @@ def run_mysql_schema_checks() -> list[CheckResult]:
         "mysql:runtime-seed-data",
         runtime_seed_rows_ok(completed.stdout),
         "Docker runtime seed rows are present",
+    ))
+    results.append(CheckResult(
+        "mysql:runtime-message-seed",
+        seed_runtime_message(),
+        "Docker runtime message seed is ready for getmsg alias proof",
     ))
     return results
 
@@ -287,6 +325,22 @@ def legacy_response_list(payload: dict[str, Any], key: str) -> list[Any]:
 
 def response_list_field_present(payload: dict[str, Any], key: str) -> bool:
     return common_response_ok(payload) and isinstance(payload["data"].get(key), list)
+
+
+def legacy_message_fields_ok(payload: dict[str, Any]) -> bool:
+    messages = legacy_response_list(payload, "Messages")
+    if not messages or not isinstance(messages[0], dict):
+        return False
+    message = messages[0]
+    generation_time = str(message.get("GernerationTime") or "")
+    return (
+        str(message.get("MessageID") or "") == RUNTIME_MESSAGE_ID
+        and generation_time.startswith("/Date(")
+        and generation_time.endswith(")/")
+        and message.get("MessageContent") == RUNTIME_MESSAGE_TEXT
+        and str(message.get("ResultView") or "") == RUNTIME_MESSAGE_VIEW_ID
+        and str(message.get("ResultKey") or "") == RUNTIME_MESSAGE_OBJECT_ID
+    )
 
 
 def runoperation_result_aliases_ok(payload: dict[str, Any]) -> bool:
@@ -956,9 +1010,8 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         token = auth_state.get("token")
         if not token:
             return False
-        return response_list_field_present(
+        return legacy_message_fields_ok(
             post_json(f"{frontend_url}/api/v1/message/getmsg", {"Token": token}, timeout),
-            "Messages",
         )
 
     def get_messages_legacy_web_route_ok() -> bool:
@@ -1956,7 +2009,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         (
             "message:getmsg",
             get_messages_ok,
-            "POST /api/v1/message/getmsg returns legacy Messages list",
+            "POST /api/v1/message/getmsg returns legacy message fields used by message.js",
         ),
         (
             "message:getmsg-legacy-web-route",

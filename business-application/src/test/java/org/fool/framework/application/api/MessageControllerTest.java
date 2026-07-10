@@ -12,6 +12,7 @@ import org.fool.framework.event.MsgState;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -54,10 +55,13 @@ public class MessageControllerTest {
         assertFalse(info.isRead());
         assertFalse(info.isTimeOut());
         String json = OBJECT_MAPPER.writeValueAsString(response.getData());
+        long legacyMillis = generated.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         assertTrue(json.contains("\"Messages\""));
         assertTrue(json.contains("\"MessageID\":\"" + messageId + "\""));
+        assertTrue(json.contains("\"GernerationTime\":\"/Date(" + legacyMillis + ")/\""));
         assertTrue(json.contains("\"MessageContent\":\"Order timeout\""));
         assertTrue(json.contains("\"ResultView\":100"));
+        assertTrue(json.contains("\"ResultKey\":\"1001\""));
     }
 
     @Test

@@ -189,6 +189,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   root `POST /getmsg` shape as `/api/v1/getmsg`, reusing the migrated
   `getmsg` service path and legacy `Messages` aliases. The Docker runtime
   doctor proves the route through the Vue proxy.
+- 2026-07-10: `getmsg` now serializes legacy `GernerationTime` as
+  `/Date(ms)/`, matching the parser in FoolFrame `message.js`. The Docker
+  runtime doctor seeds a non-empty `SW_SYS_MSG` row and proves `MessageID`,
+  `GernerationTime`, `MessageContent`, `ResultView`, and `ResultKey` through
+  the Vue proxy instead of accepting an empty `Messages` list.
 - 2026-07-10: backend `inputquery` now accepts the old FoolFrame
   Cloud-Social payload where `soway.inputquery` sends the numeric View id in
   `ViewName`, while nonnumeric business-name `ViewName` remains rejected. The

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @RestController
@@ -114,8 +115,12 @@ public class MessageController {
         }
 
         @JsonProperty("GernerationTime")
-        public LocalDateTime getLegacyGernerationTime() {
-            return gernerationTime;
+        public String getLegacyGernerationTime() {
+            if (gernerationTime == null) {
+                return null;
+            }
+            long millis = gernerationTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            return "/Date(" + millis + ")/";
         }
 
         @JsonProperty("MessageContent")

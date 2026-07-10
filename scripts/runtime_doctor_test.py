@@ -19,6 +19,7 @@ from runtime_doctor import (
     legacy_app_alias_ok,
     legacy_app_default_view_id,
     legacy_login_token,
+    legacy_message_fields_ok,
     market_symbols_schema_ok,
     legacy_response_list,
     list_view_operation_labels_ok,
@@ -56,6 +57,15 @@ class RuntimeDoctorTest(unittest.TestCase):
             "AppId": "fool-service",
         }
 
+    def runtime_message_info(self) -> dict[str, object]:
+        return {
+            "MessageID": runtime_doctor.RUNTIME_MESSAGE_ID,
+            "GernerationTime": "/Date(4070908800000)/",
+            "MessageContent": runtime_doctor.RUNTIME_MESSAGE_TEXT,
+            "ResultView": int(runtime_doctor.RUNTIME_MESSAGE_VIEW_ID),
+            "ResultKey": runtime_doctor.RUNTIME_MESSAGE_OBJECT_ID,
+        }
+
     def runtime_default_post_response(self, url: str, _payload: object) -> dict[str, object] | None:
         suffixes: dict[str, dict[str, object]] = {
             "/auth/initapp": {"code": 0, "data": {"Dbs": [{}], "CheckCode": {"Key": "k", "Code": "c"}}},
@@ -76,6 +86,7 @@ class RuntimeDoctorTest(unittest.TestCase):
             "/data/saveobj": {"code": 0, "data": None},
             "/data/save": {"code": 0, "data": None},
             "/data/inputquery": {"code": 0, "data": {"items": [{}], "Items": [{}]}},
+            "/message/getmsg": {"code": 0, "data": {"Messages": [self.runtime_message_info()]}},
             "/getmsg": {"code": 0, "data": {"Messages": []}},
             "/message/getnotify": {"code": 0, "data": {"Notifies": []}},
         }
@@ -525,6 +536,15 @@ class RuntimeDoctorTest(unittest.TestCase):
     def test_response_list_field_present_allows_empty_legacy_lists(self) -> None:
         self.assertTrue(response_list_field_present({"code": 0, "data": {"Messages": []}}, "Messages"))
         self.assertFalse(response_list_field_present({"code": 0, "data": {"messages": []}}, "Messages"))
+
+    def test_legacy_message_fields_ok_requires_message_js_fields(self) -> None:
+        payload = {"code": 0, "data": {"Messages": [self.runtime_message_info()]}}
+
+        self.assertTrue(legacy_message_fields_ok(payload))
+        self.assertFalse(legacy_message_fields_ok({"code": 0, "data": {"Messages": []}}))
+        broken = {"code": 0, "data": {"Messages": [{**self.runtime_message_info(), "GernerationTime": "2026-07-10T00:00:00"}]}}
+        self.assertFalse(legacy_message_fields_ok(broken))
+        self.assertFalse(legacy_message_fields_ok({"code": 0, "data": {"Messages": [{**self.runtime_message_info(), "ResultView": "bad"}]}}))
 
     def test_runoperation_result_aliases_require_legacy_result_fields(self) -> None:
         self.assertTrue(runoperation_result_aliases_ok({"code": 0, "data": {
