@@ -50,7 +50,7 @@ class RuntimeDoctorTest(unittest.TestCase):
             "/auth/getcheckcode": {"code": 0, "data": {"Key": "k", "Code": "c"}},
             "/auth/getchk": {"code": 0, "data": {"Key": "k2", "Code": "c2", "chkkey": "k2", "chkimg": "img"}},
             "/auth/checkcode": {"code": 0, "data": True},
-            "/auth/loginv2": {"code": 0, "data": {"LoginSucess": True, "Token": "t"}},
+            "/auth/loginv2": {"code": 0, "data": {"LoginSucess": True, "IsLogin": True, "Token": "t"}},
             "/auth/getuserinfo": {"code": 0, "data": {"user": {"id": "admin"}}},
             "/auth/getapp": {"code": 0, "data": {"App": {"DefaultViewId": 200}}},
             "/auth/getmain": {"code": 0, "data": {"App": {"DefaultViewId": 200}, "TopMenu": [{"AuthNo": "0101"}]}},
@@ -735,7 +735,7 @@ class RuntimeDoctorTest(unittest.TestCase):
             if url.endswith("/auth/checkcode"):
                 return {"code": 0, "data": True}
             if url.endswith("/auth/loginv2"):
-                return {"code": 0, "data": {"LoginSucess": True, "Token": "t"}}
+                return {"code": 0, "data": {"LoginSucess": True, "IsLogin": True, "Token": "t"}}
             if url.endswith("/auth/getuserinfo"):
                 return {"code": 0, "data": {"user": {"id": "admin"}}}
             if url.endswith("/auth/getapp"):
@@ -813,7 +813,7 @@ class RuntimeDoctorTest(unittest.TestCase):
             if url.endswith("/auth/checkcode"):
                 return {"code": 0, "data": True}
             if url.endswith("/auth/loginv2"):
-                return {"code": 0, "data": {"LoginSucess": True, "Token": "t"}}
+                return {"code": 0, "data": {"LoginSucess": True, "IsLogin": True, "Token": "t"}}
             if url.endswith("/auth/getuserinfo"):
                 return {"code": 0, "data": {"user": {"id": "admin"}}}
             if url.endswith("/auth/getapp"):

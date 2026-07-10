@@ -860,7 +860,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         code = str(data.get("Code") or "")
         if not key or not code:
             return False
-        token = legacy_login_token(post_json(
+        payload = post_json(
             f"{frontend_url}/api/v1/auth/loginv2",
             {
                 "name": "admin",
@@ -872,10 +872,12 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
                 "AppKey": "fool-service",
             },
             timeout,
-        ))
+        )
+        token = legacy_login_token(payload)
         if token:
             auth_state["token"] = token
-        return bool(token)
+        login_data = payload.get("data") if isinstance(payload, dict) else None
+        return bool(token) and isinstance(login_data, dict) and login_data.get("IsLogin") is True
 
     def get_userinfo_ok() -> bool:
         token = auth_state.get("token")
@@ -1751,7 +1753,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         (
             "auth:loginv2-legacy-web-payload",
             login_v2_legacy_web_payload_ok,
-            "POST /api/v1/auth/loginv2 accepts legacy Web name/pwd/dbid/chk/chkid aliases",
+            "POST /api/v1/auth/loginv2 accepts legacy Web name/pwd/dbid/chk/chkid aliases and returns IsLogin",
         ),
         (
             "auth:getuserinfo",

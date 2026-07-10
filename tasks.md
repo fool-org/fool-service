@@ -372,6 +372,8 @@ explicitly named as authoritative for fool-service.
 - [x] Accept the old FoolFrame Web login field names from `login.js` at the
       shared `loginv2` DTO boundary: `name`, `pwd`, `dbid`, `chk`, and
       `chkid`, while keeping explicit `AppId` / `AppKey`.
+- [x] Expose the old FoolFrame Web login response flag `IsLogin` from the
+      shared `loginv2` result DTO and prove it through the Vue proxy.
 - [x] Extend the Docker runtime doctor to prove the logged-in legacy auth
       shell path through the Vue proxy: `getapp`, `getmain`, `getsubmenu`,
       and `logout`.

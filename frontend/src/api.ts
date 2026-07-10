@@ -148,6 +148,7 @@ export interface LegacyLoginResult {
   Token?: string;
   loginSucess?: boolean;
   LoginSucess?: boolean;
+  IsLogin?: boolean;
   user?: LegacyUserInfo;
   User?: LegacyUserInfo;
   app?: LegacyAppInfo;

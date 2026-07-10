@@ -352,6 +352,11 @@ public class LoginController {
             return loginSucess;
         }
 
+        @JsonProperty("IsLogin")
+        public boolean getLegacyWebIsLogin() {
+            return loginSucess;
+        }
+
         @JsonProperty("User")
         public LegacyUserInfo getLegacyUser() {
             return user;

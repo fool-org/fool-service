@@ -114,6 +114,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: `loginv2` responses now expose the old FoolFrame Web
+  `user/login` wrapper flag `IsLogin` from the shared legacy login result DTO,
+  matching `login.js` while keeping Vue auth flow on the existing protocol
+  helpers; the Docker runtime doctor proves the alias through the Vue proxy.
 - 2026-07-10: `querydatadetail` child collection property metadata now exposes
   the old `Properties[].Name` alias from the shared list-data value DTO,
   matching FoolFrame `ReadItemViewItem.Name` for child table headers while
