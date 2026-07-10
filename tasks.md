@@ -744,6 +744,9 @@ explicitly named as authoritative for fool-service.
       future stream workflow instead of maintaining a second empty proxy.
 - [x] Remove the duplicate compile-scoped `spring-jdbc` declaration from
       `fool-dao` and prove the Java 17 module reactor and tests still pass.
+- [x] Extract the metadata-driven list View presentation into one reusable
+      Vue component without duplicating request or workflow state; keep
+      search, paging, operations, chart, and Sudoku rendering View-first.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

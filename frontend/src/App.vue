@@ -25,12 +25,10 @@ import {
   type TableColumnInfo,
   postApi
 } from "./api";
-import ListDataTable from "./ListDataTable.vue";
-import LegacyChartPanel from "./LegacyChartPanel.vue";
 import LoginPanel from "./LoginPanel.vue";
 import ShellActions from "./ShellActions.vue";
-import SudokuPanels from "./SudokuPanels.vue";
 import ViewDetailPanel from "./ViewDetailPanel.vue";
+import ViewListPanel from "./ViewListPanel.vue";
 import ViewReportPanel from "./ViewReportPanel.vue";
 import { useChildCandidates } from "./useChildCandidates";
 import { useChildDrafts } from "./useChildDrafts";
@@ -45,7 +43,6 @@ import {
   buildSavePropertyies,
   buildSelectedExistingItemProperty,
   buildUpdatedItemProperty,
-  createOperations,
   dataOperations,
   detailResultItems,
   detailResultSimpleData,
@@ -63,7 +60,6 @@ import {
   legacyInitAppCheckCode,
   legacyInitAppDbId,
   legacyLoginErrorMessage,
-  legacyChartData,
   legacyDetailPath,
   legacyItemViewPathId,
   legacyMainMenuItems,
@@ -81,9 +77,8 @@ import {
   listTotalPages,
   legacyNewPath,
   legacyViewPathId,
-  operationId as operationInfoId, operationKey, operationLabel, operationTargetViewId,
+  operationId as operationInfoId,
   rowObjectId,
-  rowOperations,
   selectedChildViewId,
   sudokuPanelKind,
   sudokuPanelListViewType,
@@ -94,8 +89,7 @@ import {
   viewUsesSudokuTemplate,
   renderedDetailFields,
   renderedDetailGroups,
-  viewColumns,
-  viewOperations
+  viewColumns
 } from "./viewWorkflow";
 import {
   buildInitNewRequest,
@@ -162,19 +156,15 @@ const errorMessage = ref("");
 const pendingAction = ref("");
 const shellErrorMessage = ref("");
 const shellPending = ref(false);
-const activeViewPane = ref("table");
 
 const {
   viewResponse,
+  dataResponse,
   currentViewId,
   loadedViewName,
   viewTitle,
   resultColumns,
   resultRows,
-  resultPageIndex,
-  resultTotalItems,
-  resultTotalPages,
-  resultFreshTime,
   readItemViewFor,
   loadLegacyListView,
   loadReadItemView: loadReadItemViewBase,
@@ -204,8 +194,6 @@ const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() =>
   renderedDetailGroups(currentReadItemView.value, detailResultItems(detailResponse.value?.data))
 );
 const detailViewOperations = computed(() => dataOperations(detailResponse.value?.data));
-const listCreateOperations = computed(() => createOperations(viewOperations(viewResponse.value?.data)));
-const listRowOperations = computed(() => rowOperations(viewOperations(viewResponse.value?.data)));
 const topMenuItems = computed(() => legacyMainMenuItems(mainInfoResponse.value?.data));
 const subMenuItems = computed(() => legacySubMenuItems(subMenuResponse.value?.data));
 const shellMenuItems = computed(() => (subMenuItems.value.length ? subMenuItems.value : topMenuItems.value));
@@ -229,7 +217,6 @@ const isChartView = computed(() => viewUsesChartTemplate(viewResponse.value?.dat
 const isSudokuView = computed(() => viewUsesSudokuTemplate(viewResponse.value?.data));
 const sudokuPanels = computed(() => viewColumns(viewResponse.value?.data));
 const sudokuPanelData = ref<Record<number, { view: ListViewInfo; data: ListViewResult | null; detail?: QueryDataDetailResult | null }>>({});
-const chartData = computed(() => legacyChartData(resultRows.value));
 let autoRefreshTimer: number | undefined;
 let shellPollTimer: number | undefined;
 let shellRefreshInFlight = false;
@@ -994,70 +981,23 @@ function syncDetailDrafts() {
       </header>
 
       <section class="view-workflow" :class="{ 'metadata-only': isMetadataOnlyView || isStandaloneDetail }" aria-label="View workflow">
-        <article v-if="!isMetadataOnlyView && !isStandaloneDetail" class="panel view-list-panel">
-          <div class="panel-heading">
-            <h2>{{ viewTitle }}</h2>
-            <span>{{ loadedViewName }}</span>
-          </div>
-          <div class="workflow-toolbar">
-            <label>
-              Search
-              <input v-model="viewKeyword" type="search" @keyup.enter="searchCurrentView" />
-            </label>
-            <label>
-              Page size
-              <input v-model.number="pageSize" min="1" type="number" />
-            </label>
-            <button class="primary" type="button" :disabled="Boolean(pendingAction)" @click="searchCurrentView">
-              Search
-            </button>
-            <button v-for="operation in listCreateOperations" :key="operationKey(operation)" type="button" :disabled="Boolean(pendingAction)" @click="startNewObject(operationTargetViewId(operation) || currentViewId)">
-              {{ operationLabel(operation) }}
-            </button>
-            <button v-if="!listCreateOperations.length" type="button" :disabled="Boolean(pendingAction)" @click="startNewObject()">New Row</button>
-            <button
-              type="button"
-              :disabled="Boolean(pendingAction) || !currentViewId"
-              @click="showViewReport = !showViewReport"
-            >Report</button>
-          </div>
-
-          <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
-
-          <div v-if="isChartView" class="view-template-tabs" role="tablist">
-            <button type="button" :class="{ active: activeViewPane === 'table' }" @click="activeViewPane = 'table'">
-              数据
-            </button>
-            <button type="button" :class="{ active: activeViewPane === 'chart' }" @click="activeViewPane = 'chart'">
-              图表
-            </button>
-          </div>
-
-          <SudokuPanels v-if="isSudokuView" :disabled="Boolean(pendingAction)" :panel-data="sudokuPanelData" :panels="sudokuPanels" />
-
-          <div v-show="(!isChartView && !isSudokuView) || activeViewPane === 'table'" class="table-wrap view-table">
-            <ListDataTable
-              :columns="resultColumns"
-              :disabled="Boolean(pendingAction)"
-              :row-operations="listRowOperations"
-              :rows="resultRows"
-              :selected-object-id="selectedObjectId"
-              @select="selectObject"
-            />
-          </div>
-          <LegacyChartPanel v-if="isChartView && activeViewPane === 'chart' && chartData.series.length" :data="chartData" />
-          <div v-else-if="isChartView && activeViewPane === 'chart'" class="empty-state compact">No chart data.</div>
-          <div v-if="resultRows.length || resultTotalItems || resultFreshTime" class="button-row">
-            <button type="button" :disabled="Boolean(pendingAction) || resultPageIndex <= 1" @click="loadResultPage(resultPageIndex - 1)">
-              Previous
-            </button>
-            <span>Page {{ resultPageIndex }} / {{ resultTotalPages || 1 }} · {{ resultTotalItems }} rows</span>
-            <button type="button" :disabled="Boolean(pendingAction) || resultTotalPages === 0 || resultPageIndex >= resultTotalPages" @click="loadResultPage(resultPageIndex + 1)">
-              Next
-            </button>
-            <span v-if="resultFreshTime">Updated {{ resultFreshTime }}</span>
-          </div>
-        </article>
+        <ViewListPanel
+          v-if="!isMetadataOnlyView && !isStandaloneDetail"
+          v-model:keyword="viewKeyword"
+          v-model:page-size="pageSize"
+          :data="dataResponse?.data"
+          :disabled="Boolean(pendingAction)"
+          :error-message="errorMessage"
+          :page-index="pageIndex"
+          :panel-data="sudokuPanelData"
+          :selected-object-id="selectedObjectId"
+          :view="viewResponse?.data"
+          @new-object="startNewObject"
+          @page="loadResultPage"
+          @search="searchCurrentView"
+          @select="selectObject"
+          @toggle-report="showViewReport = !showViewReport"
+        />
 
         <ViewDetailPanel
           :candidate-columns="candidateColumns"

@@ -12,6 +12,7 @@ import payloadSource from "./payload.ts?raw";
 import shellActionsSource from "./ShellActions.vue?raw";
 import sudokuPanelsSource from "./SudokuPanels.vue?raw";
 import viewDetailPanelSource from "./ViewDetailPanel.vue?raw";
+import viewListPanelSource from "./ViewListPanel.vue?raw";
 import viewReportPanelSource from "./ViewReportPanel.vue?raw";
 import viewShellSource from "./viewShell.ts?raw";
 import viewDataWorkflowSource from "./useViewDataWorkflow.ts?raw";
@@ -33,24 +34,22 @@ import {
 
 describe("App defaults", () => {
   it("opens with the metadata-driven View workflow", () => {
-    const mainViewSource = appSource.slice(
-      appSource.indexOf('aria-label="View workflow"'),
-      appSource.indexOf("<ViewDetailPanel")
-    );
+    const mainViewSource = viewListPanelSource;
 
     expect(appSource).toContain("onMounted(() => void initializeApp())");
     expect(appSource).toContain("await loadInitialRoute()");
     expect(appSource).toContain("await loadViewWorkflow()");
     expect(appSource).toContain("View workflow");
     expect(mainViewSource).toContain("Search");
-    expect(mainViewSource).toContain('v-model="viewKeyword"');
+    expect(appSource).toContain('v-model:keyword="viewKeyword"');
+    expect(mainViewSource).toContain('v-model="keyword"');
     expect(mainViewSource).not.toContain("QueryFilter");
     expect(mainViewSource).not.toContain("View ID");
     expect(mainViewSource).not.toContain("Load View");
     expect(appSource).toContain("await loadLegacyListView()");
     expect(appSource).toContain("await queryCurrentViewData()");
     expect(appSource).toContain("useViewDataWorkflow");
-    expect(appSource).toContain("New Row");
+    expect(mainViewSource).toContain("New Row");
     expect(viewDetailPanelSource).toContain("Create Row");
     expect(viewDetailPanelSource).toContain("Save Row");
     expect(appSource).toContain("async function selectObject");
@@ -99,8 +98,8 @@ describe("App defaults", () => {
   });
 
   it("renders row operations through their target detail View id", () => {
-    expect(appSource).toContain("listRowOperations");
-    expect(appSource).toContain(':row-operations="listRowOperations"');
+    expect(viewListPanelSource).toContain("rowOperations(operations.value)");
+    expect(viewListPanelSource).toContain(':row-operations="rowItems"');
     expect(listDataTableSource).toContain("rowOperations");
     expect(listDataTableSource).toContain("emit('select', row, operationTargetViewId(operation))");
     expect(listDataTableSource).toContain("operationTargetViewId(operation) <= 0");
@@ -118,19 +117,19 @@ describe("App defaults", () => {
   });
 
   it("renders list paging from legacy querydata totals", () => {
-    expect(appSource).toContain("resultTotalItems");
-    expect(appSource).toContain("resultFreshTime");
-    expect(appSource).toContain("loadResultPage(resultPageIndex + 1)");
-    expect(appSource).toContain("Page {{ resultPageIndex }} / {{ resultTotalPages || 1 }}");
-    expect(appSource).toContain("Updated {{ resultFreshTime }}");
+    expect(viewListPanelSource).toContain("resultTotalItems");
+    expect(viewListPanelSource).toContain("resultFreshTime");
+    expect(viewListPanelSource).toContain("emit('page', resultPageIndex + 1)");
+    expect(viewListPanelSource).toContain("Page {{ resultPageIndex }} / {{ resultTotalPages || 1 }}");
+    expect(viewListPanelSource).toContain("Updated {{ resultFreshTime }}");
   });
 
   it("renders the legacy viewWithChart template as data and chart panes", () => {
     expect(appSource).toContain("viewUsesChartTemplate(viewResponse.value?.data)");
-    expect(appSource).toContain("legacyChartData(resultRows.value)");
-    expect(appSource).toContain("activeViewPane");
-    expect(appSource).toContain('class="view-template-tabs"');
-    expect(appSource).toContain("<LegacyChartPanel");
+    expect(viewListPanelSource).toContain("legacyChartData(rows.value)");
+    expect(viewListPanelSource).toContain("activePane");
+    expect(viewListPanelSource).toContain('class="view-template-tabs"');
+    expect(viewListPanelSource).toContain("<LegacyChartPanel");
     expect(legacyChartPanelSource).toContain('class="legacy-chart"');
     expect(legacyChartPanelSource).toContain("<polyline");
     expect(legacyChartPanelSource).toContain("<rect");
@@ -140,7 +139,7 @@ describe("App defaults", () => {
 
   it("renders the legacy Sudoku template from ViewFile panels", () => {
     expect(appSource).toContain("viewUsesSudokuTemplate(viewResponse.value?.data)");
-    expect(appSource).toContain("SudokuPanels");
+    expect(viewListPanelSource).toContain("SudokuPanels");
     expect(appSource).toContain("sudokuPanelKind(panel)");
     expect(appSource).toContain("loadSudokuPanels");
     expect(appSource).toContain("loadViewDataById(panelViewId, \"sudoku-panel\", 5)");
@@ -202,7 +201,8 @@ describe("App defaults", () => {
     );
     expect(searchSource).toContain("pageIndex.value = 1");
     expect(searchSource.indexOf("pageIndex.value = 1")).toBeLessThan(searchSource.indexOf("queryCurrentViewData()"));
-    expect(appSource).toContain('@click="searchCurrentView"');
+    expect(viewListPanelSource).toContain("emit('search')");
+    expect(appSource).toContain('@search="searchCurrentView"');
   });
 
   it("keeps the Vue workspace on view-id driven legacy view and data APIs", () => {

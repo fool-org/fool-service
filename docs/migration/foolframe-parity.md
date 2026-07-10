@@ -118,6 +118,14 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: moved the rendered list View surface out of `App.vue` into the
+  134-line `ViewListPanel.vue`. Search, paging, create/row operations,
+  View-driven table columns, `viewWithChart`, and Sudoku presentation now
+  consume the existing `viewWorkflow` projections from one component while
+  `App.vue` remains the single owner of requests and mutable workflow state.
+  `App.vue` dropped from 1108 to 1048 lines; all 130 frontend tests, the
+  TypeScript/Vite build, Compose rebuild, runtime doctor, and 390x844 login
+  containment check pass.
 - 2026-07-10: removed the second identical `spring-jdbc` declaration from
   `fool-dao/pom.xml`. The dependency remains compile-scoped through its
   original declaration; the five-module Java 17 reactor package and all 57
