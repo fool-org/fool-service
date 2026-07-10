@@ -198,8 +198,8 @@ describe("App defaults", () => {
     expect(viewDataWorkflowSource).toContain("viewDetailViewId(view, loadedViewId)");
     expect(appSource).toContain("async function selectObject(row: ListDataItem, viewId = Number(detailViewId.value))");
     expect(appSource).toContain("async function startNewObject(viewId = Number(detailViewId.value)");
-    expect(appSource).toContain("await queryDetail(Number(detailViewId.value))");
-    expect(appSource).toContain("saveViewId.value = String(detailViewId.value)");
+    expect(appSource).toContain("await queryDetail()");
+    expect(appSource).toContain("viewID: String(detailViewId.value)");
     expect(viewDataWorkflowSource).toContain("listRenderColumns(viewResponse.value?.data)");
     expect(appSource).not.toContain("Object.keys(first)");
     expect(appSource).not.toContain("viewName: viewName.value");
@@ -404,17 +404,14 @@ describe("App defaults", () => {
     expect(appSource).toContain("isStandaloneDetail.value = true");
     expect(appSource).toContain('v-if="!isMetadataOnlyView && !isStandaloneDetail"');
     expect(appSource).toContain('@click="openPrimarySection"');
-    expect(appSource).toContain("await queryDetail(route.viewId)");
+    expect(appSource).toContain("await queryDetail(route.viewId, objectId)");
     expect(appSource).toContain("legacyItemViewPathId(window.location.pathname)");
     expect(appSource).toContain("await loadLegacyItemView(itemViewId)");
     expect(appSource).toContain("legacyNewPath(window.location.pathname)");
     expect(appSource).toContain("await loadLegacyNewPath(newRoute)");
     expect(appSource).toContain("await startNewObject(route.viewId, route.parentObjId, route.ownerViewId, route.property)");
     expect(appSource).toContain('async function startNewObject(viewId = Number(detailViewId.value), parentObjId = "", ownerViewId = "", property = "")');
-    expect(appSource).toContain("saveNewOwnerViewId.value = ownerViewId");
-    expect(appSource).toContain("saveNewOwnerId.value = parentObjId");
-    expect(appSource).toContain("saveNewProperty.value = property");
-    expect(appSource).not.toContain('saveNewOwnerViewId.value = ""');
+    expect(appSource).toContain("newObjectOwner = { ownerViewId, ownerId: parentObjId, property }");
   });
 
   it("renders /itemview:id from View metadata without querying an empty object", () => {
@@ -460,24 +457,19 @@ describe("App defaults", () => {
     expect(menuSource).toContain("await loadSubMenu()");
   });
 
-  it("does not prefill business-specific data DTO fields by default", () => {
+  it("does not retain console-era business DTO staging", () => {
     expect(appSource).not.toContain("enumModelId");
     expect(appSource).not.toContain("legacyQueryFilter");
-    expect(appSource).toContain('const detailObjId = ref("")');
-    expect(appSource).toContain('const saveObjId = ref("")');
-    expect(appSource).toContain('const saveNewObjId = ref("")');
-    expect(appSource).toContain('const operationObjectId = ref("")');
-    expect(appSource).toContain("const operationId = ref(0)");
-    expect(appSource).toContain('const savePropertyiesJson = ref("[]")');
-    expect(appSource).toContain('const saveNewPropertyiesJson = ref("[]")');
+    expect(appSource).not.toContain("detailObjId");
+    expect(appSource).not.toContain("saveObjId");
+    expect(appSource).not.toContain("saveNewObjId");
+    expect(appSource).not.toContain("operationObjectId");
+    expect(appSource).not.toContain("savePropertyiesJson");
+    expect(appSource).not.toContain("saveNewPropertyiesJson");
+    expect(appSource).not.toContain("JSON.stringify(buildSavePropertyies");
     expect(appSource).not.toContain('order_state="0"');
     expect(appSource).not.toContain("BTC-USDT");
-    expect(appSource).not.toContain('const enumModelId = ref("102")');
-    expect(appSource).not.toContain("const operationId = ref(7001)");
-    expect(appSource).not.toContain('const detailObjId = ref("1001")');
-    expect(appSource).not.toContain('const saveObjId = ref("1001")');
-    expect(appSource).not.toContain('const saveNewObjId = ref("9001")');
-    expect(appSource).not.toContain('const operationObjectId = ref("1001")');
+    expect(appSource).not.toContain("const operationId = ref");
   });
 
   it("does not expose the backend seed DTO smoke route in the Vue workspace", () => {
@@ -579,7 +571,7 @@ describe("App defaults", () => {
 
   it("runs legacy initnew from the rendered View workflow", () => {
     expect(appSource).toContain("/api/v1/data/initnew");
-    expect(appSource).toContain("initNewResponse");
+    expect(appSource).toContain("async function initNew(viewId: number");
   });
 
   it("runs legacy savenewobj from the rendered View workflow", () => {
@@ -589,7 +581,7 @@ describe("App defaults", () => {
 
   it("runs legacy operations from rendered View metadata", () => {
     expect(appSource).toContain("/api/v1/data/runoperation");
-    expect(appSource).toContain("runOperationResponse");
+    expect(appSource).toContain("const response = await runOperation(id)");
   });
 
   it("does not expose the migration API console in the production shell", () => {
@@ -666,9 +658,18 @@ describe("buildSaveObjRequest", () => {
       token: "token-1",
       id: " 1001 ",
       viewID: " 100 ",
-      propertyiesJson: "[{\"key\":\"name\",\"value\":\"Sample\"},{\"key\":\"state\",\"value\":\"0\"}]",
-      itempropertiesJson:
-        "[{\"key\":\"children\",\"items\":[{\"itemId\":\"2001\",\"isExist\":true,\"propertyies\":[{\"key\":\"childName\",\"value\":\"Updated child\"}]}]}]"
+      propertyies: [
+        { key: "name", value: "Sample" },
+        { key: "state", value: "0" }
+      ],
+      itemproperties: [{
+        key: "children",
+        items: [{
+          itemId: "2001",
+          isExist: true,
+          propertyies: [{ key: "childName", value: "Updated child" }]
+        }]
+      }]
     });
 
     expect(request).toEqual({
@@ -704,7 +705,7 @@ describe("buildSaveNewObjRequest", () => {
       token: "token-1",
       id: " 2009 ",
       viewID: " 200 ",
-      propertyiesJson: "[{\"key\":\"itemName\",\"value\":\"New child\"}]",
+      propertyies: [{ key: "itemName", value: "New child" }],
       ownerViewId: " 100 ",
       ownerId: " 1001 ",
       property: " items "

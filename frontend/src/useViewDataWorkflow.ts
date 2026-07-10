@@ -34,10 +34,6 @@ export interface ViewDataWorkflowRefs {
   pageSize: Ref<number>;
   keyword: Ref<string>;
   detailViewId: Ref<number>;
-  initNewViewId: Ref<number>;
-  operationViewId: Ref<number>;
-  saveViewId: Ref<string>;
-  saveNewViewId: Ref<string>;
   runAction: WorkflowActionRunner;
 }
 
@@ -70,10 +66,6 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
     options.listViewId.value = loadedViewId;
     options.readItemViewId.value = loadedDetailViewId;
     options.detailViewId.value = loadedDetailViewId;
-    options.initNewViewId.value = loadedDetailViewId;
-    options.operationViewId.value = loadedDetailViewId;
-    options.saveViewId.value = String(loadedDetailViewId);
-    options.saveNewViewId.value = String(loadedDetailViewId);
   }
 
   async function loadLegacyListView() {

@@ -119,23 +119,6 @@ const pageIndex = ref(1);
 const pageSize = ref(20);
 const viewKeyword = ref("");
 const detailViewId = ref(0);
-const detailObjId = ref("");
-const detailIdExp = ref("");
-const initNewViewId = ref(0);
-const initNewParentObjId = ref("");
-const saveViewId = ref("");
-const saveObjId = ref("");
-const savePropertyiesJson = ref("[]");
-const saveItempropertiesJson = ref("");
-const saveNewViewId = ref("");
-const saveNewObjId = ref("");
-const saveNewPropertyiesJson = ref("[]");
-const saveNewOwnerViewId = ref("");
-const saveNewOwnerId = ref("");
-const saveNewProperty = ref("");
-const operationObjectId = ref("");
-const operationViewId = ref(0);
-const operationId = ref(0);
 const checkCodeKey = ref("");
 const checkCodeValue = ref("");
 const subMenuParentAuthCode = ref("");
@@ -145,6 +128,7 @@ const showViewReport = ref(false);
 const selectedObjectId = ref("");
 const isCreatingObject = ref(false);
 const detailDrafts = ref<Record<string, string>>({});
+let newObjectOwner = { ownerViewId: "", ownerId: "", property: "" };
 const {
   candidateColumns,
   candidateRows,
@@ -171,8 +155,6 @@ const mainInfoResponse = ref<CommonResponse<LegacyMainResult> | null>(null);
 const checkCodeResponse = ref<CommonResponse<CheckCodeResult> | null>(null);
 const subMenuResponse = ref<CommonResponse<LegacySubMenuResult> | null>(null);
 const detailResponse = ref<CommonResponse<QueryDataDetailResult> | null>(null);
-const initNewResponse = ref<CommonResponse<QueryDataDetailResult> | null>(null);
-const runOperationResponse = ref<CommonResponse<LegacyRunOperationResult> | null>(null);
 const messageResponse = ref<CommonResponse<GetMessageResult> | null>(null);
 const notifyResponse = ref<CommonResponse<GetNotifyResult> | null>(null);
 const errorMessage = ref("");
@@ -206,10 +188,6 @@ const {
   pageSize,
   keyword: viewKeyword,
   detailViewId,
-  initNewViewId,
-  operationViewId,
-  saveViewId,
-  saveNewViewId,
   runAction
 });
 const { enumOptions, loadFieldEnums: loadFieldEnumsFor } = useFieldEnums(token, runAction);
@@ -546,7 +524,7 @@ async function loadResultPage(nextPage: number) {
   await queryCurrentViewData();
 }
 
-async function queryDetail(viewId = Number(detailViewId.value)) {
+async function queryDetail(viewId = Number(detailViewId.value), objectId = selectedObjectId.value) {
   detailViewId.value = viewId;
   detailResponse.value = null;
   const readView = await loadReadItemView(viewId);
@@ -554,8 +532,7 @@ async function queryDetail(viewId = Number(detailViewId.value)) {
   const request = buildQueryDataDetailRequest({
     token: token.value,
     viewId,
-    objId: detailObjId.value,
-    idExp: detailIdExp.value
+    objId: objectId
   });
 
   const response = await runAction("detail", () =>
@@ -569,74 +546,58 @@ async function queryDetail(viewId = Number(detailViewId.value)) {
   return response;
 }
 
-async function initNew() {
-  const viewId = Number(initNewViewId.value);
-  initNewResponse.value = null;
+async function initNew(viewId: number, parentObjId = "") {
   const readView = await loadReadItemView(viewId);
   if (!readView?.data) return null;
   const request = buildInitNewRequest({
     token: token.value,
     viewId,
-    parentObjId: initNewParentObjId.value
+    parentObjId
   });
 
   const response = await runAction("initnew", () =>
     postApi<QueryDataDetailResult>("/api/v1/data/initnew", request)
   );
-  if (response) {
-    initNewResponse.value = response;
-  }
   return response;
 }
 
-async function saveObj() {
+async function saveObj(itemproperties: SaveItemProperty[] = []) {
   const request = buildSaveObjRequest({
     token: token.value,
-    id: saveObjId.value,
-    viewID: saveViewId.value,
-    propertyiesJson: savePropertyiesJson.value,
-    itempropertiesJson: saveItempropertiesJson.value
+    id: selectedObjectId.value,
+    viewID: String(detailViewId.value),
+    propertyies: buildSavePropertyies(detailRows.value, detailDrafts.value),
+    itemproperties
   });
 
   const response = await runAction("saveobj", () => postApi<void>("/api/v1/data/saveobj", request));
-  if (response) {
-    return true;
-  }
-  return false;
+  return Boolean(response);
 }
 
 async function saveNewObj() {
   const request = buildSaveNewObjRequest({
     token: token.value,
-    id: saveNewObjId.value,
-    viewID: saveNewViewId.value,
-    propertyiesJson: saveNewPropertyiesJson.value,
-    ownerViewId: saveNewOwnerViewId.value,
-    ownerId: saveNewOwnerId.value,
-    property: saveNewProperty.value
+    id: selectedObjectId.value,
+    viewID: String(detailViewId.value),
+    propertyies: buildSavePropertyies(detailRows.value, detailDrafts.value),
+    ...newObjectOwner
   });
 
   const response = await runAction("savenewobj", () => postApi<void>("/api/v1/data/savenewobj", request));
-  if (response) {
-    return true;
-  }
-  return false;
+  return Boolean(response);
 }
 
-async function runOperation() {
+async function runOperation(operationId: number) {
   const request = buildRunOperationRequest({
     token: token.value,
-    objectId: operationObjectId.value,
-    viewId: Number(operationViewId.value),
-    operationId: Number(operationId.value)
+    objectId: selectedObjectId.value,
+    viewId: Number(detailViewId.value),
+    operationId
   });
 
-  const response = await runAction("runoperation", () =>
+  return runAction("runoperation", () =>
     postApi<LegacyRunOperationResult>("/api/v1/data/runoperation", request)
   );
-  if (response) {
-    runOperationResponse.value = response;
-  }
 }
 
 async function runViewOperation(operation: OperationInfo) {
@@ -648,14 +609,10 @@ async function runViewOperation(operation: OperationInfo) {
   if (!id) {
     return;
   }
-  operationObjectId.value = selectedObjectId.value;
-  operationViewId.value = Number(detailViewId.value);
-  operationId.value = id;
-  await runOperation();
-  if (legacyRunOperationSuccess(runOperationResponse.value?.data)) {
+  const response = await runOperation(id);
+  if (legacyRunOperationSuccess(response?.data)) {
     await queryCurrentViewData();
-    detailObjId.value = selectedObjectId.value;
-    await queryDetail(Number(detailViewId.value));
+    await queryDetail();
   }
 }
 
@@ -722,10 +679,7 @@ async function loadLegacyDetailPath(route: { viewId: number; objectId?: string }
   const objectId = route.objectId || "";
   isCreatingObject.value = false;
   selectedObjectId.value = objectId;
-  detailObjId.value = objectId;
-  saveObjId.value = objectId;
-  operationObjectId.value = objectId;
-  await queryDetail(route.viewId);
+  await queryDetail(route.viewId, objectId);
 }
 
 async function loadLegacyItemView(viewId: number) {
@@ -734,7 +688,7 @@ async function loadLegacyItemView(viewId: number) {
   isStandaloneDetail.value = false;
   applyRequestedViewId(viewId);
   detailViewId.value = readItemViewId.value = viewId;
-  selectedObjectId.value = detailObjId.value = saveObjId.value = operationObjectId.value = "";
+  selectedObjectId.value = "";
   detailResponse.value = null;
   if (!(await ensureLegacyShell())) return;
   await loadReadItemView(viewId);
@@ -820,21 +774,14 @@ async function selectObject(row: ListDataItem, viewId = Number(detailViewId.valu
   isCreatingObject.value = false;
   selectedObjectId.value = objectId;
   detailViewId.value = viewId;
-  detailObjId.value = objectId;
-  saveObjId.value = objectId;
-  operationObjectId.value = objectId;
-  await queryDetail(viewId);
+  await queryDetail(viewId, objectId);
 }
 
 async function startNewObject(viewId = Number(detailViewId.value), parentObjId = "", ownerViewId = "", property = "") {
   detailViewId.value = viewId;
   detailResponse.value = null;
-  initNewViewId.value = viewId;
-  initNewParentObjId.value = parentObjId;
-  saveNewOwnerViewId.value = ownerViewId;
-  saveNewOwnerId.value = parentObjId;
-  saveNewProperty.value = property;
-  const initialized = await initNew();
+  newObjectOwner = { ownerViewId, ownerId: parentObjId, property };
+  const initialized = await initNew(viewId, parentObjId);
   if (!initialized) {
     return;
   }
@@ -843,9 +790,6 @@ async function startNewObject(viewId = Number(detailViewId.value), parentObjId =
   }
   detailResponse.value = initialized;
   selectedObjectId.value = nextObjectId();
-  detailObjId.value = selectedObjectId.value;
-  saveObjId.value = selectedObjectId.value;
-  operationObjectId.value = selectedObjectId.value;
   isCreatingObject.value = true;
   syncDetailDrafts();
   await loadFieldEnums();
@@ -856,27 +800,13 @@ async function saveSelectedObject() {
     errorMessage.value = "Select an object first.";
     return;
   }
-  const propertyiesJson = JSON.stringify(buildSavePropertyies(detailRows.value, detailDrafts.value));
-  let saved = false;
-  if (isCreatingObject.value) {
-    saveNewObjId.value = selectedObjectId.value;
-    saveNewViewId.value = String(initNewViewId.value);
-    saveNewPropertyiesJson.value = propertyiesJson;
-    saved = await saveNewObj();
-  } else {
-    saveObjId.value = selectedObjectId.value;
-    saveViewId.value = String(detailViewId.value);
-    savePropertyiesJson.value = propertyiesJson;
-    saveItempropertiesJson.value = "";
-    saved = await saveObj();
-  }
+  const saved = isCreatingObject.value ? await saveNewObj() : await saveObj();
   if (!saved) {
     return;
   }
   isCreatingObject.value = false;
-  detailObjId.value = selectedObjectId.value;
   await queryCurrentViewData();
-  await queryDetail(Number(detailViewId.value));
+  await queryDetail();
 }
 
 async function addDetailItem(group: QueryDataDetailItemGroup) {
@@ -892,9 +822,7 @@ async function addDetailItem(group: QueryDataDetailItemGroup) {
   if (firstFieldKey && !drafts[firstFieldKey]) {
     drafts[firstFieldKey] = itemId;
   }
-  setDetailItemSavePayload([buildAddedItemProperty(group, itemId, drafts)]);
-  const saved = await saveObj();
-  saveItempropertiesJson.value = "";
+  const saved = await saveObj([buildAddedItemProperty(group, itemId, drafts)]);
   if (!saved) {
     return;
   }
@@ -902,7 +830,7 @@ async function addDetailItem(group: QueryDataDetailItemGroup) {
     ...newChildDrafts.value,
     [key]: emptyGroupDraft(group)
   };
-  await queryDetail(Number(detailViewId.value));
+  await queryDetail();
 }
 
 async function loadExistingDetailItems(group: QueryDataDetailItemGroup) {
@@ -942,11 +870,9 @@ async function addExistingDetailItem(group: QueryDataDetailItemGroup, row: ListD
     errorMessage.value = "Save the object before adding items.";
     return;
   }
-  setDetailItemSavePayload([buildSelectedExistingItemProperty(group, row, candidateColumns(group))]);
-  const saved = await saveObj();
-  saveItempropertiesJson.value = "";
+  const saved = await saveObj([buildSelectedExistingItemProperty(group, row, candidateColumns(group))]);
   if (saved) {
-    await queryDetail(Number(detailViewId.value));
+    await queryDetail();
   }
 }
 
@@ -956,11 +882,9 @@ async function updateDetailItem(group: QueryDataDetailItemGroup, item: QueryData
     return;
   }
   const drafts = childDrafts.value[itemKey(group, item)] || buildGroupItemDrafts(group, item);
-  setDetailItemSavePayload([buildUpdatedItemProperty(group, item, drafts)]);
-  const saved = await saveObj();
-  saveItempropertiesJson.value = "";
+  const saved = await saveObj([buildUpdatedItemProperty(group, item, drafts)]);
   if (saved) {
-    await queryDetail(Number(detailViewId.value));
+    await queryDetail();
   }
 }
 
@@ -973,19 +897,10 @@ async function deleteDetailItem(group: QueryDataDetailItemGroup, item: QueryData
   if (!window.confirm(`Delete ${dataId}?`)) {
     return;
   }
-  setDetailItemSavePayload([buildDeletedItemProperty(group, item)]);
-  const saved = await saveObj();
-  saveItempropertiesJson.value = "";
+  const saved = await saveObj([buildDeletedItemProperty(group, item)]);
   if (saved) {
-    await queryDetail(Number(detailViewId.value));
+    await queryDetail();
   }
-}
-
-function setDetailItemSavePayload(itemproperties: SaveItemProperty[]) {
-  saveObjId.value = selectedObjectId.value;
-  saveViewId.value = String(detailViewId.value);
-  savePropertyiesJson.value = JSON.stringify(buildSavePropertyies(detailRows.value, detailDrafts.value));
-  saveItempropertiesJson.value = JSON.stringify(itemproperties);
 }
 
 async function loadFieldEnums() {

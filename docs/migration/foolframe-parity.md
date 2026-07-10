@@ -118,6 +118,14 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: removed the manual API console's remaining request staging from
+  production Vue. Detail, `initnew`, `saveobj`, `savenewobj`, child collection
+  mutations, and `runoperation` now build requests directly from the active
+  View id, selected object, rendered fields, and typed `SaveKeypair[]` /
+  `SaveItemProperty[]` values; the old `ref` mirrors and JSON stringify/parse
+  round trip are gone. `useViewDataWorkflow` now synchronizes only the list,
+  read-item, and detail View ids it owns. `App.vue` dropped from 1207 to 1122
+  lines, and Docker runtime checks proved create/update/child/operation parity.
 - 2026-07-10: audited all 25 routes declared by the old Web `app.js` and the
   Jade render templates. Current Spring/Vue routes cover the old entry, auth,
   View/detail/item/new, data, operation, enum, report, and message surfaces;

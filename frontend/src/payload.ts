@@ -32,8 +32,8 @@ export interface SaveObjRequestInput {
   token: string;
   id: string;
   viewID: string;
-  propertyiesJson: string;
-  itempropertiesJson?: string;
+  propertyies?: SaveKeypair[];
+  itemproperties?: SaveItemProperty[];
   parentId?: string;
   model?: string;
 }
@@ -122,8 +122,8 @@ export function buildSaveObjRequest(input: SaveObjRequestInput): SaveObjRequest 
   const saveObj: SaveObject = {
     id: input.id.trim(),
     viewID: input.viewID.trim(),
-    propertyies: parseJsonArray<SaveKeypair>(input.propertyiesJson, "Propertyies JSON"),
-    itemproperties: parseJsonArray<SaveItemProperty>(input.itempropertiesJson || "", "Itemproperties JSON")
+    propertyies: input.propertyies || [],
+    itemproperties: input.itemproperties || []
   };
   const parentId = input.parentId?.trim();
   const model = input.model?.trim();
@@ -259,16 +259,4 @@ function addOptional(request: InputQueryRequest, key: "modelID" | "objID" | "own
   if (trimmed) {
     request[key] = trimmed;
   }
-}
-
-function parseJsonArray<T>(json: string, label: string): T[] {
-  const trimmed = json.trim();
-  if (!trimmed) {
-    return [];
-  }
-  const parsed = JSON.parse(trimmed) as unknown;
-  if (!Array.isArray(parsed)) {
-    throw new Error(`${label} must be an array.`);
-  }
-  return parsed as T[];
 }

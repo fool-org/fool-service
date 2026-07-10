@@ -201,11 +201,7 @@ function baseRefs() {
     pageIndex: ref(1),
     pageSize: ref(20),
     keyword: ref(""),
-    detailViewId: ref(0),
-    initNewViewId: ref(0),
-    operationViewId: ref(0),
-    saveViewId: ref(""),
-    saveNewViewId: ref("")
+    detailViewId: ref(0)
   };
 }
 
