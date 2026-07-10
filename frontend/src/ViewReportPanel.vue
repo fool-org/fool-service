@@ -1,5 +1,14 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
+import Button from "primevue/button";
+import Checkbox from "primevue/checkbox";
+import Column from "primevue/column";
+import DataTable from "primevue/datatable";
+import InputNumber from "primevue/inputnumber";
+import InputText from "primevue/inputtext";
+import Message from "primevue/message";
+import Paginator, { type PageState } from "primevue/paginator";
+import Select from "primevue/select";
 import {
   type CommonResponse,
   type ReportCol,
@@ -56,6 +65,15 @@ const outputTypeByColumn = ref<Record<string, string>>({});
 const orderTypeByColumn = ref<Record<string, string>>({});
 const conditions = ref<ConditionDraft[]>([]);
 const statusMessage = ref("");
+const joinOptions = [
+  { label: "AND", value: "and" },
+  { label: "OR", value: "or" }
+];
+const orderOptions = [
+  { label: "None", value: "2" },
+  { label: "Ascending", value: "0" },
+  { label: "Descending", value: "1" }
+];
 
 const modelColumns = computed(() => reportModelColumns(modelResponse.value?.data));
 const selectedColumnModels = computed(() =>
@@ -139,6 +157,36 @@ function compareTypes(condition: ConditionDraft) {
 
 function states(condition: ConditionDraft) {
   return reportModelStates(columnFor(condition) || {});
+}
+
+function modelColumnOptions() {
+  return modelColumns.value.map((column) => ({ label: reportModelColumnName(column), value: columnKey(column) }));
+}
+
+function queryTypeOptions(column: ReportModelColumn) {
+  const options = reportModelQueryTypes(column).map((option) => ({
+    label: reportModelOptionName(option),
+    value: reportModelOptionId(option)
+  }));
+  return options.length ? options : [{ label: "Raw value", value: "" }];
+}
+
+function compareTypeOptions(condition: ConditionDraft) {
+  return compareTypes(condition).map((option) => ({
+    label: reportModelOptionName(option),
+    value: reportModelOptionId(option)
+  }));
+}
+
+function stateOptions(condition: ConditionDraft) {
+  return states(condition).map((state) => ({
+    label: reportModelStateText(state),
+    value: reportModelStateValue(state)
+  }));
+}
+
+function changeResultPage(event: PageState) {
+  void runReport(event.page + 1);
 }
 
 function addCondition() {
@@ -242,92 +290,52 @@ onMounted(() => void loadReportColumns());
     <div class="report-toolbar">
       <label>
         Page size
-        <input v-model.number="pageSize" min="1" type="number" />
+        <InputNumber v-model="pageSize" :min="1" :max="200" :use-grouping="false" fluid />
       </label>
       <label>
         Report name
-        <input v-model="reportName" />
+        <InputText v-model="reportName" fluid />
       </label>
-      <button class="primary" type="button" :disabled="!canRun" @click="runReport()">Run Report</button>
-      <button type="button" :disabled="!canRun || !reportName.trim()" @click="saveReport">Save Definition</button>
-      <button type="button" :disabled="pending" @click="emit('close')">Close</button>
+      <Button type="button" label="Run Report" icon="pi pi-play" :disabled="!canRun" @click="runReport()" />
+      <Button type="button" label="Save Definition" icon="pi pi-save" severity="secondary" outlined :disabled="!canRun || !reportName.trim()" @click="saveReport" />
+      <Button type="button" label="Close" icon="pi pi-times" severity="secondary" text :disabled="pending" @click="emit('close')" />
     </div>
-    <p v-if="statusMessage" class="report-status">{{ statusMessage }}</p>
+    <Message v-if="statusMessage" severity="info" :closable="false">{{ statusMessage }}</Message>
 
     <section class="report-section">
       <div class="section-heading">
         <h3>Output columns</h3>
-        <button type="button" :disabled="pending" @click="loadReportColumns">Reload</button>
+        <Button type="button" label="Reload" icon="pi pi-refresh" size="small" severity="secondary" text :disabled="pending" @click="loadReportColumns" />
       </div>
       <div class="table-wrap report-columns">
-        <table v-if="modelColumns.length">
-          <thead>
-            <tr>
-              <th>Output</th>
-              <th>Column</th>
-              <th>Type</th>
-              <th>Output type</th>
-              <th>Order</th>
-              <th>Position</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="column in modelColumns" :key="columnKey(column)">
-              <td>
-                <input
-                  v-model="selectedColumnIds"
-                  :aria-label="`Output ${reportModelColumnName(column)}`"
-                  type="checkbox"
-                  :value="columnKey(column)"
-                />
-              </td>
-              <td>{{ reportModelColumnName(column) }}</td>
-              <td>{{ reportModelColumnType(column) }}</td>
-              <td>
-                <select
-                  v-model="outputTypeByColumn[columnKey(column)]"
-                  :disabled="pending || !selectedColumnIds.includes(columnKey(column))"
-                >
-                  <option v-if="!reportModelQueryTypes(column).length" value="">Raw value</option>
-                  <option
-                    v-for="option in reportModelQueryTypes(column)"
-                    :key="reportModelOptionId(option)"
-                    :value="reportModelOptionId(option)"
-                  >
-                    {{ reportModelOptionName(option) }}
-                  </option>
-                </select>
-              </td>
-              <td>
-                <select
-                  v-model="orderTypeByColumn[columnKey(column)]"
-                  :disabled="pending || !selectedColumnIds.includes(columnKey(column))"
-                >
-                  <option value="2">None</option>
-                  <option value="0">Ascending</option>
-                  <option value="1">Descending</option>
-                </select>
-              </td>
-              <td>
-                <div class="report-position">
-                  <span>{{ selectedPosition(column) }}</span>
-                  <button
-                    type="button"
-                    title="Move output column up"
-                    :disabled="pending || !canMoveColumn(column, -1)"
-                    @click="moveColumn(column, -1)"
-                  >&uarr;</button>
-                  <button
-                    type="button"
-                    title="Move output column down"
-                    :disabled="pending || !canMoveColumn(column, 1)"
-                    @click="moveColumn(column, 1)"
-                  >&darr;</button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <DataTable v-if="modelColumns.length" :value="modelColumns" scrollable striped-rows size="small">
+          <Column header="Output">
+            <template #body="{ data: column }">
+              <Checkbox v-model="selectedColumnIds" :input-id="`output-${columnKey(column)}`" :aria-label="`Output ${reportModelColumnName(column)}`" :value="columnKey(column)" />
+            </template>
+          </Column>
+          <Column header="Column"><template #body="{ data: column }">{{ reportModelColumnName(column) }}</template></Column>
+          <Column header="Type"><template #body="{ data: column }">{{ reportModelColumnType(column) }}</template></Column>
+          <Column header="Output type">
+            <template #body="{ data: column }">
+              <Select v-model="outputTypeByColumn[columnKey(column)]" :options="queryTypeOptions(column)" option-label="label" option-value="value" size="small" :disabled="pending || !selectedColumnIds.includes(columnKey(column))" />
+            </template>
+          </Column>
+          <Column header="Order">
+            <template #body="{ data: column }">
+              <Select v-model="orderTypeByColumn[columnKey(column)]" :options="orderOptions" option-label="label" option-value="value" size="small" :disabled="pending || !selectedColumnIds.includes(columnKey(column))" />
+            </template>
+          </Column>
+          <Column header="Position">
+            <template #body="{ data: column }">
+              <div class="report-position">
+                <span>{{ selectedPosition(column) }}</span>
+                <Button type="button" icon="pi pi-arrow-up" size="small" severity="secondary" text title="Move output column up" :disabled="pending || !canMoveColumn(column, -1)" @click="moveColumn(column, -1)" />
+                <Button type="button" icon="pi pi-arrow-down" size="small" severity="secondary" text title="Move output column down" :disabled="pending || !canMoveColumn(column, 1)" @click="moveColumn(column, 1)" />
+              </div>
+            </template>
+          </Column>
+        </DataTable>
         <div v-else class="empty-state compact">No report columns.</div>
       </div>
     </section>
@@ -335,38 +343,26 @@ onMounted(() => void loadReportColumns());
     <section class="report-section">
       <div class="section-heading">
         <h3>Conditions</h3>
-        <button type="button" :disabled="pending || !modelColumns.length" @click="addCondition">Add condition</button>
+        <Button type="button" label="Add condition" icon="pi pi-plus" size="small" severity="secondary" outlined :disabled="pending || !modelColumns.length" @click="addCondition" />
       </div>
       <div v-if="conditions.length" class="report-conditions">
         <div v-for="(condition, index) in conditions" :key="index" class="report-condition-row">
-          <select v-if="index" v-model="condition.join" aria-label="Condition join" :disabled="pending">
-            <option value="and">AND</option>
-            <option value="or">OR</option>
-          </select>
+          <Select v-if="index" v-model="condition.join" :options="joinOptions" option-label="label" option-value="value" aria-label="Condition join" :disabled="pending" />
           <span v-else class="condition-first">Where</span>
-          <select v-model="condition.columnId" aria-label="Condition column" :disabled="pending" @change="updateConditionColumn(condition)">
-            <option v-for="column in modelColumns" :key="columnKey(column)" :value="columnKey(column)">
-              {{ reportModelColumnName(column) }}
-            </option>
-          </select>
-          <select v-model="condition.compareId" aria-label="Condition comparison" :disabled="pending">
-            <option v-for="option in compareTypes(condition)" :key="reportModelOptionId(option)" :value="reportModelOptionId(option)">
-              {{ reportModelOptionName(option) }}
-            </option>
-          </select>
-          <select v-if="states(condition).length" v-model="condition.value" aria-label="Condition value" :disabled="pending">
-            <option v-for="state in states(condition)" :key="reportModelStateValue(state)" :value="reportModelStateValue(state)">
-              {{ reportModelStateText(state) }}
-            </option>
-          </select>
-          <input v-else v-model="condition.value" aria-label="Condition value" :disabled="pending" />
-          <button
-            class="icon-button"
+          <Select v-model="condition.columnId" :options="modelColumnOptions()" option-label="label" option-value="value" aria-label="Condition column" :disabled="pending" @change="updateConditionColumn(condition)" />
+          <Select v-model="condition.compareId" :options="compareTypeOptions(condition)" option-label="label" option-value="value" aria-label="Condition comparison" :disabled="pending" />
+          <Select v-if="states(condition).length" v-model="condition.value" :options="stateOptions(condition)" option-label="label" option-value="value" aria-label="Condition value" :disabled="pending" />
+          <InputText v-else v-model="condition.value" aria-label="Condition value" :disabled="pending" fluid />
+          <Button
             type="button"
+            icon="pi pi-trash"
+            severity="danger"
+            text
             title="Remove condition"
+            aria-label="Remove condition"
             :disabled="pending"
             @click="conditions.splice(index, 1)"
-          >&times;</button>
+          />
         </div>
       </div>
       <div v-else class="empty-state compact">All rows are included.</div>
@@ -378,28 +374,23 @@ onMounted(() => void loadReportColumns());
         <span v-if="reportResponse">{{ resultRecords }} rows · Page {{ resultPage }} / {{ resultPages || 1 }}</span>
       </div>
       <div class="table-wrap report-results">
-        <table v-if="reportRows.length">
-          <thead>
-            <tr>
-              <th v-for="(cell, index) in reportRows[0]" :key="`report-head-${index}`">{{ cell }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(row, rowIndex) in reportRows.slice(1)" :key="`report-row-${rowIndex}`">
-              <td v-for="(cell, colIndex) in row" :key="`report-cell-${rowIndex}-${colIndex}`">{{ cell }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <DataTable v-if="reportRows.length" :value="reportRows.slice(1)" scrollable striped-rows size="small">
+          <Column v-for="(cell, index) in reportRows[0]" :key="`report-head-${index}`" :header="cell">
+            <template #body="{ data: row }">{{ row[index] }}</template>
+          </Column>
+        </DataTable>
         <div v-else class="empty-state compact">Run the report to see results.</div>
       </div>
-      <div v-if="reportResponse" class="button-row report-pagination">
-        <button type="button" :disabled="pending || resultPage <= 1" @click="runReport(resultPage - 1)">Previous</button>
-        <button
-          type="button"
-          :disabled="pending || !resultPages || resultPage >= resultPages"
-          @click="runReport(resultPage + 1)"
-        >Next</button>
-      </div>
+      <Paginator
+        v-if="reportResponse"
+        :first="Math.max(0, (resultPage - 1) * pageSize)"
+        :rows="pageSize"
+        :total-records="resultRecords"
+        :disabled="pending"
+        template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+        current-page-report-template="Page {currentPage} of {totalPages} · {totalRecords} rows"
+        @page="changeResultPage"
+      />
     </section>
   </article>
 </template>

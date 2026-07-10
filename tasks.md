@@ -15,7 +15,7 @@ item must land with its matching implementation and validation evidence.
       logout behavior.
 - [x] Upgrade the shared View list table, toolbar, tabs, and paginator without
       changing metadata-derived columns or backend pagination.
-- [ ] Upgrade detail fields, child-row controls, lookup results, report
+- [x] Upgrade detail fields, child-row controls, lookup results, report
       builder/results, and View-specific containers without changing legacy
       request values or component events.
 - [ ] Pass frontend, Docker runtime, repository harness, desktop browser, and

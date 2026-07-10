@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import Panel from "primevue/panel";
+import Tag from "primevue/tag";
 import type { ListViewInfo, ListViewResult, QueryDataDetailResult, TableColumnInfo } from "./api";
 import LegacyChartPanel from "./LegacyChartPanel.vue";
 import LegacyMapPanel from "./LegacyMapPanel.vue";
@@ -52,11 +54,13 @@ function sudokuPanelItemFields(panel: TableColumnInfo) {
 
 <template>
   <div class="sudoku-grid">
-    <section v-for="panel in panels" :key="`${sudokuPanelViewId(panel)}-${fieldTitle(panel)}-${sudokuPanelKind(panel)}`" class="sudoku-panel">
-      <header>
+    <Panel v-for="panel in panels" :key="`${sudokuPanelViewId(panel)}-${fieldTitle(panel)}-${sudokuPanelKind(panel)}`" class="sudoku-panel">
+      <template #header>
+        <div class="sudoku-panel-heading">
         <strong>{{ fieldTitle(panel) }}</strong>
-        <span>{{ sudokuPanelKind(panel) }}</span>
-      </header>
+          <Tag :value="sudokuPanelKind(panel)" severity="secondary" rounded />
+        </div>
+      </template>
       <div v-if="sudokuPanelKind(panel) === 'list' && sudokuPanelRows(panel).length" class="table-wrap sudoku-panel-body">
         <ListDataTable
           :columns="sudokuPanelColumns(panel)"
@@ -77,7 +81,7 @@ function sudokuPanelItemFields(panel: TableColumnInfo) {
         :markers="sudokuPanelMarkers(panel)"
       />
       <div v-else-if="sudokuPanelKind(panel) === 'item' && sudokuPanelItemFields(panel).length" class="table-wrap sudoku-panel-body">
-        <table>
+        <table class="legacy-item-table">
           <tbody>
             <tr v-for="(item, index) in sudokuPanelItemFields(panel)" :key="`${item.label}-${index}`">
               <th>{{ item.label }}</th>
@@ -87,11 +91,13 @@ function sudokuPanelItemFields(panel: TableColumnInfo) {
         </table>
       </div>
       <div v-else-if="sudokuPanelKind(panel) === 'group' && sudokuGroupPanels(panel).length" class="sudoku-panel-body">
-        <section v-for="childPanel in sudokuGroupPanels(panel)" :key="`${sudokuPanelViewId(childPanel)}-${fieldTitle(childPanel)}`" class="sudoku-panel">
-          <header>
+        <Panel v-for="childPanel in sudokuGroupPanels(panel)" :key="`${sudokuPanelViewId(childPanel)}-${fieldTitle(childPanel)}`" class="sudoku-panel">
+          <template #header>
+            <div class="sudoku-panel-heading">
             <strong>{{ fieldTitle(childPanel) }}</strong>
-            <span>{{ sudokuPanelListViewType(childPanel) === 0 ? "list" : "item" }}</span>
-          </header>
+              <Tag :value="sudokuPanelListViewType(childPanel) === 0 ? 'list' : 'item'" severity="secondary" rounded />
+            </div>
+          </template>
           <div v-if="sudokuPanelListViewType(childPanel) === 0 && sudokuPanelRows(childPanel).length" class="table-wrap sudoku-panel-body">
             <ListDataTable
               :columns="sudokuPanelColumns(childPanel)"
@@ -105,11 +111,11 @@ function sudokuPanelItemFields(panel: TableColumnInfo) {
           <div v-else class="empty-state compact">
             {{ sudokuPanelResult(childPanel) ? `${sudokuPanelRows(childPanel).length} rows loaded` : "No group data loaded." }}
           </div>
-        </section>
+        </Panel>
       </div>
       <div v-else class="empty-state compact">
         {{ sudokuPanelResult(panel) ? `${sudokuPanelRows(panel).length} rows loaded` : "No panel data loaded." }}
       </div>
-    </section>
+    </Panel>
   </div>
 </template>

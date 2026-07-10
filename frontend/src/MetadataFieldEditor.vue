@@ -1,5 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import Button from "primevue/button";
+import Checkbox from "primevue/checkbox";
+import InputGroup from "primevue/inputgroup";
+import InputText from "primevue/inputtext";
+import Listbox from "primevue/listbox";
+import Select from "primevue/select";
+import Textarea from "primevue/textarea";
 import type { InputQueryItem, InputQueryResult, ListDataValue } from "./api";
 import { postApi } from "./api";
 import { buildInputQueryRequest } from "./payload";
@@ -55,6 +62,15 @@ const value = computed({
   get: () => props.modelValue,
   set: (next) => emit("update:modelValue", next)
 });
+const checked = computed({
+  get: () => fieldInputChecked(props.field, value.value),
+  set: (next: boolean) => { value.value = next ? "true" : "false"; }
+});
+const lookupChoices = computed(() => lookupOptions.value.map((item) => ({
+  id: inputQueryItemId(item) || inputQueryItemText(item),
+  label: inputQueryItemText(item) || inputQueryItemId(item),
+  item
+})));
 
 async function searchLookup() {
   lookupPending.value = true;
@@ -89,49 +105,37 @@ function selectLookup(item: InputQueryItem) {
   lookupTerm.value = inputQueryItemText(item) || id;
   lookupOptions.value = [];
 }
-
-function updateValue(event: Event) {
-  if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
-    value.value = event.target instanceof HTMLInputElement && event.target.type === "checkbox"
-      ? (event.target.checked ? "true" : "false")
-      : event.target.value;
-  }
-}
 </script>
 
 <template>
-  <input v-if="isReadonlyField(field)" :value="readonlyValue || modelValue" disabled />
-  <select v-else-if="isEnumField(field)" v-model="value">
-    <option v-for="option in options" :key="option.value" :value="option.value">
-      {{ option.label }}
-    </option>
-  </select>
+  <InputText v-if="isReadonlyField(field)" :model-value="readonlyValue || modelValue" disabled fluid />
+  <Select v-else-if="isEnumField(field)" v-model="value" :options="options" option-label="label" option-value="value" fluid />
   <div v-else-if="isLookupField(field)" class="metadata-lookup">
-    <div class="metadata-lookup-row">
-      <input v-model="lookupTerm" :placeholder="readonlyValue || modelValue" />
-      <button type="button" :disabled="lookupDisabled || lookupPending || !lookupTerm.trim()" @click="searchLookup">
-        Search
-      </button>
-    </div>
-    <div v-if="lookupOptions.length" class="metadata-lookup-options">
-      <button
-        v-for="option in lookupOptions"
-        :key="inputQueryItemId(option) || inputQueryItemText(option)"
-        type="button"
-        @click="selectLookup(option)"
-      >
-        {{ inputQueryItemText(option) || inputQueryItemId(option) }}
-      </button>
-    </div>
+    <InputGroup>
+      <InputText v-model="lookupTerm" :placeholder="readonlyValue || modelValue" fluid @keyup.enter="searchLookup" />
+      <Button type="button" label="Search" icon="pi pi-search" :loading="lookupPending" :disabled="lookupDisabled || lookupPending || !lookupTerm.trim()" @click="searchLookup" />
+    </InputGroup>
+    <Listbox
+      v-if="lookupChoices.length"
+      :options="lookupChoices"
+      option-label="label"
+      data-key="id"
+      class="metadata-lookup-options"
+      @change="selectLookup($event.value.item)"
+    />
     <small v-if="lookupError" class="metadata-lookup-error">{{ lookupError }}</small>
     <small v-if="modelValue">{{ modelValue }}</small>
   </div>
-  <textarea v-else-if="isMultilineField(field)" :value="value" rows="4" @input="updateValue"></textarea>
-  <input
+  <Textarea v-else-if="isMultilineField(field)" v-model="value" rows="4" auto-resize fluid />
+  <span v-else-if="fieldInputType(field) === 'checkbox'" class="checkbox-field">
+    <Checkbox v-model="checked" binary />
+    <span>{{ checked ? "Yes" : "No" }}</span>
+  </span>
+  <InputText
     v-else
-    :checked="fieldInputChecked(field, value)"
     :type="fieldInputType(field)"
-    :value="fieldInputValue(field, value)"
-    @input="updateValue"
+    :model-value="fieldInputValue(field, value)"
+    fluid
+    @update:model-value="value = String($event ?? '')"
   />
 </template>

@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import Button from "primevue/button";
+import InputText from "primevue/inputtext";
+import Tag from "primevue/tag";
 import type { ListDataItem, ListDataValue, OperationInfo, QueryDataDetailDataItem, QueryDataDetailItemGroup, TableColumnInfo } from "./api";
 import ListDataTable from "./ListDataTable.vue";
 import MetadataFieldEditor from "./MetadataFieldEditor.vue";
@@ -64,7 +67,7 @@ const emit = defineEmits<{
   <article class="panel view-detail-panel">
     <div class="panel-heading">
       <h2>{{ title }}</h2>
-      <span>{{ selectedObjectId || "No row selected" }}</span>
+      <Tag :value="selectedObjectId || 'No row selected'" :severity="selectedObjectId ? 'secondary' : 'warn'" rounded />
     </div>
 
     <div v-if="viewCanEdit" class="view-edit-grid">
@@ -79,9 +82,7 @@ const emit = defineEmits<{
           @update:model-value="(value) => emit('updateDetailDraft', fieldKey(field), value)"
         />
       </label>
-      <button class="primary" type="button" :disabled="pending" @click="emit('saveSelectedObject')">
-        {{ isCreatingObject ? "Create Row" : "Save Row" }}
-      </button>
+      <Button type="button" :label="isCreatingObject ? 'Create Row' : 'Save Row'" :icon="isCreatingObject ? 'pi pi-plus' : 'pi pi-save'" :loading="pending" :disabled="pending" @click="emit('saveSelectedObject')" />
     </div>
     <div v-else class="empty-state compact">
       {{ schemaOnly ? "View definition loaded." : "Select a row from the list." }}
@@ -106,15 +107,17 @@ const emit = defineEmits<{
     <div v-if="selectedObjectId && !isCreatingObject && detailViewOperations.length" class="view-operations">
       <h3>View Operations</h3>
       <div class="button-row">
-        <button
+        <Button
           v-for="operation in detailViewOperations"
           :key="operationKey(operation)"
           type="button"
           :disabled="pending"
+          :label="operationLabel(operation)"
+          icon="pi pi-bolt"
+          severity="secondary"
+          outlined
           @click="emit('runViewOperation', operation)"
-        >
-          {{ operationLabel(operation) }}
-        </button>
+        />
       </div>
       <div v-for="operation in detailViewOperations" :key="`params-${operationKey(operation)}`">
         <span
@@ -148,36 +151,30 @@ const emit = defineEmits<{
                 @update:model-value="(value) => emit('setNewChildDraftValue', group, field, value)"
               />
             </label>
-            <button type="button" :disabled="pending" @click="emit('addDetailItem', group)">Add</button>
+            <Button type="button" label="Add" icon="pi pi-plus" severity="secondary" outlined :disabled="pending" @click="emit('addDetailItem', group)" />
           </div>
           <div v-if="groupSelectFromExists(group)" class="table-wrap">
             <div class="inline-fields">
               <label>
                 Search
-                <input :value="candidateState(group).keyword" @input="emit('updateCandidateKeyword', group, $event)" />
+                <InputText :model-value="candidateState(group).keyword" fluid @input="emit('updateCandidateKeyword', group, $event)" />
               </label>
               <label>
                 Page
-                <input min="1" type="number" :value="candidateState(group).pageIndex" @input="emit('updateCandidatePage', group, $event)" />
+                <InputText min="1" type="number" :model-value="String(candidateState(group).pageIndex)" fluid @input="emit('updateCandidatePage', group, $event)" />
               </label>
               <label>
                 Page size
-                <input min="1" type="number" :value="candidateState(group).pageSize" @input="emit('updateCandidatePageSize', group, $event)" />
+                <InputText min="1" type="number" :model-value="String(candidateState(group).pageSize)" fluid @input="emit('updateCandidatePageSize', group, $event)" />
               </label>
-              <button type="button" :disabled="pending" @click="emit('loadExistingDetailItems', group)">
-                Load Existing
-              </button>
+              <Button type="button" label="Load Existing" icon="pi pi-download" severity="secondary" outlined :disabled="pending" @click="emit('loadExistingDetailItems', group)" />
             </div>
             <div v-if="candidateRows(group).length || candidateState(group).totalPage" class="button-row">
-              <button type="button" :disabled="pending || candidateState(group).pageIndex <= 1" @click="emit('loadCandidatePage', group, candidateState(group).pageIndex - 1)">
-                Previous
-              </button>
+              <Button type="button" label="Previous" icon="pi pi-chevron-left" severity="secondary" text :disabled="pending || candidateState(group).pageIndex <= 1" @click="emit('loadCandidatePage', group, candidateState(group).pageIndex - 1)" />
               <span>
                 Page {{ candidateState(group).pageIndex }} / {{ candidateState(group).totalPage || 1 }}
               </span>
-              <button type="button" :disabled="pending || candidateState(group).totalPage === 0 || candidateState(group).pageIndex >= candidateState(group).totalPage" @click="emit('loadCandidatePage', group, candidateState(group).pageIndex + 1)">
-                Next
-              </button>
+              <Button type="button" label="Next" icon="pi pi-chevron-right" icon-pos="right" severity="secondary" text :disabled="pending || candidateState(group).totalPage === 0 || candidateState(group).pageIndex >= candidateState(group).totalPage" @click="emit('loadCandidatePage', group, candidateState(group).pageIndex + 1)" />
             </div>
             <ListDataTable
               v-if="candidateRows(group).length"
@@ -210,12 +207,8 @@ const emit = defineEmits<{
                 @update:model-value="(value) => emit('setChildDraftValue', group, item, field, value)"
               />
             </label>
-            <button type="button" :disabled="pending" @click="emit('updateDetailItem', group, item)">
-              Save
-            </button>
-            <button type="button" :disabled="pending" @click="emit('deleteDetailItem', group, item)">
-              Delete
-            </button>
+            <Button type="button" label="Save" icon="pi pi-save" size="small" :disabled="pending" @click="emit('updateDetailItem', group, item)" />
+            <Button type="button" label="Delete" icon="pi pi-trash" size="small" severity="danger" outlined :disabled="pending" @click="emit('deleteDetailItem', group, item)" />
           </div>
         </template>
       </div>

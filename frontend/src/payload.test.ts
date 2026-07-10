@@ -299,16 +299,17 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain(':object-id="itemDataId(item)"');
   });
 
-  it("renders native metadata inputs for field-specific widgets", () => {
+  it("renders PrimeVue metadata controls without changing legacy string values", () => {
     expect(metadataFieldEditorSource).toContain("fieldInputChecked");
     expect(metadataFieldEditorSource).toContain("fieldInputType");
     expect(metadataFieldEditorSource).toContain("fieldInputValue");
     expect(metadataFieldEditorSource).toContain("isMultilineField");
-    expect(metadataFieldEditorSource).toContain(':checked="fieldInputChecked(field, value)"');
+    expect(metadataFieldEditorSource).toContain("fieldInputChecked(props.field, value.value)");
     expect(metadataFieldEditorSource).toContain(':type="fieldInputType(field)"');
-    expect(metadataFieldEditorSource).toContain(':value="fieldInputValue(field, value)"');
-    expect(metadataFieldEditorSource).toContain('<textarea v-else-if="isMultilineField(field)"');
-    expect(metadataFieldEditorSource).toContain("HTMLTextAreaElement");
+    expect(metadataFieldEditorSource).toContain(':model-value="fieldInputValue(field, value)"');
+    expect(metadataFieldEditorSource).toContain("<Textarea v-else-if");
+    expect(metadataFieldEditorSource).toContain("<Checkbox v-model=\"checked\"");
+    expect(metadataFieldEditorSource).toContain("next ? \"true\" : \"false\"");
   });
 
   it("does not keep ViewName as a frontend lookup or workflow shortcut", () => {
