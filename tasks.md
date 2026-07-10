@@ -751,6 +751,10 @@ explicitly named as authoritative for fool-service.
       FoolFrame, the 37-case Java 17 Model service suite, and live Docker
       `MODEL_CON` state; close speculative routed-connection work until a real
       migrated model declares a separate connection.
+- [x] Complete authenticated desktop/mobile browser acceptance for the
+      View-first Vue workflow; preserve Sudoku row data when list/chart/item
+      panels share a View id and keep both mobile shell navigation controls
+      inside the 390px viewport.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

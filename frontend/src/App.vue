@@ -216,7 +216,9 @@ function fieldEnumOptions(field: ListDataValue) {
 const isChartView = computed(() => viewUsesChartTemplate(viewResponse.value?.data));
 const isSudokuView = computed(() => viewUsesSudokuTemplate(viewResponse.value?.data));
 const sudokuPanels = computed(() => viewColumns(viewResponse.value?.data));
-const sudokuPanelData = ref<Record<number, { view: ListViewInfo; data: ListViewResult | null; detail?: QueryDataDetailResult | null }>>({});
+type SudokuPanelResult = { view: ListViewInfo; data: ListViewResult | null; detail?: QueryDataDetailResult | null };
+
+const sudokuPanelData = ref<Record<number, SudokuPanelResult>>({});
 let autoRefreshTimer: number | undefined;
 let shellPollTimer: number | undefined;
 let shellRefreshInFlight = false;
@@ -454,25 +456,33 @@ async function loadSudokuPanels() {
     sudokuPanelData.value = {};
     return;
   }
-  const loaded: Record<number, { view: ListViewInfo; data: ListViewResult | null; detail?: QueryDataDetailResult | null }> = {};
+  const loaded: Record<number, SudokuPanelResult> = {};
   for (const panel of sudokuPanels.value) {
     const panelViewId = sudokuPanelViewId(panel);
     if (!panelViewId) continue;
     const response = await loadSudokuPanel(panel);
     if (response) {
-      loaded[panelViewId] = response;
+      loaded[panelViewId] = mergeSudokuPanelResult(loaded[panelViewId], response);
       sudokuPanelData.value = { ...loaded };
       if (sudokuPanelKind(panel) === "group") {
         for (const childPanel of sudokuGroupPanels(panel)) {
           const childViewId = sudokuPanelViewId(childPanel);
-          if (!childViewId || loaded[childViewId] || sudokuPanelListViewType(childPanel) !== 0) continue;
+          if (!childViewId || loaded[childViewId]?.data || sudokuPanelListViewType(childPanel) !== 0) continue;
           const childResponse = await loadViewDataById(childViewId, "sudoku-panel", 5);
-          if (childResponse) loaded[childViewId] = childResponse;
+          if (childResponse) loaded[childViewId] = mergeSudokuPanelResult(loaded[childViewId], childResponse);
         }
       }
     }
   }
   sudokuPanelData.value = { ...loaded };
+}
+
+function mergeSudokuPanelResult(current: SudokuPanelResult | undefined, next: SudokuPanelResult): SudokuPanelResult {
+  return {
+    ...next,
+    data: next.data ?? current?.data ?? null,
+    detail: next.detail ?? current?.detail
+  };
 }
 
 async function loadSudokuPanel(panel: TableColumnInfo) {

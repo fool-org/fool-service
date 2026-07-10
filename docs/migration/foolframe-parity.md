@@ -118,6 +118,19 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: completed the authenticated Vue browser acceptance after explicit
+  permission to read the local CAPTCHA and use the Docker `admin/admin`
+  account. Desktop and 390x844 checks exercised the default View-first list,
+  keyword search, detail selection, metadata new form, report execution, SVG
+  chart, message popover, Sudoku list/chart/map/item/group panels, and legacy
+  detail/new deep links without console warnings or page-level horizontal
+  overflow. The replay exposed one shared-View bug: Sudoku list/chart/item and
+  group panels can reuse `ListViewId=100`, so the item-detail result replaced
+  already loaded row data in the panel record. `App.vue` now merges row and
+  detail results for the same View id and only skips group loading when row
+  data is present. The 390px shell navigation now wraps both View controls
+  inside the viewport. All 130 frontend tests, the production build, Compose
+  frontend deployment, runtime doctor, and repository harness pass.
 - 2026-07-10: re-audited the vague remaining `SCPB05-Soway.Model` runtime
   mutation wording against FoolFrame `ModelBindingList`, `ModelMethodContext`,
   `SqlServer.dbContext`, the current implementation, and all 37

@@ -752,11 +752,25 @@ td {
   }
 
   .sidebar {
+    flex-wrap: wrap;
+    gap: 10px;
+    overflow: visible;
     padding: 14px;
   }
 
   .brand {
-    min-width: 200px;
+    flex: 1 0 100%;
+    min-width: 0;
+  }
+
+  .nav-list {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .nav-list button {
+    justify-content: center;
+    width: 100%;
   }
 
   .button-row,
