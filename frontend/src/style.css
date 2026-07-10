@@ -491,38 +491,63 @@ button.icon-button {
 }
 
 .legacy-chart-pane {
+  display: grid;
+  gap: 10px;
   min-height: 280px;
+  min-width: 0;
   border: 1px solid #e2e8f0;
   border-radius: 6px;
   padding: 12px;
 }
 
-.chart-series-list {
-  display: grid;
-  gap: 12px;
+.legacy-chart {
+  display: block;
+  width: 100%;
+  min-height: 260px;
+  overflow: visible;
 }
 
-.chart-series {
-  display: grid;
-  gap: 8px;
+.chart-grid-line line {
+  stroke: #e2e8f0;
+  stroke-width: 1;
 }
 
-.chart-series header,
-.chart-row {
+.chart-grid-line text,
+.chart-axis-label {
+  fill: #647484;
+  font-size: 11px;
+}
+
+.chart-axis {
+  stroke: #8795a3;
+  stroke-width: 1.25;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chart-legend li {
   display: grid;
-  grid-template-columns: minmax(72px, 0.25fr) minmax(0, 1fr) auto;
-  gap: 10px;
+  grid-template-columns: 10px auto auto;
+  gap: 6px;
   align-items: center;
-}
-
-.chart-series header span {
-  grid-column: 3;
-  color: #647484;
   font-size: 0.78rem;
 }
 
-.chart-row meter {
-  width: 100%;
+.chart-legend li > span {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.chart-legend small {
+  color: #647484;
 }
 
 .view-edit-grid {

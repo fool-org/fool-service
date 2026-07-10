@@ -118,6 +118,15 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: replaced duplicate top-level/Sudoku `<meter>` chart rows with a
+  shared 125-line `LegacyChartPanel.vue`, restoring the useful chart behavior
+  of old ECharts-backed `viewWithChart.js` / `swchartLine.js` without adding a
+  second visualization dependency. The responsive SVG renderer consumes the
+  existing `legacyChartData` projection and supports line, bar, and scatter
+  series, zero/negative baselines, axes, sampled category labels, tooltips, and
+  a multi-series legend. `App.vue` drops from 1122 to 1108 lines and
+  `SudokuPanels.vue` from 126 to 115; Docker still proves chart `EditType`
+  values `11` through `14` through the Vue proxy.
 - 2026-07-10: replaced the Vue Sudoku Map coordinate table with an interactive
   map matching the useful behavior of old `mapview.js`. The new 90-line
   `LegacyMapPanel.vue` reuses `legacyMapMarkers` from rendered child View row
@@ -367,10 +376,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   from legacy map `EditType` values `16`, `17`, and `18`; extra marker info is
   projected from the same row `Items`. The 2026-07-10 renderer upgrade consumes
   this same DTO-independent projection on a lazy-loaded interactive map.
-- 2026-07-09: Vue Sudoku `linechart` panels now render chart rows from the
-  child panel's loaded View/data result, reusing the same legacy chart
-  `EditType` (`11` axis, `12` line, `13` bar, `14` scatter) projection used by
-  `viewWithChart`.
+- 2026-07-09: Vue Sudoku `linechart` data now comes from the child panel's
+  loaded View/data result, reusing the same legacy chart `EditType` (`11` axis,
+  `12` line, `13` bar, `14` scatter) projection used by `viewWithChart`. The
+  2026-07-10 shared SVG renderer consumes this projection in both surfaces.
 - 2026-07-09: Vue Sudoku panels now load their own child View/data chain from
   each item `ListViewId`: `getlistview(ListViewId)` first, then
   `querydata(ListViewId)` only when the child View has renderable columns.

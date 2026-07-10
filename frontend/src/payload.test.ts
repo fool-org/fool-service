@@ -3,6 +3,7 @@ import apiSource from "./api.ts?raw";
 import nginxConfig from "../nginx.conf?raw";
 import viteConfig from "../vite.config.ts?raw";
 import appSource from "./App.vue?raw";
+import legacyChartPanelSource from "./LegacyChartPanel.vue?raw";
 import legacyMapPanelSource from "./LegacyMapPanel.vue?raw";
 import listDataTableSource from "./ListDataTable.vue?raw";
 import loginPanelSource from "./LoginPanel.vue?raw";
@@ -129,7 +130,12 @@ describe("App defaults", () => {
     expect(appSource).toContain("legacyChartData(resultRows.value)");
     expect(appSource).toContain("activeViewPane");
     expect(appSource).toContain('class="view-template-tabs"');
-    expect(appSource).toContain('class="legacy-chart-pane"');
+    expect(appSource).toContain("<LegacyChartPanel");
+    expect(legacyChartPanelSource).toContain('class="legacy-chart"');
+    expect(legacyChartPanelSource).toContain("<polyline");
+    expect(legacyChartPanelSource).toContain("<rect");
+    expect(legacyChartPanelSource).toContain("<circle");
+    expect(legacyChartPanelSource).not.toContain("<meter");
   });
 
   it("renders the legacy Sudoku template from ViewFile panels", () => {
@@ -151,7 +157,8 @@ describe("App defaults", () => {
   it("renders Sudoku linechart panels from child row chart items", () => {
     expect(sudokuPanelsSource).toContain("sudokuPanelKind(panel) === 'linechart'");
     expect(sudokuPanelsSource).toContain("sudokuPanelChart(panel).series");
-    expect(sudokuPanelsSource).toContain("sudokuPanelChartMax(panel)");
+    expect(sudokuPanelsSource).toContain("<LegacyChartPanel");
+    expect(sudokuPanelsSource).not.toContain("<meter");
   });
 
   it("renders Sudoku map panels from child row map items", () => {

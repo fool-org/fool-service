@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ListViewInfo, ListViewResult, QueryDataDetailResult, TableColumnInfo } from "./api";
+import LegacyChartPanel from "./LegacyChartPanel.vue";
 import LegacyMapPanel from "./LegacyMapPanel.vue";
 import ListDataTable from "./ListDataTable.vue";
 import {
@@ -40,10 +41,6 @@ function sudokuPanelChart(panel: TableColumnInfo) {
   return legacyChartData(sudokuPanelRows(panel));
 }
 
-function sudokuPanelChartMax(panel: TableColumnInfo) {
-  return Math.max(1, ...sudokuPanelChart(panel).series.flatMap((series) => series.values));
-}
-
 function sudokuPanelMarkers(panel: TableColumnInfo) {
   return legacyMapMarkers(sudokuPanelRows(panel));
 }
@@ -69,19 +66,11 @@ function sudokuPanelItemFields(panel: TableColumnInfo) {
           :show-default-action="false"
         />
       </div>
-      <div v-else-if="sudokuPanelKind(panel) === 'linechart' && sudokuPanelChart(panel).series.length" class="legacy-chart-pane sudoku-panel-body">
-        <section v-for="series in sudokuPanelChart(panel).series" :key="`${sudokuPanelViewId(panel)}-${series.name}`" class="chart-series">
-          <header>
-            <strong>{{ series.name }}</strong>
-            <span>{{ series.type }}</span>
-          </header>
-          <div v-for="(value, index) in series.values" :key="`${series.name}-${index}`" class="chart-row">
-            <span>{{ sudokuPanelChart(panel).labels[index] || index + 1 }}</span>
-            <meter :value="value" min="0" :max="sudokuPanelChartMax(panel)"></meter>
-            <strong>{{ value }}</strong>
-          </div>
-        </section>
-      </div>
+      <LegacyChartPanel
+        v-else-if="sudokuPanelKind(panel) === 'linechart' && sudokuPanelChart(panel).series.length"
+        class="sudoku-panel-body"
+        :data="sudokuPanelChart(panel)"
+      />
       <LegacyMapPanel
         v-else-if="sudokuPanelKind(panel) === 'map' && sudokuPanelMarkers(panel).length"
         class="sudoku-panel-body"

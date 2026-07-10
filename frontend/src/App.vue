@@ -26,6 +26,7 @@ import {
   postApi
 } from "./api";
 import ListDataTable from "./ListDataTable.vue";
+import LegacyChartPanel from "./LegacyChartPanel.vue";
 import LoginPanel from "./LoginPanel.vue";
 import ShellActions from "./ShellActions.vue";
 import SudokuPanels from "./SudokuPanels.vue";
@@ -229,7 +230,6 @@ const isSudokuView = computed(() => viewUsesSudokuTemplate(viewResponse.value?.d
 const sudokuPanels = computed(() => viewColumns(viewResponse.value?.data));
 const sudokuPanelData = ref<Record<number, { view: ListViewInfo; data: ListViewResult | null; detail?: QueryDataDetailResult | null }>>({});
 const chartData = computed(() => legacyChartData(resultRows.value));
-const chartMax = computed(() => Math.max(1, ...chartData.value.series.flatMap((series) => series.values)));
 let autoRefreshTimer: number | undefined;
 let shellPollTimer: number | undefined;
 let shellRefreshInFlight = false;
@@ -1045,22 +1045,8 @@ function syncDetailDrafts() {
               @select="selectObject"
             />
           </div>
-          <div v-if="isChartView && activeViewPane === 'chart'" class="legacy-chart-pane">
-            <div v-if="chartData.series.length" class="chart-series-list">
-              <section v-for="series in chartData.series" :key="series.name" class="chart-series">
-                <header>
-                  <strong>{{ series.name }}</strong>
-                  <span>{{ series.type }}</span>
-                </header>
-                <div v-for="(value, index) in series.values" :key="`${series.name}-${index}`" class="chart-row">
-                  <span>{{ chartData.labels[index] || index + 1 }}</span>
-                  <meter :value="value" min="0" :max="chartMax"></meter>
-                  <strong>{{ value }}</strong>
-                </div>
-              </section>
-            </div>
-            <div v-else class="empty-state compact">No chart data.</div>
-          </div>
+          <LegacyChartPanel v-if="isChartView && activeViewPane === 'chart' && chartData.series.length" :data="chartData" />
+          <div v-else-if="isChartView && activeViewPane === 'chart'" class="empty-state compact">No chart data.</div>
           <div v-if="resultRows.length || resultTotalItems || resultFreshTime" class="button-row">
             <button type="button" :disabled="Boolean(pendingAction) || resultPageIndex <= 1" @click="loadResultPage(resultPageIndex - 1)">
               Previous

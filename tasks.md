@@ -664,8 +664,9 @@ explicitly named as authoritative for fool-service.
 - [x] Load Vue Sudoku child panels through each panel `ListViewId`
       `getlistview` -> `querydata` chain, skipping root View `querydata` so
       panel rows stay bound to child View metadata.
-- [x] Render Vue Sudoku `linechart` panels from child row chart `EditType`
-      metadata by reusing the existing `legacyChartData` path.
+- [x] Render top-level `viewWithChart` and Vue Sudoku `linechart` panels through
+      one responsive SVG chart component, reusing `legacyChartData` for line,
+      bar, and scatter `EditType` metadata.
 - [x] Render Vue Sudoku `Map` panels from child row map `EditType` metadata
       (`16` longitude, `17` latitude, `18` title) on a lazy-loaded interactive
       Leaflet map without binding to concrete business DTO fields.
