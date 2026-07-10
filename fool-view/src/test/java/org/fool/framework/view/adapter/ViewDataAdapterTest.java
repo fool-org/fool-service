@@ -372,6 +372,7 @@ public class ViewDataAdapterTest {
         group.setName("OrderItem");
         group.setPrpId("items");
         group.setListViewId(101L);
+        group.setProperties(List.of(symbol));
         QueryDataDetailResult.DataItem item = new QueryDataDetailResult.DataItem();
         item.setDataId("2001");
         item.setValues(List.of(symbol));
@@ -387,6 +388,8 @@ public class ViewDataAdapterTest {
         assertTrue(json.contains("\"SimpleData\""));
         assertTrue(json.contains("\"prpId\":\"symbol\""));
         assertTrue(json.contains("\"PrpId\":\"symbol\""));
+        assertTrue(json.contains("\"Name\":\"Symbol\""));
+        assertTrue(json.contains("\"Properties\""));
         assertTrue(json.contains("\"DataID\":\"2001\""));
         assertTrue(json.contains("\"Values\""));
     }

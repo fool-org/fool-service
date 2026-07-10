@@ -45,6 +45,11 @@ public class ListDataValue {
         return prpShowName;
     }
 
+    @JsonProperty("Name")
+    public String getLegacyName() {
+        return prpShowName;
+    }
+
     @JsonProperty("PrpType")
     public PropertyType getLegacyPrpType() {
         return prpType;

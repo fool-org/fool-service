@@ -114,6 +114,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: `querydatadetail` child collection property metadata now exposes
+  the old `Properties[].Name` alias from the shared list-data value DTO,
+  matching FoolFrame `ReadItemViewItem.Name` for child table headers while
+  keeping Vue rendering on the existing View-first helpers; the Docker runtime
+  doctor proves the alias through the Vue proxy.
 - 2026-07-10: check-code responses now also expose the old FoolFrame Web
   `getchk` payload aliases `chkkey` and `chkimg` from the shared DTO, so the
   legacy `login.js` field names are present on `/api/v1/auth/getchk`; the

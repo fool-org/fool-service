@@ -380,6 +380,13 @@ def detail_group_columns(group: dict[str, Any]) -> list[dict[str, Any]]:
     return [column for column in columns if isinstance(column, dict)] if isinstance(columns, list) else []
 
 
+def detail_group_columns_have_names(groups: list[dict[str, Any]]) -> bool:
+    return any(
+        any(str(column.get("Name") or "").strip() for column in detail_group_columns(group))
+        for group in groups
+    )
+
+
 def runtime_child_properties(
         columns: list[dict[str, Any]],
         item_id: str,
@@ -1053,7 +1060,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         groups = detail_item_groups(payload)
         if groups:
             view_state["newGroups"] = groups
-        return bool(fields)
+        return bool(fields) and detail_group_columns_have_names(groups)
 
     def save_object_payload(key: str, object_id: str, view_id: object, properties: list[dict[str, object]]) -> dict:
         return {

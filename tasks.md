@@ -706,6 +706,9 @@ explicitly named as authoritative for fool-service.
 - [x] Expose old FoolFrame Web `getchk` response aliases `chkkey` / `chkimg`
       from the shared check-code DTO and prove them through the Docker Vue
       proxy.
+- [x] Expose legacy `querydatadetail` child `Properties[].Name` aliases from
+      the shared list-data value DTO and prove them through the Docker Vue
+      proxy.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

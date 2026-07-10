@@ -107,8 +107,8 @@ class RuntimeDoctorTest(unittest.TestCase):
             ], "Items": [{
                 "PrpId": "items",
                 "Properties": [
-                    {"PrpId": "itemId", "ReadOnly": True},
-                    {"PrpId": "itemName", "ReadOnly": True},
+                    {"PrpId": "itemId", "Name": "Item ID", "ReadOnly": True},
+                    {"PrpId": "itemName", "Name": "Item Name", "ReadOnly": True},
                 ],
             }]}}}
         if url.endswith("/data/querydatadetail"):
