@@ -269,6 +269,10 @@ label {
   gap: 18px;
 }
 
+.view-workflow.metadata-only {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .workflow-toolbar {
   display: grid;
   grid-template-columns: minmax(220px, 1fr) minmax(110px, 0.35fr) auto auto;

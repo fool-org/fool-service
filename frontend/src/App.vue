@@ -195,6 +195,7 @@ const checkCodeKey = ref("");
 const checkCodeValue = ref("");
 const subMenuParentAuthCode = ref("");
 const activeSection = ref("views");
+const isMetadataOnlyView = ref(false);
 const selectedObjectId = ref("");
 const isCreatingObject = ref(false);
 const detailDrafts = ref<Record<string, string>>({});
@@ -292,6 +293,8 @@ const initNewDataRows = computed(() => detailResultSimpleData(initNewResponse.va
 const currentReadItemView = computed(() => readItemViewFor(Number(detailViewId.value)));
 const currentInitNewReadItemView = computed(() => readItemViewFor(Number(initNewViewId.value)));
 const detailTitle = computed(() => viewDisplayTitle(currentReadItemView.value, "Detail"));
+const pageViewTitle = computed(() => isMetadataOnlyView.value ? detailTitle.value : viewTitle.value);
+const pageViewName = computed(() => isMetadataOnlyView.value ? "" : loadedViewName.value);
 const readItemFields = computed(() =>
   readViewFields(readItemViewFor(Number(readItemViewId.value)) || readItemViewResponse.value?.data)
 );
@@ -858,6 +861,7 @@ async function ensureLegacyShell() {
 
 async function loadViewWorkflow(resetPage = false) {
   stopAutoRefresh();
+  isMetadataOnlyView.value = false;
   if (resetPage) {
     pageIndex.value = 1;
   }
@@ -879,6 +883,7 @@ async function loadViewWorkflow(resetPage = false) {
 async function loadLegacyDetailPath(route: { viewId: number; objectId?: string }) {
   stopAutoRefresh();
   activeSection.value = "views";
+  isMetadataOnlyView.value = false;
   applyRequestedViewId(route.viewId);
   if (!(await ensureLegacyShell())) return;
   const objectId = route.objectId || "";
@@ -890,9 +895,22 @@ async function loadLegacyDetailPath(route: { viewId: number; objectId?: string }
   await queryDetail(route.viewId);
 }
 
+async function loadLegacyItemView(viewId: number) {
+  stopAutoRefresh();
+  activeSection.value = "views";
+  isMetadataOnlyView.value = true;
+  applyRequestedViewId(viewId);
+  detailViewId.value = readItemViewId.value = viewId;
+  selectedObjectId.value = detailObjId.value = saveObjId.value = operationObjectId.value = "";
+  detailResponse.value = null;
+  if (!(await ensureLegacyShell())) return;
+  await loadReadItemView(viewId);
+}
+
 async function loadLegacyNewPath(route: { viewId: number; parentObjId: string; ownerViewId: string; property: string }) {
   stopAutoRefresh();
   activeSection.value = "views";
+  isMetadataOnlyView.value = false;
   applyRequestedViewId(route.viewId);
   if (!(await ensureLegacyShell())) return;
   await startNewObject(route.viewId, route.parentObjId, route.ownerViewId, route.property);
@@ -906,7 +924,7 @@ onMounted(() => {
   }
   const itemViewId = legacyItemViewPathId(window.location.pathname);
   if (itemViewId) {
-    void loadLegacyDetailPath({ viewId: itemViewId });
+    void loadLegacyItemView(itemViewId);
     return;
   }
   const newRoute = legacyNewPath(window.location.pathname);
@@ -1175,8 +1193,8 @@ function syncDetailDrafts() {
     <main class="workspace">
       <header class="topbar">
         <div>
-          <h1>{{ viewTitle }}</h1>
-          <p>{{ loadedViewName }}</p>
+          <h1>{{ pageViewTitle }}</h1>
+          <p>{{ pageViewName }}</p>
         </div>
         <div class="status-strip">
           <div v-for="service in services" :key="service.label" class="status-item">
@@ -1187,8 +1205,8 @@ function syncDetailDrafts() {
         </div>
       </header>
 
-      <section v-if="activeSection === 'views'" class="view-workflow" aria-label="View workflow">
-        <article class="panel view-list-panel">
+      <section v-if="activeSection === 'views'" class="view-workflow" :class="{ 'metadata-only': isMetadataOnlyView }" aria-label="View workflow">
+        <article v-if="!isMetadataOnlyView" class="panel view-list-panel">
           <div class="panel-heading">
             <h2>{{ viewTitle }}</h2>
             <span>{{ loadedViewName }}</span>
@@ -1280,6 +1298,7 @@ function syncDetailDrafts() {
           :is-creating-object="isCreatingObject"
           :new-child-draft-value="newChildDraftValue"
           :pending="Boolean(pendingAction)"
+          :schema-only="isMetadataOnlyView"
           :selected-object-id="selectedObjectId"
           :title="detailTitle"
           :view-can-edit="viewCanEdit"

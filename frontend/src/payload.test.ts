@@ -399,7 +399,7 @@ describe("App defaults", () => {
     expect(appSource).toContain("void loadLegacyDetailPath(detailRoute)");
     expect(appSource).toContain("await queryDetail(route.viewId)");
     expect(appSource).toContain("legacyItemViewPathId(window.location.pathname)");
-    expect(appSource).toContain("void loadLegacyDetailPath({ viewId: itemViewId })");
+    expect(appSource).toContain("void loadLegacyItemView(itemViewId)");
     expect(appSource).toContain("legacyNewPath(window.location.pathname)");
     expect(appSource).toContain("void loadLegacyNewPath(newRoute)");
     expect(appSource).toContain("await startNewObject(route.viewId, route.parentObjId, route.ownerViewId, route.property)");
@@ -408,6 +408,19 @@ describe("App defaults", () => {
     expect(appSource).toContain("saveNewOwnerId.value = parentObjId");
     expect(appSource).toContain("saveNewProperty.value = property");
     expect(appSource).not.toContain('saveNewOwnerViewId.value = ""');
+  });
+
+  it("renders /itemview:id from View metadata without querying an empty object", () => {
+    const itemViewSource = appSource.slice(
+      appSource.indexOf("async function loadLegacyItemView"),
+      appSource.indexOf("async function loadLegacyNewPath")
+    );
+
+    expect(itemViewSource).toContain("await loadReadItemView(viewId)");
+    expect(itemViewSource).not.toContain("queryDetail");
+    expect(itemViewSource).not.toContain("querydatadetail");
+    expect(appSource).toContain(':schema-only="isMetadataOnlyView"');
+    expect(viewDetailPanelSource).toContain("View definition loaded.");
   });
 
   it("retries the first-screen legacy shell after a stale stored token", () => {

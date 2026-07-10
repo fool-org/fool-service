@@ -172,9 +172,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `/new:id`, and `/new:id/:objid&:ownerviewid&:prpid` return the built Vue
   HTML bundle through the frontend container.
 - 2026-07-10: Vue startup now recognizes the old FoolFrame Web read-item
-  route `/itemview:id`. The path reuses the existing detail startup flow with
-  an empty object id, so rendering still goes through `getreaditemview(ViewId)`
-  before `querydatadetail(ViewId, ObjId="")`.
+  route `/itemview:id` as a View-definition page. It now loads only
+  `getreaditemview(ViewId)`, renders the declared fields and child View
+  columns, and does not call `querydatadetail` with an empty object id or bind
+  the page to an arbitrary first business row.
 - 2026-07-10: Vue startup now also recognizes the old FoolFrame Web
   detail/new routes `/view:id/:objid`, `/new:id`, and
   `/new:id/:objid&:ownerviewid&:prpid`. Detail routes load

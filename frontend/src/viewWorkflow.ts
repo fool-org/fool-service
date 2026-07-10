@@ -338,7 +338,10 @@ export function rememberReadView(
   view: ReadItemViewInfo | undefined
 ) {
   const id = readViewId(view, requestedViewId);
-  return id && view ? { ...views, [id]: view } : views;
+  if (!id || !view) return views;
+  return requestedViewId && requestedViewId !== id
+    ? { ...views, [requestedViewId]: view, [id]: view }
+    : { ...views, [id]: view };
 }
 
 export function readViewForId(views: Record<number, ReadItemViewInfo>, viewId: number) {

@@ -690,8 +690,9 @@ explicitly named as authoritative for fool-service.
 - [x] Start Vue from the old FoolFrame Web detail/new routes by reusing
       `queryDetail` and `startNewObject` with parsed path View/object/owner
       context.
-- [x] Start Vue from the old FoolFrame Web `/itemview:id` read-item route by
-      reusing the existing detail flow with an empty object id.
+- [x] Render the old FoolFrame Web `/itemview:id` route from
+      `getreaditemview` metadata only, without querying an empty object or
+      binding an arbitrary first business row.
 - [x] Guard old FoolFrame Web Vue deep links in the Docker runtime doctor.
 - [x] Guard the current Docker `car_wash` init SQL slice set in the repository
       harness.

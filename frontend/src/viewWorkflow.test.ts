@@ -510,16 +510,18 @@ describe("view workflow helpers", () => {
     expect(groupColumns(groups[0]).map(fieldKey)).toEqual(["itemId"]);
   });
 
-  it("keeps read-item Views keyed by rendered View id", () => {
+  it("keeps read-item Views keyed by requested and rendered View ids", () => {
     const detailView = { ViewId: 201, Items: [{ PrpId: "name", PrpShowName: "Name" }] };
     const createView = { ViewId: 301, Items: [{ PrpId: "symbol", PrpShowName: "Symbol" }] };
     const views = rememberReadView(
-      rememberReadView({}, 201, detailView),
-      301,
+      rememberReadView({}, 200, detailView),
+      300,
       createView
     );
 
+    expect(readViewForId(views, 200)).toBe(detailView);
     expect(readViewForId(views, 201)).toBe(detailView);
+    expect(readViewForId(views, 300)).toBe(createView);
     expect(readViewForId(views, 301)).toBe(createView);
     expect(readViewFields(readViewForId(views, 201)).map(fieldKey)).toEqual(["name"]);
     expect(readViewFields(readViewForId(views, 301)).map(fieldKey)).toEqual(["symbol"]);

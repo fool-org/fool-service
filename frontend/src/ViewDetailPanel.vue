@@ -36,6 +36,7 @@ defineProps<{
   isCreatingObject: boolean;
   newChildDraftValue: (group: QueryDataDetailItemGroup, field: ListDataValue) => string;
   pending: boolean;
+  schemaOnly: boolean;
   selectedObjectId: string;
   title: string;
   viewCanEdit: boolean;
@@ -82,12 +83,23 @@ const emit = defineEmits<{
         {{ isCreatingObject ? "Create Row" : "Save Row" }}
       </button>
     </div>
-    <div v-else class="empty-state compact">Select a row from the list.</div>
+    <div v-else class="empty-state compact">
+      {{ schemaOnly ? "View definition loaded." : "Select a row from the list." }}
+    </div>
 
     <div class="detail-fields">
       <div v-for="item in detailRows" :key="fieldKey(item)">
         <span>{{ fieldTitle(item) }}</span>
         <strong>{{ fieldDisplayValue(item) }}</strong>
+      </div>
+    </div>
+
+    <div v-if="schemaOnly && detailItemGroups.length" class="view-items-panel">
+      <div class="detail-fields">
+        <div v-for="group in detailItemGroups" :key="groupKey(group)">
+          <span>{{ groupTitle(group) }}</span>
+          <strong>{{ groupColumns(group).map(fieldTitle).join(", ") }}</strong>
+        </div>
       </div>
     </div>
 

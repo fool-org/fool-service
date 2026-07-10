@@ -98,7 +98,7 @@ describe("useViewDataWorkflow", () => {
     expect(workflow.resultRows.value).toEqual([]);
   });
 
-  it("caches read-item View metadata by the rendered View id", async () => {
+  it("caches read-item View metadata by requested and rendered View ids", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => jsonResponse({
       ViewId: 60,
       Items: [{ PrpId: "name", PrpShowName: "Name" }]
@@ -108,6 +108,7 @@ describe("useViewDataWorkflow", () => {
     const response = await workflow.loadReadItemView();
 
     expect(response?.data.ViewId).toBe(60);
+    expect(workflow.readItemViewFor(55)).toEqual(response?.data);
     expect(workflow.readItemViewFor(60)).toEqual(response?.data);
   });
 
