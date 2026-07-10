@@ -896,6 +896,8 @@ describe("view workflow helpers", () => {
     expect(viewId(view)).toBe(100);
     expect(viewDisplayName(view)).toBe("Orders");
     expect(viewDisplayTitle(view)).toBe("Orders");
+    expect(viewDisplayName({ ViewName: "Order Detail" })).toBe("Order Detail");
+    expect(viewDisplayTitle({ ViewName: "Order Detail" })).toBe("Order Detail");
     expect(viewDisplayType(view)).toBe("ListView");
     expect(viewInputCount(view)).toBe(1);
     expect(viewDetailViewId(view, 100)).toBe(300);

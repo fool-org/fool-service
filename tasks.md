@@ -694,6 +694,8 @@ explicitly named as authoritative for fool-service.
 - [x] Guard Docker runtime seed rows in the runtime doctor, including the
       query catalogs that old MySQL volumes can miss.
 - [x] Guard the old FoolFrame Web root entry `/` in the Docker runtime doctor.
+- [x] Render the Vue detail panel title from loaded read-item View metadata
+      instead of a hard-coded generic heading.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

@@ -50,6 +50,10 @@ describe("App defaults", () => {
     expect(appSource).toContain("detailDrafts");
     expect(appSource).toContain("childDrafts");
     expect(listDataTableSource).toContain("rowValue(row, column)");
+    expect(appSource).toContain("detailTitle");
+    expect(appSource).toContain(':title="detailTitle"');
+    expect(viewDetailPanelSource).toContain("<h2>{{ title }}</h2>");
+    expect(viewDetailPanelSource).not.toContain("<h2>Detail</h2>");
   });
 
   it("routes every view row table through the shared metadata renderer", () => {

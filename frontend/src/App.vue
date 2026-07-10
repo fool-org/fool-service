@@ -291,6 +291,7 @@ const detailDataRows = computed(() => detailResultSimpleData(detailResponse.valu
 const initNewDataRows = computed(() => detailResultSimpleData(initNewResponse.value?.data));
 const currentReadItemView = computed(() => readItemViewFor(Number(detailViewId.value)));
 const currentInitNewReadItemView = computed(() => readItemViewFor(Number(initNewViewId.value)));
+const detailTitle = computed(() => viewDisplayTitle(currentReadItemView.value, "Detail"));
 const readItemFields = computed(() =>
   readViewFields(readItemViewFor(Number(readItemViewId.value)) || readItemViewResponse.value?.data)
 );
@@ -1280,6 +1281,7 @@ function syncDetailDrafts() {
           :new-child-draft-value="newChildDraftValue"
           :pending="Boolean(pendingAction)"
           :selected-object-id="selectedObjectId"
+          :title="detailTitle"
           :view-can-edit="viewCanEdit"
           @add-detail-item="addDetailItem"
           @add-existing-detail-item="addExistingDetailItem"

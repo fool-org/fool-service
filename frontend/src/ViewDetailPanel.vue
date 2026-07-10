@@ -37,6 +37,7 @@ defineProps<{
   newChildDraftValue: (group: QueryDataDetailItemGroup, field: ListDataValue) => string;
   pending: boolean;
   selectedObjectId: string;
+  title: string;
   viewCanEdit: boolean;
 }>();
 
@@ -61,7 +62,7 @@ const emit = defineEmits<{
 <template>
   <article class="panel view-detail-panel">
     <div class="panel-heading">
-      <h2>Detail</h2>
+      <h2>{{ title }}</h2>
       <span>{{ selectedObjectId || "No row selected" }}</span>
     </div>
 

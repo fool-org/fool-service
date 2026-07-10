@@ -36,6 +36,8 @@ import type {
   TableColumnInfo
 } from "./api";
 
+type ViewDisplaySource = Pick<ListViewInfo, "viewName" | "ViewName" | "name" | "Name" | "viewTitle">;
+
 export function columnKey(column: TableColumnInfo) {
   return firstDisplayValue([
     column.property,
@@ -163,11 +165,11 @@ export function readViewId(view: ReadItemViewInfo | undefined, fallback = 0) {
   return Number(view?.viewId ?? view?.ViewId ?? fallback) || 0;
 }
 
-export function viewDisplayName(view: ListViewInfo | undefined, fallback = "") {
-  return firstDisplayValue([view?.viewName, view?.name, view?.Name, fallback]);
+export function viewDisplayName(view: ViewDisplaySource | undefined, fallback = "") {
+  return firstDisplayValue([view?.viewName, view?.ViewName, view?.name, view?.Name, fallback]);
 }
 
-export function viewDisplayTitle(view: ListViewInfo | undefined, fallback = "") {
+export function viewDisplayTitle(view: ViewDisplaySource | undefined, fallback = "") {
   return firstDisplayValue([view?.viewTitle, viewDisplayName(view), fallback]);
 }
 

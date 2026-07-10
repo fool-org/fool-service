@@ -114,6 +114,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: the Vue detail panel now renders its heading from the loaded
+  read-item View metadata, including the FoolFrame Pascal `ViewName` alias,
+  instead of the hard-coded `Detail` heading. This keeps detail-page chrome
+  aligned with the old `detailView.jade` View/Data-name heading without
+  binding the title to `querydatadetail` data DTO fields.
 - 2026-07-10: the Docker runtime doctor now proves the old FoolFrame Web root
   entry `GET /` returns the built Vue HTML bundle, matching the legacy
   `app.get('/', routes.index)` entry before the `/main` and View deep-link

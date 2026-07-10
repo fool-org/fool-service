@@ -266,6 +266,7 @@ export interface ListViewInfo {
   ViewId?: number;
   ViewID?: number;
   viewName?: string;
+  ViewName?: string;
   name?: string;
   Name?: string;
   viewTitle?: string;
