@@ -781,7 +781,15 @@ def legacy_app_alias_ok(payload: dict[str, Any]) -> bool:
     if not common_response_ok(payload):
         return False
     app = payload["data"].get("App")
-    return isinstance(app, dict) and isinstance(app.get("DefaultViewId"), int) and app["DefaultViewId"] > 0
+    return (
+        isinstance(app, dict)
+        and isinstance(app.get("DefaultViewId"), int)
+        and app["DefaultViewId"] > 0
+        and bool(app.get("AppName"))
+        and bool(app.get("AppVer"))
+        and bool(app.get("AppId"))
+        and all(key in app for key in ("AppNote", "AppPowerBy", "AppPowerUrl", "AppLogoUrl"))
+    )
 
 
 def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[CheckResult]:
@@ -1763,12 +1771,12 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         (
             "auth:getapp",
             get_app_ok,
-            "POST /api/v1/auth/getapp accepts the loginv2 token",
+            "POST /api/v1/auth/getapp accepts the loginv2 token and returns legacy AppInfo aliases",
         ),
         (
             "auth:getmain",
             get_main_ok,
-            "POST /api/v1/auth/getmain returns the legacy top menu",
+            "POST /api/v1/auth/getmain returns the legacy top menu and AppInfo aliases",
         ),
         (
             "auth:getsubmenu",

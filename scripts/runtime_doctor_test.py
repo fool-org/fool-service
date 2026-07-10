@@ -44,6 +44,18 @@ from runtime_doctor import (
 
 
 class RuntimeDoctorTest(unittest.TestCase):
+    def runtime_app_info(self, default_view_id: int = 200) -> dict[str, object]:
+        return {
+            "AppName": "Fool Service",
+            "AppVer": "1.0.0",
+            "AppNote": "",
+            "AppPowerBy": "",
+            "AppPowerUrl": "",
+            "AppLogoUrl": "",
+            "DefaultViewId": default_view_id,
+            "AppId": "fool-service",
+        }
+
     def runtime_default_post_response(self, url: str, _payload: object) -> dict[str, object] | None:
         suffixes: dict[str, dict[str, object]] = {
             "/auth/initapp": {"code": 0, "data": {"Dbs": [{}], "CheckCode": {"Key": "k", "Code": "c"}}},
@@ -52,8 +64,8 @@ class RuntimeDoctorTest(unittest.TestCase):
             "/auth/checkcode": {"code": 0, "data": True},
             "/auth/loginv2": {"code": 0, "data": {"LoginSucess": True, "IsLogin": True, "Token": "t"}},
             "/auth/getuserinfo": {"code": 0, "data": {"user": {"id": "admin"}}},
-            "/auth/getapp": {"code": 0, "data": {"App": {"DefaultViewId": 200}}},
-            "/auth/getmain": {"code": 0, "data": {"App": {"DefaultViewId": 200}, "TopMenu": [{"AuthNo": "0101"}]}},
+            "/auth/getapp": {"code": 0, "data": {"App": self.runtime_app_info()}},
+            "/auth/getmain": {"code": 0, "data": {"App": self.runtime_app_info(), "TopMenu": [{"AuthNo": "0101"}]}},
             "/auth/getsubmenu": {"code": 0, "data": {"Items": [{}]}},
             "/auth/getmenu": {"code": 0, "data": {"Items": [{}]}},
             "/view/getreaditemview": {"code": 0, "data": {"DetailViews": [{"Items": [{"PrpId": "itemId"}]}]}},
@@ -551,7 +563,8 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertEqual(0, legacy_app_default_view_id({"code": 0, "data": {"App": {"DefaultViewId": 0}}}))
 
     def test_legacy_app_alias_ok_requires_pascal_default_view(self) -> None:
-        self.assertTrue(legacy_app_alias_ok({"code": 0, "data": {"App": {"DefaultViewId": 101}}}))
+        self.assertTrue(legacy_app_alias_ok({"code": 0, "data": {"App": self.runtime_app_info(101)}}))
+        self.assertFalse(legacy_app_alias_ok({"code": 0, "data": {"App": {"DefaultViewId": 101}}}))
         self.assertFalse(legacy_app_alias_ok({"code": 0, "data": {"app": {"defaultViewId": 101}}}))
 
     def test_detail_view_id_reads_loaded_view_metadata(self) -> None:
@@ -817,9 +830,9 @@ class RuntimeDoctorTest(unittest.TestCase):
             if url.endswith("/auth/getuserinfo"):
                 return {"code": 0, "data": {"user": {"id": "admin"}}}
             if url.endswith("/auth/getapp"):
-                return {"code": 0, "data": {"App": {"DefaultViewId": 200}}}
+                return {"code": 0, "data": {"App": self.runtime_app_info()}}
             if url.endswith("/auth/getmain"):
-                return {"code": 0, "data": {"App": {"DefaultViewId": 200}, "TopMenu": [{"AuthNo": "0101"}]}}
+                return {"code": 0, "data": {"App": self.runtime_app_info(), "TopMenu": [{"AuthNo": "0101"}]}}
             if url.endswith("/auth/getsubmenu"):
                 return {"code": 0, "data": {"Items": [{}]}}
             if url.endswith("/view/getlistview"):
