@@ -7,7 +7,6 @@ import listDataTableSource from "./ListDataTable.vue?raw";
 import loginPanelSource from "./LoginPanel.vue?raw";
 import metadataFieldEditorSource from "./MetadataFieldEditor.vue?raw";
 import payloadSource from "./payload.ts?raw";
-import resultsPanelSource from "./ResultsPanel.vue?raw";
 import shellActionsSource from "./ShellActions.vue?raw";
 import sudokuPanelsSource from "./SudokuPanels.vue?raw";
 import viewDetailPanelSource from "./ViewDetailPanel.vue?raw";
@@ -31,13 +30,12 @@ import {
 } from "./payload";
 
 describe("App defaults", () => {
-  it("opens with a metadata-driven view workflow before API tools", () => {
+  it("opens with the metadata-driven View workflow", () => {
     const mainViewSource = appSource.slice(
       appSource.indexOf('aria-label="View workflow"'),
       appSource.indexOf("<ViewDetailPanel")
     );
 
-    expect(appSource).toContain('const activeSection = ref("views")');
     expect(appSource).toContain("onMounted(() => void initializeApp())");
     expect(appSource).toContain("await loadInitialRoute()");
     expect(appSource).toContain("await loadViewWorkflow()");
@@ -71,7 +69,6 @@ describe("App defaults", () => {
   it("routes every view row table through the shared metadata renderer", () => {
     expect(viewDetailPanelSource).toContain(':row-operations="[]"');
     expect(viewDetailPanelSource).toContain('default-action-label="Select"');
-    expect(resultsPanelSource).toContain(':show-default-action="false"');
     expect(appSource).not.toContain("rowValue(row, column)");
     expect(listDataTableSource).toContain("defaultActionLabel");
     expect(listDataTableSource).toContain("showDefaultAction");
@@ -211,20 +208,15 @@ describe("App defaults", () => {
     expect(appSource).not.toContain("buildQueryRequest");
   });
 
-  it("uses keyword search in the main View and keeps QueryFilter in API Tools", () => {
+  it("uses keyword search without exposing a raw QueryFilter", () => {
     const currentQuerySource = viewDataWorkflowSource.slice(
       viewDataWorkflowSource.indexOf("async function queryCurrentViewData"),
       viewDataWorkflowSource.indexOf("function readItemViewFor")
     );
-    const legacyQuerySource = viewDataWorkflowSource.slice(
-      viewDataWorkflowSource.indexOf("async function queryLegacyData"),
-      viewDataWorkflowSource.indexOf("async function queryCurrentViewData")
-    );
 
     expect(appSource).toContain('const viewKeyword = ref("")');
     expect(currentQuerySource).toContain("{ keyword: options.keyword.value }");
-    expect(currentQuerySource).not.toContain("options.queryFilter.value");
-    expect(legacyQuerySource).toContain("{ queryFilter: options.queryFilter.value }");
+    expect(viewDataWorkflowSource).not.toContain("queryFilter");
   });
 
   it("does not let querydata define table columns when View columns are absent", () => {
@@ -272,7 +264,7 @@ describe("App defaults", () => {
     expect(appSource).toContain("scheduleAutoRefresh(response.data)");
     expect(appSource).toContain("window.setInterval");
     expect(appSource).toContain("pageIndex.value = 1");
-    expect(appSource).toContain('activeSection.value === "views"');
+    expect(appSource).toContain("if (!pendingAction.value)");
     expect(appSource).toContain("onUnmounted(() => {");
     expect(appSource).toContain("stopAutoRefresh()");
     expect(appSource).toContain("stopShellPolling()");
@@ -315,18 +307,6 @@ describe("App defaults", () => {
     expect(inputQueryRequestSource).not.toContain("viewName");
   });
 
-  it("loads the View definition before the API-tool data query", () => {
-    const querySource = viewDataWorkflowSource.slice(
-      viewDataWorkflowSource.indexOf("async function queryLegacyData"),
-      viewDataWorkflowSource.indexOf("async function queryCurrentViewData")
-    );
-
-    expect(querySource.indexOf("await loadLegacyListView()")).toBeGreaterThanOrEqual(0);
-    expect(querySource.indexOf("await loadLegacyListView()")).toBeLessThan(querySource.indexOf("queryLoadedViewData("));
-    expect(querySource).toContain("queryLoadedViewData(");
-    expect(querySource).not.toContain("viewId: Number(options.queryViewId.value)");
-  });
-
   it("loads the rendered View before the current data query", () => {
     const querySource = viewDataWorkflowSource.slice(
       viewDataWorkflowSource.indexOf("async function queryCurrentViewData"),
@@ -336,7 +316,7 @@ describe("App defaults", () => {
     expect(querySource).toContain("viewId(viewResponse.value.data) !== requestedViewId");
     expect(querySource.indexOf("await loadLegacyListView()")).toBeGreaterThanOrEqual(0);
     expect(querySource.indexOf("await loadLegacyListView()")).toBeLessThan(querySource.indexOf("queryLoadedViewData("));
-    expect(querySource).toContain("const loadedViewId = Number(currentViewId.value)");
+    expect(viewDataWorkflowSource).toContain("const loadedViewId = Number(currentViewId.value)");
   });
 
   it("loads the read-item View before detail data and aborts if it cannot render", () => {
@@ -352,9 +332,8 @@ describe("App defaults", () => {
     expect(detailSource).toContain("if (!readView?.data) return null");
   });
 
-  it("renders detail tool tables from read-item View metadata, not raw DTO rows", () => {
+  it("renders detail fields from read-item View metadata, not raw DTO rows", () => {
     expect(appSource).toContain("renderedDetailFields(currentReadItemView.value");
-    expect(appSource).toContain("renderedDetailFields(currentInitNewReadItemView.value");
     expect(appSource).not.toContain('v-if="detailDataRows.length"');
     expect(appSource).not.toContain('v-for="item in detailDataRows"');
   });
@@ -374,7 +353,6 @@ describe("App defaults", () => {
     expect(viewDataWorkflowSource).toContain("readViewForId(readItemViews.value, Number(viewId))");
     expect(viewDataWorkflowSource).toContain("readItemViews.value = rememberReadView(readItemViews.value, viewId, response.data)");
     expect(appSource).toContain("readItemViewFor(Number(detailViewId.value))");
-    expect(appSource).toContain("readItemViewFor(Number(initNewViewId.value))");
 
     const createSource = appSource.slice(
       appSource.indexOf("async function startNewObject"),
@@ -425,7 +403,7 @@ describe("App defaults", () => {
     expect(appSource).toContain("await loadLegacyDetailPath(detailRoute)");
     expect(appSource).toContain("isStandaloneDetail.value = true");
     expect(appSource).toContain('v-if="!isMetadataOnlyView && !isStandaloneDetail"');
-    expect(appSource).toContain('@click="openPrimarySection(item.id)"');
+    expect(appSource).toContain('@click="openPrimarySection"');
     expect(appSource).toContain("await queryDetail(route.viewId)");
     expect(appSource).toContain("legacyItemViewPathId(window.location.pathname)");
     expect(appSource).toContain("await loadLegacyItemView(itemViewId)");
@@ -483,8 +461,8 @@ describe("App defaults", () => {
   });
 
   it("does not prefill business-specific data DTO fields by default", () => {
-    expect(appSource).toContain('const enumModelId = ref("")');
-    expect(appSource).toContain('const legacyQueryFilter = ref("")');
+    expect(appSource).not.toContain("enumModelId");
+    expect(appSource).not.toContain("legacyQueryFilter");
     expect(appSource).toContain('const detailObjId = ref("")');
     expect(appSource).toContain('const saveObjId = ref("")');
     expect(appSource).toContain('const saveNewObjId = ref("")');
@@ -575,7 +553,7 @@ describe("App defaults", () => {
 
   it("moves the legacy loginv2 route into the signed-out login panel", () => {
     expect(appSource).toContain("/api/v1/auth/loginv2");
-    expect(appSource).toContain("legacyLoginResponse");
+    expect(appSource).toContain("localStorage.setItem(\"fool-service-token\", token.value)");
     expect(appSource).toContain("async function submitLegacyLogin");
     expect(loginPanelSource).toContain("Sign in");
     expect(appSource).not.toContain("Legacy Login V2");
@@ -589,40 +567,37 @@ describe("App defaults", () => {
     expect(appSource).not.toContain("Init App");
   });
 
-  it("exposes the legacy submenu route in the Vue console", () => {
-    expect(appSource).toContain("Sub Menu");
+  it("loads legacy submenus into the signed-in shell", () => {
     expect(appSource).toContain("/api/v1/auth/getsubmenu");
     expect(appSource).toContain("subMenuResponse");
   });
 
-  it("exposes the legacy main-info route in the Vue console", () => {
-    expect(appSource).toContain("Main Info");
+  it("loads legacy main info into the signed-in shell", () => {
     expect(appSource).toContain("/api/v1/auth/getmain");
     expect(appSource).toContain("mainInfoResponse");
   });
 
-  it("exposes the legacy app-info route in the Vue console", () => {
-    expect(appSource).toContain("App Info");
-    expect(appSource).toContain("/api/v1/auth/getapp");
-    expect(appSource).toContain("appInfoResponse");
-  });
-
-  it("exposes the legacy initnew route in the Vue console", () => {
-    expect(appSource).toContain("Init New Object");
+  it("runs legacy initnew from the rendered View workflow", () => {
     expect(appSource).toContain("/api/v1/data/initnew");
     expect(appSource).toContain("initNewResponse");
   });
 
-  it("exposes the legacy savenewobj route in the Vue console", () => {
-    expect(appSource).toContain("Save New Object");
+  it("runs legacy savenewobj from the rendered View workflow", () => {
     expect(appSource).toContain("/api/v1/data/savenewobj");
-    expect(appSource).toContain("saveNewObjResponse");
+    expect(appSource).toContain("async function saveSelectedObject");
   });
 
-  it("exposes the legacy runoperation route in the Vue console", () => {
-    expect(appSource).toContain("Run Operation");
+  it("runs legacy operations from rendered View metadata", () => {
     expect(appSource).toContain("/api/v1/data/runoperation");
     expect(appSource).toContain("runOperationResponse");
+  });
+
+  it("does not expose the migration API console in the production shell", () => {
+    expect(appSource).not.toContain("API Tools");
+    expect(appSource).not.toContain("QueryFilter");
+    expect(appSource).not.toContain("Response & Result Set");
+    expect(appSource).not.toContain("MigrationMap");
+    expect(appSource).not.toContain("activeSection");
   });
 
   it("keeps the frontend proxy surface on migrated API routes", () => {

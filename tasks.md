@@ -716,21 +716,25 @@ explicitly named as authoritative for fool-service.
 - [x] Expose legacy `querydatadetail` child `Properties[].Name` aliases from
       the shared list-data value DTO and prove them through the Docker Vue
       proxy.
-- [x] Move the old FoolFrame list-page report workflow out of Vue API Tools
+- [x] Move the old FoolFrame list-page report workflow out of the developer
+      console
       and into the rendered View page, with metadata-driven output selection,
       output types, ordering, structured AND/OR conditions, paging, and no
       raw report JSON or SQL filter inputs.
 - [x] Replace the main Vue View toolbar's editable View ID and raw
-      `QueryFilter` controls with a View-metadata-safe keyword search, while
-      keeping the raw compatibility filter isolated in API Tools.
+      `QueryFilter` controls with a View-metadata-safe keyword search; raw
+      compatibility filters remain protocol-only and are not exposed in Vue.
 - [x] Move legacy shell user, message polling, notification badges, and logout
-      out of API Tools into a responsive Vue topbar, reusing the View-first
+      into a responsive Vue topbar, reusing the View-first
       detail/list loaders for message targets.
-- [x] Replace default `admin/admin` auto-login and API Tools auth controls with
+- [x] Replace default `admin/admin` auto-login and developer auth controls with
       a signed-out Vue `initapp` / captcha / `loginv2` page that resumes legacy
       View/detail/new deep links after authentication.
 - [x] Replay the ordered idempotent Docker MySQL init catalog on every Compose
       startup and block backend startup when existing-volume migration fails.
+- [x] Audit all 25 old Web `app.js` routes and the Jade templates, then remove
+      the Vue `API Tools`, migration-map, raw response, and manual DTO panels so
+      production navigation only exposes the shared View-first workflows.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

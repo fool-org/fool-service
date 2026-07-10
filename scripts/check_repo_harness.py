@@ -37,7 +37,6 @@ SOURCE_FILE_SKIP_DIRS = frozenset((".git", "node_modules", "target", "dist"))
 FRONTEND_VIEW_DATA_BOUNDARY_FILES = (
     "frontend/src/App.vue",
     "frontend/src/ListDataTable.vue",
-    "frontend/src/ResultsPanel.vue",
 )
 FRONTEND_BUSINESS_DTO_BINDING_MARKERS = (
     "row.values",

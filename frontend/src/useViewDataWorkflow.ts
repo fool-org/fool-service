@@ -30,13 +30,9 @@ export interface ViewDataWorkflowRefs {
   token: Ref<string>;
   listViewId: Ref<number>;
   readItemViewId: Ref<number>;
-  queryViewId: Ref<number>;
-  queryPageIndex: Ref<number>;
-  queryPageSize: Ref<number>;
   pageIndex: Ref<number>;
   pageSize: Ref<number>;
   keyword: Ref<string>;
-  queryFilter: Ref<string>;
   detailViewId: Ref<number>;
   initNewViewId: Ref<number>;
   operationViewId: Ref<number>;
@@ -73,7 +69,6 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
     const loadedDetailViewId = viewDetailViewId(view, loadedViewId);
     options.listViewId.value = loadedViewId;
     options.readItemViewId.value = loadedDetailViewId;
-    options.queryViewId.value = loadedViewId;
     options.detailViewId.value = loadedDetailViewId;
     options.initNewViewId.value = loadedDetailViewId;
     options.operationViewId.value = loadedDetailViewId;
@@ -126,7 +121,7 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
     label: string,
     pageIndex: number,
     pageSize: number,
-    filters: { keyword?: string; queryFilter?: string } = {}
+    filters: { keyword?: string } = {}
   ) {
     const loadedViewId = Number(currentViewId.value);
     if (loadedViewId <= 0 || !canRenderLoadedView()) {
@@ -137,8 +132,7 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
       viewId: loadedViewId,
       pageIndex,
       pageSize,
-      keyword: filters.keyword,
-      queryFilter: filters.queryFilter
+      keyword: filters.keyword
     });
 
     const response = await options.runAction(label, () =>
@@ -182,19 +176,6 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
     return { view: viewResponse.data, data: dataResponse?.data ?? null };
   }
 
-  async function queryLegacyData() {
-    options.listViewId.value = Number(options.queryViewId.value);
-    if (!(await loadLegacyListView())) {
-      return null;
-    }
-    return queryLoadedViewData(
-      "legacy-query",
-      Number(options.queryPageIndex.value),
-      Number(options.queryPageSize.value),
-      { queryFilter: options.queryFilter.value }
-    );
-  }
-
   async function queryCurrentViewData() {
     const requestedViewId = Number(options.listViewId.value);
     if (!viewResponse.value?.data || viewId(viewResponse.value.data) !== requestedViewId) {
@@ -204,10 +185,6 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
       }
     }
 
-    const loadedViewId = Number(currentViewId.value);
-    options.queryViewId.value = loadedViewId;
-    options.queryPageIndex.value = Number(options.pageIndex.value);
-    options.queryPageSize.value = Number(options.pageSize.value);
     return queryLoadedViewData(
       "workflow-query",
       Number(options.pageIndex.value),
@@ -238,7 +215,6 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
     loadReadItemView,
     loadViewById,
     loadViewDataById,
-    queryLegacyData,
     queryCurrentViewData
   };
 }

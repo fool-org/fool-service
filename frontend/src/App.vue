@@ -1,15 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import {
-  type AuthItem,
   type CheckCodeResult,
   type CommonResponse,
-  type GetEnumResult,
   type GetMessageResult,
   type GetNotifyResult,
-  type InputQueryResult,
   type LegacyAuthItem,
-  type LegacyAppResult,
   type LegacyInitAppResult,
   type LegacyLoginResult,
   type LegacyMainResult,
@@ -27,14 +23,10 @@ import {
   type OperationInfo,
   type SaveItemProperty,
   type TableColumnInfo,
-  type TreeNode,
-  type UserDTO,
   postApi
 } from "./api";
 import ListDataTable from "./ListDataTable.vue";
 import LoginPanel from "./LoginPanel.vue";
-import MigrationMap from "./MigrationMap.vue";
-import ResultsPanel from "./ResultsPanel.vue";
 import ShellActions from "./ShellActions.vue";
 import SudokuPanels from "./SudokuPanels.vue";
 import ViewDetailPanel from "./ViewDetailPanel.vue";
@@ -43,7 +35,7 @@ import { useChildCandidates } from "./useChildCandidates";
 import { useChildDrafts } from "./useChildDrafts";
 import { useFieldEnums } from "./useFieldEnums";
 import { useViewDataWorkflow } from "./useViewDataWorkflow";
-import { enumFieldOptions, navItems, nextObjectId, services } from "./viewShell";
+import { enumFieldOptions, nextObjectId, services } from "./viewShell";
 import {
   buildAddedItemProperty,
   buildDeletedItemProperty,
@@ -57,30 +49,19 @@ import {
   detailResultItems,
   detailResultSimpleData,
   emptyGroupDraft,
-  fieldEditType,
   fieldKey,
-  fieldDisplayValue,
-  fieldType,
-  fieldTitle,
   groupKey,
   groupColumns,
-  inputQueryItemId,
-  inputQueryItemText,
   itemDataId,
   itemKey,
   legacyAppDefaultViewId,
-  legacyAuthIndex,
   legacyAuthNo,
   legacyAuthText,
   legacyAuthViewId,
   legacyCheckCodeKey,
-  legacyEnumName,
-  legacyEnumValue,
-  legacyEnumValues,
   legacyInitAppCheckCode,
   legacyInitAppDbId,
   legacyLoginErrorMessage,
-  legacyInputQueryItems,
   legacyChartData,
   legacyDetailPath,
   legacyItemViewPathId,
@@ -107,21 +88,16 @@ import {
   sudokuPanelListViewType,
   sudokuPanelViewId,
   viewDisplayTitle,
-  viewDisplayType,
-  viewInputCount,
   viewId,
   viewUsesChartTemplate,
   viewUsesSudokuTemplate,
-  readViewFields,
   renderedDetailFields,
   renderedDetailGroups,
   viewColumns,
   viewOperations
 } from "./viewWorkflow";
 import {
-  buildGetEnumRequest,
   buildInitNewRequest,
-  buildInputQueryRequest,
   buildLegacyListViewRequest,
   buildLegacyQueryDataRequest,
   buildQueryDataDetailRequest,
@@ -142,21 +118,11 @@ const readItemViewId = ref(0);
 const pageIndex = ref(1);
 const pageSize = ref(20);
 const viewKeyword = ref("");
-const legacyQueryViewId = ref(0);
-const legacyQueryPageIndex = ref(1);
-const legacyQueryPageSize = ref(10);
-const legacyQueryFilter = ref("");
-const inputQueryViewItemId = ref("");
-const inputQueryText = ref("");
-const inputQueryObjId = ref("");
-const inputQueryOwnerId = ref("");
-const inputQueryIsAdded = ref(false);
 const detailViewId = ref(0);
 const detailObjId = ref("");
 const detailIdExp = ref("");
 const initNewViewId = ref(0);
 const initNewParentObjId = ref("");
-const enumModelId = ref("");
 const saveViewId = ref("");
 const saveObjId = ref("");
 const savePropertyiesJson = ref("[]");
@@ -173,7 +139,6 @@ const operationId = ref(0);
 const checkCodeKey = ref("");
 const checkCodeValue = ref("");
 const subMenuParentAuthCode = ref("");
-const activeSection = ref("views");
 const isMetadataOnlyView = ref(false);
 const isStandaloneDetail = ref(false);
 const showViewReport = ref(false);
@@ -201,20 +166,12 @@ const {
 } = useChildDrafts();
 
 const initAppResponse = ref<CommonResponse<LegacyInitAppResult> | null>(null);
-const legacyLoginResponse = ref<CommonResponse<LegacyLoginResult> | null>(null);
-const profileResponse = ref<CommonResponse<UserDTO> | null>(null);
 const legacyUserInfoResponse = ref<CommonResponse<LegacyUserInfoResult> | null>(null);
 const mainInfoResponse = ref<CommonResponse<LegacyMainResult> | null>(null);
-const appInfoResponse = ref<CommonResponse<LegacyAppResult> | null>(null);
 const checkCodeResponse = ref<CommonResponse<CheckCodeResult> | null>(null);
 const subMenuResponse = ref<CommonResponse<LegacySubMenuResult> | null>(null);
-const menuResponse = ref<CommonResponse<TreeNode<AuthItem>[]> | null>(null);
 const detailResponse = ref<CommonResponse<QueryDataDetailResult> | null>(null);
 const initNewResponse = ref<CommonResponse<QueryDataDetailResult> | null>(null);
-const enumResponse = ref<CommonResponse<GetEnumResult> | null>(null);
-const inputQueryResponse = ref<CommonResponse<InputQueryResult> | null>(null);
-const saveObjResponse = ref<CommonResponse<void> | null>(null);
-const saveNewObjResponse = ref<CommonResponse<void> | null>(null);
 const runOperationResponse = ref<CommonResponse<LegacyRunOperationResult> | null>(null);
 const messageResponse = ref<CommonResponse<GetMessageResult> | null>(null);
 const notifyResponse = ref<CommonResponse<GetNotifyResult> | null>(null);
@@ -226,8 +183,6 @@ const activeViewPane = ref("table");
 
 const {
   viewResponse,
-  readItemViewResponse,
-  dataResponse,
   currentViewId,
   loadedViewName,
   viewTitle,
@@ -241,20 +196,15 @@ const {
   loadLegacyListView,
   loadReadItemView: loadReadItemViewBase,
   loadViewById,
-  queryLegacyData,
   loadViewDataById,
   queryCurrentViewData: queryCurrentViewDataBase
 } = useViewDataWorkflow({
   token,
   listViewId: legacyListViewId,
   readItemViewId,
-  queryViewId: legacyQueryViewId,
-  queryPageIndex: legacyQueryPageIndex,
-  queryPageSize: legacyQueryPageSize,
   pageIndex,
   pageSize,
   keyword: viewKeyword,
-  queryFilter: legacyQueryFilter,
   detailViewId,
   initNewViewId,
   operationViewId,
@@ -266,17 +216,11 @@ const { enumOptions, loadFieldEnums: loadFieldEnumsFor } = useFieldEnums(token, 
 
 const selectedObject = computed(() => resultRows.value.find((row) => rowObjectId(row, resultColumns.value) === selectedObjectId.value));
 const detailDataRows = computed(() => detailResultSimpleData(detailResponse.value?.data));
-const initNewDataRows = computed(() => detailResultSimpleData(initNewResponse.value?.data));
 const currentReadItemView = computed(() => readItemViewFor(Number(detailViewId.value)));
-const currentInitNewReadItemView = computed(() => readItemViewFor(Number(initNewViewId.value)));
 const detailTitle = computed(() => viewDisplayTitle(currentReadItemView.value, "Detail"));
 const pageViewTitle = computed(() => isMetadataOnlyView.value || isStandaloneDetail.value ? detailTitle.value : viewTitle.value);
 const pageViewName = computed(() => isMetadataOnlyView.value || isStandaloneDetail.value ? "" : loadedViewName.value);
-const readItemFields = computed(() =>
-  readViewFields(readItemViewFor(Number(readItemViewId.value)) || readItemViewResponse.value?.data)
-);
 const detailRows = computed(() => renderedDetailFields(currentReadItemView.value, detailDataRows.value));
-const initNewRows = computed(() => renderedDetailFields(currentInitNewReadItemView.value, initNewDataRows.value));
 const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() =>
   renderedDetailGroups(currentReadItemView.value, detailResultItems(detailResponse.value?.data))
 );
@@ -289,8 +233,6 @@ const shellMenuItems = computed(() => (subMenuItems.value.length ? subMenuItems.
 const messageItems = computed(() => legacyMessages(messageResponse.value?.data));
 const notifyItems = computed(() => legacyNotifies(notifyResponse.value?.data));
 const shellUserName = computed(() => legacyUserName(legacyUserInfoResponse.value?.data));
-const enumItems = computed(() => legacyEnumValues(enumResponse.value?.data));
-const inputQueryItems = computed(() => legacyInputQueryItems(inputQueryResponse.value?.data));
 const viewCanEdit = computed(() => Boolean(selectedObject.value || isCreatingObject.value));
 const fieldEditorContext = computed(() => ({
   isAdded: isCreatingObject.value,
@@ -310,22 +252,6 @@ const sudokuPanels = computed(() => viewColumns(viewResponse.value?.data));
 const sudokuPanelData = ref<Record<number, { view: ListViewInfo; data: ListViewResult | null; detail?: QueryDataDetailResult | null }>>({});
 const chartData = computed(() => legacyChartData(resultRows.value));
 const chartMax = computed(() => Math.max(1, ...chartData.value.series.flatMap((series) => series.values)));
-const responseDump = computed(() =>
-  JSON.stringify(
-    {
-      initApp: initAppResponse.value, legacyLogin: legacyLoginResponse.value,
-      profile: profileResponse.value, legacyUserInfo: legacyUserInfoResponse.value, mainInfo: mainInfoResponse.value,
-      appInfo: appInfoResponse.value, checkCode: checkCodeResponse.value,
-      subMenu: subMenuResponse.value, menus: menuResponse.value,
-      view: viewResponse.value, readItemView: readItemViewResponse.value, data: dataResponse.value,
-      detail: detailResponse.value, initNew: initNewResponse.value, enums: enumResponse.value,
-      inputQuery: inputQueryResponse.value, saveObj: saveObjResponse.value, saveNewObj: saveNewObjResponse.value,
-      runOperation: runOperationResponse.value, messages: messageResponse.value, notify: notifyResponse.value
-    },
-    null,
-    2
-  )
-);
 let autoRefreshTimer: number | undefined;
 let shellPollTimer: number | undefined;
 let shellRefreshInFlight = false;
@@ -374,7 +300,6 @@ async function loginV2() {
   );
 
   if (!response) return false;
-  legacyLoginResponse.value = response;
   applyDefaultAppView(response.data);
   token.value = response.data?.token || response.data?.Token || "";
   if (!token.value) {
@@ -401,17 +326,6 @@ async function submitLegacyLogin(user: string, secret: string, database: string,
   errorMessage.value = loginError;
 }
 
-async function loadProfile() {
-  const response = await runAction("profile", () =>
-    postApi<UserDTO>("/api/v1/auth/profile", {
-      token: token.value
-    })
-  );
-  if (response) {
-    profileResponse.value = response;
-  }
-}
-
 async function loadMainInfo() {
   const response = await runAction("getmain", () => postApi<LegacyMainResult>("/api/v1/auth/getmain", token.value));
   if (response) {
@@ -419,16 +333,6 @@ async function loadMainInfo() {
     applyDefaultAppView(response.data);
   }
   return response;
-}
-
-async function loadAppInfo() {
-  const response = await runAction("getapp", () =>
-    postApi<LegacyAppResult>("/api/v1/auth/getapp", buildTokenRequest(token.value))
-  );
-  if (response) {
-    appInfoResponse.value = response;
-    applyDefaultAppView(response.data);
-  }
 }
 
 async function loadCheckCode() {
@@ -449,17 +353,6 @@ async function prepareLegacyLogin() {
   if (!checkCodeKey.value) await loadCheckCode();
 }
 
-async function loadMenus() {
-  const response = await runAction("menus", () =>
-    postApi<TreeNode<AuthItem>[]>("/api/v1/auth/auth-menus", {
-      token: token.value
-    })
-  );
-  if (response) {
-    menuResponse.value = response;
-  }
-}
-
 async function loadSubMenu() {
   const response = await runAction("getsubmenu", () =>
     postApi<LegacySubMenuResult>("/api/v1/auth/getsubmenu", {
@@ -475,7 +368,6 @@ async function loadSubMenu() {
 async function openShellMenu(item: LegacyAuthItem) {
   const itemViewId = legacyAuthViewId(item);
   if (itemViewId) {
-    activeSection.value = "views";
     applyRequestedViewId(itemViewId);
     await loadViewWorkflow(true);
     return;
@@ -487,9 +379,8 @@ async function openShellMenu(item: LegacyAuthItem) {
   }
 }
 
-async function openPrimarySection(section: string) {
-  activeSection.value = section;
-  if (section === "views" && (isMetadataOnlyView.value || isStandaloneDetail.value)) {
+async function openPrimarySection() {
+  if (isMetadataOnlyView.value || isStandaloneDetail.value) {
     await loadViewWorkflow();
   }
 }
@@ -506,7 +397,6 @@ async function openShellMessage(message: MessageInfo) {
     await loadLegacyDetailPath({ viewId: targetViewId, objectId: targetObjectId });
     return;
   }
-  activeSection.value = "views";
   applyRequestedViewId(targetViewId);
   await loadViewWorkflow(true);
 }
@@ -556,9 +446,7 @@ function clearLegacySession() {
   token.value = "";
   legacyUserInfoResponse.value = null;
   mainInfoResponse.value = null;
-  appInfoResponse.value = null;
   subMenuResponse.value = null;
-  menuResponse.value = null;
   messageResponse.value = null;
   notifyResponse.value = null;
   checkCodeResponse.value = null;
@@ -658,25 +546,6 @@ async function loadResultPage(nextPage: number) {
   await queryCurrentViewData();
 }
 
-async function inputQuery() {
-  const request = buildInputQueryRequest({
-    token: token.value,
-    viewId: Number(currentViewId.value),
-    viewItemId: inputQueryViewItemId.value,
-    text: inputQueryText.value,
-    objID: inputQueryObjId.value,
-    ownerId: inputQueryOwnerId.value,
-    isAdded: inputQueryIsAdded.value
-  });
-
-  const response = await runAction("inputquery", () =>
-    postApi<InputQueryResult>("/api/v1/data/inputquery", request)
-  );
-  if (response) {
-    inputQueryResponse.value = response;
-  }
-}
-
 async function queryDetail(viewId = Number(detailViewId.value)) {
   detailViewId.value = viewId;
   detailResponse.value = null;
@@ -720,18 +589,6 @@ async function initNew() {
   return response;
 }
 
-async function loadEnums() {
-  const request = buildGetEnumRequest({
-    token: token.value,
-    modelId: enumModelId.value
-  });
-
-  const response = await runAction("getenums", () => postApi<GetEnumResult>("/api/v1/data/getenums", request));
-  if (response) {
-    enumResponse.value = response;
-  }
-}
-
 async function saveObj() {
   const request = buildSaveObjRequest({
     token: token.value,
@@ -743,7 +600,6 @@ async function saveObj() {
 
   const response = await runAction("saveobj", () => postApi<void>("/api/v1/data/saveobj", request));
   if (response) {
-    saveObjResponse.value = response;
     return true;
   }
   return false;
@@ -762,7 +618,6 @@ async function saveNewObj() {
 
   const response = await runAction("savenewobj", () => postApi<void>("/api/v1/data/savenewobj", request));
   if (response) {
-    saveNewObjResponse.value = response;
     return true;
   }
   return false;
@@ -810,7 +665,7 @@ function applyDefaultAppView(source?: unknown) {
 }
 
 function applyRequestedViewId(requestedViewId: number) {
-  legacyListViewId.value = legacyQueryViewId.value = requestedViewId;
+  legacyListViewId.value = requestedViewId;
   viewKeyword.value = "";
 }
 
@@ -860,7 +715,6 @@ async function searchCurrentView() {
 
 async function loadLegacyDetailPath(route: { viewId: number; objectId?: string }) {
   stopAutoRefresh();
-  activeSection.value = "views";
   isMetadataOnlyView.value = false;
   isStandaloneDetail.value = true;
   applyRequestedViewId(route.viewId);
@@ -876,7 +730,6 @@ async function loadLegacyDetailPath(route: { viewId: number; objectId?: string }
 
 async function loadLegacyItemView(viewId: number) {
   stopAutoRefresh();
-  activeSection.value = "views";
   isMetadataOnlyView.value = true;
   isStandaloneDetail.value = false;
   applyRequestedViewId(viewId);
@@ -889,7 +742,6 @@ async function loadLegacyItemView(viewId: number) {
 
 async function loadLegacyNewPath(route: { viewId: number; parentObjId: string; ownerViewId: string; property: string }) {
   stopAutoRefresh();
-  activeSection.value = "views";
   isMetadataOnlyView.value = false;
   isStandaloneDetail.value = true;
   applyRequestedViewId(route.viewId);
@@ -952,7 +804,7 @@ function scheduleAutoRefresh(result?: ListViewResult) {
   const seconds = listAutoFreshTime(result);
   if (seconds > 0) {
     autoRefreshTimer = window.setInterval(() => {
-      if (activeSection.value === "views" && !pendingAction.value) {
+      if (!pendingAction.value) {
         pageIndex.value = 1;
         void queryCurrentViewData();
       }
@@ -1176,13 +1028,11 @@ function syncDetailDrafts() {
 
       <nav class="nav-list" aria-label="Main">
         <button
-          v-for="item in navItems"
-          :key="item.id"
+          class="active"
           type="button"
-          :class="{ active: activeSection === item.id }"
-          @click="openPrimarySection(item.id)"
+          @click="openPrimarySection"
         >
-          {{ item.label }}
+          Views
         </button>
       </nav>
 
@@ -1191,7 +1041,7 @@ function syncDetailDrafts() {
           v-for="item in shellMenuItems"
           :key="legacyAuthNo(item) || legacyAuthText(item)"
           type="button"
-          :class="{ active: activeSection === 'views' && legacyAuthViewId(item) === currentViewId }"
+          :class="{ active: legacyAuthViewId(item) === currentViewId }"
           :disabled="Boolean(pendingAction)"
           @click="openShellMenu(item)"
         >
@@ -1228,7 +1078,7 @@ function syncDetailDrafts() {
         </div>
       </header>
 
-      <section v-if="activeSection === 'views'" class="view-workflow" :class="{ 'metadata-only': isMetadataOnlyView || isStandaloneDetail }" aria-label="View workflow">
+      <section class="view-workflow" :class="{ 'metadata-only': isMetadataOnlyView || isStandaloneDetail }" aria-label="View workflow">
         <article v-if="!isMetadataOnlyView && !isStandaloneDetail" class="panel view-list-panel">
           <div class="panel-heading">
             <h2>{{ viewTitle }}</h2>
@@ -1352,418 +1202,6 @@ function syncDetailDrafts() {
         />
       </section>
 
-      <section v-if="activeSection === 'tools'" class="grid auth-grid" aria-label="API tools">
-        <article class="panel">
-          <div class="panel-heading">
-            <h2>Token & Profile</h2>
-            <span>profile / menus</span>
-          </div>
-          <label>
-            Token
-            <textarea v-model="token" rows="3" spellcheck="false"></textarea>
-          </label>
-          <div class="button-row">
-            <button type="button" :disabled="pendingAction === 'profile'" @click="loadProfile">Profile</button>
-            <button type="button" :disabled="pendingAction === 'getmain'" @click="loadMainInfo">Main Info</button>
-            <button type="button" :disabled="pendingAction === 'getapp'" @click="loadAppInfo">App Info</button>
-            <button type="button" :disabled="pendingAction === 'menus'" @click="loadMenus">Menus</button>
-          </div>
-        </article>
-
-        <article class="panel lookup-panel">
-          <div class="panel-heading">
-            <h2>Sub Menu</h2>
-            <span>POST /api/v1/auth/getsubmenu</span>
-          </div>
-          <label>
-            Parent Auth Code
-            <input v-model="subMenuParentAuthCode" placeholder="blank for top level" />
-          </label>
-          <button class="primary" type="button" :disabled="pendingAction === 'getsubmenu'" @click="loadSubMenu">
-            Load Sub Menu
-          </button>
-
-          <div class="table-wrap input-query-results">
-            <table v-if="subMenuItems.length">
-              <thead>
-                <tr>
-                  <th>Auth</th>
-                  <th>Text</th>
-                  <th>View</th>
-                  <th>Index</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in subMenuItems" :key="legacyAuthNo(item) || legacyAuthText(item)">
-                  <td>{{ legacyAuthNo(item) }}</td>
-                  <td>{{ legacyAuthText(item) }}</td>
-                  <td>{{ legacyAuthViewId(item) }}</td>
-                  <td>{{ legacyAuthIndex(item) }}</td>
-                </tr>
-              </tbody>
-            </table>
-            <div v-else class="empty-state">No submenu items loaded.</div>
-          </div>
-        </article>
-
-      </section>
-
-      <section v-if="activeSection === 'tools'" class="grid work-grid" aria-label="View and data tools">
-        <article class="panel">
-          <div class="panel-heading">
-            <h2>View Definition</h2>
-            <span>POST /api/v1/view/getlistview</span>
-          </div>
-          <div class="inline-fields">
-            <label>
-              View ID
-              <input v-model.number="legacyListViewId" min="1" type="number" />
-            </label>
-          </div>
-          <div class="button-row">
-            <button type="button" :disabled="pendingAction === 'legacy-list-view'" @click="loadLegacyListView">
-              Load View
-            </button>
-          </div>
-
-          <div v-if="viewResponse?.data" class="summary-list">
-            <div><span>Title</span><strong>{{ viewDisplayTitle(viewResponse.data) || "-" }}</strong></div>
-            <div><span>Type</span><strong>{{ viewDisplayType(viewResponse.data) || "-" }}</strong></div>
-            <div><span>Columns</span><strong>{{ viewColumns(viewResponse.data).length }}</strong></div>
-            <div><span>Inputs</span><strong>{{ viewInputCount(viewResponse.data) }}</strong></div>
-          </div>
-        </article>
-
-        <article class="panel lookup-panel">
-          <div class="panel-heading">
-            <h2>Read Item View</h2>
-            <span>POST /api/v1/view/getreaditemview</span>
-          </div>
-          <label>
-            View ID
-            <input v-model.number="readItemViewId" min="1" type="number" />
-          </label>
-          <button class="primary" type="button" :disabled="pendingAction === 'read-item-view'" @click="() => loadReadItemView()">
-            Load Read Items
-          </button>
-
-          <div class="table-wrap input-query-results">
-            <table v-if="readItemFields.length">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Property</th>
-                  <th>Type</th>
-                  <th>Edit</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in readItemFields" :key="fieldKey(item)">
-                  <td>{{ fieldTitle(item) }}</td>
-                  <td>{{ fieldKey(item) }}</td>
-                  <td>{{ fieldType(item) }}</td>
-                  <td>{{ fieldEditType(item) }}</td>
-                </tr>
-              </tbody>
-            </table>
-            <div v-else class="empty-state">No read items loaded.</div>
-          </div>
-        </article>
-
-        <article class="panel lookup-panel">
-          <div class="panel-heading">
-            <h2>Query Data</h2>
-            <span>POST /api/v1/data/querydata</span>
-          </div>
-          <div class="inline-fields">
-            <label>
-              View ID
-              <input v-model.number="legacyQueryViewId" min="1" type="number" />
-            </label>
-            <label>
-              Page
-              <input v-model.number="legacyQueryPageIndex" min="1" type="number" />
-            </label>
-            <label>
-              Size
-              <input v-model.number="legacyQueryPageSize" min="1" type="number" />
-            </label>
-          </div>
-          <label>
-            QueryFilter
-            <input v-model="legacyQueryFilter" />
-          </label>
-          <button class="primary" type="button" :disabled="pendingAction === 'legacy-query'" @click="queryLegacyData">
-            Query Data
-          </button>
-        </article>
-
-        <article class="panel lookup-panel">
-          <div class="panel-heading">
-            <h2>Detail Data</h2>
-            <span>POST /api/v1/data/querydatadetail</span>
-          </div>
-          <div class="inline-fields">
-            <label>
-              View ID
-              <input v-model.number="detailViewId" min="1" type="number" />
-            </label>
-            <label>
-              Object ID
-              <input v-model="detailObjId" />
-            </label>
-          </div>
-          <label>
-            ID Exp
-            <input v-model="detailIdExp" />
-          </label>
-          <button class="primary" type="button" :disabled="pendingAction === 'detail'" @click="queryDetail()">
-            Load Detail
-          </button>
-
-          <div class="table-wrap input-query-results">
-            <table v-if="detailRows.length">
-              <thead>
-                <tr>
-                  <th>Property</th>
-                  <th>Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in detailRows" :key="fieldKey(item) || fieldTitle(item)">
-                  <td>{{ fieldTitle(item) }}</td>
-                  <td>{{ fieldDisplayValue(item) }}</td>
-                </tr>
-              </tbody>
-            </table>
-            <div v-else class="empty-state">No detail loaded.</div>
-          </div>
-        </article>
-
-        <article class="panel lookup-panel">
-          <div class="panel-heading">
-            <h2>Init New Object</h2>
-            <span>POST /api/v1/data/initnew</span>
-          </div>
-          <div class="inline-fields">
-            <label>
-              View ID
-              <input v-model.number="initNewViewId" min="1" type="number" />
-            </label>
-            <label>
-              Parent ID
-              <input v-model="initNewParentObjId" />
-            </label>
-          </div>
-          <button class="primary" type="button" :disabled="pendingAction === 'initnew'" @click="initNew">
-            Init New
-          </button>
-
-          <div class="table-wrap input-query-results">
-            <table v-if="initNewRows.length">
-              <thead>
-                <tr>
-                  <th>Property</th>
-                  <th>Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in initNewRows" :key="fieldKey(item) || fieldTitle(item)">
-                  <td>{{ fieldTitle(item) }}</td>
-                  <td>{{ fieldDisplayValue(item) }}</td>
-                </tr>
-              </tbody>
-            </table>
-            <div v-else class="empty-state">No new object initialized.</div>
-          </div>
-        </article>
-
-        <article class="panel lookup-panel">
-          <div class="panel-heading">
-            <h2>Enum Values</h2>
-            <span>POST /api/v1/data/getenums</span>
-          </div>
-          <label>
-            Model ID
-            <input v-model="enumModelId" />
-          </label>
-          <button class="primary" type="button" :disabled="pendingAction === 'getenums'" @click="loadEnums">
-            Load Enums
-          </button>
-
-          <div class="table-wrap input-query-results">
-            <table v-if="enumItems.length">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in enumItems" :key="`${legacyEnumName(item)}-${legacyEnumValue(item)}`">
-                  <td>{{ legacyEnumName(item) }}</td>
-                  <td>{{ legacyEnumValue(item) }}</td>
-                </tr>
-              </tbody>
-            </table>
-            <div v-else class="empty-state">No enums loaded.</div>
-          </div>
-        </article>
-
-        <article class="panel lookup-panel">
-          <div class="panel-heading">
-            <h2>Input Query</h2>
-            <span>POST /api/v1/data/inputquery</span>
-          </div>
-          <div class="inline-fields">
-            <label>
-              View Item
-              <input v-model="inputQueryViewItemId" />
-            </label>
-            <label>
-              Text
-              <input v-model="inputQueryText" />
-            </label>
-          </div>
-          <div class="inline-fields">
-            <label>
-              Obj ID
-              <input v-model="inputQueryObjId" />
-            </label>
-            <label>
-              Owner ID
-              <input v-model="inputQueryOwnerId" />
-            </label>
-          </div>
-          <label class="checkbox-row">
-            <input v-model="inputQueryIsAdded" type="checkbox" />
-            Added item
-          </label>
-          <button class="primary" type="button" :disabled="pendingAction === 'inputquery'" @click="inputQuery">
-            Query Candidates
-          </button>
-
-          <div class="table-wrap input-query-results">
-            <table v-if="inputQueryItems.length">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Text</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in inputQueryItems" :key="inputQueryItemId(item) || inputQueryItemText(item)">
-                  <td>{{ inputQueryItemId(item) }}</td>
-                  <td>{{ inputQueryItemText(item) }}</td>
-                </tr>
-              </tbody>
-            </table>
-            <div v-else class="empty-state">No candidates loaded.</div>
-          </div>
-        </article>
-
-        <article class="panel lookup-panel">
-          <div class="panel-heading">
-            <h2>Save Object</h2>
-            <span>POST /api/v1/data/saveobj</span>
-          </div>
-          <div class="inline-fields">
-            <label>
-              View ID
-              <input v-model="saveViewId" />
-            </label>
-            <label>
-              Object ID
-              <input v-model="saveObjId" />
-            </label>
-          </div>
-          <label>
-            Propertyies JSON
-            <textarea v-model="savePropertyiesJson" rows="4" spellcheck="false"></textarea>
-          </label>
-          <label>
-            Itemproperties JSON
-            <textarea v-model="saveItempropertiesJson" rows="4" spellcheck="false"></textarea>
-          </label>
-          <button class="primary" type="button" :disabled="pendingAction === 'saveobj'" @click="saveObj">
-            Save Object
-          </button>
-        </article>
-
-        <article class="panel lookup-panel">
-          <div class="panel-heading">
-            <h2>Save New Object</h2>
-            <span>POST /api/v1/data/savenewobj</span>
-          </div>
-          <div class="inline-fields">
-            <label>
-              View ID
-              <input v-model="saveNewViewId" />
-            </label>
-            <label>
-              Object ID
-              <input v-model="saveNewObjId" />
-            </label>
-          </div>
-          <div class="inline-fields">
-            <label>
-              Owner View
-              <input v-model="saveNewOwnerViewId" />
-            </label>
-            <label>
-              Owner ID
-              <input v-model="saveNewOwnerId" />
-            </label>
-            <label>
-              Property
-              <input v-model="saveNewProperty" />
-            </label>
-          </div>
-          <label>
-            Propertyies JSON
-            <textarea v-model="saveNewPropertyiesJson" rows="4" spellcheck="false"></textarea>
-          </label>
-          <button class="primary" type="button" :disabled="pendingAction === 'savenewobj'" @click="saveNewObj">
-            Save New
-          </button>
-        </article>
-
-        <article class="panel lookup-panel">
-          <div class="panel-heading">
-            <h2>Run Operation</h2>
-            <span>POST /api/v1/data/runoperation</span>
-          </div>
-          <div class="inline-fields">
-            <label>
-              View ID
-              <input v-model.number="operationViewId" min="1" type="number" />
-            </label>
-            <label>
-              Operation ID
-              <input v-model.number="operationId" min="0" type="number" />
-            </label>
-            <label>
-              Object ID
-              <input v-model="operationObjectId" />
-            </label>
-          </div>
-          <button class="primary" type="button" :disabled="pendingAction === 'runoperation' || operationId <= 0 || !operationObjectId" @click="runOperation">
-            Run Operation
-          </button>
-        </article>
-      </section>
-
-      <ResultsPanel
-        v-if="activeSection === 'tools'"
-        :columns="resultColumns"
-        :disabled="Boolean(pendingAction)"
-        :error-message="errorMessage"
-        :pending-action="pendingAction"
-        :response-dump="responseDump"
-        :rows="resultRows"
-      />
-
-      <MigrationMap v-if="activeSection === 'migration'" />
     </main>
   </div>
 </template>

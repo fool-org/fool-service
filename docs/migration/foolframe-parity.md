@@ -118,6 +118,16 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: audited all 25 routes declared by the old Web `app.js` and the
+  Jade render templates. Current Spring/Vue routes cover the old entry, auth,
+  View/detail/item/new, data, operation, enum, report, and message surfaces;
+  `Group.jade` is only an empty document shell, while the placeholder
+  `item.jade` is covered by the metadata-only item View. The production Vue
+  shell now exposes only View-driven business workflows: `API Tools`, the
+  migration map, raw response output, manual DTO forms, their dead state, and
+  unused styles were deleted. `App.vue` dropped from 1769 to 1207 lines and
+  the frontend code/test diff removed 897 lines while retaining shared
+  workflow helpers.
 - 2026-07-10: Docker startup now upgrades existing `car_wash` volumes through
   a one-shot `db-migrate` service that reuses all nine ordered, idempotent init
   SQL files before backend startup. Full replay passed twice against the
@@ -128,14 +138,14 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   old `index.jade` / `login.js` flow: `initapp` supplies application and
   database metadata, `getcheckcode` supplies the rendered captcha, and
   `loginv2` accepts user-entered credentials before any View/data workflow is
-  loaded. The default `admin/admin` auto-login and duplicate API Tools auth
+  loaded. The default `admin/admin` auto-login and duplicate developer auth
   panels are removed; stale tokens and logout return to the same login flow,
   and successful login resumes the original `/view...` or `/new...` deep
   link. Direct detail/new routes now use the existing View-first detail
   component as a single-panel page instead of leaving an empty list shell.
 - 2026-07-10: the Vue shell now renders the signed-in user, 15-second legacy
   message polling, message count/popover, menu notification badges, and logout
-  in the topbar instead of separate API Tools panels. Message targets reuse
+  in the topbar instead of separate developer panels. Message targets reuse
   the existing View-first detail/list loaders, non-empty messages remain
   available across later empty polls, and the responsive popover stays inside
   a 390px viewport. The runtime doctor now refreshes its message seed directly
@@ -144,10 +154,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-10: the Vue list View toolbar now follows the old `view.jade`
   search workflow without exposing editable View IDs or raw `QueryFilter`
   syntax. The main workflow sends a trimmed `keyword` only after the View
-  metadata is loaded, while API Tools keeps its separate compatibility
-  `QueryFilter` state. Docker browser checks proved button and Enter-key
-  searches (`BTC` / `ETH`), blank-search restoration, first-row detail
-  selection, and 390px containment.
+  metadata is loaded. Raw compatibility `QueryFilter` payloads remain in the
+  protocol builder but are not exposed in production Vue. Docker browser
+  checks proved button and Enter-key searches (`BTC` / `ETH`), blank-search
+  restoration, first-row detail selection, and 390px containment.
 - 2026-07-10: the Vue list View now exposes the old `view.jade` report
   workflow from its `Report` command instead of three developer-only API
   panels. `ViewReportPanel.vue` loads candidate columns from `getmkqview`
@@ -1612,8 +1622,8 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-03: changed the default Vue surface from a raw API operator console
   to a focused `OrderList` workflow. The first screen now loads Docker-seeded
   order rows, supports row selection, renders detail fields, and saves the
-  selected order symbol/state through the migrated legacy data APIs. The older
-  endpoint panels remain available under `API Tools`.
+  selected order symbol/state through the migrated legacy data APIs. The
+  temporary developer endpoint panels have since been removed.
 - 2026-07-03: hydrated legacy runtime model-trigger metadata from
   `SW_SYS_MODEL_TRIGGER` and `SW_SYS_MODEL_TRIGGER_COMMANDS` onto
   `Model.triggers`. Runtime `ModelDataService.getModel` now carries trigger
@@ -2013,8 +2023,6 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Legacy `loginv2` loading with legacy `UserId`, `PassWord`, `DbId`,
   `CheckCode`, `AppId`, `AppKey`, and `CheckCodeKey`
 - Legacy `getuserinfo` user/token payload loading with legacy `Token` alias
-- Legacy `getapp` default application metadata loading with legacy `Token`
-  alias
 - Legacy `getmain` raw-token user/default-AppInfo/top-menu loading
 - Legacy `getcheckcode` captcha image loading and refresh in the login page;
   `loginv2` validates the submitted key/code pair
@@ -2031,57 +2039,31 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Vue API types for view operation names, IDs, operation locations, view operations, list row format, list-query columns, legacy view types/names/show types/temp files, default detail view IDs, and refresh metadata
 - Vue API types for legacy list-query row indexes, paging aliases, `Data` result alias, and row `Items`/`ObjValuePair` metadata
 - Vue API types for legacy `getenums` enum-value request/result payloads
-- A Vue enum-value panel that calls legacy `/api/v1/data/getenums` and renders
-  returned enum values
 - Vue API types for legacy `getlistview` view-id payloads
-- A Vue legacy list-view lookup control that calls `/api/v1/view/getlistview`
-  by view ID and reuses the view-definition summary display
 - Legacy shell menu rendering in the Vue sidebar from `getmain` /
   `getsubmenu`, with `ViewId` menu entries opening the same View-driven list
   workflow.
 - Vue API types for legacy `getreaditemview` read-item payloads
-- A Vue read-item view panel that calls `/api/v1/view/getreaditemview` by view
-  ID and renders returned field metadata
 - Vue API types for legacy `querydata` request payloads
-- A Vue legacy query-data panel that calls `/api/v1/data/querydata` by view ID
-  with raw `QueryFilter` text and reuses the result-set table display
 - Vue API types for legacy `querydatadetail` request/result payloads
-- A Vue detail-data panel that calls legacy `/api/v1/data/querydatadetail` and
-  renders returned `SimpleData` rows
 - Vue API types for legacy `querydatadetail` collection `Items` groups and child
   `DataItem` rows
 - The default Vue `OrderList` detail panel renders persisted `Order Items`
   returned by backend `querydatadetail`
 - Vue API types for legacy `initnew` request/result payloads
-- A Vue init-new-object panel that calls legacy `/api/v1/data/initnew` and
-  renders the empty editable `SimpleData` rows
 - Vue API types for legacy `inputquery` request/result payloads
-- A Vue input candidate lookup panel that calls legacy `/api/v1/data/inputquery`
-  with view item, text, existing-object ID, added-item owner ID, and added-item
-  mode fields
 - Vue API types for legacy `saveobj` request payloads
-- A Vue save-object panel that calls legacy `/api/v1/data/saveobj` with view ID,
-  object ID, simple `Propertyies`, and `Itemproperties` JSON payloads
 - Vue API types for legacy `savenewobj` request payloads
-- A Vue save-new-object panel that calls legacy `/api/v1/data/savenewobj` with
-  view ID, object ID, simple `Propertyies`, and optional owner collection fields
 - Vue API types for legacy `runoperation` request/result payloads
-- A Vue run-operation panel that calls legacy `/api/v1/data/runoperation` with
-  view ID, operation ID, and object ID
 - Vue API types for legacy `makereport` request/result payloads
-- A Vue report-grid panel that calls legacy `/api/v1/report/makereport` with
-  view ID, page, `QueryFilter`, and report column JSON payloads, then renders
-  returned report cells
-- The same Vue report-grid panel can call legacy `/api/v1/report/getrpt`
-  with the same `MakeReportOption` payload
+- The View report panel calls legacy report routes with metadata-derived
+  columns, visible structured filters, and paging, then renders returned cells
 - Vue API types for legacy `getmkqview` report model candidate payloads
-- A Vue report-column panel that calls `/api/v1/report/getmkqview` by view ID
-  and renders candidate columns, compare/select catalogs, and enum states
-- The Vue report-column panel auto-fills the report request `ReportCols` JSON
-  from loaded View metadata using the first available selected-type option
+- The View report panel calls `/api/v1/report/getmkqview` by view ID and renders
+  candidate columns, compare/select catalogs, and enum states
 - Vue report-definition save payload support for legacy `ReportName`
-- A Vue save-report-definition panel that calls `/api/v1/report/saverpt` with
-  view ID, report columns, `QueryFilter`, and report name
+- The View report panel saves definitions through `/api/v1/report/saverpt`
+  using rendered report fields rather than raw JSON inputs
 - Vue API types for legacy `getmsg` generated-message polling
 - A Vue topbar message popover that polls `/api/v1/message/getmsg` every 15
   seconds and opens message targets through the existing View-first loader
@@ -2089,7 +2071,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Vue shell menu badges populated from `/api/v1/message/getnotify`
 - Vue API types for legacy view-item `ID`, `Name`, `PropertyName`, `ShowIndex`, `Width`, `Format`, `IsReadOnly`, `EditType`, `PropertyId`, `EditViewId`, `EditExp`, linked-list-view defaults, `PropertyType`, and `PropertyModel` metadata
 - Vue API types for legacy view-item `ViewFile` metadata
-- Structured visible equality/range filters that emit Spring `QueryValue` payloads, plus advanced JSON filters
+- Structured visible equality/range filters that emit Spring `QueryValue`
+  payloads
 - Legacy-style keyword filtering over read-only list columns
 - Legacy-style keyword filtering over BusinessObject show-property list columns
 - Legacy-style default ordering over BusinessObject show-property list columns
@@ -2118,7 +2101,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `inputquery`
 - Metadata-driven Vue operation buttons using legacy View operations and
   operation parameter metadata
-- A migration-map strip showing current server module mapping
+- No production API console, raw response dump, migration map, editable View
+  ID, raw SQL filter, or manual business DTO form
 - Vite and Nginx proxies for `/api/*` to the backend service
 
 ## Remaining Migration Work
