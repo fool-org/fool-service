@@ -25,6 +25,7 @@ import {
   type ListViewInfo,
   type ListViewResult,
   type LoginVo,
+  type MessageInfo,
   type OperationInfo,
   type SaveItemProperty,
   type TableColumnInfo,
@@ -35,6 +36,7 @@ import {
 import ListDataTable from "./ListDataTable.vue";
 import MigrationMap from "./MigrationMap.vue";
 import ResultsPanel from "./ResultsPanel.vue";
+import ShellActions from "./ShellActions.vue";
 import SudokuPanels from "./SudokuPanels.vue";
 import ViewDetailPanel from "./ViewDetailPanel.vue";
 import ViewReportPanel from "./ViewReportPanel.vue";
@@ -85,16 +87,14 @@ import {
   legacyDetailPath,
   legacyItemViewPathId,
   legacyMainMenuItems,
-  legacyMessageContent,
-  legacyMessageId,
   legacyMessageResultKey,
   legacyMessageResultView,
   legacyMessages,
   legacyNotifies,
-  legacyNotifyAuthNo,
-  legacyNotifyCount,
+  legacyNotifyCountForAuth,
   legacyRunOperationSuccess,
   legacySubMenuItems,
+  legacyUserName,
   listAutoFreshTime,
   listRows,
   listTotalItems,
@@ -211,7 +211,6 @@ const appInfoResponse = ref<CommonResponse<LegacyAppResult> | null>(null);
 const checkCodeResponse = ref<CommonResponse<CheckCodeResult> | null>(null);
 const checkCodeValidationResponse = ref<CommonResponse<boolean> | null>(null);
 const subMenuResponse = ref<CommonResponse<LegacySubMenuResult> | null>(null);
-const logoutResponse = ref<CommonResponse<void> | null>(null);
 const menuResponse = ref<CommonResponse<TreeNode<AuthItem>[]> | null>(null);
 const detailResponse = ref<CommonResponse<QueryDataDetailResult> | null>(null);
 const initNewResponse = ref<CommonResponse<QueryDataDetailResult> | null>(null);
@@ -224,6 +223,8 @@ const messageResponse = ref<CommonResponse<GetMessageResult> | null>(null);
 const notifyResponse = ref<CommonResponse<GetNotifyResult> | null>(null);
 const errorMessage = ref("");
 const pendingAction = ref("");
+const shellErrorMessage = ref("");
+const shellPending = ref(false);
 const activeViewPane = ref("table");
 
 const {
@@ -290,6 +291,7 @@ const subMenuItems = computed(() => legacySubMenuItems(subMenuResponse.value?.da
 const shellMenuItems = computed(() => (subMenuItems.value.length ? subMenuItems.value : topMenuItems.value));
 const messageItems = computed(() => legacyMessages(messageResponse.value?.data));
 const notifyItems = computed(() => legacyNotifies(notifyResponse.value?.data));
+const shellUserName = computed(() => legacyUserName(legacyUserInfoResponse.value?.data));
 const enumItems = computed(() => legacyEnumValues(enumResponse.value?.data));
 const inputQueryItems = computed(() => legacyInputQueryItems(inputQueryResponse.value?.data));
 const viewCanEdit = computed(() => Boolean(selectedObject.value || isCreatingObject.value));
@@ -317,7 +319,7 @@ const responseDump = computed(() =>
       login: loginResponse.value, initApp: initAppResponse.value, legacyLogin: legacyLoginResponse.value,
       profile: profileResponse.value, legacyUserInfo: legacyUserInfoResponse.value, mainInfo: mainInfoResponse.value,
       appInfo: appInfoResponse.value, checkCode: checkCodeResponse.value, checkCodeValidation: checkCodeValidationResponse.value,
-      subMenu: subMenuResponse.value, logout: logoutResponse.value, menus: menuResponse.value,
+      subMenu: subMenuResponse.value, menus: menuResponse.value,
       view: viewResponse.value, readItemView: readItemViewResponse.value, data: dataResponse.value,
       detail: detailResponse.value, initNew: initNewResponse.value, enums: enumResponse.value,
       inputQuery: inputQueryResponse.value, saveObj: saveObjResponse.value, saveNewObj: saveNewObjResponse.value,
@@ -328,6 +330,8 @@ const responseDump = computed(() =>
   )
 );
 let autoRefreshTimer: number | undefined;
+let shellPollTimer: number | undefined;
+let shellRefreshInFlight = false;
 
 async function runAction<T>(label: string, action: () => Promise<CommonResponse<T>>) {
   pendingAction.value = label;
@@ -356,6 +360,8 @@ async function login() {
     token.value = response.data?.token || token.value;
     if (token.value) {
       localStorage.setItem("fool-service-token", token.value);
+      void refreshShellStatus(false);
+      startShellPolling();
     }
   }
 }
@@ -396,6 +402,8 @@ async function loginV2() {
     token.value = response.data?.token || response.data?.Token || token.value;
     if (token.value) {
       localStorage.setItem("fool-service-token", token.value);
+      void refreshShellStatus(false);
+      startShellPolling();
     }
   }
 }
@@ -408,15 +416,6 @@ async function loadProfile() {
   );
   if (response) {
     profileResponse.value = response;
-  }
-}
-
-async function loadLegacyUserInfo() {
-  const response = await runAction("getuserinfo", () =>
-    postApi<LegacyUserInfoResult>("/api/v1/auth/getuserinfo", buildTokenRequest(token.value))
-  );
-  if (response) {
-    legacyUserInfoResponse.value = response;
   }
 }
 
@@ -497,30 +496,72 @@ async function openShellMenu(item: LegacyAuthItem) {
   }
 }
 
-async function loadMessages() {
-  const response = await runAction("messages", () =>
-    postApi<GetMessageResult>("/api/v1/message/getmsg", buildTokenRequest(token.value))
-  );
-  if (response) {
-    messageResponse.value = response;
+function shellNotifyCount(item: LegacyAuthItem) {
+  return legacyNotifyCountForAuth(notifyItems.value, legacyAuthNo(item));
+}
+
+async function openShellMessage(message: MessageInfo) {
+  const targetViewId = legacyMessageResultView(message);
+  if (!targetViewId) return;
+  const targetObjectId = legacyMessageResultKey(message);
+  if (targetObjectId) {
+    await loadLegacyDetailPath({ viewId: targetViewId, objectId: targetObjectId });
+    return;
+  }
+  activeSection.value = "views";
+  applyRequestedViewId(targetViewId);
+  await loadViewWorkflow(true);
+}
+
+async function refreshShellStatus(interactive = true) {
+  if (!token.value || shellRefreshInFlight) return;
+  shellRefreshInFlight = true;
+  shellErrorMessage.value = "";
+  if (interactive) shellPending.value = true;
+  try {
+    const request = buildTokenRequest(token.value);
+    const [user, messages, notifies] = await Promise.allSettled([
+      postApi<LegacyUserInfoResult>("/api/v1/auth/getuserinfo", request),
+      postApi<GetMessageResult>("/api/v1/message/getmsg", request),
+      postApi<GetNotifyResult>("/api/v1/message/getnotify", request)
+    ]);
+    if (user.status === "fulfilled") legacyUserInfoResponse.value = user.value;
+    if (messages.status === "fulfilled" && legacyMessages(messages.value.data).length) {
+      messageResponse.value = messages.value;
+    }
+    if (notifies.status === "fulfilled") notifyResponse.value = notifies.value;
+    const failed = [user, messages, notifies].find((result) => result.status === "rejected");
+    if (failed?.status === "rejected") {
+      shellErrorMessage.value = failed.reason instanceof Error ? failed.reason.message : String(failed.reason);
+    }
+  } finally {
+    shellRefreshInFlight = false;
+    if (interactive) shellPending.value = false;
   }
 }
 
-async function loadNotify() {
-  const response = await runAction("notify", () =>
-    postApi<GetNotifyResult>("/api/v1/message/getnotify", buildTokenRequest(token.value))
-  );
-  if (response) {
-    notifyResponse.value = response;
+function startShellPolling() {
+  stopShellPolling();
+  shellPollTimer = window.setInterval(() => void refreshShellStatus(false), 15_000);
+}
+
+function stopShellPolling() {
+  if (shellPollTimer !== undefined) {
+    window.clearInterval(shellPollTimer);
+    shellPollTimer = undefined;
   }
 }
 
 async function logout() {
   const response = await runAction("logout", () => postApi<void>("/api/v1/auth/logout", buildTokenRequest(token.value)));
   if (response) {
-    logoutResponse.value = response;
+    stopShellPolling();
     token.value = "";
+    legacyUserInfoResponse.value = null;
+    messageResponse.value = null;
+    notifyResponse.value = null;
     localStorage.removeItem("fool-service-token");
+    activeSection.value = "tools";
   }
 }
 
@@ -852,28 +893,40 @@ async function loadLegacyNewPath(route: { viewId: number; parentObjId: string; o
   await startNewObject(route.viewId, route.parentObjId, route.ownerViewId, route.property);
 }
 
-onMounted(() => {
+async function loadInitialRoute() {
   const detailRoute = legacyDetailPath(window.location.pathname);
   if (detailRoute) {
-    void loadLegacyDetailPath(detailRoute);
+    await loadLegacyDetailPath(detailRoute);
     return;
   }
   const itemViewId = legacyItemViewPathId(window.location.pathname);
   if (itemViewId) {
-    void loadLegacyItemView(itemViewId);
+    await loadLegacyItemView(itemViewId);
     return;
   }
   const newRoute = legacyNewPath(window.location.pathname);
   if (newRoute) {
-    void loadLegacyNewPath(newRoute);
+    await loadLegacyNewPath(newRoute);
     return;
   }
   const routeViewId = legacyViewPathId(window.location.pathname);
   if (routeViewId) applyRequestedViewId(routeViewId);
-  void loadViewWorkflow();
-});
+  await loadViewWorkflow();
+}
 
-onUnmounted(stopAutoRefresh);
+async function initializeApp() {
+  await loadInitialRoute();
+  if (!token.value) return;
+  await refreshShellStatus();
+  startShellPolling();
+}
+
+onMounted(() => void initializeApp());
+
+onUnmounted(() => {
+  stopAutoRefresh();
+  stopShellPolling();
+});
 
 function stopAutoRefresh() {
   if (autoRefreshTimer !== undefined) {
@@ -1121,7 +1174,8 @@ function syncDetailDrafts() {
           :disabled="Boolean(pendingAction)"
           @click="openShellMenu(item)"
         >
-          {{ legacyAuthText(item) || legacyAuthNo(item) }}
+          <span>{{ legacyAuthText(item) || legacyAuthNo(item) }}</span>
+          <strong v-if="shellNotifyCount(item)" class="nav-count">{{ shellNotifyCount(item) }}</strong>
         </button>
       </nav>
     </aside>
@@ -1132,12 +1186,24 @@ function syncDetailDrafts() {
           <h1>{{ pageViewTitle }}</h1>
           <p>{{ pageViewName }}</p>
         </div>
-        <div class="status-strip">
-          <div v-for="service in services" :key="service.label" class="status-item">
-            <span class="status-dot" :class="service.state"></span>
-            <span>{{ service.label }}</span>
-            <strong>{{ service.value }}</strong>
+        <div class="topbar-side">
+          <div class="status-strip">
+            <div v-for="service in services" :key="service.label" class="status-item">
+              <span class="status-dot" :class="service.state"></span>
+              <span>{{ service.label }}</span>
+              <strong>{{ service.value }}</strong>
+            </div>
           </div>
+          <ShellActions
+            v-if="token"
+            :error-message="shellErrorMessage"
+            :messages="messageItems"
+            :pending="shellPending || Boolean(pendingAction)"
+            :user-name="shellUserName"
+            @logout="logout"
+            @open-message="openShellMessage"
+            @refresh="refreshShellStatus"
+          />
         </div>
       </header>
 
@@ -1311,13 +1377,9 @@ function syncDetailDrafts() {
           </label>
           <div class="button-row">
             <button type="button" :disabled="pendingAction === 'profile'" @click="loadProfile">Profile</button>
-            <button type="button" :disabled="pendingAction === 'getuserinfo'" @click="loadLegacyUserInfo">
-              Legacy User Info
-            </button>
             <button type="button" :disabled="pendingAction === 'getmain'" @click="loadMainInfo">Main Info</button>
             <button type="button" :disabled="pendingAction === 'getapp'" @click="loadAppInfo">App Info</button>
             <button type="button" :disabled="pendingAction === 'menus'" @click="loadMenus">Menus</button>
-            <button type="button" :disabled="pendingAction === 'logout'" @click="logout">Logout</button>
           </div>
         </article>
 
@@ -1384,66 +1446,6 @@ function syncDetailDrafts() {
               </tbody>
             </table>
             <div v-else class="empty-state">No submenu items loaded.</div>
-          </div>
-        </article>
-
-        <article class="panel lookup-panel">
-          <div class="panel-heading">
-            <h2>Messages</h2>
-            <span>POST /api/v1/message/getmsg</span>
-          </div>
-          <button class="primary" type="button" :disabled="pendingAction === 'messages'" @click="loadMessages">
-            Load Messages
-          </button>
-
-          <div class="table-wrap input-query-results">
-            <table v-if="messageItems.length">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Content</th>
-                  <th>View</th>
-                  <th>Result</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="message in messageItems" :key="legacyMessageId(message)">
-                  <td>{{ legacyMessageId(message) }}</td>
-                  <td>{{ legacyMessageContent(message) }}</td>
-                  <td>{{ legacyMessageResultView(message) }}</td>
-                  <td>{{ legacyMessageResultKey(message) }}</td>
-                </tr>
-              </tbody>
-            </table>
-            <div v-else class="empty-state">No generated messages loaded.</div>
-          </div>
-        </article>
-
-        <article class="panel lookup-panel">
-          <div class="panel-heading">
-            <h2>Notify Counts</h2>
-            <span>POST /api/v1/message/getnotify</span>
-          </div>
-          <button class="primary" type="button" :disabled="pendingAction === 'notify'" @click="loadNotify">
-            Load Notify Counts
-          </button>
-
-          <div class="table-wrap input-query-results">
-            <table v-if="notifyItems.length">
-              <thead>
-                <tr>
-                  <th>Auth</th>
-                  <th>Count</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in notifyItems" :key="legacyNotifyAuthNo(item) || legacyNotifyCount(item)">
-                  <td>{{ legacyNotifyAuthNo(item) }}</td>
-                  <td>{{ legacyNotifyCount(item) }}</td>
-                </tr>
-              </tbody>
-            </table>
-            <div v-else class="empty-state">No notify counts loaded.</div>
           </div>
         </article>
 

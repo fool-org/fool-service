@@ -63,6 +63,7 @@ import {
   legacyMainMenuItems,
   legacyMessageContent,
   legacyMessageId,
+  legacyMessageTime,
   legacyMessageResultKey,
   legacyMessageResultView,
   legacyMessages,
@@ -70,8 +71,10 @@ import {
   legacyNotifies,
   legacyNotifyAuthNo,
   legacyNotifyCount,
+  legacyNotifyCountForAuth,
   legacyRunOperationSuccess,
   legacySubMenuItems,
+  legacyUserName,
   legacyViewPathId,
   listAutoFreshTime,
   listFreshTime,
@@ -985,8 +988,14 @@ describe("view workflow helpers", () => {
   it("reads tool-panel lists and fields from Pascal or camel legacy payloads", () => {
     const main = { TopMenu: [{ AuthNo: "0", Text: "Views", ViewId: 0, Index: 1 }] };
     const menu = { Items: [{ AuthNo: "1", Text: "Home", ViewId: 100, Index: 2 }] };
-    const messages = { Messages: [{ MessageID: "m1", MessageContent: "Ready", ResultView: 100, ResultKey: "1001" }] };
-    const notifies = { Notifies: [{ AuthNo: "1", Count: 3 }] };
+    const messages = { Messages: [{
+      MessageID: "m1",
+      GernerationTime: "/Date(0)/",
+      MessageContent: "Ready",
+      ResultView: 100,
+      ResultKey: "1001"
+    }] };
+    const notifies = { Notifies: [{ AuthNo: "1", Count: 3 }, { AuthNo: "1", Count: 2 }] };
     const enums = { EnumValues: [{ Name: "Open", Value: 0 }] };
     const inputQuery = { Items: [{ Id: "1001", Text: "Ada" }] };
 
@@ -1000,11 +1009,14 @@ describe("view workflow helpers", () => {
     expect(legacyMessages(messages)).toHaveLength(1);
     expect(legacyMessageId(messages.Messages[0])).toBe("m1");
     expect(legacyMessageContent(messages.Messages[0])).toBe("Ready");
+    expect(legacyMessageTime(messages.Messages[0])).toBe("1970-01-01 00:00:00");
     expect(legacyMessageResultView(messages.Messages[0])).toBe(100);
     expect(legacyMessageResultKey(messages.Messages[0])).toBe("1001");
-    expect(legacyNotifies(notifies)).toHaveLength(1);
+    expect(legacyNotifies(notifies)).toHaveLength(2);
     expect(legacyNotifyAuthNo(notifies.Notifies[0])).toBe("1");
     expect(legacyNotifyCount(notifies.Notifies[0])).toBe(3);
+    expect(legacyNotifyCountForAuth(notifies.Notifies, "1")).toBe(5);
+    expect(legacyUserName({ User: { UserName: "Admin", LoginName: "admin" } })).toBe("Admin");
     expect(legacyEnumValues(enums)).toHaveLength(1);
     expect(legacyEnumName(enums.EnumValues[0])).toBe("Open");
     expect(legacyEnumValue(enums.EnumValues[0])).toBe("0");

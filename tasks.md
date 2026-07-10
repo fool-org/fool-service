@@ -723,6 +723,9 @@ explicitly named as authoritative for fool-service.
 - [x] Replace the main Vue View toolbar's editable View ID and raw
       `QueryFilter` controls with a View-metadata-safe keyword search, while
       keeping the raw compatibility filter isolated in API Tools.
+- [x] Move legacy shell user, message polling, notification badges, and logout
+      out of API Tools into a responsive Vue topbar, reusing the View-first
+      detail/list loaders for message targets.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

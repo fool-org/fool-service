@@ -11,6 +11,7 @@ import type {
   LegacyMainResult,
   LegacyRunOperationResult,
   LegacySubMenuResult,
+  LegacyUserInfoResult,
   ListDataItem,
   ListDataValue,
   ListViewInfo,
@@ -260,6 +261,11 @@ export function legacyAuthIndex(item: LegacyAuthItem) {
   return Number(item.index ?? item.Index ?? 0) || 0;
 }
 
+export function legacyUserName(source?: LegacyUserInfoResult) {
+  const user = source?.user ?? source?.User;
+  return firstDisplayValue([user?.userName, user?.UserName, user?.loginName, user?.LoginName]);
+}
+
 export function legacyMessages(source?: GetMessageResult) {
   return firstList(source?.messages, source?.Messages);
 }
@@ -270,6 +276,14 @@ export function legacyMessageId(message: MessageInfo) {
 
 export function legacyMessageContent(message: MessageInfo) {
   return firstDisplayValue([message.messageContent, message.MessageContent]);
+}
+
+export function legacyMessageTime(message: MessageInfo) {
+  const raw = firstDisplayValue([message.gernerationTime, message.GernerationTime]);
+  const millis = raw.match(/-?\d+/)?.[0];
+  if (!millis) return raw;
+  const date = new Date(Number(millis));
+  return Number.isNaN(date.getTime()) ? raw : date.toISOString().slice(0, 19).replace("T", " ");
 }
 
 export function legacyMessageResultView(message: MessageInfo) {
@@ -290,6 +304,12 @@ export function legacyNotifyAuthNo(item: NotifyInfo) {
 
 export function legacyNotifyCount(item: NotifyInfo) {
   return Number(item.count ?? item.Count ?? 0) || 0;
+}
+
+export function legacyNotifyCountForAuth(items: NotifyInfo[], authNo: string) {
+  return items
+    .filter((item) => legacyNotifyAuthNo(item) === authNo)
+    .reduce((total, item) => total + legacyNotifyCount(item), 0);
 }
 
 export function legacyEnumValues(source?: GetEnumResult) {

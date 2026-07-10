@@ -1008,7 +1008,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
 
     def get_messages_ok() -> bool:
         token = auth_state.get("token")
-        if not token:
+        if not token or not seed_runtime_message():
             return False
         return legacy_message_fields_ok(
             post_json(f"{frontend_url}/api/v1/message/getmsg", {"Token": token}, timeout),

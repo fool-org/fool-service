@@ -16,16 +16,24 @@ export interface UserDTO {
 
 export interface LegacyUserInfo {
   loginName?: string;
+  LoginName?: string;
   userName?: string;
+  UserName?: string;
   userId?: number;
+  UserId?: number;
   companyName?: string;
+  CompanyName?: string;
   departmentName?: string;
+  DepartmentName?: string;
   userAvtarUrl?: string;
+  UserAvtarUrl?: string;
 }
 
 export interface LegacyUserInfoResult {
   token?: string;
+  Token?: string;
   user?: LegacyUserInfo;
+  User?: LegacyUserInfo;
 }
 
 export interface LegacyAuthItem {

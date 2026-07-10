@@ -7,6 +7,7 @@ import listDataTableSource from "./ListDataTable.vue?raw";
 import metadataFieldEditorSource from "./MetadataFieldEditor.vue?raw";
 import payloadSource from "./payload.ts?raw";
 import resultsPanelSource from "./ResultsPanel.vue?raw";
+import shellActionsSource from "./ShellActions.vue?raw";
 import sudokuPanelsSource from "./SudokuPanels.vue?raw";
 import viewDetailPanelSource from "./ViewDetailPanel.vue?raw";
 import viewReportPanelSource from "./ViewReportPanel.vue?raw";
@@ -36,8 +37,9 @@ describe("App defaults", () => {
     );
 
     expect(appSource).toContain('const activeSection = ref("views")');
-    expect(appSource).toContain("onMounted");
-    expect(appSource).toContain("void loadViewWorkflow()");
+    expect(appSource).toContain("onMounted(() => void initializeApp())");
+    expect(appSource).toContain("await loadInitialRoute()");
+    expect(appSource).toContain("await loadViewWorkflow()");
     expect(appSource).toContain("View workflow");
     expect(mainViewSource).toContain("Search");
     expect(mainViewSource).toContain('v-model="viewKeyword"');
@@ -270,7 +272,9 @@ describe("App defaults", () => {
     expect(appSource).toContain("window.setInterval");
     expect(appSource).toContain("pageIndex.value = 1");
     expect(appSource).toContain('activeSection.value === "views"');
-    expect(appSource).toContain("onUnmounted(stopAutoRefresh)");
+    expect(appSource).toContain("onUnmounted(() => {");
+    expect(appSource).toContain("stopAutoRefresh()");
+    expect(appSource).toContain("stopShellPolling()");
   });
 
   it("keeps metadata lookup tied to the rendered view id", () => {
@@ -414,12 +418,12 @@ describe("App defaults", () => {
 
   it("starts old Web detail and new paths through existing View-first detail flows", () => {
     expect(appSource).toContain("legacyDetailPath(window.location.pathname)");
-    expect(appSource).toContain("void loadLegacyDetailPath(detailRoute)");
+    expect(appSource).toContain("await loadLegacyDetailPath(detailRoute)");
     expect(appSource).toContain("await queryDetail(route.viewId)");
     expect(appSource).toContain("legacyItemViewPathId(window.location.pathname)");
-    expect(appSource).toContain("void loadLegacyItemView(itemViewId)");
+    expect(appSource).toContain("await loadLegacyItemView(itemViewId)");
     expect(appSource).toContain("legacyNewPath(window.location.pathname)");
-    expect(appSource).toContain("void loadLegacyNewPath(newRoute)");
+    expect(appSource).toContain("await loadLegacyNewPath(newRoute)");
     expect(appSource).toContain("await startNewObject(route.viewId, route.parentObjId, route.ownerViewId, route.property)");
     expect(appSource).toContain('async function startNewObject(viewId = Number(detailViewId.value), parentObjId = "", ownerViewId = "", property = "")');
     expect(appSource).toContain("saveNewOwnerViewId.value = ownerViewId");
@@ -522,22 +526,32 @@ describe("App defaults", () => {
     expect(appSource).not.toContain("Save Report Definition");
   });
 
-  it("exposes the legacy message polling route in the Vue console", () => {
-    expect(appSource).toContain("Messages");
+  it("moves legacy message polling into the signed-in shell", () => {
     expect(appSource).toContain("/api/v1/message/getmsg");
     expect(appSource).toContain("messageResponse");
+    expect(appSource).toContain("15_000");
+    expect(appSource).toContain("legacyMessages(messages.value.data).length");
+    expect(appSource).toContain('v-if="token"');
+    expect(shellActionsSource).toContain("Messages");
+    expect(shellActionsSource).toContain('emit("openMessage", message)');
+    expect(appSource).not.toContain("<h2>Messages</h2>");
   });
 
-  it("exposes the legacy notify count route in the Vue console", () => {
-    expect(appSource).toContain("Notify Counts");
+  it("moves legacy notify counts into shell menu badges", () => {
     expect(appSource).toContain("/api/v1/message/getnotify");
     expect(appSource).toContain("notifyResponse");
+    expect(appSource).toContain("legacyNotifyCountForAuth");
+    expect(appSource).toContain('class="nav-count"');
+    expect(appSource).not.toContain("<h2>Notify Counts</h2>");
   });
 
-  it("exposes the legacy user info route in the Vue console", () => {
-    expect(appSource).toContain("Legacy User Info");
+  it("moves legacy user info and logout into the signed-in shell", () => {
     expect(appSource).toContain("/api/v1/auth/getuserinfo");
     expect(appSource).toContain("legacyUserInfoResponse");
+    expect(appSource).toContain("legacyUserName");
+    expect(shellActionsSource).toContain("userName");
+    expect(shellActionsSource).toContain("Sign out");
+    expect(appSource).not.toContain("Legacy User Info");
   });
 
   it("exposes the legacy checkcode routes in the Vue console", () => {

@@ -114,6 +114,14 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: the Vue shell now renders the signed-in user, 15-second legacy
+  message polling, message count/popover, menu notification badges, and logout
+  in the topbar instead of separate API Tools panels. Message targets reuse
+  the existing View-first detail/list loaders, non-empty messages remain
+  available across later empty polls, and the responsive popover stays inside
+  a 390px viewport. The runtime doctor now refreshes its message seed directly
+  before the destructive `getmsg` assertion so a live Vue poll cannot consume
+  the shared smoke row first.
 - 2026-07-10: the Vue list View toolbar now follows the old `view.jade`
   search workflow without exposing editable View IDs or raw `QueryFilter`
   syntax. The main workflow sends a trimmed `keyword` only after the View
