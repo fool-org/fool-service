@@ -118,6 +118,14 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: replaced the Vue Sudoku Map coordinate table with an interactive
+  map matching the useful behavior of old `mapview.js`. The new 90-line
+  `LegacyMapPanel.vue` reuses `legacyMapMarkers` from rendered child View row
+  `Items`, lazy-loads stable Leaflet 1.9.4 only when a Map panel exists, draws
+  circle markers with safe DOM-built information popups, fits all valid
+  coordinates, and keeps a compact location list. Vite emits Leaflet as a
+  separate 150.12 kB chunk rather than adding it to the first-screen bundle;
+  `SudokuPanels.vue` drops from 140 to 126 lines.
 - 2026-07-10: removed the manual API console's remaining request staging from
   production Vue. Detail, `initnew`, `saveobj`, `savenewobj`, child collection
   mutations, and `runoperation` now build requests directly from the active
@@ -354,11 +362,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   their own `ListViewId` through the existing View/data path, while simple
   child tabs (`ListViewType=1`) remain explicit simple-item placeholders
   matching the old `groupview.js` surface without adding recursive loading.
-- 2026-07-09: Vue Sudoku `Map` panels now render marker tables from the child
-  panel's loaded View/data result. Longitude, latitude, and title are derived
-  only from legacy map `EditType` values `16`, `17`, and `18`; extra marker
-  info is projected from the same row `Items`. No map SDK or business DTO
-  binding was added.
+- 2026-07-09: Vue Sudoku `Map` marker data now comes from the child panel's
+  loaded View/data result. Longitude, latitude, and title are derived only
+  from legacy map `EditType` values `16`, `17`, and `18`; extra marker info is
+  projected from the same row `Items`. The 2026-07-10 renderer upgrade consumes
+  this same DTO-independent projection on a lazy-loaded interactive map.
 - 2026-07-09: Vue Sudoku `linechart` panels now render chart rows from the
   child panel's loaded View/data result, reusing the same legacy chart
   `EditType` (`11` axis, `12` line, `13` bar, `14` scatter) projection used by

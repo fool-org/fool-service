@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ListViewInfo, ListViewResult, QueryDataDetailResult, TableColumnInfo } from "./api";
+import LegacyMapPanel from "./LegacyMapPanel.vue";
 import ListDataTable from "./ListDataTable.vue";
 import {
   fieldTitle,
@@ -81,26 +82,11 @@ function sudokuPanelItemFields(panel: TableColumnInfo) {
           </div>
         </section>
       </div>
-      <div v-else-if="sudokuPanelKind(panel) === 'map' && sudokuPanelMarkers(panel).length" class="table-wrap sudoku-panel-body">
-        <table>
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Longitude</th>
-              <th>Latitude</th>
-              <th>Info</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="marker in sudokuPanelMarkers(panel)" :key="`${marker.longitude}-${marker.latitude}-${marker.title?.text || ''}`">
-              <td>{{ marker.title?.text || "-" }}</td>
-              <td>{{ marker.longitude }}</td>
-              <td>{{ marker.latitude }}</td>
-              <td>{{ marker.info.map((item) => `${item.label}: ${item.text}`).join("; ") || "-" }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <LegacyMapPanel
+        v-else-if="sudokuPanelKind(panel) === 'map' && sudokuPanelMarkers(panel).length"
+        class="sudoku-panel-body"
+        :markers="sudokuPanelMarkers(panel)"
+      />
       <div v-else-if="sudokuPanelKind(panel) === 'item' && sudokuPanelItemFields(panel).length" class="table-wrap sudoku-panel-body">
         <table>
           <tbody>

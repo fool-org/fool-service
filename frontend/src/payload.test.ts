@@ -3,6 +3,7 @@ import apiSource from "./api.ts?raw";
 import nginxConfig from "../nginx.conf?raw";
 import viteConfig from "../vite.config.ts?raw";
 import appSource from "./App.vue?raw";
+import legacyMapPanelSource from "./LegacyMapPanel.vue?raw";
 import listDataTableSource from "./ListDataTable.vue?raw";
 import loginPanelSource from "./LoginPanel.vue?raw";
 import metadataFieldEditorSource from "./MetadataFieldEditor.vue?raw";
@@ -156,6 +157,11 @@ describe("App defaults", () => {
   it("renders Sudoku map panels from child row map items", () => {
     expect(sudokuPanelsSource).toContain("sudokuPanelKind(panel) === 'map'");
     expect(sudokuPanelsSource).toContain("sudokuPanelMarkers(panel)");
+    expect(sudokuPanelsSource).toContain("<LegacyMapPanel");
+    expect(legacyMapPanelSource).toContain('import("leaflet")');
+    expect(legacyMapPanelSource).toContain("leaflet.circleMarker");
+    expect(legacyMapPanelSource).toContain("map.fitBounds");
+    expect(legacyMapPanelSource).toContain("title.textContent");
   });
 
   it("renders Sudoku item panels from legacy detail SimpleData", () => {
