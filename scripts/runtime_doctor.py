@@ -23,6 +23,7 @@ LEGACY_FRONTEND_PATHS = (
     ("frontend:new-path", "/new100"),
     ("frontend:new-owner-path", "/new100/1001&100&items"),
 )
+RUNTIME_SEED_ROWS = ("app", "admin", "orderlist", "sudoku", "compare", "selected", "event", "order")
 
 
 @dataclass(frozen=True)
@@ -90,6 +91,18 @@ def legacy_core_schema_ok(raw: str) -> bool:
     return set(LEGACY_CORE_SCHEMA_COLUMNS).issubset(present)
 
 
+def runtime_seed_rows_ok(raw: str) -> bool:
+    rows: dict[str, int] = {}
+    for line in raw.splitlines():
+        label, sep, count = line.rstrip("\n").partition("\t")
+        if sep:
+            try:
+                rows[label] = int(count)
+            except ValueError:
+                return False
+    return all(rows.get(label, 0) > 0 for label in RUNTIME_SEED_ROWS)
+
+
 def run_mysql_schema_checks() -> list[CheckResult]:
     query = (
         "SELECT COLUMN_NAME FROM information_schema.COLUMNS "
@@ -141,6 +154,36 @@ def run_mysql_schema_checks() -> list[CheckResult]:
         "mysql:legacy-core-schema",
         legacy_core_schema_ok(completed.stdout),
         "View-first legacy auth/app/model/view/operation/event/message/query/enum/connection schema is present",
+    ))
+    seed_query = (
+        "SELECT 'app', COUNT(*) FROM SW_APPLICATION WHERE SW_APP_APPLICATIONID='fool-service' AND SW_APP_VIEW=100 "
+        "UNION ALL SELECT 'admin', COUNT(*) FROM auth_user WHERE id='admin' "
+        "UNION ALL SELECT 'orderlist', COUNT(*) FROM fool_sys_view WHERE view_name='OrderList' "
+        "UNION ALL SELECT 'sudoku', COUNT(*) FROM fool_sys_view WHERE view_name='OrderSudoku' "
+        "UNION ALL SELECT 'compare', COUNT(*) FROM SE_COMPARETYPE WHERE SysID=7 AND SE_COMPARESHOW='包含' "
+        "UNION ALL SELECT 'selected', COUNT(*) FROM SE_SELECTEDTYPE WHERE SysID=1 AND SE_SELECTEDSHOW='原值' "
+        "UNION ALL SELECT 'event', COUNT(*) FROM SW_EVT_DEF WHERE EVTDEF_ID='00000000-0000-0000-0000-000000000100' "
+        "UNION ALL SELECT 'order', COUNT(*) FROM market_order WHERE order_id=1001 AND order_symbol='BTC-USDT'"
+    )
+    try:
+        completed = subprocess.run(
+            [
+                "docker", "compose", "exec", "-T", "mysql",
+                "mysql", "--default-character-set=utf8mb4", "-uroot", "-pPa88word", "-N", "-B", "car_wash",
+                "-e", seed_query,
+            ],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError) as exc:
+        results.append(CheckResult("mysql:runtime-seed-data", False, f"seed row check failed: {exc}"))
+        return results
+    results.append(CheckResult(
+        "mysql:runtime-seed-data",
+        runtime_seed_rows_ok(completed.stdout),
+        "Docker runtime seed rows are present",
     ))
     return results
 

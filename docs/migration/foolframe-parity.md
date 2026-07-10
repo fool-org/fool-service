@@ -114,6 +114,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: the Docker runtime doctor now proves the running `car_wash`
+  database has the seed rows required by the Vue/runtime smoke workflow:
+  app shell, admin user, Order list/Sudoku views, query compare/select
+  catalogs, event definition, and BTC smoke order. The live MySQL volume was
+  repaired by replaying the existing idempotent `docker/mysql/init/010-query.sql`,
+  and the seed-row probe pins the MySQL client to `utf8mb4` so Chinese query
+  catalog labels are checked correctly.
 - 2026-07-10: the repository harness now also guards key Docker `car_wash`
   seed markers for the Vue/runtime smoke workflow, including the app shell,
   admin/menu seed, Order list/Sudoku views, query catalogs, event definition,

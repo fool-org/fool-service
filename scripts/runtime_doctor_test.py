@@ -33,6 +33,7 @@ from runtime_doctor import (
     response_list_field_present,
     row_object_id,
     runoperation_result_aliases_ok,
+    runtime_seed_rows_ok,
     runtime_report_cols,
     sudoku_view_metadata_ok,
     view_column_key,
@@ -489,6 +490,13 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertFalse(schema_ok(raw.replace("SE_SELECTEDTYPE_PROPERTYINDEX\tPROPERTYTYPE_VALUE", "")))
         self.assertFalse(schema_ok(raw.replace("fool_sys_model_enum\towner", "")))
         self.assertFalse(schema_ok(raw.replace("SW_SYS_CON\tSW_SYS_CON_INITALCATALOG\n", "")))
+
+    def test_runtime_seed_rows_require_smoke_catalogs(self) -> None:
+        raw = "\n".join(f"{label}\t1" for label in runtime_doctor.RUNTIME_SEED_ROWS)
+
+        self.assertTrue(runtime_seed_rows_ok(raw))
+        self.assertFalse(runtime_seed_rows_ok(raw.replace("compare\t1", "compare\t0")))
+        self.assertFalse(runtime_seed_rows_ok(raw.replace("selected\t1\n", "")))
 
     def test_common_response_list_requires_success_and_nonempty_list(self) -> None:
         self.assertTrue(common_response_list({"code": 0, "data": {"items": [1]}}, "items"))

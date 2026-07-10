@@ -691,6 +691,8 @@ explicitly named as authoritative for fool-service.
       harness.
 - [x] Guard key Docker `car_wash` seed markers needed by the Vue/runtime smoke
       workflow.
+- [x] Guard Docker runtime seed rows in the runtime doctor, including the
+      query catalogs that old MySQL volumes can miss.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
