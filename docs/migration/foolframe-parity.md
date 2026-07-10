@@ -118,6 +118,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: removed the second identical `spring-jdbc` declaration from
+  `fool-dao/pom.xml`. The dependency remains compile-scoped through its
+  original declaration; the five-module Java 17 reactor package and all 57
+  `fool-common` / `fool-dao` tests pass without Maven's duplicate-dependency
+  model warning.
 - 2026-07-10: audited backend placeholder implementations against their live
   call sites and the old FoolFrame source, then deleted the unused 210-line
   `SelectStream` class. Every method in that class returned `null`, an empty

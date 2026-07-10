@@ -742,6 +742,8 @@ explicitly named as authoritative for fool-service.
 - [x] Delete the unused Java `SelectStream` placeholder after proving it has no
       call sites and no FoolFrame counterpart; use the JDK `Stream` API for any
       future stream workflow instead of maintaining a second empty proxy.
+- [x] Remove the duplicate compile-scoped `spring-jdbc` declaration from
+      `fool-dao` and prove the Java 17 module reactor and tests still pass.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
