@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import Button from "primevue/button";
+import Column from "primevue/column";
+import DataTable from "primevue/datatable";
 import type { ListDataItem, OperationInfo, TableColumnInfo } from "./api";
 import {
   columnKey,
@@ -8,11 +11,10 @@ import {
   operationTargetViewId,
   rowFormatClass,
   rowObjectId,
-  rowRenderKey,
   rowValue
 } from "./viewWorkflow";
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   columns: TableColumnInfo[];
   defaultActionLabel?: string;
   disabled: boolean;
@@ -29,43 +31,59 @@ withDefaults(defineProps<{
 const emit = defineEmits<{
   select: [row: ListDataItem, viewId?: number];
 }>();
+
+function tableRowClass(row: ListDataItem) {
+  return [
+    rowObjectId(row, props.columns) === props.selectedObjectId ? "selected" : "",
+    rowFormatClass(row)
+  ].filter(Boolean).join(" ");
+}
 </script>
 
 <template>
-  <table v-if="columns.length">
-    <thead>
-      <tr>
-        <th v-for="column in columns" :key="columnKey(column)">
-          {{ columnTitle(column) }}
-        </th>
-        <th v-if="rowOperations.length || showDefaultAction"></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr
-        v-for="(row, rowIndex) in rows"
-        :key="rowRenderKey(row, rowIndex, columns)"
-        :class="[{ selected: rowObjectId(row, columns) === selectedObjectId }, rowFormatClass(row)]"
-      >
-        <td v-for="column in columns" :key="columnKey(column)">
-          {{ rowValue(row, column) }}
-        </td>
-        <td v-if="rowOperations.length || showDefaultAction">
-          <button
+  <DataTable
+    v-if="columns.length"
+    class="metadata-data-table"
+    :value="rows"
+    :row-class="tableRowClass"
+    scrollable
+    striped-rows
+    size="small"
+  >
+    <Column v-for="column in columns" :key="columnKey(column)" :header="columnTitle(column)">
+      <template #body="{ data: row }">
+        {{ rowValue(row, column) }}
+      </template>
+    </Column>
+    <Column v-if="rowOperations.length || showDefaultAction" header="Actions" frozen align-frozen="right">
+      <template #body="{ data: row }">
+        <div class="table-actions">
+          <Button
             v-for="operation in rowOperations"
             :key="operationKey(operation)"
             type="button"
             :disabled="disabled || operationTargetViewId(operation) <= 0"
+            :label="operationLabel(operation)"
+            size="small"
+            severity="secondary"
+            text
             @click="emit('select', row, operationTargetViewId(operation))"
-          >
-            {{ operationLabel(operation) }}
-          </button>
-          <button v-if="showDefaultAction" type="button" :disabled="disabled" @click="emit('select', row)">
-            {{ defaultActionLabel }}
-          </button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+          />
+          <Button
+            v-if="showDefaultAction"
+            type="button"
+            :disabled="disabled"
+            :label="defaultActionLabel"
+            icon="pi pi-arrow-right"
+            icon-pos="right"
+            size="small"
+            text
+            @click="emit('select', row)"
+          />
+        </div>
+      </template>
+    </Column>
+    <template #empty><div class="empty-state compact">No rows.</div></template>
+  </DataTable>
   <div v-else class="empty-state">Load a view to start.</div>
 </template>

@@ -1,5 +1,13 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import Button from "primevue/button";
+import InputNumber from "primevue/inputnumber";
+import InputText from "primevue/inputtext";
+import Message from "primevue/message";
+import Paginator, { type PageState } from "primevue/paginator";
+import Tab from "primevue/tab";
+import TabList from "primevue/tablist";
+import Tabs from "primevue/tabs";
 import type { ListDataItem, ListViewInfo, ListViewResult, QueryDataDetailResult } from "./api";
 import LegacyChartPanel from "./LegacyChartPanel.vue";
 import ListDataTable from "./ListDataTable.vue";
@@ -64,6 +72,10 @@ const resultTotalItems = computed(() => listTotalItems(props.data));
 const resultTotalPages = computed(() => listTotalPages(props.data));
 const resultFreshTime = computed(() => listFreshTime(props.data));
 const defaultNewViewId = computed(() => viewDetailViewId(props.view, currentViewId.value));
+
+function changePage(event: PageState) {
+  emit("page", event.page + 1);
+}
 </script>
 
 <template>
@@ -75,34 +87,36 @@ const defaultNewViewId = computed(() => viewDetailViewId(props.view, currentView
     <div class="workflow-toolbar">
       <label>
         Search
-        <input v-model="keyword" type="search" @keyup.enter="emit('search')" />
+        <InputText v-model="keyword" type="search" placeholder="Search this view" fluid @keyup.enter="emit('search')" />
       </label>
       <label>
         Page size
-        <input v-model.number="pageSize" min="1" type="number" />
+        <InputNumber v-model="pageSize" :min="1" :max="200" :use-grouping="false" fluid />
       </label>
-      <button class="primary" type="button" :disabled="disabled" @click="emit('search')">Search</button>
-      <button
+      <Button type="button" label="Search" icon="pi pi-search" :disabled="disabled" @click="emit('search')" />
+      <Button
         v-for="operation in createItems"
         :key="operationKey(operation)"
         type="button"
         :disabled="disabled"
+        :label="operationLabel(operation)"
+        icon="pi pi-plus"
+        severity="secondary"
+        outlined
         @click="emit('newObject', operationTargetViewId(operation) || currentViewId)"
-      >
-        {{ operationLabel(operation) }}
-      </button>
-      <button v-if="!createItems.length" type="button" :disabled="disabled" @click="emit('newObject', defaultNewViewId)">
-        New Row
-      </button>
-      <button type="button" :disabled="disabled || !currentViewId" @click="emit('toggleReport')">Report</button>
+      />
+      <Button v-if="!createItems.length" type="button" label="New Row" icon="pi pi-plus" severity="secondary" outlined :disabled="disabled" @click="emit('newObject', defaultNewViewId)" />
+      <Button type="button" label="Report" icon="pi pi-chart-bar" severity="secondary" outlined :disabled="disabled || !currentViewId" @click="emit('toggleReport')" />
     </div>
 
-    <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+    <Message v-if="errorMessage" severity="error" :closable="false">{{ errorMessage }}</Message>
 
-    <div v-if="chartView" class="view-template-tabs" role="tablist">
-      <button type="button" :class="{ active: activePane === 'table' }" @click="activePane = 'table'">数据</button>
-      <button type="button" :class="{ active: activePane === 'chart' }" @click="activePane = 'chart'">图表</button>
-    </div>
+    <Tabs v-if="chartView" v-model:value="activePane" class="view-template-tabs">
+      <TabList>
+        <Tab value="table"><i class="pi pi-table"></i> 数据</Tab>
+        <Tab value="chart"><i class="pi pi-chart-line"></i> 图表</Tab>
+      </TabList>
+    </Tabs>
 
     <SudokuPanels v-if="sudokuView" :disabled="disabled" :panel-data="panelData" :panels="viewColumns(view)" />
 
@@ -118,17 +132,17 @@ const defaultNewViewId = computed(() => viewDetailViewId(props.view, currentView
     </div>
     <LegacyChartPanel v-if="chartView && activePane === 'chart' && chartData.series.length" :data="chartData" />
     <div v-else-if="chartView && activePane === 'chart'" class="empty-state compact">No chart data.</div>
-    <div v-if="rows.length || resultTotalItems || resultFreshTime" class="button-row">
-      <button type="button" :disabled="disabled || resultPageIndex <= 1" @click="emit('page', resultPageIndex - 1)">Previous</button>
-      <span>Page {{ resultPageIndex }} / {{ resultTotalPages || 1 }} · {{ resultTotalItems }} rows</span>
-      <button
-        type="button"
-        :disabled="disabled || resultTotalPages === 0 || resultPageIndex >= resultTotalPages"
-        @click="emit('page', resultPageIndex + 1)"
-      >
-        Next
-      </button>
-      <span v-if="resultFreshTime">Updated {{ resultFreshTime }}</span>
+    <div v-if="rows.length || resultTotalItems || resultFreshTime" class="list-pagination">
+      <Paginator
+        :first="Math.max(0, (resultPageIndex - 1) * pageSize)"
+        :rows="pageSize"
+        :total-records="resultTotalItems"
+        :disabled="disabled"
+        template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+        current-page-report-template="Page {currentPage} of {totalPages} · {totalRecords} rows"
+        @page="changePage"
+      />
+      <span v-if="resultFreshTime" class="fresh-time"><i class="pi pi-clock"></i> Updated {{ resultFreshTime }}</span>
     </div>
   </article>
 </template>

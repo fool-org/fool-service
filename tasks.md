@@ -13,7 +13,7 @@ item must land with its matching implementation and validation evidence.
 - [x] Upgrade login and the authenticated application shell, including the
       narrow-screen menu Drawer, while preserving auth, menu, message, and
       logout behavior.
-- [ ] Upgrade the shared View list table, toolbar, tabs, and paginator without
+- [x] Upgrade the shared View list table, toolbar, tabs, and paginator without
       changing metadata-derived columns or backend pagination.
 - [ ] Upgrade detail fields, child-row controls, lookup results, report
       builder/results, and View-specific containers without changing legacy

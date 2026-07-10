@@ -73,6 +73,8 @@ describe("App defaults", () => {
     expect(appSource).not.toContain("rowValue(row, column)");
     expect(listDataTableSource).toContain("defaultActionLabel");
     expect(listDataTableSource).toContain("showDefaultAction");
+    expect(listDataTableSource).toContain("<DataTable");
+    expect(listDataTableSource).toContain("<Column v-for");
   });
 
   it("does not render data rows before View columns exist", () => {
@@ -119,8 +121,9 @@ describe("App defaults", () => {
   it("renders list paging from legacy querydata totals", () => {
     expect(viewListPanelSource).toContain("resultTotalItems");
     expect(viewListPanelSource).toContain("resultFreshTime");
-    expect(viewListPanelSource).toContain("emit('page', resultPageIndex + 1)");
-    expect(viewListPanelSource).toContain("Page {{ resultPageIndex }} / {{ resultTotalPages || 1 }}");
+    expect(viewListPanelSource).toContain("event.page + 1");
+    expect(viewListPanelSource).toContain("<Paginator");
+    expect(viewListPanelSource).toContain("current-page-report-template");
     expect(viewListPanelSource).toContain("Updated {{ resultFreshTime }}");
   });
 
@@ -128,7 +131,8 @@ describe("App defaults", () => {
     expect(appSource).toContain("viewUsesChartTemplate(viewResponse.value?.data)");
     expect(viewListPanelSource).toContain("legacyChartData(rows.value)");
     expect(viewListPanelSource).toContain("activePane");
-    expect(viewListPanelSource).toContain('class="view-template-tabs"');
+    expect(viewListPanelSource).toContain("<Tabs");
+    expect(viewListPanelSource).toContain("<Tab value=\"chart\"");
     expect(viewListPanelSource).toContain("<LegacyChartPanel");
     expect(legacyChartPanelSource).toContain('class="legacy-chart"');
     expect(legacyChartPanelSource).toContain("<polyline");
