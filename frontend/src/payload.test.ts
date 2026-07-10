@@ -394,6 +394,8 @@ describe("App defaults", () => {
     expect(appSource).toContain("legacyDetailPath(window.location.pathname)");
     expect(appSource).toContain("void loadLegacyDetailPath(detailRoute)");
     expect(appSource).toContain("await queryDetail(route.viewId)");
+    expect(appSource).toContain("legacyItemViewPathId(window.location.pathname)");
+    expect(appSource).toContain("void loadLegacyDetailPath({ viewId: itemViewId })");
     expect(appSource).toContain("legacyNewPath(window.location.pathname)");
     expect(appSource).toContain("void loadLegacyNewPath(newRoute)");
     expect(appSource).toContain("await startNewObject(route.viewId, route.parentObjId, route.ownerViewId, route.property)");

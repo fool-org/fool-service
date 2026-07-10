@@ -57,6 +57,7 @@ import {
   legacyInitAppCheckCode,
   legacyInitAppDbId,
   legacyInputQueryItems,
+  legacyItemViewPathId,
   legacyItemDetailFields,
   legacyMapMarkers,
   legacyMainMenuItems,
@@ -939,6 +940,9 @@ describe("view workflow helpers", () => {
   it("reads the old FoolFrame Web detail and new routes", () => {
     expect(legacyDetailPath("/view100/1001")).toEqual({ viewId: 100, objectId: "1001" });
     expect(legacyDetailPath("/view100")).toBeNull();
+    expect(legacyItemViewPathId("/itemview100")).toBe(100);
+    expect(legacyItemViewPathId("/itemview100/")).toBe(100);
+    expect(legacyItemViewPathId("/view100")).toBe(0);
     expect(legacyNewPath("/new200")).toEqual({ viewId: 200, parentObjId: "", ownerViewId: "", property: "" });
     expect(legacyNewPath("/new200/1001&100&items")).toEqual({
       viewId: 200,

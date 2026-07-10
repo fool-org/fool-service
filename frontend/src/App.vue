@@ -85,6 +85,7 @@ import {
   legacyInputQueryItems,
   legacyChartData,
   legacyDetailPath,
+  legacyItemViewPathId,
   legacyMainMenuItems,
   legacyMessageContent,
   legacyMessageId,
@@ -874,16 +875,17 @@ async function loadViewWorkflow(resetPage = false) {
   }
 }
 
-async function loadLegacyDetailPath(route: { viewId: number; objectId: string }) {
+async function loadLegacyDetailPath(route: { viewId: number; objectId?: string }) {
   stopAutoRefresh();
   activeSection.value = "views";
   applyRequestedViewId(route.viewId);
   if (!(await ensureLegacyShell())) return;
+  const objectId = route.objectId || "";
   isCreatingObject.value = false;
-  selectedObjectId.value = route.objectId;
-  detailObjId.value = route.objectId;
-  saveObjId.value = route.objectId;
-  operationObjectId.value = route.objectId;
+  selectedObjectId.value = objectId;
+  detailObjId.value = objectId;
+  saveObjId.value = objectId;
+  operationObjectId.value = objectId;
   await queryDetail(route.viewId);
 }
 
@@ -899,6 +901,11 @@ onMounted(() => {
   const detailRoute = legacyDetailPath(window.location.pathname);
   if (detailRoute) {
     void loadLegacyDetailPath(detailRoute);
+    return;
+  }
+  const itemViewId = legacyItemViewPathId(window.location.pathname);
+  if (itemViewId) {
+    void loadLegacyDetailPath({ viewId: itemViewId });
     return;
   }
   const newRoute = legacyNewPath(window.location.pathname);

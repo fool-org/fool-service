@@ -640,6 +640,11 @@ export function legacyDetailPath(pathname: string) {
   return viewId && match?.[2] ? { viewId, objectId: match[2] } : null;
 }
 
+export function legacyItemViewPathId(pathname: string) {
+  const match = pathname.match(/^\/itemview(\d+)\/?$/);
+  return match ? Number(match[1]) || 0 : 0;
+}
+
 export function legacyNewPath(pathname: string) {
   const match = pathname.match(/^\/new(\d+)(?:\/([^&/]*)&([^&/]*)&([^/]*))?\/?$/);
   const viewId = match ? Number(match[1]) || 0 : 0;

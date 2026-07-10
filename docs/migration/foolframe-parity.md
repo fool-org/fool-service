@@ -114,6 +114,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: Vue startup now recognizes the old FoolFrame Web read-item
+  route `/itemview:id`. The path reuses the existing detail startup flow with
+  an empty object id, so rendering still goes through `getreaditemview(ViewId)`
+  before `querydatadetail(ViewId, ObjId="")`.
 - 2026-07-10: Vue startup now also recognizes the old FoolFrame Web
   detail/new routes `/view:id/:objid`, `/new:id`, and
   `/new:id/:objid&:ownerviewid&:prpid`. Detail routes load
