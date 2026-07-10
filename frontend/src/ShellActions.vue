@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import Badge from "primevue/badge";
+import Button from "primevue/button";
+import Message from "primevue/message";
+import Popover from "primevue/popover";
 import type { MessageInfo } from "./api";
 import {
   legacyMessageContent,
@@ -21,52 +25,64 @@ const emit = defineEmits<{
   refresh: [];
 }>();
 const open = ref(false);
+const messagePopover = ref();
+
+function toggleMessages(event: Event) {
+  messagePopover.value?.toggle(event);
+}
 
 function canOpenMessage(message: MessageInfo) {
   return legacyMessageResultView(message) > 0;
 }
 
 function openMessage(message: MessageInfo) {
-  open.value = false;
+  messagePopover.value?.hide();
   emit("openMessage", message);
 }
 </script>
 
 <template>
   <div class="shell-actions">
-    <button
-      type="button"
+    <Button
       :aria-expanded="open"
-      :class="{ active: open }"
       :disabled="pending"
-      @click="open = !open"
+      label="Messages"
+      icon="pi pi-bell"
+      severity="secondary"
+      text
+      @click="toggleMessages"
     >
-      Messages
-      <strong v-if="messages.length" class="message-count">{{ messages.length }}</strong>
-    </button>
-    <span class="shell-user">{{ userName || "Signed in" }}</span>
-    <button type="button" :disabled="pending" @click="emit('logout')">Sign out</button>
+      <Badge v-if="messages.length" :value="messages.length" severity="danger" />
+    </Button>
+    <span class="shell-user"><i class="pi pi-user"></i>{{ userName || "Signed in" }}</span>
+    <Button type="button" label="Sign out" icon="pi pi-sign-out" severity="secondary" text :disabled="pending" @click="emit('logout')" />
 
-    <section v-if="open" class="message-popover" aria-label="Messages">
+    <Popover ref="messagePopover" class="message-popover" aria-label="Messages" @show="open = true" @hide="open = false">
       <header>
         <h2>Messages</h2>
         <div>
-          <button type="button" :disabled="pending" @click="emit('refresh')">Refresh</button>
-          <button type="button" title="Close messages" @click="open = false">&times;</button>
+          <Button type="button" label="Refresh" icon="pi pi-refresh" size="small" severity="secondary" text :disabled="pending" @click="emit('refresh')" />
+          <Button type="button" icon="pi pi-times" size="small" severity="secondary" text title="Close messages" aria-label="Close messages" @click="messagePopover?.hide()" />
         </div>
       </header>
-      <p v-if="errorMessage" class="shell-error">{{ errorMessage }}</p>
+      <Message v-if="errorMessage" severity="error" :closable="false">{{ errorMessage }}</Message>
       <ul v-if="messages.length">
         <li v-for="message in messages" :key="legacyMessageId(message)">
           <time>{{ legacyMessageTime(message) }}</time>
           <p>{{ legacyMessageContent(message) }}</p>
-          <button v-if="canOpenMessage(message)" type="button" @click="openMessage(message)">
-            Open {{ legacyMessageResultKey(message) }}
-          </button>
+          <Button
+            v-if="canOpenMessage(message)"
+            type="button"
+            :label="`Open ${legacyMessageResultKey(message)}`"
+            icon="pi pi-arrow-up-right"
+            size="small"
+            text
+            @click="openMessage(message)"
+          />
         </li>
       </ul>
       <p v-else class="empty-message">No messages.</p>
-    </section>
+    </Popover>
   </div>
 </template>
 
@@ -80,32 +96,17 @@ function openMessage(message: MessageInfo) {
   justify-content: flex-end;
 }
 
-.shell-actions > button {
-  min-height: 34px;
-  padding: 0 10px;
-}
-
-.shell-actions > button.active {
-  border-color: #0f766e;
-  color: #0f766e;
-}
-
-.message-count {
-  display: inline-grid;
-  min-width: 20px;
-  height: 20px;
+.shell-actions :deep(.p-button .p-badge) {
   margin-left: 6px;
-  place-items: center;
-  border-radius: 10px;
-  background: #b42318;
-  color: #ffffff;
-  font-size: 0.72rem;
 }
 
 .shell-user {
   max-width: 180px;
   overflow: hidden;
-  color: #465563;
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  color: #334155;
   font-size: 0.84rem;
   font-weight: 750;
   text-overflow: ellipsis;
@@ -113,15 +114,7 @@ function openMessage(message: MessageInfo) {
 }
 
 .message-popover {
-  position: absolute;
-  z-index: 20;
-  top: calc(100% + 8px);
-  right: 0;
   width: min(380px, calc(100vw - 32px));
-  border: 1px solid #cbd5df;
-  border-radius: 6px;
-  background: #ffffff;
-  box-shadow: 0 14px 32px rgba(23, 33, 43, 0.16);
 }
 
 .message-popover header {
@@ -130,7 +123,7 @@ function openMessage(message: MessageInfo) {
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid #e2e8f0;
-  padding: 10px 12px;
+  padding-bottom: 10px;
 }
 
 .message-popover header div {
@@ -141,11 +134,6 @@ function openMessage(message: MessageInfo) {
 .message-popover h2 {
   margin: 0;
   font-size: 0.94rem;
-}
-
-.message-popover header button {
-  min-height: 32px;
-  padding: 0 9px;
 }
 
 .message-popover ul {
@@ -165,7 +153,7 @@ function openMessage(message: MessageInfo) {
 }
 
 .message-popover time {
-  color: #647484;
+  color: #64748b;
   font-size: 0.72rem;
 }
 
@@ -181,14 +169,9 @@ function openMessage(message: MessageInfo) {
   align-self: center;
 }
 
-.shell-error,
 .empty-message {
   padding: 12px;
-  color: #647484;
-}
-
-.shell-error {
-  color: #b42318;
+  color: #64748b;
 }
 
 @media (max-width: 640px) {
@@ -197,10 +180,5 @@ function openMessage(message: MessageInfo) {
     justify-content: flex-start;
   }
 
-  .message-popover {
-    right: auto;
-    left: 0;
-    width: calc(100vw - 28px);
-  }
 }
 </style>

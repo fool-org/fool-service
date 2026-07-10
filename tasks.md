@@ -10,7 +10,7 @@ item must land with its matching implementation and validation evidence.
 
 - [x] Establish the PrimeVue/Nora design tokens, direct-import dependency
       policy, baseline screenshots, and responsive acceptance contract.
-- [ ] Upgrade login and the authenticated application shell, including the
+- [x] Upgrade login and the authenticated application shell, including the
       narrow-screen menu Drawer, while preserving auth, menu, message, and
       logout behavior.
 - [ ] Upgrade the shared View list table, toolbar, tabs, and paginator without

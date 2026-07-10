@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue";
+import Button from "primevue/button";
+import Drawer from "primevue/drawer";
+import Tag from "primevue/tag";
 import {
   type CheckCodeResult,
   type CommonResponse,
@@ -103,6 +106,7 @@ import {
 } from "./payload";
 
 const token = ref(localStorage.getItem("fool-service-token") || "");
+const mobileMenuOpen = ref(false);
 const userId = ref("");
 const password = ref("");
 const legacyAppId = "fool-service";
@@ -350,6 +354,16 @@ async function openPrimarySection() {
   if (isMetadataOnlyView.value || isStandaloneDetail.value) {
     await loadViewWorkflow();
   }
+}
+
+async function openMobilePrimarySection() {
+  mobileMenuOpen.value = false;
+  await openPrimarySection();
+}
+
+async function openMobileShellMenu(item: LegacyAuthItem) {
+  mobileMenuOpen.value = false;
+  await openShellMenu(item);
 }
 
 function shellNotifyCount(item: LegacyAuthItem) {
@@ -965,17 +979,22 @@ function syncDetailDrafts() {
 
     <main class="workspace">
       <header class="topbar">
-        <div>
+        <div class="topbar-title">
+          <Button class="mobile-menu-button" icon="pi pi-bars" severity="secondary" text aria-label="Open navigation" @click="mobileMenuOpen = true" />
+          <div>
           <h1>{{ pageViewTitle }}</h1>
           <p>{{ pageViewName }}</p>
+          </div>
         </div>
         <div class="topbar-side">
           <div class="status-strip">
-            <div v-for="service in services" :key="service.label" class="status-item">
-              <span class="status-dot" :class="service.state"></span>
-              <span>{{ service.label }}</span>
-              <strong>{{ service.value }}</strong>
-            </div>
+            <Tag
+              v-for="service in services"
+              :key="service.label"
+              :severity="service.state === 'ready' ? 'success' : 'warn'"
+              :value="`${service.label} · ${service.value}`"
+              rounded
+            />
           </div>
           <ShellActions
             v-if="token"
@@ -989,6 +1008,32 @@ function syncDetailDrafts() {
           />
         </div>
       </header>
+
+      <Drawer v-model:visible="mobileMenuOpen" position="left" class="mobile-navigation" header="Navigation">
+        <div class="brand drawer-brand">
+          <span class="brand-mark">F</span>
+          <div>
+            <strong>Fool Service</strong>
+            <small>FoolFrame migration</small>
+          </div>
+        </div>
+        <nav class="nav-list" aria-label="Mobile main">
+          <button class="active" type="button" @click="openMobilePrimarySection">Views</button>
+        </nav>
+        <nav v-if="shellMenuItems.length" class="nav-list" aria-label="Mobile FoolFrame menu">
+          <button
+            v-for="item in shellMenuItems"
+            :key="legacyAuthNo(item) || legacyAuthText(item)"
+            type="button"
+            :class="{ active: legacyAuthViewId(item) === currentViewId }"
+            :disabled="Boolean(pendingAction)"
+            @click="openMobileShellMenu(item)"
+          >
+            <span>{{ legacyAuthText(item) || legacyAuthNo(item) }}</span>
+            <strong v-if="shellNotifyCount(item)" class="nav-count">{{ shellNotifyCount(item) }}</strong>
+          </button>
+        </nav>
+      </Drawer>
 
       <section class="view-workflow" :class="{ 'metadata-only': isMetadataOnlyView || isStandaloneDetail }" aria-label="View workflow">
         <ViewListPanel
