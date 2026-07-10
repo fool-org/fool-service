@@ -114,6 +114,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: the repository harness now also guards key Docker `car_wash`
+  seed markers for the Vue/runtime smoke workflow, including the app shell,
+  admin/menu seed, Order list/Sudoku views, query catalogs, event definition,
+  and BTC order row.
 - 2026-07-10: the repository harness now guards the current Docker
   `car_wash` init script set (`001-market-order` through `010-query`) so a
   schema seed slice cannot be dropped while runtime-doctor schema columns

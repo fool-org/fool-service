@@ -48,6 +48,7 @@ class SourceFileSizeContractTest(unittest.TestCase):
             report = HarnessReport(root=root)
             original_legacy = harness.LEGACY_CORE_SCHEMA_COLUMNS
             original_market = harness.MARKET_SYMBOLS_COLUMNS
+            original_markers = harness.REQUIRED_DOCKER_INIT_SQL_MARKERS
 
             try:
                 harness.LEGACY_CORE_SCHEMA_COLUMNS = (
@@ -55,10 +56,12 @@ class SourceFileSizeContractTest(unittest.TestCase):
                     ("SW_SYS_MODEL", "MODEL_PARENT"),
                 )
                 harness.MARKET_SYMBOLS_COLUMNS = ()
+                harness.REQUIRED_DOCKER_INIT_SQL_MARKERS = ()
                 harness.check_docker_init_schema_contract(root, report)
             finally:
                 harness.LEGACY_CORE_SCHEMA_COLUMNS = original_legacy
                 harness.MARKET_SYMBOLS_COLUMNS = original_market
+                harness.REQUIRED_DOCKER_INIT_SQL_MARKERS = original_markers
 
             self.assertEqual(
                 [
@@ -77,17 +80,47 @@ class SourceFileSizeContractTest(unittest.TestCase):
             report = HarnessReport(root=root)
             original_legacy = harness.LEGACY_CORE_SCHEMA_COLUMNS
             original_market = harness.MARKET_SYMBOLS_COLUMNS
+            original_markers = harness.REQUIRED_DOCKER_INIT_SQL_MARKERS
 
             try:
                 harness.LEGACY_CORE_SCHEMA_COLUMNS = ()
                 harness.MARKET_SYMBOLS_COLUMNS = ()
+                harness.REQUIRED_DOCKER_INIT_SQL_MARKERS = ()
                 harness.check_docker_init_schema_contract(root, report)
             finally:
                 harness.LEGACY_CORE_SCHEMA_COLUMNS = original_legacy
                 harness.MARKET_SYMBOLS_COLUMNS = original_market
+                harness.REQUIRED_DOCKER_INIT_SQL_MARKERS = original_markers
 
             self.assertIn(
                 "Missing Docker init SQL file: docker/mysql/init/010-query.sql",
+                report.errors,
+            )
+
+    def test_reports_missing_required_docker_init_seed_marker(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            init_dir = root / "docker" / "mysql" / "init"
+            init_dir.mkdir(parents=True)
+            for file_name in harness.REQUIRED_DOCKER_INIT_SQL_FILES:
+                (init_dir / file_name).write_text("", encoding="utf-8")
+            report = HarnessReport(root=root)
+            original_legacy = harness.LEGACY_CORE_SCHEMA_COLUMNS
+            original_market = harness.MARKET_SYMBOLS_COLUMNS
+            original_markers = harness.REQUIRED_DOCKER_INIT_SQL_MARKERS
+
+            try:
+                harness.LEGACY_CORE_SCHEMA_COLUMNS = ()
+                harness.MARKET_SYMBOLS_COLUMNS = ()
+                harness.REQUIRED_DOCKER_INIT_SQL_MARKERS = ("'OrderSudoku'",)
+                harness.check_docker_init_schema_contract(root, report)
+            finally:
+                harness.LEGACY_CORE_SCHEMA_COLUMNS = original_legacy
+                harness.MARKET_SYMBOLS_COLUMNS = original_market
+                harness.REQUIRED_DOCKER_INIT_SQL_MARKERS = original_markers
+
+            self.assertEqual(
+                ["Docker init SQL missing required seed marker: 'OrderSudoku'"],
                 report.errors,
             )
 

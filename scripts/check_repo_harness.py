@@ -80,6 +80,16 @@ REQUIRED_DOCKER_INIT_SQL_FILES = (
     "008-fh-java-market-symbols.sql",
     "010-query.sql",
 )
+REQUIRED_DOCKER_INIT_SQL_MARKERS = (
+    "BTC-USDT",
+    "'fool-service', 'fool-service', 0",
+    "'00000000-0000-0000-0000-000000000100'",
+    "VALUES ('admin', '', 'Admin'",
+    "('0101', 'OrderList', 1, 'OrderList')",
+    "'OrderSudoku'",
+    "INSERT INTO `SE_COMPARETYPE`",
+    "INSERT INTO `SE_SELECTEDTYPE`",
+)
 CREATE_TABLE_RE = re.compile(
     r"CREATE TABLE IF NOT EXISTS\s+`([^`]+)`\s*\((.*?)\)\s*(?:ENGINE\b[^;]*)?;",
     re.IGNORECASE | re.DOTALL,
@@ -396,6 +406,9 @@ def check_docker_init_schema_contract(root: Path, report: HarnessReport) -> None
         relative_path = path.relative_to(root).as_posix()
         report.add_checked(relative_path)
         sql_text += path.read_text(encoding="utf-8", errors="ignore") + "\n"
+    for marker in REQUIRED_DOCKER_INIT_SQL_MARKERS:
+        if marker not in sql_text:
+            report.errors.append(f"Docker init SQL missing required seed marker: {marker}")
 
     columns = docker_init_schema_columns(sql_text)
     required_columns = LEGACY_CORE_SCHEMA_COLUMNS + tuple(

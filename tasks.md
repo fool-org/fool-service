@@ -689,6 +689,8 @@ explicitly named as authoritative for fool-service.
 - [x] Guard old FoolFrame Web Vue deep links in the Docker runtime doctor.
 - [x] Guard the current Docker `car_wash` init SQL slice set in the repository
       harness.
+- [x] Guard key Docker `car_wash` seed markers needed by the Vue/runtime smoke
+      workflow.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
