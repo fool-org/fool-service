@@ -680,6 +680,21 @@ def report_model_columns(payload: dict[str, Any]) -> list[dict[str, Any]]:
     return [column for column in columns if isinstance(column, dict)] if isinstance(columns, list) else []
 
 
+def report_model_catalogs_ok(columns: list[dict[str, Any]]) -> bool:
+    for column in columns:
+        compare_types = column.get("compareTypes") or column.get("CompareTypes") or []
+        query_types = column.get("queryTypes") or column.get("QueryTypes") or []
+        if option_list_has_id(compare_types) and option_list_has_id(query_types):
+            return True
+    return False
+
+
+def option_list_has_id(options: Any) -> bool:
+    if not isinstance(options, list):
+        return False
+    return any(isinstance(option, dict) and bool(option.get("id") or option.get("ID")) for option in options)
+
+
 def runtime_report_cols(columns: list[dict[str, Any]]) -> list[dict[str, Any]]:
     result: list[dict[str, Any]] = []
     for index, column in enumerate(columns[:2], start=1):
@@ -1606,7 +1621,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         columns = report_model_columns(payload)
         if columns:
             view_state["reportColumns"] = columns
-        return bool(columns) and response_list_field_present(payload, "Cols")
+        return bool(columns) and response_list_field_present(payload, "Cols") and report_model_catalogs_ok(columns)
 
     def get_report_model_legacy_web_payload_ok() -> bool:
         view_id = loaded_list_view_id()
@@ -1617,7 +1632,8 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             {"viewid": view_id},
             timeout,
         )
-        return bool(report_model_columns(payload)) and response_list_field_present(payload, "Cols")
+        columns = report_model_columns(payload)
+        return bool(columns) and response_list_field_present(payload, "Cols") and report_model_catalogs_ok(columns)
 
     def get_report_ok() -> bool:
         view_id = loaded_list_view_id()

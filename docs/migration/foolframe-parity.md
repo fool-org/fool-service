@@ -114,6 +114,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: the Docker runtime doctor now proves both `getmkqview` and the
+  legacy Web `mkqview` wrapper return query catalog `CompareTypes` and
+  `QueryTypes` through the Vue proxy, tying the seeded catalog relation rows
+  to the report-column API surface.
 - 2026-07-10: the Docker runtime doctor and repository harness now prove the
   query catalog property-index seed rows exist, not just the parent
   `SE_COMPARETYPE` / `SE_SELECTEDTYPE` rows, so report column `CompareTypes`

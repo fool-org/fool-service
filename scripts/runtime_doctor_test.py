@@ -29,6 +29,7 @@ from runtime_doctor import (
     query_rows_include_chart_items,
     query_rows_include_map_items,
     report_grid_ok,
+    report_model_catalogs_ok,
     report_model_columns,
     response_list_field_present,
     row_object_id,
@@ -688,6 +689,20 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertEqual([
             {"ColName": "Record ID", "ColId": "recordId", "SelectedTypeId": "1", "Index": 1, "OrderType": "2"}
         ], runtime_report_cols(columns))
+
+    def test_report_model_catalogs_require_compare_and_query_options(self) -> None:
+        self.assertTrue(report_model_catalogs_ok([
+            {
+                "CompareTypes": [{"ID": "7", "Name": "包含"}],
+                "QueryTypes": [{"ID": "1", "Name": "原值"}],
+            }
+        ]))
+        self.assertFalse(report_model_catalogs_ok([
+            {"CompareTypes": [{"ID": "7", "Name": "包含"}], "QueryTypes": []}
+        ]))
+        self.assertFalse(report_model_catalogs_ok([
+            {"CompareTypes": [], "QueryTypes": [{"ID": "1", "Name": "原值"}]}
+        ]))
 
     def test_report_grid_ok_requires_expected_headers_and_data_row(self) -> None:
         self.assertTrue(report_grid_ok({"code": 0, "data": {"cells": [

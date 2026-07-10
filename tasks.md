@@ -699,6 +699,8 @@ explicitly named as authoritative for fool-service.
 - [x] Guard Docker query catalog relation seed rows in the runtime doctor and
       repository harness so report column `CompareTypes` / `QueryTypes`
       cannot silently lose their property-type bindings.
+- [x] Prove `getmkqview` and legacy `mkqview` return query catalog
+      `CompareTypes` / `QueryTypes` through the Docker Vue proxy.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
