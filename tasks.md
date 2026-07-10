@@ -739,6 +739,9 @@ explicitly named as authoritative for fool-service.
 - [x] Remove the deleted console's remaining Vue request-state and JSON-string
       staging: detail, create, save, child mutation, and operation requests now
       consume current rendered View state and typed payload arrays directly.
+- [x] Delete the unused Java `SelectStream` placeholder after proving it has no
+      call sites and no FoolFrame counterpart; use the JDK `Stream` API for any
+      future stream workflow instead of maintaining a second empty proxy.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

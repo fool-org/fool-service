@@ -118,6 +118,14 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: audited backend placeholder implementations against their live
+  call sites and the old FoolFrame source, then deleted the unused 210-line
+  `SelectStream` class. Every method in that class returned `null`, an empty
+  value, or no result; the repository had no caller and FoolFrame had no
+  counterpart. Future stream call sites should use the JDK `Stream` API
+  directly instead of restoring a second proxy surface. The functional
+  `fool-dao` main-source count now matches the documented 21 files, and the
+  complete Java 17 Docker reactor package still succeeds.
 - 2026-07-10: replaced duplicate top-level/Sudoku `<meter>` chart rows with a
   shared 125-line `LegacyChartPanel.vue`, restoring the useful chart behavior
   of old ECharts-backed `viewWithChart.js` / `swchartLine.js` without adding a
