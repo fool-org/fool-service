@@ -9,6 +9,7 @@ import payloadSource from "./payload.ts?raw";
 import resultsPanelSource from "./ResultsPanel.vue?raw";
 import sudokuPanelsSource from "./SudokuPanels.vue?raw";
 import viewDetailPanelSource from "./ViewDetailPanel.vue?raw";
+import viewReportPanelSource from "./ViewReportPanel.vue?raw";
 import viewShellSource from "./viewShell.ts?raw";
 import viewDataWorkflowSource from "./useViewDataWorkflow.ts?raw";
 import viewWorkflowSource from "./viewWorkflow.ts?raw";
@@ -478,26 +479,30 @@ describe("App defaults", () => {
     expect(appSource).not.toContain("backendSmokeResponse");
   });
 
-  it("exposes the legacy report grid route in the Vue console", () => {
-    expect(appSource).toContain("Report Grid");
-    expect(appSource).toContain("/api/v1/report/makereport");
-    expect(appSource).toContain("/api/v1/report/getrpt");
-    expect(appSource).toContain("Get Report");
-    expect(appSource).toContain("reportResponse");
+  it("opens the legacy report workflow from the rendered View", () => {
+    expect(appSource).toContain("ViewReportPanel");
+    expect(appSource).toContain("showViewReport = !showViewReport");
+    expect(appSource).toContain(':view-id="currentViewId"');
+    expect(viewReportPanelSource).toContain("/api/v1/report/mkrpt");
+    expect(viewReportPanelSource).toContain("reportResponse");
+    expect(appSource).not.toContain("Report Grid");
   });
 
-  it("exposes the legacy report column candidate route in the Vue console", () => {
-    expect(appSource).toContain("Report Columns");
-    expect(appSource).toContain("/api/v1/report/getmkqview");
-    expect(appSource).toContain("reportModelResponse");
-    expect(appSource).toContain("buildReportColsFromModel");
-    expect(appSource).toContain("reportColsJson.value = JSON.stringify");
+  it("builds report output and conditions from View metadata", () => {
+    expect(viewReportPanelSource).toContain("/api/v1/report/getmkqview");
+    expect(viewReportPanelSource).toContain("buildReportColsFromModel");
+    expect(viewReportPanelSource).toContain("reportModelCompareTypes");
+    expect(viewReportPanelSource).toContain("selectedReportCols");
+    expect(viewReportPanelSource).toContain("moveColumn");
+    expect(viewReportPanelSource).toContain("filterExp");
+    expect(viewReportPanelSource).not.toContain("Report Columns JSON");
+    expect(viewReportPanelSource).not.toContain("QueryFilter");
   });
 
-  it("exposes the legacy save report definition route in the Vue console", () => {
-    expect(appSource).toContain("Save Report Definition");
-    expect(appSource).toContain("/api/v1/report/saverpt");
-    expect(appSource).toContain("saveReportResponse");
+  it("keeps the legacy save report route in the View report panel", () => {
+    expect(viewReportPanelSource).toContain("Save Definition");
+    expect(viewReportPanelSource).toContain("/api/v1/report/saverpt");
+    expect(appSource).not.toContain("Save Report Definition");
   });
 
   it("exposes the legacy message polling route in the Vue console", () => {
@@ -826,7 +831,16 @@ describe("buildMakeReportRequest", () => {
       currentPage: 2,
       pageSize: 10,
       queryFilter: " record_state=\"0\" ",
-      reportColsJson: "[{\"colName\":\"State\",\"index\":2},{\"colName\":\"Name\",\"index\":1}]",
+      reportCols: [
+        { colName: "State", index: 2 },
+        { colName: "Name", index: 1 }
+      ],
+      filterExp: {
+        col: { id: "state", name: "State" },
+        compareOp: { id: "1", name: "Equals" },
+        valueExp: "0",
+        valueFmt: "Open"
+      },
       reportName: " View Daily "
     });
 
@@ -836,6 +850,12 @@ describe("buildMakeReportRequest", () => {
       currentPage: 2,
       pageSize: 10,
       queryFilter: "record_state=\"0\"",
+      filterExp: {
+        col: { id: "state", name: "State" },
+        compareOp: { id: "1", name: "Equals" },
+        valueExp: "0",
+        valueFmt: "Open"
+      },
       reportName: "View Daily",
       reportCols: [
         { colName: "State", index: 2 },

@@ -114,6 +114,14 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: the Vue list View now exposes the old `view.jade` report
+  workflow from its `Report` command instead of three developer-only API
+  panels. `ViewReportPanel.vue` loads candidate columns from `getmkqview`
+  before report data, supports metadata-driven output type, order, output
+  position, simple AND/OR conditions, paging, `mkrpt`, and the legacy
+  `saverpt` no-op submission surface without exposing raw report JSON or SQL
+  filters. Docker browser checks proved an unfiltered report, a `Symbol`
+  contains `BTC` report, reordered output columns, and 390px containment.
 - 2026-07-10: the Docker runtime doctor now requires legacy AppInfo aliases
   used by the old `layout.jade` / `default.jade` shell (`AppName`, `AppVer`,
   `AppNote`, `AppPowerBy`, `AppPowerUrl`, `AppLogoUrl`, `DefaultViewId`, and

@@ -280,6 +280,102 @@ label {
   align-items: end;
 }
 
+.view-report-panel {
+  grid-column: 1 / -1;
+}
+
+.report-toolbar {
+  display: grid;
+  grid-template-columns: minmax(100px, 0.35fr) minmax(180px, 1fr) auto auto auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.report-section {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.section-heading {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section-heading h3 {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.section-heading span,
+.report-status {
+  color: #647484;
+  font-size: 0.8rem;
+}
+
+.report-columns,
+.report-results {
+  min-height: 128px;
+  max-height: 360px;
+}
+
+.report-columns table {
+  min-width: 860px;
+}
+
+.report-results table {
+  min-width: 640px;
+}
+
+.report-columns input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+}
+
+.report-position {
+  display: grid;
+  grid-template-columns: 24px 34px 34px;
+  gap: 5px;
+  align-items: center;
+}
+
+.report-position button {
+  width: 34px;
+  min-height: 34px;
+  padding: 0;
+}
+
+.report-conditions {
+  display: grid;
+  gap: 8px;
+}
+
+.report-condition-row {
+  display: grid;
+  grid-template-columns: 70px minmax(140px, 1fr) minmax(120px, 0.7fr) minmax(140px, 1fr) 38px;
+  gap: 8px;
+  align-items: center;
+}
+
+.condition-first {
+  color: #647484;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+button.icon-button {
+  width: 38px;
+  min-height: 38px;
+  padding: 0;
+  font-size: 1.2rem;
+}
+
+.report-status {
+  margin: 0;
+}
+
 .view-table {
   min-height: 420px;
 }
@@ -725,6 +821,8 @@ td {
   .button-row,
   .inline-fields,
   .workflow-toolbar,
+  .report-toolbar,
+  .report-condition-row,
   .item-add-row,
   .summary-list {
     grid-template-columns: 1fr;

@@ -488,6 +488,23 @@ export interface ReportCol {
   orderType?: string;
 }
 
+export interface ReportFilterExp {
+  col?: ReportModelOption;
+  compareOp?: ReportModelOption;
+  valueExp?: string;
+  valueFmt?: string;
+  firstExp?: ReportFilterExp;
+  sequences?: ReportFilterSequence[];
+}
+
+export interface ReportFilterSequence {
+  boolOp?: {
+    dbName?: string;
+    showName?: string;
+  };
+  addedExp?: ReportFilterExp;
+}
+
 export interface MakeReportRequest {
   token?: string;
   viewId?: number;
@@ -495,6 +512,7 @@ export interface MakeReportRequest {
   currentPage?: number;
   pageSize?: number;
   queryFilter?: string;
+  filterExp?: ReportFilterExp;
   reportName?: string;
 }
 

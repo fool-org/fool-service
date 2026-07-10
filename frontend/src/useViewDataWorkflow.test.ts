@@ -186,7 +186,6 @@ function baseRefs() {
     pageIndex: ref(1),
     pageSize: ref(20),
     queryFilter: ref("state=0"),
-    reportViewId: ref(0),
     detailViewId: ref(0),
     initNewViewId: ref(0),
     operationViewId: ref(0),

@@ -9,6 +9,7 @@ import type {
   LegacyQueryDataDetailRequest,
   MakeReportRequest,
   ReportCol,
+  ReportFilterExp,
   SaveItemProperty,
   SaveKeypair,
   SaveObject,
@@ -90,7 +91,8 @@ export interface MakeReportRequestInput {
   currentPage: number;
   pageSize: number;
   queryFilter?: string;
-  reportColsJson: string;
+  reportCols: ReportCol[];
+  filterExp?: ReportFilterExp;
   reportName?: string;
 }
 
@@ -236,11 +238,14 @@ export function buildMakeReportRequest(input: MakeReportRequestInput): MakeRepor
     viewId: input.viewId,
     currentPage: input.currentPage,
     pageSize: input.pageSize,
-    reportCols: parseJsonArray<ReportCol>(input.reportColsJson, "Report columns JSON")
+    reportCols: input.reportCols
   };
   const queryFilter = input.queryFilter?.trim();
   if (queryFilter) {
     request.queryFilter = queryFilter;
+  }
+  if (input.filterExp) {
+    request.filterExp = input.filterExp;
   }
   const reportName = input.reportName?.trim();
   if (reportName) {

@@ -794,6 +794,18 @@ export function reportGridCells(result: ReportGridResult | undefined) {
   return firstList(result?.cells, result?.Cells);
 }
 
+export function reportGridPage(result: ReportGridResult | undefined, fallback = 1) {
+  return Number(result?.currentPage ?? result?.CurrentPage ?? fallback) || fallback;
+}
+
+export function reportGridTotalPages(result: ReportGridResult | undefined) {
+  return Number(result?.totalPages ?? result?.TotalPages ?? 0) || 0;
+}
+
+export function reportGridTotalRecords(result: ReportGridResult | undefined) {
+  return Number(result?.totalRecords ?? result?.TotalRecords ?? 0) || 0;
+}
+
 export function reportRowsFromCells(cells: ReportCell[] = []) {
   const maxRow = cells.reduce((max, cell) => Math.max(max, reportCellRow(cell)), -1);
   const maxCol = cells.reduce((max, cell) => Math.max(max, reportCellCol(cell)), -1);
@@ -845,6 +857,10 @@ export function reportModelOptionName(option: ReportModelOption) {
 
 export function reportModelStateText(state: ReportModelState) {
   return firstDisplayValue([state.showName, state.ShowName, state.dbName, state.DBName]);
+}
+
+export function reportModelStateValue(state: ReportModelState) {
+  return firstDisplayValue([state.dbName, state.DBName]);
 }
 
 export function buildReportColsFromModel(cols: ReportModelColumn[] = []): ReportCol[] {

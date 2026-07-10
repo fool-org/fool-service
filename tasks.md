@@ -716,6 +716,10 @@ explicitly named as authoritative for fool-service.
 - [x] Expose legacy `querydatadetail` child `Properties[].Name` aliases from
       the shared list-data value DTO and prove them through the Docker Vue
       proxy.
+- [x] Move the old FoolFrame list-page report workflow out of Vue API Tools
+      and into the rendered View page, with metadata-driven output selection,
+      output types, ordering, structured AND/OR conditions, paging, and no
+      raw report JSON or SQL filter inputs.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

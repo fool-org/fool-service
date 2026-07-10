@@ -36,7 +36,6 @@ export interface ViewDataWorkflowRefs {
   pageIndex: Ref<number>;
   pageSize: Ref<number>;
   queryFilter: Ref<string>;
-  reportViewId: Ref<number>;
   detailViewId: Ref<number>;
   initNewViewId: Ref<number>;
   operationViewId: Ref<number>;
@@ -74,7 +73,6 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
     options.listViewId.value = loadedViewId;
     options.readItemViewId.value = loadedDetailViewId;
     options.queryViewId.value = loadedViewId;
-    options.reportViewId.value = loadedViewId;
     options.detailViewId.value = loadedDetailViewId;
     options.initNewViewId.value = loadedDetailViewId;
     options.operationViewId.value = loadedDetailViewId;

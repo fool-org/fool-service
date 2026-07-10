@@ -26,8 +26,6 @@ import {
   type ListViewResult,
   type LoginVo,
   type OperationInfo,
-  type ReportGridResult,
-  type ReportModelResult,
   type SaveItemProperty,
   type TableColumnInfo,
   type TreeNode,
@@ -39,6 +37,7 @@ import MigrationMap from "./MigrationMap.vue";
 import ResultsPanel from "./ResultsPanel.vue";
 import SudokuPanels from "./SudokuPanels.vue";
 import ViewDetailPanel from "./ViewDetailPanel.vue";
+import ViewReportPanel from "./ViewReportPanel.vue";
 import { useChildCandidates } from "./useChildCandidates";
 import { useChildDrafts } from "./useChildDrafts";
 import { useFieldEnums } from "./useFieldEnums";
@@ -49,7 +48,6 @@ import {
   buildDeletedItemProperty,
   buildFieldDrafts,
   buildGroupItemDrafts,
-  buildReportColsFromModel,
   buildSavePropertyies,
   buildSelectedExistingItemProperty,
   buildUpdatedItemProperty,
@@ -104,17 +102,6 @@ import {
   legacyNewPath,
   legacyViewPathId,
   operationId as operationInfoId, operationKey, operationLabel, operationTargetViewId,
-  reportGridCells,
-  reportModelColumnId,
-  reportModelColumnName,
-  reportModelColumnType,
-  reportModelColumns,
-  reportModelCompareTypes,
-  reportModelOptionName,
-  reportModelQueryTypes,
-  reportModelStates,
-  reportModelStateText,
-  reportRowsFromCells,
   rowObjectId,
   rowOperations,
   selectedChildViewId,
@@ -139,7 +126,6 @@ import {
   buildInputQueryRequest,
   buildLegacyListViewRequest,
   buildLegacyQueryDataRequest,
-  buildMakeReportRequest,
   buildQueryDataDetailRequest,
   buildRunOperationRequest,
   buildSaveObjRequest,
@@ -161,12 +147,6 @@ const legacyQueryViewId = ref(0);
 const legacyQueryPageIndex = ref(1);
 const legacyQueryPageSize = ref(10);
 const legacyQueryFilter = ref("");
-const reportViewId = ref(0);
-const reportCurrentPage = ref(1);
-const reportPageSize = ref(10);
-const reportQueryFilter = ref("");
-const reportColsJson = ref("[]");
-const reportName = ref("Saved View Report");
 const inputQueryViewItemId = ref("");
 const inputQueryText = ref("");
 const inputQueryObjId = ref("");
@@ -196,6 +176,7 @@ const checkCodeValue = ref("");
 const subMenuParentAuthCode = ref("");
 const activeSection = ref("views");
 const isMetadataOnlyView = ref(false);
+const showViewReport = ref(false);
 const selectedObjectId = ref("");
 const isCreatingObject = ref(false);
 const detailDrafts = ref<Record<string, string>>({});
@@ -238,9 +219,6 @@ const inputQueryResponse = ref<CommonResponse<InputQueryResult> | null>(null);
 const saveObjResponse = ref<CommonResponse<void> | null>(null);
 const saveNewObjResponse = ref<CommonResponse<void> | null>(null);
 const runOperationResponse = ref<CommonResponse<LegacyRunOperationResult> | null>(null);
-const reportResponse = ref<CommonResponse<ReportGridResult> | null>(null);
-const reportModelResponse = ref<CommonResponse<ReportModelResult> | null>(null);
-const saveReportResponse = ref<CommonResponse<void> | null>(null);
 const messageResponse = ref<CommonResponse<GetMessageResult> | null>(null);
 const notifyResponse = ref<CommonResponse<GetNotifyResult> | null>(null);
 const errorMessage = ref("");
@@ -277,7 +255,6 @@ const {
   pageIndex,
   pageSize,
   queryFilter: legacyQueryFilter,
-  reportViewId,
   detailViewId,
   initNewViewId,
   operationViewId,
@@ -313,7 +290,6 @@ const messageItems = computed(() => legacyMessages(messageResponse.value?.data))
 const notifyItems = computed(() => legacyNotifies(notifyResponse.value?.data));
 const enumItems = computed(() => legacyEnumValues(enumResponse.value?.data));
 const inputQueryItems = computed(() => legacyInputQueryItems(inputQueryResponse.value?.data));
-const reportModelColumnItems = computed(() => reportModelColumns(reportModelResponse.value?.data));
 const viewCanEdit = computed(() => Boolean(selectedObject.value || isCreatingObject.value));
 const fieldEditorContext = computed(() => ({
   isAdded: isCreatingObject.value,
@@ -327,7 +303,6 @@ function fieldEnumOptions(field: ListDataValue) {
   return enumFieldOptions(enumOptions.value, field);
 }
 
-const reportRows = computed(() => reportRowsFromCells(reportGridCells(reportResponse.value?.data)));
 const isChartView = computed(() => viewUsesChartTemplate(viewResponse.value?.data));
 const isSudokuView = computed(() => viewUsesSudokuTemplate(viewResponse.value?.data));
 const sudokuPanels = computed(() => viewColumns(viewResponse.value?.data));
@@ -344,8 +319,7 @@ const responseDump = computed(() =>
       view: viewResponse.value, readItemView: readItemViewResponse.value, data: dataResponse.value,
       detail: detailResponse.value, initNew: initNewResponse.value, enums: enumResponse.value,
       inputQuery: inputQueryResponse.value, saveObj: saveObjResponse.value, saveNewObj: saveNewObjResponse.value,
-      runOperation: runOperationResponse.value, reportModel: reportModelResponse.value, report: reportResponse.value,
-      saveReport: saveReportResponse.value, messages: messageResponse.value, notify: notifyResponse.value
+      runOperation: runOperationResponse.value, messages: messageResponse.value, notify: notifyResponse.value
     },
     null,
     2
@@ -630,62 +604,6 @@ async function loadResultPage(nextPage: number) {
   await queryCurrentViewData();
 }
 
-async function runReport(action: string, path: string) {
-  const request = buildMakeReportRequest({
-    token: token.value,
-    viewId: Number(reportViewId.value),
-    currentPage: Number(reportCurrentPage.value),
-    pageSize: Number(reportPageSize.value),
-    queryFilter: reportQueryFilter.value,
-    reportColsJson: reportColsJson.value
-  });
-
-  const response = await runAction(action, () => postApi<ReportGridResult>(path, request));
-  if (response) {
-    reportResponse.value = response;
-  }
-}
-
-async function makeReport() {
-  await runReport("makereport", "/api/v1/report/makereport");
-}
-
-async function getReport() {
-  await runReport("getrpt", "/api/v1/report/getrpt");
-}
-
-async function loadReportColumns() {
-  const request = buildLegacyListViewRequest({
-    token: token.value,
-    viewId: Number(reportViewId.value)
-  });
-
-  const response = await runAction("report-columns", () =>
-    postApi<ReportModelResult>("/api/v1/report/getmkqview", request)
-  );
-  if (response) {
-    reportModelResponse.value = response;
-    reportColsJson.value = JSON.stringify(buildReportColsFromModel(reportModelColumns(response.data)));
-  }
-}
-
-async function saveReport() {
-  const request = buildMakeReportRequest({
-    token: token.value,
-    viewId: Number(reportViewId.value),
-    currentPage: Number(reportCurrentPage.value),
-    pageSize: Number(reportPageSize.value),
-    queryFilter: reportQueryFilter.value,
-    reportColsJson: reportColsJson.value,
-    reportName: reportName.value
-  });
-
-  const response = await runAction("saverpt", () => postApi<void>("/api/v1/report/saverpt", request));
-  if (response) {
-    saveReportResponse.value = response;
-  }
-}
-
 async function inputQuery() {
   const request = buildInputQueryRequest({
     token: token.value,
@@ -838,7 +756,7 @@ function applyDefaultAppView(source?: unknown) {
 }
 
 function applyRequestedViewId(requestedViewId: number) {
-  legacyListViewId.value = legacyQueryViewId.value = reportViewId.value = requestedViewId;
+  legacyListViewId.value = legacyQueryViewId.value = requestedViewId;
 }
 
 async function ensureLegacySession() {
@@ -1231,6 +1149,11 @@ function syncDetailDrafts() {
               {{ operationLabel(operation) }}
             </button>
             <button v-if="!listCreateOperations.length" type="button" :disabled="Boolean(pendingAction)" @click="startNewObject()">New Row</button>
+            <button
+              type="button"
+              :disabled="Boolean(pendingAction) || !currentViewId"
+              @click="showViewReport = !showViewReport"
+            >Report</button>
           </div>
 
           <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
@@ -1316,6 +1239,15 @@ function syncDetailDrafts() {
           @update-candidate-page-size="updateCandidatePageSize"
           @update-detail-draft="(key, value) => detailDrafts[key] = value"
           @update-detail-item="updateDetailItem"
+        />
+        <ViewReportPanel
+          v-if="showViewReport && !isMetadataOnlyView && currentViewId"
+          :key="currentViewId"
+          :pending="Boolean(pendingAction)"
+          :run-action="runAction"
+          :token="token"
+          :view-id="currentViewId"
+          @close="showViewReport = false"
         />
       </section>
 
@@ -1590,134 +1522,6 @@ function syncDetailDrafts() {
           </label>
           <button class="primary" type="button" :disabled="pendingAction === 'legacy-query'" @click="queryLegacyData">
             Query Data
-          </button>
-        </article>
-
-        <article class="panel lookup-panel">
-          <div class="panel-heading">
-            <h2>Report Columns</h2>
-            <span>POST /api/v1/report/getmkqview</span>
-          </div>
-          <label>
-            View ID
-            <input v-model.number="reportViewId" min="1" type="number" />
-          </label>
-          <button
-            class="primary"
-            type="button"
-            :disabled="pendingAction === 'report-columns'"
-            @click="loadReportColumns"
-          >
-            Load Columns
-          </button>
-
-          <div class="table-wrap input-query-results">
-            <table v-if="reportModelColumnItems.length">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>ID</th>
-                  <th>Type</th>
-                  <th>Compare</th>
-                  <th>Select</th>
-                  <th>States</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="col in reportModelColumnItems" :key="reportModelColumnId(col) || reportModelColumnName(col)">
-                  <td>{{ reportModelColumnName(col) }}</td>
-                  <td>{{ reportModelColumnId(col) }}</td>
-                  <td>{{ reportModelColumnType(col) }}</td>
-                  <td>{{ reportModelCompareTypes(col).map(reportModelOptionName).join(", ") }}</td>
-                  <td>{{ reportModelQueryTypes(col).map(reportModelOptionName).join(", ") }}</td>
-                  <td>{{ reportModelStates(col).map(reportModelStateText).join(", ") }}</td>
-                </tr>
-              </tbody>
-            </table>
-            <div v-else class="empty-state">No report columns loaded.</div>
-          </div>
-        </article>
-
-        <article class="panel lookup-panel">
-          <div class="panel-heading">
-            <h2>Report Grid</h2>
-            <span>POST /api/v1/report/makereport | /api/v1/report/getrpt</span>
-          </div>
-          <div class="inline-fields">
-            <label>
-              View ID
-              <input v-model.number="reportViewId" min="1" type="number" />
-            </label>
-            <label>
-              Page
-              <input v-model.number="reportCurrentPage" min="1" type="number" />
-            </label>
-            <label>
-              Size
-              <input v-model.number="reportPageSize" min="1" type="number" />
-            </label>
-          </div>
-          <label>
-            QueryFilter
-            <input v-model="reportQueryFilter" />
-          </label>
-          <label>
-            Report Columns JSON
-            <textarea v-model="reportColsJson" rows="3" spellcheck="false"></textarea>
-          </label>
-          <button class="primary" type="button" :disabled="pendingAction === 'makereport'" @click="makeReport">
-            Make Report
-          </button>
-          <button type="button" :disabled="pendingAction === 'getrpt'" @click="getReport">
-            Get Report
-          </button>
-
-          <div class="table-wrap input-query-results">
-            <table v-if="reportRows.length">
-              <thead>
-                <tr>
-                  <th v-for="(cell, index) in reportRows[0]" :key="`report-head-${index}`">
-                    {{ cell }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(row, rowIndex) in reportRows.slice(1)" :key="`report-row-${rowIndex}`">
-                  <td v-for="(cell, colIndex) in row" :key="`report-cell-${rowIndex}-${colIndex}`">
-                    {{ cell }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <div v-else class="empty-state">No report cells loaded.</div>
-          </div>
-        </article>
-
-        <article class="panel lookup-panel">
-          <div class="panel-heading">
-            <h2>Save Report Definition</h2>
-            <span>POST /api/v1/report/saverpt</span>
-          </div>
-          <div class="inline-fields">
-            <label>
-              View ID
-              <input v-model.number="reportViewId" min="1" type="number" />
-            </label>
-            <label>
-              Name
-              <input v-model="reportName" />
-            </label>
-          </div>
-          <label>
-            QueryFilter
-            <input v-model="reportQueryFilter" />
-          </label>
-          <label>
-            Report Columns JSON
-            <textarea v-model="reportColsJson" rows="3" spellcheck="false"></textarea>
-          </label>
-          <button class="primary" type="button" :disabled="pendingAction === 'saverpt'" @click="saveReport">
-            Save Report
           </button>
         </article>
 

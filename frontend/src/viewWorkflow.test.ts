@@ -93,7 +93,11 @@ import {
   reportModelQueryTypes,
   reportModelStates,
   reportModelStateText,
+  reportModelStateValue,
   reportGridCells,
+  reportGridPage,
+  reportGridTotalPages,
+  reportGridTotalRecords,
   reportRowsFromCells,
   rowFormatClass,
   rowObjectId,
@@ -1043,6 +1047,9 @@ describe("view workflow helpers", () => {
       ["Symbol"],
       ["BTC-USDT"]
     ]);
+    expect(reportGridPage({ CurrentPage: 2 }, 1)).toBe(2);
+    expect(reportGridTotalPages({ TotalPages: 3 })).toBe(3);
+    expect(reportGridTotalRecords({ TotalRecords: 21 })).toBe(21);
   });
 
   it("builds default report columns from loaded report model metadata", () => {
@@ -1070,6 +1077,7 @@ describe("view workflow helpers", () => {
     expect(reportModelOptionName(reportModelQueryTypes(col)[0])).toBe("原值");
     expect(reportModelOptionName(reportModelCompareTypes(col)[0])).toBe("包含");
     expect(reportModelStateText(reportModelStates(col)[0])).toBe("Open");
+    expect(reportModelStateValue(reportModelStates(col)[0])).toBe("0");
     expect(buildReportColsFromModel(reportModelColumns(pascal))).toEqual([
       { colName: "Amount[原值]", colId: "1004", selectedTypeId: "1", index: 0, orderType: "2" }
     ]);
