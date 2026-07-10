@@ -118,6 +118,16 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: re-audited the vague remaining `SCPB05-Soway.Model` runtime
+  mutation wording against FoolFrame `ModelBindingList`, `ModelMethodContext`,
+  `SqlServer.dbContext`, the current implementation, and all 37
+  `ModelDataServiceTest` cases. Collection add/set/delete triggers, external
+  model create/update/delete/detail fallback and result mapping, filter and
+  assembly commands, and active-datasource rollback are covered. All four live
+  Docker `SW_SYS_MODEL` rows have null `MODEL_CON` and therefore use the active
+  `car_wash` datasource; model-specific connection routing is no longer an
+  open parity claim without a real migrated model that declares a different
+  connection.
 - 2026-07-10: moved the rendered list View surface out of `App.vue` into the
   134-line `ViewListPanel.vue`. Search, paging, create/row operations,
   View-driven table columns, `viewWithChart`, and Sudoku presentation now
@@ -2163,15 +2173,19 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   generation, `ColumnAttribute` metadata including DBMaps, enum metadata
   persistence, routed DAO reuse, and per-routed-connection transaction
   boundaries are covered by the current module map and tests.
-- Complete remaining `SCPB05-Soway.Model` runtime data mutations only for
-  richer collection state parity, richer external-model edge cases, and
-  cross/routed-connection transaction behavior. The previously listed
-  command-type and WCF/JSON base-operation items are closed: the Java enum
-  preserves the FoolFrame ordinals, mutating command slices are covered by the
-  shared trigger/runoperation command path, WCF/JSON base operations
-  intentionally keep FoolFrame's no-op success surface, `SetAccess` is
-  event-only in FoolFrame, and `SetSource` is not executed by
-  `ModelMethodContext`.
+- `SCPB05-Soway.Model` runtime data mutation parity is complete for the active
+  datasource used by migrated modules. Collection add/set/delete state,
+  external-model create/update/delete/detail fallback and result mapping,
+  trigger filters and assembly handlers, and parent/owned-child rollback are
+  covered by the current implementation and tests. FoolFrame itself commits
+  Create/Save row transactions before running model triggers, so it does not
+  provide a cross-connection atomicity contract to reproduce. Reopen
+  model-specific connection routing only when a real migrated model declares a
+  non-empty legacy `MODEL_CON`; all current Docker `SW_SYS_MODEL` rows leave it
+  null and use the token-selected active `car_wash` datasource. The Java enum
+  preserves all FoolFrame command ordinals; WCF/JSON base operations keep the
+  legacy no-op success surface, `SetAccess` has no persisted server mutation,
+  and `SetSource` is not executed by `ModelMethodContext`.
 - Continue `SWDQ01-Soway.Query` only when a new legacy query surface is
   identified beyond the currently migrated bool-expression SQL generation,
   selected table/column state, query/report parameter containers,

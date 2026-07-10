@@ -747,6 +747,10 @@ explicitly named as authoritative for fool-service.
 - [x] Extract the metadata-driven list View presentation into one reusable
       Vue component without duplicating request or workflow state; keep
       search, paging, operations, chart, and Sudoku rendering View-first.
+- [x] Reconcile the vague remaining Model runtime mutation wording against
+      FoolFrame, the 37-case Java 17 Model service suite, and live Docker
+      `MODEL_CON` state; close speculative routed-connection work until a real
+      migrated model declares a separate connection.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
