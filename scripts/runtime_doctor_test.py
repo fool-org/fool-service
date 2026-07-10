@@ -15,6 +15,7 @@ from runtime_doctor import (
     compose_checks,
     detail_view_id,
     enum_view_model_id,
+    frontend_spa_html_ok,
     legacy_app_alias_ok,
     legacy_app_default_view_id,
     legacy_login_token,
@@ -519,6 +520,14 @@ class RuntimeDoctorTest(unittest.TestCase):
     def test_common_true_ok_accepts_checkcode_success(self) -> None:
         self.assertTrue(common_true_ok({"code": 0, "data": True}))
         self.assertFalse(common_true_ok({"code": 0, "data": False}))
+
+    def test_frontend_spa_html_requires_vue_asset_html(self) -> None:
+        html = '<html><script type="module" crossorigin src="/assets/index.js"></script></html>'
+
+        self.assertTrue(frontend_spa_html_ok(200, "text/html", html))
+        self.assertFalse(frontend_spa_html_ok(404, "text/html", html))
+        self.assertFalse(frontend_spa_html_ok(200, "application/json", html))
+        self.assertFalse(frontend_spa_html_ok(200, "text/html", "<html></html>"))
 
     def test_legacy_login_token_requires_success_and_token(self) -> None:
         self.assertEqual("t1", legacy_login_token({"code": 0, "data": {"loginSucess": True, "token": "t1"}}))

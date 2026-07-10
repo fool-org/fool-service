@@ -686,6 +686,7 @@ explicitly named as authoritative for fool-service.
       context.
 - [x] Start Vue from the old FoolFrame Web `/itemview:id` read-item route by
       reusing the existing detail flow with an empty object id.
+- [x] Guard old FoolFrame Web Vue deep links in the Docker runtime doctor.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

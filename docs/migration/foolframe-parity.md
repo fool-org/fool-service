@@ -114,6 +114,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: the Docker runtime doctor now proves the old FoolFrame Web
+  Vue deep links `/main`, `/view:id`, `/view:id/:objid`, `/itemview:id`,
+  `/new:id`, and `/new:id/:objid&:ownerviewid&:prpid` return the built Vue
+  HTML bundle through the frontend container.
 - 2026-07-10: Vue startup now recognizes the old FoolFrame Web read-item
   route `/itemview:id`. The path reuses the existing detail startup flow with
   an empty object id, so rendering still goes through `getreaditemview(ViewId)`

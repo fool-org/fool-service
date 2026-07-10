@@ -15,6 +15,14 @@ from runtime_schema import LEGACY_CORE_SCHEMA_COLUMNS, MARKET_SYMBOLS_COLUMNS
 
 
 REQUIRED_SERVICES = ("backend", "frontend", "mysql", "redis")
+LEGACY_FRONTEND_PATHS = (
+    ("frontend:main-path", "/main"),
+    ("frontend:view-path", "/view100"),
+    ("frontend:view-detail-path", "/view100/1001"),
+    ("frontend:itemview-path", "/itemview100"),
+    ("frontend:new-path", "/new100"),
+    ("frontend:new-owner-path", "/new100/1001&100&items"),
+)
 
 
 @dataclass(frozen=True)
@@ -175,6 +183,29 @@ def post_json(url: str, payload: Any, timeout: float) -> dict[str, Any]:
 def get_json(url: str, timeout: float) -> Any:
     with request.urlopen(url, timeout=timeout) as response:
         return json.loads(response.read().decode("utf-8"))
+
+
+def get_text(url: str, timeout: float) -> tuple[int, str, str]:
+    with request.urlopen(url, timeout=timeout) as response:
+        return response.status, response.headers.get("Content-Type", ""), response.read().decode("utf-8")
+
+
+def frontend_spa_html_ok(status: int, content_type: str, text: str) -> bool:
+    return status == 200 and "text/html" in content_type.lower() and 'type="module"' in text and "/assets/" in text
+
+
+def frontend_route_checks(frontend_url: str, timeout: float) -> list[CheckResult]:
+    results: list[CheckResult] = []
+    for name, path in LEGACY_FRONTEND_PATHS:
+        try:
+            status, content_type, text = get_text(f"{frontend_url}{path}", timeout)
+            ok = frontend_spa_html_ok(status, content_type, text)
+            detail = f"GET {path} returns Vue HTML"
+        except (error.URLError, TimeoutError, OSError, UnicodeDecodeError) as exc:
+            ok = False
+            detail = str(exc)
+        results.append(CheckResult(name, ok, detail))
+    return results
 
 
 def common_response_ok(payload: dict[str, Any]) -> bool:
@@ -1880,6 +1911,7 @@ def main() -> int:
     if not args.skip_compose:
         results.extend(run_compose_ps())
     results.extend(run_mysql_schema_checks())
+    results.extend(frontend_route_checks(args.frontend_url.rstrip("/"), args.timeout))
     results.extend(api_checks(args.backend_url.rstrip("/"), args.frontend_url.rstrip("/"), args.timeout))
 
     for result in results:
