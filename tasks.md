@@ -3,6 +3,24 @@
 This file is the repo-local work-state surface until an external tracker is
 explicitly named as authoritative for fool-service.
 
+## Active: Vue Interface Upgrade
+
+Design source: `docs/frontend/ui-design-system.md`. Owner: Codex. Each checked
+item must land with its matching implementation and validation evidence.
+
+- [x] Establish the PrimeVue/Nora design tokens, direct-import dependency
+      policy, baseline screenshots, and responsive acceptance contract.
+- [ ] Upgrade login and the authenticated application shell, including the
+      narrow-screen menu Drawer, while preserving auth, menu, message, and
+      logout behavior.
+- [ ] Upgrade the shared View list table, toolbar, tabs, and paginator without
+      changing metadata-derived columns or backend pagination.
+- [ ] Upgrade detail fields, child-row controls, lookup results, report
+      builder/results, and View-specific containers without changing legacy
+      request values or component events.
+- [ ] Pass frontend, Docker runtime, repository harness, desktop browser, and
+      390x844 browser acceptance with evidence under `artifacts/runs/`.
+
 ## Current Focus
 
 - [x] Bootstrap harness and Standard Engine entrypoints.
