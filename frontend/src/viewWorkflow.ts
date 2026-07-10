@@ -8,6 +8,7 @@ import type {
   InputQueryResult,
   LegacyAuthItem,
   LegacyInitAppResult,
+  LegacyLoginResult,
   LegacyMainResult,
   LegacyRunOperationResult,
   LegacySubMenuResult,
@@ -223,6 +224,11 @@ export function legacyInitAppCheckCode(source?: LegacyInitAppResult) {
 export function legacyInitAppDbId(source?: LegacyInitAppResult) {
   const db = firstList(source?.dbs, source?.Dbs)[0];
   return firstDisplayValue([db?.dbId, db?.DbId]);
+}
+
+export function legacyLoginErrorMessage(source?: LegacyLoginResult) {
+  const error = source?.error ?? source?.Error;
+  return firstDisplayValue([error?.message, error?.Message]);
 }
 
 export function legacyCheckCodeKey(source?: CheckCodeResult) {

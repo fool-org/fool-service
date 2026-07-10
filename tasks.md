@@ -726,6 +726,9 @@ explicitly named as authoritative for fool-service.
 - [x] Move legacy shell user, message polling, notification badges, and logout
       out of API Tools into a responsive Vue topbar, reusing the View-first
       detail/list loaders for message targets.
+- [x] Replace default `admin/admin` auto-login and API Tools auth controls with
+      a signed-out Vue `initapp` / captcha / `loginv2` page that resumes legacy
+      View/detail/new deep links after authentication.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

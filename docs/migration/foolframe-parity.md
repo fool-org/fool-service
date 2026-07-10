@@ -114,6 +114,15 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: the Vue app now has a real signed-out login page matching the
+  old `index.jade` / `login.js` flow: `initapp` supplies application and
+  database metadata, `getcheckcode` supplies the rendered captcha, and
+  `loginv2` accepts user-entered credentials before any View/data workflow is
+  loaded. The default `admin/admin` auto-login and duplicate API Tools auth
+  panels are removed; stale tokens and logout return to the same login flow,
+  and successful login resumes the original `/view...` or `/new...` deep
+  link. Direct detail/new routes now use the existing View-first detail
+  component as a single-panel page instead of leaving an empty list shell.
 - 2026-07-10: the Vue shell now renders the signed-in user, 15-second legacy
   message polling, message count/popover, menu notification badges, and logout
   in the topbar instead of separate API Tools panels. Message targets reuse
@@ -1986,7 +1995,9 @@ operation types intentionally retain FoolFrame's no-op success behavior.
 
 The new Vue app under `frontend/` replaces the first operator workflow with:
 
-- Auth login/profile/menu/logout calls with a Docker-seeded admin smoke account
+- A signed-out Vue login page with user, password, database, captcha refresh,
+  reset, login errors, and logout/stale-token return behavior
+- Auth profile/menu/logout calls with a Docker-seeded admin smoke account
 - Legacy `initapp` loading with legacy `AppId` / `AppKey`, app metadata,
   check code, and store database list
 - Legacy `loginv2` loading with legacy `UserId`, `PassWord`, `DbId`,
@@ -1995,7 +2006,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Legacy `getapp` default application metadata loading with legacy `Token`
   alias
 - Legacy `getmain` raw-token user/default-AppInfo/top-menu loading
-- Legacy `getcheckcode` / `checkcode` captcha loading and validation controls
+- Legacy `getcheckcode` captcha image loading and refresh in the login page;
+  `loginv2` validates the submitted key/code pair
 - Legacy `getsubmenu` top/child menu loading with legacy `ParentAuthCode`
 - Auth menu loading
 - Vue API type for common token-only auth requests such as logout
@@ -2061,11 +2073,10 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - A Vue save-report-definition panel that calls `/api/v1/report/saverpt` with
   view ID, report columns, `QueryFilter`, and report name
 - Vue API types for legacy `getmsg` generated-message polling
-- A Vue messages panel that calls `/api/v1/message/getmsg` with the current
-  token and renders the pushed message metadata
+- A Vue topbar message popover that polls `/api/v1/message/getmsg` every 15
+  seconds and opens message targets through the existing View-first loader
 - Vue API types for legacy `getnotify` notification-count payloads
-- A Vue notify-count panel that calls `/api/v1/message/getnotify` with the
-  current token and renders returned auth/count rows
+- Vue shell menu badges populated from `/api/v1/message/getnotify`
 - Vue API types for legacy view-item `ID`, `Name`, `PropertyName`, `ShowIndex`, `Width`, `Format`, `IsReadOnly`, `EditType`, `PropertyId`, `EditViewId`, `EditExp`, linked-list-view defaults, `PropertyType`, and `PropertyModel` metadata
 - Vue API types for legacy view-item `ViewFile` metadata
 - Structured visible equality/range filters that emit Spring `QueryValue` payloads, plus advanced JSON filters

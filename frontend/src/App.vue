@@ -2,7 +2,6 @@
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import {
   type AuthItem,
-  type CheckCodeRequest,
   type CheckCodeResult,
   type CommonResponse,
   type GetEnumResult,
@@ -24,7 +23,6 @@ import {
   type ListDataItem,
   type ListViewInfo,
   type ListViewResult,
-  type LoginVo,
   type MessageInfo,
   type OperationInfo,
   type SaveItemProperty,
@@ -34,6 +32,7 @@ import {
   postApi
 } from "./api";
 import ListDataTable from "./ListDataTable.vue";
+import LoginPanel from "./LoginPanel.vue";
 import MigrationMap from "./MigrationMap.vue";
 import ResultsPanel from "./ResultsPanel.vue";
 import ShellActions from "./ShellActions.vue";
@@ -74,14 +73,13 @@ import {
   legacyAuthNo,
   legacyAuthText,
   legacyAuthViewId,
-  legacyCheckCodeCode,
-  legacyCheckCodeImage,
   legacyCheckCodeKey,
   legacyEnumName,
   legacyEnumValue,
   legacyEnumValues,
   legacyInitAppCheckCode,
   legacyInitAppDbId,
+  legacyLoginErrorMessage,
   legacyInputQueryItems,
   legacyChartData,
   legacyDetailPath,
@@ -134,10 +132,10 @@ import {
 } from "./payload";
 
 const token = ref(localStorage.getItem("fool-service-token") || "");
-const userId = ref("admin");
-const password = ref("admin");
-const legacyAppId = ref("fool-service");
-const legacyAppKey = ref("fool-service");
+const userId = ref("");
+const password = ref("");
+const legacyAppId = "fool-service";
+const legacyAppKey = "fool-service";
 const legacyDbId = ref("car_wash");
 const legacyListViewId = ref(0);
 const readItemViewId = ref(0);
@@ -177,6 +175,7 @@ const checkCodeValue = ref("");
 const subMenuParentAuthCode = ref("");
 const activeSection = ref("views");
 const isMetadataOnlyView = ref(false);
+const isStandaloneDetail = ref(false);
 const showViewReport = ref(false);
 const selectedObjectId = ref("");
 const isCreatingObject = ref(false);
@@ -201,7 +200,6 @@ const {
   syncChildDrafts
 } = useChildDrafts();
 
-const loginResponse = ref<CommonResponse<LoginVo> | null>(null);
 const initAppResponse = ref<CommonResponse<LegacyInitAppResult> | null>(null);
 const legacyLoginResponse = ref<CommonResponse<LegacyLoginResult> | null>(null);
 const profileResponse = ref<CommonResponse<UserDTO> | null>(null);
@@ -209,7 +207,6 @@ const legacyUserInfoResponse = ref<CommonResponse<LegacyUserInfoResult> | null>(
 const mainInfoResponse = ref<CommonResponse<LegacyMainResult> | null>(null);
 const appInfoResponse = ref<CommonResponse<LegacyAppResult> | null>(null);
 const checkCodeResponse = ref<CommonResponse<CheckCodeResult> | null>(null);
-const checkCodeValidationResponse = ref<CommonResponse<boolean> | null>(null);
 const subMenuResponse = ref<CommonResponse<LegacySubMenuResult> | null>(null);
 const menuResponse = ref<CommonResponse<TreeNode<AuthItem>[]> | null>(null);
 const detailResponse = ref<CommonResponse<QueryDataDetailResult> | null>(null);
@@ -273,8 +270,8 @@ const initNewDataRows = computed(() => detailResultSimpleData(initNewResponse.va
 const currentReadItemView = computed(() => readItemViewFor(Number(detailViewId.value)));
 const currentInitNewReadItemView = computed(() => readItemViewFor(Number(initNewViewId.value)));
 const detailTitle = computed(() => viewDisplayTitle(currentReadItemView.value, "Detail"));
-const pageViewTitle = computed(() => isMetadataOnlyView.value ? detailTitle.value : viewTitle.value);
-const pageViewName = computed(() => isMetadataOnlyView.value ? "" : loadedViewName.value);
+const pageViewTitle = computed(() => isMetadataOnlyView.value || isStandaloneDetail.value ? detailTitle.value : viewTitle.value);
+const pageViewName = computed(() => isMetadataOnlyView.value || isStandaloneDetail.value ? "" : loadedViewName.value);
 const readItemFields = computed(() =>
   readViewFields(readItemViewFor(Number(readItemViewId.value)) || readItemViewResponse.value?.data)
 );
@@ -316,9 +313,9 @@ const chartMax = computed(() => Math.max(1, ...chartData.value.series.flatMap((s
 const responseDump = computed(() =>
   JSON.stringify(
     {
-      login: loginResponse.value, initApp: initAppResponse.value, legacyLogin: legacyLoginResponse.value,
+      initApp: initAppResponse.value, legacyLogin: legacyLoginResponse.value,
       profile: profileResponse.value, legacyUserInfo: legacyUserInfoResponse.value, mainInfo: mainInfoResponse.value,
-      appInfo: appInfoResponse.value, checkCode: checkCodeResponse.value, checkCodeValidation: checkCodeValidationResponse.value,
+      appInfo: appInfoResponse.value, checkCode: checkCodeResponse.value,
       subMenu: subMenuResponse.value, menus: menuResponse.value,
       view: viewResponse.value, readItemView: readItemViewResponse.value, data: dataResponse.value,
       detail: detailResponse.value, initNew: initNewResponse.value, enums: enumResponse.value,
@@ -347,30 +344,11 @@ async function runAction<T>(label: string, action: () => Promise<CommonResponse<
   }
 }
 
-async function login() {
-  const response = await runAction("login", () =>
-    postApi<LoginVo>("/api/v1/auth/login", {
-      userId: userId.value,
-      password: password.value
-    })
-  );
-
-  if (response) {
-    loginResponse.value = response;
-    token.value = response.data?.token || token.value;
-    if (token.value) {
-      localStorage.setItem("fool-service-token", token.value);
-      void refreshShellStatus(false);
-      startShellPolling();
-    }
-  }
-}
-
 async function initApp() {
   const response = await runAction("initapp", () =>
     postApi<LegacyInitAppResult>("/api/v1/auth/initapp", {
-      AppId: legacyAppId.value,
-      AppKey: legacyAppKey.value
+      AppId: legacyAppId,
+      AppKey: legacyAppKey
     })
   );
 
@@ -378,7 +356,6 @@ async function initApp() {
     initAppResponse.value = response;
     const checkCode = legacyInitAppCheckCode(response.data);
     checkCodeKey.value = legacyCheckCodeKey(checkCode) || checkCodeKey.value;
-    checkCodeValue.value = legacyCheckCodeCode(checkCode) || checkCodeValue.value;
     legacyDbId.value = legacyInitAppDbId(response.data) || legacyDbId.value;
   }
 }
@@ -390,22 +367,38 @@ async function loginV2() {
       PassWord: password.value,
       DbId: legacyDbId.value,
       CheckCode: checkCodeValue.value,
-      AppId: legacyAppId.value,
-      AppKey: legacyAppKey.value,
+      AppId: legacyAppId,
+      AppKey: legacyAppKey,
       CheckCodeKey: checkCodeKey.value
     })
   );
 
-  if (response) {
-    legacyLoginResponse.value = response;
-    applyDefaultAppView(response.data);
-    token.value = response.data?.token || response.data?.Token || token.value;
-    if (token.value) {
-      localStorage.setItem("fool-service-token", token.value);
-      void refreshShellStatus(false);
-      startShellPolling();
-    }
+  if (!response) return false;
+  legacyLoginResponse.value = response;
+  applyDefaultAppView(response.data);
+  token.value = response.data?.token || response.data?.Token || "";
+  if (!token.value) {
+    errorMessage.value = legacyLoginErrorMessage(response.data) || "Sign in failed.";
+    return false;
   }
+  localStorage.setItem("fool-service-token", token.value);
+  return true;
+}
+
+async function submitLegacyLogin(user: string, secret: string, database: string, checkCode: string) {
+  userId.value = user;
+  password.value = secret;
+  legacyDbId.value = database;
+  checkCodeValue.value = checkCode;
+  if (await loginV2()) {
+    password.value = "";
+    checkCodeValue.value = "";
+    await enterAuthenticatedShell();
+    return;
+  }
+  const loginError = errorMessage.value || "Sign in failed.";
+  await refreshLoginCheckCode();
+  errorMessage.value = loginError;
 }
 
 async function loadProfile() {
@@ -443,19 +436,17 @@ async function loadCheckCode() {
   if (response) {
     checkCodeResponse.value = response;
     checkCodeKey.value = legacyCheckCodeKey(response.data);
-    checkCodeValue.value = legacyCheckCodeCode(response.data);
   }
 }
 
-async function validateCheckCode() {
-  const request: CheckCodeRequest = {
-    key: checkCodeKey.value,
-    code: checkCodeValue.value
-  };
-  const response = await runAction("checkcode", () => postApi<boolean>("/api/v1/auth/checkcode", request));
-  if (response) {
-    checkCodeValidationResponse.value = response;
-  }
+async function refreshLoginCheckCode() {
+  checkCodeValue.value = "";
+  await loadCheckCode();
+}
+
+async function prepareLegacyLogin() {
+  if (!initAppResponse.value) await initApp();
+  if (!checkCodeKey.value) await loadCheckCode();
 }
 
 async function loadMenus() {
@@ -493,6 +484,13 @@ async function openShellMenu(item: LegacyAuthItem) {
   if (authNo) {
     subMenuParentAuthCode.value = authNo;
     await loadSubMenu();
+  }
+}
+
+async function openPrimarySection(section: string) {
+  activeSection.value = section;
+  if (section === "views" && (isMetadataOnlyView.value || isStandaloneDetail.value)) {
+    await loadViewWorkflow();
   }
 }
 
@@ -552,16 +550,29 @@ function stopShellPolling() {
   }
 }
 
+function clearLegacySession() {
+  stopAutoRefresh();
+  stopShellPolling();
+  token.value = "";
+  legacyUserInfoResponse.value = null;
+  mainInfoResponse.value = null;
+  appInfoResponse.value = null;
+  subMenuResponse.value = null;
+  menuResponse.value = null;
+  messageResponse.value = null;
+  notifyResponse.value = null;
+  checkCodeResponse.value = null;
+  checkCodeKey.value = "";
+  checkCodeValue.value = "";
+  shellErrorMessage.value = "";
+  localStorage.removeItem("fool-service-token");
+}
+
 async function logout() {
   const response = await runAction("logout", () => postApi<void>("/api/v1/auth/logout", buildTokenRequest(token.value)));
   if (response) {
-    stopShellPolling();
-    token.value = "";
-    legacyUserInfoResponse.value = null;
-    messageResponse.value = null;
-    notifyResponse.value = null;
-    localStorage.removeItem("fool-service-token");
-    activeSection.value = "tools";
+    clearLegacySession();
+    await prepareLegacyLogin();
   }
 }
 
@@ -803,33 +814,23 @@ function applyRequestedViewId(requestedViewId: number) {
   viewKeyword.value = "";
 }
 
-async function ensureLegacySession() {
-  if (token.value) return true;
-  await initApp();
-  if (!checkCodeKey.value || !checkCodeValue.value) {
-    await loadCheckCode();
-  }
-  await loginV2();
-  return Boolean(token.value);
-}
-
 async function ensureLegacyShell() {
-  if (!(await ensureLegacySession())) return false;
+  if (!token.value) return false;
+  if (mainInfoResponse.value) return true;
   if (await loadMainInfo()) return true;
-  token.value = "";
-  localStorage.removeItem("fool-service-token");
-  return (await ensureLegacySession()) && Boolean(await loadMainInfo());
+  clearLegacySession();
+  await prepareLegacyLogin();
+  return false;
 }
 
 async function loadViewWorkflow(resetPage = false) {
   stopAutoRefresh();
   isMetadataOnlyView.value = false;
+  isStandaloneDetail.value = false;
   if (resetPage) {
     pageIndex.value = 1;
   }
-  if (!resetPage && !viewResponse.value) {
-    if (!(await ensureLegacyShell())) return;
-  }
+  if (!(await ensureLegacyShell())) return;
   const loadedView = await loadLegacyListView();
   if (!loadedView) {
     return;
@@ -861,6 +862,7 @@ async function loadLegacyDetailPath(route: { viewId: number; objectId?: string }
   stopAutoRefresh();
   activeSection.value = "views";
   isMetadataOnlyView.value = false;
+  isStandaloneDetail.value = true;
   applyRequestedViewId(route.viewId);
   if (!(await ensureLegacyShell())) return;
   const objectId = route.objectId || "";
@@ -876,6 +878,7 @@ async function loadLegacyItemView(viewId: number) {
   stopAutoRefresh();
   activeSection.value = "views";
   isMetadataOnlyView.value = true;
+  isStandaloneDetail.value = false;
   applyRequestedViewId(viewId);
   detailViewId.value = readItemViewId.value = viewId;
   selectedObjectId.value = detailObjId.value = saveObjId.value = operationObjectId.value = "";
@@ -888,6 +891,7 @@ async function loadLegacyNewPath(route: { viewId: number; parentObjId: string; o
   stopAutoRefresh();
   activeSection.value = "views";
   isMetadataOnlyView.value = false;
+  isStandaloneDetail.value = true;
   applyRequestedViewId(route.viewId);
   if (!(await ensureLegacyShell())) return;
   await startNewObject(route.viewId, route.parentObjId, route.ownerViewId, route.property);
@@ -914,11 +918,19 @@ async function loadInitialRoute() {
   await loadViewWorkflow();
 }
 
-async function initializeApp() {
+async function enterAuthenticatedShell() {
   await loadInitialRoute();
   if (!token.value) return;
-  await refreshShellStatus();
+  await refreshShellStatus(false);
   startShellPolling();
+}
+
+async function initializeApp() {
+  if (!token.value) {
+    await prepareLegacyLogin();
+    return;
+  }
+  await enterAuthenticatedShell();
 }
 
 onMounted(() => void initializeApp());
@@ -1143,7 +1155,16 @@ function syncDetailDrafts() {
 </script>
 
 <template>
-  <div class="app-shell">
+  <LoginPanel
+    v-if="!token"
+    :app-info="initAppResponse?.data"
+    :check-code="checkCodeResponse?.data"
+    :error-message="errorMessage"
+    :pending="Boolean(pendingAction)"
+    @refresh="refreshLoginCheckCode"
+    @submit="submitLegacyLogin"
+  />
+  <div v-else class="app-shell">
     <aside class="sidebar">
       <div class="brand">
         <span class="brand-mark">F</span>
@@ -1159,7 +1180,7 @@ function syncDetailDrafts() {
           :key="item.id"
           type="button"
           :class="{ active: activeSection === item.id }"
-          @click="activeSection = item.id"
+          @click="openPrimarySection(item.id)"
         >
           {{ item.label }}
         </button>
@@ -1207,8 +1228,8 @@ function syncDetailDrafts() {
         </div>
       </header>
 
-      <section v-if="activeSection === 'views'" class="view-workflow" :class="{ 'metadata-only': isMetadataOnlyView }" aria-label="View workflow">
-        <article v-if="!isMetadataOnlyView" class="panel view-list-panel">
+      <section v-if="activeSection === 'views'" class="view-workflow" :class="{ 'metadata-only': isMetadataOnlyView || isStandaloneDetail }" aria-label="View workflow">
+        <article v-if="!isMetadataOnlyView && !isStandaloneDetail" class="panel view-list-panel">
           <div class="panel-heading">
             <h2>{{ viewTitle }}</h2>
             <span>{{ loadedViewName }}</span>
@@ -1321,7 +1342,7 @@ function syncDetailDrafts() {
           @update-detail-item="updateDetailItem"
         />
         <ViewReportPanel
-          v-if="showViewReport && !isMetadataOnlyView && currentViewId"
+          v-if="showViewReport && !isMetadataOnlyView && !isStandaloneDetail && currentViewId"
           :key="currentViewId"
           :pending="Boolean(pendingAction)"
           :run-action="runAction"
@@ -1331,41 +1352,7 @@ function syncDetailDrafts() {
         />
       </section>
 
-      <section v-if="activeSection === 'tools'" class="grid auth-grid" aria-labelledby="auth-heading">
-        <article class="panel">
-          <div class="panel-heading">
-            <h2 id="auth-heading">Auth Session</h2>
-            <span>POST /api/v1/auth/login</span>
-          </div>
-          <label>
-            User ID
-            <input v-model="userId" autocomplete="username" />
-          </label>
-          <label>
-            Password
-            <input v-model="password" type="password" autocomplete="current-password" />
-          </label>
-          <div class="inline-fields">
-            <label>
-              App ID
-              <input v-model="legacyAppId" />
-            </label>
-            <label>
-              App Key
-              <input v-model="legacyAppKey" />
-            </label>
-            <label>
-              DB ID
-              <input v-model="legacyDbId" />
-            </label>
-          </div>
-          <button class="primary" type="button" :disabled="pendingAction === 'login'" @click="login">
-            Login
-          </button>
-          <button type="button" :disabled="pendingAction === 'initapp'" @click="initApp">Init App</button>
-          <button type="button" :disabled="pendingAction === 'loginv2'" @click="loginV2">Legacy Login V2</button>
-        </article>
-
+      <section v-if="activeSection === 'tools'" class="grid auth-grid" aria-label="API tools">
         <article class="panel">
           <div class="panel-heading">
             <h2>Token & Profile</h2>
@@ -1380,36 +1367,6 @@ function syncDetailDrafts() {
             <button type="button" :disabled="pendingAction === 'getmain'" @click="loadMainInfo">Main Info</button>
             <button type="button" :disabled="pendingAction === 'getapp'" @click="loadAppInfo">App Info</button>
             <button type="button" :disabled="pendingAction === 'menus'" @click="loadMenus">Menus</button>
-          </div>
-        </article>
-
-        <article class="panel lookup-panel">
-          <div class="panel-heading">
-            <h2>Check Code</h2>
-            <span>POST /api/v1/auth/getcheckcode</span>
-          </div>
-          <div class="inline-fields">
-            <label>
-              Key
-              <input v-model="checkCodeKey" />
-            </label>
-            <label>
-              Code
-              <input v-model="checkCodeValue" />
-            </label>
-          </div>
-          <div class="button-row">
-            <button type="button" :disabled="pendingAction === 'getcheckcode'" @click="loadCheckCode">
-              Load Check Code
-            </button>
-            <button type="button" :disabled="pendingAction === 'checkcode'" @click="validateCheckCode">
-              Validate Code
-            </button>
-          </div>
-
-          <div v-if="checkCodeResponse?.data" class="summary-list">
-            <div><span>Image bytes</span><strong>{{ legacyCheckCodeImage(checkCodeResponse.data).length || 0 }}</strong></div>
-            <div><span>Valid</span><strong>{{ checkCodeValidationResponse?.data ?? "-" }}</strong></div>
           </div>
         </article>
 

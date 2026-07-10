@@ -61,6 +61,7 @@ import {
   legacyItemDetailFields,
   legacyMapMarkers,
   legacyMainMenuItems,
+  legacyLoginErrorMessage,
   legacyMessageContent,
   legacyMessageId,
   legacyMessageTime,
@@ -1017,6 +1018,7 @@ describe("view workflow helpers", () => {
     expect(legacyNotifyCount(notifies.Notifies[0])).toBe(3);
     expect(legacyNotifyCountForAuth(notifies.Notifies, "1")).toBe(5);
     expect(legacyUserName({ User: { UserName: "Admin", LoginName: "admin" } })).toBe("Admin");
+    expect(legacyLoginErrorMessage({ Error: { Message: "Invalid login" } })).toBe("Invalid login");
     expect(legacyEnumValues(enums)).toHaveLength(1);
     expect(legacyEnumName(enums.EnumValues[0])).toBe("Open");
     expect(legacyEnumValue(enums.EnumValues[0])).toBe("0");

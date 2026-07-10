@@ -4,6 +4,7 @@ import nginxConfig from "../nginx.conf?raw";
 import viteConfig from "../vite.config.ts?raw";
 import appSource from "./App.vue?raw";
 import listDataTableSource from "./ListDataTable.vue?raw";
+import loginPanelSource from "./LoginPanel.vue?raw";
 import metadataFieldEditorSource from "./MetadataFieldEditor.vue?raw";
 import payloadSource from "./payload.ts?raw";
 import resultsPanelSource from "./ResultsPanel.vue?raw";
@@ -389,7 +390,7 @@ describe("App defaults", () => {
     expect(viewDataWorkflowSource).not.toContain("viewId(viewResponse.value?.data, options.listViewId.value)");
   });
 
-  it("loads the default first-screen View from the legacy app shell", () => {
+  it("loads the default first-screen View only after the legacy app shell is authenticated", () => {
     const workflowSource = appSource.slice(
       appSource.indexOf("async function loadViewWorkflow"),
       appSource.indexOf("onMounted(()")
@@ -399,10 +400,13 @@ describe("App defaults", () => {
       appSource.indexOf("async function loadViewWorkflow")
     );
 
-    expect(appSource).toContain('const password = ref("admin")');
-    expect(appSource).toContain("async function ensureLegacySession");
-    expect(shellSource.indexOf("await ensureLegacySession()")).toBeGreaterThanOrEqual(0);
-    expect(shellSource.indexOf("await ensureLegacySession()")).toBeLessThan(shellSource.indexOf("await loadMainInfo()"));
+    expect(appSource).toContain('const password = ref("")');
+    expect(appSource).toContain('<LoginPanel\n    v-if="!token"');
+    expect(appSource).not.toContain('const password = ref("admin")');
+    expect(appSource).not.toContain("ensureLegacySession");
+    expect(loginPanelSource).toContain('autocomplete="username"');
+    expect(loginPanelSource).toContain('autocomplete="current-password"');
+    expect(loginPanelSource).toContain('name="check-code-key"');
     expect(appSource).toContain("legacyAppDefaultViewId");
     expect(appSource).toContain("applyDefaultAppView(response.data)");
     expect(shellSource.indexOf("await loadMainInfo()")).toBeGreaterThanOrEqual(0);
@@ -419,6 +423,9 @@ describe("App defaults", () => {
   it("starts old Web detail and new paths through existing View-first detail flows", () => {
     expect(appSource).toContain("legacyDetailPath(window.location.pathname)");
     expect(appSource).toContain("await loadLegacyDetailPath(detailRoute)");
+    expect(appSource).toContain("isStandaloneDetail.value = true");
+    expect(appSource).toContain('v-if="!isMetadataOnlyView && !isStandaloneDetail"');
+    expect(appSource).toContain('@click="openPrimarySection(item.id)"');
     expect(appSource).toContain("await queryDetail(route.viewId)");
     expect(appSource).toContain("legacyItemViewPathId(window.location.pathname)");
     expect(appSource).toContain("await loadLegacyItemView(itemViewId)");
@@ -445,16 +452,17 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain("View definition loaded.");
   });
 
-  it("retries the first-screen legacy shell after a stale stored token", () => {
+  it("returns stale stored tokens to the signed-out login screen", () => {
     const shellSource = appSource.slice(
       appSource.indexOf("async function ensureLegacyShell"),
       appSource.indexOf("async function loadViewWorkflow")
     );
 
     expect(shellSource).toContain("if (await loadMainInfo()) return true");
-    expect(shellSource).toContain("token.value = \"\"");
-    expect(shellSource).toContain('localStorage.removeItem("fool-service-token")');
-    expect(shellSource).toContain("return (await ensureLegacySession()) && Boolean(await loadMainInfo())");
+    expect(shellSource).toContain("clearLegacySession()");
+    expect(shellSource).toContain("await prepareLegacyLogin()");
+    expect(shellSource).toContain("return false");
+    expect(shellSource).not.toContain("loginV2");
   });
 
   it("renders legacy shell menu entries and opens their View ids", () => {
@@ -552,25 +560,33 @@ describe("App defaults", () => {
     expect(shellActionsSource).toContain("userName");
     expect(shellActionsSource).toContain("Sign out");
     expect(appSource).not.toContain("Legacy User Info");
+    expect(appSource).toContain("clearLegacySession()");
+    expect(appSource).toContain("await prepareLegacyLogin()");
   });
 
-  it("exposes the legacy checkcode routes in the Vue console", () => {
-    expect(appSource).toContain("Check Code");
+  it("moves the legacy checkcode route into the signed-out login panel", () => {
     expect(appSource).toContain("/api/v1/auth/getcheckcode");
-    expect(appSource).toContain("/api/v1/auth/checkcode");
     expect(appSource).toContain("checkCodeResponse");
+    expect(loginPanelSource).toContain("Check code");
+    expect(loginPanelSource).toContain("captchaImage");
+    expect(loginPanelSource).toContain("Refresh");
+    expect(appSource).not.toContain("<h2>Check Code</h2>");
   });
 
-  it("exposes the legacy loginv2 route in the Vue console", () => {
-    expect(appSource).toContain("Legacy Login V2");
+  it("moves the legacy loginv2 route into the signed-out login panel", () => {
     expect(appSource).toContain("/api/v1/auth/loginv2");
     expect(appSource).toContain("legacyLoginResponse");
+    expect(appSource).toContain("async function submitLegacyLogin");
+    expect(loginPanelSource).toContain("Sign in");
+    expect(appSource).not.toContain("Legacy Login V2");
   });
 
-  it("exposes the legacy initapp route in the Vue console", () => {
-    expect(appSource).toContain("Init App");
+  it("loads legacy initapp metadata for the signed-out login panel", () => {
     expect(appSource).toContain("/api/v1/auth/initapp");
     expect(appSource).toContain("initAppResponse");
+    expect(appSource).toContain("async function prepareLegacyLogin");
+    expect(loginPanelSource).toContain("appInfo");
+    expect(appSource).not.toContain("Init App");
   });
 
   it("exposes the legacy submenu route in the Vue console", () => {
