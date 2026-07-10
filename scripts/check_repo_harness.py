@@ -69,6 +69,17 @@ MIGRATION_PARITY_MARKERS = (
     "SCPB09-SOWAY.EVENT",
     "SWRPT01-Soway.Report",
 )
+REQUIRED_DOCKER_INIT_SQL_FILES = (
+    "001-market-order.sql",
+    "002-app-manage.sql",
+    "003-db-manage.sql",
+    "004-event.sql",
+    "005-model.sql",
+    "006-view.sql",
+    "007-auth.sql",
+    "008-fh-java-market-symbols.sql",
+    "010-query.sql",
+)
 CREATE_TABLE_RE = re.compile(
     r"CREATE TABLE IF NOT EXISTS\s+`([^`]+)`\s*\((.*?)\)\s*(?:ENGINE\b[^;]*)?;",
     re.IGNORECASE | re.DOTALL,
@@ -375,6 +386,10 @@ def check_docker_init_schema_contract(root: Path, report: HarnessReport) -> None
     if not sql_files:
         report.errors.append("Missing Docker init SQL files under docker/mysql/init")
         return
+    existing_names = {path.name for path in sql_files}
+    for file_name in REQUIRED_DOCKER_INIT_SQL_FILES:
+        if file_name not in existing_names:
+            report.errors.append(f"Missing Docker init SQL file: docker/mysql/init/{file_name}")
 
     sql_text = ""
     for path in sql_files:

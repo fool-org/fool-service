@@ -114,6 +114,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: the repository harness now guards the current Docker
+  `car_wash` init script set (`001-market-order` through `010-query`) so a
+  schema seed slice cannot be dropped while runtime-doctor schema columns
+  still appear elsewhere.
 - 2026-07-10: the Docker runtime doctor now proves the old FoolFrame Web
   Vue deep links `/main`, `/view:id`, `/view:id/:objid`, `/itemview:id`,
   `/new:id`, and `/new:id/:objid&:ownerviewid&:prpid` return the built Vue

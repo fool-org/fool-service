@@ -39,7 +39,9 @@ class SourceFileSizeContractTest(unittest.TestCase):
             root = Path(temp_dir)
             init_dir = root / "docker" / "mysql" / "init"
             init_dir.mkdir(parents=True)
-            (init_dir / "001.sql").write_text(
+            for file_name in harness.REQUIRED_DOCKER_INIT_SQL_FILES:
+                (init_dir / file_name).write_text("", encoding="utf-8")
+            (init_dir / "005-model.sql").write_text(
                 "CREATE TABLE IF NOT EXISTS `SW_SYS_MODEL` (`MODEL_ID` bigint NOT NULL);\n",
                 encoding="utf-8",
             )
@@ -63,6 +65,29 @@ class SourceFileSizeContractTest(unittest.TestCase):
                     "Docker init schema missing runtime-doctor column: "
                     "SW_SYS_MODEL.MODEL_PARENT"
                 ],
+                report.errors,
+            )
+
+    def test_reports_missing_required_docker_init_sql_file(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            init_dir = root / "docker" / "mysql" / "init"
+            init_dir.mkdir(parents=True)
+            (init_dir / "001-market-order.sql").write_text("SELECT 1;\n", encoding="utf-8")
+            report = HarnessReport(root=root)
+            original_legacy = harness.LEGACY_CORE_SCHEMA_COLUMNS
+            original_market = harness.MARKET_SYMBOLS_COLUMNS
+
+            try:
+                harness.LEGACY_CORE_SCHEMA_COLUMNS = ()
+                harness.MARKET_SYMBOLS_COLUMNS = ()
+                harness.check_docker_init_schema_contract(root, report)
+            finally:
+                harness.LEGACY_CORE_SCHEMA_COLUMNS = original_legacy
+                harness.MARKET_SYMBOLS_COLUMNS = original_market
+
+            self.assertIn(
+                "Missing Docker init SQL file: docker/mysql/init/010-query.sql",
                 report.errors,
             )
 
