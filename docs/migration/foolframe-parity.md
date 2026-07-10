@@ -114,6 +114,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-10: the Vue list View toolbar now follows the old `view.jade`
+  search workflow without exposing editable View IDs or raw `QueryFilter`
+  syntax. The main workflow sends a trimmed `keyword` only after the View
+  metadata is loaded, while API Tools keeps its separate compatibility
+  `QueryFilter` state. Docker browser checks proved button and Enter-key
+  searches (`BTC` / `ETH`), blank-search restoration, first-row detail
+  selection, and 390px containment.
 - 2026-07-10: the Vue list View now exposes the old `view.jade` report
   workflow from its `Report` command instead of three developer-only API
   panels. `ViewReportPanel.vue` loads candidate columns from `getmkqview`

@@ -45,6 +45,46 @@ describe("useViewDataWorkflow", () => {
     expect(workflow.resultRows.value).toEqual([{ Items: [{ PrpId: "symbol", FmtValue: "BTC-USDT" }] }]);
   });
 
+  it("sends the main View search as keyword without the API-tool QueryFilter", async () => {
+    const calls: { path: string; payload: Record<string, unknown> }[] = [];
+    vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+      const payload = JSON.parse(String(init?.body || "{}")) as Record<string, unknown>;
+      calls.push({ path, payload });
+      if (path === "/api/v1/view/getlistview") {
+        return jsonResponse({ ViewId: 100, Items: [{ Name: "Symbol", PropertyName: "symbol" }] });
+      }
+      return jsonResponse({ Data: [] });
+    }));
+    const workflow = useViewDataWorkflow(workflowRefs({ keyword: ref(" BTC ") }));
+
+    await workflow.queryCurrentViewData();
+
+    expect(calls[1].payload).toMatchObject({ viewId: 100, keyword: "BTC" });
+    expect(calls[1].payload).not.toHaveProperty("queryFilter");
+  });
+
+  it("keeps raw QueryFilter on the API-tool query without leaking the View keyword", async () => {
+    const calls: { path: string; payload: Record<string, unknown> }[] = [];
+    vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
+      const payload = JSON.parse(String(init?.body || "{}")) as Record<string, unknown>;
+      calls.push({ path, payload });
+      if (path === "/api/v1/view/getlistview") {
+        return jsonResponse({ ViewId: 100, Items: [{ Name: "Symbol", PropertyName: "symbol" }] });
+      }
+      return jsonResponse({ Data: [] });
+    }));
+    const workflow = useViewDataWorkflow(workflowRefs({
+      keyword: ref("BTC"),
+      queryFilter: ref("state=0"),
+      queryViewId: ref(100)
+    }));
+
+    await workflow.queryLegacyData();
+
+    expect(calls[1].payload).toMatchObject({ viewId: 100, queryFilter: "state=0" });
+    expect(calls[1].payload).not.toHaveProperty("keyword");
+  });
+
   it("uses legacy ViewId from rendered View metadata before querying data", async () => {
     const calls: { path: string; payload: Record<string, unknown> }[] = [];
     vi.stubGlobal("fetch", vi.fn(async (path: string, init?: RequestInit) => {
@@ -185,6 +225,7 @@ function baseRefs() {
     queryPageSize: ref(10),
     pageIndex: ref(1),
     pageSize: ref(20),
+    keyword: ref(""),
     queryFilter: ref("state=0"),
     detailViewId: ref(0),
     initNewViewId: ref(0),

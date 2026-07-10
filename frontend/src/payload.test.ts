@@ -30,15 +30,23 @@ import {
 
 describe("App defaults", () => {
   it("opens with a metadata-driven view workflow before API tools", () => {
+    const mainViewSource = appSource.slice(
+      appSource.indexOf('aria-label="View workflow"'),
+      appSource.indexOf("<ViewDetailPanel")
+    );
+
     expect(appSource).toContain('const activeSection = ref("views")');
     expect(appSource).toContain("onMounted");
     expect(appSource).toContain("void loadViewWorkflow()");
     expect(appSource).toContain("View workflow");
-    expect(appSource).toContain("Load View");
+    expect(mainViewSource).toContain("Search");
+    expect(mainViewSource).toContain('v-model="viewKeyword"');
+    expect(mainViewSource).not.toContain("QueryFilter");
+    expect(mainViewSource).not.toContain("View ID");
+    expect(mainViewSource).not.toContain("Load View");
     expect(appSource).toContain("await loadLegacyListView()");
     expect(appSource).toContain("await queryCurrentViewData()");
     expect(appSource).toContain("useViewDataWorkflow");
-    expect(appSource).toContain('v-model.number="legacyListViewId"');
     expect(appSource).toContain("New Row");
     expect(viewDetailPanelSource).toContain("Create Row");
     expect(viewDetailPanelSource).toContain("Save Row");
@@ -175,9 +183,13 @@ describe("App defaults", () => {
   });
 
   it("resets the main View search to the first page", () => {
-    expect(appSource).toContain("async function loadViewWorkflow(resetPage = false)");
-    expect(appSource).toContain("pageIndex.value = 1");
-    expect(appSource).toContain('@click="loadViewWorkflow(true)"');
+    const searchSource = appSource.slice(
+      appSource.indexOf("async function searchCurrentView"),
+      appSource.indexOf("async function loadLegacyDetailPath")
+    );
+    expect(searchSource).toContain("pageIndex.value = 1");
+    expect(searchSource.indexOf("pageIndex.value = 1")).toBeLessThan(searchSource.indexOf("queryCurrentViewData()"));
+    expect(appSource).toContain('@click="searchCurrentView"');
   });
 
   it("keeps the Vue workspace on view-id driven legacy view and data APIs", () => {
@@ -196,15 +208,20 @@ describe("App defaults", () => {
     expect(appSource).not.toContain("buildQueryRequest");
   });
 
-  it("passes the main View filter as legacy querydata QueryFilter", () => {
-    const querySource = viewDataWorkflowSource.slice(
-      viewDataWorkflowSource.indexOf("async function queryLoadedViewData"),
-      viewDataWorkflowSource.indexOf("async function queryLegacyData")
+  it("uses keyword search in the main View and keeps QueryFilter in API Tools", () => {
+    const currentQuerySource = viewDataWorkflowSource.slice(
+      viewDataWorkflowSource.indexOf("async function queryCurrentViewData"),
+      viewDataWorkflowSource.indexOf("function readItemViewFor")
+    );
+    const legacyQuerySource = viewDataWorkflowSource.slice(
+      viewDataWorkflowSource.indexOf("async function queryLegacyData"),
+      viewDataWorkflowSource.indexOf("async function queryCurrentViewData")
     );
 
-    expect(appSource).toContain('v-model="legacyQueryFilter"');
-    expect(querySource).toContain("queryFilter: options.queryFilter.value");
-    expect(querySource).not.toContain("keyword:");
+    expect(appSource).toContain('const viewKeyword = ref("")');
+    expect(currentQuerySource).toContain("{ keyword: options.keyword.value }");
+    expect(currentQuerySource).not.toContain("options.queryFilter.value");
+    expect(legacyQuerySource).toContain("{ queryFilter: options.queryFilter.value }");
   });
 
   it("does not let querydata define table columns when View columns are absent", () => {
@@ -446,7 +463,7 @@ describe("App defaults", () => {
     expect(appSource).toContain("shellMenuItems");
     expect(appSource).toContain('@click="openShellMenu(item)"');
     expect(menuSource).toContain("legacyAuthViewId(item)");
-    expect(menuSource).toContain("legacyListViewId.value = itemViewId");
+    expect(menuSource).toContain("applyRequestedViewId(itemViewId)");
     expect(menuSource).not.toContain("legacyQueryViewId.value = itemViewId");
     expect(menuSource).toContain("await loadViewWorkflow(true)");
     expect(menuSource).toContain("subMenuParentAuthCode.value = authNo");

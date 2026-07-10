@@ -720,6 +720,9 @@ explicitly named as authoritative for fool-service.
       and into the rendered View page, with metadata-driven output selection,
       output types, ordering, structured AND/OR conditions, paging, and no
       raw report JSON or SQL filter inputs.
+- [x] Replace the main Vue View toolbar's editable View ID and raw
+      `QueryFilter` controls with a View-metadata-safe keyword search, while
+      keeping the raw compatibility filter isolated in API Tools.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

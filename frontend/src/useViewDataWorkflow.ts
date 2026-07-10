@@ -35,6 +35,7 @@ export interface ViewDataWorkflowRefs {
   queryPageSize: Ref<number>;
   pageIndex: Ref<number>;
   pageSize: Ref<number>;
+  keyword: Ref<string>;
   queryFilter: Ref<string>;
   detailViewId: Ref<number>;
   initNewViewId: Ref<number>;
@@ -121,7 +122,12 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
     return response;
   }
 
-  async function queryLoadedViewData(label: string, pageIndex: number, pageSize: number) {
+  async function queryLoadedViewData(
+    label: string,
+    pageIndex: number,
+    pageSize: number,
+    filters: { keyword?: string; queryFilter?: string } = {}
+  ) {
     const loadedViewId = Number(currentViewId.value);
     if (loadedViewId <= 0 || !canRenderLoadedView()) {
       return null;
@@ -131,7 +137,8 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
       viewId: loadedViewId,
       pageIndex,
       pageSize,
-      queryFilter: options.queryFilter.value
+      keyword: filters.keyword,
+      queryFilter: filters.queryFilter
     });
 
     const response = await options.runAction(label, () =>
@@ -169,8 +176,7 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
         token: options.token.value,
         viewId: loadedViewId,
         pageIndex: 1,
-        pageSize,
-        queryFilter: ""
+        pageSize
       }))
     );
     return { view: viewResponse.data, data: dataResponse?.data ?? null };
@@ -184,7 +190,8 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
     return queryLoadedViewData(
       "legacy-query",
       Number(options.queryPageIndex.value),
-      Number(options.queryPageSize.value)
+      Number(options.queryPageSize.value),
+      { queryFilter: options.queryFilter.value }
     );
   }
 
@@ -204,7 +211,8 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
     return queryLoadedViewData(
       "workflow-query",
       Number(options.pageIndex.value),
-      Number(options.pageSize.value)
+      Number(options.pageSize.value),
+      { keyword: options.keyword.value }
     );
   }
 

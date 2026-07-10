@@ -143,6 +143,7 @@ const legacyListViewId = ref(0);
 const readItemViewId = ref(0);
 const pageIndex = ref(1);
 const pageSize = ref(20);
+const viewKeyword = ref("");
 const legacyQueryViewId = ref(0);
 const legacyQueryPageIndex = ref(1);
 const legacyQueryPageSize = ref(10);
@@ -254,6 +255,7 @@ const {
   queryPageSize: legacyQueryPageSize,
   pageIndex,
   pageSize,
+  keyword: viewKeyword,
   queryFilter: legacyQueryFilter,
   detailViewId,
   initNewViewId,
@@ -484,7 +486,7 @@ async function openShellMenu(item: LegacyAuthItem) {
   const itemViewId = legacyAuthViewId(item);
   if (itemViewId) {
     activeSection.value = "views";
-    legacyListViewId.value = itemViewId;
+    applyRequestedViewId(itemViewId);
     await loadViewWorkflow(true);
     return;
   }
@@ -757,6 +759,7 @@ function applyDefaultAppView(source?: unknown) {
 
 function applyRequestedViewId(requestedViewId: number) {
   legacyListViewId.value = legacyQueryViewId.value = requestedViewId;
+  viewKeyword.value = "";
 }
 
 async function ensureLegacySession() {
@@ -796,6 +799,21 @@ async function loadViewWorkflow(resetPage = false) {
   if (firstRow) {
     await selectObject(firstRow);
   }
+}
+
+async function searchCurrentView() {
+  stopAutoRefresh();
+  pageIndex.value = 1;
+  const response = await queryCurrentViewData();
+  if (!response) return;
+  const firstRow = resultRows.value[0];
+  if (firstRow) {
+    await selectObject(firstRow);
+    return;
+  }
+  selectedObjectId.value = "";
+  detailResponse.value = null;
+  isCreatingObject.value = false;
 }
 
 async function loadLegacyDetailPath(route: { viewId: number; objectId?: string }) {
@@ -1131,19 +1149,15 @@ function syncDetailDrafts() {
           </div>
           <div class="workflow-toolbar">
             <label>
-              View ID
-              <input v-model.number="legacyListViewId" min="1" type="number" />
-            </label>
-            <label>
-              QueryFilter
-              <input v-model="legacyQueryFilter" />
+              Search
+              <input v-model="viewKeyword" type="search" @keyup.enter="searchCurrentView" />
             </label>
             <label>
               Page size
               <input v-model.number="pageSize" min="1" type="number" />
             </label>
-            <button class="primary" type="button" :disabled="Boolean(pendingAction)" @click="loadViewWorkflow(true)">
-              Load View
+            <button class="primary" type="button" :disabled="Boolean(pendingAction)" @click="searchCurrentView">
+              Search
             </button>
             <button v-for="operation in listCreateOperations" :key="operationKey(operation)" type="button" :disabled="Boolean(pendingAction)" @click="startNewObject(operationTargetViewId(operation) || currentViewId)">
               {{ operationLabel(operation) }}
