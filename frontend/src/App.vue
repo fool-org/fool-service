@@ -2,7 +2,6 @@
 import { computed, defineAsyncComponent, onMounted, onUnmounted, ref } from "vue";
 import Button from "primevue/button";
 import Drawer from "primevue/drawer";
-import Tag from "primevue/tag";
 import {
   type CheckCodeResult,
   type CommonResponse,
@@ -34,7 +33,7 @@ import { useChildDrafts } from "./useChildDrafts";
 import { useFieldEnums } from "./useFieldEnums";
 import { useSudokuPanels } from "./useSudokuPanels";
 import { useViewDataWorkflow } from "./useViewDataWorkflow";
-import { enumFieldOptions, nextObjectId, services } from "./viewShell";
+import { enumFieldOptions, nextObjectId } from "./viewShell";
 import {
   buildAddedItemProperty,
   buildDeletedItemProperty,
@@ -54,6 +53,8 @@ import {
   itemDataId,
   itemKey,
   legacyAppDefaultViewId,
+  legacyAppName,
+  legacyAppVersion,
   legacyAuthNo,
   legacyAuthViewId,
   legacyCheckCodeKey,
@@ -205,6 +206,9 @@ const subMenuItems = computed(() => legacySubMenuItems(subMenuResponse.value?.da
 const messageItems = computed(() => legacyMessages(messageResponse.value?.data));
 const notifyItems = computed(() => legacyNotifies(notifyResponse.value?.data));
 const shellUserName = computed(() => legacyUserName(legacyUserInfoResponse.value?.data));
+const shellAppName = computed(() => legacyAppName(mainInfoResponse.value?.data, "Fool Service"));
+const shellAppVersion = computed(() => legacyAppVersion(mainInfoResponse.value?.data));
+const shellAppMark = computed(() => shellAppName.value.trim().charAt(0).toUpperCase() || "F");
 const viewCanEdit = computed(() => dataCanEdit(detailResponse.value?.data));
 const fieldEditorContext = computed(() => ({
   isAdded: isCreatingObject.value,
@@ -896,10 +900,10 @@ function syncDetailDrafts() {
   <div v-else class="app-shell">
     <aside class="sidebar">
       <div class="brand">
-        <span class="brand-mark">F</span>
+        <span class="brand-mark">{{ shellAppMark }}</span>
         <div>
-          <strong>Fool Service</strong>
-          <small>FoolFrame migration</small>
+          <strong>{{ shellAppName }}</strong>
+          <small v-if="shellAppVersion">{{ shellAppVersion }}</small>
         </div>
       </div>
 
@@ -935,15 +939,6 @@ function syncDetailDrafts() {
           </div>
         </div>
         <div class="topbar-side">
-          <div class="status-strip">
-            <Tag
-              v-for="service in services"
-              :key="service.label"
-              :severity="service.state === 'ready' ? 'success' : 'warn'"
-              :value="`${service.label} · ${service.value}`"
-              rounded
-            />
-          </div>
           <ShellActions
             v-if="token"
             :error-message="shellErrorMessage"
@@ -959,10 +954,10 @@ function syncDetailDrafts() {
 
       <Drawer v-model:visible="mobileMenuOpen" position="left" class="mobile-navigation" header="Navigation">
         <div class="brand drawer-brand">
-          <span class="brand-mark">F</span>
+          <span class="brand-mark">{{ shellAppMark }}</span>
           <div>
-            <strong>Fool Service</strong>
-            <small>FoolFrame migration</small>
+            <strong>{{ shellAppName }}</strong>
+            <small v-if="shellAppVersion">{{ shellAppVersion }}</small>
           </div>
         </div>
         <nav class="nav-list" aria-label="Mobile main">

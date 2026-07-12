@@ -45,6 +45,8 @@ import {
   itemDataId,
   itemKey,
   legacyAppDefaultViewId,
+  legacyAppName,
+  legacyAppVersion,
   legacyAuthIndex,
   legacyAuthNo,
   legacyAuthText,
@@ -955,6 +957,9 @@ describe("view workflow helpers", () => {
     expect(legacyAppDefaultViewId({ App: { DefaultViewId: 101 } })).toBe(101);
     expect(legacyAppDefaultViewId({ defaultViewId: 102 })).toBe(102);
     expect(legacyAppDefaultViewId({ App: { DefaultViewId: 0 } })).toBe(0);
+    expect(legacyAppName({ App: { AppName: "Legacy App" } })).toBe("Legacy App");
+    expect(legacyAppName({ app: { appName: "Camel App" } })).toBe("Camel App");
+    expect(legacyAppVersion({ App: { AppVer: "2.1" } })).toBe("2.1");
   });
 
   it("reads the old FoolFrame Web list route View id", () => {

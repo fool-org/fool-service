@@ -2162,6 +2162,9 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `CheckCode`, `AppId`, `AppKey`, and `CheckCodeKey`
 - Legacy `getuserinfo` user/token payload loading with legacy `Token` alias
 - Legacy `getmain` raw-token user/default-AppInfo/top-menu loading
+- Authenticated desktop and mobile shell branding from legacy
+  `getmain.App.AppName` / `AppVer`, without exposing Docker/MySQL/Redis
+  implementation status in the user-facing header
 - Legacy `getcheckcode` captcha image loading and refresh in the login page;
   `loginv2` validates the submitted key/code pair
 - Legacy `getsubmenu` top/child menu loading with legacy `ParentAuthCode`

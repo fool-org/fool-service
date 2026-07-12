@@ -660,6 +660,11 @@ describe("App defaults", () => {
   it("loads legacy main info into the signed-in shell", () => {
     expect(appSource).toContain("/api/v1/auth/getmain");
     expect(appSource).toContain("mainInfoResponse");
+    expect(appSource).toContain("legacyAppName(mainInfoResponse.value?.data");
+    expect(appSource).toContain("legacyAppVersion(mainInfoResponse.value?.data)");
+    expect(appSource).toContain("{{ shellAppName }}");
+    expect(appSource).not.toContain("Docker Backend");
+    expect(viewShellSource).not.toContain("services");
   });
 
   it("runs legacy initnew from the rendered View workflow", () => {

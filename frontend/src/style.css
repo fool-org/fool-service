@@ -215,17 +215,6 @@ label {
   justify-items: end;
 }
 
-.status-strip {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: flex-end;
-}
-
-.status-strip .p-tag {
-  font-weight: 650;
-}
-
 .drawer-brand {
   margin-bottom: 22px;
   color: #0f172a;
@@ -839,10 +828,6 @@ label {
 
   .topbar {
     display: grid;
-  }
-
-  .status-strip {
-    justify-content: start;
   }
 
   .topbar-side {

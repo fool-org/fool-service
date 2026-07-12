@@ -6,12 +6,6 @@ export interface SelectOption {
   value: string;
 }
 
-export const services = [
-  { label: "Docker Backend", value: "8080", state: "ready" },
-  { label: "MySQL", value: "car_wash", state: "ready" },
-  { label: "Redis", value: "6379", state: "ready" }
-];
-
 export function nextObjectId() {
   return String(Date.now());
 }

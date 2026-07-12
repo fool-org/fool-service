@@ -153,6 +153,9 @@ item must land with its matching implementation and validation evidence.
       FoolFrame shell configuration instead of a Docker seed DTO shortcut.
 - [x] Require legacy `getapp` / `getmain` AppInfo shell aliases used by
       `layout.jade` and `default.jade` through the Docker runtime doctor.
+- [x] Render authenticated shell branding from `getmain.AppName/AppVer` and
+      remove the Vue-only Docker/MySQL/Redis status strip from the user-facing
+      header.
 - [x] Seed legacy View/query Chinese metadata as UTF-8 in Docker so Vue
       renders operation labels like `删除` / `保存` instead of mojibake.
 - [x] Hydrate legacy `SW_SYS_OPERATIONVIEW_ITEM` operation parameter metadata

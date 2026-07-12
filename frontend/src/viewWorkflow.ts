@@ -225,6 +225,18 @@ export function legacyAppDefaultViewId(source?: unknown) {
   return Number(app.defaultViewId ?? app.DefaultViewId ?? 0) || 0;
 }
 
+export function legacyAppName(source?: unknown, fallback = "") {
+  const record = objectRecord(source);
+  const app = objectRecord(record.app || record.App || source);
+  return firstDisplayValue([app.appName, app.AppName, fallback]);
+}
+
+export function legacyAppVersion(source?: unknown) {
+  const record = objectRecord(source);
+  const app = objectRecord(record.app || record.App || source);
+  return firstDisplayValue([app.appVer, app.AppVer, app.appVersion, app.AppVersion]);
+}
+
 export function legacyInitAppCheckCode(source?: LegacyInitAppResult) {
   return source?.checkCode ?? source?.CheckCode;
 }
