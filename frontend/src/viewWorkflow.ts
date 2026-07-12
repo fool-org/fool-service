@@ -690,6 +690,10 @@ export function dataOperations(result: QueryDataDetailResult | undefined) {
   return firstList(result?.operations, result?.Operations);
 }
 
+export function dataCanEdit(result: QueryDataDetailResult | undefined) {
+  return result?.canEdit ?? result?.CanEdit ?? false;
+}
+
 export function listTotalItems(result?: ListViewResult) {
   return result?.totalItem ?? result?.TotalItem ?? result?.pageInfo?.total ?? 0;
 }

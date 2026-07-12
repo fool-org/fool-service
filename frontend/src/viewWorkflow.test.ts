@@ -13,6 +13,7 @@ import {
   buildUpdatedItemProperty,
   columnKey,
   createOperations,
+  dataCanEdit,
   dataOperations,
   detailFieldsFromReadView,
   detailGroupsFromReadView,
@@ -921,6 +922,9 @@ describe("view workflow helpers", () => {
     expect(operationParamLabel(open.Params[0])).toBe("Reason");
     expect(operationParamKey(open.Params[1], 1)).toBe("Fallback");
     expect(dataOperations({ Operations: [open] })).toEqual([open]);
+    expect(dataCanEdit({ CanEdit: true })).toBe(true);
+    expect(dataCanEdit({ canEdit: false, CanEdit: true })).toBe(false);
+    expect(dataCanEdit(undefined)).toBe(false);
   });
 
   it("reads legacy list paging from direct totals or pageInfo", () => {

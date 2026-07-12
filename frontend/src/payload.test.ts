@@ -100,6 +100,16 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).not.toContain("param.paramName");
   });
 
+  it("keeps existing details read-only until CanEdit starts an edit session", () => {
+    expect(appSource).toContain("dataCanEdit(detailResponse.value?.data)");
+    expect(viewDetailPanelSource).toContain("const isEditing = ref(false)");
+    expect(viewDetailPanelSource).toContain('label="Edit"');
+    expect(viewDetailPanelSource).toContain('v-if="isEditing" class="view-edit-grid"');
+    expect(viewDetailPanelSource).toContain('v-if="!isEditing && (selectedObjectId || schemaOnly)"');
+    expect(viewDetailPanelSource).toContain(':disabled="pending || isEditing"');
+    expect(viewDetailPanelSource).toContain("isEditing.value = props.isCreatingObject");
+  });
+
   it("renders row operations through their target detail View id", () => {
     expect(viewListPanelSource).toContain("rowOperations(operations.value)");
     expect(viewListPanelSource).toContain(':row-operations="rowItems"');

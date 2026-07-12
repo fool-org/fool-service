@@ -156,6 +156,10 @@ item must land with its matching implementation and validation evidence.
       into View operation DTOs for both list-view and detail-view responses.
 - [x] Render Vue detail operation parameters through shared
       `Params`/`ParamName` helpers instead of direct template DTO field reads.
+- [x] Restore the old detail view/edit/save state machine from
+      `detailView.jade`: existing records start read-only, server `CanEdit`
+      controls Edit access, new records start editable, and View operations
+      and child write controls stay blocked while the main detail is editing.
 - [x] Persist dynamic `BusinessObject` fields through their foreign-key ids so
       legacy `runoperation` update saves stay metadata-driven and do not bind
       to concrete business DTOs.

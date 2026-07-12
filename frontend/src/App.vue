@@ -43,6 +43,7 @@ import {
   buildSavePropertyies,
   buildSelectedExistingItemProperty,
   buildUpdatedItemProperty,
+  dataCanEdit,
   dataOperations,
   detailResultItems,
   detailResultSimpleData,
@@ -204,7 +205,7 @@ const subMenuItems = computed(() => legacySubMenuItems(subMenuResponse.value?.da
 const messageItems = computed(() => legacyMessages(messageResponse.value?.data));
 const notifyItems = computed(() => legacyNotifies(notifyResponse.value?.data));
 const shellUserName = computed(() => legacyUserName(legacyUserInfoResponse.value?.data));
-const viewCanEdit = computed(() => Boolean(selectedObject.value || isCreatingObject.value));
+const viewCanEdit = computed(() => dataCanEdit(detailResponse.value?.data));
 const fieldEditorContext = computed(() => ({
   isAdded: isCreatingObject.value,
   lookupDisabled: Boolean(pendingAction.value),

@@ -118,6 +118,16 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-12: restored the main detail interaction state from old Web
+  `detailView.jade` / `detailview.js`. Existing records now render read-only
+  values first, `querydatadetail.CanEdit` controls Edit access, new records
+  enter edit mode directly, successful detail reloads return to read-only, and
+  View operations plus child write controls are disabled or hidden while the
+  main detail is editing. The Vue permission projection accepts both camel and
+  Pascal response aliases without binding to a business DTO. All 131 frontend
+  tests, TypeScript/Vite build, Compose frontend deployment, runtime doctor,
+  and repository harness pass. Browser interaction stopped at a fresh local
+  CAPTCHA, so visible Edit/Save replay remains in final browser acceptance.
 - 2026-07-12: aligned Vue shell menu hierarchy with old Web `leftbar.jade` /
   `menuinfo.js`. Loading `getsubmenu` no longer replaces the top-level menu;
   desktop and mobile render child entries under the selected parent, direct

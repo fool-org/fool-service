@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, watch } from "vue";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import Tag from "primevue/tag";
@@ -25,7 +26,7 @@ import {
   operationParams
 } from "./viewWorkflow";
 
-defineProps<{
+const props = defineProps<{
   candidateColumns: (group: QueryDataDetailItemGroup) => TableColumnInfo[];
   candidateRows: (group: QueryDataDetailItemGroup) => ListDataItem[];
   candidateState: (group: QueryDataDetailItemGroup) => { keyword: string; pageIndex: number; pageSize: number; totalPage: number };
@@ -44,6 +45,23 @@ defineProps<{
   title: string;
   viewCanEdit: boolean;
 }>();
+
+const isEditing = ref(false);
+
+watch(
+  () => [props.selectedObjectId, props.isCreatingObject] as const,
+  () => {
+    isEditing.value = props.isCreatingObject;
+  },
+  { immediate: true }
+);
+
+watch(
+  () => props.detailRows,
+  () => {
+    if (!props.isCreatingObject) isEditing.value = false;
+  }
+);
 
 const emit = defineEmits<{
   addDetailItem: [group: QueryDataDetailItemGroup];
@@ -70,7 +88,27 @@ const emit = defineEmits<{
       <Tag :value="selectedObjectId || 'No row selected'" :severity="selectedObjectId ? 'secondary' : 'warn'" rounded />
     </div>
 
-    <div v-if="viewCanEdit" class="view-edit-grid">
+    <div v-if="selectedObjectId && (viewCanEdit || isCreatingObject)" class="detail-toolbar">
+      <Button
+        v-if="!isEditing"
+        type="button"
+        label="Edit"
+        icon="pi pi-pencil"
+        :disabled="pending"
+        @click="isEditing = true"
+      />
+      <Button
+        v-else
+        type="button"
+        :label="isCreatingObject ? 'Create Row' : 'Save Row'"
+        :icon="isCreatingObject ? 'pi pi-plus' : 'pi pi-save'"
+        :loading="pending"
+        :disabled="pending"
+        @click="emit('saveSelectedObject')"
+      />
+    </div>
+
+    <div v-if="isEditing" class="view-edit-grid">
       <label v-for="field in detailRows" :key="fieldKey(field)">
         {{ fieldTitle(field) }}
         <MetadataFieldEditor
@@ -82,13 +120,12 @@ const emit = defineEmits<{
           @update:model-value="(value) => emit('updateDetailDraft', fieldKey(field), value)"
         />
       </label>
-      <Button type="button" :label="isCreatingObject ? 'Create Row' : 'Save Row'" :icon="isCreatingObject ? 'pi pi-plus' : 'pi pi-save'" :loading="pending" :disabled="pending" @click="emit('saveSelectedObject')" />
     </div>
-    <div v-else class="empty-state compact">
+    <div v-else-if="!selectedObjectId" class="empty-state compact">
       {{ schemaOnly ? "View definition loaded." : "Select a row from the list." }}
     </div>
 
-    <div class="detail-fields">
+    <div v-if="!isEditing && (selectedObjectId || schemaOnly)" class="detail-fields">
       <div v-for="item in detailRows" :key="fieldKey(item)">
         <span>{{ fieldTitle(item) }}</span>
         <strong>{{ fieldDisplayValue(item) }}</strong>
@@ -104,14 +141,14 @@ const emit = defineEmits<{
       </div>
     </div>
 
-    <div v-if="selectedObjectId && !isCreatingObject && detailViewOperations.length" class="view-operations">
+    <div v-if="viewCanEdit && selectedObjectId && !isCreatingObject && detailViewOperations.length" class="view-operations">
       <h3>View Operations</h3>
       <div class="button-row">
         <Button
           v-for="operation in detailViewOperations"
           :key="operationKey(operation)"
           type="button"
-          :disabled="pending"
+          :disabled="pending || isEditing"
           :label="operationLabel(operation)"
           icon="pi pi-bolt"
           severity="secondary"
@@ -137,7 +174,7 @@ const emit = defineEmits<{
             <span>{{ groupTitle(group) }}</span>
             <strong>{{ groupItems(group).length }} rows</strong>
           </div>
-          <div class="item-add-row">
+          <div v-if="isEditing" class="item-add-row">
             <label v-for="field in groupColumns(group)" :key="fieldKey(field)">
               {{ fieldTitle(field) }}
               <MetadataFieldEditor
@@ -153,7 +190,7 @@ const emit = defineEmits<{
             </label>
             <Button type="button" label="Add" icon="pi pi-plus" severity="secondary" outlined :disabled="pending" @click="emit('addDetailItem', group)" />
           </div>
-          <div v-if="groupSelectFromExists(group)" class="table-wrap">
+          <div v-if="isEditing && groupSelectFromExists(group)" class="table-wrap">
             <div class="inline-fields">
               <label>
                 Search
@@ -193,22 +230,28 @@ const emit = defineEmits<{
             class="detail-item-row"
           >
             <span>{{ itemDataId(item) }}</span>
-            <label v-for="field in groupColumns(group)" :key="fieldKey(field)">
-              {{ fieldTitle(field) }}
-              <MetadataFieldEditor
-                :model-value="childDraftValue(group, item, field)"
-                :field="field"
-                :options="enumFieldOptions(field)"
-                :readonly-value="itemValue(item, field)"
-                v-bind="fieldEditorContext"
-                :is-added="false"
-                :object-id="itemDataId(item)"
-                :owner-id="selectedObjectId"
-                @update:model-value="(value) => emit('setChildDraftValue', group, item, field, value)"
-              />
-            </label>
-            <Button type="button" label="Save" icon="pi pi-save" size="small" :disabled="pending" @click="emit('updateDetailItem', group, item)" />
-            <Button type="button" label="Delete" icon="pi pi-trash" size="small" severity="danger" outlined :disabled="pending" @click="emit('deleteDetailItem', group, item)" />
+            <template v-for="field in groupColumns(group)" :key="fieldKey(field)">
+              <label v-if="isEditing">
+                {{ fieldTitle(field) }}
+                <MetadataFieldEditor
+                  :model-value="childDraftValue(group, item, field)"
+                  :field="field"
+                  :options="enumFieldOptions(field)"
+                  :readonly-value="itemValue(item, field)"
+                  v-bind="fieldEditorContext"
+                  :is-added="false"
+                  :object-id="itemDataId(item)"
+                  :owner-id="selectedObjectId"
+                  @update:model-value="(value) => emit('setChildDraftValue', group, item, field, value)"
+                />
+              </label>
+              <span v-else class="detail-item-value">
+                <small>{{ fieldTitle(field) }}</small>
+                <strong>{{ itemValue(item, field) }}</strong>
+              </span>
+            </template>
+            <Button v-if="isEditing" type="button" label="Save" icon="pi pi-save" size="small" :disabled="pending" @click="emit('updateDetailItem', group, item)" />
+            <Button v-if="isEditing" type="button" label="Delete" icon="pi pi-trash" size="small" severity="danger" outlined :disabled="pending" @click="emit('deleteDetailItem', group, item)" />
           </div>
         </template>
       </div>
