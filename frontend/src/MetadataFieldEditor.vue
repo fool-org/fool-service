@@ -113,7 +113,7 @@ function selectLookup(item: InputQueryItem) {
   <div v-else-if="isLookupField(field)" class="metadata-lookup">
     <InputGroup>
       <InputText v-model="lookupTerm" :placeholder="readonlyValue || modelValue" fluid @keyup.enter="searchLookup" />
-      <Button type="button" label="Search" icon="pi pi-search" :loading="lookupPending" :disabled="lookupDisabled || lookupPending || !lookupTerm.trim()" @click="searchLookup" />
+      <Button type="button" label="查找" icon="pi pi-search" :loading="lookupPending" :disabled="lookupDisabled || lookupPending || !lookupTerm.trim()" @click="searchLookup" />
     </InputGroup>
     <Listbox
       v-if="lookupChoices.length"

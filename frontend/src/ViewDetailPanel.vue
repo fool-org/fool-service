@@ -112,14 +112,14 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
   <article class="panel view-detail-panel">
     <div class="panel-heading">
       <h2>{{ title }}</h2>
-      <Tag :value="selectedObjectId || 'No row selected'" :severity="selectedObjectId ? 'secondary' : 'warn'" rounded />
+      <Tag :value="selectedObjectId || '未选择记录'" :severity="selectedObjectId ? 'secondary' : 'warn'" rounded />
     </div>
 
     <div v-if="selectedObjectId && (viewCanEdit || isCreatingObject)" class="detail-toolbar">
       <Button
         v-if="!isEditing"
         type="button"
-        label="Edit"
+        label="编辑"
         icon="pi pi-pencil"
         :disabled="pending"
         @click="isEditing = true"
@@ -127,8 +127,8 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
       <Button
         v-else
         type="button"
-        :label="isCreatingObject ? 'Create Row' : 'Save Row'"
-        :icon="isCreatingObject ? 'pi pi-plus' : 'pi pi-save'"
+        label="保存"
+        icon="pi pi-save"
         :loading="pending"
         :disabled="pending"
         @click="emit('saveSelectedObject')"
@@ -162,7 +162,7 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
       </label>
     </div>
     <div v-else-if="!selectedObjectId" class="empty-state compact">
-      {{ schemaOnly ? "View definition loaded." : "Select a row from the list." }}
+      {{ schemaOnly ? "已加载视图定义。" : "请从列表选择记录。" }}
     </div>
 
     <div v-if="!isEditing && (selectedObjectId || schemaOnly)" class="detail-field-grid">
@@ -209,16 +209,16 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
                   @update:model-value="(value) => emit('setNewChildDraftValue', group, field, value)"
                 />
               </label>
-              <Button type="button" label="Add" icon="pi pi-plus" severity="secondary" outlined :disabled="pending" @click="emit('addDetailItem', group)" />
+              <Button type="button" label="增加" icon="pi pi-plus" severity="secondary" outlined :disabled="pending" @click="emit('addDetailItem', group)" />
             </div>
             <div v-if="isEditing && groupSelectFromExists(group)" class="detail-collection-toolbar">
-              <Button type="button" label="Add existing" icon="pi pi-plus" severity="secondary" outlined :disabled="pending" @click="openExistingPicker(group)" />
+              <Button type="button" label="增加" icon="pi pi-plus" severity="secondary" outlined :disabled="pending" @click="openExistingPicker(group)" />
             </div>
             <Dialog
               :visible="pickerGroupKey === groupKey(group)"
               modal
               class="detail-picker-dialog"
-              :header="`Select ${groupTitle(group)}`"
+              :header="`选择 ${groupTitle(group)}`"
               :closable="!pending"
               :draggable="false"
               :dismissable-mask="!pending"
@@ -227,23 +227,23 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
               <div class="detail-picker-content">
                 <div class="inline-fields">
                   <label>
-                    Search
+                    查询条件
                     <InputText :model-value="candidateState(group).keyword" fluid @input="emit('updateCandidateKeyword', group, $event)" />
                   </label>
                   <label>
-                    Page
+                    页码
                     <InputText min="1" type="number" :model-value="String(candidateState(group).pageIndex)" fluid @input="emit('updateCandidatePage', group, $event)" />
                   </label>
                   <label>
-                    Page size
+                    每页条数
                     <InputText min="1" type="number" :model-value="String(candidateState(group).pageSize)" fluid @input="emit('updateCandidatePageSize', group, $event)" />
                   </label>
-                  <Button type="button" label="Search" icon="pi pi-search" severity="secondary" outlined :disabled="pending" @click="emit('loadExistingDetailItems', group)" />
+                  <Button type="button" label="查找" icon="pi pi-search" severity="secondary" outlined :disabled="pending" @click="emit('loadExistingDetailItems', group)" />
                 </div>
                 <div v-if="candidateRows(group).length || candidateState(group).totalPage" class="button-row">
-                  <Button type="button" label="Previous" icon="pi pi-chevron-left" severity="secondary" text :disabled="pending || candidateState(group).pageIndex <= 1" @click="emit('loadCandidatePage', group, candidateState(group).pageIndex - 1)" />
-                  <span>Page {{ candidateState(group).pageIndex }} / {{ candidateState(group).totalPage || 1 }}</span>
-                  <Button type="button" label="Next" icon="pi pi-chevron-right" icon-pos="right" severity="secondary" text :disabled="pending || candidateState(group).totalPage === 0 || candidateState(group).pageIndex >= candidateState(group).totalPage" @click="emit('loadCandidatePage', group, candidateState(group).pageIndex + 1)" />
+                  <Button type="button" label="上一页" icon="pi pi-chevron-left" severity="secondary" text :disabled="pending || candidateState(group).pageIndex <= 1" @click="emit('loadCandidatePage', group, candidateState(group).pageIndex - 1)" />
+                  <span>第 {{ candidateState(group).pageIndex }} / {{ candidateState(group).totalPage || 1 }} 页</span>
+                  <Button type="button" label="下一页" icon="pi pi-chevron-right" icon-pos="right" severity="secondary" text :disabled="pending || candidateState(group).totalPage === 0 || candidateState(group).pageIndex >= candidateState(group).totalPage" @click="emit('loadCandidatePage', group, candidateState(group).pageIndex + 1)" />
                 </div>
                 <div class="table-wrap detail-picker-results">
                   <ListDataTable
@@ -257,11 +257,11 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
                     :show-default-action="true"
                     @select="(row) => selectExistingItem(group, row)"
                   />
-                  <div v-else class="empty-state compact">No candidate rows.</div>
+                  <div v-else class="empty-state compact">暂无候选记录。</div>
                 </div>
               </div>
               <template #footer>
-                <Button type="button" label="Close" icon="pi pi-times" severity="secondary" text :disabled="pending" @click="pickerGroupKey = ''" />
+                <Button type="button" label="关闭" icon="pi pi-times" severity="secondary" text :disabled="pending" @click="pickerGroupKey = ''" />
               </template>
             </Dialog>
             <div class="table-wrap detail-items-table">
@@ -270,7 +270,7 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
                   <tr>
                     <th>ID</th>
                     <th v-for="field in groupColumns(group)" :key="fieldKey(field)">{{ fieldTitle(field) }}</th>
-                    <th>Actions</th>
+                    <th>操作</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -294,17 +294,17 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
                     </td>
                     <td>
                       <div class="detail-item-actions">
-                        <Button v-if="isEditing && !groupDetailViewId(group)" type="button" label="Save" icon="pi pi-save" size="small" :disabled="pending" @click="emit('updateDetailItem', group, item)" />
+                        <Button v-if="isEditing && !groupDetailViewId(group)" type="button" label="保存" icon="pi pi-save" size="small" :disabled="pending" @click="emit('updateDetailItem', group, item)" />
                         <a v-if="groupDetailViewId(group)" class="detail-item-link" :href="`/view${groupDetailViewId(group)}/${itemDataId(item)}`">
                           <i class="pi pi-arrow-right" aria-hidden="true"></i>
-                          Edit
+                          编辑
                         </a>
-                        <Button v-if="isEditing" type="button" label="Delete" icon="pi pi-trash" size="small" severity="danger" outlined :disabled="pending" @click="emit('deleteDetailItem', group, item)" />
+                        <Button v-if="isEditing" type="button" label="删除" icon="pi pi-trash" size="small" severity="danger" outlined :disabled="pending" @click="emit('deleteDetailItem', group, item)" />
                       </div>
                     </td>
                   </tr>
                   <tr v-if="!groupItems(group).length">
-                    <td :colspan="groupColumns(group).length + 2">No child rows.</td>
+                    <td :colspan="groupColumns(group).length + 2">暂无子项。</td>
                   </tr>
                 </tbody>
               </table>
@@ -312,7 +312,7 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
           </TabPanel>
         </TabPanels>
       </Tabs>
-      <div v-else class="empty-state compact">No child rows loaded.</div>
+      <div v-else class="empty-state compact">暂无子项。</div>
     </div>
   </article>
 </template>

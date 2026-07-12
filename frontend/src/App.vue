@@ -571,7 +571,7 @@ async function runOperation(operationId: number) {
 
 async function runViewOperation(operation: OperationInfo) {
   if (!selectedObjectId.value) {
-    errorMessage.value = "Select an object first.";
+    errorMessage.value = "请先选择记录。";
     return;
   }
   const id = operationInfoId(operation);
@@ -582,7 +582,7 @@ async function runViewOperation(operation: OperationInfo) {
   const response = await runOperation(id);
   if (!response) return;
   const success = legacyRunOperationSuccess(response.data);
-  const message = legacyRunOperationMessage(response.data) || (success ? "Operation completed." : "Operation failed.");
+  const message = legacyRunOperationMessage(response.data) || (success ? "操作成功。" : "操作失败。");
   if (success) {
     await queryCurrentViewData();
     await queryDetail();
@@ -764,7 +764,7 @@ async function startNewObject(viewId = Number(detailViewId.value), parentObjId =
 
 async function saveSelectedObject() {
   if (!selectedObjectId.value) {
-    errorMessage.value = "Select an object first.";
+    errorMessage.value = "请先选择记录。";
     return;
   }
   const saved = isCreatingObject.value ? await saveNewObj() : await saveObj();
@@ -777,7 +777,7 @@ async function saveSelectedObject() {
 
 async function addDetailItem(group: QueryDataDetailItemGroup) {
   if (!selectedObjectId.value || isCreatingObject.value) {
-    errorMessage.value = "Save the object before adding items.";
+    errorMessage.value = "请先保存主记录。";
     return;
   }
   const key = groupKey(group);
@@ -802,7 +802,7 @@ async function addDetailItem(group: QueryDataDetailItemGroup) {
 async function loadExistingDetailItems(group: QueryDataDetailItemGroup) {
   const viewId = selectedChildViewId(group);
   if (!viewId) {
-    errorMessage.value = "No selectable view configured.";
+    errorMessage.value = "未配置可选择视图。";
     return;
   }
   const viewRequest = buildLegacyListViewRequest({
@@ -833,7 +833,7 @@ async function loadExistingDetailItems(group: QueryDataDetailItemGroup) {
 
 async function addExistingDetailItem(group: QueryDataDetailItemGroup, row: ListDataItem) {
   if (!selectedObjectId.value || isCreatingObject.value) {
-    errorMessage.value = "Save the object before adding items.";
+    errorMessage.value = "请先保存主记录。";
     return;
   }
   const saved = await saveObj([buildSelectedExistingItemProperty(group, row, candidateColumns(group))]);
@@ -844,7 +844,7 @@ async function addExistingDetailItem(group: QueryDataDetailItemGroup, row: ListD
 
 async function updateDetailItem(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) {
   if (!selectedObjectId.value || isCreatingObject.value || !itemDataId(item)) {
-    errorMessage.value = "Select a saved item first.";
+    errorMessage.value = "请先选择已保存的子项。";
     return;
   }
   const drafts = childDrafts.value[itemKey(group, item)] || buildGroupItemDrafts(group, item);
@@ -857,10 +857,10 @@ async function updateDetailItem(group: QueryDataDetailItemGroup, item: QueryData
 async function deleteDetailItem(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) {
   const dataId = itemDataId(item);
   if (!selectedObjectId.value || isCreatingObject.value || !dataId) {
-    errorMessage.value = "Select a saved item first.";
+    errorMessage.value = "请先选择已保存的子项。";
     return;
   }
-  if (!window.confirm(`Delete ${dataId}?`)) {
+  if (!window.confirm(`确定删除 ${dataId} 吗？`)) {
     return;
   }
   const saved = await saveObj([buildDeletedItemProperty(group, item)]);

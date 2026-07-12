@@ -172,6 +172,9 @@ item must land with its matching implementation and validation evidence.
       and child write controls stay blocked while the main detail is editing.
 - [x] Restore the old detail action layout by keeping Edit, Save, and
       metadata-defined View operation buttons in one wrapping toolbar.
+- [x] Restore old Web Chinese detail interaction copy for edit/save,
+      child add/select/page/edit/delete, empty states, confirmation prompts,
+      and local validation while preserving metadata and server ReturnMsg text.
 - [x] Honor child-group `DetailViewId`: keep zero-detail groups inline editable
       and route configured child rows through the old
       `/view{DetailViewId}/{DataID}` deep-detail path.

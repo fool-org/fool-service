@@ -59,8 +59,8 @@ describe("App defaults", () => {
     expect(appSource).toContain("await queryCurrentViewData()");
     expect(appSource).toContain("useViewDataWorkflow");
     expect(mainViewSource).not.toContain("New Row");
-    expect(viewDetailPanelSource).toContain("Create Row");
-    expect(viewDetailPanelSource).toContain("Save Row");
+    expect(viewDetailPanelSource).toContain('label="保存"');
+    expect(viewDetailPanelSource).not.toContain("Create Row");
     expect(appSource).toContain("function openListObject");
     expect(appSource).toContain("async function startNewObject");
     expect(appSource).toContain("async function addDetailItem");
@@ -113,7 +113,7 @@ describe("App defaults", () => {
   it("keeps existing details read-only until CanEdit starts an edit session", () => {
     expect(appSource).toContain("dataCanEdit(detailResponse.value?.data)");
     expect(viewDetailPanelSource).toContain("const isEditing = ref(false)");
-    expect(viewDetailPanelSource).toContain('label="Edit"');
+    expect(viewDetailPanelSource).toContain('label="编辑"');
     expect(viewDetailPanelSource).toContain('v-if="isEditing" class="detail-field-grid detail-field-edit"');
     expect(viewDetailPanelSource).toContain('v-if="!isEditing && (selectedObjectId || schemaOnly)" class="detail-field-grid"');
     expect(viewDetailPanelSource).toContain('v-if="!isEditing && (selectedObjectId || schemaOnly)"');
@@ -138,7 +138,7 @@ describe("App defaults", () => {
 
   it("opens select-from-existing collection candidates in the legacy modal flow", () => {
     expect(viewDetailPanelSource).toContain('v-if="isEditing && !groupSelectFromExists(group)"');
-    expect(viewDetailPanelSource).toContain('label="Add existing"');
+    expect(viewDetailPanelSource).toContain('label="增加"');
     expect(viewDetailPanelSource).toContain("function openExistingPicker");
     expect(viewDetailPanelSource).toContain('class="detail-picker-dialog"');
     expect(viewDetailPanelSource).toContain("emit(\"loadExistingDetailItems\", group)");
@@ -502,7 +502,7 @@ describe("App defaults", () => {
     expect(itemViewSource).not.toContain("queryDetail");
     expect(itemViewSource).not.toContain("querydatadetail");
     expect(appSource).toContain(':schema-only="isMetadataOnlyView"');
-    expect(viewDetailPanelSource).toContain("View definition loaded.");
+    expect(viewDetailPanelSource).toContain("已加载视图定义。");
   });
 
   it("returns stale stored tokens to the signed-out login screen", () => {

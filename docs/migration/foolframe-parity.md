@@ -2232,7 +2232,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   View metadata before `querydatadetail` / `initnew`, render detail fields,
   lay simple fields out in the old two-groups-per-row desktop form pattern
   with a one-column mobile fallback, save through `saveobj` / `savenewobj`,
-  and return through browser history.
+  use old Web Chinese edit/save and child interaction copy, and return through
+  browser history.
   Fresh Docker browser sessions bootstrap the legacy session first with
   `initapp` / `loginv2` so the initial View id comes from `App.DefaultViewId`
 - The main list toolbar follows `view.jade` order and copy: input condition,
