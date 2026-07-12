@@ -21,6 +21,7 @@ import {
   detailResultItems,
   detailResultObjectId,
   detailResultSimpleData,
+  detailResultViewName,
   draftFieldValue,
   listRenderColumns,
   fieldEditType,
@@ -561,6 +562,7 @@ describe("view workflow helpers", () => {
     const pascal = {
       Data: {
         ObjId: "1001",
+        Name: "OrderDetail",
         SimpleData: [{ PrpId: "orderId", PrpShowName: "Order ID", FmtValue: "1001" }],
         Items: [{ name: "Items", prpId: "items", items: [] }]
       }
@@ -568,6 +570,7 @@ describe("view workflow helpers", () => {
     const camel = {
       data: {
         objId: "1002",
+        name: "CustomerDetail",
         simpleData: [{ prpId: "name", prpShowName: "Name", fmtValue: "Ada" }],
         items: [{ name: "Lines", prpId: "lines", items: [] }]
       }
@@ -575,12 +578,14 @@ describe("view workflow helpers", () => {
 
     expect(detailResultSimpleData(pascal)).toEqual(pascal.Data.SimpleData);
     expect(detailResultObjectId(pascal)).toBe("1001");
+    expect(detailResultViewName(pascal)).toBe("OrderDetail");
     expect(detailResultItems(pascal)).toEqual(pascal.Data.Items);
     expect(fieldKey(detailResultSimpleData(pascal)[0])).toBe("orderId");
     expect(fieldTitle(detailResultSimpleData(pascal)[0])).toBe("Order ID");
     expect(fieldDisplayValue(detailResultSimpleData(pascal)[0])).toBe("1001");
     expect(detailResultSimpleData(camel)).toEqual(camel.data.simpleData);
     expect(detailResultObjectId(camel)).toBe("1002");
+    expect(detailResultViewName(camel)).toBe("CustomerDetail");
     expect(detailResultItems(camel)).toEqual(camel.data.items);
   });
 

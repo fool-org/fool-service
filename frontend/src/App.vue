@@ -49,6 +49,7 @@ import {
   detailResultItems,
   detailResultObjectId,
   detailResultSimpleData,
+  detailResultViewName,
   emptyGroupDraft,
   fieldKey,
   groupKey,
@@ -201,6 +202,9 @@ const { enumOptions, loadFieldEnums: loadFieldEnumsFor } = useFieldEnums(token, 
 const detailDataRows = computed(() => detailResultSimpleData(detailResponse.value?.data));
 const currentReadItemView = computed(() => readItemViewFor(Number(detailViewId.value)));
 const detailTitle = computed(() => viewDisplayTitle(currentReadItemView.value, "详情"));
+const detailSaveViewKey = computed(
+  () => detailResultViewName(detailResponse.value?.data) || String(detailViewId.value)
+);
 const detailRows = computed(() => renderedDetailFields(currentReadItemView.value, detailDataRows.value));
 const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() =>
   renderPendingDetailGroups(renderedDetailGroups(currentReadItemView.value, detailResultItems(detailResponse.value?.data)))
@@ -529,7 +533,7 @@ async function saveObj(itemproperties: SaveItemProperty[] = []) {
   const request = buildSaveObjRequest({
     token: token.value,
     id: selectedObjectId.value,
-    viewID: String(detailViewId.value),
+    viewID: detailSaveViewKey.value,
     propertyies: buildSavePropertyies(detailRows.value, detailDrafts.value),
     itemproperties
   });
@@ -542,7 +546,7 @@ async function saveNewObj() {
   const request = buildSaveNewObjRequest({
     token: token.value,
     id: selectedObjectId.value,
-    viewID: String(detailViewId.value),
+    viewID: detailSaveViewKey.value,
     propertyies: buildSavePropertyies(detailRows.value, detailDrafts.value),
     ...newObjectOwner
   });

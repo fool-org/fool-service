@@ -421,7 +421,9 @@ describe("App defaults", () => {
     expect(appSource).toContain("async function startNewObject(viewId = Number(detailViewId.value)");
     expect(appSource).toContain("async function queryDetail(viewId = Number(detailViewId.value)");
     expect(appSource).toContain("await queryDetail(route.viewId, objectId)");
-    expect(appSource).toContain("viewID: String(detailViewId.value)");
+    expect(appSource).toContain("detailResultViewName(detailResponse.value?.data) || String(detailViewId.value)");
+    expect(appSource.match(/viewID: detailSaveViewKey\.value/g)).toHaveLength(2);
+    expect(appSource).not.toContain("viewID: String(detailViewId.value)");
     expect(viewDataWorkflowSource).toContain("listRenderColumns(viewResponse.value?.data)");
     expect(appSource).not.toContain("Object.keys(first)");
     expect(appSource).not.toContain("viewName: viewName.value");

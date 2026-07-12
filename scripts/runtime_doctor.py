@@ -1138,7 +1138,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         groups = detail_item_groups(payload)
         if groups:
             view_state["newGroups"] = groups
-        return bool(fields) and detail_group_columns_have_names(groups)
+        detail = payload.get("data", {}).get("data") or payload.get("data", {}).get("Data")
+        view_name = (detail.get("name") or detail.get("Name")) if isinstance(detail, dict) else ""
+        if view_name:
+            view_state["detailViewName"] = str(view_name)
+        return bool(fields) and bool(view_name) and detail_group_columns_have_names(groups)
 
     def save_object_payload(key: str, object_id: str, view_id: object, properties: list[dict[str, object]]) -> dict:
         return {
@@ -1213,8 +1217,9 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
 
     def save_new_object_legacy_web_payload_ok() -> bool:
         view_id = view_state.get("detailViewId")
+        view_name = view_state.get("detailViewName")
         fields = view_state.get("newFields")
-        if not view_id or not isinstance(fields, list):
+        if not view_id or not view_name or not isinstance(fields, list):
             return False
         object_id = "989906"
         properties = runtime_save_properties(fields, object_id)
@@ -1224,7 +1229,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         try:
             ok = common_void_ok(post_json(
                 f"{frontend_url}/api/v1/data/new",
-                save_object_payload("obj", object_id, view_id, properties) | {
+                save_object_payload("obj", object_id, view_name, properties) | {
                     "ownerviewid": "",
                     "ownerid": "",
                     "prpid": "",
@@ -1243,8 +1248,9 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
 
     def save_existing_object_legacy_web_payload_ok() -> bool:
         view_id = view_state.get("detailViewId")
+        view_name = view_state.get("detailViewName")
         fields = view_state.get("newFields")
-        if not view_id or not isinstance(fields, list):
+        if not view_id or not view_name or not isinstance(fields, list):
             return False
         object_id = "989907"
         create_properties = runtime_save_properties(fields, object_id)
@@ -1262,7 +1268,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             if ok:
                 ok = common_void_ok(post_json(
                     f"{frontend_url}/api/v1/data/save",
-                    save_object_payload("obj", object_id, view_id, update_properties),
+                    save_object_payload("obj", object_id, view_name, update_properties),
                     timeout,
                 ))
             if ok:
@@ -1954,7 +1960,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         (
             "data:new-legacy-web-payload",
             save_new_object_legacy_web_payload_ok,
-            "POST /api/v1/data/new accepts legacy Web obj/owner payload",
+            "POST /api/v1/data/new accepts legacy Web obj/owner payload with detail View name",
         ),
         (
             "data:saveobj",
@@ -1964,7 +1970,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         (
             "data:save-legacy-web-payload",
             save_existing_object_legacy_web_payload_ok,
-            "POST /api/v1/data/save accepts legacy Web obj payload",
+            "POST /api/v1/data/save accepts legacy Web obj payload with detail View name",
         ),
         (
             "data:saveobj-addeditems",

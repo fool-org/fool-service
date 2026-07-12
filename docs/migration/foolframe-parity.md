@@ -637,6 +637,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   Vue now reads generic `Data.ObjId` / `data.objId` from the initialized View
   response and uses its local unique-id fallback only when the server leaves
   the value empty, instead of unconditionally replacing server identity.
+- 2026-07-12: restored detail-save View identity from `detailView.jade`.
+  Vue now sends generic `Data.Name` / `data.name` as `obj.ViewID` for both
+  existing and new saves, falling back to the numeric View id only when the
+  response omits its name. The runtime doctor sends the same name-shaped
+  `ViewID` through the old `/data/new` and `/data/save` payload aliases.
 - 2026-07-10: Vue startup now reads the old FoolFrame Web list route
   `/view:id` from `window.location.pathname` and uses that View id before the
   legacy app default, keeping the startup path on `getlistview(ViewId)` then

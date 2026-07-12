@@ -130,6 +130,8 @@ item must land with its matching implementation and validation evidence.
       page structure when the View metadata is missing or empty.
 - [x] Preserve `initnew.Data.ObjId` for new-object identity and use the local
       id generator only when the generic View response leaves that value empty.
+- [x] Preserve detail `Data.Name` as the legacy save object's `ViewID`, with
+      numeric View-id fallback only when the generic detail response omits it.
 - [x] Drop `querydatadetail` child groups that are not declared by the loaded
       read-item View `DetailViews`, so DTO-only groups cannot define Vue child
       sections or columns.
