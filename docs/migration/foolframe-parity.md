@@ -2237,7 +2237,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   detail tab with a metadata-derived child table, and sends legacy
   `saveobj.Itemproperties.Items`, `AddedItems`, and `DelteItems` payloads
 - A default Vue select-from-existing child collection path that loads
-  configured candidate Views and adds selected rows through legacy
+  configured candidate Views in an old Web-style modal, keeps manual create
+  hidden for `SelectFromExists` groups, and adds selected rows through legacy
   `saveobj.Itemproperties.AddedItems`
 - Metadata-driven Vue enum editors that call legacy `getenums` for detail and
   child collection fields with enum model metadata

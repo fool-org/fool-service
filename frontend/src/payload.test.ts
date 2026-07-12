@@ -133,6 +133,16 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain('<tr v-for="item in groupItems(group)"');
   });
 
+  it("opens select-from-existing collection candidates in the legacy modal flow", () => {
+    expect(viewDetailPanelSource).toContain('v-if="isEditing && !groupSelectFromExists(group)"');
+    expect(viewDetailPanelSource).toContain('label="Add existing"');
+    expect(viewDetailPanelSource).toContain("function openExistingPicker");
+    expect(viewDetailPanelSource).toContain('class="detail-picker-dialog"');
+    expect(viewDetailPanelSource).toContain("emit(\"loadExistingDetailItems\", group)");
+    expect(viewDetailPanelSource).toContain("function selectExistingItem");
+    expect(viewDetailPanelSource).toContain('@select="(row) => selectExistingItem(group, row)"');
+  });
+
   it("renders row operations through their target detail View id", () => {
     expect(viewListPanelSource).toContain("rowOperations(operations.value)");
     expect(viewListPanelSource).toContain(':row-operations="rowItems"');

@@ -86,6 +86,9 @@ item must land with its matching implementation and validation evidence.
       list/detail/child-row rendering.
 - [x] Add basic select-from-existing child collection support for configured
       Vue detail groups.
+- [x] Align select-from-existing child interaction with `detailView.jade`:
+      `SelectFromExists` groups open a modal metadata-driven candidate table
+      instead of showing that picker beside the manual child-create form.
 - [x] Render enum detail fields as metadata-driven selects in the Vue View
       workflow.
 - [x] Render readonly View fields as locked controls and skip them from legacy

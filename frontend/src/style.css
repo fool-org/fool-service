@@ -655,11 +655,28 @@ label {
   padding: 14px 0 0;
 }
 
-.detail-existing-picker {
+.detail-collection-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.detail-picker-dialog {
+  width: min(900px, calc(100vw - 32px));
+}
+
+.detail-picker-dialog .p-dialog-footer {
+  flex-wrap: wrap;
+}
+
+.detail-picker-content {
   display: grid;
   gap: 10px;
-  margin-bottom: 12px;
-  padding: 10px;
+  min-width: 0;
+}
+
+.detail-picker-results {
+  min-height: 280px;
 }
 
 .detail-items-table {

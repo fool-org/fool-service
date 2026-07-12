@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import Button from "primevue/button";
+import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
 import Message from "primevue/message";
 import Tab from "primevue/tab";
@@ -56,6 +57,7 @@ const props = defineProps<{
 
 const isEditing = ref(false);
 const activeGroupKey = ref("");
+const pickerGroupKey = ref("");
 
 watch(
   () => [props.selectedObjectId, props.isCreatingObject] as const,
@@ -76,6 +78,7 @@ watch(
   () => props.detailItemGroups.map(groupKey),
   (keys) => {
     if (!keys.includes(activeGroupKey.value)) activeGroupKey.value = keys[0] || "";
+    if (!keys.includes(pickerGroupKey.value)) pickerGroupKey.value = "";
   },
   { immediate: true }
 );
@@ -96,6 +99,16 @@ const emit = defineEmits<{
   updateDetailDraft: [key: string, value: string];
   updateDetailItem: [group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem];
 }>();
+
+function openExistingPicker(group: QueryDataDetailItemGroup) {
+  pickerGroupKey.value = groupKey(group);
+  emit("loadExistingDetailItems", group);
+}
+
+function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) {
+  emit("addExistingDetailItem", group, row);
+  pickerGroupKey.value = "";
+}
 </script>
 
 <template>
@@ -198,7 +211,7 @@ const emit = defineEmits<{
         </TabList>
         <TabPanels>
           <TabPanel v-for="group in detailItemGroups" :key="groupKey(group)" :value="groupKey(group)">
-            <div v-if="isEditing" class="item-add-row">
+            <div v-if="isEditing && !groupSelectFromExists(group)" class="item-add-row">
               <label v-for="field in groupColumns(group)" :key="fieldKey(field)">
                 {{ fieldTitle(field) }}
                 <MetadataFieldEditor
@@ -214,39 +227,59 @@ const emit = defineEmits<{
               </label>
               <Button type="button" label="Add" icon="pi pi-plus" severity="secondary" outlined :disabled="pending" @click="emit('addDetailItem', group)" />
             </div>
-            <div v-if="isEditing && groupSelectFromExists(group)" class="table-wrap detail-existing-picker">
-              <div class="inline-fields">
-                <label>
-                  Search
-                  <InputText :model-value="candidateState(group).keyword" fluid @input="emit('updateCandidateKeyword', group, $event)" />
-                </label>
-                <label>
-                  Page
-                  <InputText min="1" type="number" :model-value="String(candidateState(group).pageIndex)" fluid @input="emit('updateCandidatePage', group, $event)" />
-                </label>
-                <label>
-                  Page size
-                  <InputText min="1" type="number" :model-value="String(candidateState(group).pageSize)" fluid @input="emit('updateCandidatePageSize', group, $event)" />
-                </label>
-                <Button type="button" label="Load Existing" icon="pi pi-download" severity="secondary" outlined :disabled="pending" @click="emit('loadExistingDetailItems', group)" />
-              </div>
-              <div v-if="candidateRows(group).length || candidateState(group).totalPage" class="button-row">
-                <Button type="button" label="Previous" icon="pi pi-chevron-left" severity="secondary" text :disabled="pending || candidateState(group).pageIndex <= 1" @click="emit('loadCandidatePage', group, candidateState(group).pageIndex - 1)" />
-                <span>Page {{ candidateState(group).pageIndex }} / {{ candidateState(group).totalPage || 1 }}</span>
-                <Button type="button" label="Next" icon="pi pi-chevron-right" icon-pos="right" severity="secondary" text :disabled="pending || candidateState(group).totalPage === 0 || candidateState(group).pageIndex >= candidateState(group).totalPage" @click="emit('loadCandidatePage', group, candidateState(group).pageIndex + 1)" />
-              </div>
-              <ListDataTable
-                v-if="candidateRows(group).length"
-                :columns="candidateColumns(group)"
-                default-action-label="Select"
-                :disabled="pending"
-                :row-operations="[]"
-                :rows="candidateRows(group)"
-                selected-object-id=""
-                :show-default-action="true"
-                @select="(row) => emit('addExistingDetailItem', group, row)"
-              />
+            <div v-if="isEditing && groupSelectFromExists(group)" class="detail-collection-toolbar">
+              <Button type="button" label="Add existing" icon="pi pi-plus" severity="secondary" outlined :disabled="pending" @click="openExistingPicker(group)" />
             </div>
+            <Dialog
+              :visible="pickerGroupKey === groupKey(group)"
+              modal
+              class="detail-picker-dialog"
+              :header="`Select ${groupTitle(group)}`"
+              :closable="!pending"
+              :draggable="false"
+              :dismissable-mask="!pending"
+              @update:visible="(visible) => { if (!visible) pickerGroupKey = '' }"
+            >
+              <div class="detail-picker-content">
+                <div class="inline-fields">
+                  <label>
+                    Search
+                    <InputText :model-value="candidateState(group).keyword" fluid @input="emit('updateCandidateKeyword', group, $event)" />
+                  </label>
+                  <label>
+                    Page
+                    <InputText min="1" type="number" :model-value="String(candidateState(group).pageIndex)" fluid @input="emit('updateCandidatePage', group, $event)" />
+                  </label>
+                  <label>
+                    Page size
+                    <InputText min="1" type="number" :model-value="String(candidateState(group).pageSize)" fluid @input="emit('updateCandidatePageSize', group, $event)" />
+                  </label>
+                  <Button type="button" label="Search" icon="pi pi-search" severity="secondary" outlined :disabled="pending" @click="emit('loadExistingDetailItems', group)" />
+                </div>
+                <div v-if="candidateRows(group).length || candidateState(group).totalPage" class="button-row">
+                  <Button type="button" label="Previous" icon="pi pi-chevron-left" severity="secondary" text :disabled="pending || candidateState(group).pageIndex <= 1" @click="emit('loadCandidatePage', group, candidateState(group).pageIndex - 1)" />
+                  <span>Page {{ candidateState(group).pageIndex }} / {{ candidateState(group).totalPage || 1 }}</span>
+                  <Button type="button" label="Next" icon="pi pi-chevron-right" icon-pos="right" severity="secondary" text :disabled="pending || candidateState(group).totalPage === 0 || candidateState(group).pageIndex >= candidateState(group).totalPage" @click="emit('loadCandidatePage', group, candidateState(group).pageIndex + 1)" />
+                </div>
+                <div class="table-wrap detail-picker-results">
+                  <ListDataTable
+                    v-if="candidateRows(group).length"
+                    :columns="candidateColumns(group)"
+                    default-action-label="Select"
+                    :disabled="pending"
+                    :row-operations="[]"
+                    :rows="candidateRows(group)"
+                    selected-object-id=""
+                    :show-default-action="true"
+                    @select="(row) => selectExistingItem(group, row)"
+                  />
+                  <div v-else class="empty-state compact">No candidate rows.</div>
+                </div>
+              </div>
+              <template #footer>
+                <Button type="button" label="Close" icon="pi pi-times" severity="secondary" text :disabled="pending" @click="pickerGroupKey = ''" />
+              </template>
+            </Dialog>
             <div class="table-wrap detail-items-table">
               <table class="legacy-item-table detail-items-grid">
                 <thead>
