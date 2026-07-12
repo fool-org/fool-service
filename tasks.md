@@ -767,6 +767,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Make old report condition grouping functional: group consecutive
       conditions, nest complete groups, split the innermost group, and emit a
       recursive `FirstExp` / `Sequences` tree with backend parenthesis proof.
+- [x] Restore the old report dialog interaction: open report setup as a modal
+      with output, condition, and save-definition tabs, then switch successful
+      runs into a separate paged result state with a back action.
 - [x] Replace the main Vue View toolbar's editable View ID and raw
       `QueryFilter` controls with a View-metadata-safe keyword search; raw
       compatibility filters remain protocol-only and are not exposed in Vue.

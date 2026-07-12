@@ -543,8 +543,15 @@ describe("App defaults", () => {
     expect(appSource).toContain("ViewReportPanel");
     expect(appSource).toContain("showViewReport = !showViewReport");
     expect(appSource).toContain(':view-id="currentViewId"');
+    expect(viewReportPanelSource).toContain("<Dialog");
+    expect(viewReportPanelSource).toContain("modal");
+    expect(viewReportPanelSource).toContain('<Tab value="output"');
+    expect(viewReportPanelSource).toContain('<Tab value="conditions"');
+    expect(viewReportPanelSource).toContain('<Tab value="save"');
     expect(viewReportPanelSource).toContain("/api/v1/report/mkrpt");
     expect(viewReportPanelSource).toContain("reportResponse");
+    expect(viewReportPanelSource).toContain("showingResults.value = true");
+    expect(viewReportPanelSource).toContain('@click="showingResults = false"');
     expect(appSource).not.toContain("Report Grid");
   });
 

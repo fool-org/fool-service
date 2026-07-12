@@ -2196,7 +2196,10 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Vue API types for legacy `runoperation` request/result payloads
 - Vue API types for legacy `makereport` request/result payloads
 - The View report panel calls legacy report routes with metadata-derived
-  columns, visible structured filters, and paging, then renders returned cells
+  columns and visible structured filters from a modal with old Web output,
+  condition, and save-definition tabs. Successful execution switches the same
+  modal into a separate paged result state with a back action, then renders
+  returned cells
 - Vue API types for legacy `getmkqview` report model candidate payloads
 - The View report panel calls `/api/v1/report/getmkqview` by view ID and renders
   candidate columns, compare/select catalogs, and enum states

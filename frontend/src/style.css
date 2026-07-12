@@ -272,15 +272,50 @@ label {
   align-items: end;
 }
 
-.view-report-panel {
-  grid-column: 1 / -1;
+.report-dialog {
+  width: min(1080px, calc(100vw - 32px));
 }
 
-.report-toolbar {
+.report-dialog .p-dialog-content {
   display: grid;
-  grid-template-columns: minmax(100px, 0.35fr) minmax(180px, 1fr) auto auto auto;
-  gap: 10px;
-  align-items: end;
+  gap: 12px;
+  min-width: 0;
+}
+
+.report-dialog .p-dialog-footer {
+  flex-wrap: wrap;
+}
+
+.report-dialog-heading {
+  display: grid;
+  gap: 2px;
+}
+
+.report-dialog-heading strong {
+  font-size: 1.05rem;
+}
+
+.report-dialog-heading span {
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.report-tabs,
+.report-tabs .p-tabpanels,
+.report-tabs .p-tabpanel {
+  min-width: 0;
+}
+
+.report-tabs .p-tabpanels {
+  padding: 16px 0 0;
+}
+
+.report-tabs .p-tab {
+  gap: 7px;
+}
+
+.report-save-section {
+  max-width: 480px;
 }
 
 .report-section {
@@ -789,7 +824,6 @@ label {
   .button-row,
   .inline-fields,
   .workflow-toolbar,
-  .report-toolbar,
   .report-condition-row,
   .item-add-row {
     grid-template-columns: 1fr;
