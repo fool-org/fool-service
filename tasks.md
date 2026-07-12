@@ -951,6 +951,8 @@ item must land with its matching implementation and validation evidence.
       await candidate View metadata, and open the picker only on success.
 - [x] Restore candidate `NavbarController` feedback and placement: show exact
       unknown/total-record text below results and keep paging after the table.
+- [x] Restore candidate query page timing: Find resets to page 1 while Navbar
+      previous/next requests preserve the selected target page.
 - [x] Restore the compact text-only Bootstrap navbar brand: remove the invented
       42px initial tile, render App name/version inline, and reduce the desktop
       shell header to the old 50px scale while reusing it in the mobile Drawer.

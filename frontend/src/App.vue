@@ -832,7 +832,7 @@ async function loadExistingDetailView(group: QueryDataDetailItemGroup) {
   return true;
 }
 
-async function queryExistingDetailItems(group: QueryDataDetailItemGroup) {
+async function queryExistingDetailItems(group: QueryDataDetailItemGroup, resetPage = true) {
   if (blockChildAddForNewObject()) return;
   const viewId = groupListViewId(group);
   if (!viewId) {
@@ -843,6 +843,7 @@ async function queryExistingDetailItems(group: QueryDataDetailItemGroup) {
     await loadExistingDetailView(group);
     if (!candidateColumns(group).length) return;
   }
+  if (resetPage) setCandidateState(group, { pageIndex: 1 });
   const state = candidateState(group);
   const dataRequest = buildLegacyQueryDataRequest({
     token: token.value,
@@ -916,7 +917,7 @@ async function loadFieldEnums() {
 
 async function loadCandidatePage(group: QueryDataDetailItemGroup, pageIndex: number) {
   setCandidateState(group, { pageIndex: Math.max(1, pageIndex) });
-  await queryExistingDetailItems(group);
+  await queryExistingDetailItems(group, false);
 }
 
 function syncDetailDrafts() {

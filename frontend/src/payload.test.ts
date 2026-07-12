@@ -251,6 +251,9 @@ describe("App defaults", () => {
     expect(appSource).toContain('const candidateViewLoading = computed(() => pendingAction.value === "child-select-view")');
     expect(appSource).toContain(":load-existing-detail-view=\"loadExistingDetailView\"");
     expect(viewDetailPanelSource).toContain("emit('queryExistingDetailItems', group)");
+    expect(appSource).toContain("async function queryExistingDetailItems(group: QueryDataDetailItemGroup, resetPage = true)");
+    expect(appSource).toContain("if (resetPage) setCandidateState(group, { pageIndex: 1 })");
+    expect(appSource).toContain("await queryExistingDetailItems(group, false)");
     expect(viewDetailPanelSource).toContain("candidateRecordInfo(candidateState(group))");
     expect(viewDetailPanelSource).toContain('v-else-if="candidateState(group).queried" class="empty-state compact">暂无候选记录。</div>');
     expect(viewDetailPanelSource.indexOf('class="detail-picker-results"')).toBeLessThan(

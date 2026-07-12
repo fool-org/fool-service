@@ -218,6 +218,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   now starts with exact `记录数未知,请查询`, changes to `共N条记录` after every
   successful query including zero results, and places record status and paging
   after the candidate table like `detailView.jade`.
+- 2026-07-12: restored candidate query page timing. Explicit Find follows
+  `querylistdata.js query()` and resets to page 1, while previous/next paging
+  follows the Navbar callback and queries the selected target page unchanged.
 - 2026-07-12: restored old `message.js` delivery behavior in the Vue shell.
   Each non-empty 15-second `getmsg` poll now immediately opens its first item
   in a `系统消息` modal with generation time, content, View-first detail
