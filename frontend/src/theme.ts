@@ -13,17 +13,17 @@ export const FoolTheme = definePreset(Nora, {
   },
   semantic: {
     primary: {
-      50: "{indigo.50}",
-      100: "{indigo.100}",
-      200: "{indigo.200}",
-      300: "{indigo.300}",
-      400: "{indigo.400}",
-      500: "{indigo.500}",
-      600: "{indigo.600}",
-      700: "{indigo.700}",
-      800: "{indigo.800}",
-      900: "{indigo.900}",
-      950: "{indigo.950}"
+      50: "#eef5fb",
+      100: "#d9e9f7",
+      200: "#b6d5ee",
+      300: "#88b9df",
+      400: "#5e9bcf",
+      500: "#337ab7",
+      600: "#2e6da4",
+      700: "#286090",
+      800: "#204d74",
+      900: "#193d5d",
+      950: "#10283e"
     },
     focusRing: {
       width: "2px",
@@ -62,7 +62,7 @@ export const FoolTheme = definePreset(Nora, {
           950: "{slate.950}"
         },
         primary: {
-          color: "{primary.600}",
+          color: "{primary.500}",
           contrastColor: "#ffffff",
           hoverColor: "{primary.700}",
           activeColor: "{primary.800}"
@@ -70,7 +70,7 @@ export const FoolTheme = definePreset(Nora, {
         formField: {
           borderColor: "{surface.300}",
           hoverBorderColor: "{primary.400}",
-          focusBorderColor: "{primary.600}",
+          focusBorderColor: "{primary.500}",
           color: "{surface.900}",
           placeholderColor: "{surface.500}"
         },

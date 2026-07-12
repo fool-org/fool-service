@@ -84,11 +84,10 @@ label {
   width: 42px;
   height: 42px;
   place-items: center;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-radius: 6px;
+  background: #337ab7;
   color: #ffffff;
   font-weight: 850;
-  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35);
 }
 
 .brand strong,

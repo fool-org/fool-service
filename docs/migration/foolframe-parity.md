@@ -168,6 +168,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   suggestions show metadata-derived `Text` and `Id`, empty results use the old
   Chinese message, and only a selected candidate id enters the save model.
   The manual search button/Listbox pair and its obsolete CSS were removed.
+- 2026-07-12: replaced the invented Indigo/gradient frontend accent with old
+  Bootstrap primary states. PrimeVue primary, hover, active, focus, and form
+  border tokens now use `#337ab7`, `#286090`, and `#204d74`; the shell brand
+  mark is flat blue rather than a purple gradient, and map markers reuse the
+  same shared visual language. Neutral surfaces and semantic status colors are
+  unchanged.
 - 2026-07-12: restored old Web operation feedback from `operation.js`. Vue now
   projects camel/Pascal `ReturnMsg`, shows a success or error result in the
   detail panel, keeps successful refresh behavior, and clears stale results

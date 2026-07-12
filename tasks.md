@@ -151,6 +151,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore old Web authenticated shell copy for Home, navigation, system
       messages, refresh/detail actions, signed-in fallback, and safe logout
       while preserving server-provided user/menu/message text.
+- [x] Replace the invented Indigo/gradient shell theme with old Bootstrap
+      primary states (`#337ab7`, `#286090`, `#204d74`) across PrimeVue
+      controls, the shell brand mark, and map markers.
 - [x] Accept the old FoolFrame Web `/user/getmenu` submenu protocol shape as
       `/api/v1/auth/getmenu`, including the `authcode` payload from
       `menuinfo.js`.

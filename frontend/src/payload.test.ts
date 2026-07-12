@@ -14,6 +14,7 @@ import reportConditionsSource from "./reportConditions.ts?raw";
 import shellActionsSource from "./ShellActions.vue?raw";
 import sudokuPanelsSource from "./SudokuPanels.vue?raw";
 import sudokuWorkflowSource from "./useSudokuPanels.ts?raw";
+import themeSource from "./theme.ts?raw";
 import viewDetailPanelSource from "./ViewDetailPanel.vue?raw";
 import viewListPanelSource from "./ViewListPanel.vue?raw";
 import viewReportPanelSource from "./ViewReportPanel.vue?raw";
@@ -36,6 +37,15 @@ import {
 } from "./payload";
 
 describe("App defaults", () => {
+  it("uses the old Bootstrap primary colors instead of the invented indigo theme", () => {
+    expect(themeSource).toContain('500: "#337ab7"');
+    expect(themeSource).toContain('700: "#286090"');
+    expect(themeSource).toContain('800: "#204d74"');
+    expect(themeSource).not.toContain("{indigo.");
+    expect(legacyMapPanelSource).toContain('fillColor: "#337ab7"');
+    expect(legacyMapPanelSource).not.toContain('fillColor: "#6366f1"');
+  });
+
   it("opens with the metadata-driven View workflow", () => {
     const mainViewSource = viewListPanelSource;
 

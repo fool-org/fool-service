@@ -34,8 +34,8 @@ onMounted(async () => {
 
     for (const { marker, latitude, longitude } of points) {
       leaflet.circleMarker([latitude, longitude], {
-        color: "#4f46e5",
-        fillColor: "#6366f1",
+        color: "#2e6da4",
+        fillColor: "#337ab7",
         fillOpacity: 0.85,
         radius: 8,
         weight: 2
