@@ -212,6 +212,7 @@ const shellUserName = computed(() => legacyUserName(legacyUserInfoResponse.value
 const shellAppName = computed(() => legacyAppName(mainInfoResponse.value?.data, "Fool Service"));
 const shellAppVersion = computed(() => legacyAppVersion(mainInfoResponse.value?.data));
 const viewCanEdit = computed(() => dataCanEdit(detailResponse.value?.data));
+const candidateViewLoading = computed(() => pendingAction.value === "child-select-view");
 const savingDetail = computed(() => pendingAction.value === "saveobj" || pendingAction.value === "savenewobj");
 const fieldEditorContext = computed(() => ({
   isAdded: isCreatingObject.value,
@@ -813,11 +814,11 @@ function addDetailItem(group: QueryDataDetailItemGroup, requestedItemId = "") {
 }
 
 async function loadExistingDetailView(group: QueryDataDetailItemGroup) {
-  if (blockChildAddForNewObject()) return;
+  if (blockChildAddForNewObject()) return false;
   const viewId = groupListViewId(group);
   if (!viewId) {
     errorMessage.value = "未配置可选择视图。";
-    return;
+    return false;
   }
   const viewRequest = buildLegacyListViewRequest({
     token: token.value,
@@ -825,9 +826,10 @@ async function loadExistingDetailView(group: QueryDataDetailItemGroup) {
   });
   const view = await runAction("child-select-view", () => postApi<ListViewInfo>("/api/v1/view/getlistview", viewRequest));
   if (!view) {
-    return;
+    return false;
   }
   setCandidateView(group, viewColumns(view.data));
+  return true;
 }
 
 async function queryExistingDetailItems(group: QueryDataDetailItemGroup) {
@@ -1019,6 +1021,7 @@ function syncDetailDrafts() {
           :candidate-columns="candidateColumns"
           :candidate-rows="candidateRows"
           :candidate-state="candidateState"
+          :candidate-view-loading="candidateViewLoading"
           :child-draft-value="childDraftValue"
           :detail-drafts="detailDrafts"
           :detail-item-groups="detailItemGroups"
@@ -1030,6 +1033,7 @@ function syncDetailDrafts() {
           :is-creating-object="isCreatingObject"
           :is-pending-added-item="isPendingAddedDetailItem"
           :info-message="infoMessage"
+          :load-existing-detail-view="loadExistingDetailView"
           :operation-result="operationResult"
           :pending="Boolean(pendingAction)"
           :schema-only="isMetadataOnlyView"
@@ -1045,7 +1049,6 @@ function syncDetailDrafts() {
           @dismiss-info="infoMessage = ''"
           @dismiss-operation-result="operationResult = null"
           @load-candidate-page="loadCandidatePage"
-          @load-existing-detail-view="loadExistingDetailView"
           @query-existing-detail-items="queryExistingDetailItems"
           @run-view-operation="runViewOperation"
           @save-selected-object="saveSelectedObject"

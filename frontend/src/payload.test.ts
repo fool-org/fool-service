@@ -245,7 +245,11 @@ describe("App defaults", () => {
     expect(appSource).toContain('infoMessage.value = "请先保存当前内容，再新建子项"');
     expect(viewDetailPanelSource).toContain("function openExistingPicker");
     expect(viewDetailPanelSource).toContain('class="detail-picker-dialog"');
-    expect(viewDetailPanelSource).toContain("emit(\"loadExistingDetailView\", group)");
+    expect(viewDetailPanelSource).toContain("await props.loadExistingDetailView(group)");
+    expect(viewDetailPanelSource).toContain('header="加载中"');
+    expect(viewDetailPanelSource).toContain("正在加载，请稍后....");
+    expect(appSource).toContain('const candidateViewLoading = computed(() => pendingAction.value === "child-select-view")');
+    expect(appSource).toContain(":load-existing-detail-view=\"loadExistingDetailView\"");
     expect(viewDetailPanelSource).toContain("emit('queryExistingDetailItems', group)");
     expect(viewDetailPanelSource).toContain('candidateState(group).queried ? "暂无候选记录。" : "记录未知，请查询。"');
     expect(viewDetailPanelSource).toContain("function selectExistingItem");

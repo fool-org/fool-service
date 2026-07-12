@@ -210,6 +210,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   Opening the picker now loads only `ListViewId` metadata and shows
   `记录未知，请查询。`; candidate data is requested only by Find or paging, and
   zero results become `暂无候选记录。` only after an explicit query completes.
+- 2026-07-12: restored the candidate View loading-dialog order. Add now opens
+  the non-dismissible `加载中` / `正在加载，请稍后....` modal, awaits successful
+  View metadata, closes loading, and only then opens the picker. Failed metadata
+  loads leave the picker closed and use the existing error surface.
 - 2026-07-12: restored old `message.js` delivery behavior in the Vue shell.
   Each non-empty 15-second `getmsg` poll now immediately opens its first item
   in a `系统消息` modal with generation time, content, View-first detail

@@ -37,6 +37,7 @@ const props = defineProps<{
   candidateColumns: (group: QueryDataDetailItemGroup) => TableColumnInfo[];
   candidateRows: (group: QueryDataDetailItemGroup) => ListDataItem[];
   candidateState: (group: QueryDataDetailItemGroup) => { keyword: string; pageIndex: number; pageSize: number; queried: boolean; totalPage: number };
+  candidateViewLoading: boolean;
   childDraftValue: (group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem, field: ListDataValue) => string;
   detailDrafts: Record<string, string>;
   detailItemGroups: QueryDataDetailItemGroup[];
@@ -48,6 +49,7 @@ const props = defineProps<{
   infoMessage: string;
   isCreatingObject: boolean;
   isPendingAddedItem: (group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) => boolean;
+  loadExistingDetailView: (group: QueryDataDetailItemGroup) => Promise<boolean>;
   operationResult: { message: string; success: boolean } | null;
   pending: boolean;
   saveDialogVisible: boolean;
@@ -102,7 +104,6 @@ const emit = defineEmits<{
   dismissInfo: [];
   dismissOperationResult: [];
   loadCandidatePage: [group: QueryDataDetailItemGroup, pageIndex: number];
-  loadExistingDetailView: [group: QueryDataDetailItemGroup];
   queryExistingDetailItems: [group: QueryDataDetailItemGroup];
   runViewOperation: [operation: OperationInfo, editing: boolean];
   saveDialogHidden: [];
@@ -113,9 +114,8 @@ const emit = defineEmits<{
   updateDetailItem: [group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem];
 }>();
 
-function openExistingPicker(group: QueryDataDetailItemGroup) {
-  pickerGroupKey.value = groupKey(group);
-  emit("loadExistingDetailView", group);
+async function openExistingPicker(group: QueryDataDetailItemGroup) {
+  if (await props.loadExistingDetailView(group)) pickerGroupKey.value = groupKey(group);
 }
 
 function addItem(group: QueryDataDetailItemGroup) {
@@ -228,6 +228,18 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
         />
       </template>
     </div>
+
+    <Dialog
+      :visible="candidateViewLoading"
+      modal
+      header="加载中"
+      :closable="false"
+      :close-on-escape="false"
+      :dismissable-mask="false"
+      :draggable="false"
+    >
+      <p>正在加载，请稍后....</p>
+    </Dialog>
 
     <Dialog
       :visible="saveDialogVisible"
