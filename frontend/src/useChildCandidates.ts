@@ -64,22 +64,12 @@ export function useChildCandidates(groupKey: (group: QueryDataDetailItemGroup) =
     setCandidateState(group, { keyword: inputValue(event), pageIndex: 1 });
   }
 
-  function updateCandidatePage(group: QueryDataDetailItemGroup, event: Event) {
-    setCandidateState(group, { pageIndex: Math.max(1, Number(inputValue(event)) || 1) });
-  }
-
-  function updateCandidatePageSize(group: QueryDataDetailItemGroup, event: Event) {
-    setCandidateState(group, { pageIndex: 1, pageSize: Math.max(1, Number(inputValue(event)) || defaultState.pageSize) });
-  }
-
   return {
     candidateColumns: (group: QueryDataDetailItemGroup) => columns.value[groupKey(group)] || [],
     candidateRows: (group: QueryDataDetailItemGroup) => rows.value[groupKey(group)] || [],
     candidateState,
     setCandidateResults,
     setCandidateState,
-    updateCandidateKeyword,
-    updateCandidatePage,
-    updateCandidatePageSize
+    updateCandidateKeyword
   };
 }

@@ -375,6 +375,14 @@ describe("App defaults", () => {
 
   it("renders select-existing child controls through the shared group helper", () => {
     expect(viewDetailPanelSource).toContain("groupSelectFromExists(group)");
+    expect(viewDetailPanelSource).toContain("查询条件");
+    expect(viewDetailPanelSource).toContain('label="上一页"');
+    expect(viewDetailPanelSource).toContain('label="下一页"');
+    expect(viewDetailPanelSource).not.toContain("每页条数");
+    expect(viewDetailPanelSource).not.toContain("updateCandidatePageSize");
+    expect(viewDetailPanelSource).not.toContain("updateCandidatePage");
+    expect(appSource).not.toContain('@update-candidate-page-size');
+    expect(appSource).not.toContain('@update-candidate-page');
     expect(viewDetailPanelSource).not.toContain("group.selectFromExists");
   });
 

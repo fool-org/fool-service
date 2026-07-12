@@ -192,6 +192,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Honor child-group `DetailViewId`: keep zero-detail groups inline editable
       and route configured child rows through the old
       `/view{DetailViewId}/{DataID}` deep-detail path.
+- [x] Keep select-existing child paging protocol-only like `detailView.jade`:
+      remove editable page/page-size inputs, retain fixed 10-row requests,
+      keyword reset, and previous/next navigation.
 - [x] Persist dynamic `BusinessObject` fields through their foreign-key ids so
       legacy `runoperation` update saves stay metadata-driven and do not bind
       to concrete business DTOs.

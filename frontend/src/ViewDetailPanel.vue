@@ -90,8 +90,6 @@ const emit = defineEmits<{
   setChildDraftValue: [group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem, field: ListDataValue, value: string];
   setNewChildDraftValue: [group: QueryDataDetailItemGroup, field: ListDataValue, value: string];
   updateCandidateKeyword: [group: QueryDataDetailItemGroup, event: Event];
-  updateCandidatePage: [group: QueryDataDetailItemGroup, event: Event];
-  updateCandidatePageSize: [group: QueryDataDetailItemGroup, event: Event];
   updateDetailDraft: [key: string, value: string];
   updateDetailItem: [group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem];
 }>();
@@ -226,14 +224,6 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
                   <label>
                     查询条件
                     <InputText :model-value="candidateState(group).keyword" fluid @input="emit('updateCandidateKeyword', group, $event)" />
-                  </label>
-                  <label>
-                    页码
-                    <InputText min="1" type="number" :model-value="String(candidateState(group).pageIndex)" fluid @input="emit('updateCandidatePage', group, $event)" />
-                  </label>
-                  <label>
-                    每页条数
-                    <InputText min="1" type="number" :model-value="String(candidateState(group).pageSize)" fluid @input="emit('updateCandidatePageSize', group, $event)" />
                   </label>
                   <Button type="button" label="查找" icon="pi pi-search" severity="secondary" outlined :disabled="pending" @click="emit('loadExistingDetailItems', group)" />
                 </div>

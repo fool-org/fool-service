@@ -273,6 +273,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   disabled states switch with edit mode, so controls no longer move after a
   click. New records start in edit mode with Save only, while metadata View
   operations remain disabled until the main edit is saved.
+- 2026-07-12: removed invented protocol inputs from the select-existing child
+  dialog. Matching `detailView.jade`, users now see only the query field and
+  search command; candidate requests retain a fixed 10-row page size, keyword
+  changes reset to page one, and previous/next commands own page movement.
+  Unused page/page-size event bindings and composable mutators were deleted.
 - 2026-07-12: aligned Vue shell menu hierarchy with old Web `leftbar.jade` /
   `menuinfo.js`. Loading `getsubmenu` no longer replaces the top-level menu;
   desktop and mobile render child entries under the selected parent, direct

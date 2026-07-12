@@ -138,9 +138,7 @@ const {
   candidateState,
   setCandidateResults,
   setCandidateState,
-  updateCandidateKeyword,
-  updateCandidatePage,
-  updateCandidatePageSize
+  updateCandidateKeyword
 } = useChildCandidates(groupKey);
 const {
   childDrafts,
@@ -1009,8 +1007,6 @@ function syncDetailDrafts() {
           @set-child-draft-value="setChildDraftValue"
           @set-new-child-draft-value="setNewChildDraftValue"
           @update-candidate-keyword="updateCandidateKeyword"
-          @update-candidate-page="updateCandidatePage"
-          @update-candidate-page-size="updateCandidatePageSize"
           @update-detail-draft="(key, value) => detailDrafts[key] = value"
           @update-detail-item="updateDetailItem"
         />

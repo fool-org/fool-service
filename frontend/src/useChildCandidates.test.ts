@@ -6,14 +6,13 @@ describe("useChildCandidates", () => {
     const candidates = useChildCandidates((group) => group.prpId || "items");
     const group = { prpId: "lines" };
 
+    candidates.setCandidateState(group, { pageIndex: 3 });
     candidates.updateCandidateKeyword(group, { target: { value: " Ada " } } as unknown as Event);
-    candidates.updateCandidatePage(group, { target: { value: "3" } } as unknown as Event);
-    candidates.updateCandidatePageSize(group, { target: { value: "25" } } as unknown as Event);
 
     expect(candidates.candidateState(group)).toMatchObject({
       keyword: " Ada ",
       pageIndex: 1,
-      pageSize: 25
+      pageSize: 10
     });
   });
 
