@@ -281,15 +281,6 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
       </div>
     </div>
 
-    <div v-if="schemaOnly && detailItemGroups.length" class="view-items-panel">
-      <div class="detail-field-grid">
-        <div v-for="group in detailItemGroups" :key="groupKey(group)">
-          <span>{{ groupTitle(group) }}</span>
-          <strong>{{ groupColumns(group).map(fieldTitle).join(", ") }}</strong>
-        </div>
-      </div>
-    </div>
-
     <Dialog
       v-if="infoMessage"
       :visible="true"
@@ -334,7 +325,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
       </template>
     </Dialog>
 
-    <div v-if="selectedObjectId" class="view-items-panel">
+    <div v-if="selectedObjectId || (schemaOnly && detailItemGroups.length)" class="view-items-panel">
       <Tabs v-if="detailItemGroups.length" v-model:value="activeGroupKey" class="detail-collection-tabs">
         <TabList scrollable>
           <Tab v-for="group in detailItemGroups" :key="groupKey(group)" :value="groupKey(group)">
@@ -343,10 +334,11 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
         </TabList>
         <TabPanels>
           <TabPanel v-for="group in detailItemGroups" :key="groupKey(group)" :value="groupKey(group)">
-            <div class="detail-collection-toolbar">
+            <div v-if="!schemaOnly" class="detail-collection-toolbar">
               <Button type="button" label="增加" icon="pi pi-plus" severity="secondary" outlined :disabled="pending" @click="addItem(group)" />
             </div>
             <Dialog
+              v-if="!schemaOnly"
               :visible="pickerGroupKey === groupKey(group)"
               modal
               class="detail-picker-dialog"
@@ -396,10 +388,10 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                 <thead>
                   <tr>
                     <th v-for="field in groupColumns(group)" :key="fieldKey(field)">{{ fieldTitle(field) }}</th>
-                    <th :colspan="childActionColumnCount(group)">操作</th>
+                    <th :colspan="schemaOnly ? 1 : childActionColumnCount(group)">操作</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody v-if="!schemaOnly">
                   <tr v-for="item in groupItems(group)" :key="itemKey(group, item)">
                     <td v-for="field in groupColumns(group)" :key="fieldKey(field)">
                       <div v-if="isEditing && editingItemKey === itemKey(group, item) && !groupDetailViewId(group)" class="detail-item-editor">

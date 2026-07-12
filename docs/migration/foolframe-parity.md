@@ -2641,3 +2641,9 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   username, password, and CAPTCHA and requests a new image; Refresh requests a
   new image, clears only CAPTCHA input, and preserves username/password. The
   current authenticated replay remains pending fresh CAPTCHA authorization.
+- 2026-07-12: restored the old `item.jade` collection-definition interaction.
+  `/itemview:id` now renders `getreaditemview.DetailViews` as selectable tabs
+  with each child View's metadata field table instead of flattening every child
+  into a static name/comma-list summary. It reuses the same collection tabs as
+  object detail pages but hides Add, candidate selection, and mutation controls
+  because item View routes remain metadata-only and never query object data.

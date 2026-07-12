@@ -831,6 +831,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Render the old FoolFrame Web `/itemview:id` route from
       `getreaditemview` metadata only, without querying an empty object or
       binding an arbitrary first business row.
+- [x] Restore `item.jade`'s `DetailViews` tab interaction on `/itemview:id`:
+      reuse the detail collection tabs and metadata field table while hiding
+      object-data Add, picker, and mutation controls.
 - [x] Guard old FoolFrame Web Vue deep links in the Docker runtime doctor.
 - [x] Guard the current Docker `car_wash` init SQL slice set in the repository
       harness.
