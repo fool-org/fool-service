@@ -249,7 +249,7 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
                   <ListDataTable
                     v-if="candidateRows(group).length"
                     :columns="candidateColumns(group)"
-                    default-action-label="Select"
+                    default-action-label="选择"
                     :disabled="pending"
                     :row-operations="[]"
                     :rows="candidateRows(group)"

@@ -43,7 +43,9 @@ describe("App defaults", () => {
     expect(appSource).toContain("await loadInitialRoute()");
     expect(appSource).toContain("await loadViewWorkflow()");
     expect(appSource).toContain("View workflow");
-    expect(mainViewSource).toContain("Search");
+    expect(mainViewSource).toContain("输入条件");
+    expect(mainViewSource).toContain('label="查找"');
+    expect(mainViewSource).toContain('label="统计"');
     expect(appSource).toContain('v-model:keyword="viewKeyword"');
     expect(mainViewSource).toContain('v-model="keyword"');
     expect(appSource).toContain("const pageSize = ref(10)");
@@ -76,7 +78,7 @@ describe("App defaults", () => {
 
   it("routes every view row table through the shared metadata renderer", () => {
     expect(viewDetailPanelSource).toContain(':row-operations="[]"');
-    expect(viewDetailPanelSource).toContain('default-action-label="Select"');
+    expect(viewDetailPanelSource).toContain('default-action-label="选择"');
     expect(viewDetailPanelSource).toContain(':show-default-action="true"');
     expect(appSource).not.toContain("rowValue(row, column)");
     expect(listDataTableSource).toContain("defaultActionLabel");
@@ -169,7 +171,8 @@ describe("App defaults", () => {
     expect(viewListPanelSource).toContain("event.page + 1");
     expect(viewListPanelSource).toContain("<Paginator");
     expect(viewListPanelSource).toContain("current-page-report-template");
-    expect(viewListPanelSource).toContain("Updated {{ resultFreshTime }}");
+    expect(viewListPanelSource).toContain("更新时间 {{ resultFreshTime }}");
+    expect(listDataTableSource).toContain('header="操作"');
   });
 
   it("renders the legacy viewWithChart template as data and chart panes", () => {

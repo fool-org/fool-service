@@ -86,10 +86,11 @@ function changePage(event: PageState) {
     </div>
     <div v-if="supportedTemplate" class="workflow-toolbar">
       <label>
-        Search
-        <InputText v-model="keyword" type="search" placeholder="Search this view" fluid @keyup.enter="emit('search')" />
+        查询条件
+        <InputText v-model="keyword" type="search" placeholder="输入条件" fluid @keyup.enter="emit('search')" />
       </label>
-      <Button type="button" label="Search" icon="pi pi-search" :disabled="disabled" @click="emit('search')" />
+      <Button type="button" label="查找" icon="pi pi-search" :disabled="disabled" @click="emit('search')" />
+      <Button type="button" label="统计" icon="pi pi-chart-bar" severity="secondary" outlined :disabled="disabled || !currentViewId" @click="emit('toggleReport')" />
       <Button
         v-for="operation in createItems"
         :key="operationKey(operation)"
@@ -101,7 +102,6 @@ function changePage(event: PageState) {
         outlined
         @click="emit('newObject', operationTargetViewId(operation) || currentViewId)"
       />
-      <Button type="button" label="Report" icon="pi pi-chart-bar" severity="secondary" outlined :disabled="disabled || !currentViewId" @click="emit('toggleReport')" />
     </div>
 
     <Message v-if="errorMessage" severity="error" :closable="false">{{ errorMessage }}</Message>
@@ -128,7 +128,7 @@ function changePage(event: PageState) {
       />
     </div>
     <LegacyChartPanel v-if="chartView && activePane === 'chart' && chartData.series.length" :data="chartData" />
-    <div v-else-if="chartView && activePane === 'chart'" class="empty-state compact">No chart data.</div>
+    <div v-else-if="chartView && activePane === 'chart'" class="empty-state compact">暂无图表数据。</div>
     <div v-if="supportedTemplate && (rows.length || resultTotalItems || resultFreshTime)" class="list-pagination">
       <Paginator
         :first="Math.max(0, (resultPageIndex - 1) * pageSize)"
@@ -136,10 +136,10 @@ function changePage(event: PageState) {
         :total-records="resultTotalItems"
         :disabled="disabled"
         template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
-        current-page-report-template="Page {currentPage} of {totalPages} · {totalRecords} rows"
+        current-page-report-template="第 {currentPage} / {totalPages} 页 · 共 {totalRecords} 条"
         @page="changePage"
       />
-      <span v-if="resultFreshTime" class="fresh-time"><i class="pi pi-clock"></i> Updated {{ resultFreshTime }}</span>
+      <span v-if="resultFreshTime" class="fresh-time"><i class="pi pi-clock"></i> 更新时间 {{ resultFreshTime }}</span>
     </div>
   </article>
 </template>

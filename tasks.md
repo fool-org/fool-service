@@ -186,6 +186,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Remove the invented editable main-list page size, restore
       `view.jade`'s 10-row request size, and let the search/report/metadata
       operation toolbar wrap when operation counts vary.
+- [x] Restore old Web list action order and static copy: input condition,
+      search, report, then metadata create operations, with Chinese operation,
+      empty, paging, and refresh labels while preserving metadata text.
 - [x] Expose FoolFrame Pascal `runoperation` result aliases (`Value`,
       `IsSuccess`, `ReturnObjId`, `ReturnViewId`, `ReturnMsg`) and make Vue
       operation refresh logic read success through a shared protocol helper.

@@ -55,7 +55,7 @@ function tableRowClass(row: ListDataItem) {
         {{ rowValue(row, column) }}
       </template>
     </Column>
-    <Column v-if="rowOperations.length || showDefaultAction" header="Actions" frozen align-frozen="right">
+    <Column v-if="rowOperations.length || showDefaultAction" header="操作" frozen align-frozen="right">
       <template #body="{ data: row }">
         <div class="table-actions">
           <Button
@@ -83,7 +83,7 @@ function tableRowClass(row: ListDataItem) {
         </div>
       </template>
     </Column>
-    <template #empty><div class="empty-state compact">No rows.</div></template>
+    <template #empty><div class="empty-state compact">暂无数据。</div></template>
   </DataTable>
-  <div v-else class="empty-state">Load a view to start.</div>
+  <div v-else class="empty-state">请先加载视图。</div>
 </template>
