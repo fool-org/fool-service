@@ -161,6 +161,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   Operation buttons are no longer silently disabled while a detail is being
   edited; clicking one now shows the old `请先保存当前信息` feedback and does not
   issue a `runoperation` request. Pending requests still disable the buttons.
+- 2026-07-12: restored `operation.js`/`showdetailinfo` result interaction.
+  Completed business operations now open an `执行结果` modal with the old
+  `操作成功`/`操作失败` summary and return message, replacing the Vue-only
+  inline Message. Closing the modal clears the existing result state.
 - 2026-07-12: restored old `message.js` delivery behavior in the Vue shell.
   Each non-empty 15-second `getmsg` poll now immediately opens its first item
   in a `系统消息` modal with generation time, content, View-first detail

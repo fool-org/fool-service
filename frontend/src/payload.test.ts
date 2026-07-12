@@ -151,7 +151,11 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).not.toContain("operationParams(operation)");
     expect(appSource).toContain("legacyRunOperationMessage(response.data)");
     expect(appSource).toContain("operationResult.value = { message, success }");
-    expect(viewDetailPanelSource).toContain(":severity=\"operationResult.success ? 'success' : 'error'\"");
+    expect(appSource).toContain('@dismiss-operation-result="operationResult = null"');
+    expect(viewDetailPanelSource).toContain('header="执行结果"');
+    expect(viewDetailPanelSource).toContain('operationResult.success ? "操作成功" : "操作失败"');
+    expect(viewDetailPanelSource).toContain("emit('dismissOperationResult')");
+    expect(viewDetailPanelSource).not.toContain("<Message v-if=\"operationResult\"");
     expect(toolbarSource.match(/icon="pi pi-check"/g)).toHaveLength(2);
     expect(toolbarSource).not.toContain('icon="pi pi-save"');
     expect(toolbarSource).not.toContain('icon="pi pi-bolt"');

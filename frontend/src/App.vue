@@ -979,6 +979,7 @@ function syncDetailDrafts() {
           @add-detail-item="addDetailItem"
           @add-existing-detail-item="addExistingDetailItem"
           @delete-detail-item="deleteDetailItem"
+          @dismiss-operation-result="operationResult = null"
           @load-candidate-page="loadCandidatePage"
           @load-existing-detail-items="loadExistingDetailItems"
           @run-view-operation="runViewOperation"

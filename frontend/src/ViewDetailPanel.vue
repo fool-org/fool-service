@@ -3,7 +3,6 @@ import { ref, watch } from "vue";
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
-import Message from "primevue/message";
 import Tab from "primevue/tab";
 import TabList from "primevue/tablist";
 import TabPanel from "primevue/tabpanel";
@@ -83,6 +82,7 @@ const emit = defineEmits<{
   addDetailItem: [group: QueryDataDetailItemGroup];
   addExistingDetailItem: [group: QueryDataDetailItemGroup, row: ListDataItem];
   deleteDetailItem: [group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem];
+  dismissOperationResult: [];
   loadCandidatePage: [group: QueryDataDetailItemGroup, pageIndex: number];
   loadExistingDetailItems: [group: QueryDataDetailItemGroup];
   runViewOperation: [operation: OperationInfo, editing: boolean];
@@ -176,9 +176,20 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
       </div>
     </div>
 
-    <Message v-if="operationResult" :severity="operationResult.success ? 'success' : 'error'" :closable="false">
-      {{ operationResult.message }}
-    </Message>
+    <Dialog
+      v-if="operationResult"
+      :visible="true"
+      modal
+      header="执行结果"
+      :draggable="false"
+      @update:visible="(visible) => { if (!visible) emit('dismissOperationResult') }"
+    >
+      <p>{{ operationResult.success ? "操作成功" : "操作失败" }}</p>
+      <p>{{ operationResult.message }}</p>
+      <template #footer>
+        <Button type="button" label="关闭" severity="secondary" @click="emit('dismissOperationResult')" />
+      </template>
+    </Dialog>
 
     <div v-if="selectedObjectId && !isCreatingObject" class="view-items-panel">
       <Tabs v-if="detailItemGroups.length" v-model:value="activeGroupKey" class="detail-collection-tabs">
