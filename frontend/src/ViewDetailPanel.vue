@@ -85,7 +85,7 @@ const emit = defineEmits<{
   deleteDetailItem: [group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem];
   loadCandidatePage: [group: QueryDataDetailItemGroup, pageIndex: number];
   loadExistingDetailItems: [group: QueryDataDetailItemGroup];
-  runViewOperation: [operation: OperationInfo];
+  runViewOperation: [operation: OperationInfo, editing: boolean];
   saveSelectedObject: [];
   setChildDraftValue: [group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem, field: ListDataValue, value: string];
   setNewChildDraftValue: [group: QueryDataDetailItemGroup, field: ListDataValue, value: string];
@@ -133,12 +133,12 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
           v-for="operation in detailViewOperations"
           :key="operationKey(operation)"
           type="button"
-          :disabled="pending || isEditing"
+          :disabled="pending"
           :label="operationLabel(operation)"
           icon="pi pi-check"
           severity="secondary"
           outlined
-          @click="emit('runViewOperation', operation)"
+          @click="emit('runViewOperation', operation, isEditing)"
         />
       </template>
     </div>

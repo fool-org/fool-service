@@ -129,6 +129,10 @@ describe("App defaults", () => {
   });
 
   it("renders detail View operations from the loaded detail payload", () => {
+    const operationHandlerSource = appSource.slice(
+      appSource.indexOf("async function runViewOperation"),
+      appSource.indexOf("function applyDefaultAppView")
+    );
     const toolbarSource = viewDetailPanelSource.slice(
       viewDetailPanelSource.indexOf('class="detail-toolbar"'),
       viewDetailPanelSource.indexOf('class="detail-field-grid detail-field-edit"')
@@ -137,8 +141,13 @@ describe("App defaults", () => {
     expect(appSource).toContain("dataOperations(detailResponse.value?.data)");
     expect(appSource).toContain("detailViewOperations");
     expect(appSource).toContain('@run-view-operation="runViewOperation"');
+    expect(appSource).toContain('errorMessage.value = "请先保存当前信息"');
+    expect(operationHandlerSource).toMatch(/if \(editing\) \{[\s\S]*?请先保存当前信息[\s\S]*?return;[\s\S]*?runOperation\(id\)/);
     expect(viewDetailPanelSource).toContain('class="detail-toolbar"');
     expect(viewDetailPanelSource).toContain('v-for="operation in detailViewOperations"');
+    expect(viewDetailPanelSource).toContain("emit('runViewOperation', operation, isEditing)");
+    expect(toolbarSource).toMatch(/v-for="operation in detailViewOperations"[\s\S]*?:disabled="pending"/);
+    expect(toolbarSource).not.toMatch(/v-for="operation in detailViewOperations"[\s\S]*?:disabled="pending \|\| isEditing"/);
     expect(viewDetailPanelSource).not.toContain("operationParams(operation)");
     expect(appSource).toContain("legacyRunOperationMessage(response.data)");
     expect(appSource).toContain("operationResult.value = { message, success }");

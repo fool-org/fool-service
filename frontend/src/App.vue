@@ -543,7 +543,11 @@ async function runOperation(operationId: number) {
   );
 }
 
-async function runViewOperation(operation: OperationInfo) {
+async function runViewOperation(operation: OperationInfo, editing = false) {
+  if (editing) {
+    errorMessage.value = "请先保存当前信息";
+    return;
+  }
   if (!selectedObjectId.value) {
     errorMessage.value = "请先选择记录。";
     return;

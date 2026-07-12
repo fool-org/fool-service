@@ -157,6 +157,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   now follows Bootstrap's 10px normal-weight blue link treatment and 10px/15px
   padding instead of a custom bold slate label. The empty-avatar icon fallback
   now occupies the same fixed 50x50 slot as the old `.avtar` image.
+- 2026-07-12: restored `detailview.js`'s edit-state business-operation guard.
+  Operation buttons are no longer silently disabled while a detail is being
+  edited; clicking one now shows the old `请先保存当前信息` feedback and does not
+  issue a `runoperation` request. Pending requests still disable the buttons.
 - 2026-07-12: restored old `message.js` delivery behavior in the Vue shell.
   Each non-empty 15-second `getmsg` poll now immediately opens its first item
   in a `系统消息` modal with generation time, content, View-first detail

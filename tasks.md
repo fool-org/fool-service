@@ -913,6 +913,9 @@ item must land with its matching implementation and validation evidence.
       application name with a 65% version replaces the invented 24px/12px pair.
 - [x] Restore `default.jade` user-area metrics: the name uses the old 10px blue
       link treatment, and the empty-avatar fallback keeps the old 50x50 slot.
+- [x] Restore `detailview.js`'s edit-state operation guard: business-operation
+      buttons remain clickable while editing and show `请先保存当前信息` without
+      issuing the operation request.
 - [x] Restore the compact text-only Bootstrap navbar brand: remove the invented
       42px initial tile, render App name/version inline, and reduce the desktop
       shell header to the old 50px scale while reusing it in the mobile Drawer.
