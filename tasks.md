@@ -749,6 +749,8 @@ item must land with its matching implementation and validation evidence.
 - [x] Render top-level `viewWithChart` and Vue Sudoku `linechart` panels through
       one responsive SVG chart component, reusing `legacyChartData` for line,
       bar, and scatter `EditType` metadata.
+- [x] Match `viewWithChart.jade` data/chart navigation as text-only tabs,
+      removing invented table/chart icons and their tab-only spacing rule.
 - [x] Align the shared SVG chart presentation with old `swchartLine.js`:
       restore the legacy ECharts default color order, keep legends metadata-
       name-only, and remove English series-type/debug fallback text.

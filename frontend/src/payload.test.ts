@@ -225,6 +225,9 @@ describe("App defaults", () => {
     expect(viewListPanelSource).toContain("activePane");
     expect(viewListPanelSource).toContain("<Tabs");
     expect(viewListPanelSource).toContain("<Tab value=\"chart\"");
+    expect(viewListPanelSource).toContain('<Tab value="table">数据</Tab>');
+    expect(viewListPanelSource).toContain('<Tab value="chart">图表</Tab>');
+    expect(viewListPanelSource).not.toContain('class="pi pi-chart-line"');
     expect(viewListPanelSource).toContain("<LegacyChartPanel");
     expect(legacyChartPanelSource).toContain('class="legacy-chart"');
     expect(legacyChartPanelSource).toContain("<polyline");

@@ -313,6 +313,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   Shared Vue tables now use normal 14px dark text on white, zero letter
   spacing, and no uppercase transformation, so View-provided English labels
   retain their original casing.
+- 2026-07-12: restored `viewWithChart.jade`'s text-only data/chart tabs. Vue
+  keeps the old `数据` then `图表` order and data-first state without adding
+  table/chart icons or icon-only spacing.
 - 2026-07-10: completed the authenticated Vue browser acceptance after explicit
   permission to read the local CAPTCHA and use the Docker `admin/admin`
   account. Desktop and 390x844 checks exercised the default View-first list,

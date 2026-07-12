@@ -105,8 +105,8 @@ function changePage(event: PageState) {
 
     <Tabs v-if="chartView" v-model:value="activePane" class="view-template-tabs">
       <TabList>
-        <Tab value="table"><i class="pi pi-table"></i> 数据</Tab>
-        <Tab value="chart"><i class="pi pi-chart-line"></i> 图表</Tab>
+        <Tab value="table">数据</Tab>
+        <Tab value="chart">图表</Tab>
       </TabList>
     </Tabs>
 
