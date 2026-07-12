@@ -2635,3 +2635,9 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   Edit/Detail links now use Bootstrap 3's `#337ab7` link and `#23527c` hover
   colors while preserving the existing metadata-derived routes and click
   behavior.
+- 2026-07-12: revalidated the current signed-out Vue page without reading the
+  CAPTCHA content. At 1440x900 and 390x844, the 240px login form and all
+  controls remain inside the viewport with no horizontal overflow. Reset clears
+  username, password, and CAPTCHA and requests a new image; Refresh requests a
+  new image, clears only CAPTCHA input, and preserves username/password. The
+  current authenticated replay remains pending fresh CAPTCHA authorization.

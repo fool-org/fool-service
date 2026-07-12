@@ -27,6 +27,14 @@ item must land with its matching implementation and validation evidence.
 - [x] Add a repo-local validation matrix and checker.
 - [x] Add runtime evidence bundles for Docker/browser smoke checks after the
       Docker stack stabilizes.
+- [x] Revalidate the current signed-out login page at desktop and 390x844:
+      controls remain inside the viewport, Reset clears all fields and refreshes
+      the CAPTCHA, and Refresh preserves credentials while clearing only the
+      CAPTCHA input. Evidence is under
+      `artifacts/runs/20260712-login-layout-current/`.
+- [ ] Revalidate the current authenticated desktop and 390x844 View-first
+      workflow after fresh authorization to read and fill the current local
+      CAPTCHA.
 - [x] Make the Docker runtime doctor fail when core legacy model/view/operation
       schema columns required by the View-first workflow drift.
 - [x] Hydrate legacy View and View-item template file metadata from
