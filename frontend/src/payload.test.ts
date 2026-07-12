@@ -357,6 +357,12 @@ describe("App defaults", () => {
   it("keeps metadata lookup tied to the rendered view id", () => {
     expect(metadataFieldEditorSource).toContain("viewId: props.viewId");
     expect(metadataFieldEditorSource).not.toContain("viewName");
+    expect(metadataFieldEditorSource).toContain("<AutoComplete");
+    expect(metadataFieldEditorSource).toContain('@complete="searchLookup($event.query)"');
+    expect(metadataFieldEditorSource).toContain('@option-select="selectLookup($event.value)"');
+    expect(metadataFieldEditorSource).toContain("未找到匹配的选项");
+    expect(metadataFieldEditorSource).not.toContain("<InputGroup>");
+    expect(metadataFieldEditorSource).not.toContain("<Listbox");
   });
 
   it("passes parent context into child lookup editors", () => {

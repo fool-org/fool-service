@@ -31,17 +31,6 @@ textarea {
   gap: 7px;
 }
 
-.metadata-lookup-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 8px;
-}
-
-.metadata-lookup-options {
-  max-height: 220px;
-  overflow: auto;
-}
-
 .metadata-lookup small {
   color: #64748b;
   overflow-wrap: anywhere;

@@ -162,6 +162,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `EditType=18` title metadata is absent, Vue now derives the marker title from
   the first remaining View info item rather than exposing a fixed `Location`
   label. Empty/failed map states and the map region label now use Chinese copy.
+- 2026-07-12: restored the old `setextype.js` BusinessObject typeahead
+  interaction through the already-installed PrimeVue AutoComplete. Typing one
+  character schedules the ViewId-bound `inputquery` request after 300ms;
+  suggestions show metadata-derived `Text` and `Id`, empty results use the old
+  Chinese message, and only a selected candidate id enters the save model.
+  The manual search button/Listbox pair and its obsolete CSS were removed.
 - 2026-07-12: restored old Web operation feedback from `operation.js`. Vue now
   projects camel/Pascal `ReturnMsg`, shows a success or error result in the
   detail panel, keeps successful refresh behavior, and clears stale results

@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import Button from "primevue/button";
+import AutoComplete from "primevue/autocomplete";
 import Checkbox from "primevue/checkbox";
-import InputGroup from "primevue/inputgroup";
 import InputText from "primevue/inputtext";
-import Listbox from "primevue/listbox";
 import Select from "primevue/select";
 import Textarea from "primevue/textarea";
 import type { InputQueryItem, InputQueryResult, ListDataValue } from "./api";
@@ -53,10 +51,16 @@ const emit = defineEmits<{
   "update:modelValue": [value: string];
 }>();
 
+type LookupChoice = {
+  id: string;
+  label: string;
+  item: InputQueryItem;
+};
+
 const lookupError = ref("");
 const lookupOptions = ref<InputQueryItem[]>([]);
 const lookupPending = ref(false);
-const lookupTerm = ref("");
+const lookupTerm = ref<string | LookupChoice>("");
 
 const value = computed({
   get: () => props.modelValue,
@@ -72,7 +76,7 @@ const lookupChoices = computed(() => lookupOptions.value.map((item) => ({
   item
 })));
 
-async function searchLookup() {
+async function searchLookup(query: string) {
   lookupPending.value = true;
   lookupError.value = "";
   try {
@@ -82,7 +86,7 @@ async function searchLookup() {
         token: props.token,
         viewId: props.viewId,
         viewItemId: fieldKey(props.field),
-        text: lookupTerm.value,
+        text: query,
         objID: props.objectId,
         ownerId: props.ownerId,
         isAdded: props.isAdded
@@ -99,10 +103,10 @@ async function searchLookup() {
   }
 }
 
-function selectLookup(item: InputQueryItem) {
-  const id = inputQueryItemId(item);
+function selectLookup(choice: LookupChoice) {
+  const id = inputQueryItemId(choice.item);
   emit("update:modelValue", id);
-  lookupTerm.value = inputQueryItemText(item) || id;
+  lookupTerm.value = choice.label;
   lookupOptions.value = [];
 }
 </script>
@@ -111,18 +115,27 @@ function selectLookup(item: InputQueryItem) {
   <InputText v-if="isReadonlyField(field)" :model-value="readonlyValue || modelValue" disabled fluid />
   <Select v-else-if="isEnumField(field)" v-model="value" :options="options" option-label="label" option-value="value" fluid />
   <div v-else-if="isLookupField(field)" class="metadata-lookup">
-    <InputGroup>
-      <InputText v-model="lookupTerm" :placeholder="readonlyValue || modelValue" fluid @keyup.enter="searchLookup" />
-      <Button type="button" label="查找" icon="pi pi-search" :loading="lookupPending" :disabled="lookupDisabled || lookupPending || !lookupTerm.trim()" @click="searchLookup" />
-    </InputGroup>
-    <Listbox
-      v-if="lookupChoices.length"
-      :options="lookupChoices"
+    <AutoComplete
+      v-model="lookupTerm"
+      :suggestions="lookupChoices"
       option-label="label"
       data-key="id"
-      class="metadata-lookup-options"
-      @change="selectLookup($event.value.item)"
-    />
+      :delay="300"
+      :min-length="1"
+      :loading="lookupPending"
+      :disabled="lookupDisabled"
+      :placeholder="readonlyValue || modelValue"
+      force-selection
+      fluid
+      @complete="searchLookup($event.query)"
+      @option-select="selectLookup($event.value)"
+    >
+      <template #option="{ option }">
+        <strong>{{ option.label }}</strong>
+        <small>{{ option.id }}</small>
+      </template>
+      <template #empty>未找到匹配的选项</template>
+    </AutoComplete>
     <small v-if="lookupError" class="metadata-lookup-error">{{ lookupError }}</small>
   </div>
   <Textarea v-else-if="isMultilineField(field)" v-model="value" rows="4" auto-resize fluid />

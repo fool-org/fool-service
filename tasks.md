@@ -96,6 +96,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Apply legacy formatted row classes from View data in the Vue View
       workflow.
 - [x] Add metadata-driven lookup editors for BusinessObject fields.
+- [x] Restore old `setextype.js` BusinessObject typeahead interaction with the
+      existing PrimeVue AutoComplete: query after one typed character, show
+      View-derived `Text` / `Id` candidates, and save only the selected id.
 - [x] Seed and prove a live BusinessObject lookup path for the Vue View
       workflow.
 - [x] Auto-load the default Vue View workflow so the first screen is usable
