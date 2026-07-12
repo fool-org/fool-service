@@ -139,6 +139,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   adapter and renders a circular image when present, retaining the user icon
   only as an empty-value fallback. Backend/frontend, Compose, runtime-doctor,
   and harness validation are recorded in the matching delivery evidence.
+- 2026-07-12: matched the old `soway.css` avatar layout by restoring its exact
+  50x50 dimensions in the Vue shell; the previous 40x40 size had no legacy
+  source basis. The existing circular crop and empty-value fallback remain.
 - 2026-07-12: restored old `message.js` delivery behavior in the Vue shell.
   Each non-empty 15-second `getmsg` poll now immediately opens its first item
   in a `系统消息` modal with generation time, content, View-first detail
