@@ -298,6 +298,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `SelectFromExists` groups. The single-button toolbar now uses the flex
   default left edge, matching `detailView.jade`'s `.btn-group`, instead of an
   invented right-aligned action row.
+- 2026-07-12: restored `detailView.jade`'s two-cell child operation layout.
+  The operation heading spans edit/save and delete cells, empty rows span both
+  operation columns, and the obsolete one-cell action wrapper styles were
+  removed without changing edit permissions or mutation handlers.
 - 2026-07-10: completed the authenticated Vue browser acceptance after explicit
   permission to read the local CAPTCHA and use the Docker `admin/admin`
   account. Desktop and 390x844 checks exercised the default View-first list,

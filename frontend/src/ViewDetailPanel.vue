@@ -255,7 +255,7 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
                 <thead>
                   <tr>
                     <th v-for="field in groupColumns(group)" :key="fieldKey(field)">{{ fieldTitle(field) }}</th>
-                    <th>操作</th>
+                    <th colspan="2">操作</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -277,18 +277,18 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
                       <span v-else>{{ itemValue(item, field) }}</span>
                     </td>
                     <td>
-                      <div class="detail-item-actions">
-                        <Button v-if="isEditing && !groupDetailViewId(group)" type="button" label="保存" icon="pi pi-save" size="small" :disabled="pending" @click="emit('updateDetailItem', group, item)" />
-                        <a v-if="groupDetailViewId(group)" class="detail-item-link" :href="`/view${groupDetailViewId(group)}/${itemDataId(item)}`">
-                          <i class="pi pi-arrow-right" aria-hidden="true"></i>
-                          编辑
-                        </a>
-                        <Button v-if="isEditing" type="button" label="删除" icon="pi pi-trash" size="small" severity="danger" outlined :disabled="pending" @click="emit('deleteDetailItem', group, item)" />
-                      </div>
+                      <Button v-if="isEditing && !groupDetailViewId(group)" type="button" label="保存" icon="pi pi-save" size="small" :disabled="pending" @click="emit('updateDetailItem', group, item)" />
+                      <a v-if="groupDetailViewId(group)" class="detail-item-link" :href="`/view${groupDetailViewId(group)}/${itemDataId(item)}`">
+                        <i class="pi pi-arrow-right" aria-hidden="true"></i>
+                        编辑
+                      </a>
+                    </td>
+                    <td>
+                      <Button v-if="isEditing" type="button" label="删除" icon="pi pi-trash" size="small" severity="danger" outlined :disabled="pending" @click="emit('deleteDetailItem', group, item)" />
                     </td>
                   </tr>
                   <tr v-if="!groupItems(group).length">
-                    <td :colspan="groupColumns(group).length + 1">暂无子项。</td>
+                    <td :colspan="groupColumns(group).length + 2">暂无子项。</td>
                   </tr>
                 </tbody>
               </table>

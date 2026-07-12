@@ -171,6 +171,9 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain('<TabPanel v-for="group in detailItemGroups"');
     expect(viewDetailPanelSource).toContain('class="legacy-item-table detail-items-grid"');
     expect(viewDetailPanelSource).toContain('<th v-for="field in groupColumns(group)"');
+    expect(viewDetailPanelSource).toContain('<th colspan="2">操作</th>');
+    expect(viewDetailPanelSource).toContain(':colspan="groupColumns(group).length + 2"');
+    expect(viewDetailPanelSource).not.toContain('class="detail-item-actions"');
     expect(viewDetailPanelSource).toContain('<tr v-for="item in groupItems(group)"');
     expect(viewDetailPanelSource).not.toContain("<span>{{ groupItems(group).length }}</span>");
   });

@@ -722,13 +722,6 @@ label {
   min-width: 160px;
 }
 
-.detail-item-actions {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  white-space: nowrap;
-}
-
 .view-items-panel h3 {
   font-size: 0.94rem;
   margin: 0;
