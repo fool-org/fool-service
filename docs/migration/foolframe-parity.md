@@ -646,6 +646,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   lookup. Vue now sends generic `Data.ParentId` / `data.parentId` as
   `inputquery.ownerId`, with the parsed `/new:id/:parent&:view&:property`
   owner as fallback, matching old `setextype.js` source-list lookup behavior.
+- 2026-07-12: completed the backend half of standalone child owner context.
+  Like FoolFrame `IObjectProxy.Owner`, `getOneData` now uses generic child
+  `Model.default_owner`, the owner's collection property, and
+  `SW_SYS_RELATION` columns to restore the parent id. `ViewDataAdapter` emits
+  that dynamic Owner id as `Data.ParentId`; top-level models still emit an
+  empty parent id. The Docker `OrderItem` metadata now declares `Order` as its
+  default owner for both current and legacy model catalogs.
 - 2026-07-12: corrected `inputquery` View identity against FoolFrame
   `detailView.jade`, `detailview.js`, `setextype.js`, `DataFormator`, and
   Cloud-Social `soway.js`. Vue now sends the loaded detail `Data.Name` or

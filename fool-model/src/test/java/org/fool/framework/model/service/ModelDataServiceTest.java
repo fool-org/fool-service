@@ -213,6 +213,47 @@ public class ModelDataServiceTest {
     }
 
     @Test
+    public void getOneDataRestoresConfiguredOwnerForStandaloneChild() {
+        long orderModelId = 92111L, itemModelId = 92112L;
+        long orderIdPropertyId = 92113L;
+        long itemsPropertyId = 92114L;
+        long itemIdPropertyId = 92115L;
+        String orderModelName = "RuntimeStandaloneOwnerOrder";
+        String itemModelName = "RuntimeStandaloneOwnerItem";
+        cleanupRuntimeRelationDataTables();
+        cleanupRuntimeRelationModel(orderModelId, itemModelId, orderModelName, itemModelName);
+        try {
+            createRuntimeRelationModel(
+                    orderModelId,
+                    itemModelId,
+                    orderIdPropertyId,
+                    itemsPropertyId,
+                    itemIdPropertyId,
+                    orderModelName,
+                    itemModelName);
+            jdbcTemplate.execute("CREATE TABLE `runtime_relation_order` ("
+                    + "`ORDER_ID` varchar(64) NOT NULL,"
+                    + "PRIMARY KEY (`ORDER_ID`))");
+            jdbcTemplate.execute("CREATE TABLE `runtime_relation_item` ("
+                    + "`ITEM_ID` varchar(64) NOT NULL,"
+                    + "`ORDER_ID` varchar(64) DEFAULT NULL,"
+                    + "PRIMARY KEY (`ITEM_ID`))");
+            jdbcTemplate.update("INSERT INTO `runtime_relation_order` (`ORDER_ID`) VALUES (?)", "6101");
+            jdbcTemplate.update(
+                    "INSERT INTO `runtime_relation_item` (`ITEM_ID`,`ORDER_ID`) VALUES (?,?)",
+                    "I1",
+                    "6101");
+            DbMysqlDynamic child = (DbMysqlDynamic) modelDataService.getOneData(itemModelName, "I1");
+            assertNotNull(child);
+            assertNotNull(child.getOwner());
+            assertEquals("6101", child.getOwner().getId());
+        } finally {
+            cleanupRuntimeRelationDataTables();
+            cleanupRuntimeRelationModel(orderModelId, itemModelId, orderModelName, itemModelName);
+        }
+    }
+
+    @Test
     public void getOneDataLoadsLegacyCollectionsBySysIdWhenModelHasNoIdProperty() {
         long orderModelId = 92121L;
         long itemModelId = 92122L;
@@ -1860,8 +1901,8 @@ public class ModelDataServiceTest {
                 orderIdPropertyId);
         jdbcTemplate.update(
                 "INSERT INTO `fool_sys_model` "
-                        + "(`id`,`name`,`text`,`remark`,`model_type`,`class_name`,`table_name`,`auto_sys_id`,`id_property`) "
-                        + "VALUES (?,?,?,?,?,?,?,?,?)",
+                        + "(`id`,`name`,`text`,`remark`,`model_type`,`class_name`,`table_name`,`auto_sys_id`,`id_property`,`default_owner`) "
+                        + "VALUES (?,?,?,?,?,?,?,?,?,?)",
                 itemModelId,
                 itemModelName,
                 itemModelName,
@@ -1870,7 +1911,8 @@ public class ModelDataServiceTest {
                 "example." + itemModelName,
                 "runtime_relation_item",
                 false,
-                itemIdPropertyId);
+                itemIdPropertyId,
+                orderModelId);
         insertRuntimeProperty(orderIdPropertyId, "orderId", null, false, orderModelId, "ORDER_ID", PropertyType.String);
         insertRuntimeProperty(itemsPropertyId, "items", itemModelId, true, orderModelId, null, PropertyType.BusinessObject);
         insertRuntimeProperty(itemIdPropertyId, "itemId", null, false, itemModelId, "ITEM_ID", PropertyType.String);

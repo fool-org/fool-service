@@ -5,9 +5,10 @@ import org.fool.framework.common.PropertyType;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.dao.PageNavigatorResult;
 import org.fool.framework.dao.PageResult;
-import org.fool.framework.model.model.Operation;
+import org.fool.framework.model.model.DbMysqlDynamic;
 import org.fool.framework.model.model.EnumValue;
 import org.fool.framework.model.model.Model;
+import org.fool.framework.model.model.Operation;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.view.dto.ListDataItem;
 import org.fool.framework.view.dto.ListDataValue;
@@ -86,6 +87,24 @@ public class ViewDataAdapterTest {
         assertEquals("warning", result.getData().getSimpleData().get(0).getFmtValue());
         assertEquals(1, result.getData().getItems().size());
         assertEquals("items", result.getData().getItems().get(0).getPrpId());
+    }
+
+    @Test
+    public void detailResultUsesDynamicOwnerIdAsLegacyParentId() {
+        Property ownerId = property("orderId", PropertyType.String);
+        Model ownerModel = new Model();
+        ownerModel.setIdProperty(ownerId);
+        DbMysqlDynamic owner = new DbMysqlDynamic(ownerModel);
+        owner.set("orderId", "1001");
+        DbMysqlDynamic child = new DbMysqlDynamic(new Model());
+        child.setOwner(owner);
+        View view = new View();
+        view.setListItems(List.of());
+        view.setOperations(List.of());
+
+        QueryDataDetailResult result = new ViewDataAdapter().getDetailViewResult(view, child);
+
+        assertEquals("1001", result.getData().getParentId());
     }
 
     @Test

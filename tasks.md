@@ -134,6 +134,9 @@ item must land with its matching implementation and validation evidence.
       numeric View-id fallback only when the generic detail response omits it.
 - [x] Preserve detail `Data.ParentId` as the BusinessObject lookup owner for
       standalone child detail/new pages, with the parsed route owner fallback.
+- [x] Restore existing child detail `Data.ParentId` from generic
+      `Model.default_owner` and relation metadata, without binding View output
+      to an Order/OrderItem DTO.
 - [x] Drop `querydatadetail` child groups that are not declared by the loaded
       read-item View `DetailViews`, so DTO-only groups cannot define Vue child
       sections or columns.

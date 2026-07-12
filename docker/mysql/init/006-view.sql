@@ -371,7 +371,8 @@ WHERE NOT EXISTS (SELECT 1 FROM `fool_sys_model` WHERE `name` = 'OrderItem');
 
 UPDATE `fool_sys_model`
 SET `auto_sys_id` = 0,
-    `id_property` = 1011
+    `id_property` = 1011,
+    `default_owner` = 100
 WHERE `name` = 'OrderItem';
 
 INSERT INTO `fool_sys_model` (`id`, `name`, `text`, `remark`, `model_type`, `class_name`, `table_name`, `auto_sys_id`, `id_property`)
@@ -401,8 +402,12 @@ SELECT 100, 'Order', 'org.fool.framework.market.Order', 3, 'market_order', 'Mark
 WHERE NOT EXISTS (SELECT 1 FROM `SW_SYS_MODEL` WHERE `MODEL_ID` = 100);
 
 INSERT INTO `SW_SYS_MODEL` (`MODEL_ID`, `MODEL_NAME`, `MODEL_CLASS`, `MODEL_CONTYPE`, `MODEL_DATABASETABLE`, `MODEL_MODULE`, `MODEL_AUTOID`, `MODEL_CON`, `MODEL_DEFAULTOWNER`)
-SELECT 101, 'OrderItem', 'org.fool.framework.market.OrderItem', 3, 'market_order_item', 'Market', 0, NULL, NULL
+SELECT 101, 'OrderItem', 'org.fool.framework.market.OrderItem', 3, 'market_order_item', 'Market', 0, NULL, 100
 WHERE NOT EXISTS (SELECT 1 FROM `SW_SYS_MODEL` WHERE `MODEL_ID` = 101);
+
+UPDATE `SW_SYS_MODEL`
+SET `MODEL_DEFAULTOWNER` = 100
+WHERE `MODEL_ID` = 101;
 
 INSERT INTO `SW_SYS_MODEL` (`MODEL_ID`, `MODEL_NAME`, `MODEL_CLASS`, `MODEL_CONTYPE`, `MODEL_DATABASETABLE`, `MODEL_MODULE`, `MODEL_AUTOID`, `MODEL_CON`, `MODEL_DEFAULTOWNER`)
 SELECT 103, 'Customer', 'org.fool.framework.market.Customer', 3, 'market_customer', 'Market', 0, NULL, NULL

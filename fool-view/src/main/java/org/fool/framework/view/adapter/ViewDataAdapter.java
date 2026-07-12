@@ -6,6 +6,7 @@ import org.fool.framework.common.PropertyType;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.dao.PageNavigatorResult;
 import org.fool.framework.dao.PageResult;
+import org.fool.framework.model.model.DbMysqlDynamic;
 import org.fool.framework.model.model.EnumValue;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
@@ -102,7 +103,7 @@ public class ViewDataAdapter {
         detail.setObjId(formatRow(LegacyDynamicIds.id(data)));
         detail.setName(view.getViewName());
         detail.setModel(view.getViewModel());
-        detail.setParentId("");
+        detail.setParentId(ownerId(data));
         detail.setItems(collectionItems(view, data));
         detail.setSimpleData(orderedListItems(view).stream()
                 .filter(item -> !safeIsCollection(item))
@@ -114,6 +115,12 @@ public class ViewDataAdapter {
                 .toList());
         result.setData(detail);
         return result;
+    }
+
+    private String ownerId(IDynamicData data) {
+        return data instanceof DbMysqlDynamic dynamicData
+                ? formatRow(LegacyDynamicIds.id(dynamicData.getOwner()))
+                : "";
     }
 
     private OperationInfo legacyOperation(ViewOperation operation) {

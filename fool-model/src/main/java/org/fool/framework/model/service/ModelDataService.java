@@ -61,6 +61,8 @@ public class ModelDataService {
     private DaoService daoService;
     @Autowired
     private SqlGenerator sqlGenerator;
+    @Autowired
+    private ModelOwnerLoader modelOwnerLoader;
     @Autowired(required = false)
     private TransactionOperations transactionOperations;
 
@@ -226,7 +228,9 @@ public class ModelDataService {
                 new CompareFilter(idColumn, CompareOp.EQUAL, dataId));
         var items = this.jdbcTemplate.query(queryAndArgs.getSql(), queryAndArgs.getArgs(), mapper);
         loadCollectionProperties(model, selectProperties, items);
-        return items.isEmpty() ? null : items.get(0);
+        IDynamicData result = items.isEmpty() ? null : items.get(0);
+        modelOwnerLoader.attachOwner(model, result);
+        return result;
     }
 
     /**
