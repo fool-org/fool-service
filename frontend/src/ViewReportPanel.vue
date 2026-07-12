@@ -311,7 +311,6 @@ onMounted(() => void loadReportColumns());
     <template #header>
       <div class="report-dialog-heading">
         <strong>{{ showingResults ? "报表结果" : "生成报表" }}</strong>
-        <span>视图 {{ viewId }}</span>
       </div>
     </template>
 

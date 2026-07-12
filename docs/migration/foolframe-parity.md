@@ -185,6 +185,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   the sole title owner, while the mobile-only topbar only carries the Drawer
   command. Unused `loadedViewName` / `viewTitle` workflow state and duplicate
   CSS were removed rather than hidden.
+- 2026-07-12: removed the invented `视图 {id}` subtitle from the report dialog
+  header. This matches `view.jade`, where ViewId is request context rather than
+  visible report content; the prop remains the source for `getmkqview`,
+  `mkrpt`, paging, and `saverpt` requests.
 - 2026-07-12: restored old Web operation feedback from `operation.js`. Vue now
   projects camel/Pascal `ReturnMsg`, shows a success or error result in the
   detail panel, keeps successful refresh behavior, and clears stale results

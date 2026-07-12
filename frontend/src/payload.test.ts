@@ -625,6 +625,7 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).toContain('<Tab value="save"');
     expect(viewReportPanelSource).toContain("生成报表");
     expect(viewReportPanelSource).toContain("报表结果");
+    expect(viewReportPanelSource).not.toContain("视图 {{ viewId }}");
     expect(viewReportPanelSource).toContain("/api/v1/report/mkrpt");
     expect(viewReportPanelSource).toContain("reportResponse");
     expect(viewReportPanelSource).toContain("showingResults.value = true");

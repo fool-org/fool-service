@@ -815,6 +815,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `view.jade` Chinese report copy for dialog/result titles,
       output/condition/save tabs, column/order controls, grouping, paging, and
       footer actions while preserving protocol values and metadata labels.
+- [x] Keep the active report ViewId protocol-only: remove the invented
+      `视图 {id}` dialog subtitle while retaining the id for report model/run/
+      save requests.
 - [x] Replace the main Vue View toolbar's editable View ID and raw
       `QueryFilter` controls with a View-metadata-safe keyword search; raw
       compatibility filters remain protocol-only and are not exposed in Vue.
