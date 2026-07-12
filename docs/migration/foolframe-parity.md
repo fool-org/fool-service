@@ -118,6 +118,15 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-12: aligned Vue shell menu hierarchy with old Web `leftbar.jade` /
+  `menuinfo.js`. Loading `getsubmenu` no longer replaces the top-level menu;
+  desktop and mobile render child entries under the selected parent, direct
+  View navigation clears stale expansion state, and the mobile Drawer remains
+  open while a parent menu loads. One shared `LegacyMenuNav.vue` component
+  owns both render paths. All 130 frontend tests and the TypeScript/Vite
+  production build pass; nested-menu Docker browser replay remains part of the
+  final browser acceptance because the default seed may not expose a parent
+  without a direct View.
 - 2026-07-10: completed the authenticated Vue browser acceptance after explicit
   permission to read the local CAPTCHA and use the Docker `admin/admin`
   account. Desktop and 390x844 checks exercised the default View-first list,

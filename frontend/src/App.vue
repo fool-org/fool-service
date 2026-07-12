@@ -29,6 +29,7 @@ import {
   postApi
 } from "./api";
 import LoginPanel from "./LoginPanel.vue";
+import LegacyMenuNav from "./LegacyMenuNav.vue";
 import { useChildCandidates } from "./useChildCandidates";
 import { useChildDrafts } from "./useChildDrafts";
 import { useFieldEnums } from "./useFieldEnums";
@@ -53,7 +54,6 @@ import {
   itemKey,
   legacyAppDefaultViewId,
   legacyAuthNo,
-  legacyAuthText,
   legacyAuthViewId,
   legacyCheckCodeKey,
   legacyInitAppCheckCode,
@@ -201,7 +201,6 @@ const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() =>
 const detailViewOperations = computed(() => dataOperations(detailResponse.value?.data));
 const topMenuItems = computed(() => legacyMainMenuItems(mainInfoResponse.value?.data));
 const subMenuItems = computed(() => legacySubMenuItems(subMenuResponse.value?.data));
-const shellMenuItems = computed(() => (subMenuItems.value.length ? subMenuItems.value : topMenuItems.value));
 const messageItems = computed(() => legacyMessages(messageResponse.value?.data));
 const notifyItems = computed(() => legacyNotifies(notifyResponse.value?.data));
 const shellUserName = computed(() => legacyUserName(legacyUserInfoResponse.value?.data));
@@ -340,6 +339,8 @@ async function loadSubMenu() {
 async function openShellMenu(item: LegacyAuthItem) {
   const itemViewId = legacyAuthViewId(item);
   if (itemViewId) {
+    subMenuParentAuthCode.value = "";
+    subMenuResponse.value = null;
     applyRequestedViewId(itemViewId);
     await loadViewWorkflow(true);
     return;
@@ -363,7 +364,7 @@ async function openMobilePrimarySection() {
 }
 
 async function openMobileShellMenu(item: LegacyAuthItem) {
-  mobileMenuOpen.value = false;
+  if (legacyAuthViewId(item)) mobileMenuOpen.value = false;
   await openShellMenu(item);
 }
 
@@ -963,19 +964,16 @@ function syncDetailDrafts() {
         </button>
       </nav>
 
-      <nav v-if="shellMenuItems.length" class="nav-list" aria-label="FoolFrame menu">
-        <button
-          v-for="item in shellMenuItems"
-          :key="legacyAuthNo(item) || legacyAuthText(item)"
-          type="button"
-          :class="{ active: legacyAuthViewId(item) === currentViewId }"
-          :disabled="Boolean(pendingAction)"
-          @click="openShellMenu(item)"
-        >
-          <span>{{ legacyAuthText(item) || legacyAuthNo(item) }}</span>
-          <strong v-if="shellNotifyCount(item)" class="nav-count">{{ shellNotifyCount(item) }}</strong>
-        </button>
-      </nav>
+      <LegacyMenuNav
+        :current-view-id="currentViewId"
+        :disabled="Boolean(pendingAction)"
+        :expanded-auth-code="subMenuParentAuthCode"
+        :items="topMenuItems"
+        label="FoolFrame menu"
+        :notify-count="shellNotifyCount"
+        :sub-items="subMenuItems"
+        @select="openShellMenu"
+      />
     </aside>
 
     <main class="workspace">
@@ -1021,19 +1019,16 @@ function syncDetailDrafts() {
         <nav class="nav-list" aria-label="Mobile main">
           <button class="active" type="button" @click="openMobilePrimarySection">Views</button>
         </nav>
-        <nav v-if="shellMenuItems.length" class="nav-list" aria-label="Mobile FoolFrame menu">
-          <button
-            v-for="item in shellMenuItems"
-            :key="legacyAuthNo(item) || legacyAuthText(item)"
-            type="button"
-            :class="{ active: legacyAuthViewId(item) === currentViewId }"
-            :disabled="Boolean(pendingAction)"
-            @click="openMobileShellMenu(item)"
-          >
-            <span>{{ legacyAuthText(item) || legacyAuthNo(item) }}</span>
-            <strong v-if="shellNotifyCount(item)" class="nav-count">{{ shellNotifyCount(item) }}</strong>
-          </button>
-        </nav>
+        <LegacyMenuNav
+          :current-view-id="currentViewId"
+          :disabled="Boolean(pendingAction)"
+          :expanded-auth-code="subMenuParentAuthCode"
+          :items="topMenuItems"
+          label="Mobile FoolFrame menu"
+          :notify-count="shellNotifyCount"
+          :sub-items="subMenuItems"
+          @select="openMobileShellMenu"
+        />
       </Drawer>
 
       <section class="view-workflow" :class="{ 'metadata-only': isMetadataOnlyView || isStandaloneDetail }" aria-label="View workflow">

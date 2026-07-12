@@ -136,6 +136,9 @@ item must land with its matching implementation and validation evidence.
       open menu `ViewId` entries through the existing
       `getlistview(ViewId)` -> `querydata(ViewId)` workflow, including stale
       stored-token recovery before first-screen rendering.
+- [x] Preserve the old Web menu hierarchy in desktop and mobile navigation:
+      keep `getmain.TopMenu` visible while `getsubmenu.Items` expands beneath
+      its parent, and keep the mobile Drawer open until a concrete View opens.
 - [x] Accept the old FoolFrame Web `/user/getmenu` submenu protocol shape as
       `/api/v1/auth/getmenu`, including the `authcode` payload from
       `menuinfo.js`.

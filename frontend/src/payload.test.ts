@@ -5,6 +5,7 @@ import viteConfig from "../vite.config.ts?raw";
 import appSource from "./App.vue?raw";
 import legacyChartPanelSource from "./LegacyChartPanel.vue?raw";
 import legacyMapPanelSource from "./LegacyMapPanel.vue?raw";
+import legacyMenuNavSource from "./LegacyMenuNav.vue?raw";
 import listDataTableSource from "./ListDataTable.vue?raw";
 import loginPanelSource from "./LoginPanel.vue?raw";
 import metadataFieldEditorSource from "./MetadataFieldEditor.vue?raw";
@@ -458,21 +459,28 @@ describe("App defaults", () => {
     expect(shellSource).not.toContain("loginV2");
   });
 
-  it("renders legacy shell menu entries and opens their View ids", () => {
+  it("keeps legacy top menus visible while opening child View ids", () => {
     const menuSource = appSource.slice(
       appSource.indexOf("async function openShellMenu"),
       appSource.indexOf("async function loadLegacyListView")
     );
 
     expect(appSource).toContain("legacyMainMenuItems(mainInfoResponse.value?.data)");
-    expect(appSource).toContain("shellMenuItems");
-    expect(appSource).toContain('@click="openShellMenu(item)"');
+    expect(appSource).not.toContain("shellMenuItems");
+    expect(appSource).toContain(':items="topMenuItems"');
+    expect(appSource).toContain(':expanded-auth-code="subMenuParentAuthCode"');
+    expect(appSource).toContain('@select="openShellMenu"');
+    expect(legacyMenuNavSource).toContain('v-for="item in items"');
+    expect(legacyMenuNavSource).toContain('legacyAuthNo(item) === expandedAuthCode && subItems.length');
     expect(menuSource).toContain("legacyAuthViewId(item)");
+    expect(menuSource).toContain('subMenuParentAuthCode.value = ""');
+    expect(menuSource).toContain("subMenuResponse.value = null");
     expect(menuSource).toContain("applyRequestedViewId(itemViewId)");
     expect(menuSource).not.toContain("legacyQueryViewId.value = itemViewId");
     expect(menuSource).toContain("await loadViewWorkflow(true)");
     expect(menuSource).toContain("subMenuParentAuthCode.value = authNo");
     expect(menuSource).toContain("await loadSubMenu()");
+    expect(menuSource).toContain("if (legacyAuthViewId(item)) mobileMenuOpen.value = false");
   });
 
   it("does not retain console-era business DTO staging", () => {
@@ -537,7 +545,7 @@ describe("App defaults", () => {
     expect(appSource).toContain("/api/v1/message/getnotify");
     expect(appSource).toContain("notifyResponse");
     expect(appSource).toContain("legacyNotifyCountForAuth");
-    expect(appSource).toContain('class="nav-count"');
+    expect(legacyMenuNavSource).toContain('class="nav-count"');
     expect(appSource).not.toContain("<h2>Notify Counts</h2>");
   });
 

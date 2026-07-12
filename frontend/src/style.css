@@ -115,6 +115,18 @@ label {
   gap: 6px;
 }
 
+.nav-group,
+.nav-sublist {
+  display: grid;
+  gap: 4px;
+}
+
+.nav-sublist {
+  margin-left: 14px;
+  padding-left: 8px;
+  border-left: 1px solid rgba(165, 180, 252, 0.32);
+}
+
 .nav-list button {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -152,7 +164,8 @@ label {
 }
 
 .nav-list button:hover,
-.nav-list button.active {
+.nav-list button.active,
+.nav-list button.expanded {
   border-color: rgba(165, 180, 252, 0.35);
   background: rgba(99, 102, 241, 0.22);
   color: #ffffff;
@@ -231,10 +244,15 @@ label {
 }
 
 .mobile-navigation .nav-list button:hover,
-.mobile-navigation .nav-list button.active {
+.mobile-navigation .nav-list button.active,
+.mobile-navigation .nav-list button.expanded {
   border-color: #c7d2fe;
   background: #eef2ff;
   color: #3730a3;
+}
+
+.mobile-navigation .nav-sublist {
+  border-left-color: #cbd5e1;
 }
 
 .view-workflow {
