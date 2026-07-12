@@ -305,6 +305,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-12: restored `view.jade`'s text-only report tabs. The Vue report
   dialog no longer adds table, filter, or save icons to the metadata workflow,
   and the icon-only tab spacing rule was removed.
+- 2026-07-12: restored the old list operation column behavior from
+  `querylistdata.js`. Shared metadata tables no longer freeze the operation
+  column to the right or right-align its commands, and the select-existing row
+  command is plain `选择` text without an invented arrow.
 - 2026-07-10: completed the authenticated Vue browser acceptance after explicit
   permission to read the local CAPTCHA and use the Docker `admin/admin`
   account. Desktop and 390x844 checks exercised the default View-first list,

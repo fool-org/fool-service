@@ -55,7 +55,7 @@ function tableRowClass(row: ListDataItem) {
         {{ rowValue(row, column) }}
       </template>
     </Column>
-    <Column v-if="rowOperations.length || showDefaultAction" header="操作" frozen align-frozen="right">
+    <Column v-if="rowOperations.length || showDefaultAction" header="操作">
       <template #body="{ data: row }">
         <div class="table-actions">
           <Button
@@ -74,8 +74,6 @@ function tableRowClass(row: ListDataItem) {
             type="button"
             :disabled="disabled"
             :label="defaultActionLabel"
-            icon="pi pi-arrow-right"
-            icon-pos="right"
             size="small"
             text
             @click="emit('select', row)"

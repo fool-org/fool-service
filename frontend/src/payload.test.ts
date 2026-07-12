@@ -111,6 +111,10 @@ describe("App defaults", () => {
     expect(listDataTableSource).toContain("showDefaultAction: false");
     expect(listDataTableSource).toContain("<DataTable");
     expect(listDataTableSource).toContain("<Column v-for");
+    expect(listDataTableSource).toContain('<Column v-if="rowOperations.length || showDefaultAction" header="操作">');
+    expect(listDataTableSource).not.toContain('align-frozen="right"');
+    expect(listDataTableSource).not.toContain('icon="pi pi-arrow-right"');
+    expect(styleSource).not.toMatch(/\.table-actions\s*\{[^}]*justify-content:\s*flex-end/s);
   });
 
   it("does not render data rows before View columns exist", () => {
