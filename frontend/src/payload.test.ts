@@ -219,8 +219,12 @@ describe("App defaults", () => {
 
   it("dispatches known TempFile templates without treating unknown files as lists", () => {
     expect(appSource).toContain('viewTemplateKind(viewResponse.value?.data) === "unsupported"');
-    expect(appSource).toContain("Unsupported legacy template:");
-    expect(viewListPanelSource).toContain("Legacy template {{ templateName }} has not been migrated.");
+    expect(appSource).not.toContain("Unsupported legacy template:");
+    expect(appSource).toContain('errorMessage.value = ""');
+    expect(viewListPanelSource).toContain("旧版模板 {{ templateName }} 尚未迁移。");
+    expect(viewListPanelSource).toContain('viewDisplayTitle(props.view, "加载视图")');
+    expect(viewListPanelSource).not.toContain("Load a View");
+    expect(viewListPanelSource).not.toContain("Legacy template");
     expect(viewListPanelSource).toContain('v-if="supportedTemplate" class="workflow-toolbar"');
   });
 

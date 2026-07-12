@@ -127,6 +127,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   and Compose frontend builds, deployed chart/Sudoku runtime doctor, and
   repository harness pass. Arbitrary external custom Jade execution is not
   claimed as a Vue feature.
+- 2026-07-12: consolidated unsupported custom-template presentation. The data
+  workflow still stops before querying an unknown `TempFile`, but the list
+  panel now shows one Chinese warning with the metadata template name instead
+  of simultaneous English error/warning messages. The transient no-View title
+  is now `加载视图` rather than `Load a View`.
 - 2026-07-12: completed report condition grouping beyond the old Web
   `mkreport.js` visual-only merge state. Vue can group consecutive conditions,
   wrap complete existing groups, and split the innermost group; the shared

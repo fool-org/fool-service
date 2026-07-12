@@ -87,7 +87,6 @@ import {
   viewDisplayTitle,
   viewId,
   viewTemplateKind,
-  viewTemplateName,
   viewUsesChartTemplate,
   viewUsesSudokuTemplate,
   renderedDetailFields,
@@ -474,7 +473,7 @@ async function queryCurrentViewData() {
     return null;
   }
   if (isUnsupportedView.value) {
-    errorMessage.value = `Unsupported legacy template: ${viewTemplateName(viewResponse.value?.data)}`;
+    errorMessage.value = "";
     return null;
   }
   const response = await queryCurrentViewDataBase();

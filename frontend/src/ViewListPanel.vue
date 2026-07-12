@@ -56,7 +56,7 @@ const emit = defineEmits<{
 const keyword = defineModel<string>("keyword", { required: true });
 const activePane = ref("table");
 const currentViewId = computed(() => viewId(props.view));
-const title = computed(() => viewDisplayTitle(props.view, "Load a View"));
+const title = computed(() => viewDisplayTitle(props.view, "加载视图"));
 const columns = computed(() => listRenderColumns(props.view));
 const rows = computed(() => listRows(props.data));
 const operations = computed(() => viewOperations(props.view));
@@ -100,7 +100,7 @@ function changePage(event: PageState) {
 
     <Message v-if="errorMessage" severity="error" :closable="false">{{ errorMessage }}</Message>
     <Message v-if="!supportedTemplate" severity="warn" :closable="false">
-      Legacy template {{ templateName }} has not been migrated.
+      旧版模板 {{ templateName }} 尚未迁移。
     </Message>
 
     <Tabs v-if="chartView" v-model:value="activePane" class="view-template-tabs">

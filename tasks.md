@@ -840,6 +840,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Keep the active report ViewId protocol-only: remove the invented
       `视图 {id}` dialog subtitle while retaining the id for report model/run/
       save requests.
+- [x] Collapse unknown View-template handling into one Chinese warning: stop
+      the data workflow without duplicating an App-level error, preserve the
+      metadata template name, and remove English loading/unsupported copy.
 - [x] Replace the main Vue View toolbar's editable View ID and raw
       `QueryFilter` controls with a View-metadata-safe keyword search; raw
       compatibility filters remain protocol-only and are not exposed in Vue.
