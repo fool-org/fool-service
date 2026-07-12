@@ -2631,3 +2631,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `market_symbols`, app/DB management, event/message, auth graph, View/model/
   operation/trigger/relation metadata, query catalogs, and the Vue `OrderList`
   workflow guarded by the runtime doctor.
+- 2026-07-12: removed the last invented indigo detail-link color. Child
+  Edit/Detail links now use Bootstrap 3's `#337ab7` link and `#23527c` hover
+  colors while preserving the existing metadata-derived routes and click
+  behavior.
