@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ListDataItem } from "./api";
 import {
+  buildAddedDetailItem,
   buildAddedItemProperty,
   buildDeletedItemProperty,
   buildDraftsFromRow,
@@ -34,7 +35,9 @@ import {
   groupDetailViewId,
   groupItems,
   groupKey,
+  groupListViewId,
   groupSelectFromExists,
+  groupSelectedViewId,
   groupTitle,
   isEnumField,
   isMultilineField,
@@ -74,6 +77,7 @@ import {
   legacyMessageResultKey,
   legacyMessageResultView,
   legacyMessages,
+  legacyChildNewHref,
   legacyNewPath,
   legacyNewHref,
   legacyNotifies,
@@ -118,7 +122,7 @@ import {
   rowOperations,
   rowRenderKey,
   rowValue,
-  selectedChildViewId,
+  removeAddedItemPropertyChange,
   sudokuPanelListViewType,
   readViewDetailViews,
   readViewFields,
@@ -469,7 +473,8 @@ describe("view workflow helpers", () => {
     expect(readViewDetailViews(view)).toHaveLength(1);
     expect(groups).toHaveLength(1);
     expect(groupKey(groups[0])).toBe("items");
-    expect(selectedChildViewId(groups[0])).toBe(101);
+    expect(groupListViewId(groups[0])).toBe(101);
+    expect(groupSelectedViewId(groups[0])).toBe(101);
     expect(groups[0].items).toBe(dataGroup.items);
     expect(groupColumns(groups[0]).map(fieldKey)).toEqual(["itemId", "itemName"]);
     expect(fieldTitle(groupColumns(groups[0])[0])).toBe("Item ID");
@@ -628,6 +633,10 @@ describe("view workflow helpers", () => {
         }
       ]
     });
+    expect(buildAddedDetailItem(group, "2002", { itemId: "2002", itemName: "New item" })).toMatchObject({
+      dataId: "2002",
+      values: [{ prpId: "itemId", objId: "2002" }, { prpId: "itemName", objId: "New item" }]
+    });
     expect(buildUpdatedItemProperty(group, item, { itemId: "2001", itemName: "Updated item" })).toEqual({
       key: "items",
       items: [
@@ -653,6 +662,8 @@ describe("view workflow helpers", () => {
     const latestUpdate = buildUpdatedItemProperty(group, item, { itemId: "2001", itemName: "Latest" });
     expect(mergeItemPropertyChange([firstUpdate], latestUpdate)[0].items).toEqual(latestUpdate.items);
     expect(mergeItemPropertyChange([firstUpdate], buildDeletedItemProperty(group, item))[0].items).toEqual([]);
+    const added = buildAddedItemProperty(group, "2002", { itemId: "2002", itemName: "New item" });
+    expect(removeAddedItemPropertyChange([added], "items", "2002")).toEqual([]);
   });
 
   it("reads child group render and save values through shared aliases", () => {
@@ -840,7 +851,9 @@ describe("view workflow helpers", () => {
     };
 
     expect(groupKey(group)).toBe("Items");
-    expect(selectedChildViewId(group)).toBe(101);
+    expect(groupListViewId(group)).toBe(101);
+    expect(groupSelectedViewId({ SelectedView: 201, ListViewId: 301 })).toBe(201);
+    expect(groupListViewId({ SelectedView: 201, ListViewId: 301 })).toBe(301);
     expect(emptyGroupDraft(group)).toEqual({
       itemId: "",
       itemName: ""
@@ -891,7 +904,8 @@ describe("view workflow helpers", () => {
     const group = renderedDetailGroups(view, [dataGroup])[0];
 
     expect(groupKey(group)).toBe("items");
-    expect(selectedChildViewId(group)).toBe(103);
+    expect(groupListViewId(group)).toBe(101);
+    expect(groupSelectedViewId(group)).toBe(103);
     expect(group.items).toBe(dataGroup.Items);
     expect(groupColumns(group).map(fieldKey)).toEqual(["itemId"]);
   });
@@ -1000,6 +1014,7 @@ describe("view workflow helpers", () => {
     expect(legacyNewPath("/new200")).toEqual({ viewId: 200, parentObjId: "", ownerViewId: "", property: "" });
     expect(legacyNewHref(200)).toBe("/new200");
     expect(legacyNewHref(0)).toBe("");
+    expect(legacyChildNewHref(200, "1001", 100, "items")).toBe("/new200/1001&100&items");
     expect(legacyNewPath("/new200/1001&100&items")).toEqual({
       viewId: 200,
       parentObjId: "1001",

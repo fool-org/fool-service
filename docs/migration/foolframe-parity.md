@@ -181,6 +181,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   leaves child rows in display mode until their row Edit action; only one row
   edits at a time, row Save upserts the group's `Items`, and switching rows
   stages the previous row. No child-update request runs before parent Save.
+- 2026-07-12: restored child-add persistence timing and View-id roles from
+  `detailview.js`. Manual and selected-existing rows now remain local in
+  `AddedItems` until parent Save, removing immediate save/query cycles; deleting
+  an unsaved row discards it locally. Candidate lookup uses `ListViewId`, while
+  a configured `SelectedView` opens the old owner-aware child-new route.
 - 2026-07-12: restored old `message.js` delivery behavior in the Vue shell.
   Each non-empty 15-second `getmsg` poll now immediately opens its first item
   in a `系统消息` modal with generation time, content, View-first detail

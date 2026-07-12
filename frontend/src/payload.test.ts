@@ -81,12 +81,13 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).not.toContain("Create Row");
     expect(appSource).toContain("function openListObject");
     expect(appSource).toContain("async function startNewObject");
-    expect(appSource).toContain("async function addDetailItem");
+    expect(appSource).toContain("function addDetailItem");
     expect(appSource).toContain("function updateDetailItem");
     expect(appSource).toContain("function deleteDetailItem");
     expect(appSource).toContain("pendingItemProperties");
-    expect(appSource).toContain("mergeItemPropertyChange");
+    expect(appSource).toContain("usePendingChildChanges");
     expect(appSource).toContain("saveObj(pendingItemProperties.value)");
+    expect(appSource).toContain("renderPendingDetailGroups");
     const deleteHandlerSource = appSource.slice(
       appSource.indexOf("function deleteDetailItem"),
       appSource.indexOf("async function loadFieldEnums")
@@ -228,6 +229,15 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain("emit(\"loadExistingDetailItems\", group)");
     expect(viewDetailPanelSource).toContain("function selectExistingItem");
     expect(viewDetailPanelSource).toContain('@select="(row) => selectExistingItem(group, row)"');
+    expect(appSource).toContain("const viewId = groupListViewId(group)");
+    expect(appSource).toContain("legacyChildNewHref(");
+    const addExistingSource = appSource.slice(
+      appSource.indexOf("function addExistingDetailItem"),
+      appSource.indexOf("function updateDetailItem")
+    );
+    expect(addExistingSource).toContain("addPendingDetailItem");
+    expect(addExistingSource).not.toContain("saveObj(");
+    expect(addExistingSource).not.toContain("queryDetail()");
   });
 
   it("renders row operations through their target detail View id", () => {
@@ -377,7 +387,8 @@ describe("App defaults", () => {
     expect(appSource).toContain("function openNewObject(targetViewId: number)");
     expect(appSource).toContain("legacyNewHref(targetViewId)");
     expect(appSource).toContain("async function startNewObject(viewId = Number(detailViewId.value)");
-    expect(appSource).toContain("await queryDetail()");
+    expect(appSource).toContain("async function queryDetail(viewId = Number(detailViewId.value)");
+    expect(appSource).toContain("await queryDetail(route.viewId, objectId)");
     expect(appSource).toContain("viewID: String(detailViewId.value)");
     expect(viewDataWorkflowSource).toContain("listRenderColumns(viewResponse.value?.data)");
     expect(appSource).not.toContain("Object.keys(first)");
@@ -558,7 +569,7 @@ describe("App defaults", () => {
     );
 
     expect(updateSource).toContain("buildGroupItemDrafts(group, item)");
-    expect(updateSource).toContain("mergeItemPropertyChange");
+    expect(updateSource).toContain("stageItemProperty");
     expect(updateSource).not.toContain("saveObj(");
     expect(updateSource).not.toContain("queryDetail()");
     expect(updateSource).not.toContain("buildFieldDrafts(detailItemValues(item))");

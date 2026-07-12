@@ -646,8 +646,12 @@ export function groupKey(group: QueryDataDetailItemGroup) {
   return group.prpId || group.PrpId || group.name || group.Name || "items";
 }
 
-export function selectedChildViewId(group: QueryDataDetailItemGroup) {
-  return Number(group.selectedView ?? group.SelectedView ?? group.listViewId ?? group.ListViewId ?? 0) || 0;
+export function groupSelectedViewId(group: QueryDataDetailItemGroup) {
+  return Number(group.selectedView ?? group.SelectedView ?? 0) || 0;
+}
+
+export function groupListViewId(group: QueryDataDetailItemGroup) {
+  return Number(group.listViewId ?? group.ListViewId ?? 0) || 0;
 }
 
 export function groupSelectFromExists(group: QueryDataDetailItemGroup) {
@@ -733,6 +737,13 @@ export function legacyNewPath(pathname: string) {
 export function legacyNewHref(viewId: number) {
   const normalizedViewId = Number(viewId) || 0;
   return normalizedViewId > 0 ? `/new${normalizedViewId}` : "";
+}
+
+export function legacyChildNewHref(viewId: number, parentObjId: string, ownerViewId: number, property: string) {
+  const href = legacyNewHref(viewId);
+  return href && parentObjId && ownerViewId && property
+    ? `${href}/${parentObjId}&${ownerViewId}&${property}`
+    : href;
 }
 
 export function viewOperations(view: ListViewInfo | undefined) {
@@ -1062,6 +1073,33 @@ export function buildAddedItemProperty(
       }
     ]
   };
+}
+
+export function buildAddedDetailItem(
+  group: QueryDataDetailItemGroup,
+  itemId: string,
+  drafts: Record<string, string>
+): QueryDataDetailDataItem {
+  const values = groupColumns(group).map((field) => {
+    const value = drafts[fieldKey(field)] ?? "";
+    return { ...field, objId: value, fmtValue: value };
+  });
+  return { dataId: itemId, DataId: itemId, values, Values: values };
+}
+
+export function removeAddedItemPropertyChange(
+  changes: SaveItemProperty[],
+  key: string,
+  itemId: string
+): SaveItemProperty[] {
+  return changes.flatMap((change) => {
+    if (change.key !== key) return [change];
+    const next = {
+      ...change,
+      addedItems: (change.addedItems || []).filter((item) => item.itemId !== itemId)
+    };
+    return next.items?.length || next.delteItems?.length || next.addedItems.length ? [next] : [];
+  });
 }
 
 export function buildDraftsFromRow(fields: ListDataValue[], row: ListDataItem, columns: TableColumnInfo[] = []) {

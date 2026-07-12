@@ -30,12 +30,15 @@ import LegacyMenuNav from "./LegacyMenuNav.vue";
 import { useChildCandidates } from "./useChildCandidates";
 import { useChildDrafts } from "./useChildDrafts";
 import { useFieldEnums } from "./useFieldEnums";
+import { usePendingChildChanges } from "./usePendingChildChanges";
 import { useSudokuPanels } from "./useSudokuPanels";
 import { useViewDataWorkflow } from "./useViewDataWorkflow";
 import { enumFieldOptions, nextObjectId } from "./viewShell";
 import {
+  buildAddedDetailItem,
   buildAddedItemProperty,
   buildDeletedItemProperty,
+  buildDraftsFromRow,
   buildFieldDrafts,
   buildGroupItemDrafts,
   buildSavePropertyies,
@@ -49,7 +52,8 @@ import {
   fieldKey,
   groupKey,
   groupColumns,
-  groupItems,
+  groupListViewId,
+  groupSelectedViewId,
   itemDataId,
   itemKey,
   legacyAppDefaultViewId,
@@ -77,19 +81,17 @@ import {
   listRows,
   listTotalItems,
   listTotalPages,
-  mergeItemPropertyChange,
+  legacyChildNewHref,
   legacyNewPath,
   legacyNewHref,
   legacyViewPathId,
   operationId as operationInfoId,
   rowObjectId,
-  selectedChildViewId,
   viewDisplayTitle,
   viewId,
   viewTemplateKind,
   viewUsesChartTemplate,
   viewUsesSudokuTemplate,
-  withGroupItems,
   renderedDetailFields,
   renderedDetailGroups,
   viewColumns
@@ -160,8 +162,17 @@ const detailResponse = ref<CommonResponse<QueryDataDetailResult> | null>(null);
 const activeShellMessage = ref<MessageInfo | null>(null);
 const errorMessage = ref("");
 const operationResult = ref<{ message: string; success: boolean } | null>(null);
-const pendingItemProperties = ref<SaveItemProperty[]>([]);
 const pendingAction = ref("");
+const {
+  add: addPendingDetailItem,
+  clear: clearPendingDetailChanges,
+  isAdded: isPendingAddedDetailItem,
+  itemProperties: pendingItemProperties,
+  removeAdded: removePendingAddedDetailItem,
+  renderGroups: renderPendingDetailGroups,
+  replaceAdded: replacePendingAddedDetailItem,
+  stage: stageItemProperty
+} = usePendingChildChanges();
 
 const {
   viewResponse,
@@ -189,17 +200,8 @@ const detailDataRows = computed(() => detailResultSimpleData(detailResponse.valu
 const currentReadItemView = computed(() => readItemViewFor(Number(detailViewId.value)));
 const detailTitle = computed(() => viewDisplayTitle(currentReadItemView.value, "详情"));
 const detailRows = computed(() => renderedDetailFields(currentReadItemView.value, detailDataRows.value));
-const deletedDetailItems = computed(() => new Set(
-  pendingItemProperties.value.flatMap((property) =>
-    (property.delteItems || []).map((item) => `${property.key}:${item.itemId || ""}`)
-  )
-));
 const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() =>
-  renderedDetailGroups(currentReadItemView.value, detailResultItems(detailResponse.value?.data)).map((group) => {
-    const items = groupItems(group);
-    const visibleItems = items.filter((item) => !deletedDetailItems.value.has(`${groupKey(group)}:${itemDataId(item)}`));
-    return visibleItems.length === items.length ? group : withGroupItems(group, visibleItems);
-  })
+  renderPendingDetailGroups(renderedDetailGroups(currentReadItemView.value, detailResultItems(detailResponse.value?.data)))
 );
 const detailViewOperations = computed(() => dataOperations(detailResponse.value?.data));
 const topMenuItems = computed(() => legacyMainMenuItems(mainInfoResponse.value?.data));
@@ -437,7 +439,7 @@ function clearLegacySession() {
   mainInfoResponse.value = null;
   subMenuResponse.value = null;
   activeShellMessage.value = null;
-  pendingItemProperties.value = [];
+  clearPendingDetailChanges();
   checkCodeResponse.value = null;
   checkCodeKey.value = "";
   checkCodeValue.value = "";
@@ -600,7 +602,7 @@ async function ensureLegacyShell() {
 async function loadViewWorkflow(resetPage = false) {
   stopAutoRefresh();
   operationResult.value = null;
-  pendingItemProperties.value = [];
+  clearPendingDetailChanges();
   isMetadataOnlyView.value = false;
   isStandaloneDetail.value = false;
   if (resetPage) {
@@ -630,7 +632,7 @@ async function searchCurrentView() {
 async function loadLegacyDetailPath(route: { viewId: number; objectId?: string }) {
   stopAutoRefresh();
   operationResult.value = null;
-  pendingItemProperties.value = [];
+  clearPendingDetailChanges();
   isMetadataOnlyView.value = false;
   isStandaloneDetail.value = true;
   applyRequestedViewId(route.viewId);
@@ -738,7 +740,7 @@ function openNewObject(targetViewId: number) {
 
 async function startNewObject(viewId = Number(detailViewId.value), parentObjId = "", ownerViewId = "", property = "") {
   operationResult.value = null;
-  pendingItemProperties.value = [];
+  clearPendingDetailChanges();
   detailViewId.value = viewId;
   detailResponse.value = null;
   newObjectOwner = { ownerViewId, ownerId: parentObjId, property };
@@ -766,9 +768,19 @@ async function saveSelectedObject() {
   window.history.back();
 }
 
-async function addDetailItem(group: QueryDataDetailItemGroup) {
+function addDetailItem(group: QueryDataDetailItemGroup) {
   if (!selectedObjectId.value || isCreatingObject.value) {
     errorMessage.value = "请先保存主记录。";
+    return;
+  }
+  const selectedViewId = groupSelectedViewId(group);
+  if (selectedViewId) {
+    window.location.assign(legacyChildNewHref(
+      selectedViewId,
+      selectedObjectId.value,
+      Number(detailViewId.value),
+      groupKey(group)
+    ));
     return;
   }
   const key = groupKey(group);
@@ -779,19 +791,18 @@ async function addDetailItem(group: QueryDataDetailItemGroup) {
   if (firstFieldKey && !drafts[firstFieldKey]) {
     drafts[firstFieldKey] = itemId;
   }
-  const saved = await saveObj([buildAddedItemProperty(group, itemId, drafts)]);
-  if (!saved) {
-    return;
-  }
+  const property = buildAddedItemProperty(group, itemId, drafts);
+  const item = buildAddedDetailItem(group, itemId, drafts);
+  addPendingDetailItem(group, item, property);
+  childDrafts.value = { ...childDrafts.value, [itemKey(group, item)]: drafts };
   newChildDrafts.value = {
     ...newChildDrafts.value,
     [key]: emptyGroupDraft(group)
   };
-  await queryDetail();
 }
 
 async function loadExistingDetailItems(group: QueryDataDetailItemGroup) {
-  const viewId = selectedChildViewId(group);
+  const viewId = groupListViewId(group);
   if (!viewId) {
     errorMessage.value = "未配置可选择视图。";
     return;
@@ -822,15 +833,19 @@ async function loadExistingDetailItems(group: QueryDataDetailItemGroup) {
   });
 }
 
-async function addExistingDetailItem(group: QueryDataDetailItemGroup, row: ListDataItem) {
+function addExistingDetailItem(group: QueryDataDetailItemGroup, row: ListDataItem) {
   if (!selectedObjectId.value || isCreatingObject.value) {
     errorMessage.value = "请先保存主记录。";
     return;
   }
-  const saved = await saveObj([buildSelectedExistingItemProperty(group, row, candidateColumns(group))]);
-  if (saved) {
-    await queryDetail();
-  }
+  const columns = candidateColumns(group);
+  const property = buildSelectedExistingItemProperty(group, row, columns);
+  const addedItem = property.addedItems?.[0];
+  if (!addedItem?.itemId) return;
+  const drafts = buildDraftsFromRow(groupColumns(group), row, columns);
+  const item = buildAddedDetailItem(group, addedItem.itemId, drafts);
+  addPendingDetailItem(group, item, property);
+  childDrafts.value = { ...childDrafts.value, [itemKey(group, item)]: drafts };
 }
 
 function updateDetailItem(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) {
@@ -839,10 +854,13 @@ function updateDetailItem(group: QueryDataDetailItemGroup, item: QueryDataDetail
     return;
   }
   const drafts = childDrafts.value[itemKey(group, item)] || buildGroupItemDrafts(group, item);
-  pendingItemProperties.value = mergeItemPropertyChange(
-    pendingItemProperties.value,
-    buildUpdatedItemProperty(group, item, drafts)
+  const isAdded = isPendingAddedDetailItem(group, item);
+  stageItemProperty(
+    isAdded
+      ? buildAddedItemProperty(group, itemDataId(item), drafts)
+      : buildUpdatedItemProperty(group, item, drafts)
   );
+  if (isAdded) replacePendingAddedDetailItem(group, buildAddedDetailItem(group, itemDataId(item), drafts));
 }
 
 function deleteDetailItem(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) {
@@ -851,10 +869,7 @@ function deleteDetailItem(group: QueryDataDetailItemGroup, item: QueryDataDetail
     errorMessage.value = "请先选择已保存的子项。";
     return;
   }
-  pendingItemProperties.value = mergeItemPropertyChange(
-    pendingItemProperties.value,
-    buildDeletedItemProperty(group, item)
-  );
+  if (!removePendingAddedDetailItem(group, item)) stageItemProperty(buildDeletedItemProperty(group, item));
 }
 
 async function loadFieldEnums() {
