@@ -167,6 +167,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Preserve the old Web menu hierarchy in desktop and mobile navigation:
       keep `getmain.TopMenu` visible while `getsubmenu.Items` expands beneath
       its parent, and keep the mobile Drawer open until a concrete View opens.
+- [x] Restore Bootstrap dropdown toggle behavior: a second click on the open
+      parent collapses its submenu, with desktop/mobile `aria-expanded` bound
+      to the same shared expansion state.
 - [x] Restore shell route history semantics: menu and message View/detail
       targets update `/view{id}` paths, and browser back/forward reloads the
       matching existing View-first route without adding a router dependency.

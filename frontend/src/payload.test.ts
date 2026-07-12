@@ -777,6 +777,7 @@ describe("App defaults", () => {
     expect(legacyMenuNavSource).toContain("legacyAuthImageUrl(child)");
     expect(legacyMenuNavSource).toContain('class="nav-menu-image"');
     expect(legacyMenuNavSource).toContain('legacyAuthNo(item) === expandedAuthCode && subItems.length');
+    expect(legacyMenuNavSource).toContain(':aria-expanded="legacyAuthViewId(item) ? undefined : legacyAuthNo(item) === expandedAuthCode"');
     expect(menuSource).toContain("legacyAuthViewId(item)");
     expect(menuSource).toContain('subMenuParentAuthCode.value = ""');
     expect(menuSource).toContain("subMenuResponse.value = null");
@@ -784,6 +785,8 @@ describe("App defaults", () => {
     expect(menuSource).not.toContain("legacyQueryViewId.value = itemViewId");
     expect(menuSource).toContain("await loadViewWorkflow(true)");
     expect(menuSource).toContain("subMenuParentAuthCode.value = authNo");
+    expect(menuSource).toContain("if (authNo === subMenuParentAuthCode.value)");
+    expect(menuSource).toContain("subMenuResponse.value = null");
     expect(menuSource).toContain("await loadSubMenu()");
     expect(menuSource).toContain("if (legacyAuthViewId(item)) mobileMenuOpen.value = false");
   });

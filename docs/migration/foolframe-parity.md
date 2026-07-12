@@ -2677,3 +2677,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   before preparing a fresh login CAPTCHA, so the next login opens the App
   default View. Stale-token recovery still leaves its URL unchanged and resumes
   that requested deep link after authentication.
+- 2026-07-12: restored Bootstrap dropdown toggle behavior in the shared shell
+  menu. Clicking the currently expanded metadata parent now collapses and
+  clears its submenu instead of issuing another request and staying open;
+  desktop/mobile `aria-expanded` uses that same state, while direct View menus
+  retain their existing navigation path.

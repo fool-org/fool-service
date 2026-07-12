@@ -22,6 +22,7 @@ defineEmits<{
       <button
         type="button"
         :class="{ expanded: legacyAuthNo(item) === expandedAuthCode }"
+        :aria-expanded="legacyAuthViewId(item) ? undefined : legacyAuthNo(item) === expandedAuthCode"
         :disabled="disabled"
         @click="$emit('select', item)"
       >

@@ -385,6 +385,11 @@ async function openShellMenu(item: LegacyAuthItem) {
   }
   const authNo = legacyAuthNo(item);
   if (authNo) {
+    if (authNo === subMenuParentAuthCode.value) {
+      subMenuParentAuthCode.value = "";
+      subMenuResponse.value = null;
+      return;
+    }
     subMenuParentAuthCode.value = authNo;
     await loadSubMenu();
   }
