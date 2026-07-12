@@ -909,6 +909,8 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore the old Bootstrap navbar/dropdown palette and geometry: neutral
       gray states, 50px top actions, 160px dropdown minimum, and list-group
       child rows replace the invented indigo rounded navigation treatment.
+- [x] Restore `default.jade`'s actual `h2 > small` brand typography: 21px
+      application name with a 65% version replaces the invented 24px/12px pair.
 - [x] Restore the compact text-only Bootstrap navbar brand: remove the invented
       42px initial tile, render App name/version inline, and reduce the desktop
       shell header to the old 50px scale while reusing it in the mobile Drawer.

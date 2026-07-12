@@ -863,9 +863,10 @@ describe("App defaults", () => {
   });
 
   it("keeps the old text-only application brand in the shell", () => {
-    expect(appSource).toContain('class="brand"');
+    expect(appSource.match(/<h2 class="brand(?: drawer-brand)?">/g)).toHaveLength(2);
     expect(appSource).toContain("{{ shellAppName }}");
     expect(appSource).toContain("{{ shellAppVersion }}");
+    expect(appSource).not.toContain("<strong>{{ shellAppName }}</strong>");
     expect(appSource).not.toContain("shellAppMark");
     expect(appSource).not.toContain("brand-mark");
   });

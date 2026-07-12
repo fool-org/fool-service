@@ -873,10 +873,10 @@ function syncDetailDrafts() {
   />
   <div v-else class="app-shell">
     <header class="shell-header">
-      <div class="brand">
-        <strong>{{ shellAppName }}</strong>
+      <h2 class="brand">
+        {{ shellAppName }}
         <small v-if="shellAppVersion">{{ shellAppVersion }}</small>
-      </div>
+      </h2>
 
       <div class="desktop-navigation">
         <nav class="nav-list nav-list-horizontal" aria-label="Main">
@@ -913,10 +913,10 @@ function syncDetailDrafts() {
       </header>
 
       <Drawer v-model:visible="mobileMenuOpen" position="left" class="mobile-navigation" header="导航">
-        <div class="brand drawer-brand">
-          <strong>{{ shellAppName }}</strong>
+        <h2 class="brand drawer-brand">
+          {{ shellAppName }}
           <small v-if="shellAppVersion">{{ shellAppVersion }}</small>
-        </div>
+        </h2>
         <nav class="nav-list" aria-label="Mobile main">
           <button type="button" @click="openMobilePrimarySection">首页</button>
         </nav>

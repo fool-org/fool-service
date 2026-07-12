@@ -149,6 +149,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   The Vue shell now uses the old neutral background, border, text, hover, and
   open-state colors; top actions occupy the 50px navbar height, and child menus
   use the old 160px dropdown/list-group geometry instead of indigo rounded UI.
+- 2026-07-12: restored `default.jade`'s `h2 > small` brand structure and exact
+  Bootstrap typography. Desktop and Drawer now share the old 21px/500/1.1
+  application heading and 65% normal-weight version instead of a 24px strong
+  label with a fixed 12px version and invented 8px gap.
 - 2026-07-12: restored old `message.js` delivery behavior in the Vue shell.
   Each non-empty 15-second `getmsg` poll now immediately opens its first item
   in a `系统消息` modal with generation time, content, View-first detail
