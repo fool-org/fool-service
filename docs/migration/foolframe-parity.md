@@ -2687,3 +2687,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   cleanup now reuse one `closeShellNavigation` helper to close the mobile Drawer
   and clear open dropdown data. Parent expansion itself does not call it, so
   mobile users can still open a parent and choose a child View.
+- 2026-07-12: restored `itemreadonly.js`'s detail-entry tab state for SPA
+  object changes. When the selected object or new/existing context changes,
+  the shared detail panel now selects the first metadata child group and closes
+  any candidate picker from the prior object. Tab changes within one object
+  remain user-controlled.

@@ -1056,6 +1056,9 @@ item must land with its matching implementation and validation evidence.
       fields/rows/actions as a reusable legacy-style table.
 - [x] Match `detailView.jade` child tab labels exactly: render only metadata
       `ItemName` text and remove the invented row-count badge and its styles.
+- [x] Match `itemreadonly.js` page-entry state across SPA detail transitions:
+      each object/new context starts on its first metadata child tab and closes
+      any prior select-existing dialog.
 - [x] Restore `detailView.jade`'s left-aligned select-existing child Add command
       instead of pushing that single-button toolbar to the right edge.
 - [x] Restore `detailView.jade`'s two-column child operation layout: span the

@@ -215,6 +215,8 @@ describe("App defaults", () => {
 
   it("renders legacy detail collections as metadata-driven tabs and tables", () => {
     expect(viewDetailPanelSource).toContain('v-model:value="activeGroupKey"');
+    expect(viewDetailPanelSource).toContain('activeGroupKey.value = firstGroup ? groupKey(firstGroup) : ""');
+    expect(viewDetailPanelSource).toContain('pickerGroupKey.value = ""');
     expect(viewDetailPanelSource).toContain('<Tab v-for="group in detailItemGroups"');
     expect(viewDetailPanelSource).toContain('<TabPanel v-for="group in detailItemGroups"');
     expect(viewDetailPanelSource).toContain('class="legacy-item-table detail-items-grid"');

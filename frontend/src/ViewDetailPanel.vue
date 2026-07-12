@@ -72,8 +72,11 @@ const stagedItemKeys = ref<Set<string>>(new Set());
 watch(
   () => [props.selectedObjectId, props.isCreatingObject] as const,
   () => {
+    const firstGroup = props.detailItemGroups[0];
     isEditing.value = props.isCreatingObject;
+    activeGroupKey.value = firstGroup ? groupKey(firstGroup) : "";
     editingItemKey.value = "";
+    pickerGroupKey.value = "";
     stagedItemKeys.value = new Set();
   },
   { immediate: true }
