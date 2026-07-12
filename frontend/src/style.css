@@ -388,12 +388,6 @@ label {
   background: #b2dfee;
 }
 
-.condition-first {
-  color: #64748b;
-  font-size: 0.84rem;
-  font-weight: 700;
-}
-
 .view-table {
   min-height: 420px;
 }

@@ -141,6 +141,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   nested groups use the old `#FFEBCD` / `#B2DFEE` alternating colors and the
   group-start command is again named `拆分分组`. Recursive filter serialization
   and View-metadata-bound condition values are unchanged.
+- 2026-07-12: restored old `mkreport.js` condition-row initialization. Adding
+  a condition now leaves its View field and comparison empty, keeps the first
+  relation cell blank, and creates the value editor only after metadata drives
+  a field/comparison choice. Visible relation labels again use `与/或`; the
+  request values remain legacy `and/or`.
 - 2026-07-12: restored Sudoku panel refresh semantics from old Web
   `includes/List.jade`, `querylistdata.js`, and `groupview.js`. Top-level and
   grouped list panels expose `FreshTime` with a text refresh command; targeted

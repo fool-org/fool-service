@@ -652,6 +652,12 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).toContain("condition-group-marker");
     expect(viewReportPanelSource).toContain("拆分分组");
     expect(viewReportPanelSource).not.toContain("`G${id}`");
+    expect(viewReportPanelSource).toContain('{ label: "与", value: "and" }');
+    expect(viewReportPanelSource).toContain('columnId: ""');
+    expect(viewReportPanelSource).toContain('compareId: ""');
+    expect(viewReportPanelSource).toContain('v-else-if="condition.columnId && condition.compareId"');
+    expect(viewReportPanelSource).not.toContain("const column = modelColumns.value[0]");
+    expect(viewReportPanelSource).not.toContain('class="condition-first"');
     expect(reportConditionsSource).toContain("buildReportConditionFilter");
     expect(reportConditionsSource).toContain("serializeNode");
     expect(viewReportPanelSource).not.toContain("Report Columns JSON");

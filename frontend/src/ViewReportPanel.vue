@@ -72,7 +72,7 @@ const activeTab = ref("output");
 const showingResults = ref(false);
 let nextConditionId = 1;
 const joinOptions = [
-  { label: "且", value: "and" },
+  { label: "与", value: "and" },
   { label: "或", value: "or" }
 ];
 
@@ -125,16 +125,13 @@ function changeResultPage(event: PageState) {
 }
 
 function addCondition() {
-  const column = modelColumns.value[0];
-  const compare = column && reportModelCompareTypes(column)[0];
-  const state = column && reportModelStates(column)[0];
   conditions.value.push({
     id: nextConditionId++,
-    columnId: column ? columnKey(column) : "",
-    compareId: compare ? reportModelOptionId(compare) : "",
+    columnId: "",
+    compareId: "",
     groupPath: [],
     join: "and",
-    value: state ? reportModelStateValue(state) : ""
+    value: ""
   });
 }
 
@@ -306,7 +303,7 @@ onMounted(() => void loadReportColumns());
             </div>
             <div v-if="conditions.length" class="report-conditions">
               <div v-for="(condition, index) in conditions" :key="condition.id" class="report-condition-row" :style="{ marginLeft: `${condition.groupPath.length * 14}px` }">
-                <Checkbox v-model="selectedConditionIds" :input-id="`condition-${condition.id}`" :value="condition.id" :aria-label="`Select condition ${index + 1}`" />
+                <Checkbox v-model="selectedConditionIds" :input-id="`condition-${condition.id}`" :value="condition.id" :aria-label="`选择条件 ${index + 1}`" />
                 <div class="condition-group">
                   <span
                     v-for="(groupId, depthIndex) in condition.groupPath"
@@ -317,12 +314,13 @@ onMounted(() => void loadReportColumns());
                   ></span>
                   <Button v-if="startsConditionGroup(condition, index)" type="button" icon="pi pi-reply" severity="secondary" text size="small" title="拆分分组" aria-label="拆分分组" :disabled="pending" @click="ungroupCondition(condition)" />
                 </div>
-                <Select v-if="index" v-model="condition.join" :options="joinOptions" option-label="label" option-value="value" aria-label="Condition join" :disabled="pending" />
-                <span v-else class="condition-first">条件</span>
-                <Select v-model="condition.columnId" :options="modelColumnOptions()" option-label="label" option-value="value" aria-label="Condition column" :disabled="pending" @change="updateConditionColumn(condition)" />
-                <Select v-model="condition.compareId" :options="compareTypeOptions(condition)" option-label="label" option-value="value" aria-label="Condition comparison" :disabled="pending" />
-                <Select v-if="states(condition).length" v-model="condition.value" :options="stateOptions(condition)" option-label="label" option-value="value" aria-label="Condition value" :disabled="pending" />
-                <InputText v-else v-model="condition.value" aria-label="Condition value" :disabled="pending" fluid />
+                <Select v-if="index" v-model="condition.join" :options="joinOptions" option-label="label" option-value="value" aria-label="条件关系" :disabled="pending" />
+                <span v-else aria-hidden="true"></span>
+                <Select v-model="condition.columnId" :options="modelColumnOptions()" option-label="label" option-value="value" aria-label="条件字段" :disabled="pending" @change="updateConditionColumn(condition)" />
+                <Select v-model="condition.compareId" :options="compareTypeOptions(condition)" option-label="label" option-value="value" aria-label="条件运算" :disabled="pending" />
+                <Select v-if="condition.columnId && condition.compareId && states(condition).length" v-model="condition.value" :options="stateOptions(condition)" option-label="label" option-value="value" aria-label="条件值" :disabled="pending" />
+                <InputText v-else-if="condition.columnId && condition.compareId" v-model="condition.value" aria-label="条件值" :disabled="pending" fluid />
+                <span v-else aria-hidden="true"></span>
                 <Button type="button" icon="pi pi-trash" severity="danger" text title="删除条件" aria-label="删除条件" :disabled="pending" @click="removeCondition(index)" />
               </div>
             </div>

@@ -812,6 +812,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Align report condition-group rendering with old `mkreport.js`: keep
       internal group ids protocol-only, show nested legacy-colored group rails,
       and restore the `拆分分组` action copy.
+- [x] Restore old report condition-row initialization: add an empty field and
+      operator, delay the value editor until a View field is chosen, keep the
+      first relation cell blank, and use the old `与/或` labels.
 - [x] Restore the old report dialog interaction: open report setup as a modal
       with output, condition, and save-definition tabs, then switch successful
       runs into a separate paged result state with a back action.
