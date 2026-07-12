@@ -2,13 +2,10 @@
 import { computed, onMounted, ref } from "vue";
 import Button from "primevue/button";
 import Checkbox from "primevue/checkbox";
-import Column from "primevue/column";
-import DataTable from "primevue/datatable";
 import Dialog from "primevue/dialog";
 import InputNumber from "primevue/inputnumber";
 import InputText from "primevue/inputtext";
 import Message from "primevue/message";
-import Paginator, { type PageState } from "primevue/paginator";
 import Select from "primevue/select";
 import Tab from "primevue/tab";
 import TabList from "primevue/tablist";
@@ -38,7 +35,6 @@ import {
   reportGridCells,
   reportGridPage,
   reportGridTotalPages,
-  reportGridTotalRecords,
   reportModelColumnId,
   reportModelColumnName,
   reportModelColumns,
@@ -80,7 +76,6 @@ const modelColumns = computed(() => reportModelColumns(modelResponse.value?.data
 const reportRows = computed(() => reportRowsFromCells(reportGridCells(reportResponse.value?.data)));
 const resultPage = computed(() => reportGridPage(reportResponse.value?.data, currentPage.value));
 const resultPages = computed(() => reportGridTotalPages(reportResponse.value?.data));
-const resultRecords = computed(() => reportGridTotalRecords(reportResponse.value?.data));
 const conditionsComplete = computed(() => conditions.value.every((condition) => condition.columnId && condition.compareId));
 const canGroupConditions = computed(() => canGroupReportConditions(conditions.value, selectedConditionIds.value));
 const canRun = computed(() => reportCols.value.length > 0 && conditionsComplete.value && !props.pending);
@@ -118,10 +113,6 @@ function stateOptions(condition: ReportConditionDraft) {
     label: reportModelStateText(state),
     value: reportModelStateValue(state)
   }));
-}
-
-function changeResultPage(event: PageState) {
-  void runReport(event.page + 1);
 }
 
 function addCondition() {
@@ -225,6 +216,11 @@ async function saveReport() {
   statusMessage.value = response ? "报表定义已提交。" : "无法保存报表定义。";
 }
 
+function backToReportSetup() {
+  showingResults.value = false;
+  currentPage.value = 1;
+}
+
 onMounted(() => void loadReportColumns());
 </script>
 
@@ -233,7 +229,7 @@ onMounted(() => void loadReportColumns());
     :visible="true"
     modal
     class="report-dialog"
-    :closable="!pending"
+    :closable="!pending && !showingResults"
     :draggable="false"
     :dismissable-mask="!pending"
     @update:visible="(visible) => { if (!visible) emit('close') }"
@@ -247,28 +243,26 @@ onMounted(() => void loadReportColumns());
     <Message v-if="statusMessage" severity="info" :closable="false">{{ statusMessage }}</Message>
 
     <section v-if="showingResults" class="report-section">
-      <div class="section-heading">
-        <h3>报表结果</h3>
-        <span>共 {{ resultRecords }} 条 · 第 {{ resultPage }} / {{ resultPages || 1 }} 页</span>
+      <div class="report-result-heading">
+        <p>报表结果 共{{ resultPages }}页 当前第{{ resultPage }}页</p>
+        <div class="report-result-actions">
+          <Button type="button" label="前一页" size="small" severity="secondary" outlined :disabled="pending || resultPage <= 1" @click="runReport(resultPage - 1)" />
+          <Button type="button" label="下一页" size="small" severity="secondary" outlined :disabled="pending || resultPage >= Math.max(1, resultPages)" @click="runReport(resultPage + 1)" />
+        </div>
       </div>
       <div class="table-wrap report-results">
-        <DataTable v-if="reportRows.length" :value="reportRows.slice(1)" scrollable striped-rows size="small">
-          <Column v-for="(cell, index) in reportRows[0]" :key="`report-head-${index}`" :header="cell">
-            <template #body="{ data: row }">{{ row[index] }}</template>
-          </Column>
-        </DataTable>
+        <table v-if="reportRows.length" class="report-result-table">
+          <tbody>
+            <tr v-for="(row, rowIndex) in reportRows" :key="`report-row-${rowIndex}`">
+              <td v-for="(cell, cellIndex) in row" :key="`report-cell-${rowIndex}-${cellIndex}`">
+                <span v-if="cell">{{ cell }}</span>
+                <span v-else aria-hidden="true">&nbsp;</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
         <div v-else class="empty-state compact">暂无报表数据。</div>
       </div>
-      <Paginator
-        v-if="reportResponse"
-        :first="Math.max(0, (resultPage - 1) * pageSize)"
-        :rows="pageSize"
-        :total-records="resultRecords"
-        :disabled="pending"
-        template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
-        current-page-report-template="第 {currentPage} / {totalPages} 页 · 共 {totalRecords} 条"
-        @page="changeResultPage"
-      />
     </section>
 
     <Tabs v-else v-model:value="activeTab" class="report-tabs">
@@ -350,8 +344,8 @@ onMounted(() => void loadReportColumns());
     </Tabs>
 
     <template #footer>
-      <Button v-if="showingResults" type="button" label="返回" icon="pi pi-arrow-left" severity="secondary" outlined :disabled="pending" @click="showingResults = false" />
-      <Button type="button" :label="showingResults ? '关闭' : '取消'" icon="pi pi-times" severity="secondary" text :disabled="pending" @click="emit('close')" />
+      <Button v-if="showingResults" type="button" label="返回" icon="pi pi-arrow-left" :disabled="pending" @click="backToReportSetup" />
+      <Button v-if="!showingResults" type="button" label="取消" icon="pi pi-times" severity="secondary" text :disabled="pending" @click="emit('close')" />
       <Button v-if="!showingResults" type="button" label="确定" icon="pi pi-play" :disabled="!canRun" @click="runReport()" />
       <Button v-if="!showingResults" type="button" label="保存报表定义" icon="pi pi-save" severity="secondary" outlined :disabled="!canRun || !reportName.trim()" @click="saveReport" />
     </template>

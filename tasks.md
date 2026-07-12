@@ -820,6 +820,9 @@ item must land with its matching implementation and validation evidence.
       headers, and both top and bottom add-condition entry points.
 - [x] Restore the old save-report form: start with a blank report name, show
       `输入报表信息以保存该报表`, and use the full dialog content width.
+- [x] Restore the old report-result interaction: render every matrix row as a
+      striped/hoverable table row, use `前一页` / `下一页`, keep only `返回` in
+      the result footer, and reset report paging when returning to setup.
 - [x] Restore the old report dialog interaction: open report setup as a modal
       with output, condition, and save-definition tabs, then switch successful
       runs into a separate paged result state with a back action.

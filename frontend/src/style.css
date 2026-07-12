@@ -348,6 +348,37 @@ label {
   min-width: 640px;
 }
 
+.report-result-heading,
+.report-result-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.report-result-heading p {
+  margin: 0;
+}
+
+.report-result-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.report-result-table td {
+  padding: 8px;
+  border-top: 1px solid #dddddd;
+  text-align: left;
+}
+
+.report-result-table tr:nth-child(odd) {
+  background: #f9f9f9;
+}
+
+.report-result-table tr:hover {
+  background: #f5f5f5;
+}
+
 .report-condition-editor {
   overflow-x: auto;
 }

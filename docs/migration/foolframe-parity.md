@@ -156,6 +156,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `输入报表信息以保存该报表` heading, and the field again uses the available
   dialog width. The save request remains disabled until a name and output
   columns are present.
+- 2026-07-12: restored the working part of the old report-result modal. Vue now
+  renders every report matrix row as a normal striped/hoverable table row,
+  uses the old `前一页` / `下一页` controls, exposes only `返回` in the result
+  footer, and resets page state to one when returning to report setup. The old
+  markup's inert export buttons remain omitted rather than becoming fake UI.
 - 2026-07-12: restored Sudoku panel refresh semantics from old Web
   `includes/List.jade`, `querylistdata.js`, and `groupview.js`. Top-level and
   grouped list panels expose `FreshTime` with a text refresh command; targeted
