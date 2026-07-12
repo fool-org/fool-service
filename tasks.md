@@ -918,6 +918,8 @@ item must land with its matching implementation and validation evidence.
       issuing the operation request.
 - [x] Restore `operation.js` result feedback as an `执行结果` modal with the
       old `操作成功`/`操作失败` summary, return message, and explicit close.
+- [x] Restore `operation.js` response timing by showing the result immediately;
+      remove Vue-only success refreshes of both list and detail data.
 - [x] Restore the compact text-only Bootstrap navbar brand: remove the invented
       42px initial tile, render App name/version inline, and reduce the desktop
       shell header to the old 50px scale while reusing it in the mobile Drawer.

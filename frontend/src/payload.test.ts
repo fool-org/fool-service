@@ -151,6 +151,8 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).not.toContain("operationParams(operation)");
     expect(appSource).toContain("legacyRunOperationMessage(response.data)");
     expect(appSource).toContain("operationResult.value = { message, success }");
+    expect(operationHandlerSource).not.toContain("queryCurrentViewData()");
+    expect(operationHandlerSource).not.toContain("queryDetail()");
     expect(appSource).toContain('@dismiss-operation-result="operationResult = null"');
     expect(viewDetailPanelSource).toContain('header="执行结果"');
     expect(viewDetailPanelSource).toContain('operationResult.success ? "操作成功" : "操作失败"');

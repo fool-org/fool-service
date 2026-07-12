@@ -561,10 +561,6 @@ async function runViewOperation(operation: OperationInfo, editing = false) {
   if (!response) return;
   const success = legacyRunOperationSuccess(response.data);
   const message = legacyRunOperationMessage(response.data) || (success ? "操作成功。" : "操作失败。");
-  if (success) {
-    await queryCurrentViewData();
-    await queryDetail();
-  }
   operationResult.value = { message, success };
 }
 
