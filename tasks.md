@@ -791,6 +791,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore the old report dialog interaction: open report setup as a modal
       with output, condition, and save-definition tabs, then switch successful
       runs into a separate paged result state with a back action.
+- [x] Restore `view.jade` Chinese report copy for dialog/result titles,
+      output/condition/save tabs, column/order controls, grouping, paging, and
+      footer actions while preserving protocol values and metadata labels.
 - [x] Replace the main Vue View toolbar's editable View ID and raw
       `QueryFilter` controls with a View-metadata-safe keyword search; raw
       compatibility filters remain protocol-only and are not exposed in Vue.

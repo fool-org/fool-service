@@ -577,6 +577,8 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).toContain('<Tab value="output"');
     expect(viewReportPanelSource).toContain('<Tab value="conditions"');
     expect(viewReportPanelSource).toContain('<Tab value="save"');
+    expect(viewReportPanelSource).toContain("生成报表");
+    expect(viewReportPanelSource).toContain("报表结果");
     expect(viewReportPanelSource).toContain("/api/v1/report/mkrpt");
     expect(viewReportPanelSource).toContain("reportResponse");
     expect(viewReportPanelSource).toContain("showingResults.value = true");
@@ -591,7 +593,7 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).toContain("selectedReportCols");
     expect(viewReportPanelSource).toContain("moveColumn");
     expect(viewReportPanelSource).toContain("filterExp");
-    expect(viewReportPanelSource).toContain("Group selected");
+    expect(viewReportPanelSource).toContain("合并分组");
     expect(viewReportPanelSource).toContain("groupReportConditions");
     expect(reportConditionsSource).toContain("buildReportConditionFilter");
     expect(reportConditionsSource).toContain("serializeNode");
@@ -600,7 +602,7 @@ describe("App defaults", () => {
   });
 
   it("keeps the legacy save report route in the View report panel", () => {
-    expect(viewReportPanelSource).toContain("Save Definition");
+    expect(viewReportPanelSource).toContain("保存报表定义");
     expect(viewReportPanelSource).toContain("/api/v1/report/saverpt");
     expect(appSource).not.toContain("Save Report Definition");
   });

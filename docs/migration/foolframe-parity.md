@@ -2202,7 +2202,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   columns and visible structured filters from a modal with old Web output,
   condition, and save-definition tabs. Successful execution switches the same
   modal into a separate paged result state with a back action, then renders
-  returned cells
+  returned cells. Static report controls follow `view.jade` Chinese copy while
+  metadata names and protocol values remain unchanged.
 - Vue API types for legacy `getmkqview` report model candidate payloads
 - The View report panel calls `/api/v1/report/getmkqview` by view ID and renders
   candidate columns, compare/select catalogs, and enum states
