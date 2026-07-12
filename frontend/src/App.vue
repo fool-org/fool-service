@@ -905,16 +905,17 @@ function syncDetailDrafts() {
           :sub-items="subMenuItems"
           @select="openShellMenu"
         />
+        <nav class="nav-list nav-list-horizontal" aria-label="Safe logout">
+          <button type="button" :disabled="Boolean(pendingAction)" @click="logout">安全退出</button>
+        </nav>
       </div>
 
       <ShellActions
         v-if="token"
         class="shell-header-actions"
         :active-message="activeShellMessage"
-        :pending="Boolean(pendingAction)"
         :user-avatar="shellUserAvatar"
         :user-name="shellUserName"
-        @logout="logout"
         @dismiss-message="activeShellMessage = null"
         @open-message="openShellMessage"
       />
@@ -943,6 +944,9 @@ function syncDetailDrafts() {
           :sub-items="subMenuItems"
           @select="openMobileShellMenu"
         />
+        <nav class="nav-list" aria-label="Mobile safe logout">
+          <button type="button" :disabled="Boolean(pendingAction)" @click="logout">安全退出</button>
+        </nav>
       </Drawer>
 
       <section class="view-workflow" :class="{ 'metadata-only': isMetadataOnlyView || isStandaloneDetail || isUnsupportedView }" aria-label="View workflow">

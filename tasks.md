@@ -890,6 +890,9 @@ item must land with its matching implementation and validation evidence.
       delivery and its View-first detail action.
 - [x] Match `tbar.jade`'s text-only `安全退出` command by removing the invented
       sign-out icon while preserving logout behavior and pending state.
+- [x] Restore `tbar.jade` navigation order by moving `安全退出` after the
+      metadata menu; keep the right shell area limited to the old avatar and
+      user-name presentation, with a matching mobile Drawer action.
 - [x] Restore `default.jade` user avatar rendering end to end: hydrate
       `UserAvtarUrl` from `SW_AUTH_USER.USER_AVTAR`, adapt the compatibility
       response in `viewWorkflow`, and retain an icon fallback for empty values.

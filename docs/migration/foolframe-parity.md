@@ -118,6 +118,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-12: restored `tbar.jade` navigation order by moving the text-only
+  `安全退出` action after the metadata menu. The right shell area now contains
+  only the old avatar/user presentation; the mobile Drawer exposes the same
+  logout action after its menu without duplicating shell component state.
 - 2026-07-12: matched `tbar.jade`'s text-only `安全退出` command by removing
   the invented sign-out icon while preserving the logout request, disabled
   state, and return to the signed-out flow.

@@ -10,13 +10,11 @@ import {
 
 defineProps<{
   activeMessage: MessageInfo | null;
-  pending: boolean;
   userAvatar: string;
   userName: string;
 }>();
 const emit = defineEmits<{
   dismissMessage: [];
-  logout: [];
   openMessage: [message: MessageInfo];
 }>();
 
@@ -37,7 +35,6 @@ function openMessage(message: MessageInfo) {
       <i v-else class="pi pi-user"></i>
       {{ userName || "已登录" }}
     </span>
-    <Button type="button" label="安全退出" severity="secondary" text :disabled="pending" @click="emit('logout')" />
 
     <Dialog
       v-if="activeMessage"
