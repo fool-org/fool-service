@@ -189,6 +189,14 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   header. This matches `view.jade`, where ViewId is request context rather than
   visible report content; the prop remains the source for `getmkqview`,
   `mkrpt`, paging, and `saverpt` requests.
+- 2026-07-12: restored old `mkreport.js` output selection semantics and layout.
+  The output tab again uses candidate-column, output-method, and selected-column
+  lists; users explicitly add outputs, may add one field with multiple output
+  methods, reorder/delete selections, and set ascending/descending/no ordering.
+  A 44-line pure `reportOutputs.ts` module owns duplicate prevention, stable
+  reindexing, movement, removal, and ordering with focused tests. The dedicated
+  171-line selector reduces `ViewReportPanel.vue` from 442 to 346 lines, and
+  native `select size=10` controls keep the report chunk near its prior size.
 - 2026-07-12: restored old Web operation feedback from `operation.js`. Vue now
   projects camel/Pascal `ReturnMsg`, shows a success or error result in the
   detail panel, keeps successful refresh behavior, and clears stale results

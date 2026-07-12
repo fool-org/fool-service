@@ -343,31 +343,13 @@ label {
   font-size: 0.8rem;
 }
 
-.report-columns,
 .report-results {
   min-height: 128px;
   max-height: 360px;
 }
 
-.report-columns table {
-  min-width: 860px;
-}
-
 .report-results table {
   min-width: 640px;
-}
-
-.report-position {
-  display: grid;
-  grid-template-columns: 24px 34px 34px;
-  gap: 5px;
-  align-items: center;
-}
-
-.report-position .p-button {
-  width: 34px;
-  min-height: 34px;
-  padding: 0;
 }
 
 .report-conditions {

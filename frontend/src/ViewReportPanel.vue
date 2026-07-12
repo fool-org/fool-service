@@ -15,6 +15,7 @@ import TabList from "primevue/tablist";
 import TabPanel from "primevue/tabpanel";
 import TabPanels from "primevue/tabpanels";
 import Tabs from "primevue/tabs";
+import ReportOutputSelector from "./ReportOutputSelector.vue";
 import {
   type CommonResponse,
   type ReportCol,
@@ -34,19 +35,16 @@ import {
 } from "./reportConditions";
 import type { WorkflowActionRunner } from "./useViewDataWorkflow";
 import {
-  buildReportColsFromModel,
   reportGridCells,
   reportGridPage,
   reportGridTotalPages,
   reportGridTotalRecords,
   reportModelColumnId,
   reportModelColumnName,
-  reportModelColumnType,
   reportModelColumns,
   reportModelCompareTypes,
   reportModelOptionId,
   reportModelOptionName,
-  reportModelQueryTypes,
   reportModelStates,
   reportModelStateText,
   reportModelStateValue,
@@ -66,9 +64,7 @@ const pageSize = ref(10);
 const reportName = ref("视图报表");
 const modelResponse = ref<CommonResponse<ReportModelResult> | null>(null);
 const reportResponse = ref<CommonResponse<ReportGridResult> | null>(null);
-const selectedColumnIds = ref<string[]>([]);
-const outputTypeByColumn = ref<Record<string, string>>({});
-const orderTypeByColumn = ref<Record<string, string>>({});
+const reportCols = ref<ReportCol[]>([]);
 const conditions = ref<ReportConditionDraft[]>([]);
 const selectedConditionIds = ref<number[]>([]);
 const statusMessage = ref("");
@@ -79,43 +75,15 @@ const joinOptions = [
   { label: "且", value: "and" },
   { label: "或", value: "or" }
 ];
-const orderOptions = [
-  { label: "不排序", value: "2" },
-  { label: "升序", value: "0" },
-  { label: "降序", value: "1" }
-];
 
 const modelColumns = computed(() => reportModelColumns(modelResponse.value?.data));
-const selectedColumnModels = computed(() =>
-  selectedColumnIds.value
-    .map((key) => modelColumns.value.find((column) => columnKey(column) === key))
-    .filter((column): column is ReportModelColumn => Boolean(column))
-);
-const selectedReportCols = computed<ReportCol[]>(() => {
-  const defaults = buildReportColsFromModel(selectedColumnModels.value);
-  return selectedColumnModels.value.map((column, index) => {
-    const key = columnKey(column);
-    const selectedTypeId = outputTypeByColumn.value[key] || defaults[index]?.selectedTypeId;
-    const selectedType = reportModelQueryTypes(column).find((option) => reportModelOptionId(option) === selectedTypeId);
-    const name = reportModelColumnName(column);
-    const outputName = selectedType ? reportModelOptionName(selectedType) : "";
-    return {
-      ...defaults[index],
-      colName: outputName ? `${name}[${outputName}]` : name,
-      colId: reportModelColumnId(column),
-      selectedTypeId,
-      index,
-      orderType: orderTypeByColumn.value[key] || "2"
-    };
-  });
-});
 const reportRows = computed(() => reportRowsFromCells(reportGridCells(reportResponse.value?.data)));
 const resultPage = computed(() => reportGridPage(reportResponse.value?.data, currentPage.value));
 const resultPages = computed(() => reportGridTotalPages(reportResponse.value?.data));
 const resultRecords = computed(() => reportGridTotalRecords(reportResponse.value?.data));
 const conditionsComplete = computed(() => conditions.value.every((condition) => condition.columnId && condition.compareId));
 const canGroupConditions = computed(() => canGroupReportConditions(conditions.value, selectedConditionIds.value));
-const canRun = computed(() => selectedReportCols.value.length > 0 && conditionsComplete.value && !props.pending);
+const canRun = computed(() => reportCols.value.length > 0 && conditionsComplete.value && !props.pending);
 const filterExp = computed<ReportFilterExp | undefined>(() => buildReportConditionFilter(conditions.value, simpleFilter));
 
 function columnKey(column: ReportModelColumn) {
@@ -124,26 +92,6 @@ function columnKey(column: ReportModelColumn) {
 
 function columnFor(condition: ReportConditionDraft) {
   return modelColumns.value.find((column) => columnKey(column) === condition.columnId);
-}
-
-function selectedPosition(column: ReportModelColumn) {
-  const index = selectedColumnIds.value.indexOf(columnKey(column));
-  return index < 0 ? "" : String(index + 1);
-}
-
-function moveColumn(column: ReportModelColumn, offset: number) {
-  const index = selectedColumnIds.value.indexOf(columnKey(column));
-  const target = index + offset;
-  if (index < 0 || target < 0 || target >= selectedColumnIds.value.length) return;
-  const next = [...selectedColumnIds.value];
-  [next[index], next[target]] = [next[target], next[index]];
-  selectedColumnIds.value = next;
-}
-
-function canMoveColumn(column: ReportModelColumn, offset: number) {
-  const index = selectedColumnIds.value.indexOf(columnKey(column));
-  const target = index + offset;
-  return index >= 0 && target >= 0 && target < selectedColumnIds.value.length;
 }
 
 function compareTypes(condition: ReportConditionDraft) {
@@ -156,14 +104,6 @@ function states(condition: ReportConditionDraft) {
 
 function modelColumnOptions() {
   return modelColumns.value.map((column) => ({ label: reportModelColumnName(column), value: columnKey(column) }));
-}
-
-function queryTypeOptions(column: ReportModelColumn) {
-  const options = reportModelQueryTypes(column).map((option) => ({
-    label: reportModelOptionName(option),
-    value: reportModelOptionId(option)
-  }));
-  return options.length ? options : [{ label: "原值", value: "" }];
 }
 
 function compareTypeOptions(condition: ReportConditionDraft) {
@@ -251,14 +191,7 @@ async function loadReportColumns() {
     return;
   }
   modelResponse.value = response;
-  const columns = reportModelColumns(response.data);
-  const defaults = buildReportColsFromModel(columns);
-  selectedColumnIds.value = columns.map(columnKey);
-  outputTypeByColumn.value = Object.fromEntries(columns.map((column, index) => [
-    columnKey(column),
-    defaults[index]?.selectedTypeId || ""
-  ]));
-  orderTypeByColumn.value = Object.fromEntries(columns.map((column) => [columnKey(column), "2"]));
+  reportCols.value = [];
 }
 
 function buildRequest(name?: string) {
@@ -267,7 +200,7 @@ function buildRequest(name?: string) {
     viewId: props.viewId,
     currentPage: currentPage.value,
     pageSize: pageSize.value,
-    reportCols: selectedReportCols.value,
+    reportCols: reportCols.value.map((column, index) => ({ ...column, index })),
     filterExp: filterExp.value,
     reportName: name
   });
@@ -357,37 +290,8 @@ onMounted(() => void loadReportColumns());
               </label>
               <Button type="button" label="重新加载" icon="pi pi-refresh" size="small" severity="secondary" text :disabled="pending" @click="loadReportColumns" />
             </div>
-            <div class="table-wrap report-columns">
-              <DataTable v-if="modelColumns.length" :value="modelColumns" scrollable striped-rows size="small">
-                <Column header="输出">
-                  <template #body="{ data: column }">
-                    <Checkbox v-model="selectedColumnIds" :input-id="`output-${columnKey(column)}`" :aria-label="`Output ${reportModelColumnName(column)}`" :value="columnKey(column)" />
-                  </template>
-                </Column>
-                <Column header="字段"><template #body="{ data: column }">{{ reportModelColumnName(column) }}</template></Column>
-                <Column header="类型"><template #body="{ data: column }">{{ reportModelColumnType(column) }}</template></Column>
-                <Column header="输出方式">
-                  <template #body="{ data: column }">
-                    <Select v-model="outputTypeByColumn[columnKey(column)]" :options="queryTypeOptions(column)" option-label="label" option-value="value" size="small" :disabled="pending || !selectedColumnIds.includes(columnKey(column))" />
-                  </template>
-                </Column>
-                <Column header="排序">
-                  <template #body="{ data: column }">
-                    <Select v-model="orderTypeByColumn[columnKey(column)]" :options="orderOptions" option-label="label" option-value="value" size="small" :disabled="pending || !selectedColumnIds.includes(columnKey(column))" />
-                  </template>
-                </Column>
-                <Column header="位置">
-                  <template #body="{ data: column }">
-                    <div class="report-position">
-                      <span>{{ selectedPosition(column) }}</span>
-                      <Button type="button" icon="pi pi-arrow-up" size="small" severity="secondary" text title="上调" :disabled="pending || !canMoveColumn(column, -1)" @click="moveColumn(column, -1)" />
-                      <Button type="button" icon="pi pi-arrow-down" size="small" severity="secondary" text title="下调" :disabled="pending || !canMoveColumn(column, 1)" @click="moveColumn(column, 1)" />
-                    </div>
-                  </template>
-                </Column>
-              </DataTable>
-              <div v-else class="empty-state compact">暂无报表字段。</div>
-            </div>
+            <ReportOutputSelector v-if="modelColumns.length" v-model="reportCols" :columns="modelColumns" :disabled="pending" />
+            <div v-else class="empty-state compact">暂无报表字段。</div>
           </section>
         </TabPanel>
 

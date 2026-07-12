@@ -11,6 +11,8 @@ import loginPanelSource from "./LoginPanel.vue?raw";
 import metadataFieldEditorSource from "./MetadataFieldEditor.vue?raw";
 import payloadSource from "./payload.ts?raw";
 import reportConditionsSource from "./reportConditions.ts?raw";
+import reportOutputSelectorSource from "./ReportOutputSelector.vue?raw";
+import reportOutputsSource from "./reportOutputs.ts?raw";
 import shellActionsSource from "./ShellActions.vue?raw";
 import sudokuPanelsSource from "./SudokuPanels.vue?raw";
 import sudokuWorkflowSource from "./useSudokuPanels.ts?raw";
@@ -635,10 +637,15 @@ describe("App defaults", () => {
 
   it("builds report output and conditions from View metadata", () => {
     expect(viewReportPanelSource).toContain("/api/v1/report/getmkqview");
-    expect(viewReportPanelSource).toContain("buildReportColsFromModel");
+    expect(viewReportPanelSource).toContain("ReportOutputSelector");
     expect(viewReportPanelSource).toContain("reportModelCompareTypes");
-    expect(viewReportPanelSource).toContain("selectedReportCols");
-    expect(viewReportPanelSource).toContain("moveColumn");
+    expect(viewReportPanelSource).toContain("reportCols");
+    expect(viewReportPanelSource).not.toContain("selectedColumnIds");
+    expect(reportOutputSelectorSource).toContain("候选列");
+    expect(reportOutputSelectorSource).toContain("输出方式");
+    expect(reportOutputSelectorSource).toContain("已选列");
+    expect(reportOutputSelectorSource).toContain("moveOutput");
+    expect(reportOutputsSource).toContain("addReportOutput");
     expect(viewReportPanelSource).toContain("filterExp");
     expect(viewReportPanelSource).toContain("合并分组");
     expect(viewReportPanelSource).toContain("groupReportConditions");
