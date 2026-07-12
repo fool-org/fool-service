@@ -802,6 +802,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Align standalone detail simple-field layout with `detailView.jade`:
       reuse one metadata-driven field grid for read/edit states, render two
       field groups per desktop row, and collapse to one group on mobile.
+- [x] Align standalone detail collection layout with `detailView.jade`: render
+      each metadata `Items[]` group as a scrollable tab and its dynamic child
+      fields/rows/actions as a reusable legacy-style table.
 - [x] Reconcile the vague remaining Model runtime mutation wording against
       FoolFrame, the 37-case Java 17 Model service suite, and live Docker
       `MODEL_CON` state; close speculative routed-connection work until a real

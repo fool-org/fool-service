@@ -124,6 +124,15 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain('v-if="isEditing && !groupDetailViewId(group)"');
   });
 
+  it("renders legacy detail collections as metadata-driven tabs and tables", () => {
+    expect(viewDetailPanelSource).toContain('v-model:value="activeGroupKey"');
+    expect(viewDetailPanelSource).toContain('<Tab v-for="group in detailItemGroups"');
+    expect(viewDetailPanelSource).toContain('<TabPanel v-for="group in detailItemGroups"');
+    expect(viewDetailPanelSource).toContain('class="legacy-item-table detail-items-grid"');
+    expect(viewDetailPanelSource).toContain('<th v-for="field in groupColumns(group)"');
+    expect(viewDetailPanelSource).toContain('<tr v-for="item in groupItems(group)"');
+  });
+
   it("renders row operations through their target detail View id", () => {
     expect(viewListPanelSource).toContain("rowOperations(operations.value)");
     expect(viewListPanelSource).toContain(':row-operations="rowItems"');

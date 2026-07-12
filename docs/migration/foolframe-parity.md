@@ -2233,7 +2233,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Shared Vue row tables render only after View columns exist, so data rows from
   `querydata` cannot draw a page or row actions without a rendered View shape.
 - A default Vue child collection workflow that renders from
-  `querydatadetail.Items[].properties` and sends legacy
+  `querydatadetail.Items[].properties`, presents each collection as an old Web
+  detail tab with a metadata-derived child table, and sends legacy
   `saveobj.Itemproperties.Items`, `AddedItems`, and `DelteItems` payloads
 - A default Vue select-from-existing child collection path that loads
   configured candidate Views and adds selected rows through legacy

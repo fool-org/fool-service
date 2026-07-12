@@ -617,55 +617,6 @@ label {
   gap: 8px;
 }
 
-.detail-fields {
-  display: grid;
-  gap: 8px;
-}
-
-.detail-fields div {
-  display: grid;
-  gap: 3px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 10px 11px;
-}
-
-.detail-fields span {
-  color: #64748b;
-  font-size: 0.76rem;
-  font-weight: 750;
-}
-
-.detail-fields strong {
-  overflow-wrap: anywhere;
-}
-
-.detail-fields .detail-item-row {
-  grid-template-columns: minmax(72px, 0.35fr) minmax(0, 1fr) auto auto;
-  align-items: center;
-  gap: 8px;
-}
-
-.detail-item-row input {
-  min-width: 0;
-}
-
-.detail-item-value {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-
-.detail-item-value small {
-  color: #64748b;
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
-.detail-item-value strong {
-  overflow-wrap: anywhere;
-}
-
 .detail-item-link {
   display: inline-flex;
   gap: 6px;
@@ -683,6 +634,55 @@ label {
 .view-items-panel {
   display: grid;
   gap: 10px;
+}
+
+.detail-collection-tabs,
+.detail-collection-tabs .p-tabpanels,
+.detail-collection-tabs .p-tabpanel {
+  min-width: 0;
+}
+
+.detail-collection-tabs .p-tab {
+  gap: 7px;
+}
+
+.detail-collection-tabs .p-tab span {
+  color: #64748b;
+  font-size: 0.72rem;
+}
+
+.detail-collection-tabs .p-tabpanels {
+  padding: 14px 0 0;
+}
+
+.detail-existing-picker {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 10px;
+}
+
+.detail-items-table {
+  min-height: 0;
+}
+
+.detail-items-grid {
+  min-width: 640px;
+}
+
+.detail-items-grid td {
+  vertical-align: middle;
+}
+
+.detail-item-editor {
+  min-width: 160px;
+}
+
+.detail-item-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  white-space: nowrap;
 }
 
 .view-items-panel h3 {
