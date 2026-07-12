@@ -267,11 +267,12 @@ label {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  align-items: end;
+  align-items: center;
+  justify-content: flex-end;
 }
 
-.workflow-toolbar label {
-  flex: 1 1 240px;
+.list-query-input {
+  flex: 0 1 240px;
 }
 
 .report-dialog {
@@ -897,6 +898,10 @@ label {
 
   .list-pagination {
     display: grid;
+  }
+
+  .list-query-input {
+    flex: 1 1 100%;
   }
 
   .detail-field-grid {

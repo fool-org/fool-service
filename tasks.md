@@ -834,6 +834,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `view.jade` Chinese report copy for dialog/result titles,
       output/condition/save tabs, column/order controls, grouping, paging, and
       footer actions while preserving protocol values and metadata labels.
+- [x] Restore `view.jade`'s compact right-aligned list toolbar: keep the query
+      prompt inside the search field, align actions on one desktop row, and
+      let only the input occupy a full row on narrow screens.
 - [x] Keep the active report ViewId protocol-only: remove the invented
       `视图 {id}` dialog subtitle while retaining the id for report model/run/
       save requests.

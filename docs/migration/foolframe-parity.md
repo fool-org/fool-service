@@ -2330,6 +2330,10 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   search, report, then metadata create operations. Shared tables use the old
   operation/empty wording, while View-provided column and operation text stays
   untouched.
+- The main list toolbar also follows the old compact placement: the query
+  prompt remains inside the input instead of becoming a visible form label,
+  desktop controls align to the right, and the input alone expands on narrow
+  screens.
 - Shared Vue row tables render only after View columns exist, so data rows from
   `querydata` cannot draw a page or row actions without a rendered View shape.
 - A default Vue child collection workflow that renders from

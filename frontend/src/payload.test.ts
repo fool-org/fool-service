@@ -56,6 +56,9 @@ describe("App defaults", () => {
     expect(appSource).toContain("await loadViewWorkflow()");
     expect(appSource).toContain("View workflow");
     expect(mainViewSource).toContain("输入条件");
+    expect(mainViewSource).toContain('class="list-query-input"');
+    expect(mainViewSource).toContain('aria-label="查询条件"');
+    expect(mainViewSource).not.toContain("<label>");
     expect(mainViewSource).toContain('label="查找"');
     expect(mainViewSource).toContain('label="统计"');
     expect(appSource).toContain('v-model:keyword="viewKeyword"');

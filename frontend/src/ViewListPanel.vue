@@ -82,10 +82,7 @@ function changePage(event: PageState) {
       <h2>{{ title }}</h2>
     </div>
     <div v-if="supportedTemplate" class="workflow-toolbar">
-      <label>
-        查询条件
-        <InputText v-model="keyword" type="search" placeholder="输入条件" fluid @keyup.enter="emit('search')" />
-      </label>
+      <InputText v-model="keyword" class="list-query-input" type="search" placeholder="输入条件" aria-label="查询条件" @keyup.enter="emit('search')" />
       <Button type="button" label="查找" icon="pi pi-search" :disabled="disabled" @click="emit('search')" />
       <Button type="button" label="统计" icon="pi pi-chart-bar" severity="secondary" outlined :disabled="disabled || !currentViewId" @click="emit('toggleReport')" />
       <Button
