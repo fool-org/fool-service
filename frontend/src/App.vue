@@ -61,6 +61,7 @@ import {
   itemKey,
   legacyAppDefaultViewId,
   legacyAppName,
+  legacyAppPowerBy,
   legacyAppVersion,
   legacyAuthNo,
   legacyAuthViewId,
@@ -220,6 +221,7 @@ const shellUserAvatar = computed(() => legacyUserAvatar(legacyUserInfoResponse.v
 const shellUserName = computed(() => legacyUserName(legacyUserInfoResponse.value?.data));
 const shellAppName = computed(() => legacyAppName(mainInfoResponse.value?.data, "Fool Service"));
 const shellAppVersion = computed(() => legacyAppVersion(mainInfoResponse.value?.data));
+const shellAppPowerBy = computed(() => legacyAppPowerBy(mainInfoResponse.value?.data));
 const viewCanEdit = computed(() => dataCanEdit(detailResponse.value?.data));
 const candidateViewLoading = computed(() => pendingAction.value === "child-select-view");
 const savingDetail = computed(() => pendingAction.value === "saveobj" || pendingAction.value === "savenewobj");
@@ -1084,5 +1086,6 @@ function syncDetailDrafts() {
       </section>
 
     </main>
+    <footer v-if="shellAppPowerBy" class="shell-footer">&copy; {{ shellAppPowerBy }}</footer>
   </div>
 </template>

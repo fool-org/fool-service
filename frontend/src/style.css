@@ -223,6 +223,12 @@ label {
   padding: 24px;
 }
 
+.shell-footer {
+  padding: 0 24px 16px;
+  color: #777777;
+  font-size: 14px;
+}
+
 .topbar {
   display: none;
 }
@@ -867,6 +873,10 @@ label {
 @media (max-width: 640px) {
   .workspace {
     padding: 14px;
+  }
+
+  .shell-footer {
+    padding: 0 14px 14px;
   }
 
   .list-pagination {

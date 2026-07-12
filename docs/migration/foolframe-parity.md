@@ -2657,3 +2657,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   across SPA navigation. The shared list panel now resets its active pane to
   `数据` only when the loaded View id or template kind changes; search, paging,
   auto-refresh, and row-data updates preserve the user's current pane.
+- 2026-07-12: restored `default.jade`'s authenticated application footer. Vue
+  now reads Pascal/camel `AppPowerBy` from the already loaded `getmain.App`
+  metadata and renders the old copyright line after the workspace, with
+  responsive spacing but no fixed company value or extra request.

@@ -968,7 +968,9 @@ describe("App defaults", () => {
     expect(appSource).toContain("mainInfoResponse");
     expect(appSource).toContain("legacyAppName(mainInfoResponse.value?.data");
     expect(appSource).toContain("legacyAppVersion(mainInfoResponse.value?.data)");
+    expect(appSource).toContain("legacyAppPowerBy(mainInfoResponse.value?.data)");
     expect(appSource).toContain("{{ shellAppName }}");
+    expect(appSource).toContain('<footer v-if="shellAppPowerBy" class="shell-footer">&copy; {{ shellAppPowerBy }}</footer>');
     expect(appSource).not.toContain("Docker Backend");
     expect(viewShellSource).not.toContain("services");
   });

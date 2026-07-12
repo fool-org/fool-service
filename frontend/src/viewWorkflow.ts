@@ -238,6 +238,12 @@ export function legacyAppVersion(source?: unknown) {
   return firstDisplayValue([app.appVer, app.AppVer, app.appVersion, app.AppVersion]);
 }
 
+export function legacyAppPowerBy(source?: unknown) {
+  const record = objectRecord(source);
+  const app = objectRecord(record.app || record.App || source);
+  return firstDisplayValue([app.appPowerBy, app.AppPowerBy]);
+}
+
 export function legacyInitAppCheckCode(source?: LegacyInitAppResult) {
   return source?.checkCode ?? source?.CheckCode;
 }

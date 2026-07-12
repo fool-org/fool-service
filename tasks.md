@@ -1031,6 +1031,8 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore the old single View heading: remove duplicate desktop/mobile
       topbar titles and protocol `ViewName` text, leaving the View-defined title
       in the list/detail panel while the mobile topbar only opens navigation.
+- [x] Restore `default.jade`'s authenticated `AppPowerBy` footer from loaded
+      `getmain.App` metadata without adding fixed company text or another API.
 - [x] Align standalone detail simple-field layout with `detailView.jade`:
       reuse one metadata-driven field grid for read/edit states, render two
       field groups per desktop row, and collapse to one group on mobile.
