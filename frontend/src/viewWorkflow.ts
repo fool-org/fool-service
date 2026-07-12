@@ -494,6 +494,11 @@ export function detailResultObjectId(result: QueryDataDetailResult | undefined) 
   return displayValue(data?.objId ?? data?.ObjId);
 }
 
+export function detailResultParentId(result: QueryDataDetailResult | undefined) {
+  const data = detailResultData(result);
+  return displayValue(data?.parentId ?? data?.ParentId);
+}
+
 export function detailResultViewName(result: QueryDataDetailResult | undefined) {
   const data = detailResultData(result);
   return displayValue(data?.name ?? data?.Name);

@@ -132,6 +132,8 @@ item must land with its matching implementation and validation evidence.
       id generator only when the generic View response leaves that value empty.
 - [x] Preserve detail `Data.Name` as the legacy save object's `ViewID`, with
       numeric View-id fallback only when the generic detail response omits it.
+- [x] Preserve detail `Data.ParentId` as the BusinessObject lookup owner for
+      standalone child detail/new pages, with the parsed route owner fallback.
 - [x] Drop `querydatadetail` child groups that are not declared by the loaded
       read-item View `DetailViews`, so DTO-only groups cannot define Vue child
       sections or columns.

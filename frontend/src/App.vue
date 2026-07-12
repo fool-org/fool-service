@@ -48,6 +48,7 @@ import {
   dataOperations,
   detailResultItems,
   detailResultObjectId,
+  detailResultParentId,
   detailResultSimpleData,
   detailResultViewName,
   emptyGroupDraft,
@@ -205,6 +206,9 @@ const detailTitle = computed(() => viewDisplayTitle(currentReadItemView.value, "
 const detailSaveViewKey = computed(
   () => detailResultViewName(detailResponse.value?.data) || String(detailViewId.value)
 );
+const detailOwnerId = computed(
+  () => detailResultParentId(detailResponse.value?.data) || newObjectOwner.ownerId
+);
 const detailRows = computed(() => renderedDetailFields(currentReadItemView.value, detailDataRows.value));
 const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() =>
   renderPendingDetailGroups(renderedDetailGroups(currentReadItemView.value, detailResultItems(detailResponse.value?.data)))
@@ -223,6 +227,7 @@ const fieldEditorContext = computed(() => ({
   isAdded: isCreatingObject.value,
   lookupDisabled: Boolean(pendingAction.value),
   objectId: selectedObjectId.value,
+  ownerId: detailOwnerId.value,
   token: token.value,
   viewId: Number(detailViewId.value)
 }));

@@ -642,6 +642,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   existing and new saves, falling back to the numeric View id only when the
   response omits its name. The runtime doctor sends the same name-shaped
   `ViewID` through the old `/data/new` and `/data/save` payload aliases.
+- 2026-07-12: restored parent context for standalone detail BusinessObject
+  lookup. Vue now sends generic `Data.ParentId` / `data.parentId` as
+  `inputquery.ownerId`, with the parsed `/new:id/:parent&:view&:property`
+  owner as fallback, matching old `setextype.js` source-list lookup behavior.
 - 2026-07-10: Vue startup now reads the old FoolFrame Web list route
   `/view:id` from `window.location.pathname` and uses that View id before the
   legacy app default, keeping the startup path on `getlistview(ViewId)` then

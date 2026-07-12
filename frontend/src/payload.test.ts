@@ -532,6 +532,8 @@ describe("App defaults", () => {
 
   it("passes parent context into child lookup editors", () => {
     expect(metadataFieldEditorSource).toContain("ownerId: props.ownerId");
+    expect(appSource).toContain("detailResultParentId(detailResponse.value?.data) || newObjectOwner.ownerId");
+    expect(appSource).toContain("ownerId: detailOwnerId.value");
     expect(viewDetailPanelSource).toContain(':owner-id="selectedObjectId"');
     expect(viewDetailPanelSource).toContain(':is-added="isPendingAddedItem(group, item)"');
     expect(viewDetailPanelSource).toContain(':object-id="itemDataId(item)"');
