@@ -326,6 +326,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-12: restored `view.jade`'s text-only report footer. `取消`, `确定`,
   `保存报表定义`, and result `返回` no longer carry invented icons; visibility,
   disabled states, and handlers are unchanged.
+- 2026-07-12: restored text-only commands inside the `detailView.jade`
+  select-existing child flow. Candidate `查找`, previous/next paging, and
+  `关闭` no longer carry invented icons; row selection still owns confirmation
+  and closes immediately, so the old inert `确定` placeholder stays omitted.
 - 2026-07-10: completed the authenticated Vue browser acceptance after explicit
   permission to read the local CAPTCHA and use the Docker `admin/admin`
   account. Desktop and 390x844 checks exercised the default View-first list,

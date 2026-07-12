@@ -395,6 +395,11 @@ describe("App defaults", () => {
   });
 
   it("renders select-existing child controls through the shared group helper", () => {
+    const pickerSource = viewDetailPanelSource.slice(
+      viewDetailPanelSource.indexOf('class="detail-picker-content"'),
+      viewDetailPanelSource.indexOf('class="detail-items-table"')
+    );
+
     expect(viewDetailPanelSource).toContain("groupSelectFromExists(group)");
     expect(viewDetailPanelSource).toContain("查询条件");
     expect(viewDetailPanelSource).toContain('label="上一页"');
@@ -405,6 +410,10 @@ describe("App defaults", () => {
     expect(appSource).not.toContain('@update-candidate-page-size');
     expect(appSource).not.toContain('@update-candidate-page');
     expect(viewDetailPanelSource).not.toContain("group.selectFromExists");
+    expect(pickerSource).not.toContain('icon="pi pi-search"');
+    expect(pickerSource).not.toContain('icon="pi pi-chevron-left"');
+    expect(pickerSource).not.toContain('icon="pi pi-chevron-right"');
+    expect(pickerSource).not.toContain('icon="pi pi-times"');
   });
 
   it("renders child group labels and rows through shared group helpers", () => {

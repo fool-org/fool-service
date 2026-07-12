@@ -224,12 +224,12 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
                     查询条件
                     <InputText :model-value="candidateState(group).keyword" fluid @input="emit('updateCandidateKeyword', group, $event)" />
                   </label>
-                  <Button type="button" label="查找" icon="pi pi-search" severity="secondary" outlined :disabled="pending" @click="emit('loadExistingDetailItems', group)" />
+                  <Button type="button" label="查找" severity="secondary" outlined :disabled="pending" @click="emit('loadExistingDetailItems', group)" />
                 </div>
                 <div v-if="candidateRows(group).length || candidateState(group).totalPage" class="button-row">
-                  <Button type="button" label="上一页" icon="pi pi-chevron-left" severity="secondary" text :disabled="pending || candidateState(group).pageIndex <= 1" @click="emit('loadCandidatePage', group, candidateState(group).pageIndex - 1)" />
+                  <Button type="button" label="上一页" severity="secondary" text :disabled="pending || candidateState(group).pageIndex <= 1" @click="emit('loadCandidatePage', group, candidateState(group).pageIndex - 1)" />
                   <span>第 {{ candidateState(group).pageIndex }} / {{ candidateState(group).totalPage || 1 }} 页</span>
-                  <Button type="button" label="下一页" icon="pi pi-chevron-right" icon-pos="right" severity="secondary" text :disabled="pending || candidateState(group).totalPage === 0 || candidateState(group).pageIndex >= candidateState(group).totalPage" @click="emit('loadCandidatePage', group, candidateState(group).pageIndex + 1)" />
+                  <Button type="button" label="下一页" severity="secondary" text :disabled="pending || candidateState(group).totalPage === 0 || candidateState(group).pageIndex >= candidateState(group).totalPage" @click="emit('loadCandidatePage', group, candidateState(group).pageIndex + 1)" />
                 </div>
                 <div class="table-wrap detail-picker-results">
                   <ListDataTable
@@ -247,7 +247,7 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
                 </div>
               </div>
               <template #footer>
-                <Button type="button" label="关闭" icon="pi pi-times" severity="secondary" text :disabled="pending" @click="pickerGroupKey = ''" />
+                <Button type="button" label="关闭" severity="secondary" text :disabled="pending" @click="pickerGroupKey = ''" />
               </template>
             </Dialog>
             <div class="table-wrap detail-items-table">

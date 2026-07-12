@@ -89,6 +89,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Align select-from-existing child interaction with `detailView.jade`:
       `SelectFromExists` groups open a modal metadata-driven candidate table
       instead of showing that picker beside the manual child-create form.
+- [x] Match the old child-picker command chrome: keep candidate lookup,
+      previous/next paging, and Close as text-only commands while leaving the
+      separate child Add plus icon intact.
 - [x] Render enum detail fields as metadata-driven selects in the Vue View
       workflow.
 - [x] Render readonly View fields as locked controls and skip them from legacy
