@@ -23,9 +23,11 @@ import {
   groupDetailViewId,
   groupItems,
   groupKey,
+  groupListViewId,
   groupSelectFromExists,
   groupSelectedViewId,
   groupTitle,
+  groupViewName,
   itemDataId,
   itemKey,
   itemValue,
@@ -410,6 +412,8 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                           :is-added="isPendingAddedItem(group, item)"
                           :object-id="itemDataId(item)"
                           :owner-id="selectedObjectId"
+                          :view-id="groupListViewId(group)"
+                          :view-name="groupViewName(group)"
                           @update:model-value="(value) => emit('setChildDraftValue', group, item, field, value)"
                         />
                       </div>

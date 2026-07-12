@@ -311,6 +311,10 @@ item must land with its matching implementation and validation evidence.
       filter with the text lookup when querying target-model candidates.
 - [x] Remove the Vue metadata lookup component's `viewName` fallback so
       BusinessObject candidate lookup stays tied to the rendered View id.
+- [x] Correct lookup View identity against FoolFrame: hydrate collection
+      `Name` from its linked list View, then send the rendered detail or child
+      View name through legacy `inputquery`, with numeric ViewId only as a
+      metadata-missing fallback and no business DTO shortcut.
 - [x] Add a Docker runtime doctor for the stable Vue/View workflow so
       backend, frontend proxy, View metadata, data query, inputquery, and
       report model smoke checks are repeatable.

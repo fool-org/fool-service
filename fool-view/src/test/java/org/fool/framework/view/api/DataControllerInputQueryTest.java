@@ -38,11 +38,11 @@ public class DataControllerInputQueryTest {
     @Test
     public void inputQueryAcceptsLegacyWebRequestAliases() throws Exception {
         InputQueryRequest request = new ObjectMapper().readValue(
-                "{\"viewid\":100,\"itemid\":\"customer\",\"text\":\"Ad\",\"objid\":\"1001\",\"ownerid\":\"5001\",\"newadd\":true}",
+                "{\"viewid\":\"OrderList\",\"itemid\":\"customer\",\"text\":\"Ad\",\"objid\":\"1001\",\"ownerid\":\"5001\",\"newadd\":true}",
                 InputQueryRequest.class);
 
         assertEquals("Ad", request.getText());
-        assertEquals(Long.valueOf(100), request.getViewId());
+        assertEquals("OrderList", request.getViewName());
         assertEquals("customer", request.getViewItemId());
         assertEquals("1001", request.getObjID());
         assertEquals("5001", request.getOwnerId());

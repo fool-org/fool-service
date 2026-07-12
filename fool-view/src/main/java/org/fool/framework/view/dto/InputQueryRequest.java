@@ -10,9 +10,9 @@ public class InputQueryRequest extends CommonRequest {
     private String text;
     @JsonAlias({"ViewItemId", "itemid"})
     private String viewItemId;
-    @JsonAlias({"ViewId", "viewid"})
+    @JsonAlias("ViewId")
     private Long viewId;
-    @JsonAlias("ViewName")
+    @JsonAlias({"ViewName", "viewid"})
     private String viewName;
     @JsonAlias({"ModelID", "modelid"})
     private String modelID;

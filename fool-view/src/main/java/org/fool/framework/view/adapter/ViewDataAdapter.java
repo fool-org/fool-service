@@ -246,7 +246,7 @@ public class ViewDataAdapter {
         result.setItems(collectionDataItems(itemModel, collectionValue(item, property, data)));
         result.setListViewId(safeViewId(item.getListViewId()));
         result.setDetailViewId(safeViewId(item.getEditViewId()));
-        result.setName(itemModel == null || itemModel.getName() == null ? columnName(item) : itemModel.getName());
+        result.setName(item.getListViewName());
         result.setPrpId(property == null || property.getName() == null ? item.getModelProperty() : property.getName());
         result.setSelectFromExists(safeViewId(item.getSelectedViewId()) > 0L);
         result.setItemName(columnName(item));

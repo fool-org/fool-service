@@ -205,16 +205,31 @@ public class DataQueryServiceInputQueryTest {
     }
 
     @Test
-    public void inputQueryRejectsViewNameOnlyRequest() {
+    public void inputQueryAcceptsMetadataViewName() {
+        DaoService daoService = mock(DaoService.class);
+        ModelDataService modelDataService = mock(ModelDataService.class);
         DataQueryService service = new DataQueryService();
-        ReflectionTestUtils.setField(service, "daoService", mock(DaoService.class));
+        ReflectionTestUtils.setField(service, "daoService", daoService);
+        ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
+        ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
+
+        Property customerProperty = property("customer", "customer_id");
+        Model order = new Model();
+        order.setName("Order");
+        order.setProperties(List.of(customerProperty));
+        View view = new View();
+        view.setViewName("OrderDetail");
+        view.setViewModel("Order");
+        view.setListItems(List.of(viewItem("Customer", "customer")));
+        when(daoService.getOneDetailByKey(View.class, "OrderDetail")).thenReturn(view);
+        when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(order);
         InputQueryRequest request = new InputQueryRequest();
-        request.setViewName("BusinessNameShortcut");
+        request.setViewName(" OrderDetail ");
         request.setViewItemId("Customer");
 
-        CommonException exception = assertThrows(CommonException.class, () -> service.inputQuery(request));
+        service.inputQuery(request);
 
-        assertEquals("ViewId is required", exception.getMessage());
+        verify(daoService).getOneDetailByKey(View.class, "OrderDetail");
     }
 
     @Test

@@ -29,6 +29,7 @@ const props = withDefaults(
     options?: { label: string; value: string }[];
     token?: string;
     viewId?: number;
+    viewName?: string;
     objectId?: string;
     ownerId?: string;
     isAdded?: boolean;
@@ -43,7 +44,8 @@ const props = withDefaults(
     options: () => [],
     readonlyValue: "",
     token: "",
-    viewId: 0
+    viewId: 0,
+    viewName: ""
   }
 );
 
@@ -91,6 +93,7 @@ async function searchLookup(query: string) {
       buildInputQueryRequest({
         token: props.token,
         viewId: props.viewId,
+        viewName: props.viewName,
         viewItemId: fieldKey(props.field),
         text: query,
         objID: props.objectId,

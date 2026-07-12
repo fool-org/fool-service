@@ -45,6 +45,8 @@ public class ViewItem {
     @Column(noMap = true)
     private transient Integer listViewType;
     @Column(noMap = true)
+    private transient String listViewName;
+    @Column(noMap = true)
     private transient Property property;
     @Column(noMap = true)
     private transient String viewFile;

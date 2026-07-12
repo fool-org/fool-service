@@ -112,6 +112,7 @@ class RuntimeDoctorTest(unittest.TestCase):
         if url.endswith("/view/getlistview"):
             return {"code": 0, "data": {
                 "DetailViewId": 202,
+                "ViewName": "OrderList",
                 "TempFile": "viewWithChart",
                 "Items": [{"PropertyName": "recordId", "ViewFile": "./includes/List"}],
                 "Operations": [{"Name": "\u5220\u9664"}, {"Name": "\u4fdd\u5b58"}],
@@ -122,7 +123,7 @@ class RuntimeDoctorTest(unittest.TestCase):
                 {"PrpId": "price", "ObjId": "12.50", "FmtValue": "12.50", "EditType": "ChartLine"},
             ]}]}}
         if url.endswith("/data/initnew"):
-            return {"code": 0, "data": {"Data": {"SimpleData": [
+            return {"code": 0, "data": {"Data": {"Name": "OrderDetail", "SimpleData": [
                 {"PrpId": "orderId", "PrpType": "Long", "ReadOnly": True},
                 {"PrpId": "symbol", "PrpType": "String", "ReadOnly": False},
                 {"PrpId": "customer", "PrpType": "BusinessObject", "ReadOnly": False},
@@ -1067,6 +1068,7 @@ class RuntimeDoctorTest(unittest.TestCase):
             if url.endswith("/view/getlistview"):
                 return {"code": 0, "data": {
                     "DetailViewId": 202,
+                    "ViewName": "OrderList",
                     "TempFile": "viewWithChart",
                     "Items": [
                         {"PropertyName": "recordId", "PropertyType": "String", "PropertyModel": 0},
@@ -1087,7 +1089,15 @@ class RuntimeDoctorTest(unittest.TestCase):
         by_name = {result.name: result for result in results}
         self.assertTrue(by_name["data:inputquery-legacy-cloud-payload"].ok)
         self.assertIn(("http://frontend/api/v1/data/inputquery", {
-            "ViewName": "200",
+            "viewid": "OrderList",
+            "itemid": "customer",
+            "text": "",
+            "objid": "9001",
+            "ownerid": "",
+            "newadd": False,
+        }), calls)
+        self.assertIn(("http://frontend/api/v1/data/inputquery", {
+            "ViewName": "OrderList",
             "ViewItemId": "customer",
             "Text": "",
             "ObjID": "9001",
@@ -1318,7 +1328,7 @@ class RuntimeDoctorTest(unittest.TestCase):
             ("http://frontend/api/v1/data/new", {
                 "obj": {
                     "Id": "989906",
-                    "ViewID": "202",
+                    "ViewID": "OrderDetail",
                     "Propertyies": [
                         {"Key": "symbol", "Value": "RUNTIME-989906"},
                         {"Key": "state", "Value": "0"},
@@ -1335,7 +1345,7 @@ class RuntimeDoctorTest(unittest.TestCase):
             ("http://frontend/api/v1/data/save", {
                 "obj": {
                     "Id": "989907",
-                    "ViewID": "202",
+                    "ViewID": "OrderDetail",
                     "Propertyies": [
                         {"Key": "symbol", "Value": "RUNTIME-989907-UPDATE"},
                         {"Key": "state", "Value": "0"},

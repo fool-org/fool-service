@@ -32,6 +32,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 public class ViewDataAdapterTest {
@@ -438,7 +439,7 @@ public class ViewDataAdapterTest {
         assertEquals("symbol", result.getData().getSimpleData().get(0).getPrpId());
         assertEquals(1, result.getData().getItems().size());
         QueryDataDetailResult.PropertyDataItems group = result.getData().getItems().get(0);
-        assertEquals("OrderItem", group.getName());
+        assertNull(group.getName());
         assertEquals("items", group.getPrpId());
         assertEquals("Items", group.getItemName());
         assertEquals(2, group.getProperties().size());
@@ -462,6 +463,7 @@ public class ViewDataAdapterTest {
         ViewItem items = viewItem("items", ItemEditType.ReadOnly);
         items.setItemName("Items");
         items.setListViewId(101L);
+        items.setListViewName("OrderItemList");
         items.setEditViewId(102L);
         items.setSelectedViewId(103L);
         setProperty(items, itemsProperty);
@@ -476,6 +478,7 @@ public class ViewDataAdapterTest {
                 new MapDynamicData("1001", new LinkedHashMap<>(Map.of("items", List.of()))));
 
         QueryDataDetailResult.PropertyDataItems group = result.getData().getItems().get(0);
+        assertEquals("OrderItemList", group.getName());
         assertEquals(Long.valueOf(101L), group.getListViewId());
         assertEquals(Long.valueOf(102L), group.getDetailViewId());
         assertEquals(Long.valueOf(103L), group.getSelectedView());

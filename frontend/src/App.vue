@@ -229,7 +229,8 @@ const fieldEditorContext = computed(() => ({
   objectId: selectedObjectId.value,
   ownerId: detailOwnerId.value,
   token: token.value,
-  viewId: Number(detailViewId.value)
+  viewId: Number(detailViewId.value),
+  viewName: detailResultViewName(detailResponse.value?.data)
 }));
 
 function fieldEnumOptions(field: ListDataValue) {

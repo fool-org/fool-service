@@ -513,9 +513,9 @@ describe("App defaults", () => {
     expect(appSource).toContain("stopShellPolling()");
   });
 
-  it("keeps metadata lookup tied to the rendered view id", () => {
+  it("keeps metadata lookup tied to the rendered View identity", () => {
     expect(metadataFieldEditorSource).toContain("viewId: props.viewId");
-    expect(metadataFieldEditorSource).not.toContain("viewName");
+    expect(metadataFieldEditorSource).toContain("viewName: props.viewName");
     expect(metadataFieldEditorSource).toContain("<AutoComplete");
     expect(metadataFieldEditorSource).toContain('@complete="searchLookup($event.query)"');
     expect(metadataFieldEditorSource).toContain('@option-select="selectLookup($event.value)"');
@@ -537,6 +537,8 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain(':owner-id="selectedObjectId"');
     expect(viewDetailPanelSource).toContain(':is-added="isPendingAddedItem(group, item)"');
     expect(viewDetailPanelSource).toContain(':object-id="itemDataId(item)"');
+    expect(viewDetailPanelSource).toContain(':view-id="groupListViewId(group)"');
+    expect(viewDetailPanelSource).toContain(':view-name="groupViewName(group)"');
   });
 
   it("keeps child item ids in interaction state instead of a hard-coded table column", () => {
@@ -562,7 +564,7 @@ describe("App defaults", () => {
     expect(metadataFieldEditorSource).toContain('response.message || "查找失败。"');
   });
 
-  it("does not keep ViewName as a frontend lookup or workflow shortcut", () => {
+  it("uses only rendered metadata as the frontend ViewName source", () => {
     const inputQueryRequestSource = apiSource.slice(
       apiSource.indexOf("export interface InputQueryRequest"),
       apiSource.indexOf("export interface InputQueryItem")
@@ -570,9 +572,10 @@ describe("App defaults", () => {
 
     expect(appSource).not.toContain("const viewName = ref");
     expect(appSource).not.toContain("viewName.value");
-    expect(payloadSource).not.toContain("viewName?: string");
-    expect(payloadSource).not.toContain("request.viewName");
-    expect(inputQueryRequestSource).not.toContain("viewName");
+    expect(appSource).toContain("viewName: detailResultViewName(detailResponse.value?.data)");
+    expect(payloadSource).toContain("viewName?: string");
+    expect(payloadSource).toContain("request.viewName = input.viewName.trim()");
+    expect(inputQueryRequestSource).toContain("viewName?: string");
   });
 
   it("loads the rendered View before the current data query", () => {
@@ -1020,6 +1023,7 @@ describe("buildInputQueryRequest", () => {
     const request = buildInputQueryRequest({
       token: "token-1",
       viewId: 100,
+      viewName: " OrderDetail ",
       viewItemId: "name",
       text: "  Ada  ",
       objID: "1001",
@@ -1029,7 +1033,7 @@ describe("buildInputQueryRequest", () => {
 
     expect(request).toEqual({
       token: "token-1",
-      viewId: 100,
+      viewName: "OrderDetail",
       viewItemId: "name",
       text: "Ada",
       objID: "1001",

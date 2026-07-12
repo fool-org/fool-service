@@ -244,17 +244,13 @@ public class DataQueryService {
 
     private View inputQueryView(InputQueryRequest request) {
         Long viewId = request.getViewId();
-        if (viewId == null && StringUtils.hasText(request.getViewName())) {
-            try {
-                viewId = Long.parseLong(request.getViewName().trim());
-            } catch (NumberFormatException ignored) {
-                // ponytail: keep business-name ViewName rejected; old Cloud-Social sends the numeric View id here.
-            }
-        }
-        if (viewId == null) {
+        String viewName = request.getViewName();
+        if (viewId == null && !StringUtils.hasText(viewName)) {
             throw new CommonException(ErrorCode.VIEW_NOT_FOUND, "ViewId is required");
         }
-        return daoService.getOneDetailByKey(View.class, viewId.toString());
+        return daoService.getOneDetailByKey(
+                View.class,
+                viewId == null ? viewName.trim() : viewId.toString());
     }
 
     private InputQueryResult inputQueryFromSourceList(

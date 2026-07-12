@@ -646,6 +646,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   lookup. Vue now sends generic `Data.ParentId` / `data.parentId` as
   `inputquery.ownerId`, with the parsed `/new:id/:parent&:view&:property`
   owner as fallback, matching old `setextype.js` source-list lookup behavior.
+- 2026-07-12: corrected `inputquery` View identity against FoolFrame
+  `detailView.jade`, `detailview.js`, `setextype.js`, `DataFormator`, and
+  Cloud-Social `soway.js`. Vue now sends the loaded detail `Data.Name` or
+  collection `Items[].Name`; the backend hydrates collection `Name` from its
+  linked list View instead of the child model. Old Web `viewid` and Cloud
+  `ViewName` aliases accept that metadata name, while modern numeric `ViewId`
+  remains the fallback and keeps precedence when both are present.
 - 2026-07-10: Vue startup now reads the old FoolFrame Web list route
   `/view:id` from `window.location.pathname` and uses that View id before the
   legacy app default, keeping the startup path on `getlistview(ViewId)` then
@@ -659,10 +666,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   runtime doctor seeds a non-empty `SW_SYS_MSG` row and proves `MessageID`,
   `GernerationTime`, `MessageContent`, `ResultView`, and `ResultKey` through
   the Vue proxy instead of accepting an empty `Messages` list.
-- 2026-07-10: backend `inputquery` now accepts the old FoolFrame
-  Cloud-Social payload where `soway.inputquery` sends the numeric View id in
-  `ViewName`, while nonnumeric business-name `ViewName` remains rejected. The
-  Docker runtime doctor proves the shape through the Vue proxy.
+- 2026-07-10: backend `inputquery` compatibility was initially pinned to a
+  numeric value inside Cloud-Social `ViewName`. The 2026-07-12 source audit
+  corrected this: FoolFrame passes the rendered metadata View name through
+  both Web `viewid` and Cloud-Social `ViewName`.
 - 2026-07-10: backend `getlistview` now accepts the old FoolFrame Web `/view`
   body shape from `routes.getqueryview`, including the `id` alias at the
   shared `ViewDataRequest` boundary. The Docker runtime doctor proves the
@@ -1229,11 +1236,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   expression path instead of adding a second parser. Expressions that need a
   current object (`#.` / `.`) remain unavailable in this detail-id phase
   because FoolFrame calls this handler without an object/property context.
-- 2026-07-09: Vue's `InputQueryRequest` type no longer exposes a
-  `viewName` field. The frontend payload builder was already ViewId-driven;
-  removing the stale type shortcut keeps lookup callers from reintroducing a
-  business-name request path while leaving backend legacy `inputquery`
-  protocol compatibility at the DTO boundary.
+- 2026-07-09: Vue's stale free-form `InputQueryRequest.viewName` shortcut was
+  removed while lookup was ViewId-driven. The 2026-07-12 correction restores
+  the field only at the shared payload boundary and derives it exclusively
+  from rendered detail or child View metadata, not a business DTO label.
 - 2026-07-09: `ViewDataService.getViewData` and
   `DataQueryService.queryViewDataList` now reject service-level business-name
   shortcuts before DAO lookup. Direct service callers must pass numeric

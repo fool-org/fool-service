@@ -67,7 +67,7 @@ public class ViewDataService {
             + "FROM `SW_SYS_VIEW_ITEM` vi "
             + "JOIN `SW_SYS_VIEW_FILE` vf ON vf.`VIEW_FILE_ID` = vi.`VIEW_ITEM_FILE` "
             + "WHERE vi.`SW_SYS_VIEW_ItemsVIEW_ID` = ?";
-    private static final String LINKED_VIEW_TYPE_SQL = "SELECT vi.`id`, child.`view_type` "
+    private static final String LINKED_VIEW_TYPE_SQL = "SELECT vi.`id`, child.`view_type`, child.`view_name` "
             + "FROM `fool_sys_view_item` vi "
             + "JOIN `fool_sys_view` child ON child.`id` = vi.`list_view_id` "
             + "WHERE vi.`view_id` = ?";
@@ -142,13 +142,16 @@ public class ViewDataService {
             return;
         }
         for (LinkedViewTypeRow row : rows) {
-            if (row.itemId == null || row.viewType == null) {
+            if (row.itemId == null) {
                 continue;
             }
             view.getListItems().stream()
                     .filter(item -> row.itemId.equals(item.getId()))
                     .findFirst()
-                    .ifPresent(item -> item.setListViewType(row.viewType));
+                    .ifPresent(item -> {
+                        item.setListViewType(row.viewType);
+                        item.setListViewName(row.viewName);
+                    });
         }
     }
 
@@ -216,5 +219,7 @@ public class ViewDataService {
         public Long itemId;
         @Column("view_type")
         public Integer viewType;
+        @Column("view_name")
+        public String viewName;
     }
 }

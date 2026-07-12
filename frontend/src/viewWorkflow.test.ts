@@ -39,6 +39,7 @@ import {
   groupItems,
   groupKey,
   groupListViewId,
+  groupViewName,
   groupSelectFromExists,
   groupSelectedViewId,
   groupTitle,
@@ -867,6 +868,9 @@ describe("view workflow helpers", () => {
 
     expect(groupKey(group)).toBe("Items");
     expect(groupListViewId(group)).toBe(101);
+    expect(groupViewName(group)).toBe("Items");
+    expect(groupViewName({ Name: "OrderItemList" })).toBe("OrderItemList");
+    expect(groupViewName({ name: "", Name: "OrderItemList" })).toBe("OrderItemList");
     expect(groupSelectedViewId({ SelectedView: 201, ListViewId: 301 })).toBe(201);
     expect(groupListViewId({ SelectedView: 201, ListViewId: 301 })).toBe(301);
     expect(emptyGroupDraft(group)).toEqual({

@@ -1061,6 +1061,10 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         if loaded_detail_view_id:
             view_state["listViewId"] = view_id
             view_state["detailViewId"] = loaded_detail_view_id
+        list_view_name = payload["data"].get("viewName") or payload["data"].get("ViewName") \
+            or payload["data"].get("name") or payload["data"].get("Name")
+        if list_view_name:
+            view_state["listViewName"] = str(list_view_name)
         view_state["tempFile"] = str(payload["data"].get("TempFile") or payload["data"].get("tempFile") or "")
         if columns:
             view_state["columns"] = columns
@@ -1138,7 +1142,9 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         groups = detail_item_groups(payload)
         if groups:
             view_state["newGroups"] = groups
-        detail = payload.get("data", {}).get("data") or payload.get("data", {}).get("Data")
+        response_data = payload.get("data") if isinstance(payload, dict) else None
+        detail = (response_data.get("data") or response_data.get("Data")) \
+            if isinstance(response_data, dict) else None
         view_name = (detail.get("name") or detail.get("Name")) if isinstance(detail, dict) else ""
         if view_name:
             view_state["detailViewName"] = str(view_name)
@@ -1659,9 +1665,9 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         return common_response_list(payload, "items") and common_response_list(payload, "Items")
 
     def inputquery_legacy_web_payload_ok() -> bool:
-        view_id = loaded_list_view_id()
+        view_name = view_state.get("listViewName")
         columns = view_state.get("columns")
-        if not view_id or not isinstance(columns, list):
+        if not view_name or not isinstance(columns, list):
             return False
         item_id = lookup_view_item_id(columns)
         if not item_id:
@@ -1669,7 +1675,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         payload = post_json(
             f"{frontend_url}/api/v1/data/inputquery",
             {
-                "viewid": view_id,
+                "viewid": view_name,
                 "itemid": item_id,
                 "text": "",
                 "objid": view_state.get("objectId", ""),
@@ -1681,9 +1687,9 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         return common_response_list(payload, "items") and common_response_list(payload, "Items")
 
     def inputquery_legacy_cloud_payload_ok() -> bool:
-        view_id = loaded_list_view_id()
+        view_name = view_state.get("listViewName")
         columns = view_state.get("columns")
-        if not view_id or not isinstance(columns, list):
+        if not view_name or not isinstance(columns, list):
             return False
         item_id = lookup_view_item_id(columns)
         if not item_id:
@@ -1691,7 +1697,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         payload = post_json(
             f"{frontend_url}/api/v1/data/inputquery",
             {
-                "ViewName": str(view_id),
+                "ViewName": view_name,
                 "ViewItemId": item_id,
                 "Text": "",
                 "ObjID": view_state.get("objectId", ""),
@@ -1990,12 +1996,12 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         (
             "data:inputquery-legacy-web-payload",
             inputquery_legacy_web_payload_ok,
-            "POST /api/v1/data/inputquery accepts legacy Web viewid/itemid/text aliases",
+            "POST /api/v1/data/inputquery accepts legacy Web viewid as the rendered metadata View name",
         ),
         (
             "data:inputquery-legacy-cloud-payload",
             inputquery_legacy_cloud_payload_ok,
-            "POST /api/v1/data/inputquery accepts legacy Cloud-Social ViewName view id payload",
+            "POST /api/v1/data/inputquery accepts legacy Cloud-Social ViewName as the rendered metadata View name",
         ),
         (
             "report:getmkqview",
