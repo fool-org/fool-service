@@ -179,6 +179,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   theme. Vue now uses that legacy default color order, legends show only the
   View-derived series name rather than extra English `line` / `bar` /
   `scatter` type text, and fallback/accessible labels use Chinese copy.
+- 2026-07-12: restored the old single View heading from `view.jade` and
+  `detailView.jade`. Vue no longer repeats the business title in a workspace
+  topbar or displays protocol `ViewName` beside it; list/detail panels remain
+  the sole title owner, while the mobile-only topbar only carries the Drawer
+  command. Unused `loadedViewName` / `viewTitle` workflow state and duplicate
+  CSS were removed rather than hidden.
 - 2026-07-12: restored old Web operation feedback from `operation.js`. Vue now
   projects camel/Pascal `ReturnMsg`, shows a success or error result in the
   detail panel, keeps successful refresh behavior, and clears stale results

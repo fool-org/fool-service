@@ -847,6 +847,9 @@ item must land with its matching implementation and validation evidence.
       auto-open the first row or render a side-by-side detail DTO, and View
       operations/new commands navigate through `/view{id}/{obj}` and
       `/new{id}` before rendering the standalone detail page.
+- [x] Restore the old single View heading: remove duplicate desktop/mobile
+      topbar titles and protocol `ViewName` text, leaving the View-defined title
+      in the list/detail panel while the mobile topbar only opens navigation.
 - [x] Align standalone detail simple-field layout with `detailView.jade`:
       reuse one metadata-driven field grid for read/edit states, render two
       field groups per desktop row, and collapse to one group on mobile.

@@ -25,7 +25,6 @@ import {
   operationTargetViewId,
   rowOperations,
   viewColumns,
-  viewDisplayName,
   viewDisplayTitle,
   viewId,
   viewTemplateKind,
@@ -58,7 +57,6 @@ const keyword = defineModel<string>("keyword", { required: true });
 const activePane = ref("table");
 const currentViewId = computed(() => viewId(props.view));
 const title = computed(() => viewDisplayTitle(props.view, "Load a View"));
-const name = computed(() => viewDisplayName(props.view));
 const columns = computed(() => listRenderColumns(props.view));
 const rows = computed(() => listRows(props.data));
 const operations = computed(() => viewOperations(props.view));
@@ -82,7 +80,6 @@ function changePage(event: PageState) {
   <article class="panel view-list-panel">
     <div class="panel-heading">
       <h2>{{ title }}</h2>
-      <span>{{ name }}</span>
     </div>
     <div v-if="supportedTemplate" class="workflow-toolbar">
       <label>

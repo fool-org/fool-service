@@ -86,6 +86,15 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).not.toContain("<h2>Detail</h2>");
   });
 
+  it("renders each View title once without exposing the internal ViewName", () => {
+    expect(viewListPanelSource).toContain("<h2>{{ title }}</h2>");
+    expect(viewListPanelSource).not.toContain("{{ name }}");
+    expect(appSource).not.toContain("pageViewName");
+    expect(appSource).not.toContain("pageViewTitle");
+    expect(viewDataWorkflowSource).not.toContain("loadedViewName");
+    expect(viewDataWorkflowSource).not.toContain("const viewTitle");
+  });
+
   it("routes every view row table through the shared metadata renderer", () => {
     expect(viewDetailPanelSource).toContain(':row-operations="[]"');
     expect(viewDetailPanelSource).toContain('default-action-label="选择"');

@@ -216,33 +216,12 @@ label {
 }
 
 .topbar {
-  display: flex;
-  gap: 18px;
-  align-items: flex-start;
-  justify-content: space-between;
-}
-
-.topbar-title {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  min-width: 0;
+  display: none;
 }
 
 .mobile-menu-button {
   display: none;
   flex: 0 0 auto;
-}
-
-.topbar h1 {
-  margin: 0;
-  font-size: 1.55rem;
-  line-height: 1.2;
-}
-
-.topbar p {
-  margin: 5px 0 0;
-  color: #64748b;
 }
 
 .drawer-brand {
@@ -874,10 +853,6 @@ label {
 @media (max-width: 640px) {
   .workspace {
     padding: 14px;
-  }
-
-  .topbar h1 {
-    font-size: 1.3rem;
   }
 
   .list-pagination {

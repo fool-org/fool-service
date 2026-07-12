@@ -171,8 +171,6 @@ const {
   viewResponse,
   dataResponse,
   currentViewId,
-  loadedViewName,
-  viewTitle,
   readItemViewFor,
   loadLegacyListView,
   loadReadItemView: loadReadItemViewBase,
@@ -194,8 +192,6 @@ const { enumOptions, loadFieldEnums: loadFieldEnumsFor } = useFieldEnums(token, 
 const detailDataRows = computed(() => detailResultSimpleData(detailResponse.value?.data));
 const currentReadItemView = computed(() => readItemViewFor(Number(detailViewId.value)));
 const detailTitle = computed(() => viewDisplayTitle(currentReadItemView.value, "Detail"));
-const pageViewTitle = computed(() => isMetadataOnlyView.value || isStandaloneDetail.value ? detailTitle.value : viewTitle.value);
-const pageViewName = computed(() => isMetadataOnlyView.value || isStandaloneDetail.value ? "" : loadedViewName.value);
 const detailRows = computed(() => renderedDetailFields(currentReadItemView.value, detailDataRows.value));
 const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() =>
   renderedDetailGroups(currentReadItemView.value, detailResultItems(detailResponse.value?.data))
@@ -939,13 +935,7 @@ function syncDetailDrafts() {
 
     <main class="workspace">
       <header class="topbar">
-        <div class="topbar-title">
-          <Button class="mobile-menu-button" icon="pi pi-bars" severity="secondary" text aria-label="打开导航" @click="mobileMenuOpen = true" />
-          <div>
-          <h1>{{ pageViewTitle }}</h1>
-          <p>{{ pageViewName }}</p>
-          </div>
-        </div>
+        <Button class="mobile-menu-button" icon="pi pi-bars" severity="secondary" text aria-label="打开导航" @click="mobileMenuOpen = true" />
       </header>
 
       <Drawer v-model:visible="mobileMenuOpen" position="left" class="mobile-navigation" header="导航">

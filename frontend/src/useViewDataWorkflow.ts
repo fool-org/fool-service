@@ -16,8 +16,6 @@ import {
   readViewForId,
   rememberReadView,
   viewDetailViewId,
-  viewDisplayName,
-  viewDisplayTitle,
   viewId
 } from "./viewWorkflow";
 
@@ -44,8 +42,6 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
   const dataResponse = ref<CommonResponse<ListViewResult> | null>(null);
 
   const currentViewId = computed(() => viewId(viewResponse.value?.data));
-  const loadedViewName = computed(() => viewDisplayName(viewResponse.value?.data));
-  const viewTitle = computed(() => viewDisplayTitle(viewResponse.value?.data, "Load a View"));
   const resultColumns = computed<TableColumnInfo[]>(() => listRenderColumns(viewResponse.value?.data));
   const resultRows = computed(() => listRows(dataResponse.value?.data));
   const resultPageIndex = computed(() => listPageIndex(dataResponse.value?.data, Number(options.pageIndex.value)));
@@ -194,8 +190,6 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
     readItemViewResponse,
     dataResponse,
     currentViewId,
-    loadedViewName,
-    viewTitle,
     resultColumns,
     resultRows,
     resultPageIndex,
