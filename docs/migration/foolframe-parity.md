@@ -118,6 +118,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-12: restored old conditional menu-image behavior for top and child
+  navigation. Vue now reads Pascal/camel `ImageUrl` through one adapter and
+  renders metadata-provided images at the old 30x30 size; empty values allocate
+  no placeholder. The Docker seed currently exercises the empty-image path.
 - 2026-07-12: restored `tbar.jade` navigation order by moving the text-only
   `安全退出` action after the metadata menu. The right shell area now contains
   only the old avatar/user presentation; the mobile Drawer exposes the same

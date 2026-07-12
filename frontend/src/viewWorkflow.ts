@@ -275,6 +275,10 @@ export function legacyAuthText(item: LegacyAuthItem) {
   return firstDisplayValue([item.text, item.Text]);
 }
 
+export function legacyAuthImageUrl(item: LegacyAuthItem) {
+  return firstDisplayValue([item.imageUrl, item.ImageUrl]);
+}
+
 export function legacyAuthNo(item: LegacyAuthItem) {
   return firstDisplayValue([item.authNo, item.AuthNo]);
 }

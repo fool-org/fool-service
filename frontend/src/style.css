@@ -143,6 +143,20 @@ label {
   white-space: nowrap;
 }
 
+.nav-label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+
+.nav-menu-image {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
 .nav-count {
   display: inline-grid;
   min-width: 20px;

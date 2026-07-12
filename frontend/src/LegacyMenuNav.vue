@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { LegacyAuthItem } from "./api";
-import { legacyAuthNo, legacyAuthText, legacyAuthViewId } from "./viewWorkflow";
+import { legacyAuthImageUrl, legacyAuthNo, legacyAuthText, legacyAuthViewId } from "./viewWorkflow";
 
 defineProps<{
   currentViewId: number;
@@ -30,7 +30,10 @@ defineEmits<{
         :disabled="disabled"
         @click="$emit('select', item)"
       >
-        <span>{{ legacyAuthText(item) || legacyAuthNo(item) }}</span>
+        <span class="nav-label">
+          <img v-if="legacyAuthImageUrl(item)" class="nav-menu-image" :src="legacyAuthImageUrl(item)" alt="" />
+          <span>{{ legacyAuthText(item) || legacyAuthNo(item) }}</span>
+        </span>
         <strong v-if="notifyCount(item)" class="nav-count">{{ notifyCount(item) }}</strong>
       </button>
       <div v-if="legacyAuthNo(item) === expandedAuthCode && subItems.length" class="nav-sublist">
@@ -42,7 +45,10 @@ defineEmits<{
           :disabled="disabled || !legacyAuthViewId(child)"
           @click="$emit('select', child)"
         >
-          <span>{{ legacyAuthText(child) || legacyAuthNo(child) }}</span>
+          <span class="nav-label">
+            <img v-if="legacyAuthImageUrl(child)" class="nav-menu-image" :src="legacyAuthImageUrl(child)" alt="" />
+            <span>{{ legacyAuthText(child) || legacyAuthNo(child) }}</span>
+          </span>
           <strong v-if="notifyCount(child)" class="nav-count">{{ notifyCount(child) }}</strong>
         </button>
       </div>

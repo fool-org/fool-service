@@ -641,6 +641,9 @@ describe("App defaults", () => {
     expect(appSource).not.toContain('class="sidebar"');
     expect(legacyMenuNavSource).toContain('v-for="item in items"');
     expect(legacyMenuNavSource).toContain("nav-list-horizontal");
+    expect(legacyMenuNavSource).toContain("legacyAuthImageUrl(item)");
+    expect(legacyMenuNavSource).toContain("legacyAuthImageUrl(child)");
+    expect(legacyMenuNavSource).toContain('class="nav-menu-image"');
     expect(legacyMenuNavSource).toContain('legacyAuthNo(item) === expandedAuthCode && subItems.length');
     expect(menuSource).toContain("legacyAuthViewId(item)");
     expect(menuSource).toContain('subMenuParentAuthCode.value = ""');

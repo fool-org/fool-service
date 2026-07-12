@@ -47,6 +47,7 @@ import {
   legacyAppDefaultViewId,
   legacyAppName,
   legacyAppVersion,
+  legacyAuthImageUrl,
   legacyAuthIndex,
   legacyAuthNo,
   legacyAuthText,
@@ -1027,6 +1028,7 @@ describe("view workflow helpers", () => {
 
     expect(legacyMainMenuItems(main)).toHaveLength(1);
     expect(legacyAuthText(main.TopMenu[0])).toBe("Views");
+    expect(legacyAuthImageUrl({ ImageUrl: "/menu/views.png" })).toBe("/menu/views.png");
     expect(legacySubMenuItems(menu)).toHaveLength(1);
     expect(legacyAuthNo(menu.Items[0])).toBe("1");
     expect(legacyAuthText(menu.Items[0])).toBe("Home");

@@ -893,6 +893,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `tbar.jade` navigation order by moving `安全退出` after the
       metadata menu; keep the right shell area limited to the old avatar and
       user-name presentation, with a matching mobile Drawer action.
+- [x] Restore old top/sub-menu `ImageUrl` rendering: adapt Pascal/camel aliases
+      once, show metadata-provided images at the old 30x30 size, and allocate
+      no icon slot when the value is empty.
 - [x] Restore `default.jade` user avatar rendering end to end: hydrate
       `UserAvtarUrl` from `SW_AUTH_USER.USER_AVTAR`, adapt the compatibility
       response in `viewWorkflow`, and retain an icon fallback for empty values.
