@@ -2653,3 +2653,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   renders no invented root toolbar. View navigation also closes an open report,
   and report rendering is restricted to normal list templates so SPA state
   cannot leak a prior list report into chart or Sudoku pages.
+- 2026-07-12: restored `viewWithChart.jade`'s entry-time data-first state
+  across SPA navigation. The shared list panel now resets its active pane to
+  `数据` only when the loaded View id or template kind changes; search, paging,
+  auto-refresh, and row-data updates preserve the user's current pane.

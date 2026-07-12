@@ -307,6 +307,8 @@ describe("App defaults", () => {
     expect(appSource).toContain("viewUsesChartTemplate(viewResponse.value?.data)");
     expect(viewListPanelSource).toContain("legacyChartData(rows.value)");
     expect(viewListPanelSource).toContain("activePane");
+    expect(viewListPanelSource).toContain("watch([currentViewId, templateKind]");
+    expect(viewListPanelSource).toContain('activePane.value = "table";');
     expect(viewListPanelSource).toContain("<Tabs");
     expect(viewListPanelSource).toContain("<Tab value=\"chart\"");
     expect(viewListPanelSource).toContain('<Tab value="table">数据</Tab>');

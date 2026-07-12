@@ -791,6 +791,9 @@ item must land with its matching implementation and validation evidence.
       bar, and scatter `EditType` metadata.
 - [x] Match `viewWithChart.jade` data/chart navigation as text-only tabs,
       removing invented table/chart icons and their tab-only spacing rule.
+- [x] Reset the shared chart tab to old `viewWithChart.jade`'s data-first state
+      when the active View id or template changes, without resetting it during
+      search, paging, or data refresh.
 - [x] Align the shared SVG chart presentation with old `swchartLine.js`:
       restore the legacy ECharts default color order, keep legends metadata-
       name-only, and remove English series-type/debug fallback text.

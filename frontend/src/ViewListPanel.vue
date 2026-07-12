@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import Message from "primevue/message";
@@ -71,6 +71,11 @@ const resultPageIndex = computed(() => listPageIndex(props.data, props.pageIndex
 const resultTotalItems = computed(() => listTotalItems(props.data));
 const resultTotalPages = computed(() => listTotalPages(props.data));
 const resultFreshTime = computed(() => listFreshTime(props.data));
+
+watch([currentViewId, templateKind], () => {
+  activePane.value = "table";
+});
+
 function changePage(event: PageState) {
   emit("page", event.page + 1);
 }
