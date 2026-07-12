@@ -735,6 +735,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Render Vue Sudoku `Map` panels from child row map `EditType` metadata
       (`16` longitude, `17` latitude, `18` title) on a lazy-loaded interactive
       Leaflet map without binding to concrete business DTO fields.
+- [x] Align map fallback display with old `mapview.js`: derive an absent marker
+      title from the first metadata info item and use Chinese location/error/
+      accessibility copy instead of fixed English UI text.
 - [x] Seed and prove a real Docker `CustomerMap` child View for Vue Sudoku
       `Map` panels, using the panel `ListViewId` before querying legacy map
       `EditType` row data.

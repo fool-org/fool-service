@@ -158,6 +158,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   row keys, inline saves, deletes, BusinessObject lookup context, and detail
   navigation; visible columns now come only from each group's `Properties[]`
   View metadata plus the old operation column.
+- 2026-07-12: aligned map marker fallback display with old `mapview.js`. When
+  `EditType=18` title metadata is absent, Vue now derives the marker title from
+  the first remaining View info item rather than exposing a fixed `Location`
+  label. Empty/failed map states and the map region label now use Chinese copy.
 - 2026-07-12: restored old Web operation feedback from `operation.js`. Vue now
   projects camel/Pascal `ReturnMsg`, shows a success or error result in the
   detail panel, keeps successful refresh behavior, and clears stale results

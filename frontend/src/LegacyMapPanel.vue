@@ -22,7 +22,7 @@ onMounted(async () => {
         latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180
       );
     if (!points.length) {
-      mapError.value = "No valid map locations.";
+      mapError.value = "没有有效的地图位置。";
       return;
     }
 
@@ -47,7 +47,7 @@ onMounted(async () => {
     else map.fitBounds(bounds, { maxZoom: 15, padding: [24, 24] });
     window.requestAnimationFrame(() => map?.invalidateSize());
   } catch {
-    mapError.value = "Map unavailable.";
+    mapError.value = "地图暂不可用。";
   }
 });
 
@@ -56,7 +56,7 @@ onUnmounted(() => map?.remove());
 function markerPopup(marker: LegacyMapMarker) {
   const content = document.createElement("div");
   const title = document.createElement("strong");
-  title.textContent = marker.title?.text || marker.title?.label || "Location";
+  title.textContent = markerName(marker);
   content.append(title);
   for (const item of marker.info) {
     const row = document.createElement("div");
@@ -67,7 +67,10 @@ function markerPopup(marker: LegacyMapMarker) {
 }
 
 function markerName(marker: LegacyMapMarker) {
-  return marker.title?.text || marker.title?.label || "Location";
+  const title = [marker.title?.label, marker.title?.text].filter(Boolean).join(" ");
+  if (title) return title;
+  const firstInfo = marker.info[0];
+  return [firstInfo?.label, firstInfo?.text].filter(Boolean).join(" ") || "位置";
 }
 </script>
 
@@ -77,7 +80,7 @@ function markerName(marker: LegacyMapMarker) {
       ref="mapElement"
       class="legacy-map"
       role="region"
-      :aria-label="`${markers.length} map locations`"
+      :aria-label="`${markers.length} 个地图位置`"
     ></div>
     <p v-if="mapError" class="error-message">{{ mapError }}</p>
     <ul class="map-location-list">

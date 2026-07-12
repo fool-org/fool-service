@@ -234,6 +234,9 @@ describe("App defaults", () => {
     expect(legacyMapPanelSource).toContain("leaflet.circleMarker");
     expect(legacyMapPanelSource).toContain("map.fitBounds");
     expect(legacyMapPanelSource).toContain("title.textContent");
+    expect(legacyMapPanelSource).toContain("marker.info[0]");
+    expect(legacyMapPanelSource).toContain("没有有效的地图位置。");
+    expect(legacyMapPanelSource).not.toContain('"Location"');
   });
 
   it("renders Sudoku item panels from legacy detail SimpleData", () => {
