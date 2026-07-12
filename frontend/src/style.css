@@ -303,10 +303,6 @@ label {
   padding: 16px 0 0;
 }
 
-.report-tabs .p-tab {
-  gap: 7px;
-}
-
 .report-section {
   display: grid;
   gap: 10px;

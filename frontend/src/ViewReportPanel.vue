@@ -266,9 +266,9 @@ onMounted(() => void loadReportColumns());
 
     <Tabs v-else v-model:value="activeTab" class="report-tabs">
       <TabList scrollable>
-        <Tab value="output"><i class="pi pi-table" aria-hidden="true"></i> 输出</Tab>
-        <Tab value="conditions"><i class="pi pi-filter" aria-hidden="true"></i> 条件</Tab>
-        <Tab value="save"><i class="pi pi-save" aria-hidden="true"></i> 保存报表</Tab>
+        <Tab value="output">输出</Tab>
+        <Tab value="conditions">条件</Tab>
+        <Tab value="save">保存报表</Tab>
       </TabList>
       <TabPanels>
         <TabPanel value="output">

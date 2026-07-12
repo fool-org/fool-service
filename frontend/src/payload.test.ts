@@ -659,6 +659,9 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).toContain('<Tab value="output"');
     expect(viewReportPanelSource).toContain('<Tab value="conditions"');
     expect(viewReportPanelSource).toContain('<Tab value="save"');
+    expect(viewReportPanelSource).not.toContain('class="pi pi-table"');
+    expect(viewReportPanelSource).not.toContain('class="pi pi-filter"');
+    expect(viewReportPanelSource).not.toContain('<Tab value="save"><i');
     expect(viewReportPanelSource).toContain("生成报表");
     expect(viewReportPanelSource).toContain("报表结果");
     expect(viewReportPanelSource).toContain("报表结果 共{{ resultPages }}页 当前第{{ resultPage }}页");

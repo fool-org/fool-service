@@ -845,6 +845,8 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `view.jade` Chinese report copy for dialog/result titles,
       output/condition/save tabs, column/order controls, grouping, paging, and
       footer actions while preserving protocol values and metadata labels.
+- [x] Match `view.jade` report tabs exactly as text labels by removing the
+      invented output/filter/save icons and their tab-only spacing rule.
 - [x] Restore `view.jade`'s compact right-aligned list toolbar: keep the query
       prompt inside the search field, align actions on one desktop row, and
       let only the input occupy a full row on narrow screens.
