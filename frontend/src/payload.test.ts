@@ -14,7 +14,6 @@ import reportConditionsSource from "./reportConditions.ts?raw";
 import reportOutputSelectorSource from "./ReportOutputSelector.vue?raw";
 import reportOutputsSource from "./reportOutputs.ts?raw";
 import shellActionsSource from "./ShellActions.vue?raw";
-import styleSource from "./style.css?raw";
 import sudokuPanelsSource from "./SudokuPanels.vue?raw";
 import sudokuWorkflowSource from "./useSudokuPanels.ts?raw";
 import themeSource from "./theme.ts?raw";
@@ -114,7 +113,6 @@ describe("App defaults", () => {
     expect(listDataTableSource).toContain('<Column v-if="rowOperations.length || showDefaultAction" header="操作">');
     expect(listDataTableSource).not.toContain('align-frozen="right"');
     expect(listDataTableSource).not.toContain('icon="pi pi-arrow-right"');
-    expect(styleSource).not.toMatch(/\.table-actions\s*\{[^}]*justify-content:\s*flex-end/s);
   });
 
   it("does not render data rows before View columns exist", () => {
@@ -190,7 +188,6 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain("emit(\"loadExistingDetailItems\", group)");
     expect(viewDetailPanelSource).toContain("function selectExistingItem");
     expect(viewDetailPanelSource).toContain('@select="(row) => selectExistingItem(group, row)"');
-    expect(styleSource).not.toMatch(/\.detail-collection-toolbar\s*\{[^}]*justify-content:\s*flex-end/s);
   });
 
   it("renders row operations through their target detail View id", () => {

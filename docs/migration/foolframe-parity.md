@@ -309,6 +309,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `querylistdata.js`. Shared metadata tables no longer freeze the operation
   column to the right or right-align its commands, and the select-existing row
   command is plain `选择` text without an invented arrow.
+- 2026-07-12: restored `view.jade`'s unmodified metadata table headings.
+  Shared Vue tables now use normal 14px dark text on white, zero letter
+  spacing, and no uppercase transformation, so View-provided English labels
+  retain their original casing.
 - 2026-07-10: completed the authenticated Vue browser acceptance after explicit
   permission to read the local CAPTCHA and use the Docker `admin/admin`
   account. Desktop and 390x844 checks exercised the default View-first list,

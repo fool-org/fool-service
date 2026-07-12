@@ -441,11 +441,11 @@ label {
 }
 
 .metadata-data-table .p-datatable-thead > tr > th {
-  background: #f8fafc;
-  color: #475569;
-  font-size: 0.78rem;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+  background: #ffffff;
+  color: #333333;
+  font-size: 14px;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .metadata-data-table .p-datatable-tbody > tr > td {

@@ -853,6 +853,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore the old scrolling list operation column: remove PrimeVue's
       frozen-right behavior, left-align row actions, and keep candidate
       selection as a text-only `选择` command.
+- [x] Preserve View-provided list header text like old Bootstrap tables:
+      restore normal 14px dark headers with zero letter spacing and remove
+      forced uppercase transformation.
 - [x] Keep the active report ViewId protocol-only: remove the invented
       `视图 {id}` dialog subtitle while retaining the id for report model/run/
       save requests.
