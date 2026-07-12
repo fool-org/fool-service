@@ -2692,3 +2692,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   the shared detail panel now selects the first metadata child group and closes
   any candidate picker from the prior object. Tab changes within one object
   remain user-controlled.
+- 2026-07-13: restored `viewWithChart.jade`'s default Data tab when shell
+  navigation re-enters a View, including Home, menu, and browser-history paths
+  that resolve to the same View id. Query, paging, and automatic refresh keep
+  the user's current tab because they do not represent page entry.

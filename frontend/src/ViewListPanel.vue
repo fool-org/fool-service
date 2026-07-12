@@ -36,6 +36,7 @@ const props = defineProps<{
   data?: ListViewResult;
   disabled: boolean;
   errorMessage?: string;
+  navigationRevision: number;
   pageIndex: number;
   pageSize: number;
   panelData: Record<number, { view: ListViewInfo; data: ListViewResult | null; detail?: QueryDataDetailResult | null }>;
@@ -72,7 +73,7 @@ const resultTotalItems = computed(() => listTotalItems(props.data));
 const resultTotalPages = computed(() => listTotalPages(props.data));
 const resultFreshTime = computed(() => listFreshTime(props.data));
 
-watch([currentViewId, templateKind], () => {
+watch([currentViewId, templateKind, () => props.navigationRevision], () => {
   activePane.value = "table";
 });
 

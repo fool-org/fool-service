@@ -310,7 +310,9 @@ describe("App defaults", () => {
     expect(appSource).toContain("viewUsesChartTemplate(viewResponse.value?.data)");
     expect(viewListPanelSource).toContain("legacyChartData(rows.value)");
     expect(viewListPanelSource).toContain("activePane");
-    expect(viewListPanelSource).toContain("watch([currentViewId, templateKind]");
+    expect(appSource).toContain("viewNavigationRevision.value += 1");
+    expect(appSource).toContain(':navigation-revision="viewNavigationRevision"');
+    expect(viewListPanelSource).toContain("watch([currentViewId, templateKind, () => props.navigationRevision]");
     expect(viewListPanelSource).toContain('activePane.value = "table";');
     expect(viewListPanelSource).toContain("<Tabs");
     expect(viewListPanelSource).toContain("<Tab value=\"chart\"");

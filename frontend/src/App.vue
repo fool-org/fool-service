@@ -129,6 +129,7 @@ const readItemViewId = ref(0);
 const pageIndex = ref(1);
 const pageSize = ref(10);
 const viewKeyword = ref("");
+const viewNavigationRevision = ref(0);
 const detailViewId = ref(0);
 const checkCodeKey = ref("");
 const checkCodeValue = ref("");
@@ -659,6 +660,7 @@ async function ensureLegacyShell() {
 }
 
 async function loadViewWorkflow(resetPage = false) {
+  viewNavigationRevision.value += 1;
   stopAutoRefresh();
   showViewReport.value = false;
   showUnconfiguredHome.value = false;
@@ -1082,6 +1084,7 @@ function syncDetailDrafts() {
           :data="dataResponse?.data"
           :disabled="Boolean(pendingAction)"
           :error-message="errorMessage"
+          :navigation-revision="viewNavigationRevision"
           :page-index="pageIndex"
           :panel-data="sudokuPanelData"
           :view="viewResponse?.data"

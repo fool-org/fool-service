@@ -32,9 +32,10 @@ item must land with its matching implementation and validation evidence.
       the CAPTCHA, and Refresh preserves credentials while clearing only the
       CAPTCHA input. Evidence is under
       `artifacts/runs/20260712-login-layout-current/`.
-- [ ] Revalidate the current authenticated desktop and 390x844 View-first
+- [x] Revalidate the current authenticated desktop and 390x844 View-first
       workflow after fresh authorization to read and fill the current local
-      CAPTCHA.
+      CAPTCHA. Evidence is under
+      `artifacts/runs/20260713-authenticated-view-parity/`.
 - [x] Make the Docker runtime doctor fail when core legacy model/view/operation
       schema columns required by the View-first workflow drift.
 - [x] Hydrate legacy View and View-item template file metadata from
@@ -1059,6 +1060,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Match `itemreadonly.js` page-entry state across SPA detail transitions:
       each object/new context starts on its first metadata child tab and closes
       any prior select-existing dialog.
+- [x] Match `viewWithChart.jade` page-entry state when Home, menu, or browser
+      history re-enters the same View: reset to the Data tab without resetting
+      the tab during search, paging, or automatic data refresh.
 - [x] Restore `detailView.jade`'s left-aligned select-existing child Add command
       instead of pushing that single-button toolbar to the right edge.
 - [x] Restore `detailView.jade`'s two-column child operation layout: span the
