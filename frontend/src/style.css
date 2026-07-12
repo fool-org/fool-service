@@ -679,15 +679,6 @@ label {
   min-width: 0;
 }
 
-.detail-collection-tabs .p-tab {
-  gap: 7px;
-}
-
-.detail-collection-tabs .p-tab span {
-  color: #64748b;
-  font-size: 0.72rem;
-}
-
 .detail-collection-tabs .p-tabpanels {
   padding: 14px 0 0;
 }

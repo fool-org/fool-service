@@ -185,7 +185,6 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
         <TabList scrollable>
           <Tab v-for="group in detailItemGroups" :key="groupKey(group)" :value="groupKey(group)">
             {{ groupTitle(group) }}
-            <span>{{ groupItems(group).length }}</span>
           </Tab>
         </TabList>
         <TabPanels>

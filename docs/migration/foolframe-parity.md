@@ -291,6 +291,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   shell and mobile Drawer now render App name/version inline, the invented
   42px initial tile and its computed state are gone, and the desktop header is
   back on the old 50px navbar scale instead of a 72px product topbar.
+- 2026-07-12: matched `detailView.jade` child tab labels to metadata
+  `ItemName` only. Vue no longer adds an unrelated child-row count beside each
+  label, and the count-only tab gap and text styles were deleted.
 - 2026-07-10: completed the authenticated Vue browser acceptance after explicit
   permission to read the local CAPTCHA and use the Docker `admin/admin`
   account. Desktop and 390x844 checks exercised the default View-first list,

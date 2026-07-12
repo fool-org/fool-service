@@ -171,6 +171,7 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain('class="legacy-item-table detail-items-grid"');
     expect(viewDetailPanelSource).toContain('<th v-for="field in groupColumns(group)"');
     expect(viewDetailPanelSource).toContain('<tr v-for="item in groupItems(group)"');
+    expect(viewDetailPanelSource).not.toContain("<span>{{ groupItems(group).length }}</span>");
   });
 
   it("opens select-from-existing collection candidates in the legacy modal flow", () => {
