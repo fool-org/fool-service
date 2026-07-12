@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import Badge from "primevue/badge";
 import Button from "primevue/button";
+import Dialog from "primevue/dialog";
 import Message from "primevue/message";
 import Popover from "primevue/popover";
 import type { MessageInfo } from "./api";
@@ -14,12 +15,14 @@ import {
 } from "./viewWorkflow";
 
 defineProps<{
+  activeMessage: MessageInfo | null;
   errorMessage: string;
   messages: MessageInfo[];
   pending: boolean;
   userName: string;
 }>();
 const emit = defineEmits<{
+  dismissMessage: [];
   logout: [];
   openMessage: [message: MessageInfo];
   refresh: [];
@@ -37,6 +40,7 @@ function canOpenMessage(message: MessageInfo) {
 
 function openMessage(message: MessageInfo) {
   messagePopover.value?.hide();
+  emit("dismissMessage");
   emit("openMessage", message);
 }
 </script>
@@ -83,6 +87,28 @@ function openMessage(message: MessageInfo) {
       </ul>
       <p v-else class="empty-message">暂无消息。</p>
     </Popover>
+
+    <Dialog
+      v-if="activeMessage"
+      :visible="true"
+      modal
+      header="系统消息"
+      :draggable="false"
+      @update:visible="(visible) => { if (!visible) emit('dismissMessage') }"
+    >
+      <p>时间 <span>{{ legacyMessageTime(activeMessage) }}</span></p>
+      <p>{{ legacyMessageContent(activeMessage) }}</p>
+      <template #footer>
+        <Button
+          type="button"
+          label="查看详细"
+          severity="secondary"
+          :disabled="!canOpenMessage(activeMessage)"
+          @click="openMessage(activeMessage)"
+        />
+        <Button type="button" label="确定" severity="secondary" @click="emit('dismissMessage')" />
+      </template>
+    </Dialog>
   </div>
 </template>
 

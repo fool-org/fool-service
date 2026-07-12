@@ -157,6 +157,7 @@ const checkCodeResponse = ref<CommonResponse<CheckCodeResult> | null>(null);
 const subMenuResponse = ref<CommonResponse<LegacySubMenuResult> | null>(null);
 const detailResponse = ref<CommonResponse<QueryDataDetailResult> | null>(null);
 const messageResponse = ref<CommonResponse<GetMessageResult> | null>(null);
+const activeShellMessage = ref<MessageInfo | null>(null);
 const notifyResponse = ref<CommonResponse<GetNotifyResult> | null>(null);
 const errorMessage = ref("");
 const operationResult = ref<{ message: string; success: boolean } | null>(null);
@@ -406,8 +407,12 @@ async function refreshShellStatus(interactive = true) {
       postApi<GetNotifyResult>("/api/v1/message/getnotify", request)
     ]);
     if (user.status === "fulfilled") legacyUserInfoResponse.value = user.value;
-    if (messages.status === "fulfilled" && legacyMessages(messages.value.data).length) {
-      messageResponse.value = messages.value;
+    if (messages.status === "fulfilled") {
+      const fetchedMessages = legacyMessages(messages.value.data);
+      if (fetchedMessages.length) {
+        messageResponse.value = messages.value;
+        activeShellMessage.value = fetchedMessages[0];
+      }
     }
     if (notifies.status === "fulfilled") notifyResponse.value = notifies.value;
     const failed = [user, messages, notifies].find((result) => result.status === "rejected");
@@ -440,6 +445,7 @@ function clearLegacySession() {
   mainInfoResponse.value = null;
   subMenuResponse.value = null;
   messageResponse.value = null;
+  activeShellMessage.value = null;
   notifyResponse.value = null;
   checkCodeResponse.value = null;
   checkCodeKey.value = "";
@@ -916,11 +922,13 @@ function syncDetailDrafts() {
       <ShellActions
         v-if="token"
         class="shell-header-actions"
+        :active-message="activeShellMessage"
         :error-message="shellErrorMessage"
         :messages="messageItems"
         :pending="shellPending || Boolean(pendingAction)"
         :user-name="shellUserName"
         @logout="logout"
+        @dismiss-message="activeShellMessage = null"
         @open-message="openShellMessage"
         @refresh="refreshShellStatus"
       />

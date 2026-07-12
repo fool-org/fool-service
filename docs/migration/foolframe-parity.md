@@ -118,6 +118,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-12: restored old `message.js` delivery behavior in the Vue shell.
+  Each non-empty 15-second `getmsg` poll now immediately opens its first item
+  in a `系统消息` modal with generation time, content, View-first detail
+  navigation, and `确定`; the existing topbar message list remains available
+  as a responsive history entry. Frontend, Compose, runtime-doctor, and harness
+  validation are recorded in the matching delivery evidence.
 - 2026-07-12: made top-level `TempFile` dispatch explicit. Empty/default
   `view`, `viewWithChart`, and `Sudoku` cover the old repository's actual
   top-level templates and route to list, chart, and panel renderers. Unknown

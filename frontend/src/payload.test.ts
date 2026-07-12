@@ -765,9 +765,15 @@ describe("App defaults", () => {
     expect(appSource).toContain("/api/v1/message/getmsg");
     expect(appSource).toContain("messageResponse");
     expect(appSource).toContain("15_000");
-    expect(appSource).toContain("legacyMessages(messages.value.data).length");
+    expect(appSource).toContain("const fetchedMessages = legacyMessages(messages.value.data)");
+    expect(appSource).toContain("activeShellMessage.value = fetchedMessages[0]");
     expect(appSource).toContain('v-if="token"');
     expect(shellActionsSource).toContain("系统消息");
+    expect(shellActionsSource).toContain('v-if="activeMessage"');
+    expect(shellActionsSource).toContain('header="系统消息"');
+    expect(shellActionsSource).toContain('label="查看详细"');
+    expect(shellActionsSource).toContain('label="确定"');
+    expect(shellActionsSource).toContain('emit("dismissMessage")');
     expect(shellActionsSource).toContain('emit("openMessage", message)');
     expect(appSource).not.toContain("<h2>Messages</h2>");
   });
