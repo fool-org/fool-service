@@ -93,15 +93,12 @@ describe("App defaults", () => {
   });
 
   it("renders detail View operations from the loaded detail payload", () => {
-    expect(viewDetailPanelSource).toContain("View Operations");
     expect(appSource).toContain("dataOperations(detailResponse.value?.data)");
     expect(appSource).toContain("detailViewOperations");
     expect(appSource).toContain('@run-view-operation="runViewOperation"');
-    expect(viewDetailPanelSource).toContain("operationParams(operation)");
-    expect(viewDetailPanelSource).toContain("operationParamKey(param, index)");
-    expect(viewDetailPanelSource).toContain("operationParamLabel(param)");
-    expect(viewDetailPanelSource).not.toContain("operation.params");
-    expect(viewDetailPanelSource).not.toContain("param.paramName");
+    expect(viewDetailPanelSource).toContain('class="detail-toolbar"');
+    expect(viewDetailPanelSource).toContain('v-for="operation in detailViewOperations"');
+    expect(viewDetailPanelSource).not.toContain("operationParams(operation)");
     expect(appSource).toContain("legacyRunOperationMessage(response.data)");
     expect(appSource).toContain("operationResult.value = { message, success }");
     expect(viewDetailPanelSource).toContain(":severity=\"operationResult.success ? 'success' : 'error'\"");

@@ -157,12 +157,15 @@ item must land with its matching implementation and validation evidence.
       renders operation labels like `删除` / `保存` instead of mojibake.
 - [x] Hydrate legacy `SW_SYS_OPERATIONVIEW_ITEM` operation parameter metadata
       into View operation DTOs for both list-view and detail-view responses.
-- [x] Render Vue detail operation parameters through shared
-      `Params`/`ParamName` helpers instead of direct template DTO field reads.
+- [x] Keep operation parameter metadata behind shared `Params`/`ParamName`
+      protocol helpers without inventing visible parameter labels; old Web
+      `operation.js` executes detail operations with View/object/operation ids.
 - [x] Restore the old detail view/edit/save state machine from
       `detailView.jade`: existing records start read-only, server `CanEdit`
       controls Edit access, new records start editable, and View operations
       and child write controls stay blocked while the main detail is editing.
+- [x] Restore the old detail action layout by keeping Edit, Save, and
+      metadata-defined View operation buttons in one wrapping toolbar.
 - [x] Honor child-group `DetailViewId`: keep zero-detail groups inline editable
       and route configured child rows through the old
       `/view{DetailViewId}/{DataID}` deep-detail path.

@@ -1000,11 +1000,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   instead of direct template/business DTO field reads. Pascal
   `PrpId`/`ItemName`/`Items`/`Properties` detail payloads now keep rendering
   and save identity aligned with the loaded read-item View metadata.
-- 2026-07-09: Vue detail operation parameter rendering now reads
-  `operationParams`, `operationParamKey`, and `operationParamLabel` helpers
-  instead of direct `operation.params` / `param.paramName` template fields, so
-  Pascal `Params` / `ParamName` metadata stays behind the shared View
-  workflow protocol layer.
+- 2026-07-12: rechecked Vue detail operation rendering against old Web
+  `detailView.jade` and `operation.js`. Edit, Save, and View operations now
+  share one toolbar; non-actionable operation parameter labels were removed
+  because the old client posts only View/object/operation ids. Pascal `Params`
+  / `ParamName` metadata remains available behind shared protocol helpers.
 - 2026-07-09: `QueryFactory.getStateStr` now matches FoolFrame
   `GetStateStr`: it maps enum DB values to display names and returns an empty
   string when the DB value is missing. The previous Java-only reverse
@@ -1630,11 +1630,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `row.values[column.property]` access. Frontend tests guard that `App.vue`
   no longer contains the old view-name routes or `buildQueryRequest`.
 - 2026-07-04: rendered legacy View operations in the primary Vue View
-  workflow. The page now uses `getlistview(viewId)` metadata to show operation
-  buttons beside the selected detail row, executes them through the existing
-  `/api/v1/data/runoperation` legacy DTO, and displays operation parameter
-  names from `operations[].params[]` without introducing a concrete business
-  DTO binding.
+  workflow. The standalone detail page now uses loaded View metadata to show
+  operation buttons beside Edit/Save in the old toolbar order and executes
+  them through the existing `/api/v1/data/runoperation` legacy DTO without
+  introducing a concrete business DTO binding.
 - 2026-07-04: fixed legacy dynamic `BusinessObject` saves to persist the
   referenced object id into ordinary foreign-key columns instead of binding the
   dynamic object itself to JDBC. This keeps the migrated flow metadata-driven:
@@ -2247,8 +2246,9 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Legacy `EditType.Format` row classes applied from `ListDataItem.rowFmt`
 - Metadata-driven Vue lookup editors for BusinessObject fields using legacy
   `inputquery`
-- Metadata-driven Vue operation buttons using legacy View operations and
-  operation parameter metadata
+- Metadata-driven Vue operation buttons in the detail Edit/Save toolbar;
+  legacy operation parameter metadata remains protocol-only because the old
+  Web execution path posts View/object/operation ids
 - No production API console, raw response dump, migration map, editable View
   ID, raw SQL filter, or manual business DTO form
 - Vite and Nginx proxies for `/api/*` to the backend service

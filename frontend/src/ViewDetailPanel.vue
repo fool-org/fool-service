@@ -28,10 +28,7 @@ import {
   itemKey,
   itemValue,
   operationKey,
-  operationLabel,
-  operationParamKey,
-  operationParamLabel,
-  operationParams
+  operationLabel
 } from "./viewWorkflow";
 
 const props = defineProps<{
@@ -136,6 +133,19 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
         :disabled="pending"
         @click="emit('saveSelectedObject')"
       />
+      <template v-if="!isCreatingObject">
+        <Button
+          v-for="operation in detailViewOperations"
+          :key="operationKey(operation)"
+          type="button"
+          :disabled="pending || isEditing"
+          :label="operationLabel(operation)"
+          icon="pi pi-bolt"
+          severity="secondary"
+          outlined
+          @click="emit('runViewOperation', operation)"
+        />
+      </template>
     </div>
 
     <div v-if="isEditing" class="detail-field-grid detail-field-edit">
@@ -174,32 +184,6 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
     <Message v-if="operationResult" :severity="operationResult.success ? 'success' : 'error'" :closable="false">
       {{ operationResult.message }}
     </Message>
-
-    <div v-if="viewCanEdit && selectedObjectId && !isCreatingObject && detailViewOperations.length" class="view-operations">
-      <h3>View Operations</h3>
-      <div class="button-row">
-        <Button
-          v-for="operation in detailViewOperations"
-          :key="operationKey(operation)"
-          type="button"
-          :disabled="pending || isEditing"
-          :label="operationLabel(operation)"
-          icon="pi pi-bolt"
-          severity="secondary"
-          outlined
-          @click="emit('runViewOperation', operation)"
-        />
-      </div>
-      <div v-for="operation in detailViewOperations" :key="`params-${operationKey(operation)}`">
-        <span
-          v-for="(param, index) in operationParams(operation)"
-          :key="operationParamKey(param, index)"
-          class="operation-param"
-        >
-          {{ operationParamLabel(param) }}
-        </span>
-      </div>
-    </div>
 
     <div v-if="selectedObjectId && !isCreatingObject" class="view-items-panel">
       <Tabs v-if="detailItemGroups.length" v-model:value="activeGroupKey" class="detail-collection-tabs">

@@ -614,6 +614,7 @@ label {
 
 .detail-toolbar {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
