@@ -829,6 +829,8 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore old `mkreport.js` output selection as candidate/output-method/
       selected three-column lists, including duplicate field output methods,
       add, reorder, delete, ascending, descending, and cancel-sort actions.
+- [x] Keep report page size at old `mkreport.js`'s protocol-only value of 10;
+      remove the invented output-tab page-size editor and reload command.
 - [x] Restore `view.jade` Chinese report copy for dialog/result titles,
       output/condition/save tabs, column/order controls, grouping, paging, and
       footer actions while preserving protocol values and metadata labels.

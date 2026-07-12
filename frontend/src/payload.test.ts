@@ -646,6 +646,10 @@ describe("App defaults", () => {
   it("builds report output and conditions from View metadata", () => {
     expect(viewReportPanelSource).toContain("/api/v1/report/getmkqview");
     expect(viewReportPanelSource).toContain("ReportOutputSelector");
+    expect(viewReportPanelSource).toContain("const pageSize = 10");
+    expect(viewReportPanelSource).not.toContain("InputNumber");
+    expect(viewReportPanelSource).not.toContain("每页条数");
+    expect(viewReportPanelSource).not.toContain("重新加载");
     expect(viewReportPanelSource).toContain("reportModelCompareTypes");
     expect(viewReportPanelSource).toContain("reportCols");
     expect(viewReportPanelSource).not.toContain("selectedColumnIds");

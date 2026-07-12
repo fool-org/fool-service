@@ -222,6 +222,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   reindexing, movement, removal, and ordering with focused tests. The dedicated
   171-line selector reduces `ViewReportPanel.vue` from 442 to 346 lines, and
   native `select size=10` controls keep the report chunk near its prior size.
+- 2026-07-12: removed Vue's invented report page-size and reload controls from
+  the output tab. Like `mkreport.js`, report requests keep page size 10 as
+  protocol state and load candidate columns once from the active View metadata
+  when the dialog opens.
 - 2026-07-12: restored old Web operation feedback from `operation.js`. Vue now
   projects camel/Pascal `ReturnMsg`, shows a success or error result in the
   detail panel, keeps successful refresh behavior, and clears stale results

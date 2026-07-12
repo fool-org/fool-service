@@ -3,7 +3,6 @@ import { computed, onMounted, ref } from "vue";
 import Button from "primevue/button";
 import Checkbox from "primevue/checkbox";
 import Dialog from "primevue/dialog";
-import InputNumber from "primevue/inputnumber";
 import InputText from "primevue/inputtext";
 import Message from "primevue/message";
 import Select from "primevue/select";
@@ -56,7 +55,7 @@ const props = defineProps<{
 const emit = defineEmits<{ close: [] }>();
 
 const currentPage = ref(1);
-const pageSize = ref(10);
+const pageSize = 10;
 const reportName = ref("");
 const modelResponse = ref<CommonResponse<ReportModelResult> | null>(null);
 const reportResponse = ref<CommonResponse<ReportGridResult> | null>(null);
@@ -187,7 +186,7 @@ function buildRequest(name?: string) {
     token: props.token,
     viewId: props.viewId,
     currentPage: currentPage.value,
-    pageSize: pageSize.value,
+    pageSize,
     reportCols: reportCols.value.map((column, index) => ({ ...column, index })),
     filterExp: filterExp.value,
     reportName: name
@@ -274,13 +273,6 @@ onMounted(() => void loadReportColumns());
       <TabPanels>
         <TabPanel value="output">
           <section class="report-section">
-            <div class="section-heading">
-              <label>
-                每页条数
-                <InputNumber v-model="pageSize" :min="1" :max="200" :use-grouping="false" />
-              </label>
-              <Button type="button" label="重新加载" icon="pi pi-refresh" size="small" severity="secondary" text :disabled="pending" @click="loadReportColumns" />
-            </div>
             <ReportOutputSelector v-if="modelColumns.length" v-model="reportCols" :columns="modelColumns" :disabled="pending" />
             <div v-else class="empty-state compact">暂无报表字段。</div>
           </section>
