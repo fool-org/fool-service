@@ -352,19 +352,45 @@ label {
   min-width: 640px;
 }
 
+.report-condition-editor {
+  overflow-x: auto;
+}
+
 .report-conditions {
   display: grid;
-  gap: 8px;
+}
+
+.report-condition-header,
+.report-condition-row {
+  display: grid;
+  grid-template-columns: 22px 34px 34px 72px 70px minmax(140px, 1fr) minmax(120px, 0.7fr) minmax(140px, 1fr);
+  gap: 6px;
+  align-items: center;
+  min-width: 760px;
+}
+
+.report-condition-header {
+  padding: 5px 0;
+  border-bottom: 2px solid #dddddd;
+  font-size: 0.84rem;
 }
 
 .report-condition-row {
-  display: grid;
-  grid-template-columns: 34px 72px 70px minmax(140px, 1fr) minmax(120px, 0.7fr) minmax(140px, 1fr) 38px;
-  gap: 8px;
-  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid #dddddd;
 }
 
-.report-condition-actions,
+.report-condition-footer {
+  min-width: 760px;
+  padding: 5px 0;
+}
+
+.report-condition-icon.p-button {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+}
+
 .condition-group {
   display: flex;
   gap: 6px;
@@ -861,7 +887,6 @@ label {
 
   .button-row,
   .inline-fields,
-  .report-condition-row,
   .item-add-row {
     grid-template-columns: 1fr;
   }

@@ -658,6 +658,14 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).toContain('v-else-if="condition.columnId && condition.compareId"');
     expect(viewReportPanelSource).not.toContain("const column = modelColumns.value[0]");
     expect(viewReportPanelSource).not.toContain('class="condition-first"');
+    expect(viewReportPanelSource).toContain('class="report-condition-header"');
+    expect(viewReportPanelSource).toContain("<strong>与/或</strong>");
+    expect(viewReportPanelSource).toContain("<strong>字段</strong>");
+    expect(viewReportPanelSource).toContain("<strong>运算</strong>");
+    expect(viewReportPanelSource).toContain("<strong>值</strong>");
+    expect(viewReportPanelSource).toContain('class="report-condition-footer"');
+    expect(viewReportPanelSource).not.toContain(' label="合并分组"');
+    expect(viewReportPanelSource).not.toContain(' label="增加条件"');
     expect(reportConditionsSource).toContain("buildReportConditionFilter");
     expect(reportConditionsSource).toContain("serializeNode");
     expect(viewReportPanelSource).not.toContain("Report Columns JSON");

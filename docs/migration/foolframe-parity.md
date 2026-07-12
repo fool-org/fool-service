@@ -146,6 +146,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   relation cell blank, and creates the value editor only after metadata drives
   a field/comparison choice. Visible relation labels again use `与/或`; the
   request values remain legacy `and/or`.
+- 2026-07-12: restored the compact report condition table from `view.jade`.
+  The condition tab again has icon-only add/group commands, `与/或` / `字段` /
+  `运算` / `值` headers, old operation-column ordering, and add commands above
+  and below the rows. The dense eight-column editor keeps a stable scrollable
+  width on narrow screens instead of overlapping its controls.
 - 2026-07-12: restored Sudoku panel refresh semantics from old Web
   `includes/List.jade`, `querylistdata.js`, and `groupview.js`. Top-level and
   grouped list panels expose `FreshTime` with a text refresh command; targeted

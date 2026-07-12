@@ -294,37 +294,46 @@ onMounted(() => void loadReportColumns());
 
         <TabPanel value="conditions">
           <section class="report-section">
-            <div class="section-heading">
-              <h3>条件</h3>
-              <div class="report-condition-actions">
-                <Button type="button" label="合并分组" icon="pi pi-object-group" size="small" severity="secondary" outlined :disabled="pending || !canGroupConditions" @click="groupSelectedConditions" />
-                <Button type="button" label="增加条件" icon="pi pi-plus" size="small" severity="secondary" outlined :disabled="pending || !modelColumns.length" @click="addCondition" />
+            <div class="report-condition-editor">
+              <div class="report-condition-header">
+                <Button type="button" icon="pi pi-plus" class="report-condition-icon" size="small" severity="secondary" text title="增加条件" aria-label="增加条件" :disabled="pending || !modelColumns.length" @click="addCondition" />
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <Button type="button" icon="pi pi-object-group" class="report-condition-icon" size="small" severity="secondary" text title="合并分组" aria-label="合并分组" :disabled="pending || !canGroupConditions" @click="groupSelectedConditions" />
+                <strong>与/或</strong>
+                <strong>字段</strong>
+                <strong>运算</strong>
+                <strong>值</strong>
               </div>
-            </div>
-            <div v-if="conditions.length" class="report-conditions">
-              <div v-for="(condition, index) in conditions" :key="condition.id" class="report-condition-row" :style="{ marginLeft: `${condition.groupPath.length * 14}px` }">
-                <Checkbox v-model="selectedConditionIds" :input-id="`condition-${condition.id}`" :value="condition.id" :aria-label="`选择条件 ${index + 1}`" />
-                <div class="condition-group">
-                  <span
-                    v-for="(groupId, depthIndex) in condition.groupPath"
-                    :key="groupId"
-                    class="condition-group-marker"
-                    :class="{ 'is-alternate': depthIndex % 2 === 1 }"
-                    aria-hidden="true"
-                  ></span>
-                  <Button v-if="startsConditionGroup(condition, index)" type="button" icon="pi pi-reply" severity="secondary" text size="small" title="拆分分组" aria-label="拆分分组" :disabled="pending" @click="ungroupCondition(condition)" />
+              <div v-if="conditions.length" class="report-conditions">
+                <div v-for="(condition, index) in conditions" :key="condition.id" class="report-condition-row" :style="{ marginLeft: `${condition.groupPath.length * 14}px` }">
+                  <span aria-hidden="true"></span>
+                  <Button type="button" icon="pi pi-trash" class="report-condition-icon" severity="danger" text title="删除条件" aria-label="删除条件" :disabled="pending" @click="removeCondition(index)" />
+                  <Checkbox v-model="selectedConditionIds" :input-id="`condition-${condition.id}`" :value="condition.id" :aria-label="`选择条件 ${index + 1}`" />
+                  <div class="condition-group">
+                    <span
+                      v-for="(groupId, depthIndex) in condition.groupPath"
+                      :key="groupId"
+                      class="condition-group-marker"
+                      :class="{ 'is-alternate': depthIndex % 2 === 1 }"
+                      aria-hidden="true"
+                    ></span>
+                    <Button v-if="startsConditionGroup(condition, index)" type="button" icon="pi pi-reply" class="report-condition-icon" severity="secondary" text size="small" title="拆分分组" aria-label="拆分分组" :disabled="pending" @click="ungroupCondition(condition)" />
+                  </div>
+                  <Select v-if="index" v-model="condition.join" :options="joinOptions" option-label="label" option-value="value" aria-label="条件关系" :disabled="pending" />
+                  <span v-else aria-hidden="true"></span>
+                  <Select v-model="condition.columnId" :options="modelColumnOptions()" option-label="label" option-value="value" aria-label="条件字段" :disabled="pending" @change="updateConditionColumn(condition)" />
+                  <Select v-model="condition.compareId" :options="compareTypeOptions(condition)" option-label="label" option-value="value" aria-label="条件运算" :disabled="pending" />
+                  <Select v-if="condition.columnId && condition.compareId && states(condition).length" v-model="condition.value" :options="stateOptions(condition)" option-label="label" option-value="value" aria-label="条件值" :disabled="pending" />
+                  <InputText v-else-if="condition.columnId && condition.compareId" v-model="condition.value" aria-label="条件值" :disabled="pending" fluid />
+                  <span v-else aria-hidden="true"></span>
                 </div>
-                <Select v-if="index" v-model="condition.join" :options="joinOptions" option-label="label" option-value="value" aria-label="条件关系" :disabled="pending" />
-                <span v-else aria-hidden="true"></span>
-                <Select v-model="condition.columnId" :options="modelColumnOptions()" option-label="label" option-value="value" aria-label="条件字段" :disabled="pending" @change="updateConditionColumn(condition)" />
-                <Select v-model="condition.compareId" :options="compareTypeOptions(condition)" option-label="label" option-value="value" aria-label="条件运算" :disabled="pending" />
-                <Select v-if="condition.columnId && condition.compareId && states(condition).length" v-model="condition.value" :options="stateOptions(condition)" option-label="label" option-value="value" aria-label="条件值" :disabled="pending" />
-                <InputText v-else-if="condition.columnId && condition.compareId" v-model="condition.value" aria-label="条件值" :disabled="pending" fluid />
-                <span v-else aria-hidden="true"></span>
-                <Button type="button" icon="pi pi-trash" severity="danger" text title="删除条件" aria-label="删除条件" :disabled="pending" @click="removeCondition(index)" />
+              </div>
+              <div v-else class="empty-state compact">未设置条件，将包含全部记录。</div>
+              <div class="report-condition-footer">
+                <Button type="button" icon="pi pi-plus" class="report-condition-icon" size="small" severity="secondary" text title="增加条件" aria-label="增加条件" :disabled="pending || !modelColumns.length" @click="addCondition" />
               </div>
             </div>
-            <div v-else class="empty-state compact">未设置条件，将包含全部记录。</div>
           </section>
         </TabPanel>
 

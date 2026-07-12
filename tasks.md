@@ -815,6 +815,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore old report condition-row initialization: add an empty field and
       operator, delay the value editor until a View field is chosen, keep the
       first relation cell blank, and use the old `与/或` labels.
+- [x] Restore the compact old report condition table layout: icon-only add and
+      group controls, operation columns before data fields, visible field
+      headers, and both top and bottom add-condition entry points.
 - [x] Restore the old report dialog interaction: open report setup as a modal
       with output, condition, and save-definition tabs, then switch successful
       runs into a separate paged result state with a back action.
