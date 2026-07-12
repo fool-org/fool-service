@@ -174,6 +174,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   mark is flat blue rather than a purple gradient, and map markers reuse the
   same shared visual language. Neutral surfaces and semantic status colors are
   unchanged.
+- 2026-07-12: aligned the shared SVG chart presentation with old
+  `swchartLine.js`, which left colors to the then-current ECharts default
+  theme. Vue now uses that legacy default color order, legends show only the
+  View-derived series name rather than extra English `line` / `bar` /
+  `scatter` type text, and fallback/accessible labels use Chinese copy.
 - 2026-07-12: restored old Web operation feedback from `operation.js`. Vue now
   projects camel/Pascal `ReturnMsg`, shows a success or error result in the
   detail panel, keeps successful refresh behavior, and clears stale results

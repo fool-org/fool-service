@@ -197,6 +197,10 @@ describe("App defaults", () => {
     expect(legacyChartPanelSource).toContain("<rect");
     expect(legacyChartPanelSource).toContain("<circle");
     expect(legacyChartPanelSource).not.toContain("<meter");
+    expect(legacyChartPanelSource).toContain('"#c23531", "#2f4554", "#61a0a8"');
+    expect(legacyChartPanelSource).toContain("`系列 ${index + 1}`");
+    expect(legacyChartPanelSource).toContain('aria-label="视图数据图表"');
+    expect(legacyChartPanelSource).not.toContain("{{ series.type }}");
   });
 
   it("dispatches known TempFile templates without treating unknown files as lists", () => {

@@ -738,6 +738,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Render top-level `viewWithChart` and Vue Sudoku `linechart` panels through
       one responsive SVG chart component, reusing `legacyChartData` for line,
       bar, and scatter `EditType` metadata.
+- [x] Align the shared SVG chart presentation with old `swchartLine.js`:
+      restore the legacy ECharts default color order, keep legends metadata-
+      name-only, and remove English series-type/debug fallback text.
 - [x] Render Vue Sudoku `Map` panels from child row map `EditType` metadata
       (`16` longitude, `17` latitude, `18` title) on a lazy-loaded interactive
       Leaflet map without binding to concrete business DTO fields.

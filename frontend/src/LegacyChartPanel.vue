@@ -6,7 +6,7 @@ const props = defineProps<{ data: LegacyChartData }>();
 const width = 720;
 const height = 300;
 const plot = { left: 52, right: 18, top: 18, bottom: 46 };
-const colors = ["#4f46e5", "#d97706", "#2563eb", "#dc2626", "#7c3aed", "#15803d"];
+const colors = ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83"];
 const formatter = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
 
 const labelCount = computed(() => Math.max(
@@ -66,13 +66,13 @@ function label(index: number) {
 }
 
 function seriesName(series: LegacyChartSeries, index: number) {
-  return series.name || `Series ${index + 1}`;
+  return series.name || `系列 ${index + 1}`;
 }
 </script>
 
 <template>
   <div class="legacy-chart-pane">
-    <svg class="legacy-chart" :viewBox="`0 0 ${width} ${height}`" role="img" aria-label="View data chart">
+    <svg class="legacy-chart" :viewBox="`0 0 ${width} ${height}`" role="img" aria-label="视图数据图表">
       <g v-for="tick in ticks" :key="tick" class="chart-grid-line">
         <line :x1="plot.left" :x2="width - plot.right" :y1="y(tick)" :y2="y(tick)" />
         <text :x="plot.left - 8" :y="y(tick) + 4" text-anchor="end">{{ formatter.format(tick) }}</text>
@@ -118,7 +118,6 @@ function seriesName(series: LegacyChartSeries, index: number) {
       <li v-for="(series, index) in data.series" :key="`${seriesName(series, index)}-${index}`">
         <span :style="{ backgroundColor: colors[index % colors.length] }"></span>
         <strong>{{ seriesName(series, index) }}</strong>
-        <small>{{ series.type }}</small>
       </li>
     </ul>
   </div>
