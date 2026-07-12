@@ -685,7 +685,6 @@ label {
 
 .detail-collection-toolbar {
   display: flex;
-  justify-content: flex-end;
   margin-bottom: 10px;
 }
 

@@ -900,6 +900,8 @@ item must land with its matching implementation and validation evidence.
       fields/rows/actions as a reusable legacy-style table.
 - [x] Match `detailView.jade` child tab labels exactly: render only metadata
       `ItemName` text and remove the invented row-count badge and its styles.
+- [x] Restore `detailView.jade`'s left-aligned select-existing child Add command
+      instead of pushing that single-button toolbar to the right edge.
 - [x] Keep detail child object ids protocol-only like `detailView.jade`: render
       only metadata `Properties[]` and operation columns while retaining each
       `DataID` for save/delete/detail actions and stable row keys.
