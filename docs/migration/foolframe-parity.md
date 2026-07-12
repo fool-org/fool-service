@@ -263,6 +263,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   tests, TypeScript/Vite build, Compose frontend deployment, runtime doctor,
   and repository harness pass. Browser interaction stopped at a fresh local
   CAPTCHA, so visible Edit/Save replay remains in final browser acceptance.
+- 2026-07-12: restored `detailView.jade`'s inline heading context. Existing
+  details show `视图名 -对象ID`, create routes show `视图名 -新建`, and schema
+  views retain the View title alone. The invented rounded object-ID tag and
+  transient English `Detail` fallback were removed; IDs remain interaction and
+  request state.
 - 2026-07-12: aligned Vue shell menu hierarchy with old Web `leftbar.jade` /
   `menuinfo.js`. Loading `getsubmenu` no longer replaces the top-level menu;
   desktop and mobile render child entries under the selected parent, direct

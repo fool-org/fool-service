@@ -179,6 +179,9 @@ item must land with its matching implementation and validation evidence.
       `detailView.jade`: existing records start read-only, server `CanEdit`
       controls Edit access, new records start editable, and View operations
       and child write controls stay blocked while the main detail is editing.
+- [x] Restore the old detail heading format: show `视图名 -对象ID` or
+      `视图名 -新建` inline, remove the invented rounded ID tag, and localize
+      the transient no-View fallback.
 - [x] Restore the old detail action layout by keeping Edit, Save, and
       metadata-defined View operation buttons in one wrapping toolbar.
 - [x] Restore old Web Chinese detail interaction copy for edit/save,

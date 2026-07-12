@@ -9,7 +9,6 @@ import TabList from "primevue/tablist";
 import TabPanel from "primevue/tabpanel";
 import TabPanels from "primevue/tabpanels";
 import Tabs from "primevue/tabs";
-import Tag from "primevue/tag";
 import type { ListDataItem, ListDataValue, OperationInfo, QueryDataDetailDataItem, QueryDataDetailItemGroup, TableColumnInfo } from "./api";
 import ListDataTable from "./ListDataTable.vue";
 import MetadataFieldEditor from "./MetadataFieldEditor.vue";
@@ -111,8 +110,7 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
 <template>
   <article class="panel view-detail-panel">
     <div class="panel-heading">
-      <h2>{{ title }}</h2>
-      <Tag :value="selectedObjectId || '未选择记录'" :severity="selectedObjectId ? 'secondary' : 'warn'" rounded />
+      <h2>{{ isCreatingObject ? `${title} -新建` : selectedObjectId ? `${title} -${selectedObjectId}` : title }}</h2>
     </div>
 
     <div v-if="selectedObjectId && (viewCanEdit || isCreatingObject)" class="detail-toolbar">

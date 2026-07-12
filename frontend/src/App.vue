@@ -190,7 +190,7 @@ const { enumOptions, loadFieldEnums: loadFieldEnumsFor } = useFieldEnums(token, 
 
 const detailDataRows = computed(() => detailResultSimpleData(detailResponse.value?.data));
 const currentReadItemView = computed(() => readItemViewFor(Number(detailViewId.value)));
-const detailTitle = computed(() => viewDisplayTitle(currentReadItemView.value, "Detail"));
+const detailTitle = computed(() => viewDisplayTitle(currentReadItemView.value, "详情"));
 const detailRows = computed(() => renderedDetailFields(currentReadItemView.value, detailDataRows.value));
 const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() =>
   renderedDetailGroups(currentReadItemView.value, detailResultItems(detailResponse.value?.data))

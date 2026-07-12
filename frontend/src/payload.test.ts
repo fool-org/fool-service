@@ -87,7 +87,7 @@ describe("App defaults", () => {
     expect(listDataTableSource).toContain("rowValue(row, column)");
     expect(appSource).toContain("detailTitle");
     expect(appSource).toContain(':title="detailTitle"');
-    expect(viewDetailPanelSource).toContain("<h2>{{ title }}</h2>");
+    expect(viewDetailPanelSource).toContain("<h2>{{ isCreatingObject ?");
     expect(viewDetailPanelSource).not.toContain("<h2>Detail</h2>");
   });
 
@@ -132,6 +132,15 @@ describe("App defaults", () => {
     expect(appSource).toContain("legacyRunOperationMessage(response.data)");
     expect(appSource).toContain("operationResult.value = { message, success }");
     expect(viewDetailPanelSource).toContain(":severity=\"operationResult.success ? 'success' : 'error'\"");
+  });
+
+  it("renders the old detail heading with object or create context", () => {
+    expect(appSource).toContain('viewDisplayTitle(currentReadItemView.value, "详情")');
+    expect(viewDetailPanelSource).toContain("`${title} -新建`");
+    expect(viewDetailPanelSource).toContain("`${title} -${selectedObjectId}`");
+    expect(viewDetailPanelSource).not.toContain("primevue/tag");
+    expect(viewDetailPanelSource).not.toContain("未选择记录");
+    expect(appSource).not.toContain('viewDisplayTitle(currentReadItemView.value, "Detail")');
   });
 
   it("keeps existing details read-only until CanEdit starts an edit session", () => {
