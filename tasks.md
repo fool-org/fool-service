@@ -852,6 +852,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `view.jade`'s compact right-aligned list toolbar: keep the query
       prompt inside the search field, align actions on one desktop row, and
       let only the input occupy a full row on narrow screens.
+- [x] Match `view.jade` list toolbar commands as text-only controls: remove
+      invented search, chart, and create icons while retaining metadata names,
+      order, targets, and disabled states.
 - [x] Restore the old scrolling list operation column: remove PrimeVue's
       frozen-right behavior, left-align row actions, and keep candidate
       selection as a text-only `选择` command.

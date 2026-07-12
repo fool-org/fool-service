@@ -316,6 +316,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-12: restored `viewWithChart.jade`'s text-only data/chart tabs. Vue
   keeps the old `数据` then `图表` order and data-first state without adding
   table/chart icons or icon-only spacing.
+- 2026-07-12: restored `view.jade`'s text-only list toolbar commands. Vue no
+  longer adds search, chart, or plus icons to `查找`, `统计`, and metadata
+  create operations; command order, View targets, and disabled states are
+  unchanged.
 - 2026-07-10: completed the authenticated Vue browser acceptance after explicit
   permission to read the local CAPTCHA and use the Docker `admin/admin`
   account. Desktop and 390x844 checks exercised the default View-first list,

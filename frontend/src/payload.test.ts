@@ -61,6 +61,9 @@ describe("App defaults", () => {
     expect(mainViewSource).not.toContain("<label>");
     expect(mainViewSource).toContain('label="查找"');
     expect(mainViewSource).toContain('label="统计"');
+    expect(mainViewSource).not.toContain('icon="pi pi-search"');
+    expect(mainViewSource).not.toContain('icon="pi pi-chart-bar"');
+    expect(mainViewSource).not.toContain('icon="pi pi-plus"');
     expect(appSource).toContain('v-model:keyword="viewKeyword"');
     expect(mainViewSource).toContain('v-model="keyword"');
     expect(appSource).toContain("const pageSize = ref(10)");
