@@ -805,9 +805,11 @@ describe("App defaults", () => {
     expect(appSource).toContain("legacyUserName");
     expect(appSource).toContain("legacyUserAvatar");
     expect(shellActionsSource).toContain("userName");
+    expect(shellActionsSource).toContain('class="shell-user-name"');
     expect(shellActionsSource).toContain('v-if="userAvatar"');
     expect(shellActionsSource).toContain('class="shell-avatar"');
-    expect(shellActionsSource).toMatch(/\.shell-avatar\s*\{[^}]*width: 50px;[^}]*height: 50px;/s);
+    expect(shellActionsSource).toMatch(/\.shell-user > i,\s*\.shell-avatar\s*\{[^}]*width: 50px;[^}]*height: 50px;/s);
+    expect(shellActionsSource).toMatch(/\.shell-user-name\s*\{[^}]*color: #337ab7;[^}]*padding: 10px 15px;/s);
     expect(appSource).toContain("安全退出");
     expect(appSource).toContain('aria-label="Mobile safe logout"');
     expect(appSource.indexOf("安全退出")).toBeGreaterThan(appSource.indexOf("<LegacyMenuNav"));

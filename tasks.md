@@ -911,6 +911,8 @@ item must land with its matching implementation and validation evidence.
       child rows replace the invented indigo rounded navigation treatment.
 - [x] Restore `default.jade`'s actual `h2 > small` brand typography: 21px
       application name with a 65% version replaces the invented 24px/12px pair.
+- [x] Restore `default.jade` user-area metrics: the name uses the old 10px blue
+      link treatment, and the empty-avatar fallback keeps the old 50x50 slot.
 - [x] Restore the compact text-only Bootstrap navbar brand: remove the invented
       42px initial tile, render App name/version inline, and reduce the desktop
       shell header to the old 50px scale while reusing it in the mobile Drawer.

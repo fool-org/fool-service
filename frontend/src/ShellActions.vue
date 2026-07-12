@@ -33,7 +33,7 @@ function openMessage(message: MessageInfo) {
     <span class="shell-user">
       <img v-if="userAvatar" class="shell-avatar" :src="userAvatar" alt="" />
       <i v-else class="pi pi-user"></i>
-      {{ userName || "已登录" }}
+      <span class="shell-user-name">{{ userName || "已登录" }}</span>
     </span>
 
     <Dialog
@@ -73,20 +73,38 @@ function openMessage(message: MessageInfo) {
   max-width: 180px;
   overflow: hidden;
   display: inline-flex;
-  gap: 7px;
+  gap: 0;
   align-items: center;
-  color: #334155;
-  font-size: 0.84rem;
-  font-weight: 750;
-  text-overflow: ellipsis;
+  color: #333333;
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.42857143;
   white-space: nowrap;
 }
 
+.shell-user > i,
 .shell-avatar {
+  flex: 0 0 50px;
   width: 50px;
   height: 50px;
+}
+
+.shell-user > i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shell-avatar {
   border-radius: 50%;
   object-fit: cover;
+}
+
+.shell-user-name {
+  overflow: hidden;
+  color: #337ab7;
+  padding: 10px 15px;
+  text-overflow: ellipsis;
 }
 
 @media (max-width: 640px) {

@@ -153,6 +153,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   Bootstrap typography. Desktop and Drawer now share the old 21px/500/1.1
   application heading and 65% normal-weight version instead of a 24px strong
   label with a fixed 12px version and invented 8px gap.
+- 2026-07-12: restored the old right-side user presentation metrics. User text
+  now follows Bootstrap's 10px normal-weight blue link treatment and 10px/15px
+  padding instead of a custom bold slate label. The empty-avatar icon fallback
+  now occupies the same fixed 50x50 slot as the old `.avtar` image.
 - 2026-07-12: restored old `message.js` delivery behavior in the Vue shell.
   Each non-empty 15-second `getmsg` poll now immediately opens its first item
   in a `系统消息` modal with generation time, content, View-first detail
