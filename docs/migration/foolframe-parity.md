@@ -2354,6 +2354,9 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   prompt remains inside the input instead of becoming a visible form label,
   desktop controls align to the right, and the input alone expands on narrow
   screens.
+- Shared list/detail panels use the old Bootstrap 3 geometry: `#ddd` borders,
+  4px corners, `#f5f5f5` heading bands, 15px content spacing, and a subtle
+  one-pixel shadow. The invented 12px floating-card treatment is removed.
 - Shared Vue row tables render only after View columns exist, so data rows from
   `querydata` cannot draw a page or row actions without a rendered View shape.
 - A default Vue child collection workflow that renders from

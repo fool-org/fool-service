@@ -766,11 +766,11 @@ label {
   gap: 14px;
   align-content: start;
   min-width: 0;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
   background: #ffffff;
-  padding: 16px;
-  box-shadow: 0 12px 34px rgba(15, 23, 42, 0.06);
+  padding: 0 15px 15px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
 }
 
 .panel-heading {
@@ -778,19 +778,18 @@ label {
   gap: 12px;
   align-items: center;
   justify-content: space-between;
+  margin: 0 -15px;
+  border-bottom: 1px solid #dddddd;
+  border-radius: 3px 3px 0 0;
+  background: #f5f5f5;
+  padding: 10px 15px;
 }
 
 .panel-heading h2 {
   margin: 0;
-  color: #0f172a;
-  font-size: 1rem;
-  line-height: 1.25;
-}
-
-.panel-heading span {
-  color: #64748b;
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-  font-size: 0.72rem;
+  color: #333333;
+  font-size: 14px;
+  line-height: 1.42857143;
 }
 
 .button-row,

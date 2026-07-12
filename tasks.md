@@ -209,6 +209,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore old Web list action order and static copy: input condition,
       search, report, then metadata create operations, with Chinese operation,
       empty, paging, and refresh labels while preserving metadata text.
+- [x] Restore Bootstrap 3 panel chrome for list/detail pages: 4px corners,
+      light gray bordered headings, 15px body spacing, and the old subtle
+      one-pixel shadow instead of modern floating-card styling.
 - [x] Expose FoolFrame Pascal `runoperation` result aliases (`Value`,
       `IsSuccess`, `ReturnObjId`, `ReturnViewId`, `ReturnMsg`) and make Vue
       operation refresh logic read success through a shared protocol helper.
