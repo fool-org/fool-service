@@ -374,6 +374,9 @@ describe("App defaults", () => {
     expect(metadataFieldEditorSource).toContain("<Textarea v-else-if");
     expect(metadataFieldEditorSource).toContain("<Checkbox v-model=\"checked\"");
     expect(metadataFieldEditorSource).toContain("next ? \"true\" : \"false\"");
+    expect(metadataFieldEditorSource).toContain('checked ? "是" : "否"');
+    expect(metadataFieldEditorSource).not.toContain('<small v-if="modelValue">');
+    expect(metadataFieldEditorSource).toContain('response.message || "查找失败。"');
   });
 
   it("does not keep ViewName as a frontend lookup or workflow shortcut", () => {

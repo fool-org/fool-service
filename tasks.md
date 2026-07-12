@@ -566,6 +566,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Render Vue Boolean / CheckBox metadata fields as native checkboxes from
       View field metadata and coerce legacy Boolean string save values by
       `PropertyType.Boolean` during dynamic persistence.
+- [x] Align shared metadata editor display with old `setextype.js`: render
+      Boolean labels as `是` / `否`, keep BusinessObject ids protocol-only,
+      and use a Chinese lookup-failure fallback.
 - [x] Keep Vue input-query item display helpers stable for empty legacy
       candidate entries so the first-screen View workflow does not throw an
       `itemId` render error while remaining metadata-driven.

@@ -90,10 +90,10 @@ async function searchLookup() {
     );
     lookupOptions.value = legacyInputQueryItems(response.data);
     if (response.code !== 0) {
-      lookupError.value = response.message || "Lookup failed.";
+      lookupError.value = response.message || "查找失败。";
     }
   } catch (error) {
-    lookupError.value = error instanceof Error ? error.message : "Lookup failed.";
+    lookupError.value = error instanceof Error ? error.message : "查找失败。";
   } finally {
     lookupPending.value = false;
   }
@@ -124,12 +124,11 @@ function selectLookup(item: InputQueryItem) {
       @change="selectLookup($event.value.item)"
     />
     <small v-if="lookupError" class="metadata-lookup-error">{{ lookupError }}</small>
-    <small v-if="modelValue">{{ modelValue }}</small>
   </div>
   <Textarea v-else-if="isMultilineField(field)" v-model="value" rows="4" auto-resize fluid />
   <span v-else-if="fieldInputType(field) === 'checkbox'" class="checkbox-field">
     <Checkbox v-model="checked" binary />
-    <span>{{ checked ? "Yes" : "No" }}</span>
+    <span>{{ checked ? "是" : "否" }}</span>
   </span>
   <InputText
     v-else

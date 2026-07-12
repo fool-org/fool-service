@@ -924,6 +924,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `ModelDataService` coerces Boolean string values by `PropertyType.Boolean`
   before dynamic persistence so MySQL `BIT` columns do not require a concrete
   business DTO binding.
+- 2026-07-12: aligned shared metadata editor display with old `setextype.js`.
+  Boolean controls now show `是` / `否`; BusinessObject ids remain the hidden
+  selected value instead of being repeated as visible UI text, while lookup
+  failures use a Chinese fallback and preserve server-provided error messages.
 - 2026-07-09: Vue metadata field editors keep legacy `ItemEditType` picker
   names (`DatePicker`, `TimePicker`, and `DateTimePicker`) as fallback input
   hints only when `PrpType` / `PropertyType` is absent. When View field type
