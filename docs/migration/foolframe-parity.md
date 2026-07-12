@@ -198,6 +198,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   View-defined child tabs remain visible on `/new{id}`; every child-add path is
   stopped before requests and opens the old `操作提示` success-style modal with
   `请先保存当前内容，再新建子项` and an explicit `确定` action.
+- 2026-07-12: restored `DetailViewId` child-row action conditions. Inline
+  `编辑` is hidden for select-existing groups, non-select groups retain their
+  deep Edit link, and every group with a detail View regains the separate
+  `详细` link. Operation and empty-state column spans follow that action matrix.
 - 2026-07-12: restored old `message.js` delivery behavior in the Vue shell.
   Each non-empty 15-second `getmsg` poll now immediately opens its first item
   in a `系统消息` modal with generation time, content, View-first detail

@@ -177,6 +177,14 @@ function displayedItemValue(group: QueryDataDetailItemGroup, item: QueryDataDeta
   if (fieldInputType(field) === "checkbox") return value === "true" || value === "1" ? "是" : "否";
   return value;
 }
+
+function detailItemHref(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) {
+  return `/view${groupDetailViewId(group)}/${itemDataId(item)}`;
+}
+
+function childActionColumnCount(group: QueryDataDetailItemGroup) {
+  return groupDetailViewId(group) ? 3 : 2;
+}
 </script>
 
 <template>
@@ -353,7 +361,7 @@ function displayedItemValue(group: QueryDataDetailItemGroup, item: QueryDataDeta
                 <thead>
                   <tr>
                     <th v-for="field in groupColumns(group)" :key="fieldKey(field)">{{ fieldTitle(field) }}</th>
-                    <th colspan="2">操作</th>
+                    <th :colspan="childActionColumnCount(group)">操作</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -384,7 +392,7 @@ function displayedItemValue(group: QueryDataDetailItemGroup, item: QueryDataDeta
                         :disabled="pending"
                         @click="toggleDetailItem(group, item)"
                       />
-                      <a v-if="groupDetailViewId(group)" class="detail-item-link" :href="`/view${groupDetailViewId(group)}/${itemDataId(item)}`">
+                      <a v-if="!groupSelectFromExists(group) && groupDetailViewId(group)" class="detail-item-link" :href="detailItemHref(group, item)">
                         <i class="pi pi-arrow-right" aria-hidden="true"></i>
                         编辑
                       </a>
@@ -392,9 +400,15 @@ function displayedItemValue(group: QueryDataDetailItemGroup, item: QueryDataDeta
                     <td>
                       <Button type="button" label="删除" icon="pi pi-trash" size="small" severity="danger" outlined :disabled="pending" @click="deleteItem(group, item)" />
                     </td>
+                    <td v-if="groupDetailViewId(group)">
+                      <a class="detail-item-link" :href="detailItemHref(group, item)">
+                        <i class="pi pi-eye" aria-hidden="true"></i>
+                        详细
+                      </a>
+                    </td>
                   </tr>
                   <tr v-if="!groupItems(group).length">
-                    <td :colspan="groupColumns(group).length + 2">暂无子项。</td>
+                    <td :colspan="groupColumns(group).length + childActionColumnCount(group)">暂无子项。</td>
                   </tr>
                 </tbody>
               </table>

@@ -204,7 +204,10 @@ describe("App defaults", () => {
 
   it("uses child DetailViewId for deep editing instead of inline editors", () => {
     expect(viewDetailPanelSource).toContain("groupDetailViewId(group)");
-    expect(viewDetailPanelSource).toContain(':href="`/view${groupDetailViewId(group)}/${itemDataId(item)}`"');
+    expect(viewDetailPanelSource).toContain("function detailItemHref");
+    expect(viewDetailPanelSource).toContain('v-if="!groupSelectFromExists(group) && groupDetailViewId(group)"');
+    expect(viewDetailPanelSource).toContain(':href="detailItemHref(group, item)"');
+    expect(viewDetailPanelSource).toContain("详细");
     expect(viewDetailPanelSource).toContain('editingItemKey === itemKey(group, item) && !groupDetailViewId(group)');
   });
 
@@ -214,8 +217,8 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain('<TabPanel v-for="group in detailItemGroups"');
     expect(viewDetailPanelSource).toContain('class="legacy-item-table detail-items-grid"');
     expect(viewDetailPanelSource).toContain('<th v-for="field in groupColumns(group)"');
-    expect(viewDetailPanelSource).toContain('<th colspan="2">操作</th>');
-    expect(viewDetailPanelSource).toContain(':colspan="groupColumns(group).length + 2"');
+    expect(viewDetailPanelSource).toContain('<th :colspan="childActionColumnCount(group)">操作</th>');
+    expect(viewDetailPanelSource).toContain(':colspan="groupColumns(group).length + childActionColumnCount(group)"');
     expect(viewDetailPanelSource).not.toContain('class="detail-item-actions"');
     expect(viewDetailPanelSource).toContain('<tr v-for="item in groupItems(group)"');
     expect(viewDetailPanelSource).not.toContain("<span>{{ groupItems(group).length }}</span>");
