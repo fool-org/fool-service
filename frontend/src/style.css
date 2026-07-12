@@ -582,6 +582,20 @@ label {
   overflow-wrap: anywhere;
 }
 
+.detail-item-link {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  color: #4338ca;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.detail-item-link:hover {
+  text-decoration: underline;
+}
+
 .view-items-panel {
   display: grid;
   gap: 10px;

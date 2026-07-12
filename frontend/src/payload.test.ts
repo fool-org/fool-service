@@ -112,6 +112,12 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain("isEditing.value = props.isCreatingObject");
   });
 
+  it("uses child DetailViewId for deep editing instead of inline editors", () => {
+    expect(viewDetailPanelSource).toContain("groupDetailViewId(group)");
+    expect(viewDetailPanelSource).toContain(':href="`/view${groupDetailViewId(group)}/${itemDataId(item)}`"');
+    expect(viewDetailPanelSource).toContain('v-if="isEditing && !groupDetailViewId(group)"');
+  });
+
   it("renders row operations through their target detail View id", () => {
     expect(viewListPanelSource).toContain("rowOperations(operations.value)");
     expect(viewListPanelSource).toContain(':row-operations="rowItems"');

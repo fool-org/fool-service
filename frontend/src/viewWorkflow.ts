@@ -616,6 +616,10 @@ export function groupSelectFromExists(group: QueryDataDetailItemGroup) {
   return group.selectFromExists ?? group.SelectFromExists ?? false;
 }
 
+export function groupDetailViewId(group: QueryDataDetailItemGroup) {
+  return Number(group.detailViewId ?? group.DetailViewId ?? 0) || 0;
+}
+
 export function createOperations(operations: OperationInfo[] = []) {
   return operations.filter((operation) => operationRequiresSelect(operation) === false && operationTargetViewId(operation) > 0);
 }

@@ -12,6 +12,7 @@ import {
   fieldKey,
   fieldTitle,
   groupColumns,
+  groupDetailViewId,
   groupItems,
   groupKey,
   groupSelectFromExists,
@@ -232,7 +233,7 @@ const emit = defineEmits<{
           >
             <span>{{ itemDataId(item) }}</span>
             <template v-for="field in groupColumns(group)" :key="fieldKey(field)">
-              <label v-if="isEditing">
+              <label v-if="isEditing && !groupDetailViewId(group)">
                 {{ fieldTitle(field) }}
                 <MetadataFieldEditor
                   :model-value="childDraftValue(group, item, field)"
@@ -251,7 +252,15 @@ const emit = defineEmits<{
                 <strong>{{ itemValue(item, field) }}</strong>
               </span>
             </template>
-            <Button v-if="isEditing" type="button" label="Save" icon="pi pi-save" size="small" :disabled="pending" @click="emit('updateDetailItem', group, item)" />
+            <Button v-if="isEditing && !groupDetailViewId(group)" type="button" label="Save" icon="pi pi-save" size="small" :disabled="pending" @click="emit('updateDetailItem', group, item)" />
+            <a
+              v-if="groupDetailViewId(group)"
+              class="detail-item-link"
+              :href="`/view${groupDetailViewId(group)}/${itemDataId(item)}`"
+            >
+              <i class="pi pi-arrow-right" aria-hidden="true"></i>
+              Edit
+            </a>
             <Button v-if="isEditing" type="button" label="Delete" icon="pi pi-trash" size="small" severity="danger" outlined :disabled="pending" @click="emit('deleteDetailItem', group, item)" />
           </div>
         </template>

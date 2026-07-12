@@ -31,6 +31,7 @@ import {
   fieldType,
   fieldTitle,
   groupColumns,
+  groupDetailViewId,
   groupItems,
   groupKey,
   groupSelectFromExists,
@@ -869,6 +870,8 @@ describe("view workflow helpers", () => {
     expect(groupSelectFromExists({ selectFromExists: true })).toBe(true);
     expect(groupSelectFromExists({ SelectFromExists: true })).toBe(true);
     expect(groupSelectFromExists({ selectFromExists: false, SelectFromExists: true })).toBe(false);
+    expect(groupDetailViewId({ DetailViewId: 301 })).toBe(301);
+    expect(groupDetailViewId({ detailViewId: 0, DetailViewId: 301 })).toBe(0);
   });
 
   it("splits legacy list create and row operations", () => {

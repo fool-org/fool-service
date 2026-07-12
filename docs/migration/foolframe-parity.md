@@ -118,6 +118,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-12: restored old Web child `DetailViewId` branching from
+  `detailView.jade`. Child groups with no detail View remain inline editable;
+  groups with a configured detail View render read-only row values and an Edit
+  link to `/view{DetailViewId}/{DataID}`, avoiding two competing edit paths.
+  Camel/Pascal detail View aliases share one helper. All 132 frontend tests,
+  TypeScript/Vite build, and repository harness pass; the deep-link route is
+  already covered by the Docker runtime doctor.
 - 2026-07-12: removed Vue's invented main-list `New Row` and default `Open`
   commands. Matching old Web `view.jade` / `querylistdata.js`, create and row
   actions now render only from View `Operations` and their `RequireSelect` /

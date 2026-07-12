@@ -160,6 +160,9 @@ item must land with its matching implementation and validation evidence.
       `detailView.jade`: existing records start read-only, server `CanEdit`
       controls Edit access, new records start editable, and View operations
       and child write controls stay blocked while the main detail is editing.
+- [x] Honor child-group `DetailViewId`: keep zero-detail groups inline editable
+      and route configured child rows through the old
+      `/view{DetailViewId}/{DataID}` deep-detail path.
 - [x] Persist dynamic `BusinessObject` fields through their foreign-key ids so
       legacy `runoperation` update saves stay metadata-driven and do not bind
       to concrete business DTOs.
