@@ -90,6 +90,7 @@ import {
   listFreshTime,
   listPageIndex,
   listRows,
+  mergeItemPropertyChange,
   legacyChartData,
   listTotalItems,
   listTotalPages,
@@ -138,6 +139,7 @@ import {
   viewUsesSudokuTemplate,
   viewUsesChartTemplate,
   viewTemplateKind,
+  withGroupItems,
   withDraftFieldValue,
   viewOperations
 } from "./viewWorkflow";
@@ -640,6 +642,13 @@ describe("view workflow helpers", () => {
       key: "items",
       delteItems: [{ itemId: "2001", isExist: true }]
     });
+    expect(mergeItemPropertyChange(
+      [buildDeletedItemProperty(group, item)],
+      buildDeletedItemProperty(group, { ...item, dataId: "2002" })
+    )).toMatchObject([{
+      key: "items",
+      delteItems: [{ itemId: "2001" }, { itemId: "2002" }]
+    }]);
   });
 
   it("reads child group render and save values through shared aliases", () => {
@@ -687,6 +696,11 @@ describe("view workflow helpers", () => {
         }
       ]
     });
+  });
+
+  it("overrides both child-item aliases when a staged group becomes empty", () => {
+    const group = { Items: [{ DataId: "2001" }] };
+    expect(groupItems(withGroupItems(group, []))).toEqual([]);
   });
 
   it("builds existing child updates from rendered group columns instead of data DTO values", () => {

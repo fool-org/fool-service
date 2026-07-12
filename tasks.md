@@ -922,6 +922,9 @@ item must land with its matching implementation and validation evidence.
       old `操作成功`/`操作失败` summary, return message, and explicit close.
 - [x] Restore `operation.js` response timing by showing the result immediately;
       remove Vue-only success refreshes of both list and detail data.
+- [x] Restore `detailview.js` child-delete staging: hide deleted rows locally,
+      merge same-group `DelteItems`, and submit them only with the parent Save;
+      remove the Vue-only confirmation and immediate save/query cycle.
 - [x] Restore the compact text-only Bootstrap navbar brand: remove the invented
       42px initial tile, render App name/version inline, and reduce the desktop
       shell header to the old 50px scale while reusing it in the mobile Drawer.

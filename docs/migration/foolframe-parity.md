@@ -173,6 +173,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   extra list and detail queries after a successful operation; like
   `operation.js`, it presents the response immediately and leaves refresh to the
   existing query, paging, and timer interactions.
+- 2026-07-12: restored `detailview.js` child-delete staging. Deleting a child
+  now hides it from the local detail collection and merges its `DelteItems`
+  payload by group; the parent Save submits all staged deletes. The Vue-only
+  confirmation and immediate `saveObj`/`queryDetail` cycle were removed.
 - 2026-07-12: restored old `message.js` delivery behavior in the Vue shell.
   Each non-empty 15-second `getmsg` poll now immediately opens its first item
   in a `系统消息` modal with generation time, content, View-first detail

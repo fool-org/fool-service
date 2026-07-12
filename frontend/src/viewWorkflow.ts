@@ -619,6 +619,10 @@ export function groupItems(group: QueryDataDetailItemGroup) {
   return firstList(group.items, group.Items);
 }
 
+export function withGroupItems(group: QueryDataDetailItemGroup, items: QueryDataDetailDataItem[]): QueryDataDetailItemGroup {
+  return { ...group, items, Items: items };
+}
+
 export function groupTitle(group: QueryDataDetailItemGroup) {
   return firstDisplayValue([group.itemName, group.ItemName, group.name, group.Name, group.prpId, group.PrpId]);
 }
@@ -1011,6 +1015,23 @@ export function buildDeletedItemProperty(
       }
     ]
   };
+}
+
+export function mergeItemPropertyChange(
+  changes: SaveItemProperty[],
+  change: SaveItemProperty
+): SaveItemProperty[] {
+  const key = change.key || "";
+  const index = changes.findIndex((item) => item.key === key);
+  if (!key || index < 0) return [...changes, change];
+  const current = changes[index];
+  const merged = {
+    key,
+    items: [...(current.items || []), ...(change.items || [])],
+    delteItems: [...(current.delteItems || []), ...(change.delteItems || [])],
+    addedItems: [...(current.addedItems || []), ...(change.addedItems || [])]
+  };
+  return changes.map((item, itemIndex) => itemIndex === index ? merged : item);
 }
 
 export function buildAddedItemProperty(

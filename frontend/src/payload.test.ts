@@ -83,7 +83,17 @@ describe("App defaults", () => {
     expect(appSource).toContain("async function startNewObject");
     expect(appSource).toContain("async function addDetailItem");
     expect(appSource).toContain("async function updateDetailItem");
-    expect(appSource).toContain("async function deleteDetailItem");
+    expect(appSource).toContain("function deleteDetailItem");
+    expect(appSource).toContain("pendingItemProperties");
+    expect(appSource).toContain("mergeItemPropertyChange");
+    expect(appSource).toContain("saveObj(pendingItemProperties.value)");
+    const deleteHandlerSource = appSource.slice(
+      appSource.indexOf("function deleteDetailItem"),
+      appSource.indexOf("async function loadFieldEnums")
+    );
+    expect(deleteHandlerSource).not.toContain("window.confirm");
+    expect(deleteHandlerSource).not.toContain("saveObj(");
+    expect(deleteHandlerSource).not.toContain("queryDetail()");
     expect(appSource).toContain("viewColumns(viewResponse.value?.data)");
     expect(appSource).toContain("detailDrafts");
     expect(appSource).toContain("childDrafts");
