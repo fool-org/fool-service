@@ -909,7 +909,7 @@ function syncDetailDrafts() {
 
       <div class="desktop-navigation">
         <nav class="nav-list nav-list-horizontal" aria-label="Main">
-          <button type="button" @click="openPrimarySection">Home</button>
+          <button type="button" @click="openPrimarySection">首页</button>
         </nav>
         <LegacyMenuNav
           :current-view-id="currentViewId"
@@ -940,7 +940,7 @@ function syncDetailDrafts() {
     <main class="workspace">
       <header class="topbar">
         <div class="topbar-title">
-          <Button class="mobile-menu-button" icon="pi pi-bars" severity="secondary" text aria-label="Open navigation" @click="mobileMenuOpen = true" />
+          <Button class="mobile-menu-button" icon="pi pi-bars" severity="secondary" text aria-label="打开导航" @click="mobileMenuOpen = true" />
           <div>
           <h1>{{ pageViewTitle }}</h1>
           <p>{{ pageViewName }}</p>
@@ -948,7 +948,7 @@ function syncDetailDrafts() {
         </div>
       </header>
 
-      <Drawer v-model:visible="mobileMenuOpen" position="left" class="mobile-navigation" header="Navigation">
+      <Drawer v-model:visible="mobileMenuOpen" position="left" class="mobile-navigation" header="导航">
         <div class="brand drawer-brand">
           <span class="brand-mark">{{ shellAppMark }}</span>
           <div>
@@ -957,7 +957,7 @@ function syncDetailDrafts() {
           </div>
         </div>
         <nav class="nav-list" aria-label="Mobile main">
-          <button type="button" @click="openMobilePrimarySection">Home</button>
+          <button type="button" @click="openMobilePrimarySection">首页</button>
         </nav>
         <LegacyMenuNav
           :current-view-id="currentViewId"

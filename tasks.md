@@ -145,6 +145,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore the old Web desktop shell layout: move AppInfo branding,
       Home/TopMenu/SubMenu navigation, and user actions into the top header,
       while reusing the same menu component vertically in the mobile Drawer.
+- [x] Restore old Web authenticated shell copy for Home, navigation, system
+      messages, refresh/detail actions, signed-in fallback, and safe logout
+      while preserving server-provided user/menu/message text.
 - [x] Accept the old FoolFrame Web `/user/getmenu` submenu protocol shape as
       `/api/v1/auth/getmenu`, including the `authcode` payload from
       `menuinfo.js`.

@@ -46,7 +46,7 @@ function openMessage(message: MessageInfo) {
     <Button
       :aria-expanded="open"
       :disabled="pending"
-      label="Messages"
+      label="系统消息"
       icon="pi pi-bell"
       severity="secondary"
       text
@@ -54,15 +54,15 @@ function openMessage(message: MessageInfo) {
     >
       <Badge v-if="messages.length" :value="messages.length" severity="danger" />
     </Button>
-    <span class="shell-user"><i class="pi pi-user"></i>{{ userName || "Signed in" }}</span>
-    <Button type="button" label="Sign out" icon="pi pi-sign-out" severity="secondary" text :disabled="pending" @click="emit('logout')" />
+    <span class="shell-user"><i class="pi pi-user"></i>{{ userName || "已登录" }}</span>
+    <Button type="button" label="安全退出" icon="pi pi-sign-out" severity="secondary" text :disabled="pending" @click="emit('logout')" />
 
-    <Popover ref="messagePopover" class="message-popover" aria-label="Messages" @show="open = true" @hide="open = false">
+    <Popover ref="messagePopover" class="message-popover" aria-label="系统消息" @show="open = true" @hide="open = false">
       <header>
-        <h2>Messages</h2>
+        <h2>系统消息</h2>
         <div>
-          <Button type="button" label="Refresh" icon="pi pi-refresh" size="small" severity="secondary" text :disabled="pending" @click="emit('refresh')" />
-          <Button type="button" icon="pi pi-times" size="small" severity="secondary" text title="Close messages" aria-label="Close messages" @click="messagePopover?.hide()" />
+          <Button type="button" label="刷新" icon="pi pi-refresh" size="small" severity="secondary" text :disabled="pending" @click="emit('refresh')" />
+          <Button type="button" icon="pi pi-times" size="small" severity="secondary" text title="关闭消息" aria-label="关闭消息" @click="messagePopover?.hide()" />
         </div>
       </header>
       <Message v-if="errorMessage" severity="error" :closable="false">{{ errorMessage }}</Message>
@@ -73,7 +73,7 @@ function openMessage(message: MessageInfo) {
           <Button
             v-if="canOpenMessage(message)"
             type="button"
-            :label="`Open ${legacyMessageResultKey(message)}`"
+            :label="`查看详细 ${legacyMessageResultKey(message)}`"
             icon="pi pi-arrow-up-right"
             size="small"
             text
@@ -81,7 +81,7 @@ function openMessage(message: MessageInfo) {
           />
         </li>
       </ul>
-      <p v-else class="empty-message">No messages.</p>
+      <p v-else class="empty-message">暂无消息。</p>
     </Popover>
   </div>
 </template>

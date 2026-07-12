@@ -2212,9 +2212,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   using rendered report fields rather than raw JSON inputs
 - Vue API types for legacy `getmsg` generated-message polling
 - A Vue topbar message popover that polls `/api/v1/message/getmsg` every 15
-  seconds and opens message targets through the existing View-first loader
+  seconds, uses old Web system-message/view-detail copy, and opens message
+  targets through the existing View-first loader
 - Vue API types for legacy `getnotify` notification-count payloads
 - Vue shell menu badges populated from `/api/v1/message/getnotify`
+- Old Web authenticated shell actions for Home, navigation, system messages,
+  refresh, and safe logout while server-provided App/user/menu/message text
+  remains unchanged
 - Vue API types for legacy view-item `ID`, `Name`, `PropertyName`, `ShowIndex`, `Width`, `Format`, `IsReadOnly`, `EditType`, `PropertyId`, `EditViewId`, `EditExp`, linked-list-view defaults, `PropertyType`, and `PropertyModel` metadata
 - Vue API types for legacy view-item `ViewFile` metadata
 - Structured visible equality/range filters that emit Spring `QueryValue`

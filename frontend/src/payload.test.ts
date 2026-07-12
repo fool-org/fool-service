@@ -613,7 +613,7 @@ describe("App defaults", () => {
     expect(appSource).toContain("15_000");
     expect(appSource).toContain("legacyMessages(messages.value.data).length");
     expect(appSource).toContain('v-if="token"');
-    expect(shellActionsSource).toContain("Messages");
+    expect(shellActionsSource).toContain("系统消息");
     expect(shellActionsSource).toContain('emit("openMessage", message)');
     expect(appSource).not.toContain("<h2>Messages</h2>");
   });
@@ -631,7 +631,7 @@ describe("App defaults", () => {
     expect(appSource).toContain("legacyUserInfoResponse");
     expect(appSource).toContain("legacyUserName");
     expect(shellActionsSource).toContain("userName");
-    expect(shellActionsSource).toContain("Sign out");
+    expect(shellActionsSource).toContain("安全退出");
     expect(appSource).not.toContain("Legacy User Info");
     expect(appSource).toContain("clearLegacySession()");
     expect(appSource).toContain("await prepareLegacyLogin()");
