@@ -631,6 +631,7 @@ describe("App defaults", () => {
     );
     expect(createSource).toContain("detailViewId.value = viewId");
     expect(createSource).toContain("detailResponse.value = null");
+    expect(createSource).toContain("detailResultObjectId(initialized.data) || nextObjectId()");
   });
 
   it("does not bootstrap View/data rendering from the seeded business View", () => {

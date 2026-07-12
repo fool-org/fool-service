@@ -19,6 +19,7 @@ import {
   detailFieldsFromReadView,
   detailGroupsFromReadView,
   detailResultItems,
+  detailResultObjectId,
   detailResultSimpleData,
   draftFieldValue,
   listRenderColumns,
@@ -559,23 +560,27 @@ describe("view workflow helpers", () => {
   it("reads querydatadetail rows and child items from legacy or camel result payloads", () => {
     const pascal = {
       Data: {
+        ObjId: "1001",
         SimpleData: [{ PrpId: "orderId", PrpShowName: "Order ID", FmtValue: "1001" }],
         Items: [{ name: "Items", prpId: "items", items: [] }]
       }
     };
     const camel = {
       data: {
+        objId: "1002",
         simpleData: [{ prpId: "name", prpShowName: "Name", fmtValue: "Ada" }],
         items: [{ name: "Lines", prpId: "lines", items: [] }]
       }
     };
 
     expect(detailResultSimpleData(pascal)).toEqual(pascal.Data.SimpleData);
+    expect(detailResultObjectId(pascal)).toBe("1001");
     expect(detailResultItems(pascal)).toEqual(pascal.Data.Items);
     expect(fieldKey(detailResultSimpleData(pascal)[0])).toBe("orderId");
     expect(fieldTitle(detailResultSimpleData(pascal)[0])).toBe("Order ID");
     expect(fieldDisplayValue(detailResultSimpleData(pascal)[0])).toBe("1001");
     expect(detailResultSimpleData(camel)).toEqual(camel.data.simpleData);
+    expect(detailResultObjectId(camel)).toBe("1002");
     expect(detailResultItems(camel)).toEqual(camel.data.items);
   });
 

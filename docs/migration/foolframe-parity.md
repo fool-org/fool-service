@@ -633,6 +633,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `getreaditemview(ViewId)` before `querydatadetail(ViewId, ObjId)`, and new
   routes reuse `initnew(ViewId, ParentObjId)` while preserving owner view,
   owner id, and property for the existing `savenewobj` path.
+- 2026-07-12: restored `initnew` object-id precedence from `detailView.jade`.
+  Vue now reads generic `Data.ObjId` / `data.objId` from the initialized View
+  response and uses its local unique-id fallback only when the server leaves
+  the value empty, instead of unconditionally replacing server identity.
 - 2026-07-10: Vue startup now reads the old FoolFrame Web list route
   `/view:id` from `window.location.pathname` and uses that View id before the
   legacy app default, keeping the startup path on `getlistview(ViewId)` then

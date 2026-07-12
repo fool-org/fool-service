@@ -489,6 +489,11 @@ export function detailResultSimpleData(result: QueryDataDetailResult | undefined
   return firstList(data?.simpleData, data?.SimpleData);
 }
 
+export function detailResultObjectId(result: QueryDataDetailResult | undefined) {
+  const data = detailResultData(result);
+  return displayValue(data?.objId ?? data?.ObjId);
+}
+
 export function detailResultItems(result: QueryDataDetailResult | undefined) {
   const data = detailResultData(result);
   return firstList(data?.items, data?.Items);

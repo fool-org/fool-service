@@ -128,6 +128,8 @@ item must land with its matching implementation and validation evidence.
 - [x] Keep Vue detail/initnew rendering tied to loaded read-item View metadata;
       raw `querydatadetail` DTO fields and child groups can no longer define
       page structure when the View metadata is missing or empty.
+- [x] Preserve `initnew.Data.ObjId` for new-object identity and use the local
+      id generator only when the generic View response leaves that value empty.
 - [x] Drop `querydatadetail` child groups that are not declared by the loaded
       read-item View `DetailViews`, so DTO-only groups cannot define Vue child
       sections or columns.

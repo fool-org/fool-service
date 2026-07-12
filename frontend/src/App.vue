@@ -47,6 +47,7 @@ import {
   dataCanEdit,
   dataOperations,
   detailResultItems,
+  detailResultObjectId,
   detailResultSimpleData,
   emptyGroupDraft,
   fieldKey,
@@ -756,7 +757,7 @@ async function startNewObject(viewId = Number(detailViewId.value), parentObjId =
     return;
   }
   detailResponse.value = initialized;
-  selectedObjectId.value = nextObjectId();
+  selectedObjectId.value = detailResultObjectId(initialized.data) || nextObjectId();
   isCreatingObject.value = true;
   syncDetailDrafts();
   await loadFieldEnums();
