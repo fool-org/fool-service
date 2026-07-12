@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, defineAsyncComponent, onMounted, onUnmounted, ref } from "vue";
 import Button from "primevue/button";
 import Drawer from "primevue/drawer";
 import Tag from "primevue/tag";
@@ -29,10 +29,6 @@ import {
   postApi
 } from "./api";
 import LoginPanel from "./LoginPanel.vue";
-import ShellActions from "./ShellActions.vue";
-import ViewDetailPanel from "./ViewDetailPanel.vue";
-import ViewListPanel from "./ViewListPanel.vue";
-import ViewReportPanel from "./ViewReportPanel.vue";
 import { useChildCandidates } from "./useChildCandidates";
 import { useChildDrafts } from "./useChildDrafts";
 import { useFieldEnums } from "./useFieldEnums";
@@ -104,6 +100,11 @@ import {
   buildSaveNewObjRequest,
   buildTokenRequest
 } from "./payload";
+
+const ShellActions = defineAsyncComponent(() => import("./ShellActions.vue"));
+const ViewDetailPanel = defineAsyncComponent(() => import("./ViewDetailPanel.vue"));
+const ViewListPanel = defineAsyncComponent(() => import("./ViewListPanel.vue"));
+const ViewReportPanel = defineAsyncComponent(() => import("./ViewReportPanel.vue"));
 
 const token = ref(localStorage.getItem("fool-service-token") || "");
 const mobileMenuOpen = ref(false);

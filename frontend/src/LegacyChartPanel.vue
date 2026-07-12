@@ -6,7 +6,7 @@ const props = defineProps<{ data: LegacyChartData }>();
 const width = 720;
 const height = 300;
 const plot = { left: 52, right: 18, top: 18, bottom: 46 };
-const colors = ["#0f766e", "#d97706", "#2563eb", "#dc2626", "#7c3aed", "#15803d"];
+const colors = ["#4f46e5", "#d97706", "#2563eb", "#dc2626", "#7c3aed", "#15803d"];
 const formatter = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
 
 const labelCount = computed(() => Math.max(

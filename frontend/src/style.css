@@ -43,7 +43,7 @@ textarea {
 }
 
 .metadata-lookup small {
-  color: #647484;
+  color: #64748b;
   overflow-wrap: anywhere;
 }
 
@@ -61,7 +61,7 @@ textarea {
 label {
   display: grid;
   gap: 7px;
-  color: #465563;
+  color: #475569;
   font-size: 0.84rem;
   font-weight: 700;
 }
@@ -193,7 +193,7 @@ label {
 
 .topbar p {
   margin: 5px 0 0;
-  color: #647484;
+  color: #64748b;
 }
 
 .topbar-side {
@@ -283,9 +283,8 @@ label {
   font-size: 0.92rem;
 }
 
-.section-heading span,
-.report-status {
-  color: #647484;
+.section-heading span {
+  color: #64748b;
   font-size: 0.8rem;
 }
 
@@ -329,20 +328,9 @@ label {
 }
 
 .condition-first {
-  color: #647484;
+  color: #64748b;
   font-size: 0.84rem;
   font-weight: 700;
-}
-
-button.icon-button {
-  width: 38px;
-  min-height: 38px;
-  padding: 0;
-  font-size: 1.2rem;
-}
-
-.report-status {
-  margin: 0;
 }
 
 .view-table {
@@ -408,9 +396,9 @@ button.icon-button {
   width: 100%;
   min-height: 280px;
   aspect-ratio: 16 / 9;
-  border: 1px solid #d7e0e8;
+  border: 1px solid #e2e8f0;
   border-radius: 6px;
-  background: #eef2f4;
+  background: #f1f5f9;
   z-index: 0;
 }
 
@@ -421,7 +409,7 @@ button.icon-button {
   margin: 0;
   padding: 0;
   list-style: none;
-  color: #526171;
+  color: #475569;
   font-size: 0.8rem;
 }
 
@@ -431,7 +419,7 @@ button.icon-button {
 }
 
 .map-location-list strong {
-  color: #17212b;
+  color: #0f172a;
 }
 
 .view-template-tabs {
@@ -481,7 +469,7 @@ button.icon-button {
 
 .chart-grid-line text,
 .chart-axis-label {
-  fill: #647484;
+  fill: #64748b;
   font-size: 11px;
 }
 
@@ -514,7 +502,7 @@ button.icon-button {
 }
 
 .chart-legend small {
-  color: #647484;
+  color: #64748b;
 }
 
 .view-edit-grid {
@@ -536,7 +524,7 @@ button.icon-button {
 }
 
 .detail-fields span {
-  color: #647484;
+  color: #64748b;
   font-size: 0.76rem;
   font-weight: 750;
 }
@@ -577,7 +565,7 @@ button.icon-button {
   gap: 14px;
   align-content: start;
   min-width: 0;
-  border: 1px solid #d7e0e8;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
   background: #ffffff;
   padding: 16px;
@@ -593,13 +581,13 @@ button.icon-button {
 
 .panel-heading h2 {
   margin: 0;
-  color: #17212b;
+  color: #0f172a;
   font-size: 1rem;
   line-height: 1.25;
 }
 
 .panel-heading span {
-  color: #647484;
+  color: #64748b;
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   font-size: 0.72rem;
 }
@@ -653,7 +641,7 @@ button.icon-button {
   position: sticky;
   top: 0;
   background: #f8fafc;
-  color: #465563;
+  color: #475569;
   font-weight: 800;
 }
 
@@ -666,7 +654,7 @@ button.icon-button {
   display: grid;
   min-height: 280px;
   place-items: center;
-  color: #647484;
+  color: #64748b;
 }
 
 .empty-state.compact {
