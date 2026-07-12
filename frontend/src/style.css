@@ -67,9 +67,9 @@ label {
   gap: 16px;
   align-items: center;
   min-height: 50px;
-  border-bottom: 1px solid #e2e8f0;
-  background: #ffffff;
-  padding: 5px 15px;
+  border-bottom: 1px solid #e7e7e7;
+  background: #f8f8f8;
+  padding: 0 5px;
 }
 
 .brand {
@@ -92,9 +92,10 @@ label {
 
 .desktop-navigation {
   display: flex;
-  gap: 6px;
+  gap: 0;
   align-items: center;
   min-width: 0;
+  font-size: 14px;
 }
 
 .shell-header-actions {
@@ -103,19 +104,19 @@ label {
 
 .nav-list {
   display: grid;
-  gap: 6px;
+  gap: 0;
 }
 
 .nav-group,
 .nav-sublist {
   display: grid;
-  gap: 4px;
+  gap: 0;
 }
 
 .nav-sublist {
-  margin-left: 14px;
-  padding-left: 8px;
-  border-left: 1px solid rgba(165, 180, 252, 0.32);
+  margin-left: 0;
+  padding-left: 0;
+  font-size: 10px;
 }
 
 .nav-list button {
@@ -126,14 +127,14 @@ label {
   justify-content: flex-start;
   width: 100%;
   min-height: 38px;
-  border: 1px solid transparent;
-  border-radius: 8px;
+  border: 0;
+  border-radius: 0;
   background: transparent;
-  color: #475569;
+  color: #777777;
   cursor: pointer;
   font: inherit;
-  font-weight: 650;
-  padding: 0 12px;
+  font-weight: 400;
+  padding: 0 15px;
   text-align: left;
 }
 
@@ -157,16 +158,19 @@ label {
   object-fit: contain;
 }
 
-.nav-list button:hover,
+.nav-list button:hover {
+  background: transparent;
+  color: #333333;
+}
+
 .nav-list button.expanded {
-  border-color: #c7d2fe;
-  background: #eef2ff;
-  color: #3730a3;
+  background: #e7e7e7;
+  color: #555555;
 }
 
 .nav-list-horizontal {
   display: flex;
-  gap: 4px;
+  gap: 0;
   align-items: center;
 }
 
@@ -176,27 +180,38 @@ label {
 
 .nav-list-horizontal button {
   width: auto;
-  min-width: 72px;
+  min-width: 0;
+  min-height: 50px;
 }
 
 .nav-list-horizontal .nav-sublist {
   position: absolute;
-  top: calc(100% + 6px);
+  top: 100%;
   left: 0;
   z-index: 30;
   width: max-content;
-  min-width: 190px;
-  max-width: 280px;
-  margin: 0;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  min-width: 160px;
+  margin: 2px 0 0;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
   background: #ffffff;
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.14);
-  padding: 6px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  padding: 5px 0;
 }
 
 .nav-list-horizontal .nav-sublist button {
   width: 100%;
+  min-height: 0;
+  margin-bottom: -1px;
+  border: 1px solid #dddddd;
+  background: #ffffff;
+  color: #555555;
+  padding: 10px 15px;
+}
+
+.nav-list-horizontal .nav-sublist button:hover {
+  background: #f5f5f5;
+  color: #555555;
 }
 
 .workspace {
@@ -229,19 +244,8 @@ label {
   margin-bottom: 12px;
 }
 
-.mobile-navigation .nav-list button {
-  color: #475569;
-}
-
-.mobile-navigation .nav-list button:hover,
-.mobile-navigation .nav-list button.expanded {
-  border-color: #c7d2fe;
-  background: #eef2ff;
-  color: #3730a3;
-}
-
-.mobile-navigation .nav-sublist {
-  border-left-color: #cbd5e1;
+.mobile-navigation .nav-sublist button {
+  padding-left: 25px;
 }
 
 .view-workflow {

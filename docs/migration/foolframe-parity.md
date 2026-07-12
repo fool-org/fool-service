@@ -145,6 +145,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-12: removed Vue-only current-View `active` highlighting from top and
   child menu items. Old `tbar.jade` and `menuinfo.js` never derive active menu
   state from the route; Vue now retains only the equivalent dropdown-open state.
+- 2026-07-12: restored the old Bootstrap navbar and dropdown visual contract.
+  The Vue shell now uses the old neutral background, border, text, hover, and
+  open-state colors; top actions occupy the 50px navbar height, and child menus
+  use the old 160px dropdown/list-group geometry instead of indigo rounded UI.
 - 2026-07-12: restored old `message.js` delivery behavior in the Vue shell.
   Each non-empty 15-second `getmsg` poll now immediately opens its first item
   in a `系统消息` modal with generation time, content, View-first detail

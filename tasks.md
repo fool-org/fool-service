@@ -906,6 +906,9 @@ item must land with its matching implementation and validation evidence.
       invented 40x40 Vue shell size.
 - [x] Match `tbar.jade` menu state behavior by removing the invented current
       View `active` highlights; retain only the old dropdown-open equivalent.
+- [x] Restore the old Bootstrap navbar/dropdown palette and geometry: neutral
+      gray states, 50px top actions, 160px dropdown minimum, and list-group
+      child rows replace the invented indigo rounded navigation treatment.
 - [x] Restore the compact text-only Bootstrap navbar brand: remove the invented
       42px initial tile, render App name/version inline, and reduce the desktop
       shell header to the old 50px scale while reusing it in the mobile Drawer.
