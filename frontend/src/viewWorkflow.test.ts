@@ -83,6 +83,7 @@ import {
   legacyRunOperationMessage,
   legacySubMenuItems,
   legacyUserName,
+  legacyUserAvatar,
   legacyViewPathId,
   listAutoFreshTime,
   listFreshTime,
@@ -1042,6 +1043,7 @@ describe("view workflow helpers", () => {
     expect(legacyNotifyCount(notifies.Notifies[0])).toBe(3);
     expect(legacyNotifyCountForAuth(notifies.Notifies, "1")).toBe(5);
     expect(legacyUserName({ User: { UserName: "Admin", LoginName: "admin" } })).toBe("Admin");
+    expect(legacyUserAvatar({ User: { UserAvtarUrl: "/avatars/admin.png" } })).toBe("/avatars/admin.png");
     expect(legacyLoginErrorMessage({ Error: { Message: "Invalid login" } })).toBe("Invalid login");
     expect(legacyEnumValues(enums)).toHaveLength(1);
     expect(legacyEnumName(enums.EnumValues[0])).toBe("Open");

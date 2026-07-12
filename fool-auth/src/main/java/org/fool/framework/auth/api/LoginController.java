@@ -74,7 +74,7 @@ public class LoginController {
         LoginVo login = authService.login(request.getUserId(), request.getPassWord());
         authService.rememberLegacyApp(login.getToken(), request.getAppId(), request.getDbId());
         return new CommonResponse<>(LegacyLoginResult.success(
-                login.getToken(), legacyUser(login.getUser()), app));
+                login.getToken(), legacyUser(login.getUser(), authService.getLegacyUserAvatar(login.getToken())), app));
     }
 
     @ApiOperation("得到旧版验证码")
@@ -123,7 +123,7 @@ public class LoginController {
         UserDTO user = authService.getInfoByToken(normalizedToken);
         return new CommonResponse<>(new LegacyMainResult(
                 normalizedToken,
-                legacyUser(user),
+                legacyUser(user, authService.getLegacyUserAvatar(normalizedToken)),
                 authService.getLegacyAppInfo(normalizedToken),
                 authService.getLegacySubMenus(normalizedToken, "")));
     }
@@ -150,14 +150,16 @@ public class LoginController {
     @ResponseBody
     public CommonResponse<LegacyUserInfoResult> getUserInfo(@RequestBody CommonRequest request) {
         UserDTO user = authService.getInfoByToken(request.getToken());
-        return new CommonResponse<>(new LegacyUserInfoResult(request.getToken(), legacyUser(user)));
+        return new CommonResponse<>(new LegacyUserInfoResult(
+                request.getToken(), legacyUser(user, authService.getLegacyUserAvatar(request.getToken()))));
     }
 
-    private static LegacyUserInfo legacyUser(UserDTO user) {
+    private static LegacyUserInfo legacyUser(UserDTO user, String avatar) {
         LegacyUserInfo legacyUser = new LegacyUserInfo();
         legacyUser.setLoginName(user.getId());
         legacyUser.setUserName(user.getName());
         legacyUser.setUserId(longOrZero(user.getId()));
+        legacyUser.setUserAvtarUrl(avatar == null ? "" : avatar);
         return legacyUser;
     }
 

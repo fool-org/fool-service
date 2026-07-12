@@ -19,6 +19,25 @@ import static org.mockito.Mockito.when;
 
 public class AuthServiceLegacyMenuTest {
     @Test
+    public void getLegacyUserAvatarReadsLegacyAuthUser() throws Exception {
+        DaoService daoService = mock(DaoService.class);
+        TokenService tokenService = mock(TokenService.class);
+        AuthService service = new AuthService();
+        setField(service, "daoService", daoService);
+        setField(service, "tokenService", tokenService);
+        var user = new org.fool.framework.auth.foolframework.auth.User();
+        user.setAvtar("/avatars/admin.png");
+        when(tokenService.getUidByToken("token-1")).thenReturn("admin");
+        when(daoService.selectList(
+                eq(org.fool.framework.auth.foolframework.auth.User.class), anyString(), eq("admin")))
+                .thenReturn(List.of(user));
+
+        assertEquals("/avatars/admin.png", service.getLegacyUserAvatar("token-1"));
+        user.setAvtar(null);
+        assertEquals("", service.getLegacyUserAvatar("token-1"));
+    }
+
+    @Test
     public void getLegacySubMenusMapsTopMenusToLegacyAuthItems() throws Exception {
         DaoService daoService = mock(DaoService.class);
         TokenService tokenService = mock(TokenService.class);

@@ -292,6 +292,11 @@ export function legacyUserName(source?: LegacyUserInfoResult) {
   return firstDisplayValue([user?.userName, user?.UserName, user?.loginName, user?.LoginName]);
 }
 
+export function legacyUserAvatar(source?: LegacyUserInfoResult) {
+  const user = source?.user ?? source?.User;
+  return firstDisplayValue([user?.userAvtarUrl, user?.UserAvtarUrl]);
+}
+
 export function legacyMessages(source?: GetMessageResult) {
   return firstList(source?.messages, source?.Messages);
 }

@@ -162,6 +162,19 @@ public class AuthService {
         return items.stream().map(this::legacyAuthItem).toList();
     }
 
+    public String getLegacyUserAvatar(String token) {
+        String userId = tokenService.getUidByToken(token);
+        return daoService.selectList(
+                        org.fool.framework.auth.foolframework.auth.User.class,
+                        "select * from SW_AUTH_USER where USER_LOGINNAME = ?",
+                        userId)
+                .stream()
+                .map(org.fool.framework.auth.foolframework.auth.User::getAvtar)
+                .filter(StringUtils::hasText)
+                .findFirst()
+                .orElse("");
+    }
+
     public LegacyAppInfo getLegacyAppInfo(String token) {
         return legacyAppInfo(getLegacyApplication(token));
     }

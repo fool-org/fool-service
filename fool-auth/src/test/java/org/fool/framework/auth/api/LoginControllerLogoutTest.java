@@ -45,6 +45,7 @@ public class LoginControllerLogoutTest {
         user.setId("42");
         user.setName("Admin");
         when(authService.getInfoByToken("token-1")).thenReturn(user);
+        when(authService.getLegacyUserAvatar("token-1")).thenReturn("/avatars/admin.png");
 
         CommonResponse<LoginController.LegacyUserInfoResult> response = controller.getUserInfo(request);
 
@@ -53,6 +54,7 @@ public class LoginControllerLogoutTest {
         assertEquals(42L, response.getData().getUser().getUserId());
         assertEquals("42", response.getData().getUser().getLoginName());
         assertEquals("Admin", response.getData().getUser().getUserName());
+        assertEquals("/avatars/admin.png", response.getData().getUser().getUserAvtarUrl());
     }
 
     @Test
@@ -167,6 +169,7 @@ public class LoginControllerLogoutTest {
         when(authService.getLegacyAppInfo("fool-service", "fool-service")).thenReturn(app);
         when(authService.hasLegacyStoreDatabase("fool-service", "car_wash")).thenReturn(true);
         when(authService.login("42", "pwd")).thenReturn(login);
+        when(authService.getLegacyUserAvatar("token-1")).thenReturn("/avatars/admin.png");
 
         CommonResponse<LoginController.LegacyLoginResult> response = controller.loginV2(request);
 
@@ -175,6 +178,7 @@ public class LoginControllerLogoutTest {
         assertEquals(true, response.getData().isLoginSucess());
         assertEquals("Fool Service", response.getData().getApp().getAppName());
         assertEquals("Admin", response.getData().getUser().getUserName());
+        assertEquals("/avatars/admin.png", response.getData().getUser().getUserAvtarUrl());
         String json = new ObjectMapper().writeValueAsString(response.getData());
         assertTrue(json.contains("\"LoginSucess\":true"));
         assertTrue(json.contains("\"IsLogin\":true"));
@@ -252,6 +256,7 @@ public class LoginControllerLogoutTest {
         app.setAppName("Fool Service");
         app.setDefaultViewId(100L);
         when(authService.getInfoByToken("token-1")).thenReturn(user);
+        when(authService.getLegacyUserAvatar("token-1")).thenReturn("/avatars/admin.png");
         when(authService.getLegacyAppInfo("token-1")).thenReturn(app);
         when(authService.getLegacySubMenus("token-1", "")).thenReturn(List.of(menu));
 
@@ -260,6 +265,7 @@ public class LoginControllerLogoutTest {
         assertEquals(0, response.getCode());
         assertEquals("token-1", response.getData().getToken());
         assertEquals(42L, response.getData().getUser().getUserId());
+        assertEquals("/avatars/admin.png", response.getData().getUser().getUserAvtarUrl());
         assertEquals("Views", response.getData().getTopMenu().get(0).getText());
         assertEquals("Fool Service", response.getData().getApp().getAppName());
         assertEquals(100L, response.getData().getApp().getDefaultViewId());

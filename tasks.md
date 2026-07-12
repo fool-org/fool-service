@@ -885,6 +885,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore old `message.js` delivery behavior: each non-empty 15-second
       poll immediately opens the first generated message in a `系统消息` dialog
       with time, content, detail navigation, and confirmation controls.
+- [x] Restore `default.jade` user avatar rendering end to end: hydrate
+      `UserAvtarUrl` from `SW_AUTH_USER.USER_AVTAR`, adapt the compatibility
+      response in `viewWorkflow`, and retain an icon fallback for empty values.
 - [x] Restore the compact text-only Bootstrap navbar brand: remove the invented
       42px initial tile, render App name/version inline, and reduce the desktop
       shell header to the old 50px scale while reusing it in the mobile Drawer.

@@ -118,6 +118,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-12: restored old `default.jade` user-avatar behavior end to end.
+  Legacy auth responses now hydrate `UserAvtarUrl` from
+  `SW_AUTH_USER.USER_AVTAR`; the Vue shell reads it through the compatibility
+  adapter and renders a circular image when present, retaining the user icon
+  only as an empty-value fallback. Backend/frontend, Compose, runtime-doctor,
+  and harness validation are recorded in the matching delivery evidence.
 - 2026-07-12: restored old `message.js` delivery behavior in the Vue shell.
   Each non-empty 15-second `getmsg` poll now immediately opens its first item
   in a `系统消息` modal with generation time, content, View-first detail

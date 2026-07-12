@@ -790,7 +790,10 @@ describe("App defaults", () => {
     expect(appSource).toContain("/api/v1/auth/getuserinfo");
     expect(appSource).toContain("legacyUserInfoResponse");
     expect(appSource).toContain("legacyUserName");
+    expect(appSource).toContain("legacyUserAvatar");
     expect(shellActionsSource).toContain("userName");
+    expect(shellActionsSource).toContain('v-if="userAvatar"');
+    expect(shellActionsSource).toContain('class="shell-avatar"');
     expect(shellActionsSource).toContain("安全退出");
     expect(appSource).not.toContain("Legacy User Info");
     expect(appSource).toContain("clearLegacySession()");

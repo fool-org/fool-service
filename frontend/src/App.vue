@@ -73,6 +73,7 @@ import {
   legacyRunOperationMessage,
   legacyRunOperationSuccess,
   legacySubMenuItems,
+  legacyUserAvatar,
   legacyUserName,
   listAutoFreshTime,
   listRows,
@@ -199,6 +200,7 @@ const topMenuItems = computed(() => legacyMainMenuItems(mainInfoResponse.value?.
 const subMenuItems = computed(() => legacySubMenuItems(subMenuResponse.value?.data));
 const messageItems = computed(() => legacyMessages(messageResponse.value?.data));
 const notifyItems = computed(() => legacyNotifies(notifyResponse.value?.data));
+const shellUserAvatar = computed(() => legacyUserAvatar(legacyUserInfoResponse.value?.data));
 const shellUserName = computed(() => legacyUserName(legacyUserInfoResponse.value?.data));
 const shellAppName = computed(() => legacyAppName(mainInfoResponse.value?.data, "Fool Service"));
 const shellAppVersion = computed(() => legacyAppVersion(mainInfoResponse.value?.data));
@@ -926,6 +928,7 @@ function syncDetailDrafts() {
         :error-message="shellErrorMessage"
         :messages="messageItems"
         :pending="shellPending || Boolean(pendingAction)"
+        :user-avatar="shellUserAvatar"
         :user-name="shellUserName"
         @logout="logout"
         @dismiss-message="activeShellMessage = null"

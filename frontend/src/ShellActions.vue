@@ -19,6 +19,7 @@ defineProps<{
   errorMessage: string;
   messages: MessageInfo[];
   pending: boolean;
+  userAvatar: string;
   userName: string;
 }>();
 const emit = defineEmits<{
@@ -58,7 +59,11 @@ function openMessage(message: MessageInfo) {
     >
       <Badge v-if="messages.length" :value="messages.length" severity="danger" />
     </Button>
-    <span class="shell-user"><i class="pi pi-user"></i>{{ userName || "已登录" }}</span>
+    <span class="shell-user">
+      <img v-if="userAvatar" class="shell-avatar" :src="userAvatar" alt="" />
+      <i v-else class="pi pi-user"></i>
+      {{ userName || "已登录" }}
+    </span>
     <Button type="button" label="安全退出" icon="pi pi-sign-out" severity="secondary" text :disabled="pending" @click="emit('logout')" />
 
     <Popover ref="messagePopover" class="message-popover" aria-label="系统消息" @show="open = true" @hide="open = false">
@@ -137,6 +142,13 @@ function openMessage(message: MessageInfo) {
   font-weight: 750;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.shell-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .message-popover {
