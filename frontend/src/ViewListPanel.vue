@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import Button from "primevue/button";
-import InputNumber from "primevue/inputnumber";
 import InputText from "primevue/inputtext";
 import Message from "primevue/message";
 import Paginator, { type PageState } from "primevue/paginator";
@@ -41,6 +40,7 @@ const props = defineProps<{
   disabled: boolean;
   errorMessage?: string;
   pageIndex: number;
+  pageSize: number;
   panelData: Record<number, { view: ListViewInfo; data: ListViewResult | null; detail?: QueryDataDetailResult | null }>;
   view?: ListViewInfo;
 }>();
@@ -55,7 +55,6 @@ const emit = defineEmits<{
 }>();
 
 const keyword = defineModel<string>("keyword", { required: true });
-const pageSize = defineModel<number>("pageSize", { required: true });
 const activePane = ref("table");
 const currentViewId = computed(() => viewId(props.view));
 const title = computed(() => viewDisplayTitle(props.view, "Load a View"));
@@ -89,10 +88,6 @@ function changePage(event: PageState) {
       <label>
         Search
         <InputText v-model="keyword" type="search" placeholder="Search this view" fluid @keyup.enter="emit('search')" />
-      </label>
-      <label>
-        Page size
-        <InputNumber v-model="pageSize" :min="1" :max="200" :use-grouping="false" fluid />
       </label>
       <Button type="button" label="Search" icon="pi pi-search" :disabled="disabled" @click="emit('search')" />
       <Button

@@ -266,10 +266,14 @@ label {
 }
 
 .workflow-toolbar {
-  display: grid;
-  grid-template-columns: minmax(240px, 1fr) minmax(110px, 0.3fr) auto auto auto;
+  display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   align-items: end;
+}
+
+.workflow-toolbar label {
+  flex: 1 1 240px;
 }
 
 .report-dialog {
@@ -870,7 +874,6 @@ label {
 
   .button-row,
   .inline-fields,
-  .workflow-toolbar,
   .report-condition-row,
   .item-add-row {
     grid-template-columns: 1fr;

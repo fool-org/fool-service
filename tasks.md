@@ -177,6 +177,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Remove invented Vue `New Row` and default `Open` list commands so main
       list actions come only from View `Operations`; keep the child candidate
       table's old explicit Select action as an opt-in shared-table behavior.
+- [x] Remove the invented editable main-list page size, restore
+      `view.jade`'s 10-row request size, and let the search/report/metadata
+      operation toolbar wrap when operation counts vary.
 - [x] Expose FoolFrame Pascal `runoperation` result aliases (`Value`,
       `IsSuccess`, `ReturnObjId`, `ReturnViewId`, `ReturnMsg`) and make Vue
       operation refresh logic read success through a shared protocol helper.

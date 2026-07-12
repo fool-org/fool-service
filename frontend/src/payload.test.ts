@@ -46,6 +46,10 @@ describe("App defaults", () => {
     expect(mainViewSource).toContain("Search");
     expect(appSource).toContain('v-model:keyword="viewKeyword"');
     expect(mainViewSource).toContain('v-model="keyword"');
+    expect(appSource).toContain("const pageSize = ref(10)");
+    expect(appSource).toContain(':page-size="pageSize"');
+    expect(mainViewSource).not.toContain("Page size");
+    expect(mainViewSource).not.toContain("InputNumber");
     expect(mainViewSource).not.toContain("QueryFilter");
     expect(mainViewSource).not.toContain("View ID");
     expect(mainViewSource).not.toContain("Load View");

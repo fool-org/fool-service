@@ -2221,8 +2221,10 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - A default Vue View workflow that loads View metadata first, queries rows by
   loaded View id, and renders columns from `tableColumn` / legacy `Items`.
   Like `view.jade`, list load/search does not select the first DTO or embed a
-  detail panel; metadata-defined row/create operations navigate to old Web
-  `/view{id}/{obj}` and `/new{id}` routes. Those standalone routes load read
+  detail panel, the request size stays at the old 10-row default without an
+  invented page-size editor, and metadata-defined row/create operations
+  navigate to old Web `/view{id}/{obj}` and `/new{id}` routes. Those
+  standalone routes load read
   View metadata before `querydatadetail` / `initnew`, render detail fields,
   lay simple fields out in the old two-groups-per-row desktop form pattern
   with a one-column mobile fallback, save through `saveobj` / `savenewobj`,

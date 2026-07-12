@@ -119,7 +119,7 @@ const legacyDbId = ref("car_wash");
 const legacyListViewId = ref(0);
 const readItemViewId = ref(0);
 const pageIndex = ref(1);
-const pageSize = ref(20);
+const pageSize = ref(10);
 const viewKeyword = ref("");
 const detailViewId = ref(0);
 const checkCodeKey = ref("");
@@ -984,7 +984,7 @@ function syncDetailDrafts() {
         <ViewListPanel
           v-if="!isMetadataOnlyView && !isStandaloneDetail"
           v-model:keyword="viewKeyword"
-          v-model:page-size="pageSize"
+          :page-size="pageSize"
           :data="dataResponse?.data"
           :disabled="Boolean(pendingAction)"
           :error-message="errorMessage"
