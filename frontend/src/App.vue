@@ -68,6 +68,7 @@ import {
   legacyMessages,
   legacyNotifies,
   legacyNotifyCountForAuth,
+  legacyRunOperationMessage,
   legacyRunOperationSuccess,
   legacySubMenuItems,
   legacyUserName,
@@ -159,6 +160,7 @@ const detailResponse = ref<CommonResponse<QueryDataDetailResult> | null>(null);
 const messageResponse = ref<CommonResponse<GetMessageResult> | null>(null);
 const notifyResponse = ref<CommonResponse<GetNotifyResult> | null>(null);
 const errorMessage = ref("");
+const operationResult = ref<{ message: string; success: boolean } | null>(null);
 const pendingAction = ref("");
 const shellErrorMessage = ref("");
 const shellPending = ref(false);
@@ -623,11 +625,16 @@ async function runViewOperation(operation: OperationInfo) {
   if (!id) {
     return;
   }
+  operationResult.value = null;
   const response = await runOperation(id);
-  if (legacyRunOperationSuccess(response?.data)) {
+  if (!response) return;
+  const success = legacyRunOperationSuccess(response.data);
+  const message = legacyRunOperationMessage(response.data) || (success ? "Operation completed." : "Operation failed.");
+  if (success) {
     await queryCurrentViewData();
     await queryDetail();
   }
+  operationResult.value = { message, success };
 }
 
 function applyDefaultAppView(source?: unknown) {
@@ -651,6 +658,7 @@ async function ensureLegacyShell() {
 
 async function loadViewWorkflow(resetPage = false) {
   stopAutoRefresh();
+  operationResult.value = null;
   isMetadataOnlyView.value = false;
   isStandaloneDetail.value = false;
   if (resetPage) {
@@ -686,6 +694,7 @@ async function searchCurrentView() {
 
 async function loadLegacyDetailPath(route: { viewId: number; objectId?: string }) {
   stopAutoRefresh();
+  operationResult.value = null;
   isMetadataOnlyView.value = false;
   isStandaloneDetail.value = true;
   applyRequestedViewId(route.viewId);
@@ -785,6 +794,7 @@ async function selectObject(row: ListDataItem, viewId = Number(detailViewId.valu
   if (!objectId) {
     return;
   }
+  operationResult.value = null;
   isCreatingObject.value = false;
   selectedObjectId.value = objectId;
   detailViewId.value = viewId;
@@ -792,6 +802,7 @@ async function selectObject(row: ListDataItem, viewId = Number(detailViewId.valu
 }
 
 async function startNewObject(viewId = Number(detailViewId.value), parentObjId = "", ownerViewId = "", property = "") {
+  operationResult.value = null;
   detailViewId.value = viewId;
   detailResponse.value = null;
   newObjectOwner = { ownerViewId, ownerId: parentObjId, property };
@@ -1064,6 +1075,7 @@ function syncDetailDrafts() {
           :field-editor-context="fieldEditorContext"
           :is-creating-object="isCreatingObject"
           :new-child-draft-value="newChildDraftValue"
+          :operation-result="operationResult"
           :pending="Boolean(pendingAction)"
           :schema-only="isMetadataOnlyView"
           :selected-object-id="selectedObjectId"

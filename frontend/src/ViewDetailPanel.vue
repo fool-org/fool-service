@@ -2,6 +2,7 @@
 import { ref, watch } from "vue";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
+import Message from "primevue/message";
 import Tag from "primevue/tag";
 import type { ListDataItem, ListDataValue, OperationInfo, QueryDataDetailDataItem, QueryDataDetailItemGroup, TableColumnInfo } from "./api";
 import ListDataTable from "./ListDataTable.vue";
@@ -40,6 +41,7 @@ const props = defineProps<{
   fieldEditorContext: Record<string, unknown>;
   isCreatingObject: boolean;
   newChildDraftValue: (group: QueryDataDetailItemGroup, field: ListDataValue) => string;
+  operationResult: { message: string; success: boolean } | null;
   pending: boolean;
   schemaOnly: boolean;
   selectedObjectId: string;
@@ -141,6 +143,10 @@ const emit = defineEmits<{
         </div>
       </div>
     </div>
+
+    <Message v-if="operationResult" :severity="operationResult.success ? 'success' : 'error'" :closable="false">
+      {{ operationResult.message }}
+    </Message>
 
     <div v-if="viewCanEdit && selectedObjectId && !isCreatingObject && detailViewOperations.length" class="view-operations">
       <h3>View Operations</h3>

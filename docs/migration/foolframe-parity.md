@@ -118,6 +118,15 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-12: restored old Web operation feedback from `operation.js`. Vue now
+  projects camel/Pascal `ReturnMsg`, shows a success or error result in the
+  detail panel, keeps successful refresh behavior, and clears stale results
+  when the View, selected object, or create flow changes. `ReturnViewId` and
+  `ReturnObjId` remain protocol aliases rather than invented navigation because
+  the old Web operation client does not use them. All 132 frontend tests, the
+  TypeScript/Vite and Compose frontend builds, deployed runtime doctor, and
+  repository harness pass. Visible message replay remains in final
+  authenticated browser acceptance.
 - 2026-07-12: restored old Web child `DetailViewId` branching from
   `detailView.jade`. Child groups with no detail View remain inline editable;
   groups with a configured detail View render read-only row values and an Edit

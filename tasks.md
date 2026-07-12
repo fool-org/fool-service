@@ -174,6 +174,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Expose FoolFrame Pascal `runoperation` result aliases (`Value`,
       `IsSuccess`, `ReturnObjId`, `ReturnViewId`, `ReturnMsg`) and make Vue
       operation refresh logic read success through a shared protocol helper.
+- [x] Restore old Web operation-result feedback: show `ReturnMsg` with
+      success/error severity, retain the result after a successful View/detail
+      refresh, and clear stale results when navigation changes context.
 - [x] Extend the Docker runtime doctor to prove `runoperation` result aliases
       through the Vue proxy without executing a mutating View operation.
 - [x] Accept the old FoolFrame Web `/data/exoperation` protocol shape at the

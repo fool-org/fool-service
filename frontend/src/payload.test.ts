@@ -100,6 +100,9 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain("operationParamLabel(param)");
     expect(viewDetailPanelSource).not.toContain("operation.params");
     expect(viewDetailPanelSource).not.toContain("param.paramName");
+    expect(appSource).toContain("legacyRunOperationMessage(response.data)");
+    expect(appSource).toContain("operationResult.value = { message, success }");
+    expect(viewDetailPanelSource).toContain(":severity=\"operationResult.success ? 'success' : 'error'\"");
   });
 
   it("keeps existing details read-only until CanEdit starts an edit session", () => {

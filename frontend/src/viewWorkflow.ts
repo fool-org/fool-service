@@ -346,6 +346,10 @@ export function legacyRunOperationSuccess(source?: LegacyRunOperationResult) {
   return source?.success === true || source?.IsSuccess === true;
 }
 
+export function legacyRunOperationMessage(source?: LegacyRunOperationResult) {
+  return firstDisplayValue([source?.returnMsg, source?.ReturnMsg]);
+}
+
 export function readViewItems(view: ReadItemViewInfo | undefined) {
   return firstList(view?.items, view?.Items);
 }

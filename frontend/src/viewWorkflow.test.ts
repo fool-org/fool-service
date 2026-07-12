@@ -76,6 +76,7 @@ import {
   legacyNotifyCount,
   legacyNotifyCountForAuth,
   legacyRunOperationSuccess,
+  legacyRunOperationMessage,
   legacySubMenuItems,
   legacyUserName,
   legacyViewPathId,
@@ -1040,6 +1041,8 @@ describe("view workflow helpers", () => {
     expect(legacyRunOperationSuccess({ success: true })).toBe(true);
     expect(legacyRunOperationSuccess({ IsSuccess: true })).toBe(true);
     expect(legacyRunOperationSuccess({ success: false, IsSuccess: false })).toBe(false);
+    expect(legacyRunOperationMessage({ ReturnMsg: "执行成功" })).toBe("执行成功");
+    expect(legacyRunOperationMessage({ returnMsg: "Done", ReturnMsg: "Legacy" })).toBe("Done");
   });
 
   it("uses the rendered View detail id before falling back to the list id", () => {
