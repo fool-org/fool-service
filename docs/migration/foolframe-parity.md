@@ -118,6 +118,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-12: matched `tbar.jade`'s text-only `安全退出` command by removing
+  the invented sign-out icon while preserving the logout request, disabled
+  state, and return to the signed-out flow.
 - 2026-07-12: restored old `default.jade` user-avatar behavior end to end.
   Legacy auth responses now hydrate `UserAvtarUrl` from
   `SW_AUTH_USER.USER_AVTAR`; the Vue shell reads it through the compatibility

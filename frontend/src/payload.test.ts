@@ -798,6 +798,7 @@ describe("App defaults", () => {
     expect(shellActionsSource).toContain('v-if="userAvatar"');
     expect(shellActionsSource).toContain('class="shell-avatar"');
     expect(shellActionsSource).toContain("安全退出");
+    expect(shellActionsSource).not.toContain('icon="pi pi-sign-out"');
     expect(appSource).not.toContain("Legacy User Info");
     expect(appSource).toContain("clearLegacySession()");
     expect(appSource).toContain("await prepareLegacyLogin()");

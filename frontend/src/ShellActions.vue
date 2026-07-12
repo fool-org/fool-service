@@ -37,7 +37,7 @@ function openMessage(message: MessageInfo) {
       <i v-else class="pi pi-user"></i>
       {{ userName || "已登录" }}
     </span>
-    <Button type="button" label="安全退出" icon="pi pi-sign-out" severity="secondary" text :disabled="pending" @click="emit('logout')" />
+    <Button type="button" label="安全退出" severity="secondary" text :disabled="pending" @click="emit('logout')" />
 
     <Dialog
       v-if="activeMessage"
