@@ -131,6 +131,7 @@ import {
   viewTemplateName,
   viewUsesSudokuTemplate,
   viewUsesChartTemplate,
+  viewTemplateKind,
   withDraftFieldValue,
   viewOperations
 } from "./viewWorkflow";
@@ -268,6 +269,10 @@ describe("view workflow helpers", () => {
     expect(viewUsesChartTemplate({ TempFile: "Sudoku" })).toBe(false);
     expect(viewUsesSudokuTemplate({ TempFile: "Sudoku" })).toBe(true);
     expect(viewUsesSudokuTemplate({ TempFile: "viewWithChart" })).toBe(false);
+    expect(viewTemplateKind(undefined)).toBe("list");
+    expect(viewTemplateKind({ TempFile: "view" })).toBe("list");
+    expect(viewTemplateKind({ TempFile: "views/viewWithChart.jade" })).toBe("chart");
+    expect(viewTemplateKind({ TempFile: "CustomDashboard" })).toBe("unsupported");
   });
 
   it("normalizes legacy Sudoku child ViewFile names", () => {

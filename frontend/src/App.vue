@@ -83,6 +83,8 @@ import {
   selectedChildViewId,
   viewDisplayTitle,
   viewId,
+  viewTemplateKind,
+  viewTemplateName,
   viewUsesChartTemplate,
   viewUsesSudokuTemplate,
   renderedDetailFields,
@@ -219,6 +221,7 @@ function fieldEnumOptions(field: ListDataValue) {
 
 const isChartView = computed(() => viewUsesChartTemplate(viewResponse.value?.data));
 const isSudokuView = computed(() => viewUsesSudokuTemplate(viewResponse.value?.data));
+const isUnsupportedView = computed(() => viewTemplateKind(viewResponse.value?.data) === "unsupported");
 const sudokuPanels = computed(() => viewColumns(viewResponse.value?.data));
 const {
   panelData: sudokuPanelData,
@@ -469,6 +472,10 @@ async function loadReadItemView(viewId = Number(readItemViewId.value)) {
 async function queryCurrentViewData() {
   if (isSudokuView.value) {
     await loadSudokuPanels();
+    return null;
+  }
+  if (isUnsupportedView.value) {
+    errorMessage.value = `Unsupported legacy template: ${viewTemplateName(viewResponse.value?.data)}`;
     return null;
   }
   const response = await queryCurrentViewDataBase();
@@ -987,7 +994,7 @@ function syncDetailDrafts() {
         />
       </Drawer>
 
-      <section class="view-workflow" :class="{ 'metadata-only': isMetadataOnlyView || isStandaloneDetail }" aria-label="View workflow">
+      <section class="view-workflow" :class="{ 'metadata-only': isMetadataOnlyView || isStandaloneDetail || isUnsupportedView }" aria-label="View workflow">
         <ViewListPanel
           v-if="!isMetadataOnlyView && !isStandaloneDetail"
           v-model:keyword="viewKeyword"
@@ -1008,6 +1015,7 @@ function syncDetailDrafts() {
         />
 
         <ViewDetailPanel
+          v-if="!isUnsupportedView"
           :candidate-columns="candidateColumns"
           :candidate-rows="candidateRows"
           :candidate-state="candidateState"
@@ -1042,7 +1050,7 @@ function syncDetailDrafts() {
           @update-detail-item="updateDetailItem"
         />
         <ViewReportPanel
-          v-if="showViewReport && !isMetadataOnlyView && !isStandaloneDetail && currentViewId"
+          v-if="showViewReport && !isMetadataOnlyView && !isStandaloneDetail && !isUnsupportedView && currentViewId"
           :key="currentViewId"
           :pending="Boolean(pendingAction)"
           :run-action="runAction"

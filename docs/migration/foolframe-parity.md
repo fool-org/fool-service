@@ -118,6 +118,15 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-12: made top-level `TempFile` dispatch explicit. Empty/default
+  `view`, `viewWithChart`, and `Sudoku` cover the old repository's actual
+  top-level templates and route to list, chart, and panel renderers. Unknown
+  custom template names now render a full-width migration warning and skip
+  `querydata`, detail, and report surfaces instead of silently masquerading as
+  a list and binding unrelated data. All 137 frontend tests, TypeScript/Vite
+  and Compose frontend builds, deployed chart/Sudoku runtime doctor, and
+  repository harness pass. Arbitrary external custom Jade execution is not
+  claimed as a Vue feature.
 - 2026-07-12: completed report condition grouping beyond the old Web
   `mkreport.js` visual-only merge state. Vue can group consecutive conditions,
   wrap complete existing groups, and split the innermost group; the shared

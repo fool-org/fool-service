@@ -183,12 +183,20 @@ export function viewTemplateName(view: ListViewInfo | undefined) {
   return firstDisplayValue([view?.tempFile, view?.TempFile]);
 }
 
+export function viewTemplateKind(view: ListViewInfo | undefined) {
+  const template = viewTemplateName(view).split("/").pop()?.replace(/\.jade$/i, "") || "view";
+  if (template === "view") return "list";
+  if (template === "viewWithChart") return "chart";
+  if (template === "Sudoku") return "sudoku";
+  return "unsupported";
+}
+
 export function viewUsesChartTemplate(view: ListViewInfo | undefined) {
-  return viewTemplateName(view) === "viewWithChart";
+  return viewTemplateKind(view) === "chart";
 }
 
 export function viewUsesSudokuTemplate(view: ListViewInfo | undefined) {
-  return viewTemplateName(view) === "Sudoku";
+  return viewTemplateKind(view) === "sudoku";
 }
 
 export function sudokuPanelKind(column: Pick<TableColumnInfo, "viewFile" | "ViewFile">) {

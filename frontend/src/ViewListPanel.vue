@@ -29,6 +29,8 @@ import {
   viewDisplayName,
   viewDisplayTitle,
   viewId,
+  viewTemplateKind,
+  viewTemplateName,
   viewOperations,
   viewUsesChartTemplate,
   viewUsesSudokuTemplate
@@ -66,6 +68,8 @@ const createItems = computed(() => createOperations(operations.value));
 const rowItems = computed(() => rowOperations(operations.value));
 const chartView = computed(() => viewUsesChartTemplate(props.view));
 const sudokuView = computed(() => viewUsesSudokuTemplate(props.view));
+const supportedTemplate = computed(() => viewTemplateKind(props.view) !== "unsupported");
+const templateName = computed(() => viewTemplateName(props.view));
 const chartData = computed(() => legacyChartData(rows.value));
 const resultPageIndex = computed(() => listPageIndex(props.data, props.pageIndex));
 const resultTotalItems = computed(() => listTotalItems(props.data));
@@ -82,7 +86,7 @@ function changePage(event: PageState) {
       <h2>{{ title }}</h2>
       <span>{{ name }}</span>
     </div>
-    <div class="workflow-toolbar">
+    <div v-if="supportedTemplate" class="workflow-toolbar">
       <label>
         Search
         <InputText v-model="keyword" type="search" placeholder="Search this view" fluid @keyup.enter="emit('search')" />
@@ -107,6 +111,9 @@ function changePage(event: PageState) {
     </div>
 
     <Message v-if="errorMessage" severity="error" :closable="false">{{ errorMessage }}</Message>
+    <Message v-if="!supportedTemplate" severity="warn" :closable="false">
+      Legacy template {{ templateName }} has not been migrated.
+    </Message>
 
     <Tabs v-if="chartView" v-model:value="activePane" class="view-template-tabs">
       <TabList>
@@ -117,7 +124,7 @@ function changePage(event: PageState) {
 
     <SudokuPanels v-if="sudokuView" :disabled="disabled" :panel-data="panelData" :panels="viewColumns(view)" @refresh-panel="emit('refreshPanel', $event)" />
 
-    <div v-show="(!chartView && !sudokuView) || activePane === 'table'" class="table-wrap view-table">
+    <div v-if="supportedTemplate" v-show="(!chartView && !sudokuView) || activePane === 'table'" class="table-wrap view-table">
       <ListDataTable
         :columns="columns"
         :disabled="disabled"
@@ -129,7 +136,7 @@ function changePage(event: PageState) {
     </div>
     <LegacyChartPanel v-if="chartView && activePane === 'chart' && chartData.series.length" :data="chartData" />
     <div v-else-if="chartView && activePane === 'chart'" class="empty-state compact">No chart data.</div>
-    <div v-if="rows.length || resultTotalItems || resultFreshTime" class="list-pagination">
+    <div v-if="supportedTemplate && (rows.length || resultTotalItems || resultFreshTime)" class="list-pagination">
       <Paginator
         :first="Math.max(0, (resultPageIndex - 1) * pageSize)"
         :rows="pageSize"

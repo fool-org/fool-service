@@ -695,6 +695,10 @@ item must land with its matching implementation and validation evidence.
       instead of concrete business DTO fields.
 - [x] Recognize legacy Vue `TempFile=Sudoku` and render child panel shells from
       View item `ViewFile` metadata before adding any child-panel data binding.
+- [x] Dispatch the old repository's complete top-level template set (`view`,
+      `viewWithChart`, `Sudoku`) through explicit Vue render paths and block
+      unknown custom `TempFile` values from falling through to list/data/detail
+      rendering.
 - [x] Load Vue Sudoku child panels through each panel `ListViewId`
       `getlistview` -> `querydata` chain, skipping root View `querydata` so
       panel rows stay bound to child View metadata.

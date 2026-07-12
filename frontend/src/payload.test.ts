@@ -165,6 +165,13 @@ describe("App defaults", () => {
     expect(legacyChartPanelSource).not.toContain("<meter");
   });
 
+  it("dispatches known TempFile templates without treating unknown files as lists", () => {
+    expect(appSource).toContain('viewTemplateKind(viewResponse.value?.data) === "unsupported"');
+    expect(appSource).toContain("Unsupported legacy template:");
+    expect(viewListPanelSource).toContain("Legacy template {{ templateName }} has not been migrated.");
+    expect(viewListPanelSource).toContain('v-if="supportedTemplate" class="workflow-toolbar"');
+  });
+
   it("renders the legacy Sudoku template from ViewFile panels", () => {
     expect(appSource).toContain("viewUsesSudokuTemplate(viewResponse.value?.data)");
     expect(viewListPanelSource).toContain("SudokuPanels");
