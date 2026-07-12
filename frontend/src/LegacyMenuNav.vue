@@ -6,6 +6,7 @@ defineProps<{
   currentViewId: number;
   disabled: boolean;
   expandedAuthCode: string;
+  horizontal?: boolean;
   items: LegacyAuthItem[];
   label: string;
   notifyCount: (item: LegacyAuthItem) => number;
@@ -18,7 +19,7 @@ defineEmits<{
 </script>
 
 <template>
-  <nav v-if="items.length" class="nav-list" :aria-label="label">
+  <nav v-if="items.length" class="nav-list" :class="{ 'nav-list-horizontal': horizontal }" :aria-label="label">
     <div v-for="item in items" :key="legacyAuthNo(item) || legacyAuthText(item)" class="nav-group">
       <button
         type="button"

@@ -2181,9 +2181,10 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Vue API types for legacy list-query row indexes, paging aliases, `Data` result alias, and row `Items`/`ObjValuePair` metadata
 - Vue API types for legacy `getenums` enum-value request/result payloads
 - Vue API types for legacy `getlistview` view-id payloads
-- Legacy shell menu rendering in the Vue sidebar from `getmain` /
-  `getsubmenu`, with `ViewId` menu entries opening the same View-driven list
-  workflow.
+- Legacy shell menu rendering in Vue from `getmain` /
+  `getsubmenu`, now presented as old Web-style horizontal desktop TopMenu /
+  dropdown SubMenu navigation and as the same component in a mobile Drawer;
+  `ViewId` entries open the same View-driven list workflow.
 - Vue API types for legacy `getreaditemview` read-item payloads
 - Vue API types for legacy `querydata` request payloads
 - Vue API types for legacy `querydatadetail` request/result payloads

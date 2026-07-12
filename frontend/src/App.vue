@@ -898,7 +898,7 @@ function syncDetailDrafts() {
     @submit="submitLegacyLogin"
   />
   <div v-else class="app-shell">
-    <aside class="sidebar">
+    <header class="shell-header">
       <div class="brand">
         <span class="brand-mark">{{ shellAppMark }}</span>
         <div>
@@ -907,27 +907,35 @@ function syncDetailDrafts() {
         </div>
       </div>
 
-      <nav class="nav-list" aria-label="Main">
-        <button
-          class="active"
-          type="button"
-          @click="openPrimarySection"
-        >
-          Views
-        </button>
-      </nav>
+      <div class="desktop-navigation">
+        <nav class="nav-list nav-list-horizontal" aria-label="Main">
+          <button type="button" @click="openPrimarySection">Home</button>
+        </nav>
+        <LegacyMenuNav
+          :current-view-id="currentViewId"
+          :disabled="Boolean(pendingAction)"
+          :expanded-auth-code="subMenuParentAuthCode"
+          horizontal
+          :items="topMenuItems"
+          label="FoolFrame menu"
+          :notify-count="shellNotifyCount"
+          :sub-items="subMenuItems"
+          @select="openShellMenu"
+        />
+      </div>
 
-      <LegacyMenuNav
-        :current-view-id="currentViewId"
-        :disabled="Boolean(pendingAction)"
-        :expanded-auth-code="subMenuParentAuthCode"
-        :items="topMenuItems"
-        label="FoolFrame menu"
-        :notify-count="shellNotifyCount"
-        :sub-items="subMenuItems"
-        @select="openShellMenu"
+      <ShellActions
+        v-if="token"
+        class="shell-header-actions"
+        :error-message="shellErrorMessage"
+        :messages="messageItems"
+        :pending="shellPending || Boolean(pendingAction)"
+        :user-name="shellUserName"
+        @logout="logout"
+        @open-message="openShellMessage"
+        @refresh="refreshShellStatus"
       />
-    </aside>
+    </header>
 
     <main class="workspace">
       <header class="topbar">
@@ -937,18 +945,6 @@ function syncDetailDrafts() {
           <h1>{{ pageViewTitle }}</h1>
           <p>{{ pageViewName }}</p>
           </div>
-        </div>
-        <div class="topbar-side">
-          <ShellActions
-            v-if="token"
-            :error-message="shellErrorMessage"
-            :messages="messageItems"
-            :pending="shellPending || Boolean(pendingAction)"
-            :user-name="shellUserName"
-            @logout="logout"
-            @open-message="openShellMessage"
-            @refresh="refreshShellStatus"
-          />
         </div>
       </header>
 
@@ -961,7 +957,7 @@ function syncDetailDrafts() {
           </div>
         </div>
         <nav class="nav-list" aria-label="Mobile main">
-          <button class="active" type="button" @click="openMobilePrimarySection">Views</button>
+          <button type="button" @click="openMobilePrimarySection">Home</button>
         </nav>
         <LegacyMenuNav
           :current-view-id="currentViewId"

@@ -135,13 +135,16 @@ item must land with its matching implementation and validation evidence.
 - [x] Cache Vue read-item View metadata by rendered `ViewId` so detail,
       init-new, and manual read-item panels do not bind data DTO values to a
       stale or wrong read View shape.
-- [x] Render legacy `getmain/getsubmenu` menu entries in the Vue sidebar and
+- [x] Render legacy `getmain/getsubmenu` menu entries in the Vue shell and
       open menu `ViewId` entries through the existing
       `getlistview(ViewId)` -> `querydata(ViewId)` workflow, including stale
       stored-token recovery before first-screen rendering.
 - [x] Preserve the old Web menu hierarchy in desktop and mobile navigation:
       keep `getmain.TopMenu` visible while `getsubmenu.Items` expands beneath
       its parent, and keep the mobile Drawer open until a concrete View opens.
+- [x] Restore the old Web desktop shell layout: move AppInfo branding,
+      Home/TopMenu/SubMenu navigation, and user actions into the top header,
+      while reusing the same menu component vertically in the mobile Drawer.
 - [x] Accept the old FoolFrame Web `/user/getmenu` submenu protocol shape as
       `/api/v1/auth/getmenu`, including the `authcode` payload from
       `menuinfo.js`.

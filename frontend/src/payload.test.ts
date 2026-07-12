@@ -526,7 +526,12 @@ describe("App defaults", () => {
     expect(appSource).toContain(':items="topMenuItems"');
     expect(appSource).toContain(':expanded-auth-code="subMenuParentAuthCode"');
     expect(appSource).toContain('@select="openShellMenu"');
+    expect(appSource).toContain('class="shell-header"');
+    expect(appSource).toContain('class="desktop-navigation"');
+    expect(appSource).toContain("horizontal");
+    expect(appSource).not.toContain('class="sidebar"');
     expect(legacyMenuNavSource).toContain('v-for="item in items"');
+    expect(legacyMenuNavSource).toContain("nav-list-horizontal");
     expect(legacyMenuNavSource).toContain('legacyAuthNo(item) === expandedAuthCode && subItems.length');
     expect(menuSource).toContain("legacyAuthViewId(item)");
     expect(menuSource).toContain('subMenuParentAuthCode.value = ""');

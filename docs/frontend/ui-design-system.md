@@ -52,13 +52,16 @@ This document is the source of truth for the Fool Service Vue interface.
 
 ## Responsive Contract
 
-- Desktop (`>= 1024px`) uses a 240px sidebar and a two-column list/detail
-  workspace when the View permits it.
-- Narrow layouts use a top navigation bar and Drawer for the same menu entries.
+- Desktop (`>= 1024px`) follows the old Web shell with AppInfo branding,
+  Home/TopMenu/SubMenu navigation, and user actions in one top header. List and
+  standalone detail routes each use the full workspace width.
+- Narrow layouts keep AppInfo/user actions in the header and use a Drawer for
+  the same Home/TopMenu/SubMenu entries.
 - At 390x844 the document body must not overflow horizontally. Wide tables may
   scroll inside their DataTable container.
-- Toolbars and report conditions collapse to one column below 640px; captcha,
-  messages, menus, and action buttons must stay inside the viewport.
+- Detail fields, child-add controls, and report conditions collapse to one
+  column below 640px; list/action toolbars wrap, while captcha, messages,
+  menus, and buttons must stay inside the viewport.
 
 ## Acceptance
 
