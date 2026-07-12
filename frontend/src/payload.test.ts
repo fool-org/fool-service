@@ -674,6 +674,10 @@ describe("App defaults", () => {
 
   it("keeps the legacy save report route in the View report panel", () => {
     expect(viewReportPanelSource).toContain("保存报表定义");
+    expect(viewReportPanelSource).toContain('const reportName = ref("")');
+    expect(viewReportPanelSource).toContain("输入报表信息以保存该报表");
+    expect(viewReportPanelSource).not.toContain('ref("视图报表")');
+    expect(viewReportPanelSource).not.toContain("<h3>保存报表</h3>");
     expect(viewReportPanelSource).toContain("/api/v1/report/saverpt");
     expect(appSource).not.toContain("Save Report Definition");
   });

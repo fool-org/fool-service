@@ -151,6 +151,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `运算` / `值` headers, old operation-column ordering, and add commands above
   and below the rows. The dense eight-column editor keeps a stable scrollable
   width on narrow screens instead of overlapping its controls.
+- 2026-07-12: restored the `view.jade` save-report form. The report name starts
+  blank instead of carrying an invented `视图报表` value, the tab shows the old
+  `输入报表信息以保存该报表` heading, and the field again uses the available
+  dialog width. The save request remains disabled until a name and output
+  columns are present.
 - 2026-07-12: restored Sudoku panel refresh semantics from old Web
   `includes/List.jade`, `querylistdata.js`, and `groupview.js`. Top-level and
   grouped list panels expose `FreshTime` with a text refresh command; targeted

@@ -61,7 +61,7 @@ const emit = defineEmits<{ close: [] }>();
 
 const currentPage = ref(1);
 const pageSize = ref(10);
-const reportName = ref("视图报表");
+const reportName = ref("");
 const modelResponse = ref<CommonResponse<ReportModelResult> | null>(null);
 const reportResponse = ref<CommonResponse<ReportGridResult> | null>(null);
 const reportCols = ref<ReportCol[]>([]);
@@ -339,7 +339,7 @@ onMounted(() => void loadReportColumns());
 
         <TabPanel value="save">
           <section class="report-section report-save-section">
-            <h3>保存报表</h3>
+            <h4>输入报表信息以保存该报表</h4>
             <label>
               报表名称
               <InputText v-model="reportName" fluid />

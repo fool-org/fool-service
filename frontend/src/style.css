@@ -316,10 +316,6 @@ label {
   gap: 7px;
 }
 
-.report-save-section {
-  max-width: 480px;
-}
-
 .report-section {
   display: grid;
   gap: 10px;
