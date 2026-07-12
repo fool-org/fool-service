@@ -8,7 +8,7 @@ import Paginator, { type PageState } from "primevue/paginator";
 import Tab from "primevue/tab";
 import TabList from "primevue/tablist";
 import Tabs from "primevue/tabs";
-import type { ListDataItem, ListViewInfo, ListViewResult, QueryDataDetailResult } from "./api";
+import type { ListDataItem, ListViewInfo, ListViewResult, QueryDataDetailResult, TableColumnInfo } from "./api";
 import LegacyChartPanel from "./LegacyChartPanel.vue";
 import ListDataTable from "./ListDataTable.vue";
 import SudokuPanels from "./SudokuPanels.vue";
@@ -47,6 +47,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   newObject: [viewId: number];
   page: [pageIndex: number];
+  refreshPanel: [panel: TableColumnInfo];
   search: [];
   select: [row: ListDataItem, viewId?: number];
   toggleReport: [];
@@ -114,7 +115,7 @@ function changePage(event: PageState) {
       </TabList>
     </Tabs>
 
-    <SudokuPanels v-if="sudokuView" :disabled="disabled" :panel-data="panelData" :panels="viewColumns(view)" />
+    <SudokuPanels v-if="sudokuView" :disabled="disabled" :panel-data="panelData" :panels="viewColumns(view)" @refresh-panel="emit('refreshPanel', $event)" />
 
     <div v-show="(!chartView && !sudokuView) || activePane === 'table'" class="table-wrap view-table">
       <ListDataTable

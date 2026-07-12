@@ -25,7 +25,6 @@ import {
   type MessageInfo,
   type OperationInfo,
   type SaveItemProperty,
-  type TableColumnInfo,
   postApi
 } from "./api";
 import LoginPanel from "./LoginPanel.vue";
@@ -33,6 +32,7 @@ import LegacyMenuNav from "./LegacyMenuNav.vue";
 import { useChildCandidates } from "./useChildCandidates";
 import { useChildDrafts } from "./useChildDrafts";
 import { useFieldEnums } from "./useFieldEnums";
+import { useSudokuPanels } from "./useSudokuPanels";
 import { useViewDataWorkflow } from "./useViewDataWorkflow";
 import { enumFieldOptions, nextObjectId, services } from "./viewShell";
 import {
@@ -81,9 +81,6 @@ import {
   operationId as operationInfoId,
   rowObjectId,
   selectedChildViewId,
-  sudokuPanelKind,
-  sudokuPanelListViewType,
-  sudokuPanelViewId,
   viewDisplayTitle,
   viewId,
   viewUsesChartTemplate,
@@ -223,9 +220,20 @@ function fieldEnumOptions(field: ListDataValue) {
 const isChartView = computed(() => viewUsesChartTemplate(viewResponse.value?.data));
 const isSudokuView = computed(() => viewUsesSudokuTemplate(viewResponse.value?.data));
 const sudokuPanels = computed(() => viewColumns(viewResponse.value?.data));
-type SudokuPanelResult = { view: ListViewInfo; data: ListViewResult | null; detail?: QueryDataDetailResult | null };
-
-const sudokuPanelData = ref<Record<number, SudokuPanelResult>>({});
+const {
+  panelData: sudokuPanelData,
+  loadPanels: loadSudokuPanels,
+  refreshPanel: refreshSudokuPanel,
+  stopRefresh: stopSudokuPanelRefresh
+} = useSudokuPanels({
+  enabled: isSudokuView,
+  loadViewById,
+  loadViewDataById,
+  panels: sudokuPanels,
+  pendingAction,
+  runAction,
+  token
+});
 let autoRefreshTimer: number | undefined;
 let shellPollTimer: number | undefined;
 let shellRefreshInFlight = false;
@@ -470,71 +478,6 @@ async function queryCurrentViewData() {
   return response;
 }
 
-async function loadSudokuPanels() {
-  if (!isSudokuView.value) {
-    sudokuPanelData.value = {};
-    return;
-  }
-  const loaded: Record<number, SudokuPanelResult> = {};
-  for (const panel of sudokuPanels.value) {
-    const panelViewId = sudokuPanelViewId(panel);
-    if (!panelViewId) continue;
-    const response = await loadSudokuPanel(panel);
-    if (response) {
-      loaded[panelViewId] = mergeSudokuPanelResult(loaded[panelViewId], response);
-      sudokuPanelData.value = { ...loaded };
-      if (sudokuPanelKind(panel) === "group") {
-        for (const childPanel of sudokuGroupPanels(panel)) {
-          const childViewId = sudokuPanelViewId(childPanel);
-          if (!childViewId || loaded[childViewId]?.data || sudokuPanelListViewType(childPanel) !== 0) continue;
-          const childResponse = await loadViewDataById(childViewId, "sudoku-panel", 5);
-          if (childResponse) loaded[childViewId] = mergeSudokuPanelResult(loaded[childViewId], childResponse);
-        }
-      }
-    }
-  }
-  sudokuPanelData.value = { ...loaded };
-}
-
-function mergeSudokuPanelResult(current: SudokuPanelResult | undefined, next: SudokuPanelResult): SudokuPanelResult {
-  return {
-    ...next,
-    data: next.data ?? current?.data ?? null,
-    detail: next.detail ?? current?.detail
-  };
-}
-
-async function loadSudokuPanel(panel: TableColumnInfo) {
-  const panelViewId = sudokuPanelViewId(panel);
-  if (sudokuPanelKind(panel) !== "item") {
-    return loadViewDataById(panelViewId, "sudoku-panel", 5);
-  }
-  const panelViewResponse = await loadViewById(panelViewId, "sudoku-item");
-  if (!panelViewResponse) {
-    return null;
-  }
-  const loadedViewId = viewId(panelViewResponse.data, panelViewId);
-  if (!loadedViewId) {
-    return { view: panelViewResponse.data, data: null, detail: null };
-  }
-  const detailResponse = await runAction("sudoku-item-detail", () =>
-    postApi<QueryDataDetailResult>("/api/v1/data/querydatadetail", buildQueryDataDetailRequest({
-      token: token.value,
-      viewId: loadedViewId,
-      objId: ""
-    }))
-  );
-  return { view: panelViewResponse.data, data: null, detail: detailResponse?.data ?? null };
-}
-
-function sudokuPanelResult(panel: TableColumnInfo) {
-  return sudokuPanelData.value[sudokuPanelViewId(panel)];
-}
-
-function sudokuGroupPanels(panel: TableColumnInfo) {
-  return viewColumns(sudokuPanelResult(panel)?.view);
-}
-
 async function loadResultPage(nextPage: number) {
   pageIndex.value = Math.max(1, nextPage);
   await queryCurrentViewData();
@@ -770,6 +713,7 @@ onUnmounted(() => {
 });
 
 function stopAutoRefresh() {
+  stopSudokuPanelRefresh();
   if (autoRefreshTimer !== undefined) {
     window.clearInterval(autoRefreshTimer);
     autoRefreshTimer = undefined;
@@ -1057,6 +1001,7 @@ function syncDetailDrafts() {
           :view="viewResponse?.data"
           @new-object="startNewObject"
           @page="loadResultPage"
+          @refresh-panel="refreshSudokuPanel"
           @search="searchCurrentView"
           @select="selectObject"
           @toggle-report="showViewReport = !showViewReport"

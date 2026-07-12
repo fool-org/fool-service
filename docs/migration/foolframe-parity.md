@@ -118,6 +118,17 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-12: restored Sudoku panel refresh semantics from old Web
+  `includes/List.jade`, `querylistdata.js`, and `groupview.js`. Top-level and
+  grouped list panels expose `FreshTime` with an icon refresh command; targeted
+  refresh merges by ViewId so shared list/chart/item data is retained. Each
+  data panel schedules its own stable-key `AutoFreshTime` interval, while View
+  changes and component teardown clear all panel timers. The 119-line
+  `useSudokuPanels.ts` composable owns loading, merging, and timers, reducing
+  `App.vue` from 1153 to 1057 lines. All 132 frontend
+  tests, TypeScript/Vite and Compose frontend builds, deployed runtime doctor,
+  and repository harness pass. Visible refresh clicking remains in final
+  authenticated browser acceptance.
 - 2026-07-12: restored old Web operation feedback from `operation.js`. Vue now
   projects camel/Pascal `ReturnMsg`, shows a success or error result in the
   detail panel, keeps successful refresh behavior, and clears stale results

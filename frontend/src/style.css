@@ -401,6 +401,17 @@ label {
   justify-content: space-between;
 }
 
+.sudoku-panel-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.sudoku-panel-actions small {
+  color: #64748b;
+  font-size: 0.72rem;
+}
+
 .sudoku-panel .p-panel-content {
   padding: 0;
 }

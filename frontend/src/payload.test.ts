@@ -12,6 +12,7 @@ import metadataFieldEditorSource from "./MetadataFieldEditor.vue?raw";
 import payloadSource from "./payload.ts?raw";
 import shellActionsSource from "./ShellActions.vue?raw";
 import sudokuPanelsSource from "./SudokuPanels.vue?raw";
+import sudokuWorkflowSource from "./useSudokuPanels.ts?raw";
 import viewDetailPanelSource from "./ViewDetailPanel.vue?raw";
 import viewListPanelSource from "./ViewListPanel.vue?raw";
 import viewReportPanelSource from "./ViewReportPanel.vue?raw";
@@ -166,15 +167,20 @@ describe("App defaults", () => {
   it("renders the legacy Sudoku template from ViewFile panels", () => {
     expect(appSource).toContain("viewUsesSudokuTemplate(viewResponse.value?.data)");
     expect(viewListPanelSource).toContain("SudokuPanels");
-    expect(appSource).toContain("sudokuPanelKind(panel)");
+    expect(appSource).toContain("useSudokuPanels");
     expect(appSource).toContain("loadSudokuPanels");
-    expect(appSource).toContain("loadViewDataById(panelViewId, \"sudoku-panel\", 5)");
+    expect(sudokuWorkflowSource).toContain('loadViewDataById(panelViewId, "sudoku-panel", 5)');
+    expect(sudokuWorkflowSource).toContain("scheduleRefresh(panel, response)");
+    expect(appSource).toContain("stopSudokuPanelRefresh()");
+    expect(viewListPanelSource).toContain("@refresh-panel=\"emit('refreshPanel', $event)\"");
+    expect(sudokuPanelsSource).toContain("listFreshTime");
+    expect(sudokuPanelsSource).toContain("emit('refreshPanel', panel)");
     expect(sudokuPanelsSource).toContain('class="sudoku-grid"');
   });
 
   it("loads Sudoku child panels without requiring root querydata", () => {
     const start = appSource.indexOf("async function queryCurrentViewData");
-    const source = appSource.slice(start, appSource.indexOf("async function loadSudokuPanels", start));
+    const source = appSource.slice(start, appSource.indexOf("async function loadResultPage", start));
     expect(source).toContain("if (isSudokuView.value)");
     expect(source.indexOf("await loadSudokuPanels()")).toBeLessThan(source.indexOf("queryCurrentViewDataBase()"));
   });
@@ -197,10 +203,7 @@ describe("App defaults", () => {
   });
 
   it("renders Sudoku item panels from legacy detail SimpleData", () => {
-    const sudokuLoadSource = appSource.slice(
-      appSource.indexOf("async function loadSudokuPanel"),
-      appSource.indexOf("function sudokuPanelResult")
-    );
+    const sudokuLoadSource = sudokuWorkflowSource;
 
     expect(sudokuPanelsSource).toContain("sudokuPanelKind(panel) === 'item'");
     expect(sudokuPanelsSource).toContain("sudokuPanelItemFields(panel)");
@@ -212,10 +215,10 @@ describe("App defaults", () => {
   });
 
   it("loads and renders Sudoku group child list panels", () => {
-    expect(appSource).toContain("sudokuPanelKind(panel) === \"group\"");
-    expect(appSource).toContain("for (const childPanel of sudokuGroupPanels(panel))");
-    expect(appSource).toContain("sudokuPanelListViewType(childPanel) !== 0");
-    expect(appSource).toContain("sudokuPanelData.value = { ...loaded }");
+    expect(sudokuWorkflowSource).toContain('sudokuPanelKind(panel) !== "group"');
+    expect(sudokuWorkflowSource).toContain("for (const childPanel of viewColumns(response.view))");
+    expect(sudokuWorkflowSource).toContain("sudokuPanelListViewType(childPanel) !== 0");
+    expect(sudokuWorkflowSource).toContain("mergePanelResult(childViewId, childResponse)");
     expect(sudokuPanelsSource).toContain("sudokuPanelKind(panel) === 'group'");
     expect(sudokuPanelsSource).toContain("简单项");
   });

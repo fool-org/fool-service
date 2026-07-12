@@ -720,6 +720,10 @@ item must land with its matching implementation and validation evidence.
       titles from ViewItem `Name` metadata instead of only template kind text.
 - [x] Align Vue Sudoku `ListViewType=1` group child placeholder text with the
       legacy FoolFrame `GroupViewController` simple-item branch.
+- [x] Restore legacy Sudoku list/group panel refresh behavior: expose each
+      loaded panel's `FreshTime`, support targeted refresh, schedule its own
+      `AutoFreshTime`, preserve shared ViewId data, and clear timers on View
+      changes and unmount.
 - [x] Start Vue from the old FoolFrame Web `/view:id` list route by applying
       the path View id before loading app-default View metadata.
 - [x] Start Vue from the old FoolFrame Web detail/new routes by reusing
