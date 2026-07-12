@@ -102,6 +102,8 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore old `setextype.js` BusinessObject typeahead interaction with the
       existing PrimeVue AutoComplete: query after one typed character, show
       View-derived `Text` / `Id` candidates, and save only the selected id.
+- [x] Restore BusinessObject current-value and clear interaction: initialize
+      lookup text from `FmtValue` and save an empty id when the user clears it.
 - [x] Seed and prove a live BusinessObject lookup path for the Vue View
       workflow.
 - [x] Auto-load the default Vue View workflow so the first screen is usable

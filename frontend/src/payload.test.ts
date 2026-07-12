@@ -517,6 +517,12 @@ describe("App defaults", () => {
     expect(metadataFieldEditorSource).toContain("<AutoComplete");
     expect(metadataFieldEditorSource).toContain('@complete="searchLookup($event.query)"');
     expect(metadataFieldEditorSource).toContain('@option-select="selectLookup($event.value)"');
+    expect(metadataFieldEditorSource).toContain("ref<string | LookupChoice>(props.readonlyValue || props.modelValue)");
+    expect(metadataFieldEditorSource).toContain("watch(() => props.field");
+    expect(metadataFieldEditorSource).toContain("lookupTerm.value = props.readonlyValue || props.modelValue");
+    expect(metadataFieldEditorSource).toContain('@update:model-value="updateLookupTerm"');
+    expect(metadataFieldEditorSource).toContain('if (term === "" || term === null) emit("update:modelValue", "")');
+    expect(metadataFieldEditorSource).not.toContain(':placeholder="readonlyValue || modelValue"');
     expect(metadataFieldEditorSource).toContain("未找到匹配的选项");
     expect(metadataFieldEditorSource).not.toContain("<InputGroup>");
     expect(metadataFieldEditorSource).not.toContain("<Listbox");

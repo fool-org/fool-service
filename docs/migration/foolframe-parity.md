@@ -2003,6 +2003,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   model now search through the migrated `inputquery` endpoint and only write
   the selected candidate ID into the `saveobj` / `savenewobj` draft, matching
   the old typeahead select behavior without adding a new frontend dependency.
+- 2026-07-12: restored BusinessObject current-value and clear behavior from
+  `setextype.js` / `savetext.js`. Lookup inputs now edit the View-provided
+  `FmtValue` instead of showing it as a placeholder, preserve selected-id
+  writeback, and clear the saved foreign-key id when the input is emptied.
 - 2026-07-03: added the first Vue detail child-item write workflow for
   `OrderList`. The default detail panel can now add an order item through the
   legacy `saveobj.Itemproperties.AddedItems` payload, matching FoolFrame's

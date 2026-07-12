@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import AutoComplete from "primevue/autocomplete";
 import Checkbox from "primevue/checkbox";
 import InputText from "primevue/inputtext";
@@ -60,7 +60,7 @@ type LookupChoice = {
 const lookupError = ref("");
 const lookupOptions = ref<InputQueryItem[]>([]);
 const lookupPending = ref(false);
-const lookupTerm = ref<string | LookupChoice>("");
+const lookupTerm = ref<string | LookupChoice>(props.readonlyValue || props.modelValue);
 
 const value = computed({
   get: () => props.modelValue,
@@ -75,6 +75,12 @@ const lookupChoices = computed(() => lookupOptions.value.map((item) => ({
   label: inputQueryItemText(item) || inputQueryItemId(item),
   item
 })));
+
+watch(() => props.field, () => {
+  lookupTerm.value = props.readonlyValue || props.modelValue;
+  lookupOptions.value = [];
+  lookupError.value = "";
+});
 
 async function searchLookup(query: string) {
   lookupPending.value = true;
@@ -109,6 +115,11 @@ function selectLookup(choice: LookupChoice) {
   lookupTerm.value = choice.label;
   lookupOptions.value = [];
 }
+
+function updateLookupTerm(term: string | LookupChoice | null) {
+  lookupTerm.value = term || "";
+  if (term === "" || term === null) emit("update:modelValue", "");
+}
 </script>
 
 <template>
@@ -116,7 +127,7 @@ function selectLookup(choice: LookupChoice) {
   <Select v-else-if="isEnumField(field)" v-model="value" :options="options" option-label="label" option-value="value" fluid />
   <div v-else-if="isLookupField(field)" class="metadata-lookup">
     <AutoComplete
-      v-model="lookupTerm"
+      :model-value="lookupTerm"
       :suggestions="lookupChoices"
       option-label="label"
       data-key="id"
@@ -124,11 +135,11 @@ function selectLookup(choice: LookupChoice) {
       :min-length="1"
       :loading="lookupPending"
       :disabled="lookupDisabled"
-      :placeholder="readonlyValue || modelValue"
       force-selection
       fluid
       @complete="searchLookup($event.query)"
       @option-select="selectLookup($event.value)"
+      @update:model-value="updateLookupTerm"
     >
       <template #option="{ option }">
         <strong>{{ option.label }}</strong>
