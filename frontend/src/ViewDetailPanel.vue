@@ -11,7 +11,7 @@ import Tabs from "primevue/tabs";
 import type { ListDataItem, ListDataValue, OperationInfo, QueryDataDetailDataItem, QueryDataDetailItemGroup, TableColumnInfo } from "./api";
 import ListDataTable from "./ListDataTable.vue";
 import MetadataFieldEditor from "./MetadataFieldEditor.vue";
-import type { SelectOption } from "./viewShell";
+import { nextObjectId, type SelectOption } from "./viewShell";
 import {
   buildGroupItemDrafts,
   fieldDisplayValue,
@@ -23,6 +23,7 @@ import {
   groupItems,
   groupKey,
   groupSelectFromExists,
+  groupSelectedViewId,
   groupTitle,
   itemDataId,
   itemKey,
@@ -45,7 +46,7 @@ const props = defineProps<{
   errorMessage: string;
   fieldEditorContext: Record<string, unknown>;
   isCreatingObject: boolean;
-  newChildDraftValue: (group: QueryDataDetailItemGroup, field: ListDataValue) => string;
+  isPendingAddedItem: (group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) => boolean;
   operationResult: { message: string; success: boolean } | null;
   pending: boolean;
   schemaOnly: boolean;
@@ -91,7 +92,7 @@ watch(
 );
 
 const emit = defineEmits<{
-  addDetailItem: [group: QueryDataDetailItemGroup];
+  addDetailItem: [group: QueryDataDetailItemGroup, itemId?: string];
   addExistingDetailItem: [group: QueryDataDetailItemGroup, row: ListDataItem];
   deleteDetailItem: [group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem];
   dismissError: [];
@@ -101,7 +102,6 @@ const emit = defineEmits<{
   runViewOperation: [operation: OperationInfo, editing: boolean];
   saveSelectedObject: [];
   setChildDraftValue: [group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem, field: ListDataValue, value: string];
-  setNewChildDraftValue: [group: QueryDataDetailItemGroup, field: ListDataValue, value: string];
   updateCandidateKeyword: [group: QueryDataDetailItemGroup, event: Event];
   updateDetailDraft: [key: string, value: string];
   updateDetailItem: [group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem];
@@ -110,6 +110,17 @@ const emit = defineEmits<{
 function openExistingPicker(group: QueryDataDetailItemGroup) {
   pickerGroupKey.value = groupKey(group);
   emit("loadExistingDetailItems", group);
+}
+
+function addItem(group: QueryDataDetailItemGroup) {
+  if (groupSelectFromExists(group)) {
+    openExistingPicker(group);
+    return;
+  }
+  const itemId = groupSelectedViewId(group) ? "" : nextObjectId();
+  if (itemId && editingItemKey.value) stageEditingItem();
+  emit("addDetailItem", group, itemId);
+  if (itemId) editingItemKey.value = `${groupKey(group)}:${itemId}`;
 }
 
 function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) {
@@ -270,24 +281,8 @@ function displayedItemValue(group: QueryDataDetailItemGroup, item: QueryDataDeta
         </TabList>
         <TabPanels>
           <TabPanel v-for="group in detailItemGroups" :key="groupKey(group)" :value="groupKey(group)">
-            <div v-if="isEditing && !groupSelectFromExists(group)" class="item-add-row">
-              <label v-for="field in groupColumns(group)" :key="fieldKey(field)">
-                {{ fieldTitle(field) }}
-                <MetadataFieldEditor
-                  :model-value="newChildDraftValue(group, field)"
-                  :field="field"
-                  :options="enumFieldOptions(field)"
-                  v-bind="fieldEditorContext"
-                  :is-added="true"
-                  :object-id="''"
-                  :owner-id="selectedObjectId"
-                  @update:model-value="(value) => emit('setNewChildDraftValue', group, field, value)"
-                />
-              </label>
-              <Button type="button" label="增加" icon="pi pi-plus" severity="secondary" outlined :disabled="pending" @click="emit('addDetailItem', group)" />
-            </div>
-            <div v-if="isEditing && groupSelectFromExists(group)" class="detail-collection-toolbar">
-              <Button type="button" label="增加" icon="pi pi-plus" severity="secondary" outlined :disabled="pending" @click="openExistingPicker(group)" />
+            <div v-if="isEditing" class="detail-collection-toolbar">
+              <Button type="button" label="增加" icon="pi pi-plus" severity="secondary" outlined :disabled="pending" @click="addItem(group)" />
             </div>
             <Dialog
               :visible="pickerGroupKey === groupKey(group)"
@@ -349,7 +344,7 @@ function displayedItemValue(group: QueryDataDetailItemGroup, item: QueryDataDeta
                           :options="enumFieldOptions(field)"
                           :readonly-value="itemValue(item, field)"
                           v-bind="fieldEditorContext"
-                          :is-added="false"
+                          :is-added="isPendingAddedItem(group, item)"
                           :object-id="itemDataId(item)"
                           :owner-id="selectedObjectId"
                           @update:model-value="(value) => emit('setChildDraftValue', group, item, field, value)"

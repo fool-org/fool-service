@@ -21,13 +21,7 @@ describe("useChildDrafts", () => {
       ]
     };
 
-    expect(drafts.newChildDraftValue(group, group.properties[0])).toBe("");
-
-    drafts.setNewChildDraftValue(group, group.properties[1], "New");
-    expect(drafts.newChildDrafts.value.items).toEqual({ itemId: "", itemName: "New" });
-
     drafts.syncChildDrafts([group]);
-    expect(drafts.newChildDrafts.value.items).toEqual({ itemId: "", itemName: "New" });
     expect(drafts.childDraftValue(group, group.items[0], group.properties[1])).toBe("Old");
 
     drafts.setChildDraftValue(group, group.items[0], group.properties[1], "Updated");

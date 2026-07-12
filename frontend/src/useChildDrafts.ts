@@ -4,24 +4,12 @@ import {
   buildGroupItemDrafts,
   buildItemDrafts,
   draftFieldValue,
-  emptyGroupDraft,
-  groupKey,
   itemKey,
   withDraftFieldValue
 } from "./viewWorkflow";
 
 export function useChildDrafts() {
   const childDrafts = ref<Record<string, Record<string, string>>>({});
-  const newChildDrafts = ref<Record<string, Record<string, string>>>({});
-
-  function newChildDraftValue(group: QueryDataDetailItemGroup, field: ListDataValue) {
-    return draftFieldValue(newChildDrafts.value, groupKey(group), field);
-  }
-
-  function setNewChildDraftValue(group: QueryDataDetailItemGroup, field: ListDataValue, value: string) {
-    const key = groupKey(group);
-    newChildDrafts.value = withDraftFieldValue(newChildDrafts.value, key, emptyGroupDraft(group), field, value);
-  }
 
   function childDraftValue(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem, field: ListDataValue) {
     return draftFieldValue(childDrafts.value, itemKey(group, item), field);
@@ -45,20 +33,12 @@ export function useChildDrafts() {
 
   function syncChildDrafts(groups: QueryDataDetailItemGroup[]) {
     childDrafts.value = buildItemDrafts(groups);
-    newChildDrafts.value = groups.reduce<Record<string, Record<string, string>>>((drafts, group) => {
-      const key = groupKey(group);
-      drafts[key] = newChildDrafts.value[key] || emptyGroupDraft(group);
-      return drafts;
-    }, {});
   }
 
   return {
     childDrafts,
-    newChildDrafts,
     childDraftValue,
-    newChildDraftValue,
     setChildDraftValue,
-    setNewChildDraftValue,
     syncChildDrafts
   };
 }

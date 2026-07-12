@@ -21,8 +21,9 @@ describe("pending child changes", () => {
   it("discards an unsaved addition without leaving an AddedItems payload", () => {
     const pending = usePendingChildChanges();
     const added = buildAddedDetailItem(group, "2002", { itemId: "2002", itemName: "New" });
-    pending.add(group, added, buildAddedItemProperty(group, "2002", { itemId: "2002", itemName: "New" }));
+    pending.add(group, added);
 
+    expect(pending.itemProperties.value).toEqual([]);
     expect(pending.removeAdded(group, added)).toBe(true);
     expect(pending.itemProperties.value).toEqual([]);
     expect(groupItems(pending.renderGroups([group])[0]).map((item) => item.dataId)).toEqual(["2001"]);

@@ -931,6 +931,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `detailview.js` child-add persistence timing: stage manual and
       selected-existing rows in `AddedItems`, discard unsaved rows locally,
       query candidates by `ListViewId`, and route `SelectedView` child creation.
+- [x] Restore `detailview.js` inline child-add interaction: replace the invented
+      persistent add form with a blank table row that immediately enters its
+      row editor and stages only when the row Save action runs.
 - [x] Restore the compact text-only Bootstrap navbar brand: remove the invented
       42px initial tile, render App name/version inline, and reduce the desktop
       shell header to the old 50px scale while reusing it in the mobile Drawer.

@@ -145,11 +145,8 @@ const {
 } = useChildCandidates(groupKey);
 const {
   childDrafts,
-  newChildDrafts,
   childDraftValue,
-  newChildDraftValue,
   setChildDraftValue,
-  setNewChildDraftValue,
   syncChildDrafts
 } = useChildDrafts();
 
@@ -768,7 +765,7 @@ async function saveSelectedObject() {
   window.history.back();
 }
 
-function addDetailItem(group: QueryDataDetailItemGroup) {
+function addDetailItem(group: QueryDataDetailItemGroup, requestedItemId = "") {
   if (!selectedObjectId.value || isCreatingObject.value) {
     errorMessage.value = "请先保存主记录。";
     return;
@@ -783,22 +780,16 @@ function addDetailItem(group: QueryDataDetailItemGroup) {
     ));
     return;
   }
-  const key = groupKey(group);
-  const drafts = { ...(newChildDrafts.value[key] || {}) };
+  const drafts = emptyGroupDraft(group);
   const firstField = groupColumns(group)[0];
   const firstFieldKey = firstField ? fieldKey(firstField) : "";
-  const itemId = firstFieldKey && drafts[firstFieldKey] ? drafts[firstFieldKey] : nextObjectId();
+  const itemId = requestedItemId || nextObjectId();
   if (firstFieldKey && !drafts[firstFieldKey]) {
     drafts[firstFieldKey] = itemId;
   }
-  const property = buildAddedItemProperty(group, itemId, drafts);
   const item = buildAddedDetailItem(group, itemId, drafts);
-  addPendingDetailItem(group, item, property);
+  addPendingDetailItem(group, item);
   childDrafts.value = { ...childDrafts.value, [itemKey(group, item)]: drafts };
-  newChildDrafts.value = {
-    ...newChildDrafts.value,
-    [key]: emptyGroupDraft(group)
-  };
 }
 
 async function loadExistingDetailItems(group: QueryDataDetailItemGroup) {
@@ -995,7 +986,7 @@ function syncDetailDrafts() {
           :error-message="errorMessage"
           :field-editor-context="fieldEditorContext"
           :is-creating-object="isCreatingObject"
-          :new-child-draft-value="newChildDraftValue"
+          :is-pending-added-item="isPendingAddedDetailItem"
           :operation-result="operationResult"
           :pending="Boolean(pendingAction)"
           :schema-only="isMetadataOnlyView"
@@ -1012,7 +1003,6 @@ function syncDetailDrafts() {
           @run-view-operation="runViewOperation"
           @save-selected-object="saveSelectedObject"
           @set-child-draft-value="setChildDraftValue"
-          @set-new-child-draft-value="setNewChildDraftValue"
           @update-candidate-keyword="updateCandidateKeyword"
           @update-detail-draft="(key, value) => detailDrafts[key] = value"
           @update-detail-item="updateDetailItem"

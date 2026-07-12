@@ -186,6 +186,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `AddedItems` until parent Save, removing immediate save/query cycles; deleting
   an unsaved row discards it locally. Candidate lookup uses `ListViewId`, while
   a configured `SelectedView` opens the old owner-aware child-new route.
+- 2026-07-12: restored the inline child-add interaction from `detailview.js`.
+  The invented always-visible add form is removed; Add now inserts a metadata-
+  shaped blank table row, enters that row's editor, stages the previously edited
+  row when necessary, and writes `AddedItems` only when row Save is clicked.
 - 2026-07-12: restored old `message.js` delivery behavior in the Vue shell.
   Each non-empty 15-second `getmsg` poll now immediately opens its first item
   in a `系统消息` modal with generation time, content, View-first detail

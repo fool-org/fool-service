@@ -222,8 +222,14 @@ describe("App defaults", () => {
   });
 
   it("opens select-from-existing collection candidates in the legacy modal flow", () => {
-    expect(viewDetailPanelSource).toContain('v-if="isEditing && !groupSelectFromExists(group)"');
+    expect(viewDetailPanelSource).toContain('v-if="isEditing" class="detail-collection-toolbar"');
     expect(viewDetailPanelSource).toContain('label="增加"');
+    expect(viewDetailPanelSource).toContain("function addItem(group");
+    expect(viewDetailPanelSource).toContain("nextObjectId()");
+    expect(viewDetailPanelSource).toContain("if (itemId && editingItemKey.value) stageEditingItem()");
+    expect(viewDetailPanelSource).toContain('editingItemKey.value = `${groupKey(group)}:${itemId}`');
+    expect(viewDetailPanelSource).not.toContain("item-add-row");
+    expect(viewDetailPanelSource).not.toContain("newChildDraftValue");
     expect(viewDetailPanelSource).toContain("function openExistingPicker");
     expect(viewDetailPanelSource).toContain('class="detail-picker-dialog"');
     expect(viewDetailPanelSource).toContain("emit(\"loadExistingDetailItems\", group)");
@@ -491,7 +497,7 @@ describe("App defaults", () => {
   it("passes parent context into child lookup editors", () => {
     expect(metadataFieldEditorSource).toContain("ownerId: props.ownerId");
     expect(viewDetailPanelSource).toContain(':owner-id="selectedObjectId"');
-    expect(viewDetailPanelSource).toContain(':is-added="true"');
+    expect(viewDetailPanelSource).toContain(':is-added="isPendingAddedItem(group, item)"');
     expect(viewDetailPanelSource).toContain(':object-id="itemDataId(item)"');
   });
 

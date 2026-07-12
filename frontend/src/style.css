@@ -724,13 +724,6 @@ label {
   margin: 0;
 }
 
-.item-add-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 10px;
-  align-items: end;
-}
-
 .panel {
   display: grid;
   gap: 14px;
@@ -887,8 +880,7 @@ label {
   }
 
   .button-row,
-  .inline-fields,
-  .item-add-row {
+  .inline-fields {
     grid-template-columns: 1fr;
   }
 }

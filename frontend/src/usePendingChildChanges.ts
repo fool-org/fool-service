@@ -34,10 +34,10 @@ export function usePendingChildChanges() {
     itemProperties.value = mergeItemPropertyChange(itemProperties.value, change);
   }
 
-  function add(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem, change: SaveItemProperty) {
+  function add(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem, change?: SaveItemProperty) {
     const key = groupKey(group);
     const itemId = itemDataId(item);
-    stage(change);
+    if (change) stage(change);
     addedDetailItems.value = {
       ...addedDetailItems.value,
       [key]: [...(addedDetailItems.value[key] || []).filter((candidate) => itemDataId(candidate) !== itemId), item]
