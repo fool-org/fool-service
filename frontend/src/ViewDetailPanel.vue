@@ -11,6 +11,7 @@ import Tabs from "primevue/tabs";
 import type { ListDataItem, ListDataValue, OperationInfo, QueryDataDetailDataItem, QueryDataDetailItemGroup, TableColumnInfo } from "./api";
 import ListDataTable from "./ListDataTable.vue";
 import MetadataFieldEditor from "./MetadataFieldEditor.vue";
+import { candidateRecordInfo, type ChildCandidateState } from "./useChildCandidates";
 import { nextObjectId, type SelectOption } from "./viewShell";
 import {
   buildGroupItemDrafts,
@@ -36,7 +37,7 @@ import {
 const props = defineProps<{
   candidateColumns: (group: QueryDataDetailItemGroup) => TableColumnInfo[];
   candidateRows: (group: QueryDataDetailItemGroup) => ListDataItem[];
-  candidateState: (group: QueryDataDetailItemGroup) => { keyword: string; pageIndex: number; pageSize: number; queried: boolean; totalPage: number };
+  candidateState: (group: QueryDataDetailItemGroup) => ChildCandidateState;
   candidateViewLoading: boolean;
   childDraftValue: (group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem, field: ListDataValue) => string;
   detailDrafts: Record<string, string>;
@@ -361,11 +362,6 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                   </label>
                   <Button type="button" label="查找" severity="secondary" outlined :disabled="pending" @click="emit('queryExistingDetailItems', group)" />
                 </div>
-                <div v-if="candidateRows(group).length || candidateState(group).totalPage" class="button-row">
-                  <Button type="button" label="上一页" severity="secondary" text :disabled="pending || candidateState(group).pageIndex <= 1" @click="emit('loadCandidatePage', group, candidateState(group).pageIndex - 1)" />
-                  <span>第 {{ candidateState(group).pageIndex }} / {{ candidateState(group).totalPage || 1 }} 页</span>
-                  <Button type="button" label="下一页" severity="secondary" text :disabled="pending || candidateState(group).totalPage === 0 || candidateState(group).pageIndex >= candidateState(group).totalPage" @click="emit('loadCandidatePage', group, candidateState(group).pageIndex + 1)" />
-                </div>
                 <div class="table-wrap detail-picker-results">
                   <ListDataTable
                     v-if="candidateRows(group).length"
@@ -378,7 +374,15 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                     :show-default-action="true"
                     @select="(row) => selectExistingItem(group, row)"
                   />
-                  <div v-else class="empty-state compact">{{ candidateState(group).queried ? "暂无候选记录。" : "记录未知，请查询。" }}</div>
+                  <div v-else-if="candidateState(group).queried" class="empty-state compact">暂无候选记录。</div>
+                </div>
+                <div class="candidate-results-footer">
+                  <span class="candidate-record-info">{{ candidateRecordInfo(candidateState(group)) }}</span>
+                  <div v-if="candidateRows(group).length || candidateState(group).totalPage" class="button-row">
+                    <Button type="button" label="上一页" severity="secondary" text :disabled="pending || candidateState(group).pageIndex <= 1" @click="emit('loadCandidatePage', group, candidateState(group).pageIndex - 1)" />
+                    <span>第 {{ candidateState(group).pageIndex }} / {{ candidateState(group).totalPage || 1 }} 页</span>
+                    <Button type="button" label="下一页" severity="secondary" text :disabled="pending || candidateState(group).totalPage === 0 || candidateState(group).pageIndex >= candidateState(group).totalPage" @click="emit('loadCandidatePage', group, candidateState(group).pageIndex + 1)" />
+                  </div>
                 </div>
               </div>
               <template #footer>

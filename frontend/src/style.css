@@ -703,6 +703,16 @@ label {
   min-height: 280px;
 }
 
+.candidate-results-footer {
+  display: grid;
+  gap: 8px;
+}
+
+.candidate-record-info {
+  color: #475569;
+  font-size: 14px;
+}
+
 .detail-items-table {
   min-height: 0;
 }

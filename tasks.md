@@ -949,6 +949,8 @@ item must land with its matching implementation and validation evidence.
       and `记录未知，请查询。`, then query rows only after Find or paging.
 - [x] Restore `initQueryView` picker-open ordering: show the old loading modal,
       await candidate View metadata, and open the picker only on success.
+- [x] Restore candidate `NavbarController` feedback and placement: show exact
+      unknown/total-record text below results and keep paging after the table.
 - [x] Restore the compact text-only Bootstrap navbar brand: remove the invented
       42px initial tile, render App name/version inline, and reduce the desktop
       shell header to the old 50px scale while reusing it in the mobile Drawer.

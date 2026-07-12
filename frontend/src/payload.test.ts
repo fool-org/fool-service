@@ -251,7 +251,11 @@ describe("App defaults", () => {
     expect(appSource).toContain('const candidateViewLoading = computed(() => pendingAction.value === "child-select-view")');
     expect(appSource).toContain(":load-existing-detail-view=\"loadExistingDetailView\"");
     expect(viewDetailPanelSource).toContain("emit('queryExistingDetailItems', group)");
-    expect(viewDetailPanelSource).toContain('candidateState(group).queried ? "暂无候选记录。" : "记录未知，请查询。"');
+    expect(viewDetailPanelSource).toContain("candidateRecordInfo(candidateState(group))");
+    expect(viewDetailPanelSource).toContain('v-else-if="candidateState(group).queried" class="empty-state compact">暂无候选记录。</div>');
+    expect(viewDetailPanelSource.indexOf('class="detail-picker-results"')).toBeLessThan(
+      viewDetailPanelSource.indexOf('class="candidate-record-info"')
+    );
     expect(viewDetailPanelSource).toContain("function selectExistingItem");
     expect(viewDetailPanelSource).toContain('@select="(row) => selectExistingItem(group, row)"');
     expect(appSource).toContain("const viewId = groupListViewId(group)");

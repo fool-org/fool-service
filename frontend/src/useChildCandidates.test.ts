@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { useChildCandidates } from "./useChildCandidates";
+import { candidateRecordInfo, useChildCandidates } from "./useChildCandidates";
 
 describe("useChildCandidates", () => {
+  it("matches the legacy candidate record-count feedback", () => {
+    expect(candidateRecordInfo({ queried: false, totalItem: 0 })).toBe("记录数未知,请查询");
+    expect(candidateRecordInfo({ queried: true, totalItem: 0 })).toBe("共0条记录");
+    expect(candidateRecordInfo({ queried: true, totalItem: 12 })).toBe("共12条记录");
+  });
+
   it("keeps candidate state keyed by child group metadata", () => {
     const candidates = useChildCandidates((group) => group.prpId || "items");
     const group = { prpId: "lines" };
