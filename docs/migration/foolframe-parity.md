@@ -153,6 +153,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   simultaneously expanded nested panels. Update/refresh controls return below
   list/chart/map content, and invented panel-type badges and loaded-row status
   text are removed. Empty tables stay rendered with their View-defined columns.
+- 2026-07-12: aligned detail child tables with `detailView.jade` by removing
+  the invented visible `ID` column. Child `DataID` remains protocol-only for
+  row keys, inline saves, deletes, BusinessObject lookup context, and detail
+  navigation; visible columns now come only from each group's `Properties[]`
+  View metadata plus the old operation column.
 - 2026-07-12: restored old Web operation feedback from `operation.js`. Vue now
   projects camel/Pascal `ReturnMsg`, shows a success or error result in the
   detail panel, keeps successful refresh behavior, and clears stale results

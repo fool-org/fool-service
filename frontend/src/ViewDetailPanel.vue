@@ -268,14 +268,12 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
               <table class="legacy-item-table detail-items-grid">
                 <thead>
                   <tr>
-                    <th>ID</th>
                     <th v-for="field in groupColumns(group)" :key="fieldKey(field)">{{ fieldTitle(field) }}</th>
                     <th>操作</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="item in groupItems(group)" :key="itemKey(group, item)">
-                    <td>{{ itemDataId(item) }}</td>
                     <td v-for="field in groupColumns(group)" :key="fieldKey(field)">
                       <div v-if="isEditing && !groupDetailViewId(group)" class="detail-item-editor">
                         <MetadataFieldEditor
@@ -304,7 +302,7 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
                     </td>
                   </tr>
                   <tr v-if="!groupItems(group).length">
-                    <td :colspan="groupColumns(group).length + 2">暂无子项。</td>
+                    <td :colspan="groupColumns(group).length + 1">暂无子项。</td>
                   </tr>
                 </tbody>
               </table>

@@ -841,6 +841,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Align standalone detail collection layout with `detailView.jade`: render
       each metadata `Items[]` group as a scrollable tab and its dynamic child
       fields/rows/actions as a reusable legacy-style table.
+- [x] Keep detail child object ids protocol-only like `detailView.jade`: render
+      only metadata `Properties[]` and operation columns while retaining each
+      `DataID` for save/delete/detail actions and stable row keys.
 - [x] Reconcile the vague remaining Model runtime mutation wording against
       FoolFrame, the 37-case Java 17 Model service suite, and live Docker
       `MODEL_CON` state; close speculative routed-connection work until a real

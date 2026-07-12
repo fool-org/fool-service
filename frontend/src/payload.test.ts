@@ -363,6 +363,13 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain(':object-id="itemDataId(item)"');
   });
 
+  it("keeps child item ids in interaction state instead of a hard-coded table column", () => {
+    expect(viewDetailPanelSource).not.toContain("<th>ID</th>");
+    expect(viewDetailPanelSource).not.toContain("<td>{{ itemDataId(item) }}</td>");
+    expect(viewDetailPanelSource).toContain(":object-id=\"itemDataId(item)\"");
+    expect(viewDetailPanelSource).toContain("groupDetailViewId(group)}/${itemDataId(item)}");
+  });
+
   it("renders PrimeVue metadata controls without changing legacy string values", () => {
     expect(metadataFieldEditorSource).toContain("fieldInputChecked");
     expect(metadataFieldEditorSource).toContain("fieldInputType");
