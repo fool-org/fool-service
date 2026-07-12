@@ -925,6 +925,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `detailview.js` child-delete staging: hide deleted rows locally,
       merge same-group `DelteItems`, and submit them only with the parent Save;
       remove the Vue-only confirmation and immediate save/query cycle.
+- [x] Restore `detailview.js` inline child-edit staging: parent edit keeps child
+      rows read-only until their own Edit action, one row edits at a time, and
+      row Save upserts `Items` locally for the parent Save without a request.
 - [x] Restore the compact text-only Bootstrap navbar brand: remove the invented
       42px initial tile, render App name/version inline, and reduce the desktop
       shell header to the old 50px scale while reusing it in the mobile Drawer.

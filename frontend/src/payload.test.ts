@@ -82,7 +82,7 @@ describe("App defaults", () => {
     expect(appSource).toContain("function openListObject");
     expect(appSource).toContain("async function startNewObject");
     expect(appSource).toContain("async function addDetailItem");
-    expect(appSource).toContain("async function updateDetailItem");
+    expect(appSource).toContain("function updateDetailItem");
     expect(appSource).toContain("function deleteDetailItem");
     expect(appSource).toContain("pendingItemProperties");
     expect(appSource).toContain("mergeItemPropertyChange");
@@ -204,7 +204,7 @@ describe("App defaults", () => {
   it("uses child DetailViewId for deep editing instead of inline editors", () => {
     expect(viewDetailPanelSource).toContain("groupDetailViewId(group)");
     expect(viewDetailPanelSource).toContain(':href="`/view${groupDetailViewId(group)}/${itemDataId(item)}`"');
-    expect(viewDetailPanelSource).toContain('v-if="isEditing && !groupDetailViewId(group)"');
+    expect(viewDetailPanelSource).toContain('editingItemKey === itemKey(group, item) && !groupDetailViewId(group)');
   });
 
   it("renders legacy detail collections as metadata-driven tabs and tables", () => {
@@ -553,12 +553,19 @@ describe("App defaults", () => {
 
   it("keeps child update fallback drafts on rendered group columns", () => {
     const updateSource = appSource.slice(
-      appSource.indexOf("async function updateDetailItem"),
-      appSource.indexOf("async function deleteDetailItem")
+      appSource.indexOf("function updateDetailItem"),
+      appSource.indexOf("function deleteDetailItem")
     );
 
     expect(updateSource).toContain("buildGroupItemDrafts(group, item)");
+    expect(updateSource).toContain("mergeItemPropertyChange");
+    expect(updateSource).not.toContain("saveObj(");
+    expect(updateSource).not.toContain("queryDetail()");
     expect(updateSource).not.toContain("buildFieldDrafts(detailItemValues(item))");
+    expect(viewDetailPanelSource).toContain("editingItemKey");
+    expect(viewDetailPanelSource).toContain("toggleDetailItem(group, item)");
+    expect(viewDetailPanelSource).toContain("stageEditingItem()");
+    expect(viewDetailPanelSource).toContain("editingItemKey === itemKey(group, item) ? '保存' : '编辑'");
   });
 
   it("keeps read-item View state keyed by the rendered View id", () => {

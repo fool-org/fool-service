@@ -33,6 +33,7 @@ import type {
   ReportModelOption,
   ReportModelResult,
   ReportModelState,
+  SaveItem,
   SaveItemProperty,
   SaveKeypair,
   TableColumnInfo
@@ -1025,13 +1026,24 @@ export function mergeItemPropertyChange(
   const index = changes.findIndex((item) => item.key === key);
   if (!key || index < 0) return [...changes, change];
   const current = changes[index];
+  const deletedItemIds = new Set((change.delteItems || []).map((item) => item.itemId || ""));
   const merged = {
     key,
-    items: [...(current.items || []), ...(change.items || [])],
-    delteItems: [...(current.delteItems || []), ...(change.delteItems || [])],
-    addedItems: [...(current.addedItems || []), ...(change.addedItems || [])]
+    items: mergeSaveItems(current.items, change.items)
+      .filter((item) => !deletedItemIds.has(item.itemId || "")),
+    delteItems: mergeSaveItems(current.delteItems, change.delteItems),
+    addedItems: mergeSaveItems(current.addedItems, change.addedItems)
   };
   return changes.map((item, itemIndex) => itemIndex === index ? merged : item);
+}
+
+function mergeSaveItems(current: SaveItem[] = [], incoming: SaveItem[] = []) {
+  return incoming.reduce<SaveItem[]>((items, item) => {
+    const itemId = item.itemId || "";
+    const index = itemId ? items.findIndex((candidate) => candidate.itemId === itemId) : -1;
+    if (index < 0) return [...items, item];
+    return items.map((candidate, candidateIndex) => candidateIndex === index ? item : candidate);
+  }, [...current]);
 }
 
 export function buildAddedItemProperty(

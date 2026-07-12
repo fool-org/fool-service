@@ -649,6 +649,10 @@ describe("view workflow helpers", () => {
       key: "items",
       delteItems: [{ itemId: "2001" }, { itemId: "2002" }]
     }]);
+    const firstUpdate = buildUpdatedItemProperty(group, item, { itemId: "2001", itemName: "First" });
+    const latestUpdate = buildUpdatedItemProperty(group, item, { itemId: "2001", itemName: "Latest" });
+    expect(mergeItemPropertyChange([firstUpdate], latestUpdate)[0].items).toEqual(latestUpdate.items);
+    expect(mergeItemPropertyChange([firstUpdate], buildDeletedItemProperty(group, item))[0].items).toEqual([]);
   });
 
   it("reads child group render and save values through shared aliases", () => {

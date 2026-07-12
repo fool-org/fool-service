@@ -177,6 +177,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   now hides it from the local detail collection and merges its `DelteItems`
   payload by group; the parent Save submits all staged deletes. The Vue-only
   confirmation and immediate `saveObj`/`queryDetail` cycle were removed.
+- 2026-07-12: restored `detailview.js` inline child-edit staging. Parent edit
+  leaves child rows in display mode until their row Edit action; only one row
+  edits at a time, row Save upserts the group's `Items`, and switching rows
+  stages the previous row. No child-update request runs before parent Save.
 - 2026-07-12: restored old `message.js` delivery behavior in the Vue shell.
   Each non-empty 15-second `getmsg` poll now immediately opens its first item
   in a `系统消息` modal with generation time, content, View-first detail

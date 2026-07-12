@@ -833,16 +833,16 @@ async function addExistingDetailItem(group: QueryDataDetailItemGroup, row: ListD
   }
 }
 
-async function updateDetailItem(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) {
+function updateDetailItem(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) {
   if (!selectedObjectId.value || isCreatingObject.value || !itemDataId(item)) {
     errorMessage.value = "请先选择已保存的子项。";
     return;
   }
   const drafts = childDrafts.value[itemKey(group, item)] || buildGroupItemDrafts(group, item);
-  const saved = await saveObj([buildUpdatedItemProperty(group, item, drafts)]);
-  if (saved) {
-    await queryDetail();
-  }
+  pendingItemProperties.value = mergeItemPropertyChange(
+    pendingItemProperties.value,
+    buildUpdatedItemProperty(group, item, drafts)
+  );
 }
 
 function deleteDetailItem(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) {

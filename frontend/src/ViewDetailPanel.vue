@@ -13,7 +13,9 @@ import ListDataTable from "./ListDataTable.vue";
 import MetadataFieldEditor from "./MetadataFieldEditor.vue";
 import type { SelectOption } from "./viewShell";
 import {
+  buildGroupItemDrafts,
   fieldDisplayValue,
+  fieldInputType,
   fieldKey,
   fieldTitle,
   groupColumns,
@@ -25,6 +27,7 @@ import {
   itemDataId,
   itemKey,
   itemValue,
+  isEnumField,
   operationKey,
   operationLabel
 } from "./viewWorkflow";
@@ -53,12 +56,16 @@ const props = defineProps<{
 
 const isEditing = ref(false);
 const activeGroupKey = ref("");
+const editingItemKey = ref("");
 const pickerGroupKey = ref("");
+const stagedItemKeys = ref<Set<string>>(new Set());
 
 watch(
   () => [props.selectedObjectId, props.isCreatingObject] as const,
   () => {
     isEditing.value = props.isCreatingObject;
+    editingItemKey.value = "";
+    stagedItemKeys.value = new Set();
   },
   { immediate: true }
 );
@@ -69,6 +76,10 @@ watch(
     if (!props.isCreatingObject) isEditing.value = false;
   }
 );
+
+watch(isEditing, (editing) => {
+  if (!editing) editingItemKey.value = "";
+});
 
 watch(
   () => props.detailItemGroups.map(groupKey),
@@ -104,6 +115,49 @@ function openExistingPicker(group: QueryDataDetailItemGroup) {
 function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) {
   emit("addExistingDetailItem", group, row);
   pickerGroupKey.value = "";
+}
+
+function currentEditingItem() {
+  for (const group of props.detailItemGroups) {
+    const item = groupItems(group).find((candidate) => itemKey(group, candidate) === editingItemKey.value);
+    if (item) return { group, item };
+  }
+  return null;
+}
+
+function stageEditingItem() {
+  const current = currentEditingItem();
+  if (!current) return;
+  emit("updateDetailItem", current.group, current.item);
+  stagedItemKeys.value = new Set([...stagedItemKeys.value, editingItemKey.value]);
+}
+
+function toggleDetailItem(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) {
+  const key = itemKey(group, item);
+  if (editingItemKey.value) {
+    const previousKey = editingItemKey.value;
+    stageEditingItem();
+    editingItemKey.value = "";
+    if (previousKey === key) return;
+  }
+  editingItemKey.value = key;
+}
+
+function deleteItem(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) {
+  const key = itemKey(group, item);
+  if (editingItemKey.value === key) editingItemKey.value = "";
+  stagedItemKeys.value = new Set([...stagedItemKeys.value].filter((itemKeyValue) => itemKeyValue !== key));
+  emit("deleteDetailItem", group, item);
+}
+
+function displayedItemValue(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem, field: ListDataValue) {
+  if (!stagedItemKeys.value.has(itemKey(group, item))) return itemValue(item, field);
+  const value = props.childDraftValue(group, item, field);
+  const originalValue = buildGroupItemDrafts(group, item)[fieldKey(field)] ?? "";
+  if (value === originalValue) return itemValue(item, field);
+  if (isEnumField(field)) return props.enumFieldOptions(field).find((option) => option.value === value)?.label || value;
+  if (fieldInputType(field) === "checkbox") return value === "true" || value === "1" ? "是" : "否";
+  return value;
 }
 </script>
 
@@ -288,7 +342,7 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
                 <tbody>
                   <tr v-for="item in groupItems(group)" :key="itemKey(group, item)">
                     <td v-for="field in groupColumns(group)" :key="fieldKey(field)">
-                      <div v-if="isEditing && !groupDetailViewId(group)" class="detail-item-editor">
+                      <div v-if="isEditing && editingItemKey === itemKey(group, item) && !groupDetailViewId(group)" class="detail-item-editor">
                         <MetadataFieldEditor
                           :model-value="childDraftValue(group, item, field)"
                           :field="field"
@@ -301,17 +355,25 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
                           @update:model-value="(value) => emit('setChildDraftValue', group, item, field, value)"
                         />
                       </div>
-                      <span v-else>{{ itemValue(item, field) }}</span>
+                      <span v-else>{{ displayedItemValue(group, item, field) }}</span>
                     </td>
                     <td>
-                      <Button v-if="isEditing && !groupDetailViewId(group)" type="button" label="保存" icon="pi pi-save" size="small" :disabled="pending" @click="emit('updateDetailItem', group, item)" />
+                      <Button
+                        v-if="isEditing && !groupSelectFromExists(group) && !groupDetailViewId(group)"
+                        type="button"
+                        :label="editingItemKey === itemKey(group, item) ? '保存' : '编辑'"
+                        :icon="editingItemKey === itemKey(group, item) ? 'pi pi-save' : 'pi pi-pencil'"
+                        size="small"
+                        :disabled="pending"
+                        @click="toggleDetailItem(group, item)"
+                      />
                       <a v-if="groupDetailViewId(group)" class="detail-item-link" :href="`/view${groupDetailViewId(group)}/${itemDataId(item)}`">
                         <i class="pi pi-arrow-right" aria-hidden="true"></i>
                         编辑
                       </a>
                     </td>
                     <td>
-                      <Button v-if="isEditing" type="button" label="删除" icon="pi pi-trash" size="small" severity="danger" outlined :disabled="pending" @click="emit('deleteDetailItem', group, item)" />
+                      <Button v-if="isEditing" type="button" label="删除" icon="pi pi-trash" size="small" severity="danger" outlined :disabled="pending" @click="deleteItem(group, item)" />
                     </td>
                   </tr>
                   <tr v-if="!groupItems(group).length">
