@@ -628,7 +628,7 @@ describe("view workflow helpers", () => {
       addedItems: [
         {
           itemId: "2002",
-          isExist: true,
+          isExist: false,
           propertyies: [{ key: "itemName", value: "New item" }]
         }
       ]
@@ -696,7 +696,7 @@ describe("view workflow helpers", () => {
       addedItems: [
         {
           itemId: "9002",
-          isExist: true,
+          isExist: false,
           propertyies: [{ key: "lineName", value: "New line" }]
         }
       ]

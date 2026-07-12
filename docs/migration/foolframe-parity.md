@@ -186,6 +186,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `AddedItems` until parent Save, removing immediate save/query cycles; deleting
   an unsaved row discards it locally. Candidate lookup uses `ListViewId`, while
   a configured `SelectedView` opens the old owner-aware child-new route.
+- 2026-07-12: restored `AddedItems.IsExist` identity semantics. Manual child
+  rows now send false so their UI-only temporary key is ignored and the model
+  creates the real id; selected-existing rows send true and retain their loaded
+  candidate id, matching old `DataFormator.ObjUpdateToProxy` behavior.
 - 2026-07-12: restored the inline child-add interaction from `detailview.js`.
   The invented always-visible add form is removed; Add now inserts a metadata-
   shaped blank table row, enters that row's editor, stages the previously edited

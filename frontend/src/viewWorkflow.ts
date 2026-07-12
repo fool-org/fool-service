@@ -1065,15 +1065,15 @@ export function buildAddedItemProperty(
   group: QueryDataDetailItemGroup,
   itemId: string,
   drafts: Record<string, string>,
-  includeReadonly = false
+  options: { includeReadonly?: boolean; isExist?: boolean } = {}
 ): SaveItemProperty {
   return {
     key: groupKey(group),
     addedItems: [
       {
         itemId,
-        isExist: true,
-        propertyies: buildItemPropertyies(groupColumns(group), drafts, includeReadonly)
+        isExist: options.isExist === true,
+        propertyies: buildItemPropertyies(groupColumns(group), drafts, options.includeReadonly)
       }
     ]
   };
@@ -1134,7 +1134,10 @@ export function buildSelectedExistingItemProperty(
   columns: TableColumnInfo[] = []
 ): SaveItemProperty {
   const itemId = rowObjectId(row, columns);
-  return buildAddedItemProperty(group, itemId, buildDraftsFromRow(groupColumns(group), row, columns), true);
+  return buildAddedItemProperty(group, itemId, buildDraftsFromRow(groupColumns(group), row, columns), {
+    includeReadonly: true,
+    isExist: true
+  });
 }
 
 export function displayValue(value: unknown) {
