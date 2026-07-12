@@ -158,7 +158,6 @@ label {
 }
 
 .nav-list button:hover,
-.nav-list button.active,
 .nav-list button.expanded {
   border-color: #c7d2fe;
   background: #eef2ff;
@@ -235,7 +234,6 @@ label {
 }
 
 .mobile-navigation .nav-list button:hover,
-.mobile-navigation .nav-list button.active,
 .mobile-navigation .nav-list button.expanded {
   border-color: #c7d2fe;
   background: #eef2ff;

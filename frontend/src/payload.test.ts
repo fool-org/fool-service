@@ -791,6 +791,9 @@ describe("App defaults", () => {
     expect(appSource).not.toContain("notifyResponse");
     expect(legacyMenuNavSource).not.toContain("notifyCount");
     expect(legacyMenuNavSource).not.toContain('class="nav-count"');
+    expect(legacyMenuNavSource).not.toContain("currentViewId");
+    expect(legacyMenuNavSource).not.toContain("active:");
+    expect(appSource).not.toContain(':current-view-id="currentViewId"');
   });
 
   it("moves legacy user info and logout into the signed-in shell", () => {

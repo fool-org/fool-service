@@ -883,7 +883,6 @@ function syncDetailDrafts() {
           <button type="button" @click="openPrimarySection">首页</button>
         </nav>
         <LegacyMenuNav
-          :current-view-id="currentViewId"
           :disabled="Boolean(pendingAction)"
           :expanded-auth-code="subMenuParentAuthCode"
           horizontal
@@ -922,7 +921,6 @@ function syncDetailDrafts() {
           <button type="button" @click="openMobilePrimarySection">首页</button>
         </nav>
         <LegacyMenuNav
-          :current-view-id="currentViewId"
           :disabled="Boolean(pendingAction)"
           :expanded-auth-code="subMenuParentAuthCode"
           :items="topMenuItems"

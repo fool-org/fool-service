@@ -3,7 +3,6 @@ import type { LegacyAuthItem } from "./api";
 import { legacyAuthImageUrl, legacyAuthNo, legacyAuthText, legacyAuthViewId } from "./viewWorkflow";
 
 defineProps<{
-  currentViewId: number;
   disabled: boolean;
   expandedAuthCode: string;
   horizontal?: boolean;
@@ -22,10 +21,7 @@ defineEmits<{
     <div v-for="item in items" :key="legacyAuthNo(item) || legacyAuthText(item)" class="nav-group">
       <button
         type="button"
-        :class="{
-          active: legacyAuthViewId(item) === currentViewId,
-          expanded: legacyAuthNo(item) === expandedAuthCode
-        }"
+        :class="{ expanded: legacyAuthNo(item) === expandedAuthCode }"
         :disabled="disabled"
         @click="$emit('select', item)"
       >
@@ -39,7 +35,6 @@ defineEmits<{
           v-for="child in subItems"
           :key="legacyAuthNo(child) || legacyAuthText(child)"
           type="button"
-          :class="{ active: legacyAuthViewId(child) === currentViewId }"
           :disabled="disabled || !legacyAuthViewId(child)"
           @click="$emit('select', child)"
         >

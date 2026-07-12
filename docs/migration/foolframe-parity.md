@@ -142,6 +142,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-12: matched the old `soway.css` avatar layout by restoring its exact
   50x50 dimensions in the Vue shell; the previous 40x40 size had no legacy
   source basis. The existing circular crop and empty-value fallback remain.
+- 2026-07-12: removed Vue-only current-View `active` highlighting from top and
+  child menu items. Old `tbar.jade` and `menuinfo.js` never derive active menu
+  state from the route; Vue now retains only the equivalent dropdown-open state.
 - 2026-07-12: restored old `message.js` delivery behavior in the Vue shell.
   Each non-empty 15-second `getmsg` poll now immediately opens its first item
   in a `系统消息` modal with generation time, content, View-first detail
