@@ -491,6 +491,7 @@ function clearLegacySession() {
 async function logout() {
   const response = await runAction("logout", () => postApi<void>("/api/v1/auth/logout", buildTokenRequest(token.value)));
   if (response) {
+    replaceLegacyPath("/");
     clearLegacySession();
     await prepareLegacyLogin();
   }
@@ -634,6 +635,10 @@ function applyRequestedViewId(requestedViewId: number) {
 
 function pushLegacyPath(path: string) {
   if (path && window.location.pathname !== path) window.history.pushState({}, "", path);
+}
+
+function replaceLegacyPath(path: string) {
+  if (path && window.location.pathname !== path) window.history.replaceState({}, "", path);
 }
 
 async function ensureLegacyShell() {

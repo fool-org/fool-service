@@ -940,6 +940,14 @@ describe("App defaults", () => {
   });
 
   it("moves legacy user info and logout into the signed-in shell", () => {
+    const logoutSource = appSource.slice(
+      appSource.indexOf("async function logout"),
+      appSource.indexOf("async function loadReadItemView")
+    );
+    const clearSessionSource = appSource.slice(
+      appSource.indexOf("function clearLegacySession"),
+      appSource.indexOf("async function logout")
+    );
     expect(appSource).toContain("/api/v1/auth/getuserinfo");
     expect(appSource).toContain("legacyUserInfoResponse");
     expect(appSource).toContain("legacyUserName");
@@ -957,6 +965,8 @@ describe("App defaults", () => {
     expect(appSource).not.toContain("Legacy User Info");
     expect(appSource).toContain("clearLegacySession()");
     expect(appSource).toContain("await prepareLegacyLogin()");
+    expect(logoutSource).toContain('replaceLegacyPath("/")');
+    expect(clearSessionSource).not.toContain("replaceLegacyPath");
   });
 
   it("moves the legacy checkcode route into the signed-out login panel", () => {

@@ -2672,3 +2672,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   replays `loadInitialRoute` so browser back/forward changes both URL and page
   state without pushing a new entry during route replay. Path generation is
   shared and no Vue Router dependency was added.
+- 2026-07-12: restored `menuinfo.js`'s explicit logout route replacement.
+  Successful `安全退出` now replaces the current View/detail/new URL with `/`
+  before preparing a fresh login CAPTCHA, so the next login opens the App
+  default View. Stale-token recovery still leaves its URL unchanged and resumes
+  that requested deep link after authentication.
