@@ -50,6 +50,8 @@ const props = defineProps<{
   isPendingAddedItem: (group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) => boolean;
   operationResult: { message: string; success: boolean } | null;
   pending: boolean;
+  saveDialogVisible: boolean;
+  saving: boolean;
   schemaOnly: boolean;
   selectedObjectId: string;
   title: string;
@@ -102,6 +104,7 @@ const emit = defineEmits<{
   loadCandidatePage: [group: QueryDataDetailItemGroup, pageIndex: number];
   loadExistingDetailItems: [group: QueryDataDetailItemGroup];
   runViewOperation: [operation: OperationInfo, editing: boolean];
+  saveDialogHidden: [];
   saveSelectedObject: [];
   setChildDraftValue: [group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem, field: ListDataValue, value: string];
   updateCandidateKeyword: [group: QueryDataDetailItemGroup, event: Event];
@@ -206,7 +209,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
         type="button"
         label="保存"
         icon="pi pi-check"
-        :loading="pending"
+        :loading="saving"
         :disabled="pending || !isEditing"
         @click="emit('saveSelectedObject')"
       />
@@ -224,6 +227,19 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
         />
       </template>
     </div>
+
+    <Dialog
+      :visible="saveDialogVisible"
+      modal
+      header="保存中"
+      :closable="false"
+      :close-on-escape="false"
+      :dismissable-mask="false"
+      :draggable="false"
+      @after-hide="emit('saveDialogHidden')"
+    >
+      <p>正在保存，请稍后....</p>
+    </Dialog>
 
     <div v-if="isEditing" class="detail-field-grid detail-field-edit">
       <label v-for="field in detailRows" :key="fieldKey(field)">

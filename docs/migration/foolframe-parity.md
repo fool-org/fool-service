@@ -202,6 +202,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `编辑` is hidden for select-existing groups, non-select groups retain their
   deep Edit link, and every group with a detail View regains the separate
   `详细` link. Operation and empty-state column spans follow that action matrix.
+- 2026-07-12: restored `beginsave()` loading-dialog lifecycle. Parent Save now
+  opens a non-dismissible `保存中` modal with `正在保存，请稍后....`; successful
+  save closes it and returns only after the hide transition, while failed saves
+  close it without navigation and keep the existing error surface.
 - 2026-07-12: restored old `message.js` delivery behavior in the Vue shell.
   Each non-empty 15-second `getmsg` poll now immediately opens its first item
   in a `系统消息` modal with generation time, content, View-first detail

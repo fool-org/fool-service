@@ -942,6 +942,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `detailView.jade`'s `DetailViewId` action matrix: condition deep
       Edit on non-select groups, restore the separate Details link, and keep
       table operation spans aligned with rendered actions.
+- [x] Restore `detailview.js beginsave()` feedback and timing: show the old
+      non-dismissible saving modal and navigate back only after a successful
+      save closes it; failed saves remain on the detail page.
 - [x] Restore the compact text-only Bootstrap navbar brand: remove the invented
       42px initial tile, render App name/version inline, and reduce the desktop
       shell header to the old 50px scale while reusing it in the mobile Drawer.

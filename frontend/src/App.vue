@@ -161,6 +161,8 @@ const errorMessage = ref("");
 const infoMessage = ref("");
 const operationResult = ref<{ message: string; success: boolean } | null>(null);
 const pendingAction = ref("");
+const saveDialogVisible = ref(false);
+const navigateAfterSave = ref(false);
 const {
   add: addPendingDetailItem,
   clear: clearPendingDetailChanges,
@@ -209,6 +211,7 @@ const shellUserName = computed(() => legacyUserName(legacyUserInfoResponse.value
 const shellAppName = computed(() => legacyAppName(mainInfoResponse.value?.data, "Fool Service"));
 const shellAppVersion = computed(() => legacyAppVersion(mainInfoResponse.value?.data));
 const viewCanEdit = computed(() => dataCanEdit(detailResponse.value?.data));
+const savingDetail = computed(() => pendingAction.value === "saveobj" || pendingAction.value === "savenewobj");
 const fieldEditorContext = computed(() => ({
   isAdded: isCreatingObject.value,
   lookupDisabled: Boolean(pendingAction.value),
@@ -762,11 +765,21 @@ async function saveSelectedObject() {
     errorMessage.value = "请先选择记录。";
     return;
   }
+  navigateAfterSave.value = false;
+  saveDialogVisible.value = true;
   const saved = isCreatingObject.value ? await saveNewObj() : await saveObj(pendingItemProperties.value);
   if (!saved) {
+    saveDialogVisible.value = false;
     return;
   }
   isCreatingObject.value = false;
+  navigateAfterSave.value = true;
+  saveDialogVisible.value = false;
+}
+
+function finishSaveNavigation() {
+  if (!navigateAfterSave.value) return;
+  navigateAfterSave.value = false;
   window.history.back();
 }
 
@@ -1005,6 +1018,8 @@ function syncDetailDrafts() {
           :operation-result="operationResult"
           :pending="Boolean(pendingAction)"
           :schema-only="isMetadataOnlyView"
+          :save-dialog-visible="saveDialogVisible"
+          :saving="savingDetail"
           :selected-object-id="selectedObjectId"
           :title="detailTitle"
           :view-can-edit="viewCanEdit"
@@ -1018,6 +1033,7 @@ function syncDetailDrafts() {
           @load-existing-detail-items="loadExistingDetailItems"
           @run-view-operation="runViewOperation"
           @save-selected-object="saveSelectedObject"
+          @save-dialog-hidden="finishSaveNavigation"
           @set-child-draft-value="setChildDraftValue"
           @update-candidate-keyword="updateCandidateKeyword"
           @update-detail-draft="(key, value) => detailDrafts[key] = value"

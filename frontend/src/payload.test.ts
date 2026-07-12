@@ -947,6 +947,14 @@ describe("App defaults", () => {
   it("runs legacy savenewobj from the rendered View workflow", () => {
     expect(appSource).toContain("/api/v1/data/savenewobj");
     expect(appSource).toContain("async function saveSelectedObject");
+    expect(appSource).toContain("saveDialogVisible.value = true");
+    expect(appSource).toContain("navigateAfterSave.value = true");
+    expect(appSource).toContain("function finishSaveNavigation");
+    expect(appSource).toContain("window.history.back()");
+    expect(viewDetailPanelSource).toContain('header="保存中"');
+    expect(viewDetailPanelSource).toContain("正在保存，请稍后....");
+    expect(viewDetailPanelSource).toContain("@after-hide=\"emit('saveDialogHidden')\"");
+    expect(viewDetailPanelSource).toContain(':loading="saving"');
   });
 
   it("runs legacy operations from rendered View metadata", () => {
