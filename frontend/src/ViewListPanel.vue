@@ -29,9 +29,7 @@ import {
   viewId,
   viewTemplateKind,
   viewTemplateName,
-  viewOperations,
-  viewUsesChartTemplate,
-  viewUsesSudokuTemplate
+  viewOperations
 } from "./viewWorkflow";
 
 const props = defineProps<{
@@ -62,9 +60,11 @@ const rows = computed(() => listRows(props.data));
 const operations = computed(() => viewOperations(props.view));
 const createItems = computed(() => createOperations(operations.value));
 const rowItems = computed(() => rowOperations(operations.value));
-const chartView = computed(() => viewUsesChartTemplate(props.view));
-const sudokuView = computed(() => viewUsesSudokuTemplate(props.view));
-const supportedTemplate = computed(() => viewTemplateKind(props.view) !== "unsupported");
+const templateKind = computed(() => viewTemplateKind(props.view));
+const listView = computed(() => templateKind.value === "list");
+const chartView = computed(() => templateKind.value === "chart");
+const sudokuView = computed(() => templateKind.value === "sudoku");
+const supportedTemplate = computed(() => templateKind.value !== "unsupported");
 const templateName = computed(() => viewTemplateName(props.view));
 const chartData = computed(() => legacyChartData(rows.value));
 const resultPageIndex = computed(() => listPageIndex(props.data, props.pageIndex));
@@ -81,20 +81,22 @@ function changePage(event: PageState) {
     <div class="panel-heading">
       <h2>{{ title }}</h2>
     </div>
-    <div v-if="supportedTemplate" class="workflow-toolbar">
+    <div v-if="supportedTemplate && !sudokuView" class="workflow-toolbar">
       <InputText v-model="keyword" class="list-query-input" type="search" placeholder="输入条件" aria-label="查询条件" @keyup.enter="emit('search')" />
       <Button type="button" label="查找" :disabled="disabled" @click="emit('search')" />
-      <Button type="button" label="统计" severity="secondary" outlined :disabled="disabled || !currentViewId" @click="emit('toggleReport')" />
-      <Button
-        v-for="operation in createItems"
-        :key="operationKey(operation)"
-        type="button"
-        :disabled="disabled"
-        :label="operationLabel(operation)"
-        severity="secondary"
-        outlined
-        @click="emit('newObject', operationTargetViewId(operation) || currentViewId)"
-      />
+      <template v-if="listView">
+        <Button type="button" label="统计" severity="secondary" outlined :disabled="disabled || !currentViewId" @click="emit('toggleReport')" />
+        <Button
+          v-for="operation in createItems"
+          :key="operationKey(operation)"
+          type="button"
+          :disabled="disabled"
+          :label="operationLabel(operation)"
+          severity="secondary"
+          outlined
+          @click="emit('newObject', operationTargetViewId(operation) || currentViewId)"
+        />
+      </template>
     </div>
 
     <Message v-if="errorMessage" severity="error" :closable="false">{{ errorMessage }}</Message>

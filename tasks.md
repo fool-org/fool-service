@@ -834,6 +834,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `item.jade`'s `DetailViews` tab interaction on `/itemview:id`:
       reuse the detail collection tabs and metadata field table while hiding
       object-data Add, picker, and mutation controls.
+- [x] Restore top-level command availability by old View template: keep
+      `view.jade` search/report/create commands, limit `viewWithChart.jade` to
+      search, and render no invented top toolbar or stale report on `Sudoku`.
 - [x] Guard old FoolFrame Web Vue deep links in the Docker runtime doctor.
 - [x] Guard the current Docker `car_wash` init SQL slice set in the repository
       harness.

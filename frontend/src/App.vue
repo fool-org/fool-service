@@ -239,6 +239,7 @@ function fieldEnumOptions(field: ListDataValue) {
 
 const isChartView = computed(() => viewUsesChartTemplate(viewResponse.value?.data));
 const isSudokuView = computed(() => viewUsesSudokuTemplate(viewResponse.value?.data));
+const isListView = computed(() => viewTemplateKind(viewResponse.value?.data) === "list");
 const isUnsupportedView = computed(() => viewTemplateKind(viewResponse.value?.data) === "unsupported");
 const sudokuPanels = computed(() => viewColumns(viewResponse.value?.data));
 const {
@@ -616,6 +617,7 @@ async function ensureLegacyShell() {
 
 async function loadViewWorkflow(resetPage = false) {
   stopAutoRefresh();
+  showViewReport.value = false;
   operationResult.value = null;
   infoMessage.value = "";
   clearPendingDetailChanges();
@@ -1071,7 +1073,7 @@ function syncDetailDrafts() {
           @update-detail-item="updateDetailItem"
         />
         <ViewReportPanel
-          v-if="showViewReport && !isMetadataOnlyView && !isStandaloneDetail && !isUnsupportedView && currentViewId"
+          v-if="showViewReport && isListView && !isMetadataOnlyView && !isStandaloneDetail && currentViewId"
           :key="currentViewId"
           :pending="Boolean(pendingAction)"
           :run-action="runAction"

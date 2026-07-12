@@ -61,6 +61,7 @@ describe("App defaults", () => {
     expect(mainViewSource).not.toContain("<label>");
     expect(mainViewSource).toContain('label="查找"');
     expect(mainViewSource).toContain('label="统计"');
+    expect(mainViewSource).toContain('<template v-if="listView">');
     expect(mainViewSource).not.toContain('icon="pi pi-search"');
     expect(mainViewSource).not.toContain('icon="pi pi-chart-bar"');
     expect(mainViewSource).not.toContain('icon="pi pi-plus"');
@@ -310,6 +311,8 @@ describe("App defaults", () => {
     expect(viewListPanelSource).toContain("<Tab value=\"chart\"");
     expect(viewListPanelSource).toContain('<Tab value="table">数据</Tab>');
     expect(viewListPanelSource).toContain('<Tab value="chart">图表</Tab>');
+    expect(viewListPanelSource).toContain('v-if="supportedTemplate && !sudokuView" class="workflow-toolbar"');
+    expect(viewListPanelSource).toContain('<template v-if="listView">');
     expect(viewListPanelSource).not.toContain('class="pi pi-chart-line"');
     expect(viewListPanelSource).toContain("<LegacyChartPanel");
     expect(legacyChartPanelSource).toContain('class="legacy-chart"');
@@ -331,12 +334,13 @@ describe("App defaults", () => {
     expect(viewListPanelSource).toContain('viewDisplayTitle(props.view, "加载视图")');
     expect(viewListPanelSource).not.toContain("Load a View");
     expect(viewListPanelSource).not.toContain("Legacy template");
-    expect(viewListPanelSource).toContain('v-if="supportedTemplate" class="workflow-toolbar"');
+    expect(viewListPanelSource).toContain('v-if="supportedTemplate && !sudokuView" class="workflow-toolbar"');
   });
 
   it("renders the legacy Sudoku template from ViewFile panels", () => {
     expect(appSource).toContain("viewUsesSudokuTemplate(viewResponse.value?.data)");
     expect(viewListPanelSource).toContain("SudokuPanels");
+    expect(viewListPanelSource).toContain('v-if="supportedTemplate && !sudokuView" class="workflow-toolbar"');
     expect(appSource).toContain("useSudokuPanels");
     expect(appSource).toContain("loadSudokuPanels");
     expect(sudokuWorkflowSource).toContain('loadViewDataById(panelViewId, "sudoku-panel", 5)');
@@ -781,6 +785,8 @@ describe("App defaults", () => {
   it("opens the legacy report workflow from the rendered View", () => {
     expect(appSource).toContain("ViewReportPanel");
     expect(appSource).toContain("showViewReport = !showViewReport");
+    expect(appSource).toContain('v-if="showViewReport && isListView && !isMetadataOnlyView && !isStandaloneDetail && currentViewId"');
+    expect(appSource).toContain("showViewReport.value = false;");
     expect(appSource).toContain(':view-id="currentViewId"');
     expect(viewReportPanelSource).toContain("<Dialog");
     expect(viewReportPanelSource).toContain("modal");

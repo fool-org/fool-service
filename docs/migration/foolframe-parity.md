@@ -2647,3 +2647,9 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   into a static name/comma-list summary. It reuses the same collection tabs as
   object detail pages but hides Add, candidate selection, and mutation controls
   because item View routes remain metadata-only and never query object data.
+- 2026-07-12: restored template-specific top-level command availability.
+  Normal `view.jade` pages retain search, report, and metadata create commands;
+  `viewWithChart.jade` exposes only its old search command; and `Sudoku.jade`
+  renders no invented root toolbar. View navigation also closes an open report,
+  and report rendering is restricted to normal list templates so SPA state
+  cannot leak a prior list report into chart or Sudoku pages.
