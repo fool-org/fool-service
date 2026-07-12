@@ -945,6 +945,8 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `detailview.js beginsave()` feedback and timing: show the old
       non-dismissible saving modal and navigate back only after a successful
       save closes it; failed saves remain on the detail page.
+- [x] Restore select-existing View-first timing: open with candidate metadata
+      and `记录未知，请查询。`, then query rows only after Find or paging.
 - [x] Restore the compact text-only Bootstrap navbar brand: remove the invented
       42px initial tile, render App name/version inline, and reduce the desktop
       shell header to the old 50px scale while reusing it in the mobile Drawer.

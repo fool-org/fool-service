@@ -141,6 +141,7 @@ const {
   candidateState,
   setCandidateResults,
   setCandidateState,
+  setCandidateView,
   updateCandidateKeyword
 } = useChildCandidates(groupKey);
 const {
@@ -811,7 +812,7 @@ function addDetailItem(group: QueryDataDetailItemGroup, requestedItemId = "") {
   childDrafts.value = { ...childDrafts.value, [itemKey(group, item)]: drafts };
 }
 
-async function loadExistingDetailItems(group: QueryDataDetailItemGroup) {
+async function loadExistingDetailView(group: QueryDataDetailItemGroup) {
   if (blockChildAddForNewObject()) return;
   const viewId = groupListViewId(group);
   if (!viewId) {
@@ -826,6 +827,20 @@ async function loadExistingDetailItems(group: QueryDataDetailItemGroup) {
   if (!view) {
     return;
   }
+  setCandidateView(group, viewColumns(view.data));
+}
+
+async function queryExistingDetailItems(group: QueryDataDetailItemGroup) {
+  if (blockChildAddForNewObject()) return;
+  const viewId = groupListViewId(group);
+  if (!viewId) {
+    errorMessage.value = "未配置可选择视图。";
+    return;
+  }
+  if (!candidateColumns(group).length) {
+    await loadExistingDetailView(group);
+    if (!candidateColumns(group).length) return;
+  }
   const state = candidateState(group);
   const dataRequest = buildLegacyQueryDataRequest({
     token: token.value,
@@ -838,7 +853,7 @@ async function loadExistingDetailItems(group: QueryDataDetailItemGroup) {
   if (!data) {
     return;
   }
-  setCandidateResults(group, viewColumns(view.data), listRows(data.data), {
+  setCandidateResults(group, candidateColumns(group), listRows(data.data), {
     totalItem: listTotalItems(data.data),
     totalPage: listTotalPages(data.data)
   });
@@ -899,7 +914,7 @@ async function loadFieldEnums() {
 
 async function loadCandidatePage(group: QueryDataDetailItemGroup, pageIndex: number) {
   setCandidateState(group, { pageIndex: Math.max(1, pageIndex) });
-  await loadExistingDetailItems(group);
+  await queryExistingDetailItems(group);
 }
 
 function syncDetailDrafts() {
@@ -1030,7 +1045,8 @@ function syncDetailDrafts() {
           @dismiss-info="infoMessage = ''"
           @dismiss-operation-result="operationResult = null"
           @load-candidate-page="loadCandidatePage"
-          @load-existing-detail-items="loadExistingDetailItems"
+          @load-existing-detail-view="loadExistingDetailView"
+          @query-existing-detail-items="queryExistingDetailItems"
           @run-view-operation="runViewOperation"
           @save-selected-object="saveSelectedObject"
           @save-dialog-hidden="finishSaveNavigation"

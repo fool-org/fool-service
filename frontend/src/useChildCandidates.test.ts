@@ -12,13 +12,17 @@ describe("useChildCandidates", () => {
     expect(candidates.candidateState(group)).toMatchObject({
       keyword: " Ada ",
       pageIndex: 1,
-      pageSize: 10
+      pageSize: 10,
+      queried: false
     });
   });
 
   it("stores candidate rows, columns, and totals without business DTO assumptions", () => {
     const candidates = useChildCandidates((group) => group.name || "items");
     const group = { name: "attachments" };
+
+    candidates.setCandidateView(group, [{ property: "old", title: "Old" }]);
+    expect(candidates.candidateState(group).queried).toBe(false);
 
     candidates.setCandidateResults(
       group,
@@ -29,6 +33,6 @@ describe("useChildCandidates", () => {
 
     expect(candidates.candidateColumns(group)).toEqual([{ property: "fileName", title: "File Name" }]);
     expect(candidates.candidateRows(group)).toEqual([{ id: "1", items: [{ prpId: "fileName", fmtValue: "contract.pdf" }] }]);
-    expect(candidates.candidateState(group)).toMatchObject({ totalItem: 1, totalPage: 1 });
+    expect(candidates.candidateState(group)).toMatchObject({ queried: true, totalItem: 1, totalPage: 1 });
   });
 });

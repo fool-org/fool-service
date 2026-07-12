@@ -36,7 +36,7 @@ import {
 const props = defineProps<{
   candidateColumns: (group: QueryDataDetailItemGroup) => TableColumnInfo[];
   candidateRows: (group: QueryDataDetailItemGroup) => ListDataItem[];
-  candidateState: (group: QueryDataDetailItemGroup) => { keyword: string; pageIndex: number; pageSize: number; totalPage: number };
+  candidateState: (group: QueryDataDetailItemGroup) => { keyword: string; pageIndex: number; pageSize: number; queried: boolean; totalPage: number };
   childDraftValue: (group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem, field: ListDataValue) => string;
   detailDrafts: Record<string, string>;
   detailItemGroups: QueryDataDetailItemGroup[];
@@ -102,7 +102,8 @@ const emit = defineEmits<{
   dismissInfo: [];
   dismissOperationResult: [];
   loadCandidatePage: [group: QueryDataDetailItemGroup, pageIndex: number];
-  loadExistingDetailItems: [group: QueryDataDetailItemGroup];
+  loadExistingDetailView: [group: QueryDataDetailItemGroup];
+  queryExistingDetailItems: [group: QueryDataDetailItemGroup];
   runViewOperation: [operation: OperationInfo, editing: boolean];
   saveDialogHidden: [];
   saveSelectedObject: [];
@@ -114,7 +115,7 @@ const emit = defineEmits<{
 
 function openExistingPicker(group: QueryDataDetailItemGroup) {
   pickerGroupKey.value = groupKey(group);
-  emit("loadExistingDetailItems", group);
+  emit("loadExistingDetailView", group);
 }
 
 function addItem(group: QueryDataDetailItemGroup) {
@@ -346,7 +347,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                     查询条件
                     <InputText :model-value="candidateState(group).keyword" fluid @input="emit('updateCandidateKeyword', group, $event)" />
                   </label>
-                  <Button type="button" label="查找" severity="secondary" outlined :disabled="pending" @click="emit('loadExistingDetailItems', group)" />
+                  <Button type="button" label="查找" severity="secondary" outlined :disabled="pending" @click="emit('queryExistingDetailItems', group)" />
                 </div>
                 <div v-if="candidateRows(group).length || candidateState(group).totalPage" class="button-row">
                   <Button type="button" label="上一页" severity="secondary" text :disabled="pending || candidateState(group).pageIndex <= 1" @click="emit('loadCandidatePage', group, candidateState(group).pageIndex - 1)" />
@@ -365,7 +366,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                     :show-default-action="true"
                     @select="(row) => selectExistingItem(group, row)"
                   />
-                  <div v-else class="empty-state compact">暂无候选记录。</div>
+                  <div v-else class="empty-state compact">{{ candidateState(group).queried ? "暂无候选记录。" : "记录未知，请查询。" }}</div>
                 </div>
               </div>
               <template #footer>

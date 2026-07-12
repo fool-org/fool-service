@@ -5,6 +5,7 @@ export interface ChildCandidateState {
   keyword: string;
   pageIndex: number;
   pageSize: number;
+  queried: boolean;
   totalItem: number;
   totalPage: number;
 }
@@ -13,6 +14,7 @@ const defaultState: ChildCandidateState = {
   keyword: "",
   pageIndex: 1,
   pageSize: 10,
+  queried: false,
   totalItem: 0,
   totalPage: 0
 };
@@ -52,7 +54,14 @@ export function useChildCandidates(groupKey: (group: QueryDataDetailItemGroup) =
       ...rows.value,
       [key]: nextRows
     };
-    setCandidateState(group, totals);
+    setCandidateState(group, { ...totals, queried: true });
+  }
+
+  function setCandidateView(group: QueryDataDetailItemGroup, nextColumns: TableColumnInfo[]) {
+    const key = groupKey(group);
+    columns.value = { ...columns.value, [key]: nextColumns };
+    rows.value = { ...rows.value, [key]: [] };
+    setCandidateState(group, { pageIndex: 1, queried: false, totalItem: 0, totalPage: 0 });
   }
 
   function inputValue(event: Event) {
@@ -70,6 +79,7 @@ export function useChildCandidates(groupKey: (group: QueryDataDetailItemGroup) =
     candidateState,
     setCandidateResults,
     setCandidateState,
+    setCandidateView,
     updateCandidateKeyword
   };
 }

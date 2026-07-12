@@ -206,6 +206,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   opens a non-dismissible `保存中` modal with `正在保存，请稍后....`; successful
   save closes it and returns only after the hide transition, while failed saves
   close it without navigation and keep the existing error surface.
+- 2026-07-12: restored select-existing query timing from `initQueryView`.
+  Opening the picker now loads only `ListViewId` metadata and shows
+  `记录未知，请查询。`; candidate data is requested only by Find or paging, and
+  zero results become `暂无候选记录。` only after an explicit query completes.
 - 2026-07-12: restored old `message.js` delivery behavior in the Vue shell.
   Each non-empty 15-second `getmsg` poll now immediately opens its first item
   in a `系统消息` modal with generation time, content, View-first detail

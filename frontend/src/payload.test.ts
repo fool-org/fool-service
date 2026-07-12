@@ -245,7 +245,9 @@ describe("App defaults", () => {
     expect(appSource).toContain('infoMessage.value = "请先保存当前内容，再新建子项"');
     expect(viewDetailPanelSource).toContain("function openExistingPicker");
     expect(viewDetailPanelSource).toContain('class="detail-picker-dialog"');
-    expect(viewDetailPanelSource).toContain("emit(\"loadExistingDetailItems\", group)");
+    expect(viewDetailPanelSource).toContain("emit(\"loadExistingDetailView\", group)");
+    expect(viewDetailPanelSource).toContain("emit('queryExistingDetailItems', group)");
+    expect(viewDetailPanelSource).toContain('candidateState(group).queried ? "暂无候选记录。" : "记录未知，请查询。"');
     expect(viewDetailPanelSource).toContain("function selectExistingItem");
     expect(viewDetailPanelSource).toContain('@select="(row) => selectExistingItem(group, row)"');
     expect(appSource).toContain("const viewId = groupListViewId(group)");
@@ -434,15 +436,17 @@ describe("App defaults", () => {
       viewWorkflowSource.indexOf("export function fieldModelId")
     );
     const childSource = appSource.slice(
-      appSource.indexOf("async function loadExistingDetailItems"),
-      appSource.indexOf("async function addExistingDetailItem")
+      appSource.indexOf("async function loadExistingDetailView"),
+      appSource.indexOf("function addExistingDetailItem")
     );
 
     expect(columnsSource).toContain("if (!view)");
+    expect(childSource.indexOf("/api/v1/view/getlistview")).toBeLessThan(childSource.indexOf("/api/v1/data/querydata"));
     expect(columnsSource).toContain("return viewColumns(view)");
     expect(columnsSource).not.toContain("columnsFromListResult");
     expect(columnsSource).not.toContain("columnsFromRowItems");
-    expect(childSource).toContain("setCandidateResults(group, viewColumns(view.data), listRows(data.data)");
+    expect(childSource).toContain("setCandidateView(group, viewColumns(view.data))");
+    expect(childSource).toContain("setCandidateResults(group, candidateColumns(group), listRows(data.data)");
     expect(childSource).not.toContain("columnsFromListResult");
     expect(childSource).not.toContain("declaredColumns.length ? declaredColumns : resultColumns");
   });
