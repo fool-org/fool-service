@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import Button from "primevue/button";
-import Card from "primevue/card";
 import InputText from "primevue/inputtext";
 import Message from "primevue/message";
 import Select from "primevue/select";
@@ -38,10 +37,6 @@ function databaseName(database: LegacyStoreBaseInfo) {
 }
 
 const appName = computed(() => text(props.appInfo?.appName, props.appInfo?.AppName, "Fool Service"));
-const appTitle = computed(() => {
-  const value = text(props.appInfo?.appTitle, props.appInfo?.AppTitle);
-  return value === appName.value ? "" : value;
-});
 const appImage = computed(() => text(props.appInfo?.appImg, props.appInfo?.AppImg));
 const appVersion = computed(() => text(props.appInfo?.appVersion, props.appInfo?.AppVersion));
 const appPowerBy = computed(() => text(props.appInfo?.appPowerBy, props.appInfo?.AppPowerBy));
@@ -70,6 +65,7 @@ function reset() {
   password.value = "";
   checkCodeValue.value = "";
   dbId.value = databases.value[0] ? databaseId(databases.value[0]) : "";
+  emit("refresh");
 }
 
 function submit() {
@@ -81,54 +77,37 @@ function submit() {
   <main class="login-page">
     <header class="login-brand">
       <img v-if="appImage" :alt="appName" :src="appImage" />
-      <span v-else aria-hidden="true">F</span>
-      <p v-if="appTitle">{{ appTitle }}</p>
       <h1>{{ appName }}</h1>
     </header>
 
-    <Card class="login-card">
-      <template #title>Welcome back</template>
-      <template #subtitle>Sign in to continue to {{ appName }}</template>
-      <template #content>
-        <form class="login-form" aria-label="Sign in" @submit.prevent="submit">
-          <label>
-            User ID
-            <InputText v-model="userId" autocomplete="username" required fluid />
-          </label>
-          <label>
-            Password
-            <InputText v-model="password" autocomplete="current-password" required type="password" fluid />
-          </label>
-          <label v-if="databases.length">
-            Database
-            <Select
-              v-model="dbId"
-              :options="databaseOptions"
-              option-label="label"
-              option-value="value"
-              required
-              fluid
-            />
-          </label>
-          <label>
-            Check code
-            <span class="captcha-row">
-              <InputText v-model="checkCodeValue" autocomplete="one-time-code" maxlength="8" required fluid />
-              <img v-if="captchaImage" alt="Check code" :src="`data:image/jpeg;base64,${captchaImage}`" />
-              <Button type="button" label="Refresh" icon="pi pi-refresh" severity="secondary" outlined :disabled="pending" @click="emit('refresh')" />
-            </span>
-          </label>
-          <input name="check-code-key" type="hidden" :value="captchaKey" />
+    <form class="login-form" aria-label="登录" @submit.prevent="submit">
+      <InputText v-model="userId" aria-label="用户名" autocomplete="username" placeholder="用户名" required fluid />
+      <InputText v-model="password" aria-label="密码" autocomplete="current-password" placeholder="密码" required type="password" fluid />
+      <Select
+        v-if="databases.length > 1"
+        v-model="dbId"
+        aria-label="数据库"
+        :options="databaseOptions"
+        option-label="label"
+        option-value="value"
+        placeholder="数据库"
+        required
+        fluid
+      />
+      <InputText v-model="checkCodeValue" aria-label="验证码" autocomplete="one-time-code" maxlength="8" placeholder="验证码" required fluid />
+      <div class="captcha-preview">
+        <img v-if="captchaImage" alt="验证码" :src="`data:image/jpeg;base64,${captchaImage}`" />
+        <Button type="button" label="刷新" severity="secondary" text :disabled="pending" @click="emit('refresh')" />
+      </div>
+      <input name="check-code-key" type="hidden" :value="captchaKey" />
 
-          <Message v-if="errorMessage" severity="error" :closable="false">{{ errorMessage }}</Message>
+      <Message v-if="errorMessage" severity="error" :closable="false">{{ errorMessage }}</Message>
 
-          <div class="login-actions">
-            <Button type="submit" :label="pending ? 'Please wait...' : 'Sign in'" icon="pi pi-sign-in" :loading="pending" :disabled="pending || !captchaKey" />
-            <Button type="button" label="Reset" severity="secondary" outlined :disabled="pending" @click="reset" />
-          </div>
-        </form>
-      </template>
-    </Card>
+      <div class="login-actions">
+        <Button type="submit" :label="pending ? '登录中...' : '登录'" :loading="pending" :disabled="pending || !captchaKey" />
+        <Button type="button" label="重置" severity="secondary" :disabled="pending" @click="reset" />
+      </div>
+    </form>
 
     <footer v-if="appVersion || appPowerBy">
       <span>{{ appVersion }}</span>
@@ -140,118 +119,89 @@ function submit() {
 
 <style scoped>
 .login-page {
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   min-height: 100vh;
-  grid-template-rows: 1fr auto 1fr;
-  place-items: center;
-  gap: 28px;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(79, 70, 229, 0.13), transparent 36%),
-    #f8fafc;
-  padding: 32px 20px;
-  color: #0f172a;
+  align-items: center;
+  gap: 18px;
+  padding: 24px 16px;
+  background: #ffffff;
+  color: #333333;
 }
 
 .login-brand {
-  align-self: end;
   text-align: center;
 }
 
-.login-brand > span,
 .login-brand > img {
-  display: inline-grid;
-  width: 56px;
-  height: 56px;
-  place-items: center;
-  border-radius: 16px;
-}
-
-.login-brand > span {
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
-  color: #ffffff;
-  font-size: 1.45rem;
-  font-weight: 800;
-}
-
-.login-brand > img {
+  display: block;
+  width: min(200px, 100%);
+  max-height: 120px;
+  margin: 0 auto;
   object-fit: contain;
 }
 
-.login-brand p {
-  margin: 16px 0 4px;
-  color: #64748b;
-  font-size: 0.82rem;
-}
-
 .login-brand h1 {
-  margin: 0;
-  font-size: 1.75rem;
+  margin: 12px 0 0;
+  font-size: 2rem;
+  font-weight: 500;
   letter-spacing: 0;
-}
-
-.login-card {
-  width: min(100%, 390px);
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
 }
 
 .login-form {
   display: grid;
-  gap: 16px;
+  width: min(100%, 240px);
+  gap: 8px;
 }
 
-.login-form label {
-  display: grid;
-  gap: 6px;
-  color: #334155;
-  font-size: 0.82rem;
-  font-weight: 700;
+.login-form :deep(.p-inputtext),
+.login-form :deep(.p-select) {
+  width: 100%;
 }
 
-.captcha-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 100px auto;
+.captcha-preview {
+  display: flex;
+  min-height: 40px;
+  justify-content: flex-end;
   gap: 8px;
   align-items: center;
 }
 
-.captcha-row img {
+.captcha-preview img {
   width: 100px;
   height: 40px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
   object-fit: cover;
 }
 
 .login-actions {
   display: grid;
-  grid-template-columns: 1fr auto;
   gap: 8px;
+}
+
+.login-actions :deep(.p-button) {
+  width: 100%;
 }
 
 .login-page footer {
   display: flex;
-  align-self: start;
-  gap: 12px;
-  color: #64748b;
-  font-size: 0.78rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: #666666;
+  font-size: 0.8rem;
+  text-align: center;
 }
 
 .login-page footer a {
-  color: #4f46e5;
+  color: #337ab7;
 }
 
 @media (max-width: 520px) {
   .login-page {
     padding: 24px 14px;
-  }
-
-  .captcha-row {
-    grid-template-columns: minmax(0, 1fr) 100px;
-  }
-
-  .captcha-row button {
-    grid-column: 1 / -1;
   }
 }
 </style>

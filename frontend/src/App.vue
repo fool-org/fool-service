@@ -291,7 +291,7 @@ async function loginV2() {
   applyDefaultAppView(response.data);
   token.value = response.data?.token || response.data?.Token || "";
   if (!token.value) {
-    errorMessage.value = legacyLoginErrorMessage(response.data) || "Sign in failed.";
+    errorMessage.value = legacyLoginErrorMessage(response.data) || "登录失败。";
     return false;
   }
   localStorage.setItem("fool-service-token", token.value);
@@ -309,7 +309,7 @@ async function submitLegacyLogin(user: string, secret: string, database: string,
     await enterAuthenticatedShell();
     return;
   }
-  const loginError = errorMessage.value || "Sign in failed.";
+  const loginError = errorMessage.value || "登录失败。";
   await refreshLoginCheckCode();
   errorMessage.value = loginError;
 }

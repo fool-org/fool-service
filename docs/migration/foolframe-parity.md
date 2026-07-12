@@ -2153,8 +2153,10 @@ operation types intentionally retain FoolFrame's no-op success behavior.
 
 The new Vue app under `frontend/` replaces the first operator workflow with:
 
-- A signed-out Vue login page with user, password, database, captcha refresh,
-  reset, login errors, and logout/stale-token return behavior
+- A signed-out Vue login page aligned to old `index.jade`: application image
+  and title, narrow unframed form, Chinese placeholders, hidden single-store
+  selection, captcha refresh, stacked login/reset actions, footer metadata,
+  login errors, and logout/stale-token return behavior
 - Auth profile/menu/logout calls with a Docker-seeded admin smoke account
 - Legacy `initapp` loading with legacy `AppId` / `AppKey`, app metadata,
   check code, and store database list

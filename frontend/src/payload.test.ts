@@ -640,9 +640,9 @@ describe("App defaults", () => {
   it("moves the legacy checkcode route into the signed-out login panel", () => {
     expect(appSource).toContain("/api/v1/auth/getcheckcode");
     expect(appSource).toContain("checkCodeResponse");
-    expect(loginPanelSource).toContain("Check code");
+    expect(loginPanelSource).toContain('placeholder="验证码"');
     expect(loginPanelSource).toContain("captchaImage");
-    expect(loginPanelSource).toContain("Refresh");
+    expect(loginPanelSource).toContain('label="刷新"');
     expect(appSource).not.toContain("<h2>Check Code</h2>");
   });
 
@@ -650,7 +650,12 @@ describe("App defaults", () => {
     expect(appSource).toContain("/api/v1/auth/loginv2");
     expect(appSource).toContain("localStorage.setItem(\"fool-service-token\", token.value)");
     expect(appSource).toContain("async function submitLegacyLogin");
-    expect(loginPanelSource).toContain("Sign in");
+    expect(loginPanelSource).toContain('placeholder="用户名"');
+    expect(loginPanelSource).toContain('placeholder="密码"');
+    expect(loginPanelSource).toContain("pending ? '登录中...' : '登录'");
+    expect(loginPanelSource).toContain('label="重置"');
+    expect(loginPanelSource).not.toContain("Welcome back");
+    expect(loginPanelSource).not.toContain("<Card");
     expect(appSource).not.toContain("Legacy Login V2");
   });
 

@@ -806,6 +806,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Replace default `admin/admin` auto-login and developer auth controls with
       a signed-out Vue `initapp` / captcha / `loginv2` page that resumes legacy
       View/detail/new deep links after authentication.
+- [x] Align the signed-out Vue page with old `index.jade`: use the application
+      image/title, narrow unframed form, Chinese placeholders, captcha refresh,
+      stacked login/reset actions, footer metadata, and reset-time code refresh.
 - [x] Replay the ordered idempotent Docker MySQL init catalog on every Compose
       startup and block backend startup when existing-volume migration fails.
 - [x] Audit all 25 old Web `app.js` routes and the Jade templates, then remove
