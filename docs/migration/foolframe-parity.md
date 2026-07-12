@@ -320,6 +320,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   longer adds search, chart, or plus icons to `查找`, `统计`, and metadata
   create operations; command order, View targets, and disabled states are
   unchanged.
+- 2026-07-12: restored `detailView.jade` main-toolbar icon semantics. Edit
+  keeps its pencil, while Save and every metadata View operation now reuse the
+  old check mark instead of unrelated floppy-disk and lightning symbols.
 - 2026-07-10: completed the authenticated Vue browser acceptance after explicit
   permission to read the local CAPTCHA and use the Docker `admin/admin`
   account. Desktop and 390x844 checks exercised the default View-first list,

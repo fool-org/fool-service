@@ -186,6 +186,9 @@ item must land with its matching implementation and validation evidence.
       metadata-defined View operation buttons in one wrapping toolbar; keep
       Edit/Save mounted for existing records and switch their disabled state
       instead of shifting the toolbar during edit.
+- [x] Match `detailView.jade` main-toolbar icon semantics: retain the pencil
+      for Edit and use the old shared check mark for Save and metadata View
+      operations instead of invented save/bolt icons.
 - [x] Restore old Web Chinese detail interaction copy for edit/save,
       child add/select/page/edit/delete, empty states, confirmation prompts,
       and local validation while preserving metadata and server ReturnMsg text.

@@ -123,7 +123,7 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
       <Button
         type="button"
         label="保存"
-        icon="pi pi-save"
+        icon="pi pi-check"
         :loading="pending"
         :disabled="pending || !isEditing"
         @click="emit('saveSelectedObject')"
@@ -135,7 +135,7 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
           type="button"
           :disabled="pending || isEditing"
           :label="operationLabel(operation)"
-          icon="pi pi-bolt"
+          icon="pi pi-check"
           severity="secondary"
           outlined
           @click="emit('runViewOperation', operation)"

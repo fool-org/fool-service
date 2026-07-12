@@ -129,6 +129,11 @@ describe("App defaults", () => {
   });
 
   it("renders detail View operations from the loaded detail payload", () => {
+    const toolbarSource = viewDetailPanelSource.slice(
+      viewDetailPanelSource.indexOf('class="detail-toolbar"'),
+      viewDetailPanelSource.indexOf('class="detail-field-grid detail-field-edit"')
+    );
+
     expect(appSource).toContain("dataOperations(detailResponse.value?.data)");
     expect(appSource).toContain("detailViewOperations");
     expect(appSource).toContain('@run-view-operation="runViewOperation"');
@@ -138,6 +143,9 @@ describe("App defaults", () => {
     expect(appSource).toContain("legacyRunOperationMessage(response.data)");
     expect(appSource).toContain("operationResult.value = { message, success }");
     expect(viewDetailPanelSource).toContain(":severity=\"operationResult.success ? 'success' : 'error'\"");
+    expect(toolbarSource.match(/icon="pi pi-check"/g)).toHaveLength(2);
+    expect(toolbarSource).not.toContain('icon="pi pi-save"');
+    expect(toolbarSource).not.toContain('icon="pi pi-bolt"');
   });
 
   it("renders the old detail heading with object or create context", () => {
