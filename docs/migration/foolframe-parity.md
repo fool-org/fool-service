@@ -208,16 +208,16 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   close it without navigation and keep the existing error surface.
 - 2026-07-12: restored select-existing query timing from `initQueryView`.
   Opening the picker now loads only `ListViewId` metadata and shows
-  `记录未知，请查询。`; candidate data is requested only by Find or paging, and
+  runtime `记录未知 请查询`; candidate data is requested only by Find or paging, and
   zero results become `暂无候选记录。` only after an explicit query completes.
 - 2026-07-12: restored the candidate View loading-dialog order. Add now opens
   the non-dismissible `加载中` / `正在加载，请稍后....` modal, awaits successful
   View metadata, closes loading, and only then opens the picker. Failed metadata
   loads leave the picker closed and use the existing error surface.
 - 2026-07-12: restored candidate `NavbarController` result feedback. The picker
-  now starts with exact `记录数未知,请查询`, changes to `共N条记录` after every
-  successful query including zero results, and places record status and paging
-  after the candidate table like `detailView.jade`.
+  now uses `initQueryView`'s runtime `记录未知 请查询`, changes to `共N条记录`
+  after every successful query including zero results, and places record status
+  and paging after the candidate table like `detailView.jade`.
 - 2026-07-12: restored candidate query page timing. Explicit Find follows
   `querylistdata.js query()` and resets to page 1, while previous/next paging
   follows the Navbar callback and queries the selected target page unchanged.

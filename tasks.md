@@ -946,11 +946,12 @@ item must land with its matching implementation and validation evidence.
       non-dismissible saving modal and navigate back only after a successful
       save closes it; failed saves remain on the detail page.
 - [x] Restore select-existing View-first timing: open with candidate metadata
-      and `记录未知，请查询。`, then query rows only after Find or paging.
+      and runtime `记录未知 请查询`, then query rows only after Find or paging.
 - [x] Restore `initQueryView` picker-open ordering: show the old loading modal,
       await candidate View metadata, and open the picker only on success.
 - [x] Restore candidate `NavbarController` feedback and placement: show exact
-      unknown/total-record text below results and keep paging after the table.
+      runtime unknown/total-record text below results and keep paging after the
+      table.
 - [x] Restore candidate query page timing: Find resets to page 1 while Navbar
       previous/next requests preserve the selected target page.
 - [x] Restore the compact text-only Bootstrap navbar brand: remove the invented

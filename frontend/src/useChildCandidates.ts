@@ -20,7 +20,7 @@ const defaultState: ChildCandidateState = {
 };
 
 export function candidateRecordInfo(candidate: Pick<ChildCandidateState, "queried" | "totalItem">) {
-  return candidate.queried ? `共${candidate.totalItem}条记录` : "记录数未知,请查询";
+  return candidate.queried ? `共${candidate.totalItem}条记录` : "记录未知 请查询";
 }
 
 export function useChildCandidates(groupKey: (group: QueryDataDetailItemGroup) => string) {
