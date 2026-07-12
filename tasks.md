@@ -173,6 +173,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore old Web authenticated shell copy for Home, navigation, system
       messages, refresh/detail actions, signed-in fallback, and safe logout
       while preserving server-provided user/menu/message text.
+- [x] Restore old `/` and `/main` Home behavior: desktop/mobile Home and the
+      desktop brand return to `App.DefaultViewId`, while an App without a
+      default View shows the original configuration guidance.
 - [x] Replace the invented Indigo/gradient shell theme with old Bootstrap
       primary states (`#337ab7`, `#286090`, `#204d74`) across PrimeVue
       controls, the shell brand mark, and map markers.

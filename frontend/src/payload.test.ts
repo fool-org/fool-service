@@ -680,15 +680,34 @@ describe("App defaults", () => {
 
   it("starts old Web /view:id paths through the same View-first workflow", () => {
     expect(appSource).toContain("legacyViewPathId(window.location.pathname)");
-    expect(appSource).toContain("if (routeViewId) applyRequestedViewId(routeViewId)");
+    expect(appSource).toContain("if (routeViewId) {");
+    expect(appSource).toContain("applyRequestedViewId(routeViewId)");
+    expect(appSource).toContain("await loadViewWorkflow();");
     expect(appSource).toContain("if (defaultViewId && !legacyListViewId.value) applyRequestedViewId(defaultViewId)");
+  });
+
+  it("returns Home and the desktop brand to the configured default View", () => {
+    const homeSource = appSource.slice(
+      appSource.indexOf("async function openPrimarySection"),
+      appSource.indexOf("async function openMobilePrimarySection")
+    );
+    expect(homeSource).toContain("await ensureLegacyShell()");
+    expect(homeSource).toContain('window.history.pushState({}, "", "/")');
+    expect(homeSource).toContain("legacyAppDefaultViewId(mainInfoResponse.value?.data)");
+    expect(homeSource).toContain("applyRequestedViewId(defaultViewId)");
+    expect(homeSource).toContain("await loadViewWorkflow(true)");
+    expect(homeSource).toContain("showUnconfiguredHome.value = true");
+    expect(appSource).toContain("await openPrimarySection();");
+    expect(appSource).toContain('<a href="/" @click.prevent="openPrimarySection">');
+    expect(appSource).toContain("欢迎使用SOWAY无码系统，这是默认的首页，没有配置，请参考相关说明进行设定");
+    expect(appSource.match(/showUnconfiguredHome\.value = false;/g)?.length).toBeGreaterThanOrEqual(4);
   });
 
   it("starts old Web detail and new paths through existing View-first detail flows", () => {
     expect(appSource).toContain("legacyDetailPath(window.location.pathname)");
     expect(appSource).toContain("await loadLegacyDetailPath(detailRoute)");
     expect(appSource).toContain("isStandaloneDetail.value = true");
-    expect(appSource).toContain('v-if="!isMetadataOnlyView && !isStandaloneDetail"');
+    expect(appSource).toContain('v-if="!showUnconfiguredHome && !isMetadataOnlyView && !isStandaloneDetail"');
     expect(appSource).toContain('@click="openPrimarySection"');
     expect(appSource).toContain("await queryDetail(route.viewId, objectId)");
     expect(appSource).toContain("legacyItemViewPathId(window.location.pathname)");

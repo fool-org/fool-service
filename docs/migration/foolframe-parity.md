@@ -2661,3 +2661,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   now reads Pascal/camel `AppPowerBy` from the already loaded `getmain.App`
   metadata and renders the old copyright line after the workspace, with
   responsive spacing but no fixed company value or extra request.
+- 2026-07-12: restored the authenticated Home route from old `index.js`.
+  Desktop/mobile `首页`, the initial root route, and the old clickable desktop
+  brand now reload `getmain.App.DefaultViewId` through the shared View-first
+  workflow instead of doing nothing on another list View. Apps without a
+  default View show the original configuration guidance and no stale View.

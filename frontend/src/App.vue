@@ -134,6 +134,7 @@ const checkCodeValue = ref("");
 const subMenuParentAuthCode = ref("");
 const isMetadataOnlyView = ref(false);
 const isStandaloneDetail = ref(false);
+const showUnconfiguredHome = ref(false);
 const showViewReport = ref(false);
 const selectedObjectId = ref("");
 const isCreatingObject = ref(false);
@@ -388,9 +389,24 @@ async function openShellMenu(item: LegacyAuthItem) {
 }
 
 async function openPrimarySection() {
-  if (isMetadataOnlyView.value || isStandaloneDetail.value) {
-    await loadViewWorkflow();
+  if (!(await ensureLegacyShell())) return;
+  if (window.location.pathname !== "/") window.history.pushState({}, "", "/");
+  subMenuParentAuthCode.value = "";
+  subMenuResponse.value = null;
+  const defaultViewId = legacyAppDefaultViewId(mainInfoResponse.value?.data);
+  if (defaultViewId) {
+    applyRequestedViewId(defaultViewId);
+    await loadViewWorkflow(true);
+    return;
   }
+  stopAutoRefresh();
+  showViewReport.value = false;
+  showUnconfiguredHome.value = true;
+  isMetadataOnlyView.value = false;
+  isStandaloneDetail.value = false;
+  selectedObjectId.value = "";
+  detailResponse.value = null;
+  errorMessage.value = "";
 }
 
 async function openMobilePrimarySection() {
@@ -620,6 +636,7 @@ async function ensureLegacyShell() {
 async function loadViewWorkflow(resetPage = false) {
   stopAutoRefresh();
   showViewReport.value = false;
+  showUnconfiguredHome.value = false;
   operationResult.value = null;
   infoMessage.value = "";
   clearPendingDetailChanges();
@@ -651,6 +668,7 @@ async function searchCurrentView() {
 
 async function loadLegacyDetailPath(route: { viewId: number; objectId?: string }) {
   stopAutoRefresh();
+  showUnconfiguredHome.value = false;
   operationResult.value = null;
   infoMessage.value = "";
   clearPendingDetailChanges();
@@ -666,6 +684,7 @@ async function loadLegacyDetailPath(route: { viewId: number; objectId?: string }
 
 async function loadLegacyItemView(viewId: number) {
   stopAutoRefresh();
+  showUnconfiguredHome.value = false;
   isMetadataOnlyView.value = true;
   isStandaloneDetail.value = false;
   applyRequestedViewId(viewId);
@@ -678,6 +697,7 @@ async function loadLegacyItemView(viewId: number) {
 
 async function loadLegacyNewPath(route: { viewId: number; parentObjId: string; ownerViewId: string; property: string }) {
   stopAutoRefresh();
+  showUnconfiguredHome.value = false;
   isMetadataOnlyView.value = false;
   isStandaloneDetail.value = true;
   applyRequestedViewId(route.viewId);
@@ -702,8 +722,12 @@ async function loadInitialRoute() {
     return;
   }
   const routeViewId = legacyViewPathId(window.location.pathname);
-  if (routeViewId) applyRequestedViewId(routeViewId);
-  await loadViewWorkflow();
+  if (routeViewId) {
+    applyRequestedViewId(routeViewId);
+    await loadViewWorkflow();
+    return;
+  }
+  await openPrimarySection();
 }
 
 async function enterAuthenticatedShell() {
@@ -954,8 +978,10 @@ function syncDetailDrafts() {
   <div v-else class="app-shell">
     <header class="shell-header">
       <h2 class="brand">
-        {{ shellAppName }}
-        <small v-if="shellAppVersion">{{ shellAppVersion }}</small>
+        <a href="/" @click.prevent="openPrimarySection">
+          {{ shellAppName }}
+          <small v-if="shellAppVersion">{{ shellAppVersion }}</small>
+        </a>
       </h2>
 
       <div class="desktop-navigation">
@@ -1014,8 +1040,9 @@ function syncDetailDrafts() {
       </Drawer>
 
       <section class="view-workflow" :class="{ 'metadata-only': isMetadataOnlyView || isStandaloneDetail || isUnsupportedView }" aria-label="View workflow">
+        <p v-if="showUnconfiguredHome" class="home-empty-state">欢迎使用SOWAY无码系统，这是默认的首页，没有配置，请参考相关说明进行设定</p>
         <ViewListPanel
-          v-if="!isMetadataOnlyView && !isStandaloneDetail"
+          v-if="!showUnconfiguredHome && !isMetadataOnlyView && !isStandaloneDetail"
           v-model:keyword="viewKeyword"
           :page-size="pageSize"
           :data="dataResponse?.data"
