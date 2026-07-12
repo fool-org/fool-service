@@ -449,6 +449,13 @@ def detail_group_columns(group: dict[str, Any]) -> list[dict[str, Any]]:
     return [column for column in columns if isinstance(column, dict)] if isinstance(columns, list) else []
 
 
+def detail_group_list_view_id(group: dict[str, Any]) -> int:
+    try:
+        return int(group.get("listViewId") or group.get("ListViewId") or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
 def detail_group_columns_have_names(groups: list[dict[str, Any]]) -> bool:
     return any(
         any(str(column.get("Name") or "").strip() for column in detail_group_columns(group))
@@ -1149,6 +1156,27 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         if view_name:
             view_state["detailViewName"] = str(view_name)
         return bool(fields) and bool(view_name) and detail_group_columns_have_names(groups)
+
+    def detail_groups_follow_linked_list_views() -> bool:
+        groups = view_state.get("newGroups")
+        if not isinstance(groups, list):
+            return False
+        checked = False
+        for group in groups:
+            view_id = detail_group_list_view_id(group)
+            if not view_id:
+                continue
+            payload = post_json(
+                f"{frontend_url}/api/v1/view/getlistview",
+                {"ViewId": view_id},
+                timeout,
+            )
+            view_keys = [view_column_key(column) for column in view_columns(payload)]
+            detail_keys = [detail_field_key(column) for column in detail_group_columns(group)]
+            if not view_keys or detail_keys != view_keys:
+                return False
+            checked = True
+        return checked
 
     def save_object_payload(key: str, object_id: str, view_id: object, properties: list[dict[str, object]]) -> dict:
         return {
@@ -1957,6 +1985,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "data:initnew",
             init_new_from_loaded_detail_view,
             "POST /api/v1/data/initnew uses loaded DetailViewId",
+        ),
+        (
+            "data:detail-items-follow-list-view",
+            detail_groups_follow_linked_list_views,
+            "Detail collection Properties follow the linked List View items in order",
         ),
         (
             "data:savenewobj",

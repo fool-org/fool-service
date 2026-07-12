@@ -93,6 +93,14 @@ class RuntimeDoctorTest(unittest.TestCase):
         for suffix, response in suffixes.items():
             if url.endswith(suffix):
                 return response
+        if url.endswith("/view/getlistview") and isinstance(_payload, dict) and _payload.get("ViewId") == 101:
+            return {"code": 0, "data": {
+                "ViewName": "OrderItemList",
+                "Items": [
+                    {"PropertyName": "itemId"},
+                    {"PropertyName": "itemName"},
+                ],
+            }}
         if url.endswith("/view/getlistview") and isinstance(_payload, dict) and _payload.get("ViewId") == 103:
             return {"code": 0, "data": {
                 "TempFile": "Sudoku",
@@ -130,6 +138,7 @@ class RuntimeDoctorTest(unittest.TestCase):
                 {"PrpId": "state", "PrpType": "Enum", "ReadOnly": False},
             ], "Items": [{
                 "PrpId": "items",
+                "ListViewId": 101,
                 "Properties": [
                     {"PrpId": "itemId", "Name": "Item ID", "ReadOnly": True},
                     {"PrpId": "itemName", "Name": "Item Name", "ReadOnly": True},
@@ -1128,7 +1137,9 @@ class RuntimeDoctorTest(unittest.TestCase):
         by_name = {result.name: result for result in results}
         self.assertIn("data:initnew", by_name)
         self.assertTrue(by_name["data:initnew"].ok)
+        self.assertTrue(by_name["data:detail-items-follow-list-view"].ok)
         self.assertIn(("http://frontend/api/v1/data/initnew", {"ViewId": 202}), calls)
+        self.assertIn(("http://frontend/api/v1/view/getlistview", {"ViewId": 101}), calls)
 
     def test_api_checks_querydatadetail_idexp_uses_loaded_detail_view_and_row_id(self) -> None:
         calls: list[tuple[str, object]] = []

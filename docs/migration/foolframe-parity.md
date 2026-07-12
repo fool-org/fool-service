@@ -653,6 +653,13 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   linked list View instead of the child model. Old Web `viewid` and Cloud
   `ViewName` aliases accept that metadata name, while modern numeric `ViewId`
   remains the fallback and keeps precedence when both are present.
+- 2026-07-12: restored View-first detail collection columns from FoolFrame
+  `DataFormator.IObjectProxyToDetail`. `ViewDataService` now loads each
+  collection's linked List View and attaches its property metadata; the detail
+  adapter emits `Properties[]` and row `Values[]` from those ordered ViewItems.
+  Child model properties absent from the View stay hidden, and View labels,
+  editability, edit type, and format remain authoritative. The Docker doctor
+  compares each detail group directly with its `ListViewId` metadata.
 - 2026-07-10: Vue startup now reads the old FoolFrame Web list route
   `/view:id` from `window.location.pathname` and uses that View id before the
   legacy app default, keeping the startup path on `getlistview(ViewId)` then

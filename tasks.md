@@ -315,6 +315,9 @@ item must land with its matching implementation and validation evidence.
       `Name` from its linked list View, then send the rendered detail or child
       View name through legacy `inputquery`, with numeric ViewId only as a
       metadata-missing fallback and no business DTO shortcut.
+- [x] Render detail collection `Properties` and row `Values` from the linked
+      List View's ordered ViewItems, including labels, editability, types, and
+      formats, instead of exposing every property from the child model DTO.
 - [x] Add a Docker runtime doctor for the stable Vue/View workflow so
       backend, frontend proxy, View metadata, data query, inputquery, and
       report model smoke checks are repeatable.

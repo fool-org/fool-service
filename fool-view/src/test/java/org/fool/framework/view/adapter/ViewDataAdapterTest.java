@@ -32,7 +32,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 public class ViewDataAdapterTest {
@@ -405,7 +404,8 @@ public class ViewDataAdapterTest {
         itemModel.setId(101L);
         itemModel.setName("OrderItem");
         itemModel.setIdProperty(itemId);
-        itemModel.setProperties(List.of(itemId, itemName));
+        Property hidden = property("hidden", PropertyType.String);
+        itemModel.setProperties(List.of(itemId, itemName, hidden));
 
         Property itemsProperty = property("items", PropertyType.BusinessObject);
         itemsProperty.setIsCollection(true);
@@ -413,6 +413,15 @@ public class ViewDataAdapterTest {
         ViewItem items = viewItem("items", ItemEditType.ReadOnly);
         items.setItemName("Items");
         setProperty(items, itemsProperty);
+        ViewItem childName = viewItem("itemName", ItemEditType.TextBox);
+        childName.setItemName("Configured Item Name");
+        childName.setCanEdit(true);
+        setProperty(childName, itemName);
+        View childView = new View();
+        childView.setViewName("OrderItemList");
+        childView.setListItems(List.of(childName));
+        items.setListView(childView);
+        items.setListViewName(childView.getViewName());
 
         ViewItem symbol = viewItem("symbol", ItemEditType.ReadOnly);
         symbol.setItemName("Symbol");
@@ -426,6 +435,7 @@ public class ViewDataAdapterTest {
         Map<String, Object> childValues = new LinkedHashMap<>();
         childValues.put("itemId", 2001L);
         childValues.put("itemName", "Updated item");
+        childValues.put("hidden", "must not render");
         Map<String, Object> values = new LinkedHashMap<>();
         values.put("symbol", "BTC-USDT");
         childValues.put("SYSID", "2001");
@@ -439,14 +449,15 @@ public class ViewDataAdapterTest {
         assertEquals("symbol", result.getData().getSimpleData().get(0).getPrpId());
         assertEquals(1, result.getData().getItems().size());
         QueryDataDetailResult.PropertyDataItems group = result.getData().getItems().get(0);
-        assertNull(group.getName());
+        assertEquals("OrderItemList", group.getName());
         assertEquals("items", group.getPrpId());
         assertEquals("Items", group.getItemName());
-        assertEquals(2, group.getProperties().size());
-        assertEquals("Item Name", group.getProperties().get(1).getPrpShowName());
+        assertEquals(1, group.getProperties().size());
+        assertEquals("Configured Item Name", group.getProperties().get(0).getPrpShowName());
+        assertFalse(group.getProperties().get(0).getReadOnly());
         assertEquals(1, group.getItems().size());
         assertEquals("2001", group.getItems().get(0).getDataId());
-        assertEquals("Updated item", group.getItems().get(0).getValues().get(1).getFmtValue());
+        assertEquals("Updated item", group.getItems().get(0).getValues().get(0).getFmtValue());
     }
 
     @Test

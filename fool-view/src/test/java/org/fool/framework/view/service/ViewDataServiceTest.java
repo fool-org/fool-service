@@ -170,7 +170,7 @@ public class ViewDataServiceTest {
     }
 
     @Test
-    public void getViewDataHydratesLinkedListViewTypeFromChildView() {
+    public void getViewDataHydratesLinkedListViewMetadataAndItems() {
         DaoService daoService = mock(DaoService.class);
         ViewDataService service = new ViewDataService();
         ReflectionTestUtils.setField(service, "daoService", daoService);
@@ -182,25 +182,29 @@ public class ViewDataServiceTest {
         view.setId(100L);
         view.setViewModel("Order");
         view.setListItems(List.of(item));
-        ViewDataService.LinkedViewTypeRow row = new ViewDataService.LinkedViewTypeRow();
-        row.itemId = 901L;
-        row.viewType = 1;
-        row.viewName = "OrderItemList";
+        ViewItem childItem = new ViewItem();
+        childItem.setModelProperty("itemName");
+        View listView = new View();
+        listView.setViewName("OrderItemList");
+        listView.setViewModel("OrderItem");
+        listView.setViewType(org.fool.framework.view.model.ViewType.DetailView);
+        listView.setListItems(List.of(childItem));
+        Property itemName = new Property();
+        itemName.setName("itemName");
+        Model itemModel = new Model();
+        itemModel.setProperties(List.of(itemName));
 
         when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
+        when(daoService.getOneDetailByKey(View.class, "201")).thenReturn(listView);
         when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(new Model());
-        when(daoService.selectList(eq(ViewDataService.LinkedViewTypeRow.class), anyString(), eq(100L)))
-                .thenReturn(List.of(row));
+        when(daoService.getOneDetailByKey(Model.class, "OrderItem")).thenReturn(itemModel);
 
         View result = service.getViewData("100", "");
 
         assertEquals(Integer.valueOf(1), result.getListItems().get(0).getListViewType());
         assertEquals("OrderItemList", result.getListItems().get(0).getListViewName());
-        ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
-        verify(daoService).selectList(eq(ViewDataService.LinkedViewTypeRow.class), sql.capture(), eq(100L));
-        assertTrue(sql.getValue().contains("`list_view_id`"));
-        assertTrue(sql.getValue().contains("`view_name`"));
-        assertTrue(sql.getValue().contains("`fool_sys_view`"));
+        assertSame(listView, result.getListItems().get(0).getListView());
+        assertSame(itemName, childItem.getProperty());
     }
 
     @Test

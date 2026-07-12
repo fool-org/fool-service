@@ -231,19 +231,12 @@ public class ViewDataAdapter {
 
     private QueryDataDetailResult.PropertyDataItems collectionItem(ViewItem item, IDynamicData data) {
         Property property = item.getProperty();
-        Model itemModel = property == null ? null : property.getPropertyModel();
+        List<ViewItem> childItems = childViewItems(item);
         QueryDataDetailResult.PropertyDataItems result = new QueryDataDetailResult.PropertyDataItems();
-        result.setProperties(childProperties(itemModel).stream()
-                .map(child -> legacyValueProperty(
-                        child,
-                        child.getName(),
-                        propertyShowName(child),
-                        true,
-                        ItemEditType.ReadOnly,
-                        null,
-                        null))
+        result.setProperties(childItems.stream()
+                .map(child -> legacyValueItem(child, null, null))
                 .toList());
-        result.setItems(collectionDataItems(itemModel, collectionValue(item, property, data)));
+        result.setItems(collectionDataItems(childItems, collectionValue(item, property, data)));
         result.setListViewId(safeViewId(item.getListViewId()));
         result.setDetailViewId(safeViewId(item.getEditViewId()));
         result.setName(item.getListViewName());
@@ -266,28 +259,24 @@ public class ViewDataAdapter {
         return data.get(propertyName);
     }
 
-    private List<QueryDataDetailResult.DataItem> collectionDataItems(Model itemModel, Object value) {
+    private List<QueryDataDetailResult.DataItem> collectionDataItems(List<ViewItem> childItems, Object value) {
         if (!(value instanceof Iterable<?> values)) {
             return List.of();
         }
-        List<Property> childProperties = childProperties(itemModel);
         List<QueryDataDetailResult.DataItem> result = new LinkedList<>();
         for (Object childValue : values) {
             QueryDataDetailResult.DataItem item = new QueryDataDetailResult.DataItem();
             if (childValue instanceof IDynamicData childData) {
                 item.setDataId(formatRow(LegacyDynamicIds.id(childData)));
-                item.setValues(childProperties.stream()
-                        .map(childProperty -> {
-                            Object rawValue = childData.get(childProperty.getName());
-                            Object formattedValue = getFormat(childProperty.getFormat(), rawValue);
-                            return legacyValueProperty(
-                                    childProperty,
-                                    childProperty.getName(),
-                                    propertyShowName(childProperty),
-                                    true,
-                                    ItemEditType.ReadOnly,
-                                    rawValue,
-                                    formattedValue);
+                item.setValues(childItems.stream()
+                        .map(childItem -> {
+                            Property childProperty = childItem.getProperty();
+                            String propertyName = childProperty == null || childProperty.getName() == null
+                                    ? childItem.getModelProperty()
+                                    : childProperty.getName();
+                            Object rawValue = childData.get(propertyName);
+                            Object formattedValue = getFormat(childItem.getFormatRegx(), rawValue);
+                            return legacyValueItem(childItem, rawValue, formattedValue);
                         })
                         .toList());
             } else {
@@ -299,20 +288,12 @@ public class ViewDataAdapter {
         return result;
     }
 
-    private List<Property> childProperties(Model itemModel) {
-        if (itemModel == null || itemModel.getProperties() == null) {
+    private List<ViewItem> childViewItems(ViewItem item) {
+        View listView = item.getListView();
+        if (listView == null || CollectionUtils.isEmpty(listView.getListItems())) {
             return List.of();
         }
-        return itemModel.getProperties().stream()
-                .filter(property -> !Boolean.TRUE.equals(property.getIsCollection()))
-                .toList();
-    }
-
-    private String propertyShowName(Property property) {
-        if (property == null) {
-            return "";
-        }
-        return StringUtils.hasText(property.getRemark()) ? property.getRemark() : property.getName();
+        return orderedListItems(listView);
     }
 
     private String legacyObjId(PropertyType propertyType, Object rawValue) {
