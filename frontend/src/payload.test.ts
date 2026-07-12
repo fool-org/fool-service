@@ -233,6 +233,13 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).not.toContain('<Button v-if="isEditing" type="button" label="删除"');
     expect(viewDetailPanelSource).not.toContain("item-add-row");
     expect(viewDetailPanelSource).not.toContain("newChildDraftValue");
+    expect(viewDetailPanelSource).toContain("if (props.isCreatingObject)");
+    expect(viewDetailPanelSource).toContain('v-if="selectedObjectId" class="view-items-panel"');
+    expect(viewDetailPanelSource).not.toContain('selectedObjectId && !isCreatingObject');
+    expect(viewDetailPanelSource).toContain('header="操作提示"');
+    expect(viewDetailPanelSource).toContain("<p>操作成功</p>");
+    expect(viewDetailPanelSource).toContain("{{ infoMessage }}");
+    expect(appSource).toContain('infoMessage.value = "请先保存当前内容，再新建子项"');
     expect(viewDetailPanelSource).toContain("function openExistingPicker");
     expect(viewDetailPanelSource).toContain('class="detail-picker-dialog"');
     expect(viewDetailPanelSource).toContain("emit(\"loadExistingDetailItems\", group)");

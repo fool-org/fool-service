@@ -158,6 +158,7 @@ const subMenuResponse = ref<CommonResponse<LegacySubMenuResult> | null>(null);
 const detailResponse = ref<CommonResponse<QueryDataDetailResult> | null>(null);
 const activeShellMessage = ref<MessageInfo | null>(null);
 const errorMessage = ref("");
+const infoMessage = ref("");
 const operationResult = ref<{ message: string; success: boolean } | null>(null);
 const pendingAction = ref("");
 const {
@@ -436,6 +437,7 @@ function clearLegacySession() {
   mainInfoResponse.value = null;
   subMenuResponse.value = null;
   activeShellMessage.value = null;
+  infoMessage.value = "";
   clearPendingDetailChanges();
   checkCodeResponse.value = null;
   checkCodeKey.value = "";
@@ -599,6 +601,7 @@ async function ensureLegacyShell() {
 async function loadViewWorkflow(resetPage = false) {
   stopAutoRefresh();
   operationResult.value = null;
+  infoMessage.value = "";
   clearPendingDetailChanges();
   isMetadataOnlyView.value = false;
   isStandaloneDetail.value = false;
@@ -629,6 +632,7 @@ async function searchCurrentView() {
 async function loadLegacyDetailPath(route: { viewId: number; objectId?: string }) {
   stopAutoRefresh();
   operationResult.value = null;
+  infoMessage.value = "";
   clearPendingDetailChanges();
   isMetadataOnlyView.value = false;
   isStandaloneDetail.value = true;
@@ -737,6 +741,7 @@ function openNewObject(targetViewId: number) {
 
 async function startNewObject(viewId = Number(detailViewId.value), parentObjId = "", ownerViewId = "", property = "") {
   operationResult.value = null;
+  infoMessage.value = "";
   clearPendingDetailChanges();
   detailViewId.value = viewId;
   detailResponse.value = null;
@@ -766,7 +771,8 @@ async function saveSelectedObject() {
 }
 
 function addDetailItem(group: QueryDataDetailItemGroup, requestedItemId = "") {
-  if (!selectedObjectId.value || isCreatingObject.value) {
+  if (blockChildAddForNewObject()) return;
+  if (!selectedObjectId.value) {
     errorMessage.value = "请先保存主记录。";
     return;
   }
@@ -793,6 +799,7 @@ function addDetailItem(group: QueryDataDetailItemGroup, requestedItemId = "") {
 }
 
 async function loadExistingDetailItems(group: QueryDataDetailItemGroup) {
+  if (blockChildAddForNewObject()) return;
   const viewId = groupListViewId(group);
   if (!viewId) {
     errorMessage.value = "未配置可选择视图。";
@@ -825,7 +832,8 @@ async function loadExistingDetailItems(group: QueryDataDetailItemGroup) {
 }
 
 function addExistingDetailItem(group: QueryDataDetailItemGroup, row: ListDataItem) {
-  if (!selectedObjectId.value || isCreatingObject.value) {
+  if (blockChildAddForNewObject()) return;
+  if (!selectedObjectId.value) {
     errorMessage.value = "请先保存主记录。";
     return;
   }
@@ -837,6 +845,12 @@ function addExistingDetailItem(group: QueryDataDetailItemGroup, row: ListDataIte
   const item = buildAddedDetailItem(group, addedItem.itemId, drafts);
   addPendingDetailItem(group, item, property);
   childDrafts.value = { ...childDrafts.value, [itemKey(group, item)]: drafts };
+}
+
+function blockChildAddForNewObject() {
+  if (!isCreatingObject.value) return false;
+  infoMessage.value = "请先保存当前内容，再新建子项";
+  return true;
 }
 
 function updateDetailItem(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) {
@@ -987,6 +1001,7 @@ function syncDetailDrafts() {
           :field-editor-context="fieldEditorContext"
           :is-creating-object="isCreatingObject"
           :is-pending-added-item="isPendingAddedDetailItem"
+          :info-message="infoMessage"
           :operation-result="operationResult"
           :pending="Boolean(pendingAction)"
           :schema-only="isMetadataOnlyView"
@@ -997,6 +1012,7 @@ function syncDetailDrafts() {
           @add-existing-detail-item="addExistingDetailItem"
           @delete-detail-item="deleteDetailItem"
           @dismiss-error="errorMessage = ''"
+          @dismiss-info="infoMessage = ''"
           @dismiss-operation-result="operationResult = null"
           @load-candidate-page="loadCandidatePage"
           @load-existing-detail-items="loadExistingDetailItems"

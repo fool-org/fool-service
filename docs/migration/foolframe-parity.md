@@ -194,6 +194,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   Add, inline Edit, and Delete controls remain visible outside parent edit mode;
   like `edititem(...)`, inline Edit returns without changing state until parent
   Edit is active, while Add and Delete retain their original local staging paths.
+- 2026-07-12: restored parent-new child collection rendering and add guard.
+  View-defined child tabs remain visible on `/new{id}`; every child-add path is
+  stopped before requests and opens the old `操作提示` success-style modal with
+  `请先保存当前内容，再新建子项` and an explicit `确定` action.
 - 2026-07-12: restored old `message.js` delivery behavior in the Vue shell.
   Each non-empty 15-second `getmsg` poll now immediately opens its first item
   in a `系统消息` modal with generation time, content, View-first detail

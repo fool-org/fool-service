@@ -45,6 +45,7 @@ const props = defineProps<{
   enumFieldOptions: (field: ListDataValue) => SelectOption[];
   errorMessage: string;
   fieldEditorContext: Record<string, unknown>;
+  infoMessage: string;
   isCreatingObject: boolean;
   isPendingAddedItem: (group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) => boolean;
   operationResult: { message: string; success: boolean } | null;
@@ -96,6 +97,7 @@ const emit = defineEmits<{
   addExistingDetailItem: [group: QueryDataDetailItemGroup, row: ListDataItem];
   deleteDetailItem: [group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem];
   dismissError: [];
+  dismissInfo: [];
   dismissOperationResult: [];
   loadCandidatePage: [group: QueryDataDetailItemGroup, pageIndex: number];
   loadExistingDetailItems: [group: QueryDataDetailItemGroup];
@@ -113,6 +115,10 @@ function openExistingPicker(group: QueryDataDetailItemGroup) {
 }
 
 function addItem(group: QueryDataDetailItemGroup) {
+  if (props.isCreatingObject) {
+    emit("addDetailItem", group);
+    return;
+  }
   if (groupSelectFromExists(group)) {
     openExistingPicker(group);
     return;
@@ -245,6 +251,21 @@ function displayedItemValue(group: QueryDataDetailItemGroup, item: QueryDataDeta
     </div>
 
     <Dialog
+      v-if="infoMessage"
+      :visible="true"
+      modal
+      header="操作提示"
+      :draggable="false"
+      @update:visible="(visible) => { if (!visible) emit('dismissInfo') }"
+    >
+      <p>操作成功</p>
+      <p>{{ infoMessage }}</p>
+      <template #footer>
+        <Button type="button" label="确定" severity="secondary" @click="emit('dismissInfo')" />
+      </template>
+    </Dialog>
+
+    <Dialog
       v-if="errorMessage"
       :visible="true"
       modal
@@ -273,7 +294,7 @@ function displayedItemValue(group: QueryDataDetailItemGroup, item: QueryDataDeta
       </template>
     </Dialog>
 
-    <div v-if="selectedObjectId && !isCreatingObject" class="view-items-panel">
+    <div v-if="selectedObjectId" class="view-items-panel">
       <Tabs v-if="detailItemGroups.length" v-model:value="activeGroupKey" class="detail-collection-tabs">
         <TabList scrollable>
           <Tab v-for="group in detailItemGroups" :key="groupKey(group)" :value="groupKey(group)">
