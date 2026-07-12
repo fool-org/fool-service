@@ -660,6 +660,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   Child model properties absent from the View stay hidden, and View labels,
   editability, edit type, and format remain authoritative. The Docker doctor
   compares each detail group directly with its `ListViewId` metadata.
+- 2026-07-12: removed the migrated detail adapter's incorrect
+  `ItemEditType.Format` filters. FoolFrame `DataFormator.IObjectProxyToDetail`
+  includes every non-collection ViewItem in `SimpleData` and every collection
+  ViewItem in `Items`, regardless of edit type. List rendering still consumes
+  Format items only as row classes, so the two View contexts no longer share
+  an invented exclusion rule.
 - 2026-07-10: Vue startup now reads the old FoolFrame Web list route
   `/view:id` from `window.location.pathname` and uses that View id before the
   legacy app default, keeping the startup path on `getlistview(ViewId)` then

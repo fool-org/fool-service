@@ -318,6 +318,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Render detail collection `Properties` and row `Values` from the linked
       List View's ordered ViewItems, including labels, editability, types, and
       formats, instead of exposing every property from the child model DTO.
+- [x] Keep `ItemEditType.Format` ViewItems in detail `SimpleData` and
+      collection groups like FoolFrame `DataFormator`; restrict the row-class
+      exclusion behavior to list-table rendering only.
 - [x] Add a Docker runtime doctor for the stable Vue/View workflow so
       backend, frontend proxy, View metadata, data query, inputquery, and
       report model smoke checks are repeatable.

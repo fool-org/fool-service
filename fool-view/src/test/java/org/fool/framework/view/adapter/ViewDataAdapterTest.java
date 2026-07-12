@@ -61,6 +61,34 @@ public class ViewDataAdapterTest {
     }
 
     @Test
+    public void detailResultKeepsFormatViewItems() {
+        ViewItem rowClass = viewItem("rowClass", ItemEditType.Format);
+        rowClass.setItemName("Row Class");
+        setProperty(rowClass, property("rowClass", PropertyType.String));
+
+        Property itemsProperty = property("items", PropertyType.BusinessObject);
+        itemsProperty.setIsCollection(true);
+        ViewItem items = viewItem("items", ItemEditType.Format);
+        items.setItemName("Items");
+        items.setListView(new View());
+        setProperty(items, itemsProperty);
+
+        View view = new View();
+        view.setListItems(List.of(rowClass, items));
+        QueryDataDetailResult result = new ViewDataAdapter().getDetailViewResult(
+                view,
+                new MapDynamicData("1001", new LinkedHashMap<>(Map.of(
+                        "rowClass", "warning",
+                        "items", List.of()))));
+
+        assertEquals(1, result.getData().getSimpleData().size());
+        assertEquals("rowClass", result.getData().getSimpleData().get(0).getPrpId());
+        assertEquals("warning", result.getData().getSimpleData().get(0).getFmtValue());
+        assertEquals(1, result.getData().getItems().size());
+        assertEquals("items", result.getData().getItems().get(0).getPrpId());
+    }
+
+    @Test
     public void listRowsExposeLegacyChartEditTypes() {
         ViewItem axis = viewItem("orderId", ItemEditType.ChartAxis);
         axis.setItemName("Order ID");

@@ -105,7 +105,6 @@ public class ViewDataAdapter {
         detail.setParentId("");
         detail.setItems(collectionItems(view, data));
         detail.setSimpleData(orderedListItems(view).stream()
-                .filter(item -> item.getEditType() != ItemEditType.Format)
                 .filter(item -> !safeIsCollection(item))
                 .map(item -> {
                     Object rawValue = data == null ? null : data.get(item.getModelProperty());
@@ -223,7 +222,6 @@ public class ViewDataAdapter {
 
     private List<QueryDataDetailResult.PropertyDataItems> collectionItems(View view, IDynamicData data) {
         return orderedListItems(view).stream()
-                .filter(item -> item.getEditType() != ItemEditType.Format)
                 .filter(this::safeIsCollection)
                 .map(item -> collectionItem(item, data))
                 .toList();
