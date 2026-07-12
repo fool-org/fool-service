@@ -51,7 +51,8 @@ describe("App defaults", () => {
   it("opens with the metadata-driven View workflow", () => {
     const mainViewSource = viewListPanelSource;
 
-    expect(appSource).toContain("onMounted(() => void initializeApp())");
+    expect(appSource).toContain("onMounted(() => {");
+    expect(appSource).toContain("void initializeApp();");
     expect(appSource).toContain("await loadInitialRoute()");
     expect(appSource).toContain("await loadViewWorkflow()");
     expect(appSource).toContain("View workflow");
@@ -691,12 +692,17 @@ describe("App defaults", () => {
       appSource.indexOf("async function openPrimarySection"),
       appSource.indexOf("async function openMobilePrimarySection")
     );
+    expect(homeSource).toContain("async function openPrimarySection()");
+    expect(homeSource).toContain("await loadPrimarySection(true)");
+    expect(homeSource).toContain("async function loadPrimarySection(updatePath: boolean)");
     expect(homeSource).toContain("await ensureLegacyShell()");
-    expect(homeSource).toContain('window.history.pushState({}, "", "/")');
+    expect(homeSource).toContain('if (updatePath) pushLegacyPath("/")');
     expect(homeSource).toContain("legacyAppDefaultViewId(mainInfoResponse.value?.data)");
     expect(homeSource).toContain("applyRequestedViewId(defaultViewId)");
     expect(homeSource).toContain("await loadViewWorkflow(true)");
     expect(homeSource).toContain("showUnconfiguredHome.value = true");
+    expect(appSource).toContain("await loadPrimarySection(false);");
+    expect(appSource).toContain("async function openMobilePrimarySection()");
     expect(appSource).toContain("await openPrimarySection();");
     expect(appSource).toContain('<a href="/" @click.prevent="openPrimarySection">');
     expect(appSource).toContain("欢迎使用SOWAY无码系统，这是默认的首页，没有配置，请参考相关说明进行设定");
@@ -905,6 +911,8 @@ describe("App defaults", () => {
     expect(shellActionsSource).toContain('label="确定"');
     expect(shellActionsSource).toContain('emit("dismissMessage")');
     expect(shellActionsSource).toContain('emit("openMessage", message)');
+    expect(appSource).toContain("pushLegacyPath(legacyDetailHref(targetViewId, targetObjectId))");
+    expect(appSource).toContain("pushLegacyPath(legacyViewHref(targetViewId))");
     expect(appSource).not.toContain("messageResponse");
     expect(shellActionsSource).not.toContain("<Popover");
     expect(shellActionsSource).not.toContain("message-popover");
@@ -925,6 +933,10 @@ describe("App defaults", () => {
     expect(legacyMenuNavSource).not.toContain("currentViewId");
     expect(legacyMenuNavSource).not.toContain("active:");
     expect(appSource).not.toContain(':current-view-id="currentViewId"');
+    expect(appSource).toContain("pushLegacyPath(legacyViewHref(itemViewId))");
+    expect(appSource).toContain('window.addEventListener("popstate", handleHistoryNavigation)');
+    expect(appSource).toContain('window.removeEventListener("popstate", handleHistoryNavigation)');
+    expect(appSource).toContain("void loadInitialRoute();");
   });
 
   it("moves legacy user info and logout into the signed-in shell", () => {

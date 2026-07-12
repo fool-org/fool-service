@@ -94,6 +94,7 @@ import {
   legacySubMenuItems,
   legacyUserName,
   legacyUserAvatar,
+  legacyViewHref,
   legacyViewPathId,
   listAutoFreshTime,
   listFreshTime,
@@ -1024,6 +1025,8 @@ describe("view workflow helpers", () => {
     expect(legacyViewPathId("/view100/")).toBe(100);
     expect(legacyViewPathId("/view100/1001")).toBe(0);
     expect(legacyViewPathId("/new100")).toBe(0);
+    expect(legacyViewHref(100)).toBe("/view100");
+    expect(legacyViewHref(0)).toBe("");
   });
 
   it("reads the old FoolFrame Web detail and new routes", () => {

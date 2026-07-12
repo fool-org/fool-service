@@ -88,6 +88,7 @@ import {
   legacyChildNewHref,
   legacyNewPath,
   legacyNewHref,
+  legacyViewHref,
   legacyViewPathId,
   operationId as operationInfoId,
   rowObjectId,
@@ -377,6 +378,7 @@ async function openShellMenu(item: LegacyAuthItem) {
   if (itemViewId) {
     subMenuParentAuthCode.value = "";
     subMenuResponse.value = null;
+    pushLegacyPath(legacyViewHref(itemViewId));
     applyRequestedViewId(itemViewId);
     await loadViewWorkflow(true);
     return;
@@ -389,8 +391,12 @@ async function openShellMenu(item: LegacyAuthItem) {
 }
 
 async function openPrimarySection() {
+  await loadPrimarySection(true);
+}
+
+async function loadPrimarySection(updatePath: boolean) {
   if (!(await ensureLegacyShell())) return;
-  if (window.location.pathname !== "/") window.history.pushState({}, "", "/");
+  if (updatePath) pushLegacyPath("/");
   subMenuParentAuthCode.value = "";
   subMenuResponse.value = null;
   const defaultViewId = legacyAppDefaultViewId(mainInfoResponse.value?.data);
@@ -424,9 +430,11 @@ async function openShellMessage(message: MessageInfo) {
   if (!targetViewId) return;
   const targetObjectId = legacyMessageResultKey(message);
   if (targetObjectId) {
+    pushLegacyPath(legacyDetailHref(targetViewId, targetObjectId));
     await loadLegacyDetailPath({ viewId: targetViewId, objectId: targetObjectId });
     return;
   }
+  pushLegacyPath(legacyViewHref(targetViewId));
   applyRequestedViewId(targetViewId);
   await loadViewWorkflow(true);
 }
@@ -624,6 +632,10 @@ function applyRequestedViewId(requestedViewId: number) {
   viewKeyword.value = "";
 }
 
+function pushLegacyPath(path: string) {
+  if (path && window.location.pathname !== path) window.history.pushState({}, "", path);
+}
+
 async function ensureLegacyShell() {
   if (!token.value) return false;
   if (mainInfoResponse.value) return true;
@@ -727,7 +739,7 @@ async function loadInitialRoute() {
     await loadViewWorkflow();
     return;
   }
-  await openPrimarySection();
+  await loadPrimarySection(false);
 }
 
 async function enterAuthenticatedShell() {
@@ -735,6 +747,10 @@ async function enterAuthenticatedShell() {
   if (!token.value) return;
   await refreshShellStatus();
   startShellPolling();
+}
+
+function handleHistoryNavigation() {
+  void loadInitialRoute();
 }
 
 async function initializeApp() {
@@ -745,9 +761,13 @@ async function initializeApp() {
   await enterAuthenticatedShell();
 }
 
-onMounted(() => void initializeApp());
+onMounted(() => {
+  window.addEventListener("popstate", handleHistoryNavigation);
+  void initializeApp();
+});
 
 onUnmounted(() => {
+  window.removeEventListener("popstate", handleHistoryNavigation);
   stopAutoRefresh();
   stopShellPolling();
 });

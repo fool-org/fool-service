@@ -167,6 +167,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Preserve the old Web menu hierarchy in desktop and mobile navigation:
       keep `getmain.TopMenu` visible while `getsubmenu.Items` expands beneath
       its parent, and keep the mobile Drawer open until a concrete View opens.
+- [x] Restore shell route history semantics: menu and message View/detail
+      targets update `/view{id}` paths, and browser back/forward reloads the
+      matching existing View-first route without adding a router dependency.
 - [x] Restore the old Web desktop shell layout: move AppInfo branding,
       Home/TopMenu/SubMenu navigation, and user actions into the top header,
       while reusing the same menu component vertically in the mobile Drawer.

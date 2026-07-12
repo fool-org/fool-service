@@ -2666,3 +2666,9 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   brand now reload `getmain.App.DefaultViewId` through the shared View-first
   workflow instead of doing nothing on another list View. Apps without a
   default View show the original configuration guidance and no stale View.
+- 2026-07-12: restored old shell route history for SPA navigation. Top/submenu
+  View targets and system-message View/detail targets now push their canonical
+  `/view{id}` paths before reusing the existing loaders, while `popstate`
+  replays `loadInitialRoute` so browser back/forward changes both URL and page
+  state without pushing a new entry during route replay. Path generation is
+  shared and no Vue Router dependency was added.

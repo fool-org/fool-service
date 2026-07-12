@@ -736,6 +736,11 @@ export function legacyViewPathId(pathname: string) {
   return match ? Number(match[1]) || 0 : 0;
 }
 
+export function legacyViewHref(viewId: number) {
+  const normalizedViewId = Number(viewId) || 0;
+  return normalizedViewId > 0 ? `/view${normalizedViewId}` : "";
+}
+
 export function legacyDetailPath(pathname: string) {
   const match = pathname.match(/^\/view(\d+)\/([^/]+)\/?$/);
   const viewId = match ? Number(match[1]) || 0 : 0;
@@ -743,9 +748,9 @@ export function legacyDetailPath(pathname: string) {
 }
 
 export function legacyDetailHref(viewId: number, objectId: string) {
-  const normalizedViewId = Number(viewId) || 0;
+  const href = legacyViewHref(viewId);
   const normalizedObjectId = String(objectId || "").trim();
-  return normalizedViewId > 0 && normalizedObjectId ? `/view${normalizedViewId}/${normalizedObjectId}` : "";
+  return href && normalizedObjectId ? `${href}/${normalizedObjectId}` : "";
 }
 
 export function legacyItemViewPathId(pathname: string) {
