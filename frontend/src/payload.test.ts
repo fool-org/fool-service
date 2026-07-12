@@ -50,7 +50,7 @@ describe("App defaults", () => {
     expect(appSource).toContain("await loadLegacyListView()");
     expect(appSource).toContain("await queryCurrentViewData()");
     expect(appSource).toContain("useViewDataWorkflow");
-    expect(mainViewSource).toContain("New Row");
+    expect(mainViewSource).not.toContain("New Row");
     expect(viewDetailPanelSource).toContain("Create Row");
     expect(viewDetailPanelSource).toContain("Save Row");
     expect(appSource).toContain("async function selectObject");
@@ -71,9 +71,11 @@ describe("App defaults", () => {
   it("routes every view row table through the shared metadata renderer", () => {
     expect(viewDetailPanelSource).toContain(':row-operations="[]"');
     expect(viewDetailPanelSource).toContain('default-action-label="Select"');
+    expect(viewDetailPanelSource).toContain(':show-default-action="true"');
     expect(appSource).not.toContain("rowValue(row, column)");
     expect(listDataTableSource).toContain("defaultActionLabel");
     expect(listDataTableSource).toContain("showDefaultAction");
+    expect(listDataTableSource).toContain("showDefaultAction: false");
     expect(listDataTableSource).toContain("<DataTable");
     expect(listDataTableSource).toContain("<Column v-for");
   });

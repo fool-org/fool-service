@@ -165,6 +165,9 @@ item must land with its matching implementation and validation evidence.
       to concrete business DTOs.
 - [x] Render View metadata operation buttons in the main Vue workflow and
       execute them through legacy `runoperation`.
+- [x] Remove invented Vue `New Row` and default `Open` list commands so main
+      list actions come only from View `Operations`; keep the child candidate
+      table's old explicit Select action as an opt-in shared-table behavior.
 - [x] Expose FoolFrame Pascal `runoperation` result aliases (`Value`,
       `IsSuccess`, `ReturnObjId`, `ReturnViewId`, `ReturnMsg`) and make Vue
       operation refresh logic read success through a shared protocol helper.

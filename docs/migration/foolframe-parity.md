@@ -118,6 +118,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-12: removed Vue's invented main-list `New Row` and default `Open`
+  commands. Matching old Web `view.jade` / `querylistdata.js`, create and row
+  actions now render only from View `Operations` and their `RequireSelect` /
+  result View metadata. The shared table defaults to no action, while the
+  child existing-item picker explicitly opts into its old Select behavior.
+  All 131 frontend tests, TypeScript/Vite build, and repository harness pass.
 - 2026-07-12: restored the main detail interaction state from old Web
   `detailView.jade` / `detailview.js`. Existing records now render read-only
   values first, `querydatadetail.CanEdit` controls Edit access, new records

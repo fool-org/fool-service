@@ -25,7 +25,7 @@ const props = withDefaults(defineProps<{
 }>(), {
   defaultActionLabel: "Open",
   selectedObjectId: "",
-  showDefaultAction: true
+  showDefaultAction: false
 });
 
 const emit = defineEmits<{

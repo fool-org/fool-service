@@ -221,6 +221,7 @@ const emit = defineEmits<{
               :row-operations="[]"
               :rows="candidateRows(group)"
               selected-object-id=""
+              :show-default-action="true"
               @select="(row) => emit('addExistingDetailItem', group, row)"
             />
           </div>

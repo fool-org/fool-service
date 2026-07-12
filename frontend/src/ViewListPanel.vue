@@ -26,7 +26,6 @@ import {
   operationTargetViewId,
   rowOperations,
   viewColumns,
-  viewDetailViewId,
   viewDisplayName,
   viewDisplayTitle,
   viewId,
@@ -71,8 +70,6 @@ const resultPageIndex = computed(() => listPageIndex(props.data, props.pageIndex
 const resultTotalItems = computed(() => listTotalItems(props.data));
 const resultTotalPages = computed(() => listTotalPages(props.data));
 const resultFreshTime = computed(() => listFreshTime(props.data));
-const defaultNewViewId = computed(() => viewDetailViewId(props.view, currentViewId.value));
-
 function changePage(event: PageState) {
   emit("page", event.page + 1);
 }
@@ -105,7 +102,6 @@ function changePage(event: PageState) {
         outlined
         @click="emit('newObject', operationTargetViewId(operation) || currentViewId)"
       />
-      <Button v-if="!createItems.length" type="button" label="New Row" icon="pi pi-plus" severity="secondary" outlined :disabled="disabled" @click="emit('newObject', defaultNewViewId)" />
       <Button type="button" label="Report" icon="pi pi-chart-bar" severity="secondary" outlined :disabled="disabled || !currentViewId" @click="emit('toggleReport')" />
     </div>
 
