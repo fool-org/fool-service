@@ -469,10 +469,11 @@ label {
 .sudoku-grid {
   display: grid;
   gap: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(12, minmax(0, 1fr));
 }
 
 .sudoku-panel {
+  grid-column: span var(--sudoku-panel-span, 12);
   min-height: 180px;
   overflow: hidden;
 }
@@ -484,13 +485,15 @@ label {
   justify-content: space-between;
 }
 
-.sudoku-panel-actions {
+.sudoku-panel-footer {
   display: flex;
-  gap: 6px;
   align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 4px 10px;
 }
 
-.sudoku-panel-actions small {
+.sudoku-panel-footer span {
   color: #64748b;
   font-size: 0.72rem;
 }
@@ -895,6 +898,10 @@ label {
 
   .detail-field-grid {
     grid-template-columns: 1fr;
+  }
+
+  .sudoku-panel {
+    grid-column: 1 / -1;
   }
 
   .list-pagination .p-paginator {

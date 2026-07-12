@@ -138,7 +138,7 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   deployed runtime doctor, and repository harness pass.
 - 2026-07-12: restored Sudoku panel refresh semantics from old Web
   `includes/List.jade`, `querylistdata.js`, and `groupview.js`. Top-level and
-  grouped list panels expose `FreshTime` with an icon refresh command; targeted
+  grouped list panels expose `FreshTime` with a text refresh command; targeted
   refresh merges by ViewId so shared list/chart/item data is retained. Each
   data panel schedules its own stable-key `AutoFreshTime` interval, while View
   changes and component teardown clear all panel timers. The 119-line
@@ -147,6 +147,12 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   tests, TypeScript/Vite and Compose frontend builds, deployed runtime doctor,
   and repository harness pass. Visible refresh clicking remains in final
   authenticated browser acceptance.
+- 2026-07-12: repaired Vue Sudoku presentation drift against `Sudoku.jade` and
+  `groupview.js`. Root panels now honor View-item `Width` on a 12-column grid,
+  collapsing to one column at 390px; Group children use real tabs instead of
+  simultaneously expanded nested panels. Update/refresh controls return below
+  list/chart/map content, and invented panel-type badges and loaded-row status
+  text are removed. Empty tables stay rendered with their View-defined columns.
 - 2026-07-12: restored old Web operation feedback from `operation.js`. Vue now
   projects camel/Pascal `ReturnMsg`, shows a success or error result in the
   detail panel, keeps successful refresh behavior, and clears stale results
@@ -464,7 +470,7 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   shared schema catalog, so Docker schema drift is caught before DB-management
   wiring is extended.
 - 2026-07-09: Vue Sudoku `Group` simple child panels now use the legacy
-  FoolFrame `GroupViewController` placeholder text (`简单项`) for
+  FoolFrame `GroupViewController` placeholder text (`这是简单项`) for
   `ListViewType=1`, keeping this branch aligned with
   `../FoolFrame/src/Web/public/javascripts/app/groupview.js` while avoiding a
   new DTO-bound detail shortcut.

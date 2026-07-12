@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import Button from "primevue/button";
 import Panel from "primevue/panel";
-import Tag from "primevue/tag";
+import Tab from "primevue/tab";
+import TabList from "primevue/tablist";
+import TabPanel from "primevue/tabpanel";
+import TabPanels from "primevue/tabpanels";
+import Tabs from "primevue/tabs";
 import type { ListViewInfo, ListViewResult, QueryDataDetailResult, TableColumnInfo } from "./api";
 import LegacyChartPanel from "./LegacyChartPanel.vue";
 import LegacyMapPanel from "./LegacyMapPanel.vue";
@@ -57,22 +61,35 @@ function sudokuPanelMarkers(panel: TableColumnInfo) {
 function sudokuPanelItemFields(panel: TableColumnInfo) {
   return legacyItemDetailFields(sudokuPanelResult(panel)?.detail || undefined);
 }
+
+function sudokuPanelWidth(panel: TableColumnInfo) {
+  const width = Math.trunc(Number(panel.width ?? panel.Width ?? 12));
+  return width >= 1 && width <= 12 ? width : 12;
+}
+
+function sudokuChildKey(panel: TableColumnInfo, index: number) {
+  return `${sudokuPanelViewId(panel)}-${index}`;
+}
+
+function sudokuPanelRefreshable(panel: TableColumnInfo) {
+  return ["list", "linechart", "map"].includes(sudokuPanelKind(panel));
+}
 </script>
 
 <template>
   <div class="sudoku-grid">
-    <Panel v-for="panel in panels" :key="`${sudokuPanelViewId(panel)}-${fieldTitle(panel)}-${sudokuPanelKind(panel)}`" class="sudoku-panel">
+    <Panel
+      v-for="panel in panels"
+      :key="`${sudokuPanelViewId(panel)}-${fieldTitle(panel)}-${sudokuPanelKind(panel)}`"
+      class="sudoku-panel"
+      :style="{ '--sudoku-panel-span': sudokuPanelWidth(panel) }"
+    >
       <template #header>
         <div class="sudoku-panel-heading">
           <strong>{{ fieldTitle(panel) }}</strong>
-          <div class="sudoku-panel-actions">
-            <small v-if="sudokuPanelFreshTime(panel)">{{ sudokuPanelFreshTime(panel) }}</small>
-            <Tag :value="sudokuPanelKind(panel)" severity="secondary" rounded />
-            <Button type="button" icon="pi pi-refresh" severity="secondary" text size="small" :aria-label="`Refresh ${fieldTitle(panel)}`" :disabled="disabled" @click="emit('refreshPanel', panel)" />
-          </div>
         </div>
       </template>
-      <div v-if="sudokuPanelKind(panel) === 'list' && sudokuPanelRows(panel).length" class="table-wrap sudoku-panel-body">
+      <div v-if="sudokuPanelKind(panel) === 'list'" class="table-wrap sudoku-panel-body">
         <ListDataTable
           :columns="sudokuPanelColumns(panel)"
           :disabled="Boolean(disabled)"
@@ -102,34 +119,37 @@ function sudokuPanelItemFields(panel: TableColumnInfo) {
         </table>
       </div>
       <div v-else-if="sudokuPanelKind(panel) === 'group' && sudokuGroupPanels(panel).length" class="sudoku-panel-body">
-        <Panel v-for="childPanel in sudokuGroupPanels(panel)" :key="`${sudokuPanelViewId(childPanel)}-${fieldTitle(childPanel)}`" class="sudoku-panel">
-          <template #header>
-            <div class="sudoku-panel-heading">
-              <strong>{{ fieldTitle(childPanel) }}</strong>
-              <div class="sudoku-panel-actions">
-                <small v-if="sudokuPanelFreshTime(childPanel)">{{ sudokuPanelFreshTime(childPanel) }}</small>
-                <Tag :value="sudokuPanelListViewType(childPanel) === 0 ? 'list' : 'item'" severity="secondary" rounded />
-                <Button v-if="sudokuPanelListViewType(childPanel) === 0" type="button" icon="pi pi-refresh" severity="secondary" text size="small" :aria-label="`Refresh ${fieldTitle(childPanel)}`" :disabled="disabled" @click="emit('refreshPanel', childPanel)" />
+        <Tabs :value="sudokuChildKey(sudokuGroupPanels(panel)[0], 0)">
+          <TabList>
+            <Tab v-for="(childPanel, index) in sudokuGroupPanels(panel)" :key="sudokuChildKey(childPanel, index)" :value="sudokuChildKey(childPanel, index)">
+              {{ fieldTitle(childPanel) }}
+            </Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel v-for="(childPanel, index) in sudokuGroupPanels(panel)" :key="sudokuChildKey(childPanel, index)" :value="sudokuChildKey(childPanel, index)">
+              <div v-if="sudokuPanelListViewType(childPanel) === 0" class="table-wrap sudoku-panel-body">
+                <ListDataTable
+                  :columns="sudokuPanelColumns(childPanel)"
+                  :disabled="Boolean(disabled)"
+                  :row-operations="[]"
+                  :rows="sudokuPanelRows(childPanel)"
+                  :show-default-action="false"
+                />
               </div>
-            </div>
-          </template>
-          <div v-if="sudokuPanelListViewType(childPanel) === 0 && sudokuPanelRows(childPanel).length" class="table-wrap sudoku-panel-body">
-            <ListDataTable
-              :columns="sudokuPanelColumns(childPanel)"
-              :disabled="Boolean(disabled)"
-              :row-operations="[]"
-              :rows="sudokuPanelRows(childPanel)"
-              :show-default-action="false"
-            />
-          </div>
-          <div v-else-if="sudokuPanelListViewType(childPanel) === 1" class="empty-state compact">简单项</div>
-          <div v-else class="empty-state compact">
-            {{ sudokuPanelResult(childPanel) ? `${sudokuPanelRows(childPanel).length} rows loaded` : "No group data loaded." }}
-          </div>
-        </Panel>
+              <div v-else-if="sudokuPanelListViewType(childPanel) === 1" class="empty-state compact">这是简单项</div>
+              <div v-else class="empty-state compact">暂无数据。</div>
+              <div v-if="sudokuPanelListViewType(childPanel) === 0" class="sudoku-panel-footer">
+                <span v-if="sudokuPanelFreshTime(childPanel)">更新时间 {{ sudokuPanelFreshTime(childPanel) }}</span>
+                <Button type="button" label="刷新" severity="secondary" text size="small" :disabled="disabled" @click="emit('refreshPanel', childPanel)" />
+              </div>
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
       </div>
-      <div v-else class="empty-state compact">
-        {{ sudokuPanelResult(panel) ? `${sudokuPanelRows(panel).length} rows loaded` : "No panel data loaded." }}
+      <div v-else class="empty-state compact">暂无数据。</div>
+      <div v-if="sudokuPanelRefreshable(panel)" class="sudoku-panel-footer">
+        <span v-if="sudokuPanelFreshTime(panel)">更新时间 {{ sudokuPanelFreshTime(panel) }}</span>
+        <Button type="button" label="刷新" severity="secondary" text size="small" :disabled="disabled" @click="emit('refreshPanel', panel)" />
       </div>
     </Panel>
   </div>

@@ -741,6 +741,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Render Vue Sudoku `Group` panels as one-level child tabs, loading
       `ListViewType=0` child lists through their own `ListViewId` and keeping
       `ListViewType=1` simple children as explicit placeholders.
+- [x] Repair Sudoku presentation drift against `Sudoku.jade`: honor each root
+      panel's 12-column `Width`, render Group children as actual tabs, move
+      update/refresh controls below data, and remove type/load-count badges.
 - [x] Hydrate backend `ListViewType` from each child `ListViewId` View type
       and prove Docker-seeded Sudoku `Group` metadata exposes both list and
       detail/simple child surfaces.

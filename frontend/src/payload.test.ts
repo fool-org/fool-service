@@ -208,6 +208,8 @@ describe("App defaults", () => {
     expect(sudokuPanelsSource).toContain("listFreshTime");
     expect(sudokuPanelsSource).toContain("emit('refreshPanel', panel)");
     expect(sudokuPanelsSource).toContain('class="sudoku-grid"');
+    expect(sudokuPanelsSource).toContain("sudokuPanelWidth(panel)");
+    expect(sudokuPanelsSource).not.toContain("rows loaded");
   });
 
   it("loads Sudoku child panels without requiring root querydata", () => {
@@ -252,7 +254,9 @@ describe("App defaults", () => {
     expect(sudokuWorkflowSource).toContain("sudokuPanelListViewType(childPanel) !== 0");
     expect(sudokuWorkflowSource).toContain("mergePanelResult(childViewId, childResponse)");
     expect(sudokuPanelsSource).toContain("sudokuPanelKind(panel) === 'group'");
-    expect(sudokuPanelsSource).toContain("简单项");
+    expect(sudokuPanelsSource).toContain("<Tabs");
+    expect(sudokuPanelsSource).toContain("<TabList>");
+    expect(sudokuPanelsSource).toContain("这是简单项");
   });
 
   it("resets the main View search to the first page", () => {
