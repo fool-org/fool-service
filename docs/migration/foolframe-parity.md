@@ -287,6 +287,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   tests, TypeScript/Vite and Compose frontend builds, deployed runtime doctor,
   and repository harness pass. Visible refresh clicking remains in final
   authenticated browser acceptance.
+- 2026-07-12: restored `querylistdata.js` local `FreshTime` presentation. The
+  shared Vue View helper now formats current ISO timestamps and legacy
+  `/Date(...)/`-style values through the browser locale for main and Sudoku
+  status rows, while preserving unparseable server text unchanged.
 - 2026-07-12: repaired Vue Sudoku presentation drift against `Sudoku.jade` and
   `groupview.js`. Root panels now honor View-item `Width` on a 12-column grid,
   collapsing to one column at 390px; Group children use real tabs instead of

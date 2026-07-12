@@ -775,7 +775,11 @@ export function listAutoFreshTime(result?: ListViewResult) {
 }
 
 export function listFreshTime(result?: ListViewResult) {
-  return displayValue(result?.freshTime ?? result?.FreshTime);
+  const value = displayValue(result?.freshTime ?? result?.FreshTime);
+  if (!value) return "";
+  const legacy = value.match(/^\/Date\((-?\d+)(?:[+-]\d{4})?\)\/$/);
+  const date = legacy ? new Date(Number(legacy[1])) : new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
 }
 
 export function listRows(result?: ListViewResult) {

@@ -982,8 +982,9 @@ describe("view workflow helpers", () => {
     expect(listPageIndex({ pageInfo: { pageIndex: 2 } }, 1)).toBe(2);
     expect(listAutoFreshTime({ autoFreshTime: 30 })).toBe(30);
     expect(listAutoFreshTime({ AutoFreshTime: 45 })).toBe(45);
-    expect(listFreshTime({ freshTime: "2026-07-04T00:16:42" })).toBe("2026-07-04T00:16:42");
-    expect(listFreshTime({ FreshTime: "2026-07-04T00:17:00" })).toBe("2026-07-04T00:17:00");
+    expect(listFreshTime({ freshTime: "2026-07-04T00:16:42" })).toBe(new Date("2026-07-04T00:16:42").toLocaleString());
+    expect(listFreshTime({ FreshTime: "/Date(0)/" })).toBe(new Date(0).toLocaleString());
+    expect(listFreshTime({ FreshTime: "server clock unavailable" })).toBe("server clock unavailable");
   });
 
   it("reads the default View id from legacy app shell payloads", () => {

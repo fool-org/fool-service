@@ -437,6 +437,8 @@ item must land with its matching implementation and validation evidence.
       before deriving columns from row `Items`.
 - [x] Display legacy `querydata.FreshTime` in the main Vue View workflow
       status row.
+- [x] Format shared main/Sudoku `FreshTime` values with the browser locale like
+      old `querylistdata.js`, supporting both current ISO and legacy Date text.
 - [x] Keep report-grid row projection sourced from legacy row `Items` instead
       of `row.values` DTO maps.
 - [x] Extend the Docker runtime doctor to prove legacy `getrpt` returns
