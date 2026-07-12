@@ -792,6 +792,10 @@ item must land with its matching implementation and validation evidence.
 - [x] Extract the metadata-driven list View presentation into one reusable
       Vue component without duplicating request or workflow state; keep
       search, paging, operations, chart, and Sudoku rendering View-first.
+- [x] Restore the old Web list/detail page boundary: list pages no longer
+      auto-open the first row or render a side-by-side detail DTO, and View
+      operations/new commands navigate through `/view{id}/{obj}` and
+      `/new{id}` before rendering the standalone detail page.
 - [x] Reconcile the vague remaining Model runtime mutation wording against
       FoolFrame, the 37-case Java 17 Model service suite, and live Docker
       `MODEL_CON` state; close speculative routed-connection work until a real

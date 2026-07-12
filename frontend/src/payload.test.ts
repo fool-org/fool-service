@@ -55,12 +55,12 @@ describe("App defaults", () => {
     expect(mainViewSource).not.toContain("New Row");
     expect(viewDetailPanelSource).toContain("Create Row");
     expect(viewDetailPanelSource).toContain("Save Row");
-    expect(appSource).toContain("async function selectObject");
+    expect(appSource).toContain("function openListObject");
     expect(appSource).toContain("async function startNewObject");
     expect(appSource).toContain("async function addDetailItem");
     expect(appSource).toContain("async function updateDetailItem");
     expect(appSource).toContain("async function deleteDetailItem");
-    expect(appSource).toContain("resultColumns");
+    expect(appSource).toContain("viewColumns(viewResponse.value?.data)");
     expect(appSource).toContain("detailDrafts");
     expect(appSource).toContain("childDrafts");
     expect(listDataTableSource).toContain("rowValue(row, column)");
@@ -246,7 +246,10 @@ describe("App defaults", () => {
     expect(viewDataWorkflowSource).toContain("/api/v1/view/getlistview");
     expect(viewDataWorkflowSource).toContain("/api/v1/data/querydata");
     expect(viewDataWorkflowSource).toContain("viewDetailViewId(view, loadedViewId)");
-    expect(appSource).toContain("async function selectObject(row: ListDataItem, viewId = Number(detailViewId.value))");
+    expect(appSource).toContain("function openListObject(row: ListDataItem, targetViewId = 0)");
+    expect(appSource).toContain("legacyDetailHref(targetViewId");
+    expect(appSource).toContain("function openNewObject(targetViewId: number)");
+    expect(appSource).toContain("legacyNewHref(targetViewId)");
     expect(appSource).toContain("async function startNewObject(viewId = Number(detailViewId.value)");
     expect(appSource).toContain("await queryDetail()");
     expect(appSource).toContain("viewID: String(detailViewId.value)");

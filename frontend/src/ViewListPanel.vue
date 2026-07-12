@@ -42,7 +42,6 @@ const props = defineProps<{
   errorMessage?: string;
   pageIndex: number;
   panelData: Record<number, { view: ListViewInfo; data: ListViewResult | null; detail?: QueryDataDetailResult | null }>;
-  selectedObjectId: string;
   view?: ListViewInfo;
 }>();
 
@@ -130,7 +129,6 @@ function changePage(event: PageState) {
         :disabled="disabled"
         :row-operations="rowItems"
         :rows="rows"
-        :selected-object-id="selectedObjectId"
         @select="(row, viewId) => emit('select', row, viewId)"
       />
     </div>

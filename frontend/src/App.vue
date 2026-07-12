@@ -60,6 +60,7 @@ import {
   legacyInitAppCheckCode,
   legacyInitAppDbId,
   legacyLoginErrorMessage,
+  legacyDetailHref,
   legacyDetailPath,
   legacyItemViewPathId,
   legacyMainMenuItems,
@@ -77,6 +78,7 @@ import {
   listTotalItems,
   listTotalPages,
   legacyNewPath,
+  legacyNewHref,
   legacyViewPathId,
   operationId as operationInfoId,
   rowObjectId,
@@ -170,8 +172,6 @@ const {
   currentViewId,
   loadedViewName,
   viewTitle,
-  resultColumns,
-  resultRows,
   readItemViewFor,
   loadLegacyListView,
   loadReadItemView: loadReadItemViewBase,
@@ -190,7 +190,6 @@ const {
 });
 const { enumOptions, loadFieldEnums: loadFieldEnumsFor } = useFieldEnums(token, runAction);
 
-const selectedObject = computed(() => resultRows.value.find((row) => rowObjectId(row, resultColumns.value) === selectedObjectId.value));
 const detailDataRows = computed(() => detailResultSimpleData(detailResponse.value?.data));
 const currentReadItemView = computed(() => readItemViewFor(Number(detailViewId.value)));
 const detailTitle = computed(() => viewDisplayTitle(currentReadItemView.value, "Detail"));
@@ -621,10 +620,8 @@ async function loadViewWorkflow(resetPage = false) {
   }
   const response = await queryCurrentViewData();
   if (!response) return;
-  const firstRow = resultRows.value[0];
-  if (firstRow) {
-    await selectObject(firstRow);
-  }
+  selectedObjectId.value = "";
+  detailResponse.value = null;
 }
 
 async function searchCurrentView() {
@@ -632,11 +629,6 @@ async function searchCurrentView() {
   pageIndex.value = 1;
   const response = await queryCurrentViewData();
   if (!response) return;
-  const firstRow = resultRows.value[0];
-  if (firstRow) {
-    await selectObject(firstRow);
-    return;
-  }
   selectedObjectId.value = "";
   detailResponse.value = null;
   isCreatingObject.value = false;
@@ -740,16 +732,14 @@ function scheduleAutoRefresh(result?: ListViewResult) {
   }
 }
 
-async function selectObject(row: ListDataItem, viewId = Number(detailViewId.value)) {
-  const objectId = rowObjectId(row, resultColumns.value);
-  if (!objectId) {
-    return;
-  }
-  operationResult.value = null;
-  isCreatingObject.value = false;
-  selectedObjectId.value = objectId;
-  detailViewId.value = viewId;
-  await queryDetail(viewId, objectId);
+function openListObject(row: ListDataItem, targetViewId = 0) {
+  const href = legacyDetailHref(targetViewId, rowObjectId(row, viewColumns(viewResponse.value?.data)));
+  if (href) window.location.assign(href);
+}
+
+function openNewObject(targetViewId: number) {
+  const href = legacyNewHref(targetViewId);
+  if (href) window.location.assign(href);
 }
 
 async function startNewObject(viewId = Number(detailViewId.value), parentObjId = "", ownerViewId = "", property = "") {
@@ -760,9 +750,6 @@ async function startNewObject(viewId = Number(detailViewId.value), parentObjId =
   const initialized = await initNew(viewId, parentObjId);
   if (!initialized) {
     return;
-  }
-  if (!resultRows.value.length && currentViewId.value) {
-    await queryCurrentViewData();
   }
   detailResponse.value = initialized;
   selectedObjectId.value = nextObjectId();
@@ -781,12 +768,11 @@ async function saveSelectedObject() {
     return;
   }
   isCreatingObject.value = false;
-  await queryCurrentViewData();
-  await queryDetail();
+  window.history.back();
 }
 
 async function addDetailItem(group: QueryDataDetailItemGroup) {
-  if (!selectedObject.value || isCreatingObject.value) {
+  if (!selectedObjectId.value || isCreatingObject.value) {
     errorMessage.value = "Save the object before adding items.";
     return;
   }
@@ -842,7 +828,7 @@ async function loadExistingDetailItems(group: QueryDataDetailItemGroup) {
 }
 
 async function addExistingDetailItem(group: QueryDataDetailItemGroup, row: ListDataItem) {
-  if (!selectedObject.value || isCreatingObject.value) {
+  if (!selectedObjectId.value || isCreatingObject.value) {
     errorMessage.value = "Save the object before adding items.";
     return;
   }
@@ -853,7 +839,7 @@ async function addExistingDetailItem(group: QueryDataDetailItemGroup, row: ListD
 }
 
 async function updateDetailItem(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) {
-  if (!selectedObject.value || isCreatingObject.value || !itemDataId(item)) {
+  if (!selectedObjectId.value || isCreatingObject.value || !itemDataId(item)) {
     errorMessage.value = "Select a saved item first.";
     return;
   }
@@ -866,7 +852,7 @@ async function updateDetailItem(group: QueryDataDetailItemGroup, item: QueryData
 
 async function deleteDetailItem(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) {
   const dataId = itemDataId(item);
-  if (!selectedObject.value || isCreatingObject.value || !dataId) {
+  if (!selectedObjectId.value || isCreatingObject.value || !dataId) {
     errorMessage.value = "Select a saved item first.";
     return;
   }
@@ -1004,18 +990,17 @@ function syncDetailDrafts() {
           :error-message="errorMessage"
           :page-index="pageIndex"
           :panel-data="sudokuPanelData"
-          :selected-object-id="selectedObjectId"
           :view="viewResponse?.data"
-          @new-object="startNewObject"
+          @new-object="openNewObject"
           @page="loadResultPage"
           @refresh-panel="refreshSudokuPanel"
           @search="searchCurrentView"
-          @select="selectObject"
+          @select="openListObject"
           @toggle-report="showViewReport = !showViewReport"
         />
 
         <ViewDetailPanel
-          v-if="!isUnsupportedView"
+          v-if="!isUnsupportedView && (isMetadataOnlyView || isStandaloneDetail)"
           :candidate-columns="candidateColumns"
           :candidate-rows="candidateRows"
           :candidate-state="candidateState"

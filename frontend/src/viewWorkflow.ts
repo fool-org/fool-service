@@ -687,6 +687,12 @@ export function legacyDetailPath(pathname: string) {
   return viewId && match?.[2] ? { viewId, objectId: match[2] } : null;
 }
 
+export function legacyDetailHref(viewId: number, objectId: string) {
+  const normalizedViewId = Number(viewId) || 0;
+  const normalizedObjectId = String(objectId || "").trim();
+  return normalizedViewId > 0 && normalizedObjectId ? `/view${normalizedViewId}/${normalizedObjectId}` : "";
+}
+
 export function legacyItemViewPathId(pathname: string) {
   const match = pathname.match(/^\/itemview(\d+)\/?$/);
   return match ? Number(match[1]) || 0 : 0;
@@ -696,6 +702,11 @@ export function legacyNewPath(pathname: string) {
   const match = pathname.match(/^\/new(\d+)(?:\/([^&/]*)&([^&/]*)&([^/]*))?\/?$/);
   const viewId = match ? Number(match[1]) || 0 : 0;
   return viewId ? { viewId, parentObjId: match?.[2] || "", ownerViewId: match?.[3] || "", property: match?.[4] || "" } : null;
+}
+
+export function legacyNewHref(viewId: number) {
+  const normalizedViewId = Number(viewId) || 0;
+  return normalizedViewId > 0 ? `/new${normalizedViewId}` : "";
 }
 
 export function viewOperations(view: ListViewInfo | undefined) {

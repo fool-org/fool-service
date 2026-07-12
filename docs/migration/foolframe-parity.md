@@ -2217,12 +2217,14 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Legacy-style default ordering over BusinessObject show-property list columns
 - Seeded `OrderList` metadata and rows for Docker smoke coverage
 - A default Vue View workflow that loads View metadata first, queries rows by
-  loaded View id, renders columns from `tableColumn` / legacy `Items`, renders
-  detail fields from `querydatadetail.simpleData`, initializes new rows with
-  `initnew`, creates them with `savenewobj`, and saves existing rows with
-  `saveobj`; fresh Docker browser sessions bootstrap the legacy session first
-  with `initapp` / `loginv2` so the initial View id comes from
-  `App.DefaultViewId`
+  loaded View id, and renders columns from `tableColumn` / legacy `Items`.
+  Like `view.jade`, list load/search does not select the first DTO or embed a
+  detail panel; metadata-defined row/create operations navigate to old Web
+  `/view{id}/{obj}` and `/new{id}` routes. Those standalone routes load read
+  View metadata before `querydatadetail` / `initnew`, render detail fields,
+  save through `saveobj` / `savenewobj`, and return through browser history.
+  Fresh Docker browser sessions bootstrap the legacy session first with
+  `initapp` / `loginv2` so the initial View id comes from `App.DefaultViewId`
 - Shared Vue row tables render only after View columns exist, so data rows from
   `querydata` cannot draw a page or row actions without a rendered View shape.
 - A default Vue child collection workflow that renders from

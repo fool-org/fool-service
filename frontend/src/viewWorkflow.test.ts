@@ -52,6 +52,7 @@ import {
   legacyCheckCodeCode,
   legacyCheckCodeImage,
   legacyCheckCodeKey,
+  legacyDetailHref,
   legacyDetailPath,
   legacyEnumName,
   legacyEnumValue,
@@ -71,6 +72,7 @@ import {
   legacyMessageResultView,
   legacyMessages,
   legacyNewPath,
+  legacyNewHref,
   legacyNotifies,
   legacyNotifyAuthNo,
   legacyNotifyCount,
@@ -965,10 +967,14 @@ describe("view workflow helpers", () => {
   it("reads the old FoolFrame Web detail and new routes", () => {
     expect(legacyDetailPath("/view100/1001")).toEqual({ viewId: 100, objectId: "1001" });
     expect(legacyDetailPath("/view100")).toBeNull();
+    expect(legacyDetailHref(100, "1001")).toBe("/view100/1001");
+    expect(legacyDetailHref(0, "1001")).toBe("");
     expect(legacyItemViewPathId("/itemview100")).toBe(100);
     expect(legacyItemViewPathId("/itemview100/")).toBe(100);
     expect(legacyItemViewPathId("/view100")).toBe(0);
     expect(legacyNewPath("/new200")).toEqual({ viewId: 200, parentObjId: "", ownerViewId: "", property: "" });
+    expect(legacyNewHref(200)).toBe("/new200");
+    expect(legacyNewHref(0)).toBe("");
     expect(legacyNewPath("/new200/1001&100&items")).toEqual({
       viewId: 200,
       parentObjId: "1001",
