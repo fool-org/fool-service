@@ -222,12 +222,15 @@ describe("App defaults", () => {
   });
 
   it("opens select-from-existing collection candidates in the legacy modal flow", () => {
-    expect(viewDetailPanelSource).toContain('v-if="isEditing" class="detail-collection-toolbar"');
+    expect(viewDetailPanelSource).toContain('<div class="detail-collection-toolbar">');
     expect(viewDetailPanelSource).toContain('label="增加"');
     expect(viewDetailPanelSource).toContain("function addItem(group");
     expect(viewDetailPanelSource).toContain("nextObjectId()");
     expect(viewDetailPanelSource).toContain("if (itemId && editingItemKey.value) stageEditingItem()");
-    expect(viewDetailPanelSource).toContain('editingItemKey.value = `${groupKey(group)}:${itemId}`');
+    expect(viewDetailPanelSource).toContain('if (itemId && isEditing.value) editingItemKey.value = `${groupKey(group)}:${itemId}`');
+    expect(viewDetailPanelSource).toContain("if (!isEditing.value) return");
+    expect(viewDetailPanelSource).toContain('v-if="!groupSelectFromExists(group) && !groupDetailViewId(group)"');
+    expect(viewDetailPanelSource).not.toContain('<Button v-if="isEditing" type="button" label="删除"');
     expect(viewDetailPanelSource).not.toContain("item-add-row");
     expect(viewDetailPanelSource).not.toContain("newChildDraftValue");
     expect(viewDetailPanelSource).toContain("function openExistingPicker");

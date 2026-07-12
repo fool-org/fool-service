@@ -120,7 +120,7 @@ function addItem(group: QueryDataDetailItemGroup) {
   const itemId = groupSelectedViewId(group) ? "" : nextObjectId();
   if (itemId && editingItemKey.value) stageEditingItem();
   emit("addDetailItem", group, itemId);
-  if (itemId) editingItemKey.value = `${groupKey(group)}:${itemId}`;
+  if (itemId && isEditing.value) editingItemKey.value = `${groupKey(group)}:${itemId}`;
 }
 
 function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) {
@@ -144,6 +144,7 @@ function stageEditingItem() {
 }
 
 function toggleDetailItem(group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) {
+  if (!isEditing.value) return;
   const key = itemKey(group, item);
   if (editingItemKey.value) {
     const previousKey = editingItemKey.value;
@@ -281,7 +282,7 @@ function displayedItemValue(group: QueryDataDetailItemGroup, item: QueryDataDeta
         </TabList>
         <TabPanels>
           <TabPanel v-for="group in detailItemGroups" :key="groupKey(group)" :value="groupKey(group)">
-            <div v-if="isEditing" class="detail-collection-toolbar">
+            <div class="detail-collection-toolbar">
               <Button type="button" label="增加" icon="pi pi-plus" severity="secondary" outlined :disabled="pending" @click="addItem(group)" />
             </div>
             <Dialog
@@ -354,7 +355,7 @@ function displayedItemValue(group: QueryDataDetailItemGroup, item: QueryDataDeta
                     </td>
                     <td>
                       <Button
-                        v-if="isEditing && !groupSelectFromExists(group) && !groupDetailViewId(group)"
+                        v-if="!groupSelectFromExists(group) && !groupDetailViewId(group)"
                         type="button"
                         :label="editingItemKey === itemKey(group, item) ? '保存' : '编辑'"
                         :icon="editingItemKey === itemKey(group, item) ? 'pi pi-save' : 'pi pi-pencil'"
@@ -368,7 +369,7 @@ function displayedItemValue(group: QueryDataDetailItemGroup, item: QueryDataDeta
                       </a>
                     </td>
                     <td>
-                      <Button v-if="isEditing" type="button" label="删除" icon="pi pi-trash" size="small" severity="danger" outlined :disabled="pending" @click="deleteItem(group, item)" />
+                      <Button type="button" label="删除" icon="pi pi-trash" size="small" severity="danger" outlined :disabled="pending" @click="deleteItem(group, item)" />
                     </td>
                   </tr>
                   <tr v-if="!groupItems(group).length">
