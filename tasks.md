@@ -173,6 +173,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore shell route history semantics: menu and message View/detail
       targets update `/view{id}` paths, and browser back/forward reloads the
       matching existing View-first route without adding a router dependency.
+- [x] Clear transient shell navigation on every actual route transition:
+      direct menu, Home, message target, and browser history close the mobile
+      Drawer and dropdown through one shared helper.
 - [x] Restore the old Web desktop shell layout: move AppInfo branding,
       Home/TopMenu/SubMenu navigation, and user actions into the top header,
       while reusing the same menu component vertically in the mobile Drawer.

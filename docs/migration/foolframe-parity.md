@@ -2682,3 +2682,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   clears its submenu instead of issuing another request and staying open;
   desktop/mobile `aria-expanded` uses that same state, while direct View menus
   retain their existing navigation path.
+- 2026-07-12: restored full-page navigation's transient shell reset in the SPA.
+  Direct menu Views, Home, message targets, browser back/forward, and session
+  cleanup now reuse one `closeShellNavigation` helper to close the mobile Drawer
+  and clear open dropdown data. Parent expansion itself does not call it, so
+  mobile users can still open a parent and choose a child View.

@@ -376,8 +376,7 @@ async function loadSubMenu() {
 async function openShellMenu(item: LegacyAuthItem) {
   const itemViewId = legacyAuthViewId(item);
   if (itemViewId) {
-    subMenuParentAuthCode.value = "";
-    subMenuResponse.value = null;
+    closeShellNavigation();
     pushLegacyPath(legacyViewHref(itemViewId));
     applyRequestedViewId(itemViewId);
     await loadViewWorkflow(true);
@@ -402,8 +401,7 @@ async function openPrimarySection() {
 async function loadPrimarySection(updatePath: boolean) {
   if (!(await ensureLegacyShell())) return;
   if (updatePath) pushLegacyPath("/");
-  subMenuParentAuthCode.value = "";
-  subMenuResponse.value = null;
+  closeShellNavigation();
   const defaultViewId = legacyAppDefaultViewId(mainInfoResponse.value?.data);
   if (defaultViewId) {
     applyRequestedViewId(defaultViewId);
@@ -421,18 +419,17 @@ async function loadPrimarySection(updatePath: boolean) {
 }
 
 async function openMobilePrimarySection() {
-  mobileMenuOpen.value = false;
   await openPrimarySection();
 }
 
 async function openMobileShellMenu(item: LegacyAuthItem) {
-  if (legacyAuthViewId(item)) mobileMenuOpen.value = false;
   await openShellMenu(item);
 }
 
 async function openShellMessage(message: MessageInfo) {
   const targetViewId = legacyMessageResultView(message);
   if (!targetViewId) return;
+  closeShellNavigation();
   const targetObjectId = legacyMessageResultKey(message);
   if (targetObjectId) {
     pushLegacyPath(legacyDetailHref(targetViewId, targetObjectId));
@@ -480,10 +477,10 @@ function stopShellPolling() {
 function clearLegacySession() {
   stopAutoRefresh();
   stopShellPolling();
+  closeShellNavigation();
   token.value = "";
   legacyUserInfoResponse.value = null;
   mainInfoResponse.value = null;
-  subMenuResponse.value = null;
   activeShellMessage.value = null;
   infoMessage.value = "";
   clearPendingDetailChanges();
@@ -646,6 +643,12 @@ function replaceLegacyPath(path: string) {
   if (path && window.location.pathname !== path) window.history.replaceState({}, "", path);
 }
 
+function closeShellNavigation() {
+  mobileMenuOpen.value = false;
+  subMenuParentAuthCode.value = "";
+  subMenuResponse.value = null;
+}
+
 async function ensureLegacyShell() {
   if (!token.value) return false;
   if (mainInfoResponse.value) return true;
@@ -760,6 +763,7 @@ async function enterAuthenticatedShell() {
 }
 
 function handleHistoryNavigation() {
+  closeShellNavigation();
   void loadInitialRoute();
 }
 

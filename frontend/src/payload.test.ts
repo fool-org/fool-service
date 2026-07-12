@@ -779,8 +779,7 @@ describe("App defaults", () => {
     expect(legacyMenuNavSource).toContain('legacyAuthNo(item) === expandedAuthCode && subItems.length');
     expect(legacyMenuNavSource).toContain(':aria-expanded="legacyAuthViewId(item) ? undefined : legacyAuthNo(item) === expandedAuthCode"');
     expect(menuSource).toContain("legacyAuthViewId(item)");
-    expect(menuSource).toContain('subMenuParentAuthCode.value = ""');
-    expect(menuSource).toContain("subMenuResponse.value = null");
+    expect(menuSource).toContain("closeShellNavigation()");
     expect(menuSource).toContain("applyRequestedViewId(itemViewId)");
     expect(menuSource).not.toContain("legacyQueryViewId.value = itemViewId");
     expect(menuSource).toContain("await loadViewWorkflow(true)");
@@ -788,7 +787,7 @@ describe("App defaults", () => {
     expect(menuSource).toContain("if (authNo === subMenuParentAuthCode.value)");
     expect(menuSource).toContain("subMenuResponse.value = null");
     expect(menuSource).toContain("await loadSubMenu()");
-    expect(menuSource).toContain("if (legacyAuthViewId(item)) mobileMenuOpen.value = false");
+    expect(menuSource).not.toContain("if (legacyAuthViewId(item)) mobileMenuOpen.value = false");
   });
 
   it("does not retain console-era business DTO staging", () => {
@@ -916,6 +915,7 @@ describe("App defaults", () => {
     expect(shellActionsSource).toContain('emit("openMessage", message)');
     expect(appSource).toContain("pushLegacyPath(legacyDetailHref(targetViewId, targetObjectId))");
     expect(appSource).toContain("pushLegacyPath(legacyViewHref(targetViewId))");
+    expect(appSource).toContain("closeShellNavigation();");
     expect(appSource).not.toContain("messageResponse");
     expect(shellActionsSource).not.toContain("<Popover");
     expect(shellActionsSource).not.toContain("message-popover");
@@ -940,6 +940,8 @@ describe("App defaults", () => {
     expect(appSource).toContain('window.addEventListener("popstate", handleHistoryNavigation)');
     expect(appSource).toContain('window.removeEventListener("popstate", handleHistoryNavigation)');
     expect(appSource).toContain("void loadInitialRoute();");
+    expect(appSource).toContain("function closeShellNavigation()");
+    expect(appSource).toContain("mobileMenuOpen.value = false");
   });
 
   it("moves legacy user info and logout into the signed-in shell", () => {
