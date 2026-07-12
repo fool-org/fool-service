@@ -340,9 +340,22 @@ label {
 
 .report-condition-row {
   display: grid;
-  grid-template-columns: 70px minmax(140px, 1fr) minmax(120px, 0.7fr) minmax(140px, 1fr) 38px;
+  grid-template-columns: 34px 72px 70px minmax(140px, 1fr) minmax(120px, 0.7fr) minmax(140px, 1fr) 38px;
   gap: 8px;
   align-items: center;
+}
+
+.report-condition-actions,
+.condition-group {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.condition-group span {
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 
 .condition-first {

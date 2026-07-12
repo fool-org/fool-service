@@ -19,6 +19,13 @@ import {
   postApi
 } from "./api";
 import { buildLegacyListViewRequest, buildMakeReportRequest } from "./payload";
+import {
+  buildReportConditionFilter,
+  canGroupReportConditions,
+  groupReportConditions,
+  type ReportConditionDraft,
+  ungroupReportConditions
+} from "./reportConditions";
 import type { WorkflowActionRunner } from "./useViewDataWorkflow";
 import {
   buildReportColsFromModel,
@@ -40,13 +47,6 @@ import {
   reportRowsFromCells
 } from "./viewWorkflow";
 
-interface ConditionDraft {
-  columnId: string;
-  compareId: string;
-  join: "and" | "or";
-  value: string;
-}
-
 const props = defineProps<{
   pending: boolean;
   runAction: WorkflowActionRunner;
@@ -63,8 +63,10 @@ const reportResponse = ref<CommonResponse<ReportGridResult> | null>(null);
 const selectedColumnIds = ref<string[]>([]);
 const outputTypeByColumn = ref<Record<string, string>>({});
 const orderTypeByColumn = ref<Record<string, string>>({});
-const conditions = ref<ConditionDraft[]>([]);
+const conditions = ref<ReportConditionDraft[]>([]);
+const selectedConditionIds = ref<number[]>([]);
 const statusMessage = ref("");
+let nextConditionId = 1;
 const joinOptions = [
   { label: "AND", value: "and" },
   { label: "OR", value: "or" }
@@ -104,30 +106,15 @@ const resultPage = computed(() => reportGridPage(reportResponse.value?.data, cur
 const resultPages = computed(() => reportGridTotalPages(reportResponse.value?.data));
 const resultRecords = computed(() => reportGridTotalRecords(reportResponse.value?.data));
 const conditionsComplete = computed(() => conditions.value.every((condition) => condition.columnId && condition.compareId));
+const canGroupConditions = computed(() => canGroupReportConditions(conditions.value, selectedConditionIds.value));
 const canRun = computed(() => selectedReportCols.value.length > 0 && conditionsComplete.value && !props.pending);
-const filterExp = computed<ReportFilterExp | undefined>(() => {
-  const expressions = conditions.value
-    .map(simpleFilter)
-    .filter((expression): expression is ReportFilterExp => Boolean(expression));
-  if (!expressions.length) return undefined;
-  if (expressions.length === 1) return expressions[0];
-  return {
-    firstExp: expressions[0],
-    sequences: expressions.slice(1).map((expression, index) => ({
-      boolOp: {
-        dbName: conditions.value[index + 1].join,
-        showName: conditions.value[index + 1].join.toUpperCase()
-      },
-      addedExp: expression
-    }))
-  };
-});
+const filterExp = computed<ReportFilterExp | undefined>(() => buildReportConditionFilter(conditions.value, simpleFilter));
 
 function columnKey(column: ReportModelColumn) {
   return reportModelColumnId(column) || reportModelColumnName(column);
 }
 
-function columnFor(condition: ConditionDraft) {
+function columnFor(condition: ReportConditionDraft) {
   return modelColumns.value.find((column) => columnKey(column) === condition.columnId);
 }
 
@@ -151,11 +138,11 @@ function canMoveColumn(column: ReportModelColumn, offset: number) {
   return index >= 0 && target >= 0 && target < selectedColumnIds.value.length;
 }
 
-function compareTypes(condition: ConditionDraft) {
+function compareTypes(condition: ReportConditionDraft) {
   return reportModelCompareTypes(columnFor(condition) || {});
 }
 
-function states(condition: ConditionDraft) {
+function states(condition: ReportConditionDraft) {
   return reportModelStates(columnFor(condition) || {});
 }
 
@@ -171,14 +158,14 @@ function queryTypeOptions(column: ReportModelColumn) {
   return options.length ? options : [{ label: "Raw value", value: "" }];
 }
 
-function compareTypeOptions(condition: ConditionDraft) {
+function compareTypeOptions(condition: ReportConditionDraft) {
   return compareTypes(condition).map((option) => ({
     label: reportModelOptionName(option),
     value: reportModelOptionId(option)
   }));
 }
 
-function stateOptions(condition: ConditionDraft) {
+function stateOptions(condition: ReportConditionDraft) {
   return states(condition).map((state) => ({
     label: reportModelStateText(state),
     value: reportModelStateValue(state)
@@ -194,21 +181,43 @@ function addCondition() {
   const compare = column && reportModelCompareTypes(column)[0];
   const state = column && reportModelStates(column)[0];
   conditions.value.push({
+    id: nextConditionId++,
     columnId: column ? columnKey(column) : "",
     compareId: compare ? reportModelOptionId(compare) : "",
+    groupPath: [],
     join: "and",
     value: state ? reportModelStateValue(state) : ""
   });
 }
 
-function updateConditionColumn(condition: ConditionDraft) {
+function groupSelectedConditions() {
+  conditions.value = groupReportConditions(conditions.value, selectedConditionIds.value);
+  selectedConditionIds.value = [];
+}
+
+function ungroupCondition(condition: ReportConditionDraft) {
+  conditions.value = ungroupReportConditions(conditions.value, condition.groupPath);
+}
+
+function startsConditionGroup(condition: ReportConditionDraft, index: number) {
+  if (!condition.groupPath.length || index === 0) return Boolean(condition.groupPath.length);
+  const previousPath = conditions.value[index - 1].groupPath;
+  return condition.groupPath.some((value, pathIndex) => previousPath[pathIndex] !== value);
+}
+
+function removeCondition(index: number) {
+  const [removed] = conditions.value.splice(index, 1);
+  selectedConditionIds.value = selectedConditionIds.value.filter((id) => id !== removed?.id);
+}
+
+function updateConditionColumn(condition: ReportConditionDraft) {
   const compare = compareTypes(condition)[0];
   const state = states(condition)[0];
   condition.compareId = compare ? reportModelOptionId(compare) : "";
   condition.value = state ? reportModelStateValue(state) : "";
 }
 
-function simpleFilter(condition: ConditionDraft): ReportFilterExp | null {
+function simpleFilter(condition: ReportConditionDraft): ReportFilterExp | null {
   const column = columnFor(condition);
   const compare = compareTypes(condition).find((option) => reportModelOptionId(option) === condition.compareId);
   if (!column || !compare) return null;
@@ -343,10 +352,18 @@ onMounted(() => void loadReportColumns());
     <section class="report-section">
       <div class="section-heading">
         <h3>Conditions</h3>
-        <Button type="button" label="Add condition" icon="pi pi-plus" size="small" severity="secondary" outlined :disabled="pending || !modelColumns.length" @click="addCondition" />
+        <div class="report-condition-actions">
+          <Button type="button" label="Group selected" icon="pi pi-object-group" size="small" severity="secondary" outlined :disabled="pending || !canGroupConditions" @click="groupSelectedConditions" />
+          <Button type="button" label="Add condition" icon="pi pi-plus" size="small" severity="secondary" outlined :disabled="pending || !modelColumns.length" @click="addCondition" />
+        </div>
       </div>
       <div v-if="conditions.length" class="report-conditions">
-        <div v-for="(condition, index) in conditions" :key="index" class="report-condition-row">
+        <div v-for="(condition, index) in conditions" :key="condition.id" class="report-condition-row" :style="{ marginLeft: `${condition.groupPath.length * 14}px` }">
+          <Checkbox v-model="selectedConditionIds" :input-id="`condition-${condition.id}`" :value="condition.id" :aria-label="`Select condition ${index + 1}`" />
+          <div class="condition-group">
+            <span v-if="condition.groupPath.length">{{ condition.groupPath.map((id) => `G${id}`).join(" / ") }}</span>
+            <Button v-if="startsConditionGroup(condition, index)" type="button" icon="pi pi-reply" severity="secondary" text size="small" title="Ungroup" aria-label="Ungroup" :disabled="pending" @click="ungroupCondition(condition)" />
+          </div>
           <Select v-if="index" v-model="condition.join" :options="joinOptions" option-label="label" option-value="value" aria-label="Condition join" :disabled="pending" />
           <span v-else class="condition-first">Where</span>
           <Select v-model="condition.columnId" :options="modelColumnOptions()" option-label="label" option-value="value" aria-label="Condition column" :disabled="pending" @change="updateConditionColumn(condition)" />
@@ -361,7 +378,7 @@ onMounted(() => void loadReportColumns());
             title="Remove condition"
             aria-label="Remove condition"
             :disabled="pending"
-            @click="conditions.splice(index, 1)"
+            @click="removeCondition(index)"
           />
         </div>
       </div>

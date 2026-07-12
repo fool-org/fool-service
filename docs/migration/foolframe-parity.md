@@ -118,6 +118,15 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-12: completed report condition grouping beyond the old Web
+  `mkreport.js` visual-only merge state. Vue can group consecutive conditions,
+  wrap complete existing groups, and split the innermost group; the shared
+  116-line `reportConditions.ts` module validates selection boundaries and
+  serializes real recursive `FirstExp` / `Sequences` payloads. Four focused
+  frontend tree tests and a new Java 17 `ReportControllerTest` prove nested
+  `(A AND B) OR C` parentheses and column mapping. All 136 frontend tests,
+  TypeScript/Vite and Compose frontend builds, 23 report controller tests,
+  deployed runtime doctor, and repository harness pass.
 - 2026-07-12: restored Sudoku panel refresh semantics from old Web
   `includes/List.jade`, `querylistdata.js`, and `groupview.js`. Top-level and
   grouped list panels expose `FreshTime` with an icon refresh command; targeted

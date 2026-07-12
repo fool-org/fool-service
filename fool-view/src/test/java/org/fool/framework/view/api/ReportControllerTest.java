@@ -590,6 +590,39 @@ public class ReportControllerTest {
     }
 
     @Test
+    public void makeReportKeepsNestedCompositeFilterParentheses() throws Exception {
+        DataQueryService dataQueryService = mock(DataQueryService.class);
+        DaoService daoService = mock(DaoService.class);
+        when(daoService.getOneDetailByKey(eq(View.class), eq("100"))).thenReturn(view("100"));
+        when(daoService.getOneDetailByKey(eq(Model.class), eq("100"))).thenReturn(model(property("symbol", "order_symbol")));
+        stubReportQuery(dataQueryService, "100",
+                "((`order_state`='0') And (`order_symbol` LIKE '%BTC%')) OR (`order_price`>'100')",
+                new ListViewResult());
+
+        ReportController controller = new ReportController();
+        setField(controller, "dataQueryService", dataQueryService);
+        setField(controller, "daoService", daoService);
+
+        MakeReportRequest request = new MakeReportRequest();
+        request.setViewId(100L);
+        request.setFilterExp(compositeFilterExp(
+                compositeFilterExp(
+                        filterExp("order_state", "1", "等于", "0", "Open"),
+                        seq("and", "与", filterExp("symbol", "7", "包含", "BTC", "BTC"))),
+                seq("or", "或", filterExp("order_price", "3", "大于", "100", "100"))));
+
+        CommonResponse<ReportGridResult> response = controller.makeReport(request);
+
+        verify(dataQueryService).queryLegacyViewData(
+                eq("100"),
+                org.mockito.ArgumentMatchers.any(PageNavigator.class),
+                eq("((`order_state`='0') And (`order_symbol` LIKE '%BTC%')) OR (`order_price`>'100')"),
+                org.mockito.ArgumentMatchers.<String>isNull(),
+                org.mockito.ArgumentMatchers.nullable(DataQueryService.QueryOrder.class));
+        assertEquals(0, response.getCode());
+    }
+
+    @Test
     public void makeReportRejectsUnknownFilterExpInsteadOfIgnoringIt() throws Exception {
         ReportController controller = new ReportController();
         MakeReportRequest request = new MakeReportRequest();

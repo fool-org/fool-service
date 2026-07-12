@@ -10,6 +10,7 @@ import listDataTableSource from "./ListDataTable.vue?raw";
 import loginPanelSource from "./LoginPanel.vue?raw";
 import metadataFieldEditorSource from "./MetadataFieldEditor.vue?raw";
 import payloadSource from "./payload.ts?raw";
+import reportConditionsSource from "./reportConditions.ts?raw";
 import shellActionsSource from "./ShellActions.vue?raw";
 import sudokuPanelsSource from "./SudokuPanels.vue?raw";
 import sudokuWorkflowSource from "./useSudokuPanels.ts?raw";
@@ -544,6 +545,10 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).toContain("selectedReportCols");
     expect(viewReportPanelSource).toContain("moveColumn");
     expect(viewReportPanelSource).toContain("filterExp");
+    expect(viewReportPanelSource).toContain("Group selected");
+    expect(viewReportPanelSource).toContain("groupReportConditions");
+    expect(reportConditionsSource).toContain("buildReportConditionFilter");
+    expect(reportConditionsSource).toContain("serializeNode");
     expect(viewReportPanelSource).not.toContain("Report Columns JSON");
     expect(viewReportPanelSource).not.toContain("QueryFilter");
   });

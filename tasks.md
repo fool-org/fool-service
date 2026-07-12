@@ -760,6 +760,9 @@ item must land with its matching implementation and validation evidence.
       and into the rendered View page, with metadata-driven output selection,
       output types, ordering, structured AND/OR conditions, paging, and no
       raw report JSON or SQL filter inputs.
+- [x] Make old report condition grouping functional: group consecutive
+      conditions, nest complete groups, split the innermost group, and emit a
+      recursive `FirstExp` / `Sequences` tree with backend parenthesis proof.
 - [x] Replace the main Vue View toolbar's editable View ID and raw
       `QueryFilter` controls with a View-metadata-safe keyword search; raw
       compatibility filters remain protocol-only and are not exposed in Vue.
