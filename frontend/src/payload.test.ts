@@ -797,6 +797,14 @@ describe("App defaults", () => {
     expect(viewShellSource).not.toContain("services");
   });
 
+  it("keeps the old text-only application brand in the shell", () => {
+    expect(appSource).toContain('class="brand"');
+    expect(appSource).toContain("{{ shellAppName }}");
+    expect(appSource).toContain("{{ shellAppVersion }}");
+    expect(appSource).not.toContain("shellAppMark");
+    expect(appSource).not.toContain("brand-mark");
+  });
+
   it("runs legacy initnew from the rendered View workflow", () => {
     expect(appSource).toContain("/api/v1/data/initnew");
     expect(appSource).toContain("async function initNew(viewId: number");

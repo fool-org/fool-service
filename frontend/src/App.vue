@@ -201,7 +201,6 @@ const notifyItems = computed(() => legacyNotifies(notifyResponse.value?.data));
 const shellUserName = computed(() => legacyUserName(legacyUserInfoResponse.value?.data));
 const shellAppName = computed(() => legacyAppName(mainInfoResponse.value?.data, "Fool Service"));
 const shellAppVersion = computed(() => legacyAppVersion(mainInfoResponse.value?.data));
-const shellAppMark = computed(() => shellAppName.value.trim().charAt(0).toUpperCase() || "F");
 const viewCanEdit = computed(() => dataCanEdit(detailResponse.value?.data));
 const fieldEditorContext = computed(() => ({
   isAdded: isCreatingObject.value,
@@ -893,11 +892,8 @@ function syncDetailDrafts() {
   <div v-else class="app-shell">
     <header class="shell-header">
       <div class="brand">
-        <span class="brand-mark">{{ shellAppMark }}</span>
-        <div>
-          <strong>{{ shellAppName }}</strong>
-          <small v-if="shellAppVersion">{{ shellAppVersion }}</small>
-        </div>
+        <strong>{{ shellAppName }}</strong>
+        <small v-if="shellAppVersion">{{ shellAppVersion }}</small>
       </div>
 
       <div class="desktop-navigation">
@@ -937,11 +933,8 @@ function syncDetailDrafts() {
 
       <Drawer v-model:visible="mobileMenuOpen" position="left" class="mobile-navigation" header="导航">
         <div class="brand drawer-brand">
-          <span class="brand-mark">{{ shellAppMark }}</span>
-          <div>
-            <strong>{{ shellAppName }}</strong>
-            <small v-if="shellAppVersion">{{ shellAppVersion }}</small>
-          </div>
+          <strong>{{ shellAppName }}</strong>
+          <small v-if="shellAppVersion">{{ shellAppVersion }}</small>
         </div>
         <nav class="nav-list" aria-label="Mobile main">
           <button type="button" @click="openMobilePrimarySection">首页</button>

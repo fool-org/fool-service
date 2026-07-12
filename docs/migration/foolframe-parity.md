@@ -287,6 +287,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   production build pass; nested-menu Docker browser replay remains part of the
   final browser acceptance because the default seed may not expose a parent
   without a direct View.
+- 2026-07-12: restored `default.jade`'s compact text application brand. The
+  shell and mobile Drawer now render App name/version inline, the invented
+  42px initial tile and its computed state are gone, and the desktop header is
+  back on the old 50px navbar scale instead of a 72px product topbar.
 - 2026-07-10: completed the authenticated Vue browser acceptance after explicit
   permission to read the local CAPTCHA and use the Docker `admin/admin`
   account. Desktop and 390x844 checks exercised the default View-first list,

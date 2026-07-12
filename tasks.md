@@ -860,6 +860,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Move legacy shell user, message polling, notification badges, and logout
       into a responsive Vue topbar, reusing the View-first
       detail/list loaders for message targets.
+- [x] Restore the compact text-only Bootstrap navbar brand: remove the invented
+      42px initial tile, render App name/version inline, and reduce the desktop
+      shell header to the old 50px scale while reusing it in the mobile Drawer.
 - [x] Replace default `admin/admin` auto-login and developer auth controls with
       a signed-out Vue `initapp` / captcha / `loginv2` page that resumes legacy
       View/detail/new deep links after authentication.
