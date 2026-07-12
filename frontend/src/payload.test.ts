@@ -151,6 +151,10 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain('v-if="!isEditing && (selectedObjectId || schemaOnly)" class="detail-field-grid"');
     expect(viewDetailPanelSource).toContain('v-if="!isEditing && (selectedObjectId || schemaOnly)"');
     expect(viewDetailPanelSource).toContain(':disabled="pending || isEditing"');
+    expect(viewDetailPanelSource).toContain('v-if="!isCreatingObject"');
+    expect(viewDetailPanelSource).toContain(':disabled="pending || !isEditing"');
+    expect(viewDetailPanelSource).not.toContain('v-if="!isEditing"\n        type="button"\n        label="编辑"');
+    expect(viewDetailPanelSource).not.toContain('v-else\n        type="button"\n        label="保存"');
     expect(viewDetailPanelSource).toContain("isEditing.value = props.isCreatingObject");
   });
 

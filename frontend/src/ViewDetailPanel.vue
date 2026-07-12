@@ -115,20 +115,19 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
 
     <div v-if="selectedObjectId && (viewCanEdit || isCreatingObject)" class="detail-toolbar">
       <Button
-        v-if="!isEditing"
+        v-if="!isCreatingObject"
         type="button"
         label="编辑"
         icon="pi pi-pencil"
-        :disabled="pending"
+        :disabled="pending || isEditing"
         @click="isEditing = true"
       />
       <Button
-        v-else
         type="button"
         label="保存"
         icon="pi pi-save"
         :loading="pending"
-        :disabled="pending"
+        :disabled="pending || !isEditing"
         @click="emit('saveSelectedObject')"
       />
       <template v-if="!isCreatingObject">

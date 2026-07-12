@@ -268,6 +268,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   views retain the View title alone. The invented rounded object-ID tag and
   transient English `Detail` fallback were removed; IDs remain interaction and
   request state.
+- 2026-07-12: restored the stable `detailView.jade` action toolbar. Existing
+  editable records keep both Edit and Save mounted while `detailview.js`-style
+  disabled states switch with edit mode, so controls no longer move after a
+  click. New records start in edit mode with Save only, while metadata View
+  operations remain disabled until the main edit is saved.
 - 2026-07-12: aligned Vue shell menu hierarchy with old Web `leftbar.jade` /
   `menuinfo.js`. Loading `getsubmenu` no longer replaces the top-level menu;
   desktop and mobile render child entries under the selected parent, direct

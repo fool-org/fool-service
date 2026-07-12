@@ -183,7 +183,9 @@ item must land with its matching implementation and validation evidence.
       `视图名 -新建` inline, remove the invented rounded ID tag, and localize
       the transient no-View fallback.
 - [x] Restore the old detail action layout by keeping Edit, Save, and
-      metadata-defined View operation buttons in one wrapping toolbar.
+      metadata-defined View operation buttons in one wrapping toolbar; keep
+      Edit/Save mounted for existing records and switch their disabled state
+      instead of shifting the toolbar during edit.
 - [x] Restore old Web Chinese detail interaction copy for edit/save,
       child add/select/page/edit/delete, empty states, confirmation prompts,
       and local validation while preserving metadata and server ReturnMsg text.
