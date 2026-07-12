@@ -809,6 +809,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Make old report condition grouping functional: group consecutive
       conditions, nest complete groups, split the innermost group, and emit a
       recursive `FirstExp` / `Sequences` tree with backend parenthesis proof.
+- [x] Align report condition-group rendering with old `mkreport.js`: keep
+      internal group ids protocol-only, show nested legacy-colored group rails,
+      and restore the `拆分分组` action copy.
 - [x] Restore the old report dialog interaction: open report setup as a modal
       with output, condition, and save-definition tabs, then switch successful
       runs into a separate paged result state with a back action.

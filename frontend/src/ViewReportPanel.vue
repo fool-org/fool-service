@@ -308,8 +308,14 @@ onMounted(() => void loadReportColumns());
               <div v-for="(condition, index) in conditions" :key="condition.id" class="report-condition-row" :style="{ marginLeft: `${condition.groupPath.length * 14}px` }">
                 <Checkbox v-model="selectedConditionIds" :input-id="`condition-${condition.id}`" :value="condition.id" :aria-label="`Select condition ${index + 1}`" />
                 <div class="condition-group">
-                  <span v-if="condition.groupPath.length">{{ condition.groupPath.map((id) => `G${id}`).join(" / ") }}</span>
-                  <Button v-if="startsConditionGroup(condition, index)" type="button" icon="pi pi-reply" severity="secondary" text size="small" title="取消分组" aria-label="取消分组" :disabled="pending" @click="ungroupCondition(condition)" />
+                  <span
+                    v-for="(groupId, depthIndex) in condition.groupPath"
+                    :key="groupId"
+                    class="condition-group-marker"
+                    :class="{ 'is-alternate': depthIndex % 2 === 1 }"
+                    aria-hidden="true"
+                  ></span>
+                  <Button v-if="startsConditionGroup(condition, index)" type="button" icon="pi pi-reply" severity="secondary" text size="small" title="拆分分组" aria-label="拆分分组" :disabled="pending" @click="ungroupCondition(condition)" />
                 </div>
                 <Select v-if="index" v-model="condition.join" :options="joinOptions" option-label="label" option-value="value" aria-label="Condition join" :disabled="pending" />
                 <span v-else class="condition-first">条件</span>

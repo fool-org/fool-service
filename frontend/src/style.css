@@ -371,10 +371,21 @@ label {
   align-items: center;
 }
 
-.condition-group span {
-  color: #64748b;
-  font-size: 0.72rem;
-  font-weight: 700;
+.condition-group {
+  min-height: 34px;
+}
+
+.condition-group-marker {
+  flex: 0 0 8px;
+  align-self: stretch;
+  border: 1px solid #d8c7a9;
+  border-radius: 2px;
+  background: #ffebcd;
+}
+
+.condition-group-marker.is-alternate {
+  border-color: #91c3d3;
+  background: #b2dfee;
 }
 
 .condition-first {

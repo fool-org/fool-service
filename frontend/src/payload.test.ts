@@ -649,6 +649,9 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).toContain("filterExp");
     expect(viewReportPanelSource).toContain("合并分组");
     expect(viewReportPanelSource).toContain("groupReportConditions");
+    expect(viewReportPanelSource).toContain("condition-group-marker");
+    expect(viewReportPanelSource).toContain("拆分分组");
+    expect(viewReportPanelSource).not.toContain("`G${id}`");
     expect(reportConditionsSource).toContain("buildReportConditionFilter");
     expect(reportConditionsSource).toContain("serializeNode");
     expect(viewReportPanelSource).not.toContain("Report Columns JSON");

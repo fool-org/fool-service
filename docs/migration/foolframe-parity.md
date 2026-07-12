@@ -136,6 +136,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `(A AND B) OR C` parentheses and column mapping. All 136 frontend tests,
   TypeScript/Vite and Compose frontend builds, 23 report controller tests,
   deployed runtime doctor, and repository harness pass.
+- 2026-07-12: aligned report condition-group presentation with `mkreport.js`.
+  Vue no longer exposes internal group-path ids as invented `G1 / G2` labels;
+  nested groups use the old `#FFEBCD` / `#B2DFEE` alternating colors and the
+  group-start command is again named `拆分分组`. Recursive filter serialization
+  and View-metadata-bound condition values are unchanged.
 - 2026-07-12: restored Sudoku panel refresh semantics from old Web
   `includes/List.jade`, `querylistdata.js`, and `groupview.js`. Top-level and
   grouped list panels expose `FreshTime` with a text refresh command; targeted
