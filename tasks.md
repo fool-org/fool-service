@@ -916,6 +916,8 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `detailview.js`'s edit-state operation guard: business-operation
       buttons remain clickable while editing and show `请先保存当前信息` without
       issuing the operation request.
+- [x] Restore the old detail-page error dialog outlet so edit guards, validation
+      failures, and detail API errors are visible and explicitly dismissible.
 - [x] Restore `operation.js` result feedback as an `执行结果` modal with the
       old `操作成功`/`操作失败` summary, return message, and explicit close.
 - [x] Restore `operation.js` response timing by showing the result immediately;

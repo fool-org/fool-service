@@ -39,6 +39,7 @@ const props = defineProps<{
   detailRows: ListDataValue[];
   detailViewOperations: OperationInfo[];
   enumFieldOptions: (field: ListDataValue) => SelectOption[];
+  errorMessage: string;
   fieldEditorContext: Record<string, unknown>;
   isCreatingObject: boolean;
   newChildDraftValue: (group: QueryDataDetailItemGroup, field: ListDataValue) => string;
@@ -82,6 +83,7 @@ const emit = defineEmits<{
   addDetailItem: [group: QueryDataDetailItemGroup];
   addExistingDetailItem: [group: QueryDataDetailItemGroup, row: ListDataItem];
   deleteDetailItem: [group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem];
+  dismissError: [];
   dismissOperationResult: [];
   loadCandidatePage: [group: QueryDataDetailItemGroup, pageIndex: number];
   loadExistingDetailItems: [group: QueryDataDetailItemGroup];
@@ -175,6 +177,20 @@ function selectExistingItem(group: QueryDataDetailItemGroup, row: ListDataItem) 
         </div>
       </div>
     </div>
+
+    <Dialog
+      v-if="errorMessage"
+      :visible="true"
+      modal
+      header="发生错误"
+      :draggable="false"
+      @update:visible="(visible) => { if (!visible) emit('dismissError') }"
+    >
+      <p>{{ errorMessage }}</p>
+      <template #footer>
+        <Button type="button" label="关闭" severity="secondary" @click="emit('dismissError')" />
+      </template>
+    </Dialog>
 
     <Dialog
       v-if="operationResult"

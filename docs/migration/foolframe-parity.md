@@ -161,6 +161,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   Operation buttons are no longer silently disabled while a detail is being
   edited; clicking one now shows the old `请先保存当前信息` feedback and does not
   issue a `runoperation` request. Pending requests still disable the buttons.
+- 2026-07-12: restored the old detail error-dialog outlet. The detail panel now
+  receives shared action errors and opens a dismissible `发生错误` modal, making
+  edit guards, local validation, and failed detail requests visible instead of
+  leaving `App.errorMessage` with no rendered consumer on detail routes.
 - 2026-07-12: restored `operation.js`/`showdetailinfo` result interaction.
   Completed business operations now open an `执行结果` modal with the old
   `操作成功`/`操作失败` summary and return message, replacing the Vue-only

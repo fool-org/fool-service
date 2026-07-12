@@ -143,9 +143,13 @@ describe("App defaults", () => {
     expect(appSource).toContain('@run-view-operation="runViewOperation"');
     expect(appSource).toContain('errorMessage.value = "请先保存当前信息"');
     expect(operationHandlerSource).toMatch(/if \(editing\) \{[\s\S]*?请先保存当前信息[\s\S]*?return;[\s\S]*?runOperation\(id\)/);
+    expect(appSource).toContain(':error-message="errorMessage"');
+    expect(appSource).toContain("@dismiss-error=\"errorMessage = ''\"");
     expect(viewDetailPanelSource).toContain('class="detail-toolbar"');
     expect(viewDetailPanelSource).toContain('v-for="operation in detailViewOperations"');
     expect(viewDetailPanelSource).toContain("emit('runViewOperation', operation, isEditing)");
+    expect(viewDetailPanelSource).toContain('header="发生错误"');
+    expect(viewDetailPanelSource).toContain("emit('dismissError')");
     expect(toolbarSource).toMatch(/v-for="operation in detailViewOperations"[\s\S]*?:disabled="pending"/);
     expect(toolbarSource).not.toMatch(/v-for="operation in detailViewOperations"[\s\S]*?:disabled="pending \|\| isEditing"/);
     expect(viewDetailPanelSource).not.toContain("operationParams(operation)");
