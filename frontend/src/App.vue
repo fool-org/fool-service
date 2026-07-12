@@ -157,14 +157,11 @@ const mainInfoResponse = ref<CommonResponse<LegacyMainResult> | null>(null);
 const checkCodeResponse = ref<CommonResponse<CheckCodeResult> | null>(null);
 const subMenuResponse = ref<CommonResponse<LegacySubMenuResult> | null>(null);
 const detailResponse = ref<CommonResponse<QueryDataDetailResult> | null>(null);
-const messageResponse = ref<CommonResponse<GetMessageResult> | null>(null);
 const activeShellMessage = ref<MessageInfo | null>(null);
 const notifyResponse = ref<CommonResponse<GetNotifyResult> | null>(null);
 const errorMessage = ref("");
 const operationResult = ref<{ message: string; success: boolean } | null>(null);
 const pendingAction = ref("");
-const shellErrorMessage = ref("");
-const shellPending = ref(false);
 
 const {
   viewResponse,
@@ -198,7 +195,6 @@ const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() =>
 const detailViewOperations = computed(() => dataOperations(detailResponse.value?.data));
 const topMenuItems = computed(() => legacyMainMenuItems(mainInfoResponse.value?.data));
 const subMenuItems = computed(() => legacySubMenuItems(subMenuResponse.value?.data));
-const messageItems = computed(() => legacyMessages(messageResponse.value?.data));
 const notifyItems = computed(() => legacyNotifies(notifyResponse.value?.data));
 const shellUserAvatar = computed(() => legacyUserAvatar(legacyUserInfoResponse.value?.data));
 const shellUserName = computed(() => legacyUserName(legacyUserInfoResponse.value?.data));
@@ -396,11 +392,9 @@ async function openShellMessage(message: MessageInfo) {
   await loadViewWorkflow(true);
 }
 
-async function refreshShellStatus(interactive = true) {
+async function refreshShellStatus() {
   if (!token.value || shellRefreshInFlight) return;
   shellRefreshInFlight = true;
-  shellErrorMessage.value = "";
-  if (interactive) shellPending.value = true;
   try {
     const request = buildTokenRequest(token.value);
     const [user, messages, notifies] = await Promise.allSettled([
@@ -412,24 +406,18 @@ async function refreshShellStatus(interactive = true) {
     if (messages.status === "fulfilled") {
       const fetchedMessages = legacyMessages(messages.value.data);
       if (fetchedMessages.length) {
-        messageResponse.value = messages.value;
         activeShellMessage.value = fetchedMessages[0];
       }
     }
     if (notifies.status === "fulfilled") notifyResponse.value = notifies.value;
-    const failed = [user, messages, notifies].find((result) => result.status === "rejected");
-    if (failed?.status === "rejected") {
-      shellErrorMessage.value = failed.reason instanceof Error ? failed.reason.message : String(failed.reason);
-    }
   } finally {
     shellRefreshInFlight = false;
-    if (interactive) shellPending.value = false;
   }
 }
 
 function startShellPolling() {
   stopShellPolling();
-  shellPollTimer = window.setInterval(() => void refreshShellStatus(false), 15_000);
+  shellPollTimer = window.setInterval(() => void refreshShellStatus(), 15_000);
 }
 
 function stopShellPolling() {
@@ -446,13 +434,11 @@ function clearLegacySession() {
   legacyUserInfoResponse.value = null;
   mainInfoResponse.value = null;
   subMenuResponse.value = null;
-  messageResponse.value = null;
   activeShellMessage.value = null;
   notifyResponse.value = null;
   checkCodeResponse.value = null;
   checkCodeKey.value = "";
   checkCodeValue.value = "";
-  shellErrorMessage.value = "";
   localStorage.removeItem("fool-service-token");
 }
 
@@ -696,7 +682,7 @@ async function loadInitialRoute() {
 async function enterAuthenticatedShell() {
   await loadInitialRoute();
   if (!token.value) return;
-  await refreshShellStatus(false);
+  await refreshShellStatus();
   startShellPolling();
 }
 
@@ -925,15 +911,12 @@ function syncDetailDrafts() {
         v-if="token"
         class="shell-header-actions"
         :active-message="activeShellMessage"
-        :error-message="shellErrorMessage"
-        :messages="messageItems"
-        :pending="shellPending || Boolean(pendingAction)"
+        :pending="Boolean(pendingAction)"
         :user-avatar="shellUserAvatar"
         :user-name="shellUserName"
         @logout="logout"
         @dismiss-message="activeShellMessage = null"
         @open-message="openShellMessage"
-        @refresh="refreshShellStatus"
       />
     </header>
 

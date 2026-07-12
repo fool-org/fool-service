@@ -763,7 +763,6 @@ describe("App defaults", () => {
 
   it("moves legacy message polling into the signed-in shell", () => {
     expect(appSource).toContain("/api/v1/message/getmsg");
-    expect(appSource).toContain("messageResponse");
     expect(appSource).toContain("15_000");
     expect(appSource).toContain("const fetchedMessages = legacyMessages(messages.value.data)");
     expect(appSource).toContain("activeShellMessage.value = fetchedMessages[0]");
@@ -775,6 +774,10 @@ describe("App defaults", () => {
     expect(shellActionsSource).toContain('label="确定"');
     expect(shellActionsSource).toContain('emit("dismissMessage")');
     expect(shellActionsSource).toContain('emit("openMessage", message)');
+    expect(appSource).not.toContain("messageResponse");
+    expect(shellActionsSource).not.toContain("<Popover");
+    expect(shellActionsSource).not.toContain("message-popover");
+    expect(shellActionsSource).not.toContain("暂无消息");
     expect(appSource).not.toContain("<h2>Messages</h2>");
   });
 

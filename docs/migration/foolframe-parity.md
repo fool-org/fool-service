@@ -127,9 +127,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-12: restored old `message.js` delivery behavior in the Vue shell.
   Each non-empty 15-second `getmsg` poll now immediately opens its first item
   in a `系统消息` modal with generation time, content, View-first detail
-  navigation, and `确定`; the existing topbar message list remains available
-  as a responsive history entry. Frontend, Compose, runtime-doctor, and harness
-  validation are recorded in the matching delivery evidence.
+  navigation, and `确定`. The invented topbar bell, manual refresh, and history
+  Popover were removed because `tbar.jade` has no message entry. Frontend,
+  Compose, runtime-doctor, and harness validation are recorded in the matching
+  delivery evidence.
 - 2026-07-12: made top-level `TempFile` dispatch explicit. Empty/default
   `view`, `viewWithChart`, and `Sudoku` cover the old repository's actual
   top-level templates and route to list, chart, and panel renderers. Unknown
@@ -346,9 +347,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   permission to read the local CAPTCHA and use the Docker `admin/admin`
   account. Desktop and 390x844 checks exercised the default View-first list,
   keyword search, detail selection, metadata new form, report execution, SVG
-  chart, message popover, Sudoku list/chart/map/item/group panels, and legacy
-  detail/new deep links without console warnings or page-level horizontal
-  overflow. The replay exposed one shared-View bug: Sudoku list/chart/item and
+  chart, message API/target navigation, Sudoku list/chart/map/item/group
+  panels, and legacy detail/new deep links without console warnings or
+  page-level horizontal overflow. The replay exposed one shared-View bug:
+  Sudoku list/chart/item and
   group panels can reuse `ListViewId=100`, so the item-detail result replaced
   already loaded row data in the panel record. `App.vue` now merges row and
   detail results for the same View id and only skips group loading when row
@@ -2371,13 +2373,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - The View report panel saves definitions through `/api/v1/report/saverpt`
   using rendered report fields rather than raw JSON inputs
 - Vue API types for legacy `getmsg` generated-message polling
-- A Vue topbar message popover that polls `/api/v1/message/getmsg` every 15
-  seconds, uses old Web system-message/view-detail copy, and opens message
-  targets through the existing View-first loader
+- A Vue shell poller that calls `/api/v1/message/getmsg` every 15 seconds,
+  immediately opens the first item in the old system-message dialog, and opens
+  message targets through the existing View-first loader
 - Vue API types for legacy `getnotify` notification-count payloads
 - Vue shell menu badges populated from `/api/v1/message/getnotify`
-- Old Web authenticated shell actions for Home, navigation, system messages,
-  refresh, and safe logout while server-provided App/user/menu/message text
+- Old Web authenticated shell actions for Home, navigation, automatic system
+  messages, and safe logout while server-provided App/user/menu/message text
   remains unchanged
 - Vue API types for legacy view-item `ID`, `Name`, `PropertyName`, `ShowIndex`, `Width`, `Format`, `IsReadOnly`, `EditType`, `PropertyId`, `EditViewId`, `EditExp`, linked-list-view defaults, `PropertyType`, and `PropertyModel` metadata
 - Vue API types for legacy view-item `ViewFile` metadata

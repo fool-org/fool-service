@@ -1,23 +1,15 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import Badge from "primevue/badge";
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
-import Message from "primevue/message";
-import Popover from "primevue/popover";
 import type { MessageInfo } from "./api";
 import {
   legacyMessageContent,
-  legacyMessageId,
-  legacyMessageResultKey,
   legacyMessageResultView,
   legacyMessageTime
 } from "./viewWorkflow";
 
 defineProps<{
   activeMessage: MessageInfo | null;
-  errorMessage: string;
-  messages: MessageInfo[];
   pending: boolean;
   userAvatar: string;
   userName: string;
@@ -26,21 +18,13 @@ const emit = defineEmits<{
   dismissMessage: [];
   logout: [];
   openMessage: [message: MessageInfo];
-  refresh: [];
 }>();
-const open = ref(false);
-const messagePopover = ref();
-
-function toggleMessages(event: Event) {
-  messagePopover.value?.toggle(event);
-}
 
 function canOpenMessage(message: MessageInfo) {
   return legacyMessageResultView(message) > 0;
 }
 
 function openMessage(message: MessageInfo) {
-  messagePopover.value?.hide();
   emit("dismissMessage");
   emit("openMessage", message);
 }
@@ -48,50 +32,12 @@ function openMessage(message: MessageInfo) {
 
 <template>
   <div class="shell-actions">
-    <Button
-      :aria-expanded="open"
-      :disabled="pending"
-      label="系统消息"
-      icon="pi pi-bell"
-      severity="secondary"
-      text
-      @click="toggleMessages"
-    >
-      <Badge v-if="messages.length" :value="messages.length" severity="danger" />
-    </Button>
     <span class="shell-user">
       <img v-if="userAvatar" class="shell-avatar" :src="userAvatar" alt="" />
       <i v-else class="pi pi-user"></i>
       {{ userName || "已登录" }}
     </span>
     <Button type="button" label="安全退出" icon="pi pi-sign-out" severity="secondary" text :disabled="pending" @click="emit('logout')" />
-
-    <Popover ref="messagePopover" class="message-popover" aria-label="系统消息" @show="open = true" @hide="open = false">
-      <header>
-        <h2>系统消息</h2>
-        <div>
-          <Button type="button" label="刷新" icon="pi pi-refresh" size="small" severity="secondary" text :disabled="pending" @click="emit('refresh')" />
-          <Button type="button" icon="pi pi-times" size="small" severity="secondary" text title="关闭消息" aria-label="关闭消息" @click="messagePopover?.hide()" />
-        </div>
-      </header>
-      <Message v-if="errorMessage" severity="error" :closable="false">{{ errorMessage }}</Message>
-      <ul v-if="messages.length">
-        <li v-for="message in messages" :key="legacyMessageId(message)">
-          <time>{{ legacyMessageTime(message) }}</time>
-          <p>{{ legacyMessageContent(message) }}</p>
-          <Button
-            v-if="canOpenMessage(message)"
-            type="button"
-            :label="`查看详细 ${legacyMessageResultKey(message)}`"
-            icon="pi pi-arrow-up-right"
-            size="small"
-            text
-            @click="openMessage(message)"
-          />
-        </li>
-      </ul>
-      <p v-else class="empty-message">暂无消息。</p>
-    </Popover>
 
     <Dialog
       v-if="activeMessage"
@@ -119,16 +65,11 @@ function openMessage(message: MessageInfo) {
 
 <style scoped>
 .shell-actions {
-  position: relative;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
   justify-content: flex-end;
-}
-
-.shell-actions :deep(.p-button .p-badge) {
-  margin-left: 6px;
 }
 
 .shell-user {
@@ -151,72 +92,10 @@ function openMessage(message: MessageInfo) {
   object-fit: cover;
 }
 
-.message-popover {
-  width: min(380px, calc(100vw - 32px));
-}
-
-.message-popover header {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #e2e8f0;
-  padding-bottom: 10px;
-}
-
-.message-popover header div {
-  display: flex;
-  gap: 6px;
-}
-
-.message-popover h2 {
-  margin: 0;
-  font-size: 0.94rem;
-}
-
-.message-popover ul {
-  max-height: 320px;
-  margin: 0;
-  overflow: auto;
-  padding: 0;
-  list-style: none;
-}
-
-.message-popover li {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 4px 10px;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 11px 12px;
-}
-
-.message-popover time {
-  color: #64748b;
-  font-size: 0.72rem;
-}
-
-.message-popover p {
-  grid-column: 1;
-  margin: 0;
-  overflow-wrap: anywhere;
-}
-
-.message-popover li button {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  align-self: center;
-}
-
-.empty-message {
-  padding: 12px;
-  color: #64748b;
-}
-
 @media (max-width: 640px) {
   .shell-actions {
     width: 100%;
     justify-content: flex-start;
   }
-
 }
 </style>

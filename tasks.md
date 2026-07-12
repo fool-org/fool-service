@@ -885,6 +885,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore old `message.js` delivery behavior: each non-empty 15-second
       poll immediately opens the first generated message in a `系统消息` dialog
       with time, content, detail navigation, and confirmation controls.
+- [x] Match `tbar.jade` by removing the invented system-message bell, manual
+      refresh, and history Popover; retain only old `message.js` automatic
+      delivery and its View-first detail action.
 - [x] Restore `default.jade` user avatar rendering end to end: hydrate
       `UserAvtarUrl` from `SW_AUTH_USER.USER_AVTAR`, adapt the compatibility
       response in `viewWorkflow`, and retain an icon fallback for empty values.
