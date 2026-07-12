@@ -852,6 +852,9 @@ item must land with its matching implementation and validation evidence.
       footer actions while preserving protocol values and metadata labels.
 - [x] Match `view.jade` report tabs exactly as text labels by removing the
       invented output/filter/save icons and their tab-only spacing rule.
+- [x] Match `view.jade` report footer commands as text-only buttons by removing
+      invented return, cancel, run, and save icons while preserving state and
+      handlers.
 - [x] Restore `view.jade`'s compact right-aligned list toolbar: keep the query
       prompt inside the search field, align actions on one desktop row, and
       let only the input occupy a full row on narrow screens.

@@ -336,10 +336,10 @@ onMounted(() => void loadReportColumns());
     </Tabs>
 
     <template #footer>
-      <Button v-if="showingResults" type="button" label="返回" icon="pi pi-arrow-left" :disabled="pending" @click="backToReportSetup" />
-      <Button v-if="!showingResults" type="button" label="取消" icon="pi pi-times" severity="secondary" text :disabled="pending" @click="emit('close')" />
-      <Button v-if="!showingResults" type="button" label="确定" icon="pi pi-play" :disabled="!canRun" @click="runReport()" />
-      <Button v-if="!showingResults" type="button" label="保存报表定义" icon="pi pi-save" severity="secondary" outlined :disabled="!canRun || !reportName.trim()" @click="saveReport" />
+      <Button v-if="showingResults" type="button" label="返回" :disabled="pending" @click="backToReportSetup" />
+      <Button v-if="!showingResults" type="button" label="取消" severity="secondary" text :disabled="pending" @click="emit('close')" />
+      <Button v-if="!showingResults" type="button" label="确定" :disabled="!canRun" @click="runReport()" />
+      <Button v-if="!showingResults" type="button" label="保存报表定义" severity="secondary" outlined :disabled="!canRun || !reportName.trim()" @click="saveReport" />
     </template>
   </Dialog>
 </template>

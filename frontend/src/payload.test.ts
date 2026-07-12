@@ -737,6 +737,8 @@ describe("App defaults", () => {
   });
 
   it("keeps the legacy save report route in the View report panel", () => {
+    const footerSource = viewReportPanelSource.slice(viewReportPanelSource.indexOf("<template #footer>"));
+
     expect(viewReportPanelSource).toContain("保存报表定义");
     expect(viewReportPanelSource).toContain('const reportName = ref("")');
     expect(viewReportPanelSource).toContain("输入报表信息以保存该报表");
@@ -744,6 +746,10 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).not.toContain("<h3>保存报表</h3>");
     expect(viewReportPanelSource).toContain("/api/v1/report/saverpt");
     expect(appSource).not.toContain("Save Report Definition");
+    expect(footerSource).not.toContain('icon="pi pi-arrow-left"');
+    expect(footerSource).not.toContain('icon="pi pi-times"');
+    expect(footerSource).not.toContain('icon="pi pi-play"');
+    expect(footerSource).not.toContain('icon="pi pi-save"');
   });
 
   it("moves legacy message polling into the signed-in shell", () => {
