@@ -111,7 +111,7 @@ const emit = defineEmits<{
       />
     </div>
 
-    <div v-if="isEditing" class="view-edit-grid">
+    <div v-if="isEditing" class="detail-field-grid detail-field-edit">
       <label v-for="field in detailRows" :key="fieldKey(field)">
         {{ fieldTitle(field) }}
         <MetadataFieldEditor
@@ -128,7 +128,7 @@ const emit = defineEmits<{
       {{ schemaOnly ? "View definition loaded." : "Select a row from the list." }}
     </div>
 
-    <div v-if="!isEditing && (selectedObjectId || schemaOnly)" class="detail-fields">
+    <div v-if="!isEditing && (selectedObjectId || schemaOnly)" class="detail-field-grid">
       <div v-for="item in detailRows" :key="fieldKey(item)">
         <span>{{ fieldTitle(item) }}</span>
         <strong>{{ fieldDisplayValue(item) }}</strong>
@@ -136,7 +136,7 @@ const emit = defineEmits<{
     </div>
 
     <div v-if="schemaOnly && detailItemGroups.length" class="view-items-panel">
-      <div class="detail-fields">
+      <div class="detail-field-grid">
         <div v-for="group in detailItemGroups" :key="groupKey(group)">
           <span>{{ groupTitle(group) }}</span>
           <strong>{{ groupColumns(group).map(fieldTitle).join(", ") }}</strong>

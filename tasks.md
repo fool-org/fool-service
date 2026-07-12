@@ -799,6 +799,9 @@ item must land with its matching implementation and validation evidence.
       auto-open the first row or render a side-by-side detail DTO, and View
       operations/new commands navigate through `/view{id}/{obj}` and
       `/new{id}` before rendering the standalone detail page.
+- [x] Align standalone detail simple-field layout with `detailView.jade`:
+      reuse one metadata-driven field grid for read/edit states, render two
+      field groups per desktop row, and collapse to one group on mobile.
 - [x] Reconcile the vague remaining Model runtime mutation wording against
       FoolFrame, the 37-case Java 17 Model service suite, and live Docker
       `MODEL_CON` state; close speculative routed-connection work until a real

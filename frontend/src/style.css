@@ -582,9 +582,34 @@ label {
   color: #64748b;
 }
 
-.view-edit-grid {
+.detail-field-grid {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+}
+
+.detail-field-grid > div {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.35fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  min-height: 42px;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 5px 2px;
+}
+
+.detail-field-grid > div span {
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 750;
+}
+
+.detail-field-grid > div strong {
+  overflow-wrap: anywhere;
+}
+
+.detail-field-edit > label {
+  align-content: start;
 }
 
 .detail-toolbar {
@@ -814,6 +839,10 @@ label {
 
   .list-pagination {
     display: grid;
+  }
+
+  .detail-field-grid {
+    grid-template-columns: 1fr;
   }
 
   .list-pagination .p-paginator {

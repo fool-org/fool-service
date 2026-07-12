@@ -111,7 +111,8 @@ describe("App defaults", () => {
     expect(appSource).toContain("dataCanEdit(detailResponse.value?.data)");
     expect(viewDetailPanelSource).toContain("const isEditing = ref(false)");
     expect(viewDetailPanelSource).toContain('label="Edit"');
-    expect(viewDetailPanelSource).toContain('v-if="isEditing" class="view-edit-grid"');
+    expect(viewDetailPanelSource).toContain('v-if="isEditing" class="detail-field-grid detail-field-edit"');
+    expect(viewDetailPanelSource).toContain('v-if="!isEditing && (selectedObjectId || schemaOnly)" class="detail-field-grid"');
     expect(viewDetailPanelSource).toContain('v-if="!isEditing && (selectedObjectId || schemaOnly)"');
     expect(viewDetailPanelSource).toContain(':disabled="pending || isEditing"');
     expect(viewDetailPanelSource).toContain("isEditing.value = props.isCreatingObject");
