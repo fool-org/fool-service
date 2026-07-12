@@ -879,8 +879,8 @@ item must land with its matching implementation and validation evidence.
 - [x] Replace the main Vue View toolbar's editable View ID and raw
       `QueryFilter` controls with a View-metadata-safe keyword search; raw
       compatibility filters remain protocol-only and are not exposed in Vue.
-- [x] Move legacy shell user, message polling, notification badges, and logout
-      into a responsive Vue topbar, reusing the View-first
+- [x] Move legacy shell user, message polling, and logout into a responsive Vue
+      topbar, reusing the View-first
       detail/list loaders for message targets.
 - [x] Restore old `message.js` delivery behavior: each non-empty 15-second
       poll immediately opens the first generated message in a `系统消息` dialog
@@ -896,6 +896,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore old top/sub-menu `ImageUrl` rendering: adapt Pascal/camel aliases
       once, show metadata-provided images at the old 30x30 size, and allocate
       no icon slot when the value is empty.
+- [x] Keep legacy `getnotify` protocol-only like the old Web implementation:
+      remove the invented 15-second UI request and menu-count badges while
+      retaining API aliases, helpers, backend route, and runtime coverage.
 - [x] Restore `default.jade` user avatar rendering end to end: hydrate
       `UserAvtarUrl` from `SW_AUTH_USER.USER_AVTAR`, adapt the compatibility
       response in `viewWorkflow`, and retain an icon fallback for empty values.

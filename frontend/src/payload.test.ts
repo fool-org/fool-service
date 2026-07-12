@@ -784,12 +784,13 @@ describe("App defaults", () => {
     expect(appSource).not.toContain("<h2>Messages</h2>");
   });
 
-  it("moves legacy notify counts into shell menu badges", () => {
-    expect(appSource).toContain("/api/v1/message/getnotify");
-    expect(appSource).toContain("notifyResponse");
-    expect(appSource).toContain("legacyNotifyCountForAuth");
-    expect(legacyMenuNavSource).toContain('class="nav-count"');
-    expect(appSource).not.toContain("<h2>Notify Counts</h2>");
+  it("keeps the unimplemented legacy notify contract out of the shell UI", () => {
+    expect(apiSource).toContain("GetNotifyResult");
+    expect(viewWorkflowSource).toContain("legacyNotifies");
+    expect(appSource).not.toContain("/api/v1/message/getnotify");
+    expect(appSource).not.toContain("notifyResponse");
+    expect(legacyMenuNavSource).not.toContain("notifyCount");
+    expect(legacyMenuNavSource).not.toContain('class="nav-count"');
   });
 
   it("moves legacy user info and logout into the signed-in shell", () => {

@@ -6,7 +6,6 @@ import {
   type CheckCodeResult,
   type CommonResponse,
   type GetMessageResult,
-  type GetNotifyResult,
   type LegacyAuthItem,
   type LegacyInitAppResult,
   type LegacyLoginResult,
@@ -68,8 +67,6 @@ import {
   legacyMessageResultKey,
   legacyMessageResultView,
   legacyMessages,
-  legacyNotifies,
-  legacyNotifyCountForAuth,
   legacyRunOperationMessage,
   legacyRunOperationSuccess,
   legacySubMenuItems,
@@ -158,7 +155,6 @@ const checkCodeResponse = ref<CommonResponse<CheckCodeResult> | null>(null);
 const subMenuResponse = ref<CommonResponse<LegacySubMenuResult> | null>(null);
 const detailResponse = ref<CommonResponse<QueryDataDetailResult> | null>(null);
 const activeShellMessage = ref<MessageInfo | null>(null);
-const notifyResponse = ref<CommonResponse<GetNotifyResult> | null>(null);
 const errorMessage = ref("");
 const operationResult = ref<{ message: string; success: boolean } | null>(null);
 const pendingAction = ref("");
@@ -195,7 +191,6 @@ const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() =>
 const detailViewOperations = computed(() => dataOperations(detailResponse.value?.data));
 const topMenuItems = computed(() => legacyMainMenuItems(mainInfoResponse.value?.data));
 const subMenuItems = computed(() => legacySubMenuItems(subMenuResponse.value?.data));
-const notifyItems = computed(() => legacyNotifies(notifyResponse.value?.data));
 const shellUserAvatar = computed(() => legacyUserAvatar(legacyUserInfoResponse.value?.data));
 const shellUserName = computed(() => legacyUserName(legacyUserInfoResponse.value?.data));
 const shellAppName = computed(() => legacyAppName(mainInfoResponse.value?.data, "Fool Service"));
@@ -376,10 +371,6 @@ async function openMobileShellMenu(item: LegacyAuthItem) {
   await openShellMenu(item);
 }
 
-function shellNotifyCount(item: LegacyAuthItem) {
-  return legacyNotifyCountForAuth(notifyItems.value, legacyAuthNo(item));
-}
-
 async function openShellMessage(message: MessageInfo) {
   const targetViewId = legacyMessageResultView(message);
   if (!targetViewId) return;
@@ -397,10 +388,9 @@ async function refreshShellStatus() {
   shellRefreshInFlight = true;
   try {
     const request = buildTokenRequest(token.value);
-    const [user, messages, notifies] = await Promise.allSettled([
+    const [user, messages] = await Promise.allSettled([
       postApi<LegacyUserInfoResult>("/api/v1/auth/getuserinfo", request),
-      postApi<GetMessageResult>("/api/v1/message/getmsg", request),
-      postApi<GetNotifyResult>("/api/v1/message/getnotify", request)
+      postApi<GetMessageResult>("/api/v1/message/getmsg", request)
     ]);
     if (user.status === "fulfilled") legacyUserInfoResponse.value = user.value;
     if (messages.status === "fulfilled") {
@@ -409,7 +399,6 @@ async function refreshShellStatus() {
         activeShellMessage.value = fetchedMessages[0];
       }
     }
-    if (notifies.status === "fulfilled") notifyResponse.value = notifies.value;
   } finally {
     shellRefreshInFlight = false;
   }
@@ -435,7 +424,6 @@ function clearLegacySession() {
   mainInfoResponse.value = null;
   subMenuResponse.value = null;
   activeShellMessage.value = null;
-  notifyResponse.value = null;
   checkCodeResponse.value = null;
   checkCodeKey.value = "";
   checkCodeValue.value = "";
@@ -901,7 +889,6 @@ function syncDetailDrafts() {
           horizontal
           :items="topMenuItems"
           label="FoolFrame menu"
-          :notify-count="shellNotifyCount"
           :sub-items="subMenuItems"
           @select="openShellMenu"
         />
@@ -940,7 +927,6 @@ function syncDetailDrafts() {
           :expanded-auth-code="subMenuParentAuthCode"
           :items="topMenuItems"
           label="Mobile FoolFrame menu"
-          :notify-count="shellNotifyCount"
           :sub-items="subMenuItems"
           @select="openMobileShellMenu"
         />

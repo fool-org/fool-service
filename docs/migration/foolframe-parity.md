@@ -118,6 +118,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-12: returned `getnotify` to a protocol-only compatibility surface.
+  The old Web never calls it and `DataService.GetNotify` throws
+  `NotImplementedException`, so Vue no longer polls it or renders invented menu
+  badges; response aliases, helpers, backend route, and runtime checks remain.
 - 2026-07-12: restored old conditional menu-image behavior for top and child
   navigation. Vue now reads Pascal/camel `ImageUrl` through one adapter and
   renders metadata-provided images at the old 30x30 size; empty values allocate
@@ -449,12 +453,11 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   and successful login resumes the original `/view...` or `/new...` deep
   link. Direct detail/new routes now use the existing View-first detail
   component as a single-panel page instead of leaving an empty list shell.
-- 2026-07-10: the Vue shell now renders the signed-in user, 15-second legacy
-  message polling, message count/popover, menu notification badges, and logout
-  in the topbar instead of separate developer panels. Message targets reuse
-  the existing View-first detail/list loaders, non-empty messages remain
-  available across later empty polls, and the responsive popover stays inside
-  a 390px viewport. The runtime doctor now refreshes its message seed directly
+- 2026-07-10: the Vue shell renders the signed-in user, 15-second legacy
+  message polling, automatic message modal, and logout instead of separate
+  developer panels. Message targets reuse the existing View-first detail/list
+  loaders. `getnotify` remains protocol-only because the old Web never calls
+  its unimplemented service. The runtime doctor refreshes its message seed
   before the destructive `getmsg` assertion so a live Vue poll cannot consume
   the shared smoke row first.
 - 2026-07-10: the Vue list View toolbar now follows the old `view.jade`
@@ -2126,10 +2129,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   legacy `ViewId` / `ParentObjId`, formats the selected view as an editable
   empty detail payload, and preserves the optional parent object ID.
 - 2026-07-03: exposed the legacy `getnotify` notification-count contract at
-  `/api/v1/message/getnotify` and in the Vue operator console. FoolFrame's
-  `DataService.GetNotify` throws `NotImplementedException`, so the migrated
-  shell returns an empty `notifies` list until a real legacy count source is
-  identified.
+  `/api/v1/message/getnotify`. FoolFrame's `DataService.GetNotify` throws
+  `NotImplementedException`, so the endpoint remains an empty protocol
+  compatibility surface and is not presented in the Vue shell.
 - 2026-07-03: exposed legacy `getmsg` generated-message polling at
   `/api/v1/message/getmsg` and in the Vue operator console. The endpoint uses
   the auth token to resolve the current user, returns the newest generated
@@ -2388,7 +2390,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   immediately opens the first item in the old system-message dialog, and opens
   message targets through the existing View-first loader
 - Vue API types for legacy `getnotify` notification-count payloads
-- Vue shell menu badges populated from `/api/v1/message/getnotify`
+- Protocol-only `/api/v1/message/getnotify` compatibility route; no old Web UI
+  consumes the unimplemented count service
 - Old Web authenticated shell actions for Home, navigation, automatic system
   messages, and safe logout while server-provided App/user/menu/message text
   remains unchanged

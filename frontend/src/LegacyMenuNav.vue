@@ -9,7 +9,6 @@ defineProps<{
   horizontal?: boolean;
   items: LegacyAuthItem[];
   label: string;
-  notifyCount: (item: LegacyAuthItem) => number;
   subItems: LegacyAuthItem[];
 }>();
 
@@ -34,7 +33,6 @@ defineEmits<{
           <img v-if="legacyAuthImageUrl(item)" class="nav-menu-image" :src="legacyAuthImageUrl(item)" alt="" />
           <span>{{ legacyAuthText(item) || legacyAuthNo(item) }}</span>
         </span>
-        <strong v-if="notifyCount(item)" class="nav-count">{{ notifyCount(item) }}</strong>
       </button>
       <div v-if="legacyAuthNo(item) === expandedAuthCode && subItems.length" class="nav-sublist">
         <button
@@ -49,7 +47,6 @@ defineEmits<{
             <img v-if="legacyAuthImageUrl(child)" class="nav-menu-image" :src="legacyAuthImageUrl(child)" alt="" />
             <span>{{ legacyAuthText(child) || legacyAuthNo(child) }}</span>
           </span>
-          <strong v-if="notifyCount(child)" class="nav-count">{{ notifyCount(child) }}</strong>
         </button>
       </div>
     </div>
