@@ -2839,3 +2839,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   header/content/footer padding, `#e5e5e5` header/footer dividers, and 18px
   medium titles. Existing dialog widths, body layouts, footer commands, close
   availability, and workflow state remain component-owned.
+- 2026-07-13: restored Bootstrap modal-footer command presentation. Legacy
+  default dismiss, message, and feedback actions now use outlined secondary
+  buttons instead of text or filled controls; all dialog footer buttons share
+  the old 34px, 6x12px, 14/20px geometry and 5px spacing while report Confirm
+  and Return commands retain primary emphasis.

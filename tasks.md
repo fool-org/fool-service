@@ -1163,6 +1163,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore shared Bootstrap modal chrome for migrated dialogs: 6px outer
       frame, 15px head/body/footer spacing, old dividers/shadow, and 18px titles
       without changing component widths, commands, or state.
+- [x] Restore Bootstrap modal-footer command hierarchy and geometry: outlined
+      default dismiss/message/feedback actions, 34px controls, and 5px spacing
+      while preserving report primary commands and existing close events.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

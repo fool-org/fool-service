@@ -336,8 +336,17 @@ label {
 }
 
 .p-dialog .p-dialog-footer {
+  gap: 5px;
   padding: 15px;
   border-top: 1px solid #e5e5e5;
+}
+
+.p-dialog .p-dialog-footer .p-button {
+  height: 34px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 20px;
 }
 
 .report-dialog .p-dialog-content {

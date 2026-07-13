@@ -559,7 +559,8 @@ describe("App defaults", () => {
     expect(pickerSource).toContain(':minimum-rows="candidateState(group).pageSize"');
     expect(viewDetailPanelSource).toContain(':total-items="candidateState(group).totalItem"');
     expect(viewDetailPanelSource).toContain('@page="emit(\'loadCandidatePage\', group, $event)"');
-    expect(pickerSource).toContain('label="取消"');
+    expect(pickerSource).toContain('label="取消" severity="secondary" outlined');
+    expect(pickerSource).not.toContain('severity="secondary" text');
     expect(pickerSource).not.toContain('label="关闭"');
     expect(viewDetailPanelSource).not.toContain("每页条数");
     expect(viewDetailPanelSource).not.toContain("updateCandidatePageSize");
@@ -972,6 +973,8 @@ describe("App defaults", () => {
     expect(footerSource).not.toContain('icon="pi pi-times"');
     expect(footerSource).not.toContain('icon="pi pi-play"');
     expect(footerSource).not.toContain('icon="pi pi-save"');
+    expect(footerSource).toContain('label="取消" severity="secondary" outlined');
+    expect(footerSource).not.toContain('severity="secondary" text');
   });
 
   it("moves legacy message polling into the signed-in shell", () => {
@@ -985,6 +988,7 @@ describe("App defaults", () => {
     expect(shellActionsSource).toContain('header="系统消息"');
     expect(shellActionsSource).toContain('label="查看详细"');
     expect(shellActionsSource).toContain('label="确定"');
+    expect(shellActionsSource).toContain('label="确定" severity="secondary" outlined');
     expect(shellActionsSource).toContain(':closable="false"');
     expect(shellActionsSource).toContain('emit("dismissMessage")');
     expect(shellActionsSource).toContain('emit("openMessage", message)');

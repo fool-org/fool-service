@@ -297,7 +297,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
       <p>操作成功</p>
       <p>{{ infoMessage }}</p>
       <template #footer>
-        <Button type="button" label="确定" severity="secondary" @click="emit('dismissInfo')" />
+        <Button type="button" label="确定" severity="secondary" outlined @click="emit('dismissInfo')" />
       </template>
     </Dialog>
 
@@ -312,7 +312,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
     >
       <p>{{ errorMessage }}</p>
       <template #footer>
-        <Button type="button" label="关闭" severity="secondary" @click="emit('dismissError')" />
+        <Button type="button" label="关闭" severity="secondary" outlined @click="emit('dismissError')" />
       </template>
     </Dialog>
 
@@ -328,7 +328,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
       <p>{{ operationResult.success ? "操作成功" : "操作失败" }}</p>
       <p>{{ operationResult.message }}</p>
       <template #footer>
-        <Button type="button" label="确定" severity="secondary" @click="emit('dismissOperationResult')" />
+        <Button type="button" label="确定" severity="secondary" outlined @click="emit('dismissOperationResult')" />
       </template>
     </Dialog>
 
@@ -397,7 +397,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                 />
               </div>
               <template #footer>
-                <Button type="button" label="取消" severity="secondary" text :disabled="pending" @click="pickerGroupKey = ''" />
+                <Button type="button" label="取消" severity="secondary" outlined :disabled="pending" @click="pickerGroupKey = ''" />
               </template>
             </Dialog>
             <div class="table-wrap detail-items-table">

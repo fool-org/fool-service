@@ -52,10 +52,11 @@ function openMessage(message: MessageInfo) {
           type="button"
           label="查看详细"
           severity="secondary"
+          outlined
           :disabled="!canOpenMessage(activeMessage)"
           @click="openMessage(activeMessage)"
         />
-        <Button type="button" label="确定" severity="secondary" @click="emit('dismissMessage')" />
+        <Button type="button" label="确定" severity="secondary" outlined @click="emit('dismissMessage')" />
       </template>
     </Dialog>
   </div>
