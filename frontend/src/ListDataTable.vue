@@ -74,9 +74,8 @@ function tableRowClass(row: RenderedListDataItem) {
 
 <template>
   <DataTable
-    v-if="columns.length"
     class="metadata-data-table"
-    :value="renderedRows"
+    :value="columns.length ? renderedRows : []"
     :row-class="tableRowClass"
     scrollable
     :striped-rows="striped"
@@ -115,7 +114,5 @@ function tableRowClass(row: RenderedListDataItem) {
         </div>
       </template>
     </Column>
-    <template #empty><div class="empty-state compact">暂无数据。</div></template>
   </DataTable>
-  <div v-else class="empty-state">请先加载视图。</div>
 </template>

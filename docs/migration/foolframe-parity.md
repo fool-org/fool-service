@@ -2960,3 +2960,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   to View-derived fields and collection tabs like `item.jade`, without
   `已加载视图定义。`; the unreachable no-object detail placeholder was removed
   with it. The read-item route still does not query or bind a business data DTO.
+- 2026-07-14: restored the shared legacy table's empty-shell lifecycle.
+  `ListDataTable` now stays mounted without View columns and removes Vue-only
+  `暂无数据。` / `请先加载视图。` copy, matching the empty tables in `view.jade`,
+  `viewWithChart.jade`, and the candidate dialog. It still passes no rows until
+  View columns exist, so data DTO rows cannot render ahead of View metadata.

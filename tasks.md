@@ -1237,6 +1237,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Remove Vue-only detail initialization copy from `/itemview:id` and the
       standalone detail panel while preserving View-only schema rendering and
       avoiding an empty-object data query.
+- [x] Restore the shared old-page table lifecycle: always retain an empty table
+      shell, remove generic Vue empty/loading copy, and keep rows suppressed
+      until View columns exist.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

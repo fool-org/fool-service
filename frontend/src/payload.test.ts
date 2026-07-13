@@ -136,7 +136,7 @@ describe("App defaults", () => {
   });
 
   it("does not render data rows before View columns exist", () => {
-    expect(listDataTableSource).toContain('v-if="columns.length"');
+    expect(listDataTableSource).toContain(':value="columns.length ? renderedRows : []"');
     expect(listDataTableSource).not.toContain("columns.length || rows.length");
   });
 
@@ -339,6 +339,9 @@ describe("App defaults", () => {
     expect(listDataTableSource).toContain(':style="tableColumnStyle(column)"');
     expect(listDataTableSource).toContain('return "legacy-filler-row"');
     expect(listDataTableSource).toContain('v-if="!isFiller(row)" class="table-actions"');
+    expect(listDataTableSource).not.toContain('v-if="columns.length"');
+    expect(listDataTableSource).not.toContain("暂无数据。");
+    expect(listDataTableSource).not.toContain("请先加载视图。");
     expect(listDataTableSource).toContain("striped: true");
     expect(listDataTableSource).toContain(':striped-rows="striped"');
     expect(sudokuPanelsSource.match(/:striped="false"/g)).toHaveLength(2);
