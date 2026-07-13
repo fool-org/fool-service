@@ -1208,6 +1208,8 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `mkreport.js` grouped-condition selection: show one representative
       checkbox per top-level group and apply it to the whole group without
       duplicating grouping or filter state.
+- [x] Restore `view.jade`'s fixed report-result table for zero data: retain the
+      empty table body and remove the Vue-only empty-state sentence.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

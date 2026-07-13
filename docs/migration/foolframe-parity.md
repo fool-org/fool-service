@@ -2909,3 +2909,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   clears the complete top-level group. Merge feedback counts the group as one
   selectable unit, while selecting it with an adjacent condition still creates
   a valid outer group through the existing recursive condition model.
+- 2026-07-14: restored `view.jade`'s fixed report-result table at zero data.
+  The Vue result view now keeps its table and empty `tbody` mounted instead of
+  replacing them with the invented `暂无报表数据。` message. A zero-match Docker
+  report retains only the protocol-supplied column heading, matching the old
+  `mkreport.js` row-clear-and-append flow.

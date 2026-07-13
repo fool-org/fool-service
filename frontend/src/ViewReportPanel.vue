@@ -271,7 +271,7 @@ onMounted(() => void loadReportColumns());
         </div>
       </div>
       <div class="table-wrap report-results">
-        <table v-if="reportRows.length" class="report-result-table">
+        <table class="report-result-table">
           <tbody>
             <tr v-for="(row, rowIndex) in reportRows" :key="`report-row-${rowIndex}`">
               <td v-for="(cell, cellIndex) in row" :key="`report-cell-${rowIndex}-${cellIndex}`">
@@ -281,7 +281,6 @@ onMounted(() => void loadReportColumns());
             </tr>
           </tbody>
         </table>
-        <div v-else class="empty-state compact">暂无报表数据。</div>
       </div>
     </section>
 
