@@ -183,6 +183,11 @@ function showAxisTooltip(event: MouseEvent) {
   const paneRect = chart.parentElement?.getBoundingClientRect();
   if (!rect.width || !rect.height || !paneRect) return;
   const viewX = (event.clientX - rect.left) * width.value / rect.width;
+  const viewY = (event.clientY - rect.top) * height / rect.height;
+  if (viewX < plot.left || viewX > width.value - plotRight.value || viewY < plot.top || viewY > height - plot.bottom) {
+    activeTooltipIndex.value = null;
+    return;
+  }
   const plotWidth = width.value - plot.left - plotRight.value;
   activeTooltipIndex.value = labelCount.value === 1
     ? 0

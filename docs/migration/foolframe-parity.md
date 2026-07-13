@@ -3355,3 +3355,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   metadata tables were restored to `12`; the default page returned to eight
   bars, one line, and zero scatter marks. This supersedes earlier short tooltip
   examples as parity targets.
+- 2026-07-14: restored ECharts 3.1.7's coordinate-system boundary for axis
+  tooltips. Old `TooltipView._showAxisTooltip` calls `containPoint` and hides
+  the pointer/content when no grid contains the mouse. Vue previously handled
+  movement across the whole SVG by horizontal position alone, so the tooltip
+  remained visible over title whitespace and category-label space. The shared
+  renderer now converts both pointer coordinates into its viewBox and clears
+  the tooltip outside the actual plot rectangle. Docker `/view100` showed one
+  tooltip inside and none above/below the plot at desktop and 390x844;
+  `/view103` passed the same checks in its 328x200 compact chart. The deployed
+  frontend image was `sha256:546232e72b4aeb567e0372e36b21d91ea5b87b061826b6216eaae34c665481b6`.

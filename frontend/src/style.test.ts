@@ -99,6 +99,8 @@ describe("shared chart styles", () => {
   it("keeps chart items above the axis tooltip hit surface", () => {
     expect(chartSource).toContain('@mousemove="showAxisTooltip"');
     expect(chartSource).toContain('@mouseleave="hideAxisTooltip"');
+    expect(chartSource).toContain("viewX < plot.left || viewX > width.value - plotRight.value");
+    expect(chartSource).toContain("viewY < plot.top || viewY > height - plot.bottom");
     expect(chartSource.indexOf('class="chart-axis-hit"')).toBeLessThan(chartSource.indexOf('class="chart-series"'));
     expect(styleSource).toContain(".chart-bar:hover");
     expect(styleSource).toContain(".chart-scatter:hover");

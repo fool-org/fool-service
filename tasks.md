@@ -1384,6 +1384,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore ECharts 3.1.7 chart value-text precision: retain View `FmtValue`
       beside numeric geometry, use raw text for bar labels, numeric text for
       scatter labels, and preserve all decimals in comma-formatted tooltips.
+- [x] Restore ECharts 3.1.7 axis-tooltip coordinate bounds: clear the shared
+      pointer and tooltip above, below, or beside the actual plot while keeping
+      nearest-category movement inside top-level and compact charts.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
