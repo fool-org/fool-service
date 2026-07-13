@@ -3139,3 +3139,11 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `66.49981` with Amount visible to `66.5` when Amount was hidden, proving the
   compact stack was removed and recalculated. The restored stack remained
   bounded in the 390px viewport.
+- 2026-07-14: restored ECharts 3.1.7's default zero-value bar geometry. The
+  shared chart renderer no longer forces every bar to at least one rendered
+  pixel, matching the old `barMinHeight: 0` default in both `swchartLine.js`
+  branches. Docker `/view103` rendered 99 zero-height bars plus the natural
+  `0.00019` height of its one nonzero Amount sample; `/view100` rendered six
+  zero-height bars and retained the natural `0.00354` / `0.00059` heights for
+  `1.5` and `0.25`. The same compact counts held at 390px with no document
+  overflow, while the stacked Price endpoint remained y=`66.49981`.

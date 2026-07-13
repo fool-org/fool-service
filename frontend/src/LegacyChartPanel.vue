@@ -98,7 +98,7 @@ function barY(series: LegacyChartSeries, index: number) {
 }
 
 function barHeight(series: LegacyChartSeries, index: number) {
-  return Math.max(1, Math.abs(y(renderedValue(series, index)) - y(baseValue(series, index))));
+  return Math.abs(y(renderedValue(series, index)) - y(baseValue(series, index)));
 }
 
 function valueLabelX(series: LegacyChartSeries, index: number) {

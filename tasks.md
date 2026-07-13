@@ -1324,6 +1324,9 @@ item must land with its matching implementation and validation evidence.
       same-sign cumulative values to compact line/bar/scatter series, retain
       bar-only positive/negative bases and smooth line-area bases, recompute
       after legend filtering, and leave normal unique-name series independent.
+- [x] Restore ECharts 3.1.7's default zero-value bar geometry: remove the
+      Vue-only one-pixel minimum so zero values stay invisible while nonzero
+      metadata values keep their natural scale in top-level and compact charts.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
