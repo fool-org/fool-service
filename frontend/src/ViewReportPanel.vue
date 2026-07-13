@@ -340,7 +340,7 @@ onMounted(() => void loadReportColumns());
       <Button v-if="showingResults" type="button" label="返回" :disabled="pending" @click="backToReportSetup" />
       <Button v-if="!showingResults" type="button" label="取消" severity="secondary" outlined :disabled="pending" @click="emit('close')" />
       <Button v-if="!showingResults" type="button" label="确定" :disabled="!canRun" @click="runReport()" />
-      <Button v-if="!showingResults" type="button" label="保存报表定义" severity="secondary" outlined :disabled="!canRun || !reportName.trim()" @click="saveReport" />
+      <Button v-if="!showingResults" type="button" label="保存报表定义" severity="info" :disabled="!canRun || !reportName.trim()" @click="saveReport" />
     </template>
   </Dialog>
 </template>

@@ -975,6 +975,7 @@ describe("App defaults", () => {
     expect(footerSource).not.toContain('icon="pi pi-save"');
     expect(footerSource).toContain('label="取消" severity="secondary" outlined');
     expect(footerSource).not.toContain('severity="secondary" text');
+    expect(footerSource).toContain('label="保存报表定义" severity="info"');
   });
 
   it("moves legacy message polling into the signed-in shell", () => {

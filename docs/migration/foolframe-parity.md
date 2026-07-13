@@ -2844,3 +2844,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   buttons instead of text or filled controls; all dialog footer buttons share
   the old 34px, 6x12px, 14/20px geometry and 5px spacing while report Confirm
   and Return commands retain primary emphasis.
+- 2026-07-13: restored `view.jade`'s distinct report-save command hierarchy.
+  `保存报表定义` now uses the information action severity corresponding to the
+  old `.btn-info`, while Cancel remains default and Confirm remains primary;
+  the existing metadata-driven enablement and save route are unchanged.

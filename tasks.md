@@ -1166,6 +1166,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore Bootstrap modal-footer command hierarchy and geometry: outlined
       default dismiss/message/feedback actions, 34px controls, and 5px spacing
       while preserving report primary commands and existing close events.
+- [x] Restore `view.jade`'s report-save command hierarchy: render
+      `保存报表定义` as the distinct information action while keeping Cancel
+      default, Confirm primary, and the existing View-derived save workflow.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
