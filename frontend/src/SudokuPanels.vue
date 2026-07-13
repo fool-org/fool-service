@@ -135,6 +135,7 @@ watch(allPanelsReady, async (ready) => {
         class="sudoku-panel-body"
         compact
         :data="sudokuPanelChart(panel)"
+        :title="fieldTitle(panel)"
       />
       <LegacyMapPanel
         v-else-if="sudokuPanelKind(panel) === 'map'"

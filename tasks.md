@@ -1310,6 +1310,9 @@ item must land with its matching implementation and validation evidence.
       List refresh commands active, render linechart/Map refresh copy as the
       old inert anchors with blank update times, retain linechart's timer, and
       stop scheduling refreshes for the one-shot Map controller.
+- [x] Restore `LineChartController`'s compact chart title from the configured
+      child View name, reserving space above the realtime plot while leaving
+      top-level `viewWithChart` without an inner title.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

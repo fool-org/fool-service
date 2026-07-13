@@ -873,6 +873,12 @@ label {
   min-height: 0;
 }
 
+.chart-title {
+  fill: #333333;
+  font-size: 18px;
+  font-weight: 700;
+}
+
 .chart-grid-line line {
   stroke: #e2e8f0;
   stroke-width: 1;

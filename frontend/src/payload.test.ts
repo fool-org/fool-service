@@ -486,6 +486,8 @@ describe("App defaults", () => {
     expect(sudokuPanelsSource).not.toContain("linechart' && sudokuPanelChart(panel).series.length");
     expect(sudokuPanelsSource).toContain("<LegacyChartPanel");
     expect(sudokuPanelsSource).toContain("compact");
+    expect(sudokuPanelsSource).toContain(':title="fieldTitle(panel)"');
+    expect(legacyChartPanelSource).toContain('v-if="compact && title" class="chart-title"');
     expect(sudokuPanelsSource).toContain("result?.chart ?? legacyChartData");
     expect(sudokuWorkflowSource).toContain('kind === "item" || kind === "linechart"');
     expect(sudokuWorkflowSource).toContain('postApi<QueryDataDetailResult>("/api/v1/data/querydatadetail"');

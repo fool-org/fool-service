@@ -2,7 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import type { LegacyChartData, LegacyChartSeries } from "./viewWorkflow";
 
-const props = defineProps<{ compact?: boolean; data: LegacyChartData }>();
+const props = defineProps<{ compact?: boolean; data: LegacyChartData; title?: string }>();
 const chartElement = ref<SVGSVGElement | null>(null);
 const height = props.compact ? 160 : 300;
 const width = ref(720);
@@ -12,7 +12,7 @@ const activeTooltipIndex = ref<number | null>(null);
 const tooltipPosition = ref({ left: 0, top: 0 });
 const tooltipAlignRight = ref(false);
 const tooltipAlignBottom = ref(false);
-const plot = { left: 52, top: 18, bottom: 46 };
+const plot = { left: 52, top: props.compact && props.title ? 38 : 18, bottom: 46 };
 const plotRight = computed(() => width.value * 0.2);
 const colors = ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83"];
 const formatter = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
@@ -177,6 +177,7 @@ function tooltipValue(series: LegacyChartSeries) {
 <template>
   <div class="legacy-chart-pane" :class="{ 'compact-chart': compact }">
     <svg ref="chartElement" class="legacy-chart" :viewBox="`0 0 ${width} ${height}`" role="img" aria-label="视图数据图表">
+      <text v-if="compact && title" class="chart-title" x="8" y="22">{{ title }}</text>
       <g v-for="tick in ticks" :key="tick" class="chart-grid-line">
         <line :x1="plot.left" :x2="width - plotRight" :y1="y(tick)" :y2="y(tick)" />
         <text :x="plot.left - 8" :y="y(tick) + 4" text-anchor="end">{{ formatter.format(tick) }}</text>

@@ -3103,3 +3103,11 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   Customer Map text had no link/button role, clicking Price Chart left its
   100-point tail unchanged, and the passive footer stayed inside a 328px panel
   with no document overflow at 390px.
+- 2026-07-14: restored the realtime `LineChartController` title configured from
+  `chartname`. Sudoku passes the child View-derived panel name into the shared
+  chart, which renders the old 18px bold dark title only in compact mode and
+  reserves plot space below it. Docker `/view103` showed exactly one inner
+  `Price Chart` title above the first grid line while retaining the 200px
+  partial height; at 390px the title remained bounded with no document
+  overflow. `/view100` retained the old top-level chart branch without an
+  inner title.
