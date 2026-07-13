@@ -1313,6 +1313,10 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `LineChartController`'s compact chart title from the configured
       child View name, reserving space above the realtime plot while leaving
       top-level `viewWithChart` without an inner title.
+- [x] Restore both `swchartLine.js` branches' value-axis
+      `boundaryGap: [0, '50%']`: expand the upper bound from the raw data span
+      before crossing zero, retain legend-filtered ranges, and preserve the
+      empty/all-hidden `0..1` fallback through shared tested geometry.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

@@ -414,6 +414,7 @@ describe("App defaults", () => {
     expect(legacyChartPanelSource).toContain("const hiddenSeriesNames = ref<string[]>([])");
     expect(legacyChartPanelSource).toContain("const visibleSeries = computed(() => props.data.series.filter(isSeriesVisible))");
     expect(legacyChartPanelSource).toContain("visibleSeries.value.flatMap");
+    expect(legacyChartPanelSource).toContain("legacyChartDomain");
     expect(legacyChartPanelSource).toContain("visibleSeries.value.filter");
     expect(legacyChartPanelSource).toContain(':aria-pressed="isSeriesVisible(series, index)"');
     expect(legacyChartPanelSource).toContain('@click="toggleSeries(series, index)"');

@@ -3111,3 +3111,12 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   partial height; at 390px the title remained bounded with no document
   overflow. `/view100` retained the old top-level chart branch without an
   inner title.
+- 2026-07-14: restored both `swchartLine.js` chart branches' value-axis
+  `boundaryGap: [0, '50%']` range calculation. A small tested geometry helper
+  now filters finite visible values, extends the upper bound by half the raw
+  span, then applies ECharts 3.1.7's cross-zero rule; empty and all-hidden
+  charts retain `0..1`. Docker `/view103` and `/view100` both moved the seeded
+  Price top boundary from `62,500` to `93,750`; hiding Price produced the
+  Amount-only `0..0.375` range and all-hidden mode remained `0..1` without a
+  pointer or tooltip. The compact chart and top tick stayed bounded at 390px.
+  ECharts interval nicifying remains a separate axis-parity step.

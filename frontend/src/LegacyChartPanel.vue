@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue";
+import { legacyChartDomain } from "./legacyChartGeometry";
 import type { LegacyChartData, LegacyChartSeries } from "./viewWorkflow";
 
 const props = defineProps<{ compact?: boolean; data: LegacyChartData; title?: string }>();
@@ -37,12 +38,7 @@ const labelCount = computed(() => Math.max(
   ...props.data.series.map((series) => series.values.length)
 ));
 const visibleSeries = computed(() => props.data.series.filter(isSeriesVisible));
-const domain = computed(() => {
-  const values = visibleSeries.value.flatMap((series) => series.values);
-  const min = Math.min(0, ...values);
-  const max = Math.max(0, ...values);
-  return { min, max: max === min ? min + 1 : max };
-});
+const domain = computed(() => legacyChartDomain(visibleSeries.value.flatMap((series) => series.values)));
 const ticks = computed(() => Array.from({ length: 5 }, (_, index) =>
   domain.value.max - (domain.value.max - domain.value.min) * index / 4
 ));
