@@ -2809,3 +2809,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   detail-collection, report, and Sudoku Group tabs. One shared `legacy-tabs`
   class now renders blue inactive links and white bordered active tabs with
   10x15px padding while preserving each existing Vue tab state and workflow.
+- 2026-07-13: restored `navbar.js`'s Bootstrap pagination presentation through
+  the shared list/candidate paginator. Previous and Next now render the old
+  `«` / `»` controls; page links form a contiguous 34px `#ddd`-bordered group
+  with Bootstrap active, hover, and disabled colors while retaining the
+  already migrated seven-page algorithm and Vue page events.

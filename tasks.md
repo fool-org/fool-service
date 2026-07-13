@@ -1145,6 +1145,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore Bootstrap `nav-tabs` presentation through one reusable class for
       chart, detail collection, report, and Sudoku Group tabs while preserving
       each existing Vue interaction state.
+- [x] Restore `navbar.js` Bootstrap pagination presentation through the shared
+      list/candidate component: `«` / `»`, contiguous 34px page links, and old
+      active/hover/disabled colors without changing the seven-page workflow.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

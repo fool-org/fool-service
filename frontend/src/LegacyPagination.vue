@@ -34,6 +34,9 @@ function changePage(event: PageState) {
       :disabled="disabled"
       template="PrevPageLink PageLinks NextPageLink"
       @page="changePage"
-    />
+    >
+      <template #previcon><span aria-hidden="true">&laquo;</span></template>
+      <template #nexticon><span aria-hidden="true">&raquo;</span></template>
+    </Paginator>
   </div>
 </template>

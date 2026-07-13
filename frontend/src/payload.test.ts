@@ -332,6 +332,8 @@ describe("App defaults", () => {
     expect(legacyPaginationSource).toContain('class="record-info"');
     expect(legacyPaginationSource).toContain(':page-link-size="7"');
     expect(legacyPaginationSource).toContain('template="PrevPageLink PageLinks NextPageLink"');
+    expect(legacyPaginationSource).toContain('<template #previcon><span aria-hidden="true">&laquo;</span></template>');
+    expect(legacyPaginationSource).toContain('<template #nexticon><span aria-hidden="true">&raquo;</span></template>');
     expect(legacyPaginationSource).not.toContain("FirstPageLink");
     expect(legacyPaginationSource).not.toContain("LastPageLink");
     expect(viewListPanelSource).not.toContain("更新时间 {{ resultFreshTime }}");
