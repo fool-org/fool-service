@@ -17,6 +17,7 @@ const fixedHeight = computed(() => {
 const paneStyle = computed(() => fixedHeight.value ? { height: `${fixedHeight.value}px`, minHeight: "0" } : undefined);
 const chartStyle = computed(() => fixedHeight.value ? { height: "100%", minHeight: "0" } : undefined);
 const hiddenSeriesNames = ref<string[]>([]);
+const hoveredSeriesName = ref<string | null>(null);
 const activeTooltipIndex = ref<number | null>(null);
 const tooltipPosition = ref({ left: 0, top: 0 });
 const tooltipAlignRight = ref(false);
@@ -223,6 +224,8 @@ function tooltipValue(series: LegacyChartSeries) {
       <g
         v-for="(series, seriesIndex) in data.series"
         :key="`${seriesName(series, seriesIndex)}-${series.type}-${seriesIndex}`"
+        class="chart-series"
+        :class="{ 'series-highlighted': hoveredSeriesName === seriesName(series, seriesIndex) }"
         :style="{ display: isSeriesVisible(series, seriesIndex) ? undefined : 'none' }"
       >
         <path
@@ -249,6 +252,7 @@ function tooltipValue(series: LegacyChartSeries) {
           />
           <circle
             v-else-if="series.type === 'scatter'"
+            class="chart-scatter"
             :cx="x(index)"
             :cy="y(renderedValue(series, index))"
             r="6"
@@ -297,6 +301,8 @@ function tooltipValue(series: LegacyChartSeries) {
           :aria-pressed="isSeriesVisible(series, index)"
           :class="{ 'series-hidden': !isSeriesVisible(series, index) }"
           @click="toggleSeries(series, index)"
+          @mouseenter="hoveredSeriesName = seriesName(series, index)"
+          @mouseleave="hoveredSeriesName = null"
         >
           <span
             class="chart-legend-symbol"

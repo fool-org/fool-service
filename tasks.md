@@ -1363,6 +1363,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore ECharts 3.1.7 legend-item presentation: render type-specific
       25x14 bar/line/scatter glyphs with normal 12px text and keep dynamic
       View-derived names outside the plot at narrow widths.
+- [x] Restore ECharts 3.1.7 legend hover linking: set and clear one shared
+      View-series emphasis state on legend enter/leave while retaining click
+      selection and the existing top-level/Sudoku renderer.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

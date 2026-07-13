@@ -48,4 +48,22 @@ describe("shared chart styles", () => {
     expect(styleSource).toContain(".chart-legend-symbol.series-line::after");
     expect(styleSource).toContain(".chart-legend-symbol.series-scatter");
   });
+
+  it("links legend hover to series emphasis", () => {
+    expect(chartSource).toContain("const hoveredSeriesName = ref<string | null>(null)");
+    expect(chartSource).toContain(":class=\"{ 'series-highlighted': hoveredSeriesName === seriesName(series, seriesIndex) }\"");
+    expect(chartSource).toContain('@mouseenter="hoveredSeriesName = seriesName(series, index)"');
+    expect(chartSource).toContain('@mouseleave="hoveredSeriesName = null"');
+    expect(chartSource).toContain('class="chart-scatter"');
+    expect(styleSource).toContain(`.chart-series.series-highlighted .chart-bar,
+.chart-series.series-highlighted .chart-scatter {
+  filter: brightness(1.1);
+}`);
+    expect(styleSource).toContain(`.chart-series.series-highlighted .chart-scatter {
+  transform: scale(1.25);
+}`);
+    expect(styleSource).toContain(`.chart-legend button:hover {
+  filter: brightness(1.1);
+}`);
+  });
 });

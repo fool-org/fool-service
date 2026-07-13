@@ -3260,3 +3260,17 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   legend ended exactly where the plot began, with no overlap or overflow.
   `/view103` retained the same zero-overlap rule in its 328x200 compact pane,
   and all checked pages had no browser warnings or errors.
+- 2026-07-14: restored ECharts 3.1.7's legend hover-link state in the shared
+  chart. Old `LegendView.js` dispatches series highlight/downplay on legend
+  mouseover/mouseout; Vue now tracks the View-derived series name on
+  enter/leave and applies one shared emphasis class. Bar and scatter colors use
+  zrender's default 1.1 RGB lift; scatter also follows the old 400ms
+  `max(size * 1.1, size + 3)` enlargement for its current 12px symbol. The
+  existing line path uses old `symbol: 'none'`, so whole-series legend hover
+  has no point symbol to emphasize. Docker click-selection regression passed,
+  `/view100` retained its 414px desktop and 470px mobile chart contracts, and
+  `/view103` remained 328x200 with no overflow or browser warnings. The browser
+  control surface could click at pointer coordinates but did not establish CSS
+  `:hover` or DOM `mouseenter`; the event-to-class runtime transition therefore
+  remains covered by production-source contracts rather than direct pointer
+  observation in this slice.

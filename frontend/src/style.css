@@ -977,6 +977,21 @@ label {
   stroke-width: 2;
 }
 
+.chart-scatter {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 400ms;
+}
+
+.chart-series.series-highlighted .chart-bar,
+.chart-series.series-highlighted .chart-scatter {
+  filter: brightness(1.1);
+}
+
+.chart-series.series-highlighted .chart-scatter {
+  transform: scale(1.25);
+}
+
 .chart-axis-hit {
   fill: transparent;
   pointer-events: all;
@@ -1073,6 +1088,10 @@ label {
 .chart-legend button:focus-visible {
   outline: 2px solid #337ab7;
   outline-offset: 2px;
+}
+
+.chart-legend button:hover {
+  filter: brightness(1.1);
 }
 
 .chart-legend button.series-hidden {
