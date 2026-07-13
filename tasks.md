@@ -1251,6 +1251,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `setextype.js` BusinessObject suggestion presentation: render
       each result as `Text - Id` and retain the fixed `查找更多` footer without
       changing View-driven query or selection state.
+- [x] Restore `detailview.js` readonly edit rendering: keep readonly View fields
+      as plain text while editable fields become controls, preserve empty-line
+      geometry, and keep readonly values out of save payloads.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

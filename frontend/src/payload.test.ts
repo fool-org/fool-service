@@ -658,6 +658,9 @@ describe("App defaults", () => {
   });
 
   it("renders PrimeVue metadata controls without changing legacy string values", () => {
+    expect(metadataFieldEditorSource).toContain('const readonlyText = computed(() => props.readonlyValue || props.modelValue || "\\u00a0")');
+    expect(metadataFieldEditorSource).toContain('<span v-if="isReadonlyField(field)" class="metadata-readonly-value">');
+    expect(metadataFieldEditorSource).not.toContain('<InputText v-if="isReadonlyField(field)"');
     expect(metadataFieldEditorSource).toContain("fieldInputChecked");
     expect(metadataFieldEditorSource).toContain("fieldInputMaxLength");
     expect(metadataFieldEditorSource).toContain("fieldInputType");

@@ -2988,3 +2988,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   en-dash separator and retain the fixed `查找更多` footer below result and
   empty menus. Existing View-derived `inputquery` context, debounce, empty
   feedback, force-selection, and ID writeback remain unchanged.
+- 2026-07-14: restored `detailview.js`'s readonly edit rendering. Entering edit
+  mode now leaves readonly detail and child fields as plain text while only
+  editable View fields become controls, matching the old `SetEdit` gate instead
+  of inventing disabled textboxes. Empty readonly values retain a non-breaking
+  text line, and save omission for readonly fields remains unchanged.

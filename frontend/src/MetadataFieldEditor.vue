@@ -67,6 +67,7 @@ const lookupError = ref("");
 const lookupOptions = ref<InputQueryItem[]>([]);
 const lookupPending = ref(false);
 const lookupTerm = ref<string | LookupChoice>(props.readonlyValue || props.modelValue);
+const readonlyText = computed(() => props.readonlyValue || props.modelValue || "\u00a0");
 
 const value = computed({
   get: () => props.modelValue,
@@ -130,7 +131,7 @@ function updateLookupTerm(term: string | LookupChoice | null) {
 </script>
 
 <template>
-  <InputText v-if="isReadonlyField(field)" :model-value="readonlyValue || modelValue" disabled fluid />
+  <span v-if="isReadonlyField(field)" class="metadata-readonly-value">{{ readonlyText }}</span>
   <Select v-else-if="isEnumField(field)" v-model="value" :options="options" option-label="label" option-value="value" fluid />
   <div v-else-if="isLookupField(field)" class="metadata-lookup">
     <AutoComplete
@@ -172,6 +173,17 @@ function updateLookupTerm(term: string | LookupChoice | null) {
 </template>
 
 <style scoped>
+.metadata-readonly-value {
+  display: block;
+  min-height: 34px;
+  padding: 7px 0;
+  color: #333;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
 .metadata-lookup-option {
   color: inherit;
 }
