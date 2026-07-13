@@ -328,6 +328,7 @@ describe("App defaults", () => {
     expect(viewListPanelSource).toContain('<Tab value="table">数据</Tab>');
     expect(viewListPanelSource).toContain('<Tab value="chart">图表</Tab>');
     expect(viewListPanelSource).toContain('v-if="supportedTemplate && !sudokuView" class="workflow-toolbar"');
+    expect(viewListPanelSource).toContain(":class=\"{ 'chart-workflow-toolbar': chartView }\"");
     expect(viewListPanelSource).toContain('<template v-if="listView">');
     expect(viewListPanelSource).not.toContain('class="pi pi-chart-line"');
     expect(viewListPanelSource).toContain("<LegacyChartPanel");

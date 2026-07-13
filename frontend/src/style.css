@@ -287,6 +287,10 @@ label {
   justify-content: flex-end;
 }
 
+.chart-workflow-toolbar {
+  justify-content: flex-start;
+}
+
 .list-query-input {
   flex: 0 1 240px;
 }
@@ -554,10 +558,6 @@ label {
 
 .map-location-list strong {
   color: #0f172a;
-}
-
-.view-template-tabs {
-  max-width: 320px;
 }
 
 .list-pagination {

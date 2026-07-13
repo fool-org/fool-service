@@ -1085,6 +1085,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `navbar.js` main-list paging: show record totals above Previous,
       up to seven direct page links, and Next; remove Vue-only First/Last and
       main-list `FreshTime`, then prove page 2 queries and cleanup at runtime.
+- [x] Restore `viewWithChart.jade`'s left-aligned search form and full-width
+      Data/Chart tabs without changing normal `view.jade`'s right-aligned
+      toolbar; verify desktop and 390px geometry in the deployed frontend.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

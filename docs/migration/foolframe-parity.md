@@ -118,6 +118,14 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-13: restored `viewWithChart.jade`'s template-specific layout. Its
+  search form now stays left aligned, while normal `view.jade` keeps the old
+  `navbar-right` placement, and the Data/Chart tab rule again spans the content
+  width instead of stopping at an invented 320px cap. Docker browser geometry
+  moved the chart search input from `left=936` to `left=40` and expanded the
+  desktop tabs from 320px to 1200px; `/view101` remained right aligned. At
+  390px, the toolbar and tabs both measured 330px with no page overflow, the
+  Chart tab rendered, and browser logs were empty.
 - 2026-07-13: restored `view.jade` / `viewWithChart.jade` pagination from
   `navbar.js`. Main list pages now render the record total above Previous,
   up to seven directly selectable page links, and Next; the Vue-only First,
