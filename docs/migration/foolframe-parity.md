@@ -2881,3 +2881,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   outlined 34x34 command instead of an invented filled primary action. Mobile
   output lists use a shorter responsive height so the command stays above the
   dialog footer; output selection, deduplication, and state remain unchanged.
+- 2026-07-13: restored `mkreport.js`'s report-output toolbar availability and
+  label semantics. Move, remove, and sort commands remain available without a
+  selected output and rely on their existing no-op guards at empty/boundary
+  states; sorting now appends `[升序]` / `[降序]` directly with no Vue-only
+  space. Request-pending protection and metadata-driven output state remain.

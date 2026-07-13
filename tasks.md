@@ -1193,6 +1193,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `view.jade`'s report-output Add command: use a right-aligned
       secondary outlined 34px arrow and keep it visible above the mobile dialog
       footer without changing output selection or deduplication.
+- [x] Restore `mkreport.js` report-output toolbar interaction: keep move,
+      remove, and sort commands available at empty/boundary states with no-op
+      handlers, and append sort labels without an extra space.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
