@@ -312,6 +312,34 @@ label {
   width: min(1080px, calc(100vw - 32px));
 }
 
+.p-dialog {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  background-clip: padding-box;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.p-dialog .p-dialog-header {
+  padding: 15px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.p-dialog .p-dialog-title,
+.report-dialog-heading strong {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 25.714px;
+}
+
+.p-dialog .p-dialog-content {
+  padding: 15px;
+}
+
+.p-dialog .p-dialog-footer {
+  padding: 15px;
+  border-top: 1px solid #e5e5e5;
+}
+
 .report-dialog .p-dialog-content {
   display: grid;
   gap: 12px;
@@ -355,10 +383,6 @@ label {
 .report-dialog-heading {
   display: grid;
   gap: 2px;
-}
-
-.report-dialog-heading strong {
-  font-size: 1.05rem;
 }
 
 .report-dialog-heading span {

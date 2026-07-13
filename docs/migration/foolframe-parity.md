@@ -2834,3 +2834,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   shared 21px bold, borderless, transparent close style with old 0.2 resting
   and 0.5 hover/focus opacity; PrimeVue continues to own the close event and
   accessible button label.
+- 2026-07-13: restored shared Bootstrap modal chrome across all migrated Vue
+  dialogs: a 1px translucent outer border, 6px radius, 5x15px shadow, 15px
+  header/content/footer padding, `#e5e5e5` header/footer dividers, and 18px
+  medium titles. Existing dialog widths, body layouts, footer commands, close
+  availability, and workflow state remain component-owned.
