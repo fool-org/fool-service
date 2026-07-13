@@ -135,7 +135,7 @@ watch(allPanelsReady, async (ready) => {
         :markers="sudokuPanelMarkers(panel)"
       />
       <LegacyItemPanel
-        v-else-if="sudokuPanelKind(panel) === 'item' && sudokuPanelItemFields(panel).length"
+        v-else-if="sudokuPanelKind(panel) === 'item'"
         :fields="sudokuPanelItemFields(panel)"
       />
       <div v-else-if="sudokuPanelKind(panel) === 'group' && sudokuGroupPanels(panel).length" class="sudoku-panel-body">

@@ -462,7 +462,8 @@ describe("App defaults", () => {
   it("renders Sudoku item panels from legacy detail SimpleData", () => {
     const sudokuLoadSource = sudokuWorkflowSource;
 
-    expect(sudokuPanelsSource).toContain("sudokuPanelKind(panel) === 'item'");
+    expect(sudokuPanelsSource).toContain('v-else-if="sudokuPanelKind(panel) === \'item\'"');
+    expect(sudokuPanelsSource).not.toContain("item' && sudokuPanelItemFields(panel).length");
     expect(sudokuPanelsSource).toContain("sudokuPanelItemFields(panel)");
     expect(sudokuPanelsSource).toContain("<LegacyItemPanel");
     expect(legacyItemPanelSource).toContain("Math.max(6, Math.ceil(props.fields.length / 2))");

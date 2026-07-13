@@ -1225,6 +1225,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Apply the zero-series chart contract to Sudoku `linechart` partials:
       mount the shared compact chart before rows exist and avoid the generic
       Vue empty-state fallback without changing panel loading or refresh.
+- [x] Restore `subitem.js`'s zero-field Sudoku Item matrix: always mount the
+      shared two-fields-per-row table and retain six padded rows instead of
+      replacing it with a Vue-only empty-state sentence.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

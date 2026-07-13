@@ -2939,3 +2939,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   compact SVG regardless of series count, matching the old controller's
   initialize-before-query lifecycle instead of falling through to the generic
   `暂无数据。` panel. Existing panel loading, refresh, and sizing are unchanged.
+- 2026-07-14: restored `subitem.js`'s zero-field Sudoku Item matrix. The Item
+  partial now mounts `LegacyItemPanel` regardless of returned SimpleData count,
+  so the existing six-row table remains visible when no fields resolve instead
+  of being replaced by the generic `暂无数据。` panel. View-first detail loading
+  and the shared two-fields-per-row renderer remain unchanged.
