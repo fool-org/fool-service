@@ -2890,3 +2890,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   condition tab now shows only its header controls and trailing Add row before
   any condition exists, removing the Vue-only explanatory empty-state text
   while preserving both Add entry points and all filter/group state.
+- 2026-07-13: restored the visible report-condition merge glyph. The invalid
+  PrimeIcons `pi-object-group` name was replaced with the installed `pi-list`
+  equivalent of old `glyphicon-list`, retaining the existing icon-only label,
+  grouping event, availability rule, and condition state.

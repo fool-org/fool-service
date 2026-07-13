@@ -952,6 +952,8 @@ describe("App defaults", () => {
     expect(reportOutputsSource).toContain("addReportOutput");
     expect(viewReportPanelSource).toContain("filterExp");
     expect(viewReportPanelSource).toContain("合并分组");
+    expect(viewReportPanelSource).toContain('icon="pi pi-list"');
+    expect(viewReportPanelSource).not.toContain("pi-object-group");
     expect(viewReportPanelSource).not.toContain("未设置条件，将包含全部记录。");
     expect(viewReportPanelSource).toContain("groupReportConditions");
     expect(viewReportPanelSource).toContain("condition-group-marker");

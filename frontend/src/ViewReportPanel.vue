@@ -286,7 +286,7 @@ onMounted(() => void loadReportColumns());
                 <Button type="button" icon="pi pi-plus" class="report-condition-icon" size="small" severity="secondary" text title="增加条件" aria-label="增加条件" :disabled="pending || !modelColumns.length" @click="addCondition" />
                 <span aria-hidden="true"></span>
                 <span aria-hidden="true"></span>
-                <Button type="button" icon="pi pi-object-group" class="report-condition-icon" size="small" severity="secondary" text title="合并分组" aria-label="合并分组" :disabled="pending || !canGroupConditions" @click="groupSelectedConditions" />
+                <Button type="button" icon="pi pi-list" class="report-condition-icon" size="small" severity="secondary" text title="合并分组" aria-label="合并分组" :disabled="pending || !canGroupConditions" @click="groupSelectedConditions" />
                 <strong>与/或</strong>
                 <strong>字段</strong>
                 <strong>运算</strong>

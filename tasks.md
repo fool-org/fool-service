@@ -1198,6 +1198,8 @@ item must land with its matching implementation and validation evidence.
       handlers, and append sort labels without an extra space.
 - [x] Restore `view.jade`'s empty report-condition structure: retain the header
       and trailing Add row without the Vue-only explanatory empty-state copy.
+- [x] Restore the report-condition merge glyph with the installed `pi-list`
+      equivalent of old `glyphicon-list` without changing grouping behavior.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
