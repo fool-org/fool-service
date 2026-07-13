@@ -8,6 +8,10 @@ const height = props.compact ? 160 : 300;
 const width = ref(720);
 const renderedWidth = ref(720);
 const hiddenSeriesNames = ref<string[]>([]);
+const activeTooltipIndex = ref<number | null>(null);
+const tooltipPosition = ref({ left: 0, top: 0 });
+const tooltipAlignRight = ref(false);
+const tooltipAlignBottom = ref(false);
 const plot = { left: 52, top: 18, bottom: 46 };
 const plotRight = computed(() => width.value * 0.2);
 const colors = ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83"];
@@ -132,6 +136,41 @@ function toggleSeries(series: LegacyChartSeries, index: number) {
   hiddenSeriesNames.value = hiddenSeriesNames.value.includes(name)
     ? hiddenSeriesNames.value.filter((item) => item !== name)
     : [...hiddenSeriesNames.value, name];
+  activeTooltipIndex.value = null;
+}
+
+function showAxisTooltip(event: MouseEvent) {
+  const chart = chartElement.value;
+  if (!chart || !visibleSeries.value.length) {
+    activeTooltipIndex.value = null;
+    return;
+  }
+  const rect = chart.getBoundingClientRect();
+  const paneRect = chart.parentElement?.getBoundingClientRect();
+  if (!rect.width || !rect.height || !paneRect) return;
+  const viewX = (event.clientX - rect.left) * width.value / rect.width;
+  const plotWidth = width.value - plot.left - plotRight.value;
+  activeTooltipIndex.value = labelCount.value === 1
+    ? 0
+    : Math.round((viewX - plot.left) / plotWidth * (labelCount.value - 1));
+  tooltipPosition.value = {
+    left: event.clientX - paneRect.left,
+    top: event.clientY - paneRect.top
+  };
+  tooltipAlignRight.value = event.clientX > rect.left + rect.width / 2;
+  tooltipAlignBottom.value = event.clientY > rect.top + rect.height / 2;
+}
+
+function hideAxisTooltip() {
+  activeTooltipIndex.value = null;
+}
+
+function hasTooltipValue(series: LegacyChartSeries) {
+  return activeTooltipIndex.value !== null && series.values[activeTooltipIndex.value] !== undefined;
+}
+
+function tooltipValue(series: LegacyChartSeries) {
+  return formatter.format(series.values[activeTooltipIndex.value ?? 0]);
 }
 </script>
 
@@ -177,25 +216,50 @@ function toggleSeries(series: LegacyChartSeries, index: number) {
             :height="barHeight(value)"
             :fill="colors[seriesIndex % colors.length]"
             rx="2"
-          ><title>{{ seriesName(series, seriesIndex) }} · {{ label(index) }}: {{ formatter.format(value) }}</title></rect>
+          />
           <circle
             v-else-if="series.type === 'scatter'"
             :cx="x(index)"
             :cy="y(value)"
             r="6"
             :fill="colors[seriesIndex % colors.length]"
-          ><title>{{ seriesName(series, seriesIndex) }} · {{ label(index) }}: {{ formatter.format(value) }}</title></circle>
-          <circle
-            v-else
-            class="chart-line-hit"
-            :cx="x(index)"
-            :cy="y(value)"
-            r="10"
-          ><title>{{ seriesName(series, seriesIndex) }} · {{ label(index) }}: {{ formatter.format(value) }}</title></circle>
+          />
           <text class="chart-value-label" :x="valueLabelX(series, index)" :y="valueLabelY(value)">{{ formatter.format(value) }}</text>
         </template>
       </g>
+      <line
+        v-if="activeTooltipIndex !== null"
+        class="chart-axis-pointer"
+        :x1="x(activeTooltipIndex)"
+        :x2="x(activeTooltipIndex)"
+        :y1="plot.top"
+        :y2="height - plot.bottom"
+      />
+      <rect
+        class="chart-axis-hit"
+        :x="plot.left"
+        :y="plot.top"
+        :width="width - plot.left - plotRight"
+        :height="height - plot.top - plot.bottom"
+        @mousemove="showAxisTooltip"
+        @mouseleave="hideAxisTooltip"
+      />
     </svg>
+    <div
+      v-if="activeTooltipIndex !== null"
+      class="chart-axis-tooltip"
+      :class="{ 'align-right': tooltipAlignRight, 'align-bottom': tooltipAlignBottom }"
+      :style="{ left: `${tooltipPosition.left}px`, top: `${tooltipPosition.top}px` }"
+      role="tooltip"
+    >
+      <strong v-if="label(activeTooltipIndex)">{{ label(activeTooltipIndex) }}</strong>
+      <template v-for="(series, index) in data.series" :key="`${seriesName(series, index)}-${index}`">
+        <span v-if="isSeriesVisible(series, index) && hasTooltipValue(series)">
+          <i :style="{ backgroundColor: colors[index % colors.length] }"></i>
+          {{ seriesName(series, index) }} : {{ tooltipValue(series) }}
+        </span>
+      </template>
+    </div>
     <ul class="chart-legend">
       <li v-for="(series, index) in data.series" :key="`${seriesName(series, index)}-${index}`">
         <button

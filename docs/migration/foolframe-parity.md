@@ -3038,8 +3038,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   shared table component and the existing View-first candidate workflow.
 - 2026-07-14: restored `swchartLine.js`'s configured series presentation in the
   shared SVG chart. Line metadata now renders as a smooth filled curve without
-  visible point symbols, while transparent point targets retain per-value
-  tooltips and all line/bar/scatter values use the old visible label behavior.
+  visible point symbols, while all line/bar/scatter values use the old visible
+  label behavior.
   Top-level `viewWithChart` and Sudoku linechart panels reuse the same renderer;
   no chart dependency, business DTO branch, or duplicated panel was added.
 - 2026-07-14: restored `swchartLine.js`'s metadata horizontal-axis name. The
@@ -3075,3 +3075,11 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   calculation, and visible bar grouping together, including the old all-hidden
   `0..1` fallback; top-level and compact charts reuse the same implementation
   without a business DTO branch or chart dependency.
+- 2026-07-14: replaced the temporary point-native titles with
+  `swchartLine.js`'s configured `tooltip.trigger: 'axis'` interaction. Moving
+  within the plot now selects the nearest View-derived category, draws the old
+  `#555` category pointer, and shows the category plus every selected metadata
+  series using ECharts 3.1.7's default dark tooltip treatment. Legend-hidden
+  series leave the tooltip, all-hidden charts show no pointer/content, and the
+  same bounded overlay serves top-level, mobile, and compact charts without
+  restoring transparent line symbols or adding a chart dependency.

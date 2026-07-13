@@ -1279,8 +1279,8 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `initQueryView` candidate headings: render only loaded View field
       labels and keep the row-level Select action without an added header label.
 - [x] Restore `swchartLine.js` series presentation in the shared chart renderer:
-      smooth and fill line series, hide their point symbols, retain point
-      tooltips, and show the metadata-series value labels.
+      smooth and fill line series, hide their point symbols, and show the
+      metadata-series value labels.
 - [x] Restore `swchartLine.js` horizontal-axis naming: carry the first row's
       `EditType=11` View field name through shared chart data and render it at
       the axis end in top-level and Sudoku charts.
@@ -1297,6 +1297,10 @@ item must land with its matching implementation and validation evidence.
       series name, remove hidden series from drawing and domain/bar grouping,
       retain the inactive `#ccc` treatment, and share the behavior across
       top-level and compact charts.
+- [x] Restore `swchartLine.js` axis-trigger tooltip behavior: select the nearest
+      View-derived category on mouse movement, draw the default axis pointer,
+      list only selected metadata series, suppress all-hidden content, and
+      reuse the bounded overlay across top-level and compact charts.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

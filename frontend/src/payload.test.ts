@@ -397,7 +397,7 @@ describe("App defaults", () => {
     expect(legacyChartPanelSource).toContain("function linePath");
     expect(legacyChartPanelSource).toContain('class="chart-line-area"');
     expect(legacyChartPanelSource).toContain('class="chart-line"');
-    expect(legacyChartPanelSource).toContain('class="chart-line-hit"');
+    expect(legacyChartPanelSource).not.toContain('class="chart-line-hit"');
     expect(legacyChartPanelSource).toContain('class="chart-value-label"');
     expect(legacyChartPanelSource).toContain('v-if="data.axisName" class="chart-axis-name"');
     expect(legacyChartPanelSource).toContain(':y="height - 2"');
@@ -418,6 +418,13 @@ describe("App defaults", () => {
     expect(legacyChartPanelSource).toContain(':aria-pressed="isSeriesVisible(series, index)"');
     expect(legacyChartPanelSource).toContain('@click="toggleSeries(series, index)"');
     expect(legacyChartPanelSource).toContain(":style=\"{ display: isSeriesVisible(series, seriesIndex) ? undefined : 'none' }\"");
+    expect(legacyChartPanelSource).toContain("const activeTooltipIndex = ref<number | null>(null)");
+    expect(legacyChartPanelSource).toContain('class="chart-axis-hit"');
+    expect(legacyChartPanelSource).toContain('@mousemove="showAxisTooltip"');
+    expect(legacyChartPanelSource).toContain('class="chart-axis-pointer"');
+    expect(legacyChartPanelSource).toContain('role="tooltip"');
+    expect(legacyChartPanelSource).toContain("isSeriesVisible(series, index) && hasTooltipValue(series)");
+    expect(legacyChartPanelSource).not.toContain("<title>");
     expect(legacyChartPanelSource).toContain("<circle");
     expect(legacyChartPanelSource).not.toContain("<meter");
     expect(legacyChartPanelSource).toContain('"#c23531", "#2f4554", "#61a0a8"');
