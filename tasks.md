@@ -1342,6 +1342,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore template-specific Sudoku headers: use static active tabs for
       List/Map/linechart, the Item panel heading and inert Detail link, and no
       Vue-only parent heading above Group child tabs.
+- [x] Restore `subitem.js`'s Item footer: render blank update time and passive
+      Refresh text after the six-row View-derived matrix without adding a
+      third executable Sudoku refresh command.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

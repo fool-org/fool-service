@@ -79,7 +79,7 @@ function sudokuChildKey(panel: TableColumnInfo, index: number) {
 }
 
 function sudokuPanelHasFooter(panel: TableColumnInfo) {
-  return ["list", "linechart", "map"].includes(sudokuPanelKind(panel));
+  return ["list", "linechart", "map", "item"].includes(sudokuPanelKind(panel));
 }
 
 function sudokuPanelManualRefreshable(panel: TableColumnInfo) {

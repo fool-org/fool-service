@@ -470,6 +470,7 @@ describe("App defaults", () => {
     expect(sudokuPanelsSource).toContain('sudokuPanelKind(panel) !== "list"');
     expect(sudokuPanelsSource).toContain("emit('refreshPanel', panel)");
     expect(sudokuPanelsSource).toContain("sudokuPanelManualRefreshable(panel)");
+    expect(sudokuPanelsSource).toContain('["list", "linechart", "map", "item"]');
     expect(sudokuPanelsSource).toContain('class="sudoku-panel-passive-refresh"');
     expect(sudokuPanelsSource).toContain("<span>更新时间 {{ sudokuPanelFreshTime(panel) }}</span>");
     expect(sudokuWorkflowSource).toContain('if (kind === "map")');

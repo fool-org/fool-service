@@ -3194,3 +3194,11 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `/view103` exposed four visible outer headers rather than the Vue-only five,
   retained both Group tabs, and showed two inert Detail texts. At 390px all
   five 330px panel shells stayed inside `30..360` with no document overflow.
+- 2026-07-14: restored `subitem.js`'s Item footer by adding Item to the shared
+  passive-footer contract already used by linechart and Map. The six-row
+  View-derived matrix is now followed by blank `更新时间` text and an inert
+  `刷新` anchor with no href, click handler, or button role; only List and
+  Group List remain manually refreshable. Docker `/view103` rendered one Item
+  footer with zero buttons, one passive anchor, and exactly two executable
+  refresh buttons across the page. At 390px the footer ended at x=359 with no
+  document overflow.
