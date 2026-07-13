@@ -7,6 +7,7 @@ import legacyChartPanelSource from "./LegacyChartPanel.vue?raw";
 import legacyItemPanelSource from "./LegacyItemPanel.vue?raw";
 import legacyMapPanelSource from "./LegacyMapPanel.vue?raw";
 import legacyMenuNavSource from "./LegacyMenuNav.vue?raw";
+import legacyPaginationSource from "./LegacyPagination.vue?raw";
 import listDataTableSource from "./ListDataTable.vue?raw";
 import loginPanelSource from "./LoginPanel.vue?raw";
 import metadataFieldEditorSource from "./MetadataFieldEditor.vue?raw";
@@ -270,7 +271,7 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain("candidateRecordInfo(candidateState(group))");
     expect(viewDetailPanelSource).toContain('v-else-if="candidateState(group).queried" class="empty-state compact">暂无候选记录。</div>');
     expect(viewDetailPanelSource.indexOf('class="detail-picker-results"')).toBeLessThan(
-      viewDetailPanelSource.indexOf('class="candidate-record-info"')
+      viewDetailPanelSource.indexOf("<LegacyPagination")
     );
     expect(viewDetailPanelSource).toContain("function selectExistingItem");
     expect(viewDetailPanelSource).toContain('@select="(row) => selectExistingItem(group, row)"');
@@ -306,13 +307,15 @@ describe("App defaults", () => {
 
   it("renders list paging from legacy querydata totals", () => {
     expect(viewListPanelSource).toContain("resultTotalItems");
-    expect(viewListPanelSource).toContain("event.page + 1");
-    expect(viewListPanelSource).toContain("<Paginator");
-    expect(viewListPanelSource).toContain('class="record-info">共{{ resultTotalItems }}条记录');
-    expect(viewListPanelSource).toContain(':page-link-size="7"');
-    expect(viewListPanelSource).toContain('template="PrevPageLink PageLinks NextPageLink"');
-    expect(viewListPanelSource).not.toContain("FirstPageLink");
-    expect(viewListPanelSource).not.toContain("LastPageLink");
+    expect(viewListPanelSource).toContain("<LegacyPagination");
+    expect(viewListPanelSource).toContain(':total-items="resultTotalItems"');
+    expect(legacyPaginationSource).toContain("event.page + 1");
+    expect(legacyPaginationSource).toContain("<Paginator");
+    expect(legacyPaginationSource).toContain('class="record-info"');
+    expect(legacyPaginationSource).toContain(':page-link-size="7"');
+    expect(legacyPaginationSource).toContain('template="PrevPageLink PageLinks NextPageLink"');
+    expect(legacyPaginationSource).not.toContain("FirstPageLink");
+    expect(legacyPaginationSource).not.toContain("LastPageLink");
     expect(viewListPanelSource).not.toContain("更新时间 {{ resultFreshTime }}");
     expect(listDataTableSource).toContain('header="操作"');
   });
@@ -514,8 +517,9 @@ describe("App defaults", () => {
 
     expect(viewDetailPanelSource).toContain("groupSelectFromExists(group)");
     expect(viewDetailPanelSource).toContain("查询条件");
-    expect(viewDetailPanelSource).toContain('label="上一页"');
-    expect(viewDetailPanelSource).toContain('label="下一页"');
+    expect(viewDetailPanelSource).toContain("<LegacyPagination");
+    expect(viewDetailPanelSource).toContain(':total-items="candidateState(group).totalItem"');
+    expect(viewDetailPanelSource).toContain('@page="emit(\'loadCandidatePage\', group, $event)"');
     expect(viewDetailPanelSource).not.toContain("每页条数");
     expect(viewDetailPanelSource).not.toContain("updateCandidatePageSize");
     expect(viewDetailPanelSource).not.toContain("updateCandidatePage");

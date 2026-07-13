@@ -2762,3 +2762,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   The metadata-driven candidate input now sends the same existing query event
   as its Find button when Enter is pressed, matching the old form's implicit
   submit behavior without duplicating query or paging state.
+- 2026-07-13: restored the candidate dialog's shared legacy pagination. Old
+  `querylistdata.js` routes candidate totals and the current page through
+  `navbar.updateNavbar`, so the Vue dialog now reuses the same extracted
+  seven-link Previous/Page/Next component as the main list instead of its
+  invented `第 x / y 页` status. Pre-query candidate pagination stays hidden.

@@ -539,12 +539,12 @@ label {
   z-index: 0;
 }
 
-.list-pagination {
+.legacy-pagination {
   display: grid;
   justify-items: start;
 }
 
-.list-pagination .p-paginator {
+.legacy-pagination .p-paginator {
   justify-content: flex-start;
   padding-inline: 0;
 }
@@ -715,13 +715,7 @@ label {
 }
 
 .candidate-results-footer {
-  display: grid;
   gap: 8px;
-}
-
-.candidate-record-info {
-  color: #475569;
-  font-size: 14px;
 }
 
 .detail-items-table {

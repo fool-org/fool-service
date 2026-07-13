@@ -9,6 +9,7 @@ import TabPanel from "primevue/tabpanel";
 import TabPanels from "primevue/tabpanels";
 import Tabs from "primevue/tabs";
 import type { ListDataItem, ListDataValue, OperationInfo, QueryDataDetailDataItem, QueryDataDetailItemGroup, TableColumnInfo } from "./api";
+import LegacyPagination from "./LegacyPagination.vue";
 import ListDataTable from "./ListDataTable.vue";
 import MetadataFieldEditor from "./MetadataFieldEditor.vue";
 import { candidateRecordInfo, type ChildCandidateState } from "./useChildCandidates";
@@ -378,14 +379,16 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                   />
                   <div v-else-if="candidateState(group).queried" class="empty-state compact">暂无候选记录。</div>
                 </div>
-                <div class="candidate-results-footer">
-                  <span class="candidate-record-info">{{ candidateRecordInfo(candidateState(group)) }}</span>
-                  <div v-if="candidateRows(group).length || candidateState(group).totalPage" class="button-row">
-                    <Button type="button" label="上一页" severity="secondary" text :disabled="pending || candidateState(group).pageIndex <= 1" @click="emit('loadCandidatePage', group, candidateState(group).pageIndex - 1)" />
-                    <span>第 {{ candidateState(group).pageIndex }} / {{ candidateState(group).totalPage || 1 }} 页</span>
-                    <Button type="button" label="下一页" severity="secondary" text :disabled="pending || candidateState(group).totalPage === 0 || candidateState(group).pageIndex >= candidateState(group).totalPage" @click="emit('loadCandidatePage', group, candidateState(group).pageIndex + 1)" />
-                  </div>
-                </div>
+                <LegacyPagination
+                  class="candidate-results-footer"
+                  :disabled="pending"
+                  :page-index="candidateState(group).pageIndex"
+                  :page-size="candidateState(group).pageSize"
+                  :record-label="candidateRecordInfo(candidateState(group))"
+                  :show-pager="candidateRows(group).length > 0 || candidateState(group).totalPage > 0"
+                  :total-items="candidateState(group).totalItem"
+                  @page="emit('loadCandidatePage', group, $event)"
+                />
               </div>
               <template #footer>
                 <Button type="button" label="关闭" severity="secondary" text :disabled="pending" @click="pickerGroupKey = ''" />

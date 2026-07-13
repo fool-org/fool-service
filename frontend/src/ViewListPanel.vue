@@ -3,12 +3,12 @@ import { computed, ref, watch } from "vue";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import Message from "primevue/message";
-import Paginator, { type PageState } from "primevue/paginator";
 import Tab from "primevue/tab";
 import TabList from "primevue/tablist";
 import Tabs from "primevue/tabs";
 import type { ListDataItem, ListViewInfo, ListViewResult, QueryDataDetailResult, TableColumnInfo } from "./api";
 import LegacyChartPanel from "./LegacyChartPanel.vue";
+import LegacyPagination from "./LegacyPagination.vue";
 import ListDataTable from "./ListDataTable.vue";
 import SudokuPanels from "./SudokuPanels.vue";
 import {
@@ -72,10 +72,6 @@ const resultTotalItems = computed(() => listTotalItems(props.data));
 watch([currentViewId, templateKind, () => props.navigationRevision], () => {
   activePane.value = "table";
 });
-
-function changePage(event: PageState) {
-  emit("page", event.page + 1);
-}
 </script>
 
 <template>
@@ -126,17 +122,14 @@ function changePage(event: PageState) {
     </div>
     <LegacyChartPanel v-if="chartView && activePane === 'chart' && chartData.series.length" :data="chartData" />
     <div v-else-if="chartView && activePane === 'chart'" class="empty-state compact">暂无图表数据。</div>
-    <div v-if="supportedTemplate && data" class="list-pagination">
-      <span class="record-info">共{{ resultTotalItems }}条记录</span>
-      <Paginator
-        :first="Math.max(0, (resultPageIndex - 1) * pageSize)"
-        :page-link-size="7"
-        :rows="pageSize"
-        :total-records="resultTotalItems"
-        :disabled="disabled"
-        template="PrevPageLink PageLinks NextPageLink"
-        @page="changePage"
-      />
-    </div>
+    <LegacyPagination
+      v-if="supportedTemplate && data"
+      class="list-pagination"
+      :disabled="disabled"
+      :page-index="resultPageIndex"
+      :page-size="pageSize"
+      :total-items="resultTotalItems"
+      @page="emit('page', $event)"
+    />
   </article>
 </template>
