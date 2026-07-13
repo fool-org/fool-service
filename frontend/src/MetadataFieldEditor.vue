@@ -149,10 +149,10 @@ function updateLookupTerm(term: string | LookupChoice | null) {
       @update:model-value="updateLookupTerm"
     >
       <template #option="{ option }">
-        <strong>{{ option.label }}</strong>
-        <small>{{ option.id }}</small>
+        <span class="metadata-lookup-option"><strong>{{ option.label }}</strong> &ndash; {{ option.id }}</span>
       </template>
       <template #empty>未找到匹配的选项</template>
+      <template #footer><div class="metadata-lookup-footer">查找更多</div></template>
     </AutoComplete>
     <small v-if="lookupError" class="metadata-lookup-error">{{ lookupError }}</small>
   </div>
@@ -170,3 +170,14 @@ function updateLookupTerm(term: string | LookupChoice | null) {
     @update:model-value="value = sanitizeFieldInput(field, $event)"
   />
 </template>
+
+<style scoped>
+.metadata-lookup-option {
+  color: inherit;
+}
+
+.metadata-lookup-footer {
+  border-top: 1px solid #ddd;
+  padding: 6px 12px;
+}
+</style>

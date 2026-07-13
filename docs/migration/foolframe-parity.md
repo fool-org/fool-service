@@ -2983,3 +2983,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   and browser steppers cannot bypass the old keyup behavior. Property types 0,
   7, and 10 retain the old unrestricted text fallback, and save values remain
   strings derived from View metadata rather than business DTO fields.
+- 2026-07-14: restored `setextype.js`'s BusinessObject suggestion template.
+  Lookup results now render the old `Text - Id` information hierarchy with an
+  en-dash separator and retain the fixed `查找更多` footer below result and
+  empty menus. Existing View-derived `inputquery` context, debounce, empty
+  feedback, force-selection, and ID writeback remain unchanged.

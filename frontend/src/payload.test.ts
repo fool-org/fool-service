@@ -633,6 +633,8 @@ describe("App defaults", () => {
     expect(metadataFieldEditorSource).toContain('if (term === "" || term === null) emit("update:modelValue", "")');
     expect(metadataFieldEditorSource).not.toContain(':placeholder="readonlyValue || modelValue"');
     expect(metadataFieldEditorSource).toContain("未找到匹配的选项");
+    expect(metadataFieldEditorSource).toContain("&ndash; {{ option.id }}");
+    expect(metadataFieldEditorSource).toContain("查找更多");
     expect(metadataFieldEditorSource).not.toContain("<InputGroup>");
     expect(metadataFieldEditorSource).not.toContain("<Listbox");
   });

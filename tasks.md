@@ -1248,6 +1248,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `setextype.js` numeric input behavior: use text inputs for legacy
       numeric metadata and apply the original digit/decimal filtering plus
       four/eight-character limits for property types 1-6.
+- [x] Restore `setextype.js` BusinessObject suggestion presentation: render
+      each result as `Text - Id` and retain the fixed `查找更多` footer without
+      changing View-driven query or selection state.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
