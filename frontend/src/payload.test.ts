@@ -657,12 +657,16 @@ describe("App defaults", () => {
 
   it("renders PrimeVue metadata controls without changing legacy string values", () => {
     expect(metadataFieldEditorSource).toContain("fieldInputChecked");
+    expect(metadataFieldEditorSource).toContain("fieldInputMaxLength");
     expect(metadataFieldEditorSource).toContain("fieldInputType");
     expect(metadataFieldEditorSource).toContain("fieldInputValue");
+    expect(metadataFieldEditorSource).toContain("sanitizeFieldInput");
     expect(metadataFieldEditorSource).toContain("isMultilineField");
     expect(metadataFieldEditorSource).toContain("fieldInputChecked(props.field, value.value)");
     expect(metadataFieldEditorSource).toContain(':type="fieldInputType(field)"');
+    expect(metadataFieldEditorSource).toContain(':maxlength="fieldInputMaxLength(field)"');
     expect(metadataFieldEditorSource).toContain(':model-value="fieldInputValue(field, value)"');
+    expect(metadataFieldEditorSource).toContain('@update:model-value="value = sanitizeFieldInput(field, $event)"');
     expect(metadataFieldEditorSource).toContain("<Textarea v-else-if");
     expect(metadataFieldEditorSource).toContain("<Checkbox v-model=\"checked\"");
     expect(metadataFieldEditorSource).toContain("next ? \"true\" : \"false\"");

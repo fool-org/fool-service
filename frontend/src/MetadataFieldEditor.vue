@@ -7,11 +7,15 @@ import Select from "primevue/select";
 import Textarea from "primevue/textarea";
 import type { InputQueryItem, InputQueryResult, ListDataValue } from "./api";
 import { postApi } from "./api";
-import { buildInputQueryRequest } from "./payload";
 import {
   fieldInputChecked,
+  fieldInputMaxLength,
   fieldInputType,
   fieldInputValue,
+  sanitizeFieldInput
+} from "./fieldInput";
+import { buildInputQueryRequest } from "./payload";
+import {
   fieldKey,
   inputQueryItemId,
   inputQueryItemText,
@@ -160,8 +164,9 @@ function updateLookupTerm(term: string | LookupChoice | null) {
   <InputText
     v-else
     :type="fieldInputType(field)"
+    :maxlength="fieldInputMaxLength(field)"
     :model-value="fieldInputValue(field, value)"
     fluid
-    @update:model-value="value = String($event ?? '')"
+    @update:model-value="value = sanitizeFieldInput(field, $event)"
   />
 </template>

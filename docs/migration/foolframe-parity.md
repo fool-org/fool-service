@@ -2976,3 +2976,10 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   still pads to ten rows like `querylistdata.js`. The shared table suppresses
   PrimeVue's automatic empty row, and selecting a candidate still closes the
   dialog and stages the View-projected child without an immediate save.
+- 2026-07-14: restored `setextype.js`'s numeric text-input contract. Property
+  types 1/2 and 3/4 now strip non-digits and cap input at four/eight characters;
+  types 5/6 preserve digits and decimal points with the same limits. Vue no
+  longer maps legacy numeric metadata to native `number` inputs, so `e`, signs,
+  and browser steppers cannot bypass the old keyup behavior. Property types 0,
+  7, and 10 retain the old unrestricted text fallback, and save values remain
+  strings derived from View metadata rather than business DTO fields.

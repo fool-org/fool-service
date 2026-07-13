@@ -1245,6 +1245,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore select-existing candidate initialization: show View-derived table
       headings before the first query without an automatic empty row, then keep
       ten-row query padding and local-only candidate staging.
+- [x] Restore `setextype.js` numeric input behavior: use text inputs for legacy
+      numeric metadata and apply the original digit/decimal filtering plus
+      four/eight-character limits for property types 1-6.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

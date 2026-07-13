@@ -38,6 +38,9 @@ import type {
   SaveKeypair,
   TableColumnInfo
 } from "./api";
+import { fieldEditType, fieldType } from "./fieldInput";
+
+export { fieldEditType, fieldType } from "./fieldInput";
 
 type ViewDisplaySource = Pick<ListViewInfo, "viewName" | "ViewName" | "name" | "Name" | "viewTitle">;
 
@@ -112,49 +115,6 @@ export function fieldTitle(field: Partial<ListDataValue & TableColumnInfo>) {
     field.prpId,
     field.PrpId
   ]);
-}
-
-export function fieldType(field: ListDataValue) {
-  return field.prpType ?? field.PrpType;
-}
-
-const numberFieldTypes = new Set([
-  "identifyid", "int", "uint", "long", "ulong", "float", "double", "decimal", "byte",
-  "0", "1", "2", "3", "4", "5", "6", "7", "10"
-]);
-
-export function fieldInputType(field: ListDataValue) {
-  const type = normalizedPropertyType(field);
-  if (type === "boolean" || type === "8") return "checkbox";
-  if (type === "date" || type === "12") return "date";
-  if (type === "time" || type === "13") return "time";
-  if (type === "datetime" || type === "14") return "datetime-local";
-  if (numberFieldTypes.has(type)) return "number";
-  if (type) return "text";
-
-  const editType = normalizedEditType(field);
-  if (editType === "checkbox" || editType === "2") return "checkbox";
-  if (editType === "datepicker" || editType === "6") return "date";
-  if (editType === "timepicker" || editType === "7") return "time";
-  if (editType === "datetimepicker" || editType === "8") return "datetime-local";
-  return "text";
-}
-
-export function fieldInputChecked(field: ListDataValue, value: string) {
-  if (fieldInputType(field) !== "checkbox") return false;
-  const text = String(value ?? "").trim().toLowerCase();
-  return text === "true" || text === "1";
-}
-
-export function fieldInputValue(field: ListDataValue, value: string) {
-  const text = String(value ?? "");
-  if (fieldInputType(field) !== "datetime-local") return text;
-  const match = text.trim().match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2}(?::\d{2})?)(?:\.\d+)?$/);
-  return match ? `${match[1]}T${match[2]}` : text;
-}
-
-export function fieldEditType(field: ListDataValue) {
-  return field.editType ?? field.EditType;
 }
 
 function normalizedEditType(field: ListDataValue) {

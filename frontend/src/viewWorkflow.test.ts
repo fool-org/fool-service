@@ -29,9 +29,6 @@ import {
   fieldEditType,
   fieldKey,
   fieldDisplayValue,
-  fieldInputChecked,
-  fieldInputType,
-  fieldInputValue,
   fieldModelId,
   fieldType,
   fieldTitle,
@@ -224,52 +221,6 @@ describe("view workflow helpers", () => {
     expect(isMultilineField({ prpId: "notes", PrpType: "String", EditType: "RichTextBox" })).toBe(false);
     expect(isMultilineField({ prpId: "notes", PrpType: 11, EditType: 5 })).toBe(false);
     expect(isMultilineField({ prpId: "name", EditType: "TextBox" })).toBe(false);
-  });
-
-  it("maps metadata field types to native input types", () => {
-    expect(fieldInputType({ prpId: "tradeDate", prpType: "Date" })).toBe("date");
-    expect(fieldInputType({ prpId: "tradeDate", PrpType: 12 })).toBe("date");
-    expect(fieldInputType({ prpId: "tradeTime", PrpType: "13" })).toBe("time");
-    expect(fieldInputType({ prpId: "tradeTime", PrpType: 13 })).toBe("time");
-    expect(fieldInputType({ prpId: "createdAt", PrpType: "14" })).toBe("datetime-local");
-    expect(fieldInputType({ prpId: "createdAt", PrpType: 14 })).toBe("datetime-local");
-    expect(fieldInputType({ prpId: "orderTime", prpType: "String" })).toBe("text");
-    expect(fieldInputType({ prpId: "planned", EditType: "DatePicker" })).toBe("date");
-    expect(fieldInputType({ prpId: "planned", EditType: "TimePicker" })).toBe("time");
-    expect(fieldInputType({ prpId: "planned", EditType: "DateTimePicker" })).toBe("datetime-local");
-    expect(fieldInputType({ prpId: "planned", EditType: 6 })).toBe("date");
-    expect(fieldInputType({ prpId: "planned", EditType: 7 })).toBe("time");
-    expect(fieldInputType({ prpId: "planned", EditType: 8 })).toBe("datetime-local");
-    expect(fieldInputType({ prpId: "planned", prpType: "String", EditType: "DatePicker" })).toBe("text");
-    expect(fieldInputType({ prpId: "planned", prpType: "String", EditType: 6 })).toBe("text");
-    expect(fieldInputType({ prpId: "active", PrpType: "8" })).toBe("checkbox");
-    expect(fieldInputType({ prpId: "active", PrpType: 8 })).toBe("checkbox");
-    expect(fieldInputType({ prpId: "active", EditType: "CheckBox" })).toBe("checkbox");
-    expect(fieldInputType({ prpId: "active", EditType: 2 })).toBe("checkbox");
-    expect(fieldInputType({ prpId: "active", prpType: "String", EditType: "CheckBox" })).toBe("text");
-    expect(fieldInputType({ prpId: "active", prpType: "String", EditType: 2 })).toBe("text");
-    expect(fieldInputType({ prpId: "active", prpType: "String" })).toBe("text");
-    expect(fieldInputType({ prpId: "amount", prpType: "Decimal" })).toBe("number");
-    expect(fieldInputType({ prpId: "count", PrpType: "1" })).toBe("number");
-    expect(fieldInputType({ prpId: "name", prpType: "String" })).toBe("text");
-  });
-
-  it("checks Boolean metadata values for native checkbox inputs", () => {
-    expect(fieldInputChecked({ PrpType: "8" }, "true")).toBe(true);
-    expect(fieldInputChecked({ prpType: "Boolean" }, "1")).toBe(true);
-    expect(fieldInputChecked({ EditType: "CheckBox" }, "false")).toBe(false);
-    expect(fieldInputChecked({ prpType: "String" }, "true")).toBe(false);
-  });
-
-  it("normalizes only DateTime metadata values for native inputs", () => {
-    expect(fieldInputValue({ PrpType: "14" }, "2026-07-03 09:05:06.0")).toBe("2026-07-03T09:05:06");
-    expect(fieldInputValue({ prpType: "DateTime" }, "2026-07-03T09:05:06.123")).toBe("2026-07-03T09:05:06");
-    expect(fieldInputValue({ EditType: "DateTimePicker" }, "2026-07-03 09:05:06.0")).toBe(
-      "2026-07-03T09:05:06"
-    );
-    expect(fieldInputValue({ prpType: "String", prpId: "createdAt" }, "2026-07-03 09:05:06.0")).toBe(
-      "2026-07-03 09:05:06.0"
-    );
   });
 
   it("renders list columns only from loaded View metadata", () => {

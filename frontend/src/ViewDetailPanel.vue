@@ -9,6 +9,7 @@ import TabPanel from "primevue/tabpanel";
 import TabPanels from "primevue/tabpanels";
 import Tabs from "primevue/tabs";
 import type { ListDataItem, ListDataValue, OperationInfo, QueryDataDetailDataItem, QueryDataDetailItemGroup, TableColumnInfo } from "./api";
+import { fieldInputType } from "./fieldInput";
 import LegacyPagination from "./LegacyPagination.vue";
 import ListDataTable from "./ListDataTable.vue";
 import MetadataFieldEditor from "./MetadataFieldEditor.vue";
@@ -17,7 +18,6 @@ import { nextObjectId, type SelectOption } from "./viewShell";
 import {
   buildGroupItemDrafts,
   fieldDisplayValue,
-  fieldInputType,
   fieldKey,
   fieldTitle,
   groupColumns,
