@@ -1148,6 +1148,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `navbar.js` Bootstrap pagination presentation through the shared
       list/candidate component: `«` / `»`, contiguous 34px page links, and old
       active/hover/disabled colors without changing the seven-page workflow.
+- [x] Restore the old default-command hierarchy for shared list Find buttons:
+      remove the invented primary emphasis while preserving normal/chart
+      placement, Enter submission, and View-first search behavior.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

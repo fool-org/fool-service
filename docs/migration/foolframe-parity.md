@@ -2814,3 +2814,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `«` / `»` controls; page links form a contiguous 34px `#ddd`-bordered group
   with Bootstrap active, hover, and disabled colors while retaining the
   already migrated seven-page algorithm and Vue page events.
+- 2026-07-13: restored the old `btn-default` command hierarchy for the shared
+  list search action. Normal `view.jade` and `viewWithChart.jade` Find buttons
+  now use the same secondary outlined presentation already shared by the
+  candidate Find and normal-list report command, without changing Enter,
+  click, View-first query, or template-specific toolbar behavior.

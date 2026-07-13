@@ -81,7 +81,7 @@ watch([currentViewId, templateKind, () => props.navigationRevision], () => {
     </div>
     <div v-if="supportedTemplate && !sudokuView" class="workflow-toolbar" :class="{ 'chart-workflow-toolbar': chartView }">
       <InputText v-model="keyword" class="list-query-input" type="search" placeholder="输入条件" aria-label="查询条件" @keyup.enter="emit('search')" />
-      <Button type="button" label="查找" :disabled="disabled" @click="emit('search')" />
+      <Button type="button" label="查找" severity="secondary" outlined :disabled="disabled" @click="emit('search')" />
       <template v-if="listView">
         <Button type="button" label="统计" severity="secondary" outlined :disabled="disabled || !currentViewId" @click="emit('toggleReport')" />
         <Button

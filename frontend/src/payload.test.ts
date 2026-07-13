@@ -63,6 +63,7 @@ describe("App defaults", () => {
     expect(mainViewSource).toContain('aria-label="查询条件"');
     expect(mainViewSource).not.toContain("<label>");
     expect(mainViewSource).toContain('label="查找"');
+    expect(mainViewSource).toContain('label="查找" severity="secondary" outlined');
     expect(mainViewSource).toContain('label="统计"');
     expect(mainViewSource).toContain('<template v-if="listView">');
     expect(mainViewSource).not.toContain('icon="pi pi-search"');
