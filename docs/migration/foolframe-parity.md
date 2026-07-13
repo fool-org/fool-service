@@ -3006,3 +3006,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   incomplete conditions, or an empty report name, matching the old unconditional
   footer commands instead of applying Vue-only `canRun` gates. Request-pending
   duplicate protection and the existing View-driven request builders remain.
+- 2026-07-14: restored `view.jade` / `mkreport.js` report-output control
+  availability. The output-method list and Add arrow now remain actionable when
+  no candidate column is selected, matching the old unconditional controls and
+  relying on the existing `addOutput` no-op guard. Request-pending protection,
+  duplicate-output handling, and View-derived report metadata remain unchanged.

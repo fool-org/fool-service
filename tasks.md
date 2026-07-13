@@ -1263,6 +1263,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `view.jade` report-footer command availability: keep Confirm and
       Save Report Definition actionable at empty/partial setup states while
       retaining request-pending duplicate protection and View-driven payloads.
+- [x] Restore `view.jade` / `mkreport.js` report-output control availability:
+      keep the output-method list and Add arrow actionable without a selected
+      candidate while retaining the existing no-op and duplicate guards.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

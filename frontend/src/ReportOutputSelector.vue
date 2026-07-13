@@ -101,10 +101,10 @@ function orderLabel(orderType?: string) {
 
     <section class="report-output-method">
       <h3>输出方式</h3>
-      <select v-model="selectedTypeId" size="10" :disabled="disabled || !selectedCandidate" aria-label="输出方式">
+      <select v-model="selectedTypeId" size="10" :disabled="disabled" aria-label="输出方式">
         <option v-for="option in queryTypeOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
       </select>
-      <Button type="button" icon="pi pi-arrow-right" title="加入已选列" aria-label="加入已选列" size="small" severity="secondary" outlined :disabled="disabled || !selectedCandidate" @click="addOutput" />
+      <Button type="button" icon="pi pi-arrow-right" title="加入已选列" aria-label="加入已选列" size="small" severity="secondary" outlined :disabled="disabled" @click="addOutput" />
     </section>
 
     <section>
