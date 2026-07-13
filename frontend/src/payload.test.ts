@@ -914,6 +914,10 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).toContain('label="前一页"');
     expect(viewReportPanelSource).toContain('label="下一页"');
     expect(viewReportPanelSource).not.toContain('label="前一页" size="small"');
+    expect(viewReportPanelSource).toContain("function changeReportPage(offset: number)");
+    expect(viewReportPanelSource).toContain("page > Math.max(1, resultPages.value)");
+    expect(viewReportPanelSource).toContain('label="前一页" severity="secondary" outlined :disabled="pending" @click="changeReportPage(-1)"');
+    expect(viewReportPanelSource).toContain('label="下一页" severity="secondary" outlined :disabled="pending" @click="changeReportPage(1)"');
     expect(viewReportPanelSource).toContain('class="report-result-table"');
     expect(viewReportPanelSource).toContain("backToReportSetup");
     expect(viewReportPanelSource).toContain("currentPage.value = 1");

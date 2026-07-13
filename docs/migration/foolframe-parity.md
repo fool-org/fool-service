@@ -2899,3 +2899,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   reports `不能合并单个`, gaps/partial groups report `不连续不能合并`, and a
   valid contiguous selection still groups and clears its checks. Zero selection
   now reports an explicit message instead of reproducing the old script error.
+- 2026-07-13: restored `ShowReportController` paging boundary interaction.
+  Previous and Next remain available outside request-pending state, while one
+  local handler now performs the old in-range check before reusing `runReport`;
+  first/last-page clicks are visible no-ops instead of disabled controls.
