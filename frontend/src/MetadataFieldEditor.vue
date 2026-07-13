@@ -160,7 +160,6 @@ function updateLookupTerm(term: string | LookupChoice | null) {
   <Textarea v-else-if="isMultilineField(field)" v-model="value" rows="4" auto-resize fluid />
   <span v-else-if="fieldInputType(field) === 'checkbox'" class="checkbox-field">
     <Checkbox v-model="checked" binary />
-    <span>{{ checked ? "是" : "否" }}</span>
   </span>
   <InputText
     v-else

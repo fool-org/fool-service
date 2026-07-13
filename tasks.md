@@ -1254,6 +1254,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `detailview.js` readonly edit rendering: keep readonly View fields
       as plain text while editable fields become controls, preserve empty-line
       geometry, and keep readonly values out of save payloads.
+- [x] Restore `setextype.js` Boolean editor presentation: render the checkbox
+      alone without Vue-only `是` / `否` copy and preserve legacy boolean save
+      values through the shared metadata editor.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

@@ -2993,3 +2993,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   editable View fields become controls, matching the old `SetEdit` gate instead
   of inventing disabled textboxes. Empty readonly values retain a non-breaking
   text line, and save omission for readonly fields remains unchanged.
+- 2026-07-14: restored `setextype.js`'s Boolean editor presentation. Property
+  type 8 now renders only its checkbox in edit mode instead of adding Vue-only
+  `是` / `否` copy beside the control. The shared View-driven boolean converter
+  and legacy `true` / `false` save values remain unchanged.
