@@ -3286,3 +3286,18 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   chart heights, two sampled mobile labels, and no overflow or browser logs.
   Both metadata tables were restored to `EditType=12`; after backend restart,
   the default page again rendered one Price line and zero scatter marks.
+- 2026-07-14: restored ECharts 3.1.7's direct bar/scatter hover targets. Old
+  `BarView.js` binds hover style to each bar, `Symbol.js` binds color lift and
+  animation to each scatter symbol, and old line paths are silent. Vue's
+  transparent axis-tooltip rectangle had been painted above all series, so a
+  seeded nonzero bar's center resolved to `.chart-axis-hit` instead of the bar.
+  The shared SVG now receives plot movement while that transparent rectangle
+  sits below the series; direct bar/scatter CSS reuses the existing 1.1 lift
+  and 10-to-13px scatter emphasis. Docker `/view100` then resolved the same bar
+  center to `.chart-bar` and all eight temporary View-derived scatter centers
+  to `.chart-scatter`. Real pointer movement over both item types retained the
+  axis pointer and tooltip, including `1002 / Amount: 1.5 / Price: 3,450` at
+  desktop and 390x844. Mobile retained its 470px chart, two sampled labels, no
+  overflow, and empty browser logs. Both metadata tables were restored to
+  Price `EditType=12`; the default page again rendered eight bars, one line,
+  and zero scatter marks.

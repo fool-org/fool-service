@@ -983,11 +983,14 @@ label {
   transition: transform 400ms;
 }
 
+.chart-bar:hover,
+.chart-scatter:hover,
 .chart-series.series-highlighted .chart-bar,
 .chart-series.series-highlighted .chart-scatter {
   filter: brightness(1.1);
 }
 
+.chart-scatter:hover,
 .chart-series.series-highlighted .chart-scatter {
   transform: scale(1.3);
 }

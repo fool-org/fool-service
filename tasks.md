@@ -1369,6 +1369,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore ECharts 3.1.7 scatter-symbol defaults: render metadata scatter
       points at 10 actual pixels with 0.8 opacity across responsive viewBox
       sizes and expand legend-linked emphasis to the old 13-pixel target.
+- [x] Restore ECharts 3.1.7 item hover targets: keep the axis-tooltip hit
+      surface below bar/scatter graphics, route plot movement through the
+      shared SVG, and apply the old direct item emphasis without losing tooltip.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

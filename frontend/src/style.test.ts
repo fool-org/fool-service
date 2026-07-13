@@ -55,11 +55,14 @@ describe("shared chart styles", () => {
     expect(chartSource).toContain('@mouseenter="hoveredSeriesName = seriesName(series, index)"');
     expect(chartSource).toContain('@mouseleave="hoveredSeriesName = null"');
     expect(chartSource).toContain('class="chart-scatter"');
-    expect(styleSource).toContain(`.chart-series.series-highlighted .chart-bar,
+    expect(styleSource).toContain(`.chart-bar:hover,
+.chart-scatter:hover,
+.chart-series.series-highlighted .chart-bar,
 .chart-series.series-highlighted .chart-scatter {
   filter: brightness(1.1);
 }`);
-    expect(styleSource).toContain(`.chart-series.series-highlighted .chart-scatter {
+    expect(styleSource).toContain(`.chart-scatter:hover,
+.chart-series.series-highlighted .chart-scatter {
   transform: scale(1.3);
 }`);
     expect(styleSource).toContain(`.chart-legend button:hover {
@@ -72,5 +75,13 @@ describe("shared chart styles", () => {
     expect(chartSource).toContain(':r="scatterRadius"');
     expect(chartSource).toContain('opacity="0.8"');
     expect(chartSource).not.toContain('r="6"');
+  });
+
+  it("keeps chart items above the axis tooltip hit surface", () => {
+    expect(chartSource).toContain('@mousemove="showAxisTooltip"');
+    expect(chartSource).toContain('@mouseleave="hideAxisTooltip"');
+    expect(chartSource.indexOf('class="chart-axis-hit"')).toBeLessThan(chartSource.indexOf('class="chart-series"'));
+    expect(styleSource).toContain(".chart-bar:hover");
+    expect(styleSource).toContain(".chart-scatter:hover");
   });
 });

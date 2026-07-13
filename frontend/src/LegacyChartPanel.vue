@@ -208,7 +208,16 @@ function tooltipValue(series: LegacyChartSeries) {
 
 <template>
   <div class="legacy-chart-pane" :class="{ 'compact-chart': compact }" :style="paneStyle">
-    <svg ref="chartElement" class="legacy-chart" :style="chartStyle" :viewBox="`0 0 ${width} ${height}`" role="img" aria-label="视图数据图表">
+    <svg
+      ref="chartElement"
+      class="legacy-chart"
+      :style="chartStyle"
+      :viewBox="`0 0 ${width} ${height}`"
+      role="img"
+      aria-label="视图数据图表"
+      @mousemove="showAxisTooltip"
+      @mouseleave="hideAxisTooltip"
+    >
       <text v-if="compact && title" class="chart-title" x="8" y="22">{{ title }}</text>
       <g v-for="tick in ticks" :key="tick" class="chart-grid-line">
         <line :x1="plot.left" :x2="width - plotRight" :y1="y(tick)" :y2="y(tick)" />
@@ -222,6 +231,13 @@ function tooltipValue(series: LegacyChartSeries) {
           {{ label(index) }}
         </text>
       </g>
+      <rect
+        class="chart-axis-hit"
+        :x="plot.left"
+        :y="plot.top"
+        :width="width - plot.left - plotRight"
+        :height="height - plot.top - plot.bottom"
+      />
       <g
         v-for="(series, seriesIndex) in data.series"
         :key="`${seriesName(series, seriesIndex)}-${series.type}-${seriesIndex}`"
@@ -270,15 +286,6 @@ function tooltipValue(series: LegacyChartSeries) {
         :x2="x(activeTooltipIndex)"
         :y1="plot.top"
         :y2="height - plot.bottom"
-      />
-      <rect
-        class="chart-axis-hit"
-        :x="plot.left"
-        :y="plot.top"
-        :width="width - plot.left - plotRight"
-        :height="height - plot.top - plot.bottom"
-        @mousemove="showAxisTooltip"
-        @mouseleave="hideAxisTooltip"
       />
     </svg>
     <div
