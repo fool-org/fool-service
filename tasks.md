@@ -1257,6 +1257,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `setextype.js` Boolean editor presentation: render the checkbox
       alone without Vue-only `是` / `否` copy and preserve legacy boolean save
       values through the shared metadata editor.
+- [x] Restore `detailView.jade` empty simple-value rendering: retain a
+      non-breaking text line for empty View fields without adding placeholder
+      data to shared values, drafts, or save payloads.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

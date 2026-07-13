@@ -2997,3 +2997,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   type 8 now renders only its checkbox in edit mode instead of adding Vue-only
   `是` / `否` copy beside the control. The shared View-driven boolean converter
   and legacy `true` / `false` save values remain unchanged.
+- 2026-07-14: restored `detailView.jade`'s empty simple-value placeholder.
+  Read-only and schema-only detail rows now render a non-breaking text value
+  when `FmtValue` and `ObjId` are empty, matching the old paragraph branch
+  without altering the View-derived value helper or save drafts.
