@@ -903,8 +903,10 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).toContain("生成报表");
     expect(viewReportPanelSource).toContain("报表结果");
     expect(viewReportPanelSource).toContain("报表结果 共{{ resultPages }}页 当前第{{ resultPage }}页");
+    expect(viewReportPanelSource).toContain('class="report-result-actions legacy-button-group-xs"');
     expect(viewReportPanelSource).toContain('label="前一页"');
     expect(viewReportPanelSource).toContain('label="下一页"');
+    expect(viewReportPanelSource).not.toContain('label="前一页" size="small"');
     expect(viewReportPanelSource).toContain('class="report-result-table"');
     expect(viewReportPanelSource).toContain("backToReportSetup");
     expect(viewReportPanelSource).toContain("currentPage.value = 1");

@@ -2848,3 +2848,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `保存报表定义` now uses the information action severity corresponding to the
   old `.btn-info`, while Cancel remains default and Confirm remains primary;
   the existing metadata-driven enablement and save route are unchanged.
+- 2026-07-13: restored the report result's right-aligned Bootstrap
+  `.btn-group-xs` paging presentation. Functional Previous/Next commands now
+  form one contiguous 22px group with shared inner borders and outer corner
+  radii; the old eventless export placeholders remain intentionally omitted.

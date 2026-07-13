@@ -479,9 +479,36 @@ label {
 .report-result-heading,
 .report-result-actions {
   display: flex;
-  gap: 8px;
   align-items: center;
   justify-content: space-between;
+}
+
+.report-result-heading {
+  gap: 8px;
+}
+
+.legacy-button-group-xs {
+  gap: 0;
+}
+
+.legacy-button-group-xs .p-button {
+  height: 22px;
+  padding: 1px 5px;
+  border-radius: 0;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.legacy-button-group-xs .p-button + .p-button {
+  margin-left: -1px;
+}
+
+.legacy-button-group-xs .p-button:first-child {
+  border-radius: 3px 0 0 3px;
+}
+
+.legacy-button-group-xs .p-button:last-child {
+  border-radius: 0 3px 3px 0;
 }
 
 .report-result-heading p {

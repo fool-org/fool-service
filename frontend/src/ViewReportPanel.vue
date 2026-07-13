@@ -245,9 +245,9 @@ onMounted(() => void loadReportColumns());
     <section v-if="showingResults" class="report-section">
       <div class="report-result-heading">
         <p>报表结果 共{{ resultPages }}页 当前第{{ resultPage }}页</p>
-        <div class="report-result-actions">
-          <Button type="button" label="前一页" size="small" severity="secondary" outlined :disabled="pending || resultPage <= 1" @click="runReport(resultPage - 1)" />
-          <Button type="button" label="下一页" size="small" severity="secondary" outlined :disabled="pending || resultPage >= Math.max(1, resultPages)" @click="runReport(resultPage + 1)" />
+        <div class="report-result-actions legacy-button-group-xs">
+          <Button type="button" label="前一页" severity="secondary" outlined :disabled="pending || resultPage <= 1" @click="runReport(resultPage - 1)" />
+          <Button type="button" label="下一页" severity="secondary" outlined :disabled="pending || resultPage >= Math.max(1, resultPages)" @click="runReport(resultPage + 1)" />
         </div>
       </div>
       <div class="table-wrap report-results">

@@ -1169,6 +1169,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `view.jade`'s report-save command hierarchy: render
       `保存报表定义` as the distinct information action while keeping Cancel
       default, Confirm primary, and the existing View-derived save workflow.
+- [x] Restore `view.jade` report-result paging presentation: keep functional
+      Previous/Next commands in one right-aligned extra-small button group and
+      continue omitting the old eventless export placeholders.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
