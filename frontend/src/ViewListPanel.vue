@@ -115,7 +115,7 @@ function changePage(event: PageState) {
 
     <SudokuPanels v-if="sudokuView" :disabled="disabled" :panel-data="panelData" :panels="viewColumns(view)" @refresh-panel="emit('refreshPanel', $event)" />
 
-    <div v-if="supportedTemplate" v-show="(!chartView && !sudokuView) || activePane === 'table'" class="table-wrap view-table">
+    <div v-if="supportedTemplate && !sudokuView" v-show="!chartView || activePane === 'table'" class="table-wrap view-table">
       <ListDataTable
         :columns="columns"
         :disabled="disabled"

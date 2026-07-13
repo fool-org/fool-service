@@ -2741,3 +2741,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   panel maximum once and assigns it to every grid row. Group tab switches and
   panel refreshes do not remeasure or shift the page; a new Sudoku page entry
   clears and recomputes the lock for that viewport.
+- 2026-07-13: removed the Vue-only root data table from Sudoku pages. The
+  shared list renderer now mounts its root table only for normal list and
+  `viewWithChart` templates, while `Sudoku.jade` routes render only their
+  View-derived child panels. Normal/chart root tables remain unchanged.

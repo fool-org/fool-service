@@ -360,6 +360,7 @@ describe("App defaults", () => {
     expect(appSource).toContain("viewUsesSudokuTemplate(viewResponse.value?.data)");
     expect(viewListPanelSource).toContain("SudokuPanels");
     expect(viewListPanelSource).toContain('v-if="supportedTemplate && !sudokuView" class="workflow-toolbar"');
+    expect(viewListPanelSource).toContain('v-if="supportedTemplate && !sudokuView" v-show="!chartView || activePane === \'table\'"');
     expect(appSource).toContain("useSudokuPanels");
     expect(appSource).toContain("loadSudokuPanels");
     expect(sudokuWorkflowSource).toContain('loadViewDataById(panelViewId, "sudoku-panel", 5)');

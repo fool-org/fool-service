@@ -1097,6 +1097,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `Sudoku.js`'s one-time maximum flow-control height: wait for all
       View-derived panel data, lock every grid row to the natural maximum, and
       keep that height stable across Group tab switches and panel refreshes.
+- [x] Match `Sudoku.jade`'s root rendering boundary: remove the shared Vue root
+      data table after the child panel grid while preserving normal-list and
+      `viewWithChart` root tables.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
