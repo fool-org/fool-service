@@ -1187,6 +1187,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore the candidate table's default Select action as a default outlined
       command without changing shared metadata rows, View operations, or
       select-existing staging.
+- [x] Restore condensed report-condition control geometry: 34px Select/Input
+      controls with shared form padding and typography while preserving field,
+      comparison, value, grouping, and mobile-scroll behavior.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

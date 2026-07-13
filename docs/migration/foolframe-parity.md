@@ -2872,3 +2872,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   The shared table's candidate-only default action now renders secondary
   outlined like old `.btn.btn-default`, while metadata View operations retain
   their lightweight link presentation and both continue using one renderer.
+- 2026-07-13: restored the condensed report-condition control geometry.
+  Join, field, comparison, state, and text controls now share the migrated 34px,
+  6x12px, 14/20px form contract while preserving the old table-like column
+  layout, horizontal mobile scrolling, and metadata-driven input switching.

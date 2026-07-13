@@ -578,6 +578,23 @@ label {
   border-bottom: 1px solid #dddddd;
 }
 
+.report-condition-row .p-select,
+.report-condition-row .p-inputtext {
+  height: 34px;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.report-condition-row .p-select-label,
+.report-condition-row .p-inputtext {
+  padding: 6px 12px;
+}
+
+.report-condition-row .p-select-dropdown {
+  width: 34px;
+}
+
 .report-condition-footer {
   min-width: 760px;
   padding: 5px 0;
