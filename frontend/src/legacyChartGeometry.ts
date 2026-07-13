@@ -24,21 +24,31 @@ export function legacyChartScale(values: number[]) {
   return { min, max, ticks };
 }
 
-export function legacyChartStackGeometry(series: LegacyChartSeries[], stacked: boolean) {
-  if (!stacked) {
-    const values = series.map((item) => [...item.values]);
-    return { values, bases: values.map((items) => items.map(() => 0)), domainValues: values.flat() };
-  }
-
+export function legacyChartStackGeometry(series: LegacyChartSeries[]) {
   const values: number[][] = [];
   const bases: number[][] = [];
-  const positiveBarTops: number[] = [];
-  const negativeBarTops: number[] = [];
+  const stackedOn: number[] = [];
+  const barGroups: number[] = [];
+  const barGroupKeys: string[] = [];
+  const barTops = new Map<string, { negative: number[]; positive: number[] }>();
 
   for (const [seriesIndex, item] of series.entries()) {
+    barGroups[seriesIndex] = -1;
+    const stack = item.stack || "";
+    let previousStackIndex = -1;
+    for (let index = seriesIndex - 1; stack && index >= 0; index -= 1) {
+      if (series[index].stack === stack) {
+        previousStackIndex = index;
+        break;
+      }
+    }
+    stackedOn.push(previousStackIndex);
+
     const stackedValues = item.values.map((rawValue, dataIndex) => {
       let value = rawValue;
+      if (!stack) return value;
       for (let previousIndex = seriesIndex - 1; previousIndex >= 0; previousIndex -= 1) {
+        if (series[previousIndex].stack !== stack) continue;
         const previousValue = series[previousIndex].values[dataIndex];
         if ((value >= 0 && previousValue > 0) || (value <= 0 && previousValue < 0)) value += previousValue;
       }
@@ -47,15 +57,21 @@ export function legacyChartStackGeometry(series: LegacyChartSeries[], stacked: b
     values.push(stackedValues);
 
     if (item.type === "line") {
-      const previous = series[seriesIndex - 1];
+      const previous = series[previousStackIndex];
       bases.push(item.values.map((value, index) => previous && sign(previous.values[index]) === sign(value)
-        ? values[seriesIndex - 1][index] ?? 0
+        ? values[previousStackIndex][index] ?? 0
         : 0));
     } else if (item.type === "bar") {
+      const groupKey = stack || `__series_${seriesIndex}`;
+      let groupIndex = barGroupKeys.indexOf(groupKey);
+      if (groupIndex < 0) groupIndex = barGroupKeys.push(groupKey) - 1;
+      barGroups[seriesIndex] = groupIndex;
+      const tops = barTops.get(groupKey) ?? { negative: [], positive: [] };
+      barTops.set(groupKey, tops);
       bases.push(item.values.map((value, index) => {
-        const barTops = value >= 0 ? positiveBarTops : negativeBarTops;
-        const base = barTops[index] ?? 0;
-        barTops[index] = stackedValues[index];
+        const stackTops = value >= 0 ? tops.positive : tops.negative;
+        const base = stackTops[index] ?? 0;
+        stackTops[index] = stackedValues[index];
         return base;
       }));
     } else {
@@ -63,7 +79,7 @@ export function legacyChartStackGeometry(series: LegacyChartSeries[], stacked: b
     }
   }
 
-  return { values, bases, domainValues: values.flat() };
+  return { values, bases, stackedOn, barGroups, domainValues: values.flat() };
 }
 
 function niceNumber(value: number) {

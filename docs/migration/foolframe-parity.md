@@ -3147,3 +3147,14 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   zero-height bars and retained the natural `0.00354` / `0.00059` heights for
   `1.5` and `0.25`. The same compact counts held at 390px with no document
   overflow, while the stacked Price endpoint remained y=`66.49981`.
+- 2026-07-14: restored `swchartLine.js` stack-id semantics in the shared chart
+  model. Top-level View projection now carries each metadata `PrpShowName` as
+  its ECharts stack id, while realtime rolling series retain the common `a`
+  stack. Geometry accumulates only matching stack chains, links line-area bases
+  to the previous matching series, and gives same-stack bars one shared slot;
+  duplicate legend names now render once and still toggle the whole name. Unit
+  coverage proves interleaved same-name bars/lines stack without merging an
+  unrelated name. The seeded runtime has only unique `Amount` / `Price` names,
+  so Docker verification covered regressions: `/view103` retained 100 bars,
+  two legends, and Price y=`66.49981`; `/view100` retained eight bars and two
+  legends. The compact pane remained within `31..359` at 390px with no overflow.

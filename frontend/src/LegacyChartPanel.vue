@@ -38,10 +38,13 @@ const labelCount = computed(() => Math.max(
   ...props.data.series.map((series) => series.values.length)
 ));
 const visibleSeries = computed(() => props.data.series.filter(isSeriesVisible));
-const geometry = computed(() => legacyChartStackGeometry(visibleSeries.value, Boolean(props.compact)));
+const geometry = computed(() => legacyChartStackGeometry(visibleSeries.value));
 const scale = computed(() => legacyChartScale(geometry.value.domainValues));
 const ticks = computed(() => scale.value.ticks);
-const barSeries = computed(() => visibleSeries.value.filter((series) => series.type === "bar"));
+const barGroupCount = computed(() => Math.max(1, ...geometry.value.barGroups.map((group) => group + 1)));
+const legendSeries = computed(() => props.data.series
+  .map((series, index) => ({ series, index, name: seriesName(series, index) }))
+  .filter((item, index, items) => items.findIndex((candidate) => candidate.name === item.name) === index));
 
 function x(index: number) {
   const plotWidth = width.value - plot.left - plotRight.value;
@@ -67,7 +70,7 @@ function lineAreaPath(series: LegacyChartSeries) {
   if (!points.length) return "";
   const basePoints = series.values.map((_, index) => ({ x: x(index), y: y(baseValue(series, index)) }));
   const geometryIndex = visibleSeries.value.indexOf(series);
-  const smoothBase = visibleSeries.value[geometryIndex - 1]?.type === "line";
+  const smoothBase = visibleSeries.value[geometry.value.stackedOn[geometryIndex]]?.type === "line";
   return `${linePath(series)} ${pointsPath(basePoints.reverse(), "L", smoothBase)} Z`;
 }
 
@@ -83,14 +86,13 @@ function pointsPath(points: { x: number; y: number }[], command: "M" | "L", smoo
 
 function barWidth() {
   const maxWidth = props.compact ? 28 : 15 * width.value / renderedWidth.value;
-  const slots = props.compact ? 1 : Math.max(1, barSeries.value.length);
-  return Math.min(maxWidth, (width.value - plot.left - plotRight.value) / labelCount.value / slots * 0.62);
+  return Math.min(maxWidth, (width.value - plot.left - plotRight.value) / labelCount.value / barGroupCount.value * 0.62);
 }
 
 function barX(series: LegacyChartSeries, index: number) {
-  if (props.compact) return x(index) - barWidth() / 2;
-  const order = barSeries.value.indexOf(series);
-  return x(index) - barWidth() * barSeries.value.length / 2 + order * barWidth();
+  const seriesIndex = visibleSeries.value.indexOf(series);
+  const order = geometry.value.barGroups[seriesIndex] ?? 0;
+  return x(index) - barWidth() * barGroupCount.value / 2 + order * barWidth();
 }
 
 function barY(series: LegacyChartSeries, index: number) {
@@ -205,7 +207,7 @@ function tooltipValue(series: LegacyChartSeries) {
       </g>
       <g
         v-for="(series, seriesIndex) in data.series"
-        :key="`${seriesName(series, seriesIndex)}-${series.type}`"
+        :key="`${seriesName(series, seriesIndex)}-${series.type}-${seriesIndex}`"
         :style="{ display: isSeriesVisible(series, seriesIndex) ? undefined : 'none' }"
       >
         <path
@@ -275,7 +277,7 @@ function tooltipValue(series: LegacyChartSeries) {
       </template>
     </div>
     <ul class="chart-legend">
-      <li v-for="(series, index) in data.series" :key="`${seriesName(series, index)}-${index}`">
+      <li v-for="({ series, index }) in legendSeries" :key="seriesName(series, index)">
         <button
           type="button"
           :aria-pressed="isSeriesVisible(series, index)"

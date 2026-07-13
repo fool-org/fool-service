@@ -783,6 +783,7 @@ export function listRows(result?: ListViewResult) {
 
 export interface LegacyChartSeries {
   name: string;
+  stack?: string;
   type: "line" | "bar" | "scatter";
   values: number[];
 }
@@ -824,8 +825,10 @@ export function legacyChartData(rows: ListDataItem[]): LegacyChartData {
         continue;
       }
       if (!series[seriesIndex]) {
+        const name = firstDisplayValue([item.prpShowName, item.PrpShowName, item.prpId, item.PrpId]);
         series.push({
-          name: firstDisplayValue([item.prpShowName, item.PrpShowName, item.prpId, item.PrpId]),
+          name,
+          stack: name,
           type,
           values: []
         });
@@ -857,6 +860,7 @@ export function appendLegacyChartSample(
       labels: [...Array<string>(size).fill(""), label].slice(-size),
       series: sample.series.map((series) => ({
         ...series,
+        stack: "a",
         values: [...Array<number>(size).fill(0), series.values[0] ?? 0].slice(-size)
       }))
     };

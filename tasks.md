@@ -1327,6 +1327,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore ECharts 3.1.7's default zero-value bar geometry: remove the
       Vue-only one-pixel minimum so zero values stay invisible while nonzero
       metadata values keep their natural scale in top-level and compact charts.
+- [x] Restore `swchartLine.js` stack ids across both chart paths: use each
+      View-derived metadata name for top-level stacks, retain realtime `a`,
+      group matching bar slots, and collapse duplicate legend names.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

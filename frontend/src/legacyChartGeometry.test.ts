@@ -34,11 +34,11 @@ describe("legacy chart geometry", () => {
 
   it("stacks realtime series with ECharts mixed-type coordinates", () => {
     const geometry = legacyChartStackGeometry([
-      { name: "Line", type: "line", values: [2, -2, 0] },
-      { name: "Bar A", type: "bar", values: [3, -3, 4] },
-      { name: "Scatter", type: "scatter", values: [5, -5, -1] },
-      { name: "Bar B", type: "bar", values: [1, -1, 2] }
-    ], true);
+      { name: "Line", stack: "a", type: "line", values: [2, -2, 0] },
+      { name: "Bar A", stack: "a", type: "bar", values: [3, -3, 4] },
+      { name: "Scatter", stack: "a", type: "scatter", values: [5, -5, -1] },
+      { name: "Bar B", stack: "a", type: "bar", values: [1, -1, 2] }
+    ]);
 
     expect(geometry.values).toEqual([
       [2, -2, 0],
@@ -58,21 +58,37 @@ describe("legacy chart geometry", () => {
 
   it("uses the immediately stacked series as a same-sign line area base", () => {
     expect(legacyChartStackGeometry([
-      { name: "First", type: "line", values: [2, -2, 2] },
-      { name: "Second", type: "line", values: [3, -3, -1] }
-    ], true)).toMatchObject({
+      { name: "First", stack: "a", type: "line", values: [2, -2, 2] },
+      { name: "Second", stack: "a", type: "line", values: [3, -3, -1] }
+    ])).toMatchObject({
       values: [[2, -2, 2], [5, -5, -1]],
       bases: [[0, 0, 0], [2, -2, 0]]
     });
   });
 
-  it("keeps top-level series unstacked", () => {
+  it("stacks matching metadata names without merging other top-level groups", () => {
+    expect(legacyChartStackGeometry([
+      { name: "Shared", stack: "Shared", type: "bar", values: [2, -2] },
+      { name: "Other", stack: "Other", type: "bar", values: [7, -7] },
+      { name: "Shared", stack: "Shared", type: "bar", values: [3, -3] },
+      { name: "Shared", stack: "Shared", type: "line", values: [4, -4] }
+    ])).toMatchObject({
+      values: [[2, -2], [7, -7], [5, -5], [9, -9]],
+      bases: [[0, 0], [0, 0], [2, -2], [5, -5]],
+      stackedOn: [-1, -1, 0, 2],
+      barGroups: [0, 1, 0, -1]
+    });
+  });
+
+  it("keeps series without a stack independent", () => {
     expect(legacyChartStackGeometry([
       { name: "Line", type: "line", values: [2] },
       { name: "Bar", type: "bar", values: [3] }
-    ], false)).toEqual({
+    ])).toEqual({
       values: [[2], [3]],
       bases: [[0], [0]],
+      stackedOn: [-1, -1],
+      barGroups: [-1, 0],
       domainValues: [2, 3]
     });
   });

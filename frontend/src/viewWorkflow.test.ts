@@ -283,8 +283,8 @@ describe("view workflow helpers", () => {
       axisName: "Day",
       labels: ["Mon", "Tue"],
       series: [
-        { name: "Orders", type: "line", values: [7, 9] },
-        { name: "Volume", type: "bar", values: [12, 11] }
+        { name: "Orders", stack: "Orders", type: "line", values: [7, 9] },
+        { name: "Volume", stack: "Volume", type: "bar", values: [12, 11] }
       ]
     });
     expect(legacyChartData([{ Items: [{ PrpShowName: "DTO", FmtValue: "5", EditType: 0 }] }])).toEqual({
@@ -308,8 +308,8 @@ describe("view workflow helpers", () => {
       axisName: "Time",
       labels: ["", "", "A"],
       series: [
-        { name: "Price", type: "line", values: [0, 0, 1] },
-        { name: "Volume", type: "bar", values: [0, 0, 2] }
+        { name: "Price", stack: "a", type: "line", values: [0, 0, 1] },
+        { name: "Volume", stack: "a", type: "bar", values: [0, 0, 2] }
       ]
     });
 
@@ -325,8 +325,8 @@ describe("view workflow helpers", () => {
       axisName: "Time",
       labels: ["", "A", "B"],
       series: [
-        { name: "Price", type: "line", values: [0, 1, 3] },
-        { name: "Volume", type: "bar", values: [0, 2, 4] }
+        { name: "Price", stack: "a", type: "line", values: [0, 1, 3] },
+        { name: "Volume", stack: "a", type: "bar", values: [0, 2, 4] }
       ]
     });
   });

@@ -418,8 +418,9 @@ describe("App defaults", () => {
     expect(legacyChartPanelSource).toContain("geometry.value.domainValues");
     expect(legacyChartPanelSource).toContain("legacyChartScale");
     expect(legacyChartPanelSource).toContain("legacyChartStackGeometry");
-    expect(legacyChartPanelSource).toContain("Boolean(props.compact)");
-    expect(legacyChartPanelSource).toContain("visibleSeries.value.filter");
+    expect(legacyChartPanelSource).toContain("legacyChartStackGeometry(visibleSeries.value)");
+    expect(legacyChartPanelSource).toContain("geometry.value.barGroups");
+    expect(legacyChartPanelSource).toContain("legendSeries");
     expect(legacyChartPanelSource).toContain(':aria-pressed="isSeriesVisible(series, index)"');
     expect(legacyChartPanelSource).toContain('@click="toggleSeries(series, index)"');
     expect(legacyChartPanelSource).toContain(":style=\"{ display: isSeriesVisible(series, seriesIndex) ? undefined : 'none' }\"");
