@@ -369,6 +369,9 @@ describe("App defaults", () => {
     expect(sudokuPanelsSource).toContain("listFreshTime");
     expect(sudokuPanelsSource).toContain("emit('refreshPanel', panel)");
     expect(sudokuPanelsSource).toContain('class="sudoku-grid"');
+    expect(sudokuPanelsSource).toContain("allPanelsReady");
+    expect(sudokuPanelsSource).toContain("gridAutoRows: panelHeight || 'auto'");
+    expect(sudokuPanelsSource).toContain("Math.max(...heights)");
     expect(sudokuPanelsSource).toContain("sudokuPanelWidth(panel)");
     expect(sudokuPanelsSource).not.toContain("rows loaded");
   });

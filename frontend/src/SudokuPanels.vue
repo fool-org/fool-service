@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed, nextTick, ref, watch } from "vue";
 import Button from "primevue/button";
 import Panel from "primevue/panel";
 import Tab from "primevue/tab";
@@ -29,6 +30,8 @@ const props = defineProps<{
   panels: TableColumnInfo[];
 }>();
 const emit = defineEmits<{ refreshPanel: [panel: TableColumnInfo] }>();
+const gridElement = ref<HTMLElement | null>(null);
+const panelHeight = ref("");
 
 function sudokuPanelResult(panel: TableColumnInfo) {
   return props.panelData[sudokuPanelViewId(panel)];
@@ -74,10 +77,28 @@ function sudokuChildKey(panel: TableColumnInfo, index: number) {
 function sudokuPanelRefreshable(panel: TableColumnInfo) {
   return ["list", "linechart", "map"].includes(sudokuPanelKind(panel));
 }
+
+const allPanelsReady = computed(() => props.panels.length > 0 && props.panels.every((panel) => {
+  const result = sudokuPanelResult(panel);
+  if (!result) return false;
+  if (sudokuPanelKind(panel) !== "group") return true;
+  return viewColumns(result.view)
+    .filter((childPanel) => sudokuPanelListViewType(childPanel) === 0)
+    .every((childPanel) => Boolean(sudokuPanelResult(childPanel)));
+}));
+
+watch(allPanelsReady, async (ready) => {
+  panelHeight.value = "";
+  if (!ready) return;
+  await nextTick();
+  const panels = gridElement.value?.querySelectorAll<HTMLElement>(".sudoku-panel") ?? [];
+  const heights = [...panels].map((panel) => panel.getBoundingClientRect().height);
+  if (heights.length) panelHeight.value = `${Math.max(...heights)}px`;
+}, { immediate: true });
 </script>
 
 <template>
-  <div class="sudoku-grid">
+  <div ref="gridElement" class="sudoku-grid" :style="{ gridAutoRows: panelHeight || 'auto' }">
     <Panel
       v-for="panel in panels"
       :key="`${sudokuPanelViewId(panel)}-${fieldTitle(panel)}-${sudokuPanelKind(panel)}`"

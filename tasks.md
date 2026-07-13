@@ -1094,6 +1094,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore Sudoku `linechart.jade`'s fixed 200px partial without shrinking
       the shared `viewWithChart` page; adapt the compact SVG viewBox and mobile
       label density to the rendered panel geometry.
+- [x] Restore `Sudoku.js`'s one-time maximum flow-control height: wait for all
+      View-derived panel data, lock every grid row to the natural maximum, and
+      keep that height stable across Group tab switches and panel refreshes.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

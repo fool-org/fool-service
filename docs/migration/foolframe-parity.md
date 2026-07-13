@@ -2736,3 +2736,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   chart mode matching `.sw-partialchart`'s 200px container; its SVG viewBox
   follows the rendered aspect ratio and mobile labels are sampled to prevent
   overlap. Normal chart pages retain the original 720x300 viewBox and sizing.
+- 2026-07-13: restored `Sudoku.js`'s one-time global flow-control height lock.
+  After all root and Group-list View data is ready, Vue measures the natural
+  panel maximum once and assigns it to every grid row. Group tab switches and
+  panel refreshes do not remeasure or shift the page; a new Sudoku page entry
+  clears and recomputes the lock for that viewport.
