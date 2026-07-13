@@ -102,7 +102,7 @@ watch([currentViewId, templateKind, () => props.navigationRevision], () => {
       旧版模板 {{ templateName }} 尚未迁移。
     </Message>
 
-    <Tabs v-if="chartView" v-model:value="activePane" class="view-template-tabs">
+    <Tabs v-if="chartView" v-model:value="activePane" class="view-template-tabs legacy-tabs">
       <TabList>
         <Tab value="table">数据</Tab>
         <Tab value="chart">图表</Tab>

@@ -2805,3 +2805,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   Headers are now 14px bold, 20px high-line, bottom-aligned with a 2px `#ddd`
   divider; body cells use the same type scale, top alignment, and a 1px `#ddd`
   top border instead of PrimeVue's centered slate-bordered rows.
+- 2026-07-13: restored Bootstrap `nav-tabs` presentation across chart,
+  detail-collection, report, and Sudoku Group tabs. One shared `legacy-tabs`
+  class now renders blue inactive links and white bordered active tabs with
+  10x15px padding while preserving each existing Vue tab state and workflow.

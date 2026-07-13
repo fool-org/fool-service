@@ -330,7 +330,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
     </Dialog>
 
     <div v-if="selectedObjectId || (schemaOnly && detailItemGroups.length)" class="view-items-panel">
-      <Tabs v-if="detailItemGroups.length" v-model:value="activeGroupKey" class="detail-collection-tabs">
+      <Tabs v-if="detailItemGroups.length" v-model:value="activeGroupKey" class="detail-collection-tabs legacy-tabs">
         <TabList scrollable>
           <Tab v-for="group in detailItemGroups" :key="groupKey(group)" :value="groupKey(group)">
             {{ groupTitle(group) }}

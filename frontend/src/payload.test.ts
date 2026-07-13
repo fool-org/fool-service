@@ -308,6 +308,7 @@ describe("App defaults", () => {
   it("renders list paging from legacy querydata totals", () => {
     expect(viewListPanelSource).toContain("resultTotalItems");
     expect(viewListPanelSource).toContain("<LegacyPagination");
+    expect(viewListPanelSource).toContain('class="view-template-tabs legacy-tabs"');
     expect(viewListPanelSource).toContain(':total-items="resultTotalItems"');
     expect(viewListPanelSource).toContain(':minimum-rows="pageSize"');
     expect(listDataTableSource).toContain('Symbol("legacy-filler-row")');
@@ -323,6 +324,9 @@ describe("App defaults", () => {
     expect(listDataTableSource).toContain(`:size="condensed ? 'small' : undefined"`);
     expect(sudokuPanelsSource.match(/:condensed="false"/g)).toHaveLength(2);
     expect(viewDetailPanelSource).toContain(':condensed="false"');
+    expect(viewDetailPanelSource).toContain('class="detail-collection-tabs legacy-tabs"');
+    expect(viewReportPanelSource).toContain('class="report-tabs legacy-tabs"');
+    expect(sudokuPanelsSource).toContain('<Tabs class="legacy-tabs"');
     expect(legacyPaginationSource).toContain("event.page + 1");
     expect(legacyPaginationSource).toContain("<Paginator");
     expect(legacyPaginationSource).toContain('class="record-info"');

@@ -335,6 +335,41 @@ label {
   padding: 16px 0 0;
 }
 
+.legacy-tabs .p-tablist-tab-list {
+  gap: 0;
+  border-bottom: 1px solid #dddddd;
+  background: transparent;
+}
+
+.legacy-tabs .p-tab {
+  margin: 0 2px -1px 0;
+  border: 1px solid transparent;
+  border-radius: 4px 4px 0 0;
+  background: transparent;
+  color: #337ab7;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.42857143;
+  padding: 10px 15px;
+}
+
+.legacy-tabs .p-tab:hover {
+  border-color: #eeeeee #eeeeee #dddddd;
+  background: #eeeeee;
+  color: #23527c;
+}
+
+.legacy-tabs .p-tab.p-tab-active {
+  border-color: #dddddd;
+  border-bottom-color: #ffffff;
+  background: #ffffff;
+  color: #555555;
+}
+
+.legacy-tabs .p-tablist-active-bar {
+  display: none;
+}
+
 .report-section {
   display: grid;
   gap: 10px;

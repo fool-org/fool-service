@@ -1142,6 +1142,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore Bootstrap table-cell geometry in the shared renderer: 14px/20px
       typography, bold bottom-aligned headers with 2px `#ddd`, and top-aligned
       body cells with 1px `#ddd` borders.
+- [x] Restore Bootstrap `nav-tabs` presentation through one reusable class for
+      chart, detail collection, report, and Sudoku Group tabs while preserving
+      each existing Vue interaction state.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

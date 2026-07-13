@@ -139,7 +139,7 @@ watch(allPanelsReady, async (ready) => {
         :fields="sudokuPanelItemFields(panel)"
       />
       <div v-else-if="sudokuPanelKind(panel) === 'group' && sudokuGroupPanels(panel).length" class="sudoku-panel-body">
-        <Tabs :value="sudokuChildKey(sudokuGroupPanels(panel)[0], 0)">
+        <Tabs class="legacy-tabs" :value="sudokuChildKey(sudokuGroupPanels(panel)[0], 0)">
           <TabList>
             <Tab v-for="(childPanel, index) in sudokuGroupPanels(panel)" :key="sudokuChildKey(childPanel, index)" :value="sudokuChildKey(childPanel, index)">
               {{ fieldTitle(childPanel) }}

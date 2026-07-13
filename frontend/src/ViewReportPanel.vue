@@ -264,7 +264,7 @@ onMounted(() => void loadReportColumns());
       </div>
     </section>
 
-    <Tabs v-else v-model:value="activeTab" class="report-tabs">
+    <Tabs v-else v-model:value="activeTab" class="report-tabs legacy-tabs">
       <TabList scrollable>
         <Tab value="output">输出</Tab>
         <Tab value="conditions">条件</Tab>
