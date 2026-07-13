@@ -950,20 +950,20 @@ label {
 }
 
 .chart-grid-line line {
-  stroke: #e2e8f0;
+  stroke: #cccccc;
   stroke-width: 1;
 }
 
 .chart-grid-line text,
 .chart-axis-label,
 .chart-axis-name {
-  fill: #64748b;
-  font-size: 11px;
+  fill: #333333;
+  font-size: 12px;
 }
 
 .chart-axis {
-  stroke: #8795a3;
-  stroke-width: 1.25;
+  stroke: #333333;
+  stroke-width: 1;
 }
 
 .chart-line-area {

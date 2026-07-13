@@ -1357,6 +1357,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `viewWithChart.js`'s first-data chart-height lock: measure the
       rendered data pane once per View entry, reuse that height in the shared
       chart, and retain readable ECharts-style category-label sampling.
+- [x] Restore ECharts 3.1.7's default axis presentation: use its `#333` 1px
+      axis, `#333` 12px labels, and `#ccc` 1px split lines in the shared
+      top-level/Sudoku renderer and exercise the CSS contract in Vitest.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

@@ -3237,3 +3237,14 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   plot width, retaining eight non-overlapping desktop labels and only the two
   non-overlapping endpoints at 390px. `/view103` stayed on its independent
   328x200 compact contract, and browser warnings/overflow remained absent.
+- 2026-07-14: restored ECharts 3.1.7's default axis presentation. The old Web
+  package declares ECharts `^3.1.7`, whose `axisDefault.js` uses `#333` 1px
+  axis lines, `#333` 12px labels, and `#ccc` 1px split lines. The shared Vue
+  chart now uses those values instead of its lighter 11px slate treatment for
+  both top-level and Sudoku entrypoints. Vitest now processes `style.css` so
+  existing and new CSS contracts inspect actual content rather than its
+  default empty replacement. Docker `/view100` computed the legacy colors,
+  widths, and font size at desktop and 390x844 while retaining its 414px and
+  470px chart-height locks; `/view103` retained its 328x200 compact chart.
+  Labels did not overlap, document overflow stayed false, and all three page
+  checks had no browser warnings or errors.

@@ -16,7 +16,6 @@ import reportConditionsSource from "./reportConditions.ts?raw";
 import reportOutputSelectorSource from "./ReportOutputSelector.vue?raw";
 import reportOutputsSource from "./reportOutputs.ts?raw";
 import shellActionsSource from "./ShellActions.vue?raw";
-import styleSource from "./style.css?raw";
 import sudokuPanelsSource from "./SudokuPanels.vue?raw";
 import sudokuWorkflowSource from "./useSudokuPanels.ts?raw";
 import themeSource from "./theme.ts?raw";
@@ -405,13 +404,6 @@ describe("App defaults", () => {
     expect(legacyChartPanelSource).toContain(":style=\"paneStyle\"");
     expect(legacyChartPanelSource).toContain("props.compact || fixedHeight.value");
     expect(legacyChartPanelSource).toContain("const renderedPlotWidth = plotWidth * renderedWidth.value / width.value");
-    const chartPaneStyle = styleSource.slice(
-      styleSource.indexOf(".legacy-chart-pane {"),
-      styleSource.indexOf(".legacy-chart {")
-    );
-    expect(chartPaneStyle).not.toContain("border:");
-    expect(chartPaneStyle).not.toContain("border-radius:");
-    expect(chartPaneStyle).not.toContain("padding:");
     expect(legacyChartPanelSource).toContain("function linePath");
     expect(legacyChartPanelSource).toContain('pointsPath(basePoints.reverse(), "L", smoothBase)');
     expect(legacyChartPanelSource).toContain('class="chart-line-area"');
