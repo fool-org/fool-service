@@ -18,7 +18,7 @@ item must land with its matching implementation and validation evidence.
 - [x] Upgrade detail fields, child-row controls, lookup results, report
       builder/results, and View-specific containers without changing legacy
       request values or component events.
-- [ ] Pass frontend, Docker runtime, repository harness, desktop browser, and
+- [x] Pass frontend, Docker runtime, repository harness, desktop browser, and
       390x844 browser acceptance with evidence under `artifacts/runs/`.
 
 ## Current Focus
