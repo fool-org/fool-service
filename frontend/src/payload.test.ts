@@ -394,7 +394,12 @@ describe("App defaults", () => {
     expect(legacyChartPanelSource).toContain('return props.data.labels[index] || ""');
     expect(legacyChartPanelSource).toContain('v-if="index < data.labels.length && showLabel(index)"');
     expect(legacyChartPanelSource).toContain('class="legacy-chart"');
-    expect(legacyChartPanelSource).toContain("<polyline");
+    expect(legacyChartPanelSource).toContain("function linePath");
+    expect(legacyChartPanelSource).toContain('class="chart-line-area"');
+    expect(legacyChartPanelSource).toContain('class="chart-line"');
+    expect(legacyChartPanelSource).toContain('class="chart-line-hit"');
+    expect(legacyChartPanelSource).toContain('class="chart-value-label"');
+    expect(legacyChartPanelSource).not.toContain("<polyline");
     expect(legacyChartPanelSource).toContain("<rect");
     expect(legacyChartPanelSource).toContain("<circle");
     expect(legacyChartPanelSource).not.toContain("<meter");

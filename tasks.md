@@ -1278,6 +1278,9 @@ item must land with its matching implementation and validation evidence.
       output once, then preserve the current selection on later/duplicate adds.
 - [x] Restore `initQueryView` candidate headings: render only loaded View field
       labels and keep the row-level Select action without an added header label.
+- [x] Restore `swchartLine.js` series presentation in the shared chart renderer:
+      smooth and fill line series, hide their point symbols, retain point
+      tooltips, and show the metadata-series value labels.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

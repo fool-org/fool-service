@@ -48,8 +48,25 @@ function y(value: number) {
   return plot.top + (domain.value.max - value) / (domain.value.max - domain.value.min) * plotHeight;
 }
 
-function linePoints(series: LegacyChartSeries) {
-  return series.values.map((value, index) => `${x(index)},${y(value)}`).join(" ");
+function seriesPoints(series: LegacyChartSeries) {
+  return series.values.map((value, index) => ({ x: x(index), y: y(value) }));
+}
+
+function linePath(series: LegacyChartSeries) {
+  const points = seriesPoints(series);
+  if (!points.length) return "";
+  return points.slice(1).reduce((path, point, index) => {
+    const previous = points[index];
+    const controlX = (previous.x + point.x) / 2;
+    return `${path} C ${controlX},${previous.y} ${controlX},${point.y} ${point.x},${point.y}`;
+  }, `M ${points[0].x},${points[0].y}`);
+}
+
+function lineAreaPath(series: LegacyChartSeries) {
+  const points = seriesPoints(series);
+  if (!points.length) return "";
+  const baseline = y(0);
+  return `${linePath(series)} L ${points[points.length - 1].x},${baseline} L ${points[0].x},${baseline} Z`;
 }
 
 function barWidth() {
@@ -67,6 +84,14 @@ function barY(value: number) {
 
 function barHeight(value: number) {
   return Math.max(1, Math.abs(y(value) - y(0)));
+}
+
+function valueLabelX(series: LegacyChartSeries, index: number) {
+  return series.type === "bar" ? barX(series, index) + barWidth() / 2 : x(index);
+}
+
+function valueLabelY(value: number) {
+  return Math.max(plot.top + 10, y(value) - 7);
 }
 
 function showLabel(index: number) {
@@ -106,14 +131,17 @@ function seriesName(series: LegacyChartSeries, index: number) {
         </text>
       </g>
       <g v-for="(series, seriesIndex) in data.series" :key="`${seriesName(series, seriesIndex)}-${series.type}`">
-        <polyline
+        <path
           v-if="series.type === 'line'"
-          fill="none"
-          :points="linePoints(series)"
+          class="chart-line-area"
+          :d="lineAreaPath(series)"
+          :fill="colors[seriesIndex % colors.length]"
+        />
+        <path
+          v-if="series.type === 'line'"
+          class="chart-line"
+          :d="linePath(series)"
           :stroke="colors[seriesIndex % colors.length]"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="3"
         />
         <template v-for="(value, index) in series.values" :key="`${seriesIndex}-${index}`">
           <rect
@@ -126,12 +154,20 @@ function seriesName(series: LegacyChartSeries, index: number) {
             rx="2"
           ><title>{{ seriesName(series, seriesIndex) }} · {{ label(index) }}: {{ formatter.format(value) }}</title></rect>
           <circle
-            v-else
+            v-else-if="series.type === 'scatter'"
             :cx="x(index)"
             :cy="y(value)"
-            :r="series.type === 'scatter' ? 6 : 4"
+            r="6"
             :fill="colors[seriesIndex % colors.length]"
           ><title>{{ seriesName(series, seriesIndex) }} · {{ label(index) }}: {{ formatter.format(value) }}</title></circle>
+          <circle
+            v-else
+            class="chart-line-hit"
+            :cx="x(index)"
+            :cy="y(value)"
+            r="10"
+          ><title>{{ seriesName(series, seriesIndex) }} · {{ label(index) }}: {{ formatter.format(value) }}</title></circle>
+          <text class="chart-value-label" :x="valueLabelX(series, index)" :y="valueLabelY(value)">{{ formatter.format(value) }}</text>
         </template>
       </g>
     </svg>

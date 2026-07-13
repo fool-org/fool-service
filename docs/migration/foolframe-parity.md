@@ -3036,3 +3036,9 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   headings, without the Vue-only `操作` label. Queried rows retain their
   row-level Select command in the unlabeled trailing column, preserving the
   shared table component and the existing View-first candidate workflow.
+- 2026-07-14: restored `swchartLine.js`'s configured series presentation in the
+  shared SVG chart. Line metadata now renders as a smooth filled curve without
+  visible point symbols, while transparent point targets retain per-value
+  tooltips and all line/bar/scatter values use the old visible label behavior.
+  Top-level `viewWithChart` and Sudoku linechart panels reuse the same renderer;
+  no chart dependency, business DTO branch, or duplicated panel was added.
