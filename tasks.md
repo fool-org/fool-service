@@ -1333,6 +1333,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `querylistdata.js` non-target row-operation presentation: keep
       metadata names visible as inert link-colored text without disabled button
       semantics, while target View operations retain navigation buttons.
+- [x] Restore `mapview.js`'s async marker lifecycle: redraw the shared Leaflet
+      marker layer when child View data arrives and bind popups only when the
+      View-derived title or information fields exist.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

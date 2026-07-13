@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, watch } from "vue";
 import type { LegacyMapMarker } from "./viewWorkflow";
 
 const props = defineProps<{ markers: LegacyMapMarker[] }>();
 const mapElement = ref<HTMLElement | null>(null);
 const mapError = ref("");
+let leafletApi: typeof import("leaflet") | undefined;
 let map: import("leaflet").Map | undefined;
+let markerLayer: import("leaflet").LayerGroup | undefined;
 
 onMounted(async () => {
   try {
@@ -14,45 +16,54 @@ onMounted(async () => {
       import("leaflet/dist/leaflet.css")
     ]);
     if (!mapElement.value) return;
-
-    const points = props.markers
-      .map((marker) => ({ marker, latitude: Number(marker.latitude), longitude: Number(marker.longitude) }))
-      .filter(({ latitude, longitude }) =>
-        Number.isFinite(latitude) && Number.isFinite(longitude) &&
-        latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180
-      );
-
+    leafletApi = leaflet;
     map = leaflet.map(mapElement.value, { scrollWheelZoom: true });
+    markerLayer = leaflet.layerGroup().addTo(map);
     leaflet.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 19
     }).addTo(map);
-    if (!points.length) {
-      map.setView([39.94917, 116.32], 18);
-      window.requestAnimationFrame(() => map?.invalidateSize());
-      return;
-    }
-
-    for (const { marker, latitude, longitude } of points) {
-      leaflet.circleMarker([latitude, longitude], {
-        color: "#2e6da4",
-        fillColor: "#337ab7",
-        fillOpacity: 0.85,
-        radius: 8,
-        weight: 2
-      }).bindPopup(markerPopup(marker)).addTo(map);
-    }
-
-    const bounds = leaflet.latLngBounds(points.map(({ latitude, longitude }) => [latitude, longitude]));
-    if (points.length === 1) map.setView(bounds.getCenter(), 13);
-    else map.fitBounds(bounds, { maxZoom: 15, padding: [24, 24] });
-    window.requestAnimationFrame(() => map?.invalidateSize());
+    renderMarkers();
   } catch {
     mapError.value = "地图暂不可用。";
   }
 });
 
+watch(() => props.markers, renderMarkers, { deep: true });
+
 onUnmounted(() => map?.remove());
+
+function renderMarkers() {
+  if (!leafletApi || !map || !markerLayer) return;
+  markerLayer.clearLayers();
+  const points = props.markers
+    .map((marker) => ({ marker, latitude: Number(marker.latitude), longitude: Number(marker.longitude) }))
+    .filter(({ latitude, longitude }) =>
+      Number.isFinite(latitude) && Number.isFinite(longitude) &&
+      latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180
+    );
+  if (!points.length) {
+    map.setView([39.94917, 116.32], 18);
+    window.requestAnimationFrame(() => map?.invalidateSize());
+    return;
+  }
+
+  for (const { marker, latitude, longitude } of points) {
+    const layer = leafletApi.circleMarker([latitude, longitude], {
+      color: "#2e6da4",
+      fillColor: "#337ab7",
+      fillOpacity: 0.85,
+      radius: 8,
+      weight: 2
+    }).addTo(markerLayer);
+    if (marker.title || marker.info.length) layer.bindPopup(markerPopup(marker));
+  }
+
+  const bounds = leafletApi.latLngBounds(points.map(({ latitude, longitude }) => [latitude, longitude]));
+  if (points.length === 1) map.setView(bounds.getCenter(), 13);
+  else map.fitBounds(bounds, { maxZoom: 15, padding: [24, 24] });
+  window.requestAnimationFrame(() => map?.invalidateSize());
+}
 
 function markerPopup(marker: LegacyMapMarker) {
   const content = document.createElement("div");
@@ -71,7 +82,7 @@ function markerName(marker: LegacyMapMarker) {
   const title = [marker.title?.label, marker.title?.text].filter(Boolean).join(" ");
   if (title) return title;
   const firstInfo = marker.info[0];
-  return [firstInfo?.label, firstInfo?.text].filter(Boolean).join(" ") || "位置";
+  return [firstInfo?.label, firstInfo?.text].filter(Boolean).join(" ");
 }
 </script>
 

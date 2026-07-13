@@ -3166,3 +3166,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `/view100` showed all 16 seeded `删除` / `保存` names across eight rows with
   zero table-action buttons and computed `#337ab7` color; at 390px the table
   pane stayed 328px wide and document scroll width remained exactly 390px.
+- 2026-07-14: restored `mapview.js`'s asynchronous marker lifecycle and popup
+  boundary. The shared Leaflet map now keeps one marker layer, clears and
+  redraws it when child View query data arrives, and retains the old Beijing
+  zoom-18 fallback when no valid coordinates exist. A marker receives a popup
+  only when View-derived title or information metadata exists; coordinate-only
+  rows remain visible without Vue-only fallback text. Before the fix,
+  authenticated `/view103` announced two locations but rendered zero Leaflet
+  marker paths. The rebuilt Docker page rendered two actual paths, and both
+  seeded popups showed their View-derived customer name and id. At 390px the
+  same two markers remained visible in a 328px map with no document overflow.

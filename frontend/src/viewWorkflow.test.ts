@@ -346,6 +346,12 @@ describe("view workflow helpers", () => {
           { PrpShowName: "Longitude", ObjId: "", EditType: 16 },
           { PrpShowName: "Latitude", ObjId: "39", EditType: 17 }
         ]
+      },
+      {
+        Items: [
+          { PrpShowName: "Longitude", ObjId: "120", EditType: 16 },
+          { PrpShowName: "Latitude", ObjId: "30", EditType: 17 }
+        ]
       }
     ])).toEqual([
       {
@@ -353,6 +359,11 @@ describe("view workflow helpers", () => {
         latitude: "39.94917",
         title: { label: "Shop", text: "Main Store" },
         info: [{ label: "Address", text: "Beijing" }]
+      },
+      {
+        longitude: "120",
+        latitude: "30",
+        info: []
       }
     ]);
   });

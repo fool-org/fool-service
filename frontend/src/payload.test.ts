@@ -511,14 +511,18 @@ describe("App defaults", () => {
     expect(sudokuPanelsSource).toContain("<LegacyMapPanel");
     expect(legacyMapPanelSource).toContain('import("leaflet")');
     expect(legacyMapPanelSource).toContain("leaflet.map(mapElement.value, { scrollWheelZoom: true })");
+    expect(legacyMapPanelSource).toContain("watch(() => props.markers, renderMarkers, { deep: true })");
+    expect(legacyMapPanelSource).toContain("markerLayer.clearLayers()");
     expect(legacyMapPanelSource).toContain("map.setView([39.94917, 116.32], 18)");
-    expect(legacyMapPanelSource).toContain("leaflet.circleMarker");
+    expect(legacyMapPanelSource).toContain("leafletApi.circleMarker");
+    expect(legacyMapPanelSource).toContain("if (marker.title || marker.info.length) layer.bindPopup(markerPopup(marker))");
     expect(legacyMapPanelSource).toContain("map.fitBounds");
     expect(legacyMapPanelSource).toContain("title.textContent");
     expect(legacyMapPanelSource).toContain("marker.info[0]");
     expect(legacyMapPanelSource).not.toContain("map-location-list");
     expect(legacyMapPanelSource).not.toContain("没有有效的地图位置。");
     expect(legacyMapPanelSource).not.toContain('"Location"');
+    expect(legacyMapPanelSource).not.toContain('|| "位置"');
   });
 
   it("renders Sudoku item panels from legacy detail SimpleData", () => {
