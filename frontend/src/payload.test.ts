@@ -411,6 +411,13 @@ describe("App defaults", () => {
     expect(legacyChartPanelSource).toContain("const plotRight = computed(() => width.value * 0.2)");
     expect(legacyChartPanelSource).toContain(':x2="width - plotRight"');
     expect(legacyChartPanelSource).not.toContain("right: 18");
+    expect(legacyChartPanelSource).toContain("const hiddenSeriesNames = ref<string[]>([])");
+    expect(legacyChartPanelSource).toContain("const visibleSeries = computed(() => props.data.series.filter(isSeriesVisible))");
+    expect(legacyChartPanelSource).toContain("visibleSeries.value.flatMap");
+    expect(legacyChartPanelSource).toContain("visibleSeries.value.filter");
+    expect(legacyChartPanelSource).toContain(':aria-pressed="isSeriesVisible(series, index)"');
+    expect(legacyChartPanelSource).toContain('@click="toggleSeries(series, index)"');
+    expect(legacyChartPanelSource).toContain(":style=\"{ display: isSeriesVisible(series, seriesIndex) ? undefined : 'none' }\"");
     expect(legacyChartPanelSource).toContain("<circle");
     expect(legacyChartPanelSource).not.toContain("<meter");
     expect(legacyChartPanelSource).toContain('"#c23531", "#2f4554", "#61a0a8"');

@@ -3068,3 +3068,10 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   horizontal default; narrow screens stack the same legend entries vertically
   within the reserved column to avoid covering plotted values. Existing series,
   responsive 15px bars, and View-derived labels remain unchanged.
+- 2026-07-14: restored ECharts 3.1.7's default selectable-legend interaction in
+  the shared chart renderer. Legend buttons now toggle selection by metadata
+  series name, use the old `#ccc` inactive treatment, and expose pressed state
+  to assistive technology. Hidden series leave drawing, y-axis domain
+  calculation, and visible bar grouping together, including the old all-hidden
+  `0..1` fallback; top-level and compact charts reuse the same implementation
+  without a business DTO branch or chart dependency.

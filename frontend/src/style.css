@@ -921,14 +921,32 @@ label {
 }
 
 .chart-legend li {
-  display: grid;
-  grid-template-columns: 10px auto auto;
-  gap: 6px;
-  align-items: center;
   font-size: 0.78rem;
 }
 
-.chart-legend li > span {
+.chart-legend button {
+  display: grid;
+  grid-template-columns: 10px auto;
+  gap: 6px;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.chart-legend button:focus-visible {
+  outline: 2px solid #337ab7;
+  outline-offset: 2px;
+}
+
+.chart-legend button.series-hidden {
+  color: #cccccc;
+}
+
+.chart-legend button > span {
   width: 10px;
   height: 10px;
   border-radius: 2px;

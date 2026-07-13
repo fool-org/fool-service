@@ -7,6 +7,7 @@ const chartElement = ref<SVGSVGElement | null>(null);
 const height = props.compact ? 160 : 300;
 const width = ref(720);
 const renderedWidth = ref(720);
+const hiddenSeriesNames = ref<string[]>([]);
 const plot = { left: 52, top: 18, bottom: 46 };
 const plotRight = computed(() => width.value * 0.2);
 const colors = ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83"];
@@ -31,8 +32,9 @@ const labelCount = computed(() => Math.max(
   props.data.labels.length,
   ...props.data.series.map((series) => series.values.length)
 ));
+const visibleSeries = computed(() => props.data.series.filter(isSeriesVisible));
 const domain = computed(() => {
-  const values = props.data.series.flatMap((series) => series.values);
+  const values = visibleSeries.value.flatMap((series) => series.values);
   const min = Math.min(0, ...values);
   const max = Math.max(0, ...values);
   return { min, max: max === min ? min + 1 : max };
@@ -40,7 +42,7 @@ const domain = computed(() => {
 const ticks = computed(() => Array.from({ length: 5 }, (_, index) =>
   domain.value.max - (domain.value.max - domain.value.min) * index / 4
 ));
-const barSeries = computed(() => props.data.series.filter((series) => series.type === "bar"));
+const barSeries = computed(() => visibleSeries.value.filter((series) => series.type === "bar"));
 
 function x(index: number) {
   const plotWidth = width.value - plot.left - plotRight.value;
@@ -120,6 +122,17 @@ function label(index: number) {
 function seriesName(series: LegacyChartSeries, index: number) {
   return series.name || `系列 ${index + 1}`;
 }
+
+function isSeriesVisible(series: LegacyChartSeries, index: number) {
+  return !hiddenSeriesNames.value.includes(seriesName(series, index));
+}
+
+function toggleSeries(series: LegacyChartSeries, index: number) {
+  const name = seriesName(series, index);
+  hiddenSeriesNames.value = hiddenSeriesNames.value.includes(name)
+    ? hiddenSeriesNames.value.filter((item) => item !== name)
+    : [...hiddenSeriesNames.value, name];
+}
 </script>
 
 <template>
@@ -137,7 +150,11 @@ function seriesName(series: LegacyChartSeries, index: number) {
           {{ label(index) }}
         </text>
       </g>
-      <g v-for="(series, seriesIndex) in data.series" :key="`${seriesName(series, seriesIndex)}-${series.type}`">
+      <g
+        v-for="(series, seriesIndex) in data.series"
+        :key="`${seriesName(series, seriesIndex)}-${series.type}`"
+        :style="{ display: isSeriesVisible(series, seriesIndex) ? undefined : 'none' }"
+      >
         <path
           v-if="series.type === 'line'"
           class="chart-line-area"
@@ -181,8 +198,15 @@ function seriesName(series: LegacyChartSeries, index: number) {
     </svg>
     <ul class="chart-legend">
       <li v-for="(series, index) in data.series" :key="`${seriesName(series, index)}-${index}`">
-        <span :style="{ backgroundColor: colors[index % colors.length] }"></span>
-        <strong>{{ seriesName(series, index) }}</strong>
+        <button
+          type="button"
+          :aria-pressed="isSeriesVisible(series, index)"
+          :class="{ 'series-hidden': !isSeriesVisible(series, index) }"
+          @click="toggleSeries(series, index)"
+        >
+          <span :style="{ backgroundColor: isSeriesVisible(series, index) ? colors[index % colors.length] : '#cccccc' }"></span>
+          <strong>{{ seriesName(series, index) }}</strong>
+        </button>
       </li>
     </ul>
   </div>

@@ -1293,6 +1293,10 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore both `swchartLine.js` chart layouts: reserve the legacy 20% right
       grid space and move the horizontal metadata legend to the right-middle,
       stacking only on narrow screens to keep the plot readable.
+- [x] Restore ECharts 3.1.7's default legend selection: toggle by metadata
+      series name, remove hidden series from drawing and domain/bar grouping,
+      retain the inactive `#ccc` treatment, and share the behavior across
+      top-level and compact charts.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
