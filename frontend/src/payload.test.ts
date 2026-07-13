@@ -348,7 +348,7 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain(':condensed="false"');
     expect(viewDetailPanelSource).toContain('class="detail-collection-tabs legacy-tabs"');
     expect(viewReportPanelSource).toContain('class="report-tabs legacy-tabs"');
-    expect(sudokuPanelsSource).toContain('<Tabs class="legacy-tabs"');
+    expect(sudokuPanelsSource).toContain('class="legacy-tabs"');
     expect(legacyPaginationSource).toContain("event.page + 1");
     expect(legacyPaginationSource).toContain("<Paginator");
     expect(legacyPaginationSource).toContain('class="record-info"');
@@ -483,10 +483,12 @@ describe("App defaults", () => {
     expect(sudokuWorkflowSource).toContain("for (const childPanel of viewColumns(response.view))");
     expect(sudokuWorkflowSource).toContain("sudokuPanelListViewType(childPanel) !== 0");
     expect(sudokuWorkflowSource).toContain("mergePanelResult(childViewId, childResponse)");
-    expect(sudokuPanelsSource).toContain("sudokuPanelKind(panel) === 'group'");
-    expect(sudokuPanelsSource).toContain("<Tabs");
+    expect(sudokuPanelsSource).toContain('v-else-if="sudokuPanelKind(panel) === \'group\'"');
+    expect(sudokuPanelsSource).not.toContain("group' && sudokuGroupPanels(panel).length");
+    expect(sudokuPanelsSource).toContain('<Tabs v-if="sudokuGroupPanels(panel).length"');
     expect(sudokuPanelsSource).toContain("<TabList>");
     expect(sudokuPanelsSource).toContain("这是简单项");
+    expect(sudokuPanelsSource.match(/暂无数据。/g)).toHaveLength(1);
   });
 
   it("resets the main View search to the first page", () => {

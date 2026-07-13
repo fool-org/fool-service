@@ -2950,3 +2950,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   zoom 18 when no valid points resolve, and enables wheel zoom instead of
   showing Vue-only empty/error copy. View-first marker projection, refresh, and
   the existing shared map renderer remain unchanged.
+- 2026-07-14: restored `Group.jade` / `groupview.js` empty-content behavior.
+  Group panels now retain an empty body when their loaded View has no child
+  Items, and unknown child `ListViewType` tabs retain an empty tab panel instead
+  of showing Vue-only `暂无数据。`. List children, the legacy `这是简单项` branch,
+  tab selection, and View-first child loading remain unchanged.

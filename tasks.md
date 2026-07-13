@@ -1231,6 +1231,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `mapview.js`'s empty Sudoku Map lifecycle: always mount the shared
       map, use the legacy Beijing center at zoom 18 when no valid points exist,
       enable wheel zoom, and remove Vue-only empty/error copy.
+- [x] Restore `Group.jade` / `groupview.js` empty-content behavior: keep empty
+      Group bodies and unknown child-type tab panels blank instead of inserting
+      Vue-only empty-state copy.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

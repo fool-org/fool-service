@@ -138,8 +138,8 @@ watch(allPanelsReady, async (ready) => {
         v-else-if="sudokuPanelKind(panel) === 'item'"
         :fields="sudokuPanelItemFields(panel)"
       />
-      <div v-else-if="sudokuPanelKind(panel) === 'group' && sudokuGroupPanels(panel).length" class="sudoku-panel-body">
-        <Tabs class="legacy-tabs" :value="sudokuChildKey(sudokuGroupPanels(panel)[0], 0)">
+      <div v-else-if="sudokuPanelKind(panel) === 'group'" class="sudoku-panel-body">
+        <Tabs v-if="sudokuGroupPanels(panel).length" class="legacy-tabs" :value="sudokuChildKey(sudokuGroupPanels(panel)[0], 0)">
           <TabList>
             <Tab v-for="(childPanel, index) in sudokuGroupPanels(panel)" :key="sudokuChildKey(childPanel, index)" :value="sudokuChildKey(childPanel, index)">
               {{ fieldTitle(childPanel) }}
@@ -160,7 +160,6 @@ watch(allPanelsReady, async (ready) => {
                 />
               </div>
               <div v-else-if="sudokuPanelListViewType(childPanel) === 1" class="empty-state compact">这是简单项</div>
-              <div v-else class="empty-state compact">暂无数据。</div>
               <div v-if="sudokuPanelListViewType(childPanel) === 0" class="sudoku-panel-footer">
                 <span v-if="sudokuPanelFreshTime(childPanel)">更新时间 {{ sudokuPanelFreshTime(childPanel) }}</span>
                 <Button type="button" label="刷新" severity="secondary" text size="small" :disabled="disabled" @click="emit('refreshPanel', childPanel)" />
