@@ -13,6 +13,7 @@ import {
   buildSelectedExistingItemProperty,
   buildUpdatedItemProperty,
   columnKey,
+  columnWidth,
   createOperations,
   dataCanEdit,
   dataOperations,
@@ -170,6 +171,10 @@ describe("view workflow helpers", () => {
     };
 
     expect(columnKey(columns[0])).toBe("record_id");
+    expect(columnWidth({ width: 120.9 })).toBe(120);
+    expect(columnWidth({ Width: 80 })).toBe(80);
+    expect(columnWidth({ width: 0, Width: 90 })).toBe(0);
+    expect(columnWidth({ width: -1 })).toBe(0);
     expect(rowObjectId(row, columns)).toBe("1001");
     expect(rowValue(row, columns[1])).toBe("Open");
     expect(rowFormatClass({ ...row, rowFmt: "warning-row " })).toBe("warning-row");

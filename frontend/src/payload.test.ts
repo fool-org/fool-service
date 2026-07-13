@@ -312,6 +312,8 @@ describe("App defaults", () => {
     expect(viewListPanelSource).toContain(':minimum-rows="pageSize"');
     expect(listDataTableSource).toContain('Symbol("legacy-filler-row")');
     expect(listDataTableSource).toContain("props.minimumRows - props.rows.length");
+    expect(listDataTableSource).toContain("columnWidth(column)");
+    expect(listDataTableSource).toContain(':style="tableColumnStyle(column)"');
     expect(listDataTableSource).toContain('return "legacy-filler-row"');
     expect(listDataTableSource).toContain('v-if="!isFiller(row)" class="table-actions"');
     expect(legacyPaginationSource).toContain("event.page + 1");

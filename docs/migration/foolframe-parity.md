@@ -2780,3 +2780,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   normal/chart/candidate queries keep ten body rows and Sudoku List/Group List
   partials keep their configured five. Filler rows expose no operation buttons
   and never enter row-selection or View data state.
+- 2026-07-13: restored `view.jade` / `viewWithChart.jade` ViewItem column
+  widths. Shared list and candidate columns now consume normalized
+  `width`/`Width` metadata and emit a pixel width only for positive values;
+  zero remains the old automatic table layout and no data-row DTO is involved.

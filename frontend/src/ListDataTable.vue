@@ -7,6 +7,7 @@ import type { ListDataItem, OperationInfo, TableColumnInfo } from "./api";
 import {
   columnKey,
   columnTitle,
+  columnWidth,
   operationKey,
   operationLabel,
   operationTargetViewId,
@@ -53,6 +54,11 @@ function isFiller(row: RenderedListDataItem) {
   return row[fillerRow] === true;
 }
 
+function tableColumnStyle(column: TableColumnInfo) {
+  const width = columnWidth(column);
+  return width ? { width: `${width}px` } : undefined;
+}
+
 function tableRowClass(row: RenderedListDataItem) {
   if (isFiller(row)) return "legacy-filler-row";
   return [
@@ -72,7 +78,7 @@ function tableRowClass(row: RenderedListDataItem) {
     striped-rows
     size="small"
   >
-    <Column v-for="column in columns" :key="columnKey(column)" :header="columnTitle(column)">
+    <Column v-for="column in columns" :key="columnKey(column)" :header="columnTitle(column)" :style="tableColumnStyle(column)">
       <template #body="{ data: row }">
         <span v-if="isFiller(row)" aria-hidden="true">&nbsp;</span>
         <template v-else>{{ rowValue(row, column) }}</template>

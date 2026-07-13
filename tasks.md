@@ -1124,6 +1124,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `querylistdata.js`'s fixed page-row layout through the shared
       metadata table: pad main/chart/candidate pages to 10 rows and Sudoku
       List/Group List partials to 5 without adding actions or DTO state.
+- [x] Restore ViewItem `Width` rendering in the shared metadata table: apply
+      positive camel/Pascal widths to list/candidate columns while preserving
+      automatic layout for zero and avoiding business-row DTO coupling.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

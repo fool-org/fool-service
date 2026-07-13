@@ -66,6 +66,11 @@ export function columnTitle(column: TableColumnInfo) {
   ]);
 }
 
+export function columnWidth(column: TableColumnInfo) {
+  const width = Math.trunc(Number(column.width ?? column.Width ?? 0));
+  return Number.isFinite(width) && width > 0 ? width : 0;
+}
+
 export function rowObjectId(row: ListDataItem, columns: TableColumnInfo[] = []) {
   const items = rowItems(row);
   const firstColumnItemWithId = columns
