@@ -961,6 +961,12 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).toContain("/api/v1/report/mkrpt");
     expect(viewReportPanelSource).toContain("reportResponse");
     expect(viewReportPanelSource).toContain("showingResults.value = true");
+    expect(viewReportPanelSource).toContain("const reportSetupLoading = ref(true)");
+    expect(viewReportPanelSource).toContain("const reportRunning = ref(false)");
+    expect(viewReportPanelSource).toContain('v-if="!reportSetupLoading && !reportRunning"');
+    expect(viewReportPanelSource.indexOf("reportRunning.value = true")).toBeLessThan(
+      viewReportPanelSource.indexOf('props.runAction("mkrpt"')
+    );
     expect(viewReportPanelSource).toContain('@click="backToReportSetup"');
     expect(appSource).not.toContain("Report Grid");
   });

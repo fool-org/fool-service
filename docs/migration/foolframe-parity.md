@@ -3021,3 +3021,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   Vue-only disabled buttons, while entries with a View id retain the shared
   desktop/mobile navigation command. Menu labels, images, expansion state, and
   View-driven routing remain unchanged.
+- 2026-07-14: restored `mkreport.js`'s two-stage dialog timing. The report setup
+  dialog now waits for `getmkqview` View metadata before opening, and Confirm
+  hides setup while `mkrpt` runs before reopening the same surface as the report
+  result. Failed requests still restore the setup dialog with Vue's existing
+  error feedback, while report columns and request payloads remain View-driven.

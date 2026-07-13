@@ -1272,6 +1272,8 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `menuinfo.js` non-navigable submenu rendering: show `ViewId=0`
       children as plain list text instead of disabled buttons while preserving
       View-backed child navigation in the shared desktop/mobile component.
+- [x] Restore `mkreport.js` dialog timing: wait for report View metadata before
+      opening setup, then hide setup while generating and reopen with results.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

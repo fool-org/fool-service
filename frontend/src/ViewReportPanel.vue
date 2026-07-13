@@ -66,6 +66,8 @@ const selectedConditionIds = ref<number[]>([]);
 const statusMessage = ref("");
 const activeTab = ref("output");
 const showingResults = ref(false);
+const reportSetupLoading = ref(true);
+const reportRunning = ref(false);
 let nextConditionId = 1;
 const joinOptions = [
   { label: "与", value: "and" },
@@ -185,6 +187,7 @@ async function loadReportColumns() {
       viewId: props.viewId
     }))
   );
+  reportSetupLoading.value = false;
   if (!response) {
     statusMessage.value = "无法加载报表字段。";
     return;
@@ -208,9 +211,11 @@ function buildRequest(name?: string) {
 async function runReport(page = currentPage.value) {
   currentPage.value = Math.max(1, page);
   statusMessage.value = "";
+  reportRunning.value = true;
   const response = await props.runAction("mkrpt", () =>
     postApi<ReportGridResult>("/api/v1/report/mkrpt", buildRequest())
   );
+  reportRunning.value = false;
   if (response) {
     reportResponse.value = response;
     showingResults.value = true;
@@ -243,6 +248,7 @@ onMounted(() => void loadReportColumns());
 
 <template>
   <Dialog
+    v-if="!reportSetupLoading && !reportRunning"
     :visible="true"
     modal
     class="report-dialog"
