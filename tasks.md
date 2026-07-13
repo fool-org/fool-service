@@ -1205,6 +1205,9 @@ item must land with its matching implementation and validation evidence.
       successful contiguous grouping through the shared condition validator.
 - [x] Restore old report-result paging boundaries: keep Previous/Next available
       and move first/last-page no-op checks into one local page-change handler.
+- [x] Restore `mkreport.js` grouped-condition selection: show one representative
+      checkbox per top-level group and apply it to the whole group without
+      duplicating grouping or filter state.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

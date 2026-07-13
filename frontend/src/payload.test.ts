@@ -961,7 +961,11 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).not.toContain("未设置条件，将包含全部记录。");
     expect(viewReportPanelSource).toContain("groupReportConditions");
     expect(viewReportPanelSource).toContain("reportConditionGroupError");
+    expect(viewReportPanelSource).toContain("reportConditionSelectionIds");
     expect(viewReportPanelSource).toContain('aria-label="合并分组" :disabled="pending"');
+    expect(viewReportPanelSource).toContain('v-if="!condition.groupPath.length || startsConditionGroup(condition, index)"');
+    expect(viewReportPanelSource).toContain(':model-value="conditionSelectionChecked(condition)"');
+    expect(viewReportPanelSource).not.toContain('<Checkbox v-model="selectedConditionIds"');
     expect(viewReportPanelSource).toContain("condition-group-marker");
     expect(viewReportPanelSource).toContain("拆分分组");
     expect(viewReportPanelSource).not.toContain("`G${id}`");

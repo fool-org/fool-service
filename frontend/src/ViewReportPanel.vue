@@ -26,6 +26,7 @@ import {
   buildReportConditionFilter,
   groupReportConditions,
   reportConditionGroupError,
+  reportConditionSelectionIds,
   type ReportConditionDraft,
   ungroupReportConditions
 } from "./reportConditions";
@@ -139,6 +140,18 @@ function startsConditionGroup(condition: ReportConditionDraft, index: number) {
   if (!condition.groupPath.length || index === 0) return Boolean(condition.groupPath.length);
   const previousPath = conditions.value[index - 1].groupPath;
   return condition.groupPath.some((value, pathIndex) => previousPath[pathIndex] !== value);
+}
+
+function conditionSelectionChecked(condition: ReportConditionDraft) {
+  return reportConditionSelectionIds(conditions.value, condition)
+    .every((id) => selectedConditionIds.value.includes(id));
+}
+
+function updateConditionSelection(condition: ReportConditionDraft, selected: boolean) {
+  const conditionIds = new Set(reportConditionSelectionIds(conditions.value, condition));
+  selectedConditionIds.value = selected
+    ? [...new Set([...selectedConditionIds.value, ...conditionIds])]
+    : selectedConditionIds.value.filter((id) => !conditionIds.has(id));
 }
 
 function removeCondition(index: number) {
@@ -303,7 +316,15 @@ onMounted(() => void loadReportColumns());
                 <div v-for="(condition, index) in conditions" :key="condition.id" class="report-condition-row" :style="{ marginLeft: `${condition.groupPath.length * 14}px` }">
                   <span aria-hidden="true"></span>
                   <Button type="button" icon="pi pi-trash" class="report-condition-icon" severity="danger" text title="删除条件" aria-label="删除条件" :disabled="pending" @click="removeCondition(index)" />
-                  <Checkbox v-model="selectedConditionIds" :input-id="`condition-${condition.id}`" :value="condition.id" :aria-label="`选择条件 ${index + 1}`" />
+                  <Checkbox
+                    v-if="!condition.groupPath.length || startsConditionGroup(condition, index)"
+                    :model-value="conditionSelectionChecked(condition)"
+                    :input-id="`condition-${condition.id}`"
+                    :aria-label="`选择条件 ${index + 1}`"
+                    binary
+                    @update:model-value="updateConditionSelection(condition, Boolean($event))"
+                  />
+                  <span v-else aria-hidden="true"></span>
                   <div class="condition-group">
                     <span
                       v-for="(groupId, depthIndex) in condition.groupPath"

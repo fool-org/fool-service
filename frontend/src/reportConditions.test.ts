@@ -5,6 +5,7 @@ import {
   canGroupReportConditions,
   groupReportConditions,
   reportConditionGroupError,
+  reportConditionSelectionIds,
   type ReportConditionDraft,
   ungroupReportConditions
 } from "./reportConditions";
@@ -54,6 +55,15 @@ describe("report condition groups", () => {
     expect(reportConditionGroupError(conditions, [1, 3])).toBe("不连续不能合并");
     expect(reportConditionGroupError(conditions, [1, 2])).toBe("");
     expect(reportConditionGroupError(groupReportConditions(conditions, [1, 2]), [2, 3])).toBe("不连续不能合并");
+  });
+
+  it("selects an existing group through its representative condition", () => {
+    const grouped = groupReportConditions(conditions, [1, 2]);
+    expect(reportConditionSelectionIds(grouped, grouped[0])).toEqual([1, 2]);
+    expect(reportConditionSelectionIds(grouped, grouped[1])).toEqual([1, 2]);
+    expect(reportConditionSelectionIds(grouped, grouped[2])).toEqual([3]);
+    expect(reportConditionGroupError(grouped, [1, 2])).toBe("不能合并单个");
+    expect(reportConditionGroupError(grouped, [1, 2, 3])).toBe("");
   });
 
   it("removes one nested group level", () => {

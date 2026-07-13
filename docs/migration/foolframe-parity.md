@@ -2903,3 +2903,9 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   Previous and Next remain available outside request-pending state, while one
   local handler now performs the old in-range check before reusing `runReport`;
   first/last-page clicks are visible no-ops instead of disabled controls.
+- 2026-07-14: restored `mkreport.js`'s grouped-condition selection contract.
+  A completed group now exposes only its first condition's checkbox, matching
+  the old removal of later `chkbox` elements; that representative selects or
+  clears the complete top-level group. Merge feedback counts the group as one
+  selectable unit, while selecting it with an adjacent condition still creates
+  a valid outer group through the existing recursive condition model.
