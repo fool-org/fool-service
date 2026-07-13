@@ -2784,3 +2784,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   widths. Shared list and candidate columns now consume normalized
   `width`/`Width` metadata and emit a pixel width only for positive values;
   zero remains the old automatic table layout and no data-row DTO is involved.
+- 2026-07-13: restored `querylistdata.js`'s contextual row presentation.
+  Existing View-first `EditType=10` values already become table-row classes;
+  the shared metadata table now supplies Bootstrap 3's `active`, `success`,
+  `info`, `warning`, and `danger` backgrounds and hover colors instead of
+  leaving those legacy `RowFmt` classes visually inert.

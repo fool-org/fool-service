@@ -485,6 +485,20 @@ label {
   overflow-wrap: anywhere;
 }
 
+.metadata-data-table .p-datatable-tbody > tr.active { --legacy-row-bg: #f5f5f5; --legacy-row-hover: #e8e8e8; }
+.metadata-data-table .p-datatable-tbody > tr.success { --legacy-row-bg: #dff0d8; --legacy-row-hover: #d0e9c6; }
+.metadata-data-table .p-datatable-tbody > tr.info { --legacy-row-bg: #d9edf7; --legacy-row-hover: #c4e3f3; }
+.metadata-data-table .p-datatable-tbody > tr.warning { --legacy-row-bg: #fcf8e3; --legacy-row-hover: #faf2cc; }
+.metadata-data-table .p-datatable-tbody > tr.danger { --legacy-row-bg: #f2dede; --legacy-row-hover: #ebcccc; }
+
+.metadata-data-table .p-datatable-tbody > tr:is(.active, .success, .info, .warning, .danger) > td {
+  background: var(--legacy-row-bg);
+}
+
+.metadata-data-table .p-datatable-tbody > tr:is(.active, .success, .info, .warning, .danger):hover > td {
+  background: var(--legacy-row-hover);
+}
+
 .table-actions {
   display: flex;
   gap: 4px;

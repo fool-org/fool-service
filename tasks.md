@@ -1127,6 +1127,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore ViewItem `Width` rendering in the shared metadata table: apply
       positive camel/Pascal widths to list/candidate columns while preserving
       automatic layout for zero and avoiding business-row DTO coupling.
+- [x] Restore `querylistdata.js` `EditType=10` row-format presentation: keep
+      View-derived row classes and supply the old Bootstrap contextual
+      backgrounds and hover states through the shared metadata table.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
