@@ -395,6 +395,7 @@ describe("App defaults", () => {
     expect(legacyChartPanelSource).toContain('v-if="index < data.labels.length && showLabel(index)"');
     expect(legacyChartPanelSource).toContain('class="legacy-chart"');
     expect(legacyChartPanelSource).toContain("function linePath");
+    expect(legacyChartPanelSource).toContain('pointsPath(basePoints.reverse(), "L", smoothBase)');
     expect(legacyChartPanelSource).toContain('class="chart-line-area"');
     expect(legacyChartPanelSource).toContain('class="chart-line"');
     expect(legacyChartPanelSource).not.toContain('class="chart-line-hit"');
@@ -413,8 +414,10 @@ describe("App defaults", () => {
     expect(legacyChartPanelSource).not.toContain("right: 18");
     expect(legacyChartPanelSource).toContain("const hiddenSeriesNames = ref<string[]>([])");
     expect(legacyChartPanelSource).toContain("const visibleSeries = computed(() => props.data.series.filter(isSeriesVisible))");
-    expect(legacyChartPanelSource).toContain("visibleSeries.value.flatMap");
+    expect(legacyChartPanelSource).toContain("geometry.value.domainValues");
     expect(legacyChartPanelSource).toContain("legacyChartScale");
+    expect(legacyChartPanelSource).toContain("legacyChartStackGeometry");
+    expect(legacyChartPanelSource).toContain("Boolean(props.compact)");
     expect(legacyChartPanelSource).toContain("visibleSeries.value.filter");
     expect(legacyChartPanelSource).toContain(':aria-pressed="isSeriesVisible(series, index)"');
     expect(legacyChartPanelSource).toContain('@click="toggleSeries(series, index)"');

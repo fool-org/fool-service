@@ -1,3 +1,5 @@
+import type { LegacyChartSeries } from "./viewWorkflow";
+
 export function legacyChartDomain(values: number[]) {
   const finiteValues = values.filter(Number.isFinite);
   if (!finiteValues.length) return { min: 0, max: 1 };
@@ -22,6 +24,48 @@ export function legacyChartScale(values: number[]) {
   return { min, max, ticks };
 }
 
+export function legacyChartStackGeometry(series: LegacyChartSeries[], stacked: boolean) {
+  if (!stacked) {
+    const values = series.map((item) => [...item.values]);
+    return { values, bases: values.map((items) => items.map(() => 0)), domainValues: values.flat() };
+  }
+
+  const values: number[][] = [];
+  const bases: number[][] = [];
+  const positiveBarTops: number[] = [];
+  const negativeBarTops: number[] = [];
+
+  for (const [seriesIndex, item] of series.entries()) {
+    const stackedValues = item.values.map((rawValue, dataIndex) => {
+      let value = rawValue;
+      for (let previousIndex = seriesIndex - 1; previousIndex >= 0; previousIndex -= 1) {
+        const previousValue = series[previousIndex].values[dataIndex];
+        if ((value >= 0 && previousValue > 0) || (value <= 0 && previousValue < 0)) value += previousValue;
+      }
+      return value;
+    });
+    values.push(stackedValues);
+
+    if (item.type === "line") {
+      const previous = series[seriesIndex - 1];
+      bases.push(item.values.map((value, index) => previous && sign(previous.values[index]) === sign(value)
+        ? values[seriesIndex - 1][index] ?? 0
+        : 0));
+    } else if (item.type === "bar") {
+      bases.push(item.values.map((value, index) => {
+        const barTops = value >= 0 ? positiveBarTops : negativeBarTops;
+        const base = barTops[index] ?? 0;
+        barTops[index] = stackedValues[index];
+        return base;
+      }));
+    } else {
+      bases.push(item.values.map(() => 0));
+    }
+  }
+
+  return { values, bases, domainValues: values.flat() };
+}
+
 function niceNumber(value: number) {
   const exponent = Math.floor(Math.log(value) / Math.LN10);
   const power = Math.pow(10, exponent);
@@ -32,4 +76,8 @@ function niceNumber(value: number) {
 
 function round(value: number) {
   return Number(value.toFixed(10));
+}
+
+function sign(value: number) {
+  return value >= 0 ? 1 : -1;
 }

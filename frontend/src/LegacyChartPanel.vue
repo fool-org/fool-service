@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue";
-import { legacyChartScale } from "./legacyChartGeometry";
+import { legacyChartScale, legacyChartStackGeometry } from "./legacyChartGeometry";
 import type { LegacyChartData, LegacyChartSeries } from "./viewWorkflow";
 
 const props = defineProps<{ compact?: boolean; data: LegacyChartData; title?: string }>();
@@ -38,7 +38,8 @@ const labelCount = computed(() => Math.max(
   ...props.data.series.map((series) => series.values.length)
 ));
 const visibleSeries = computed(() => props.data.series.filter(isSeriesVisible));
-const scale = computed(() => legacyChartScale(visibleSeries.value.flatMap((series) => series.values)));
+const geometry = computed(() => legacyChartStackGeometry(visibleSeries.value, Boolean(props.compact)));
+const scale = computed(() => legacyChartScale(geometry.value.domainValues));
 const ticks = computed(() => scale.value.ticks);
 const barSeries = computed(() => visibleSeries.value.filter((series) => series.type === "bar"));
 
@@ -54,50 +55,68 @@ function y(value: number) {
 }
 
 function seriesPoints(series: LegacyChartSeries) {
-  return series.values.map((value, index) => ({ x: x(index), y: y(value) }));
+  return series.values.map((_, index) => ({ x: x(index), y: y(renderedValue(series, index)) }));
 }
 
 function linePath(series: LegacyChartSeries) {
-  const points = seriesPoints(series);
-  if (!points.length) return "";
-  return points.slice(1).reduce((path, point, index) => {
-    const previous = points[index];
-    const controlX = (previous.x + point.x) / 2;
-    return `${path} C ${controlX},${previous.y} ${controlX},${point.y} ${point.x},${point.y}`;
-  }, `M ${points[0].x},${points[0].y}`);
+  return pointsPath(seriesPoints(series), "M", true);
 }
 
 function lineAreaPath(series: LegacyChartSeries) {
   const points = seriesPoints(series);
   if (!points.length) return "";
-  const baseline = y(0);
-  return `${linePath(series)} L ${points[points.length - 1].x},${baseline} L ${points[0].x},${baseline} Z`;
+  const basePoints = series.values.map((_, index) => ({ x: x(index), y: y(baseValue(series, index)) }));
+  const geometryIndex = visibleSeries.value.indexOf(series);
+  const smoothBase = visibleSeries.value[geometryIndex - 1]?.type === "line";
+  return `${linePath(series)} ${pointsPath(basePoints.reverse(), "L", smoothBase)} Z`;
+}
+
+function pointsPath(points: { x: number; y: number }[], command: "M" | "L", smooth: boolean) {
+  if (!points.length) return "";
+  return points.slice(1).reduce((path, point, index) => {
+    const previous = points[index];
+    if (!smooth) return `${path} L ${point.x},${point.y}`;
+    const controlX = (previous.x + point.x) / 2;
+    return `${path} C ${controlX},${previous.y} ${controlX},${point.y} ${point.x},${point.y}`;
+  }, `${command} ${points[0].x},${points[0].y}`);
 }
 
 function barWidth() {
   const maxWidth = props.compact ? 28 : 15 * width.value / renderedWidth.value;
-  return Math.min(maxWidth, (width.value - plot.left - plotRight.value) / labelCount.value / Math.max(1, barSeries.value.length) * 0.62);
+  const slots = props.compact ? 1 : Math.max(1, barSeries.value.length);
+  return Math.min(maxWidth, (width.value - plot.left - plotRight.value) / labelCount.value / slots * 0.62);
 }
 
 function barX(series: LegacyChartSeries, index: number) {
+  if (props.compact) return x(index) - barWidth() / 2;
   const order = barSeries.value.indexOf(series);
   return x(index) - barWidth() * barSeries.value.length / 2 + order * barWidth();
 }
 
-function barY(value: number) {
-  return Math.min(y(value), y(0));
+function barY(series: LegacyChartSeries, index: number) {
+  return Math.min(y(renderedValue(series, index)), y(baseValue(series, index)));
 }
 
-function barHeight(value: number) {
-  return Math.max(1, Math.abs(y(value) - y(0)));
+function barHeight(series: LegacyChartSeries, index: number) {
+  return Math.max(1, Math.abs(y(renderedValue(series, index)) - y(baseValue(series, index))));
 }
 
 function valueLabelX(series: LegacyChartSeries, index: number) {
   return series.type === "bar" ? barX(series, index) + barWidth() / 2 : x(index);
 }
 
-function valueLabelY(value: number) {
-  return Math.max(plot.top + 10, y(value) - 7);
+function valueLabelY(series: LegacyChartSeries, index: number) {
+  return Math.max(plot.top + 10, y(renderedValue(series, index)) - 7);
+}
+
+function renderedValue(series: LegacyChartSeries, index: number) {
+  const geometryIndex = visibleSeries.value.indexOf(series);
+  return geometry.value.values[geometryIndex]?.[index] ?? series.values[index] ?? 0;
+}
+
+function baseValue(series: LegacyChartSeries, index: number) {
+  const geometryIndex = visibleSeries.value.indexOf(series);
+  return geometry.value.bases[geometryIndex]?.[index] ?? 0;
 }
 
 function showLabel(index: number) {
@@ -206,20 +225,20 @@ function tooltipValue(series: LegacyChartSeries) {
             v-if="series.type === 'bar'"
             class="chart-bar"
             :x="barX(series, index)"
-            :y="barY(value)"
+            :y="barY(series, index)"
             :width="barWidth()"
-            :height="barHeight(value)"
+            :height="barHeight(series, index)"
             :fill="colors[seriesIndex % colors.length]"
             rx="2"
           />
           <circle
             v-else-if="series.type === 'scatter'"
             :cx="x(index)"
-            :cy="y(value)"
+            :cy="y(renderedValue(series, index))"
             r="6"
             :fill="colors[seriesIndex % colors.length]"
           />
-          <text class="chart-value-label" :x="valueLabelX(series, index)" :y="valueLabelY(value)">{{ formatter.format(value) }}</text>
+          <text class="chart-value-label" :x="valueLabelX(series, index)" :y="valueLabelY(series, index)">{{ formatter.format(value) }}</text>
         </template>
       </g>
       <line

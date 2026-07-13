@@ -3128,3 +3128,14 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `/view100`; Amount-only renders `0..0.4` at `0.1`, and all-hidden renders six
   `0..1` ticks at `0.2`. All six mobile labels remained inside the 328px pane
   with no document overflow.
+- 2026-07-14: restored realtime `LineChartController` `stack: 'a'` coordinate
+  semantics for compact charts. Tested geometry now follows ECharts 3.1.7's
+  same-sign cumulative values across line/bar/scatter series, separate
+  positive/negative bar-layout bases, and immediate same-sign line area bases;
+  consecutive line bases reuse the shared smooth path. Legend filtering removes
+  hidden series before stack recomputation, while non-compact unique-name
+  series remain independent. Docker `/view103` retained 100 bars, 200 raw value
+  labels, and six nice ticks; the Price line's final y coordinate moved from
+  `66.49981` with Amount visible to `66.5` when Amount was hidden, proving the
+  compact stack was removed and recalculated. The restored stack remained
+  bounded in the 390px viewport.
