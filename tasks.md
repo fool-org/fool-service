@@ -1284,6 +1284,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `swchartLine.js` horizontal-axis naming: carry the first row's
       `EditType=11` View field name through shared chart data and render it at
       the axis end in top-level and Sudoku charts.
+- [x] Restore `swchartLine.js` category-axis boundaries: place multi-category
+      first/last centers on the horizontal-axis ends, keep a single category
+      centered, and prevent the end-axis name from overlapping the final label.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

@@ -3047,3 +3047,10 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `axisName` and renders at the end of the horizontal axis, while its per-row
   formatted values remain the category labels. Top-level and Sudoku charts use
   the same projection and renderer without a business-field fallback.
+- 2026-07-14: restored `swchartLine.js`'s `boundaryGap: false` category-axis
+  placement. Multi-category charts now put the first and last category centers
+  directly on the horizontal-axis ends instead of adding a half-slot inset;
+  a single category remains centered to avoid division by zero. Line, bar,
+  scatter, value-label, and category-label positions reuse the same coordinate,
+  and the end-axis name moves to its own line so the final category stays
+  readable on desktop and mobile.
