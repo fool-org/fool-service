@@ -2770,3 +2770,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - 2026-07-13: restored `detailView.jade`'s candidate dismissal copy. The
   functional footer action is now `取消` and still closes without adding a
   child row. The old inert `确定` placeholder remains intentionally omitted.
+- 2026-07-13: restored `detailView.jade`'s compact right-aligned candidate
+  query form. Candidate search now shares the main list's 240px desktop input
+  geometry, inline Find command, and responsive input expansion; the Vue-only
+  visible label was replaced by the old intended `输入条件` input prompt while
+  retaining an accessible name and Enter submission.

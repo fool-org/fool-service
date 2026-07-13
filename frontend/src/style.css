@@ -279,7 +279,8 @@ label {
   grid-template-columns: minmax(0, 1fr);
 }
 
-.workflow-toolbar {
+.workflow-toolbar,
+.candidate-query-toolbar {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -291,7 +292,8 @@ label {
   justify-content: flex-start;
 }
 
-.list-query-input {
+.list-query-input,
+.candidate-query-input {
   flex: 0 1 240px;
 }
 
@@ -877,7 +879,8 @@ label {
     padding: 0 14px 14px;
   }
 
-  .list-query-input {
+  .list-query-input,
+  .candidate-query-input {
     flex: 1 1 100%;
   }
 

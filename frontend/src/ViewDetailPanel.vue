@@ -353,16 +353,16 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
               @update:visible="(visible) => { if (!visible) pickerGroupKey = '' }"
             >
               <div class="detail-picker-content">
-                <div class="inline-fields">
-                  <label>
-                    查询条件
-                    <InputText
-                      :model-value="candidateState(group).keyword"
-                      fluid
-                      @input="emit('updateCandidateKeyword', group, $event)"
-                      @keyup.enter="emit('queryExistingDetailItems', group)"
-                    />
-                  </label>
+                <div class="candidate-query-toolbar">
+                  <InputText
+                    :model-value="candidateState(group).keyword"
+                    class="candidate-query-input"
+                    type="search"
+                    placeholder="输入条件"
+                    aria-label="查询条件"
+                    @input="emit('updateCandidateKeyword', group, $event)"
+                    @keyup.enter="emit('queryExistingDetailItems', group)"
+                  />
                   <Button type="button" label="查找" severity="secondary" outlined :disabled="pending" @click="emit('queryExistingDetailItems', group)" />
                 </div>
                 <div class="table-wrap detail-picker-results">

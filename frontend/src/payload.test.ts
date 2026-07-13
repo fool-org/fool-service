@@ -516,7 +516,11 @@ describe("App defaults", () => {
     );
 
     expect(viewDetailPanelSource).toContain("groupSelectFromExists(group)");
-    expect(viewDetailPanelSource).toContain("查询条件");
+    expect(pickerSource).toContain('class="candidate-query-toolbar"');
+    expect(pickerSource).toContain('class="candidate-query-input"');
+    expect(pickerSource).toContain('placeholder="输入条件"');
+    expect(pickerSource).toContain('aria-label="查询条件"');
+    expect(pickerSource).not.toContain("<label>");
     expect(viewDetailPanelSource).toContain("<LegacyPagination");
     expect(viewDetailPanelSource).toContain(':total-items="candidateState(group).totalItem"');
     expect(viewDetailPanelSource).toContain('@page="emit(\'loadCandidatePage\', group, $event)"');

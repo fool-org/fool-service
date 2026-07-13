@@ -1118,6 +1118,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Match `detailView.jade`'s functional candidate footer action: label the
       dismiss command `取消`, preserve no-change close behavior, and do not
       restore the old inert `确定` placeholder.
+- [x] Match `detailView.jade`'s candidate query-form placement: reuse the main
+      list's compact right-aligned input/Find layout, remove the Vue-only
+      visible label, and preserve responsive and Enter-query behavior.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
