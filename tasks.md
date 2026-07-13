@@ -1280,7 +1280,7 @@ item must land with its matching implementation and validation evidence.
       labels and keep the row-level Select action without an added header label.
 - [x] Restore `swchartLine.js` series presentation in the shared chart renderer:
       smooth and fill line series, hide their point symbols, and show the
-      metadata-series value labels.
+      bar/scatter metadata-series value labels.
 - [x] Restore `swchartLine.js` horizontal-axis naming: carry the first row's
       `EditType=11` View field name through shared chart data and render it at
       the axis end in top-level and Sudoku charts.
@@ -1375,6 +1375,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore ECharts 3.1.7 line-area opacity: use the old `LineView` 0.7
       default for both View-backed chart entrypoints while retaining series
       color, legend selection, and responsive geometry.
+- [x] Restore ECharts 3.1.7 symbol-less line label behavior: omit value labels
+      when `swchartLine.js` sets `symbol: 'none'`, while retaining bar/scatter
+      labels and axis-trigger tooltip values in both shared chart entrypoints.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

@@ -83,6 +83,10 @@ describe("shared chart styles", () => {
 }`);
   });
 
+  it("omits labels for symbol-less line series", () => {
+    expect(chartSource).toContain(`<text v-if="series.type !== 'line'" class="chart-value-label"`);
+  });
+
   it("keeps chart items above the axis tooltip hit surface", () => {
     expect(chartSource).toContain('@mousemove="showAxisTooltip"');
     expect(chartSource).toContain('@mouseleave="hideAxisTooltip"');

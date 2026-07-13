@@ -3038,8 +3038,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   shared table component and the existing View-first candidate workflow.
 - 2026-07-14: restored `swchartLine.js`'s configured series presentation in the
   shared SVG chart. Line metadata now renders as a smooth filled curve without
-  visible point symbols, while all line/bar/scatter values use the old visible
-  label behavior.
+  visible point symbols, while bar/scatter values use the old visible label
+  behavior.
   Top-level `viewWithChart` and Sudoku linechart panels reuse the same renderer;
   no chart dependency, business DTO branch, or duplicated panel was added.
 - 2026-07-14: restored `swchartLine.js`'s metadata horizontal-axis name. The
@@ -3312,3 +3312,16 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   browser both loaded the rebuilt `index-Ct6fVG-u.css` asset; a cache-busting
   query was used after the existing browser tab initially reused the prior
   hashed stylesheet.
+- 2026-07-14: restored ECharts 3.1.7's symbol-less line-label behavior. Both
+  old chart branches configure line series with `symbol: 'none'`. ECharts
+  propagates that visual symbol, `SymbolDraw.js` skips creating the Symbol that
+  owns label text, and `LineView.js` has no separate line-label renderer.
+  Vue now keeps value labels only for bar/scatter series while preserving line
+  values in the axis tooltip. Docker `/view100` changed from 16 value labels
+  (eight bar plus eight invented line) to eight bar labels and zero line labels;
+  pointer movement still showed `Price: 3,450`. At 390x844 it retained the same
+  counts, a 470px chart, two category labels, and no overflow. Sudoku `/view103`
+  changed from 200 to 100 labels by retaining all 100 realtime bar labels and
+  removing all 100 line labels inside its 328x200 pane. This supersedes the
+  earlier provisional 200-label runtime count as a parity target; browser logs
+  remained empty in all checks.

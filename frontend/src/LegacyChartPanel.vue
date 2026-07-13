@@ -276,7 +276,7 @@ function tooltipValue(series: LegacyChartSeries) {
             opacity="0.8"
             :fill="colors[seriesIndex % colors.length]"
           />
-          <text class="chart-value-label" :x="valueLabelX(series, index)" :y="valueLabelY(series, index)">{{ formatter.format(value) }}</text>
+          <text v-if="series.type !== 'line'" class="chart-value-label" :x="valueLabelX(series, index)" :y="valueLabelY(series, index)">{{ formatter.format(value) }}</text>
         </template>
       </g>
       <line
