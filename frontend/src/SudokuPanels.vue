@@ -130,7 +130,7 @@ watch(allPanelsReady, async (ready) => {
         :data="sudokuPanelChart(panel)"
       />
       <LegacyMapPanel
-        v-else-if="sudokuPanelKind(panel) === 'map' && sudokuPanelMarkers(panel).length"
+        v-else-if="sudokuPanelKind(panel) === 'map'"
         class="sudoku-panel-body"
         :markers="sudokuPanelMarkers(panel)"
       />

@@ -2944,3 +2944,9 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   so the existing six-row table remains visible when no fields resolve instead
   of being replaced by the generic `暂无数据。` panel. View-first detail loading
   and the shared two-fields-per-row renderer remain unchanged.
+- 2026-07-14: restored `mapview.js`'s initialize-before-query lifecycle and
+  wheel interaction for Sudoku Map partials. The shared Leaflet panel now mounts
+  regardless of marker count, uses the old Beijing center `39.94917,116.32` at
+  zoom 18 when no valid points resolve, and enables wheel zoom instead of
+  showing Vue-only empty/error copy. View-first marker projection, refresh, and
+  the existing shared map renderer remain unchanged.

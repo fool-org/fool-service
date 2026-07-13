@@ -1228,6 +1228,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `subitem.js`'s zero-field Sudoku Item matrix: always mount the
       shared two-fields-per-row table and retain six padded rows instead of
       replacing it with a Vue-only empty-state sentence.
+- [x] Restore `mapview.js`'s empty Sudoku Map lifecycle: always mount the shared
+      map, use the legacy Beijing center at zoom 18 when no valid points exist,
+      enable wheel zoom, and remove Vue-only empty/error copy.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

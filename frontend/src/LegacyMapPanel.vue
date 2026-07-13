@@ -21,16 +21,17 @@ onMounted(async () => {
         Number.isFinite(latitude) && Number.isFinite(longitude) &&
         latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180
       );
-    if (!points.length) {
-      mapError.value = "没有有效的地图位置。";
-      return;
-    }
 
-    map = leaflet.map(mapElement.value, { scrollWheelZoom: false });
+    map = leaflet.map(mapElement.value, { scrollWheelZoom: true });
     leaflet.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 19
     }).addTo(map);
+    if (!points.length) {
+      map.setView([39.94917, 116.32], 18);
+      window.requestAnimationFrame(() => map?.invalidateSize());
+      return;
+    }
 
     for (const { marker, latitude, longitude } of points) {
       leaflet.circleMarker([latitude, longitude], {

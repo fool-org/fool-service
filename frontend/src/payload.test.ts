@@ -446,16 +446,19 @@ describe("App defaults", () => {
   });
 
   it("renders Sudoku map panels from child row map items", () => {
-    expect(sudokuPanelsSource).toContain("sudokuPanelKind(panel) === 'map'");
+    expect(sudokuPanelsSource).toContain('v-else-if="sudokuPanelKind(panel) === \'map\'"');
+    expect(sudokuPanelsSource).not.toContain("map' && sudokuPanelMarkers(panel).length");
     expect(sudokuPanelsSource).toContain("sudokuPanelMarkers(panel)");
     expect(sudokuPanelsSource).toContain("<LegacyMapPanel");
     expect(legacyMapPanelSource).toContain('import("leaflet")');
+    expect(legacyMapPanelSource).toContain("leaflet.map(mapElement.value, { scrollWheelZoom: true })");
+    expect(legacyMapPanelSource).toContain("map.setView([39.94917, 116.32], 18)");
     expect(legacyMapPanelSource).toContain("leaflet.circleMarker");
     expect(legacyMapPanelSource).toContain("map.fitBounds");
     expect(legacyMapPanelSource).toContain("title.textContent");
     expect(legacyMapPanelSource).toContain("marker.info[0]");
     expect(legacyMapPanelSource).not.toContain("map-location-list");
-    expect(legacyMapPanelSource).toContain("没有有效的地图位置。");
+    expect(legacyMapPanelSource).not.toContain("没有有效的地图位置。");
     expect(legacyMapPanelSource).not.toContain('"Location"');
   });
 
