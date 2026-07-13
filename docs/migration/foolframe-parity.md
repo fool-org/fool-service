@@ -3001,3 +3001,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   Read-only and schema-only detail rows now render a non-breaking text value
   when `FmtValue` and `ObjId` are empty, matching the old paragraph branch
   without altering the View-derived value helper or save drafts.
+- 2026-07-14: restored `view.jade`'s report-footer command availability.
+  `确定` and `保存报表定义` now remain actionable with zero selected outputs,
+  incomplete conditions, or an empty report name, matching the old unconditional
+  footer commands instead of applying Vue-only `canRun` gates. Request-pending
+  duplicate protection and the existing View-driven request builders remain.

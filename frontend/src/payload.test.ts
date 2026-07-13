@@ -1038,6 +1038,10 @@ describe("App defaults", () => {
     expect(footerSource).not.toContain('icon="pi pi-play"');
     expect(footerSource).not.toContain('icon="pi pi-save"');
     expect(footerSource).toContain('label="取消" severity="secondary" outlined');
+    expect(footerSource).toContain('label="确定" :disabled="pending"');
+    expect(footerSource).toContain('label="保存报表定义" severity="info" :disabled="pending"');
+    expect(viewReportPanelSource).not.toContain("canRun");
+    expect(viewReportPanelSource).not.toContain("conditionsComplete");
     expect(footerSource).not.toContain('severity="secondary" text');
     expect(footerSource).toContain('label="保存报表定义" severity="info"');
   });

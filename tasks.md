@@ -1260,6 +1260,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `detailView.jade` empty simple-value rendering: retain a
       non-breaking text line for empty View fields without adding placeholder
       data to shared values, drafts, or save payloads.
+- [x] Restore `view.jade` report-footer command availability: keep Confirm and
+      Save Report Definition actionable at empty/partial setup states while
+      retaining request-pending duplicate protection and View-driven payloads.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

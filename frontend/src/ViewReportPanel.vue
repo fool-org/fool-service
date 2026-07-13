@@ -76,8 +76,6 @@ const modelColumns = computed(() => reportModelColumns(modelResponse.value?.data
 const reportRows = computed(() => reportRowsFromCells(reportGridCells(reportResponse.value?.data)));
 const resultPage = computed(() => reportGridPage(reportResponse.value?.data, currentPage.value));
 const resultPages = computed(() => reportGridTotalPages(reportResponse.value?.data));
-const conditionsComplete = computed(() => conditions.value.every((condition) => condition.columnId && condition.compareId));
-const canRun = computed(() => reportCols.value.length > 0 && conditionsComplete.value && !props.pending);
 const filterExp = computed<ReportFilterExp | undefined>(() => buildReportConditionFilter(conditions.value, simpleFilter));
 
 function columnKey(column: ReportModelColumn) {
@@ -364,8 +362,8 @@ onMounted(() => void loadReportColumns());
     <template #footer>
       <Button v-if="showingResults" type="button" label="返回" :disabled="pending" @click="backToReportSetup" />
       <Button v-if="!showingResults" type="button" label="取消" severity="secondary" outlined :disabled="pending" @click="emit('close')" />
-      <Button v-if="!showingResults" type="button" label="确定" :disabled="!canRun" @click="runReport()" />
-      <Button v-if="!showingResults" type="button" label="保存报表定义" severity="info" :disabled="!canRun || !reportName.trim()" @click="saveReport" />
+      <Button v-if="!showingResults" type="button" label="确定" :disabled="pending" @click="runReport()" />
+      <Button v-if="!showingResults" type="button" label="保存报表定义" severity="info" :disabled="pending" @click="saveReport" />
     </template>
   </Dialog>
 </template>
