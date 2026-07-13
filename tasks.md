@@ -1151,6 +1151,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore the old default-command hierarchy for shared list Find buttons:
       remove the invented primary emphasis while preserving normal/chart
       placement, Enter submission, and View-first search behavior.
+- [x] Restore Bootstrap query-control geometry in the shared list/candidate
+      toolbars: 34px controls with 6x12px padding and 14/20px typography while
+      preserving responsive placement and search events.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

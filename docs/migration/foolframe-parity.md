@@ -2819,3 +2819,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   now use the same secondary outlined presentation already shared by the
   candidate Find and normal-list report command, without changing Enter,
   click, View-first query, or template-specific toolbar behavior.
+- 2026-07-13: restored Bootstrap form-control geometry in both shared query
+  toolbars. Normal/chart list and select-existing candidate inputs and commands
+  now use the old 34px height, 6x12px padding, 14px type, 20px line height, and
+  4px radius while retaining their existing desktop placement, mobile wrap,
+  Enter submission, and View-derived query state.

@@ -297,6 +297,17 @@ label {
   flex: 0 1 240px;
 }
 
+.workflow-toolbar .p-inputtext,
+.candidate-query-toolbar .p-inputtext,
+.workflow-toolbar .p-button,
+.candidate-query-toolbar .p-button {
+  height: 34px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
 .report-dialog {
   width: min(1080px, calc(100vw - 32px));
 }
