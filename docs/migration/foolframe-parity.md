@@ -2934,3 +2934,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   replacing them with `暂无图表数据。`. Horizontal labels render only from
   legacy chart-axis metadata and no longer invent numeric positions when the
   old ECharts `xAxis.data` would be empty.
+- 2026-07-14: extended the zero-series chart contract to Sudoku's
+  `includes/linechart.jade` partial. A linechart panel now mounts the shared
+  compact SVG regardless of series count, matching the old controller's
+  initialize-before-query lifecycle instead of falling through to the generic
+  `暂无数据。` panel. Existing panel loading, refresh, and sizing are unchanged.

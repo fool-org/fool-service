@@ -438,8 +438,8 @@ describe("App defaults", () => {
   });
 
   it("renders Sudoku linechart panels from child row chart items", () => {
-    expect(sudokuPanelsSource).toContain("sudokuPanelKind(panel) === 'linechart'");
-    expect(sudokuPanelsSource).toContain("sudokuPanelChart(panel).series");
+    expect(sudokuPanelsSource).toContain('v-else-if="sudokuPanelKind(panel) === \'linechart\'"');
+    expect(sudokuPanelsSource).not.toContain("linechart' && sudokuPanelChart(panel).series.length");
     expect(sudokuPanelsSource).toContain("<LegacyChartPanel");
     expect(sudokuPanelsSource).toContain("compact");
     expect(sudokuPanelsSource).not.toContain("<meter");

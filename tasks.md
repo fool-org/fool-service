@@ -1222,6 +1222,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `viewWithChart.js`'s zero-series chart surface: retain the chart
       axes after a zero-row query, remove the Vue-only empty sentence, and draw
       horizontal labels only when legacy chart-axis metadata supplies them.
+- [x] Apply the zero-series chart contract to Sudoku `linechart` partials:
+      mount the shared compact chart before rows exist and avoid the generic
+      Vue empty-state fallback without changing panel loading or refresh.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
