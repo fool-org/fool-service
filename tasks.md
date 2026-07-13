@@ -1172,6 +1172,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `view.jade` report-result paging presentation: keep functional
       Previous/Next commands in one right-aligned extra-small button group and
       continue omitting the old eventless export placeholders.
+- [x] Restore `view.jade` report-output toolbar grouping: separate
+      move/remove commands from sort commands with compact reusable groups and
+      preserve all existing output-column mutations.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

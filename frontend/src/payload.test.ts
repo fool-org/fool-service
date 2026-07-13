@@ -934,6 +934,9 @@ describe("App defaults", () => {
     expect(reportOutputSelectorSource).toContain("输出方式");
     expect(reportOutputSelectorSource).toContain("已选列");
     expect(reportOutputSelectorSource).toContain("moveOutput");
+    expect(reportOutputSelectorSource.match(/class="legacy-button-group-xs"/g)).toHaveLength(2);
+    expect(reportOutputSelectorSource).toContain('role="group" aria-label="调整已选列"');
+    expect(reportOutputSelectorSource).toContain('role="group" aria-label="设置排序"');
     expect(reportOutputsSource).toContain("addReportOutput");
     expect(viewReportPanelSource).toContain("filterExp");
     expect(viewReportPanelSource).toContain("合并分组");

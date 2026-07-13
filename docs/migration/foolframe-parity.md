@@ -2852,3 +2852,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `.btn-group-xs` paging presentation. Functional Previous/Next commands now
   form one contiguous 22px group with shared inner borders and outer corner
   radii; the old eventless export placeholders remain intentionally omitted.
+- 2026-07-13: restored `view.jade`'s two report-output tool groups. Column
+  movement/removal and sort controls now occupy separate compact, labelled
+  groups with old toolbar spacing, while reusing the existing icon commands
+  and metadata-driven output state.

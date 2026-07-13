@@ -112,12 +112,16 @@ function orderLabel(orderType?: string) {
         <option v-for="option in selectedOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
       </select>
       <div class="report-output-actions">
-        <Button type="button" icon="pi pi-arrow-up" title="上调" aria-label="上调" severity="secondary" text :disabled="disabled || selectedOutputIndex === null || selectedOutputIndex <= 0" @click="moveOutput(-1)" />
-        <Button type="button" icon="pi pi-arrow-down" title="下调" aria-label="下调" severity="secondary" text :disabled="disabled || selectedOutputIndex === null || selectedOutputIndex >= outputs.length - 1" @click="moveOutput(1)" />
-        <Button type="button" icon="pi pi-trash" title="删除" aria-label="删除" severity="danger" text :disabled="disabled || selectedOutputIndex === null" @click="removeOutput" />
-        <Button type="button" icon="pi pi-sort-alpha-down" title="升序" aria-label="升序" severity="secondary" text :disabled="disabled || selectedOutputIndex === null" @click="orderOutput('0')" />
-        <Button type="button" icon="pi pi-sort-alpha-up" title="降序" aria-label="降序" severity="secondary" text :disabled="disabled || selectedOutputIndex === null" @click="orderOutput('1')" />
-        <Button type="button" icon="pi pi-times" title="取消排序" aria-label="取消排序" severity="secondary" text :disabled="disabled || selectedOutputIndex === null" @click="orderOutput('2')" />
+        <div class="legacy-button-group-xs" role="group" aria-label="调整已选列">
+          <Button type="button" icon="pi pi-arrow-up" title="上调" aria-label="上调" severity="secondary" text :disabled="disabled || selectedOutputIndex === null || selectedOutputIndex <= 0" @click="moveOutput(-1)" />
+          <Button type="button" icon="pi pi-arrow-down" title="下调" aria-label="下调" severity="secondary" text :disabled="disabled || selectedOutputIndex === null || selectedOutputIndex >= outputs.length - 1" @click="moveOutput(1)" />
+          <Button type="button" icon="pi pi-trash" title="删除" aria-label="删除" severity="danger" text :disabled="disabled || selectedOutputIndex === null" @click="removeOutput" />
+        </div>
+        <div class="legacy-button-group-xs" role="group" aria-label="设置排序">
+          <Button type="button" icon="pi pi-sort-alpha-down" title="升序" aria-label="升序" severity="secondary" text :disabled="disabled || selectedOutputIndex === null" @click="orderOutput('0')" />
+          <Button type="button" icon="pi pi-sort-alpha-up" title="降序" aria-label="降序" severity="secondary" text :disabled="disabled || selectedOutputIndex === null" @click="orderOutput('1')" />
+          <Button type="button" icon="pi pi-times" title="取消排序" aria-label="取消排序" severity="secondary" text :disabled="disabled || selectedOutputIndex === null" @click="orderOutput('2')" />
+        </div>
       </div>
     </section>
   </div>
@@ -161,7 +165,7 @@ function orderLabel(orderType?: string) {
 .report-output-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 2px;
+  gap: 5px;
   margin-top: 6px;
 }
 
