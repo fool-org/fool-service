@@ -375,7 +375,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                 </div>
                 <div class="table-wrap detail-picker-results">
                   <ListDataTable
-                    v-if="candidateRows(group).length"
+                    v-if="candidateState(group).queried"
                     :columns="candidateColumns(group)"
                     :condensed="false"
                     default-action-label="选择"
@@ -387,7 +387,6 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                     :show-default-action="true"
                     @select="(row) => selectExistingItem(group, row)"
                   />
-                  <div v-else-if="candidateState(group).queried" class="empty-state compact">暂无候选记录。</div>
                 </div>
                 <LegacyPagination
                   class="candidate-results-footer"

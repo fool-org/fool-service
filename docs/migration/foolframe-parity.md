@@ -2919,3 +2919,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   heading without the Vue-only `暂无子项。` row, while a detail View with no
   child-group metadata renders no empty collection panel. Existing staged
   delete behavior and parent-save persistence remain unchanged.
+- 2026-07-14: restored `querylistdata.js`'s zero-result candidate table. After
+  the first candidate query, zero matching rows now retain the metadata heading
+  and ten legacy filler rows with `共0条记录` instead of replacing the table
+  with `暂无候选记录。`. Before the first query, the candidate area remains
+  visually empty and keeps the existing `记录数未知,请查询` prompt.

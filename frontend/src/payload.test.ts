@@ -290,7 +290,8 @@ describe("App defaults", () => {
     expect(appSource).toContain("if (resetPage) setCandidateState(group, { pageIndex: 1 })");
     expect(appSource).toContain("await queryExistingDetailItems(group, false)");
     expect(viewDetailPanelSource).toContain("candidateRecordInfo(candidateState(group))");
-    expect(viewDetailPanelSource).toContain('v-else-if="candidateState(group).queried" class="empty-state compact">暂无候选记录。</div>');
+    expect(viewDetailPanelSource).toContain('v-if="candidateState(group).queried"');
+    expect(viewDetailPanelSource).not.toContain("暂无候选记录。");
     expect(viewDetailPanelSource.indexOf('class="detail-picker-results"')).toBeLessThan(
       viewDetailPanelSource.indexOf("<LegacyPagination")
     );
