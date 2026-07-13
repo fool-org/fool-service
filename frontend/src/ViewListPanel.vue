@@ -115,6 +115,7 @@ watch([currentViewId, templateKind, () => props.navigationRevision], () => {
       <ListDataTable
         :columns="columns"
         :disabled="disabled"
+        :minimum-rows="pageSize"
         :row-operations="rowItems"
         :rows="rows"
         @select="(row, viewId) => emit('select', row, viewId)"

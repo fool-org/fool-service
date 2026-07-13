@@ -1121,6 +1121,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Match `detailView.jade`'s candidate query-form placement: reuse the main
       list's compact right-aligned input/Find layout, remove the Vue-only
       visible label, and preserve responsive and Enter-query behavior.
+- [x] Restore `querylistdata.js`'s fixed page-row layout through the shared
+      metadata table: pad main/chart/candidate pages to 10 rows and Sudoku
+      List/Group List partials to 5 without adding actions or DTO state.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

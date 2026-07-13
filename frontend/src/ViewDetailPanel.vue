@@ -371,6 +371,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                     :columns="candidateColumns(group)"
                     default-action-label="选择"
                     :disabled="pending"
+                    :minimum-rows="candidateState(group).pageSize"
                     :row-operations="[]"
                     :rows="candidateRows(group)"
                     selected-object-id=""

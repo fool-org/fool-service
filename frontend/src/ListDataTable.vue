@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import Button from "primevue/button";
 import Column from "primevue/column";
 import DataTable from "primevue/datatable";
@@ -14,16 +15,24 @@ import {
   rowValue
 } from "./viewWorkflow";
 
+const fillerRow = Symbol("legacy-filler-row");
+
+interface RenderedListDataItem extends ListDataItem {
+  [fillerRow]?: true;
+}
+
 const props = withDefaults(defineProps<{
   columns: TableColumnInfo[];
   defaultActionLabel?: string;
   disabled: boolean;
+  minimumRows?: number;
   rowOperations: OperationInfo[];
   rows: ListDataItem[];
   selectedObjectId?: string;
   showDefaultAction?: boolean;
 }>(), {
   defaultActionLabel: "Open",
+  minimumRows: 0,
   selectedObjectId: "",
   showDefaultAction: false
 });
@@ -32,7 +41,20 @@ const emit = defineEmits<{
   select: [row: ListDataItem, viewId?: number];
 }>();
 
-function tableRowClass(row: ListDataItem) {
+const renderedRows = computed<RenderedListDataItem[]>(() => [
+  ...props.rows,
+  ...Array.from(
+    { length: Math.max(0, props.minimumRows - props.rows.length) },
+    () => ({ [fillerRow]: true } as RenderedListDataItem)
+  )
+]);
+
+function isFiller(row: RenderedListDataItem) {
+  return row[fillerRow] === true;
+}
+
+function tableRowClass(row: RenderedListDataItem) {
+  if (isFiller(row)) return "legacy-filler-row";
   return [
     rowObjectId(row, props.columns) === props.selectedObjectId ? "selected" : "",
     rowFormatClass(row)
@@ -44,7 +66,7 @@ function tableRowClass(row: ListDataItem) {
   <DataTable
     v-if="columns.length"
     class="metadata-data-table"
-    :value="rows"
+    :value="renderedRows"
     :row-class="tableRowClass"
     scrollable
     striped-rows
@@ -52,12 +74,13 @@ function tableRowClass(row: ListDataItem) {
   >
     <Column v-for="column in columns" :key="columnKey(column)" :header="columnTitle(column)">
       <template #body="{ data: row }">
-        {{ rowValue(row, column) }}
+        <span v-if="isFiller(row)" aria-hidden="true">&nbsp;</span>
+        <template v-else>{{ rowValue(row, column) }}</template>
       </template>
     </Column>
     <Column v-if="rowOperations.length || showDefaultAction" header="操作">
       <template #body="{ data: row }">
-        <div class="table-actions">
+        <div v-if="!isFiller(row)" class="table-actions">
           <Button
             v-for="operation in rowOperations"
             :key="operationKey(operation)"

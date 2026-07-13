@@ -2775,3 +2775,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   geometry, inline Find command, and responsive input expansion; the Vue-only
   visible label was replaced by the old intended `输入条件` input prompt while
   retaining an accessible name and Enter submission.
+- 2026-07-13: restored `querylistdata.js`'s fixed page-row presentation. The
+  shared metadata table now pads only missing rows with inert striped cells:
+  normal/chart/candidate queries keep ten body rows and Sudoku List/Group List
+  partials keep their configured five. Filler rows expose no operation buttons
+  and never enter row-selection or View data state.

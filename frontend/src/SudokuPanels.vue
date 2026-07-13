@@ -115,6 +115,7 @@ watch(allPanelsReady, async (ready) => {
         <ListDataTable
           :columns="sudokuPanelColumns(panel)"
           :disabled="Boolean(disabled)"
+          :minimum-rows="5"
           :row-operations="[]"
           :rows="sudokuPanelRows(panel)"
           :show-default-action="false"
@@ -148,6 +149,7 @@ watch(allPanelsReady, async (ready) => {
                 <ListDataTable
                   :columns="sudokuPanelColumns(childPanel)"
                   :disabled="Boolean(disabled)"
+                  :minimum-rows="5"
                   :row-operations="[]"
                   :rows="sudokuPanelRows(childPanel)"
                   :show-default-action="false"

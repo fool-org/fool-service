@@ -309,6 +309,11 @@ describe("App defaults", () => {
     expect(viewListPanelSource).toContain("resultTotalItems");
     expect(viewListPanelSource).toContain("<LegacyPagination");
     expect(viewListPanelSource).toContain(':total-items="resultTotalItems"');
+    expect(viewListPanelSource).toContain(':minimum-rows="pageSize"');
+    expect(listDataTableSource).toContain('Symbol("legacy-filler-row")');
+    expect(listDataTableSource).toContain("props.minimumRows - props.rows.length");
+    expect(listDataTableSource).toContain('return "legacy-filler-row"');
+    expect(listDataTableSource).toContain('v-if="!isFiller(row)" class="table-actions"');
     expect(legacyPaginationSource).toContain("event.page + 1");
     expect(legacyPaginationSource).toContain("<Paginator");
     expect(legacyPaginationSource).toContain('class="record-info"');
@@ -380,6 +385,7 @@ describe("App defaults", () => {
     expect(sudokuPanelsSource).toContain("gridAutoRows: panelHeight || 'auto'");
     expect(sudokuPanelsSource).toContain("Math.max(...heights)");
     expect(sudokuPanelsSource).toContain("sudokuPanelWidth(panel)");
+    expect(sudokuPanelsSource.match(/:minimum-rows="5"/g)).toHaveLength(2);
     expect(sudokuPanelsSource).not.toContain("rows loaded");
   });
 
@@ -522,6 +528,7 @@ describe("App defaults", () => {
     expect(pickerSource).toContain('aria-label="查询条件"');
     expect(pickerSource).not.toContain("<label>");
     expect(viewDetailPanelSource).toContain("<LegacyPagination");
+    expect(pickerSource).toContain(':minimum-rows="candidateState(group).pageSize"');
     expect(viewDetailPanelSource).toContain(':total-items="candidateState(group).totalItem"');
     expect(viewDetailPanelSource).toContain('@page="emit(\'loadCandidatePage\', group, $event)"');
     expect(pickerSource).toContain('label="取消"');
