@@ -1287,6 +1287,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `swchartLine.js` category-axis boundaries: place multi-category
       first/last centers on the horizontal-axis ends, keep a single category
       centered, and prevent the end-axis name from overlapping the final label.
+- [x] Restore `swchartLine.js getOption` bar width: cap top-level chart bars at
+      15 rendered pixels across responsive sizes while preserving the compact
+      realtime chart branch that had no legacy `barMaxWidth` setting.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

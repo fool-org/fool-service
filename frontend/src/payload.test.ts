@@ -405,7 +405,9 @@ describe("App defaults", () => {
     expect(legacyChartPanelSource).toContain("plotWidth * index / (labelCount.value - 1)");
     expect(legacyChartPanelSource).not.toContain("plotWidth * (index + 0.5) / labelCount.value");
     expect(legacyChartPanelSource).not.toContain("<polyline");
-    expect(legacyChartPanelSource).toContain("<rect");
+    expect(legacyChartPanelSource).toContain('class="chart-bar"');
+    expect(legacyChartPanelSource).toContain("renderedWidth.value = rect.width");
+    expect(legacyChartPanelSource).toContain("props.compact ? 28 : 15 * width.value / renderedWidth.value");
     expect(legacyChartPanelSource).toContain("<circle");
     expect(legacyChartPanelSource).not.toContain("<meter");
     expect(legacyChartPanelSource).toContain('"#c23531", "#2f4554", "#61a0a8"');

@@ -6,16 +6,19 @@ const props = defineProps<{ compact?: boolean; data: LegacyChartData }>();
 const chartElement = ref<SVGSVGElement | null>(null);
 const height = props.compact ? 160 : 300;
 const width = ref(720);
+const renderedWidth = ref(720);
 const plot = { left: 52, right: 18, top: 18, bottom: 46 };
 const colors = ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83"];
 const formatter = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
 let resizeObserver: ResizeObserver | undefined;
 
 onMounted(() => {
-  if (!props.compact || !chartElement.value) return;
+  if (!chartElement.value) return;
   resizeObserver = new ResizeObserver(([entry]) => {
     const rect = entry?.contentRect;
-    if (rect?.width && rect.height) width.value = Math.max(320, Math.round(rect.width * height / rect.height));
+    if (!rect?.width) return;
+    renderedWidth.value = rect.width;
+    if (props.compact && rect.height) width.value = Math.max(320, Math.round(rect.width * height / rect.height));
   });
   resizeObserver.observe(chartElement.value);
 });
@@ -71,7 +74,8 @@ function lineAreaPath(series: LegacyChartSeries) {
 }
 
 function barWidth() {
-  return Math.min(28, (width.value - plot.left - plot.right) / labelCount.value / Math.max(1, barSeries.value.length) * 0.62);
+  const maxWidth = props.compact ? 28 : 15 * width.value / renderedWidth.value;
+  return Math.min(maxWidth, (width.value - plot.left - plot.right) / labelCount.value / Math.max(1, barSeries.value.length) * 0.62);
 }
 
 function barX(series: LegacyChartSeries, index: number) {
@@ -148,6 +152,7 @@ function seriesName(series: LegacyChartSeries, index: number) {
         <template v-for="(value, index) in series.values" :key="`${seriesIndex}-${index}`">
           <rect
             v-if="series.type === 'bar'"
+            class="chart-bar"
             :x="barX(series, index)"
             :y="barY(value)"
             :width="barWidth()"

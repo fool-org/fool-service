@@ -3054,3 +3054,10 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   scatter, value-label, and category-label positions reuse the same coordinate,
   and the end-axis name moves to its own line so the final category stays
   readable on desktop and mobile.
+- 2026-07-14: restored `swchartLine.js getOption`'s `barMaxWidth: 15` as a
+  rendered-pixel cap for top-level `viewWithChart` bars. The shared SVG now
+  observes its actual width and converts the 15px limit into viewBox units, so
+  bars remain 15px on desktop and mobile instead of scaling from 51.877px to
+  11.822px. The compact Sudoku branch retains its previous shared-renderer cap
+  because the old realtime `LineChartController` did not configure
+  `barMaxWidth`; View-derived series and all other chart geometry are unchanged.
