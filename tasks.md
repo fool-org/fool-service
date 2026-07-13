@@ -1130,6 +1130,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `querylistdata.js` `EditType=10` row-format presentation: keep
       View-derived row classes and supply the old Bootstrap contextual
       backgrounds and hover states through the shared metadata table.
+- [x] Restore the old shared `.table-hover` feedback for normal, chart,
+      candidate, and Sudoku metadata tables with the Bootstrap `#f5f5f5`
+      background while retaining contextual row hover colors.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

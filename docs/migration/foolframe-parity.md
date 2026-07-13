@@ -2789,3 +2789,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   the shared metadata table now supplies Bootstrap 3's `active`, `success`,
   `info`, `warning`, and `danger` backgrounds and hover colors instead of
   leaving those legacy `RowFmt` classes visually inert.
+- 2026-07-13: restored the shared Bootstrap `.table-hover` feedback used by
+  normal lists, chart data, candidate results, and Sudoku lists. Every shared
+  metadata row now uses the old `#f5f5f5` hover background; the more specific
+  contextual `RowFmt` hover colors continue to take precedence.
