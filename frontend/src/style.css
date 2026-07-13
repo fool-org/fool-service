@@ -1050,8 +1050,8 @@ label {
 }
 
 .chart-value-label {
-  fill: #333333;
-  font-size: 10px;
+  fill: #ffffff;
+  font-size: 12px;
   pointer-events: none;
   text-anchor: middle;
 }

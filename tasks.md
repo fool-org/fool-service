@@ -1378,6 +1378,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore ECharts 3.1.7 symbol-less line label behavior: omit value labels
       when `swchartLine.js` sets `symbol: 'none'`, while retaining bar/scatter
       labels and axis-trigger tooltip values in both shared chart entrypoints.
+- [x] Restore ECharts 3.1.7 bar/scatter value-label defaults: center 12px white
+      labels inside each bar or scatter symbol and retain scatter's 0.8
+      opacity across top-level and compact shared chart entrypoints.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

@@ -84,7 +84,16 @@ describe("shared chart styles", () => {
   });
 
   it("omits labels for symbol-less line series", () => {
-    expect(chartSource).toContain(`<text v-if="series.type !== 'line'" class="chart-value-label"`);
+    expect(chartSource).toContain(`v-if="series.type !== 'line'"`);
+  });
+
+  it("centers bar and scatter labels inside their symbols", () => {
+    expect(chartSource).toContain("barY(series, index) + barHeight(series, index) / 2");
+    expect(chartSource).toContain("dominant-baseline=\"central\"");
+    expect(chartSource).toContain(":opacity=\"series.type === 'scatter' ? 0.8 : undefined\"");
+    expect(styleSource).toContain(`.chart-value-label {
+  fill: #ffffff;
+  font-size: 12px;`);
   });
 
   it("keeps chart items above the axis tooltip hit surface", () => {

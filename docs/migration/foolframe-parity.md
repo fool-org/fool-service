@@ -3325,3 +3325,17 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   removing all 100 line labels inside its 328x200 pane. This supersedes the
   earlier provisional 200-label runtime count as a parity target; browser logs
   remained empty in all checks.
+- 2026-07-14: restored ECharts 3.1.7's default bar/scatter value-label
+  placement and style. Both old `swchartLine.js` branches enable labels without
+  specifying position or text style; ECharts therefore falls back to `inside`,
+  12px sans-serif text, and white fill. The shared Vue renderer now centers
+  bar labels in their actual stacked rectangle and scatter labels on their
+  symbol instead of placing 10px dark text seven pixels above each value.
+  Scatter labels also inherit the symbol's 0.8 opacity. Docker `/view100`
+  measured a zero-pixel label/bar-center delta and rendered 12px white text at
+  desktop and 390x844, with no pane overflow. A temporary View-first metadata
+  probe changed seeded Price from `EditType=12` to `14`; all eight scatter
+  labels matched their circle centers on both axes and used opacity 0.8. Both
+  metadata tables were restored to `12`, and the restarted default page again
+  rendered eight bars, one line, zero scatter marks, and eight value labels.
+  Sudoku `/view103` retained 100 bar labels in its contained 328x200 chart.

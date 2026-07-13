@@ -123,7 +123,9 @@ function valueLabelX(series: LegacyChartSeries, index: number) {
 }
 
 function valueLabelY(series: LegacyChartSeries, index: number) {
-  return Math.max(plot.top + 10, y(renderedValue(series, index)) - 7);
+  return series.type === "bar"
+    ? barY(series, index) + barHeight(series, index) / 2
+    : y(renderedValue(series, index));
 }
 
 function renderedValue(series: LegacyChartSeries, index: number) {
@@ -276,7 +278,14 @@ function tooltipValue(series: LegacyChartSeries) {
             opacity="0.8"
             :fill="colors[seriesIndex % colors.length]"
           />
-          <text v-if="series.type !== 'line'" class="chart-value-label" :x="valueLabelX(series, index)" :y="valueLabelY(series, index)">{{ formatter.format(value) }}</text>
+          <text
+            v-if="series.type !== 'line'"
+            class="chart-value-label"
+            :x="valueLabelX(series, index)"
+            :y="valueLabelY(series, index)"
+            :opacity="series.type === 'scatter' ? 0.8 : undefined"
+            dominant-baseline="central"
+          >{{ formatter.format(value) }}</text>
         </template>
       </g>
       <line
