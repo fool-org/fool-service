@@ -1354,6 +1354,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Match the old plain chart mounting surfaces: remove the Vue-only border,
       radius, and padding from the shared top-level/Sudoku chart pane while
       retaining the legacy 200px compact height and existing chart behavior.
+- [x] Restore `viewWithChart.js`'s first-data chart-height lock: measure the
+      rendered data pane once per View entry, reuse that height in the shared
+      chart, and retain readable ECharts-style category-label sampling.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

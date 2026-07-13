@@ -3227,3 +3227,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   measured the SVG and pane at the same `40,235` desktop origin and `30,403.84`
   mobile origin; `/view103` likewise retained an edge-aligned 328x200 compact
   chart. Both pages remained free of document overflow and browser warnings.
+- 2026-07-14: restored `viewWithChart.js`'s one-time chart-height lock. After
+  the first View-derived data result renders, the Vue parent now records its
+  existing data-pane height and passes only that presentation value to the
+  shared chart. Search, paging, and refresh preserve the lock; a new View page
+  entry clears it. Docker `/view100` moved from a 566.66px aspect-ratio chart
+  to the data pane's 414px desktop height and used 470px for the 470.25px
+  mobile pane. The responsive viewBox now samples category labels by rendered
+  plot width, retaining eight non-overlapping desktop labels and only the two
+  non-overlapping endpoints at 390px. `/view103` stayed on its independent
+  328x200 compact contract, and browser warnings/overflow remained absent.

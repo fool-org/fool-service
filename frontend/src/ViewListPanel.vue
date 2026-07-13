@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import Message from "primevue/message";
@@ -52,6 +52,8 @@ const emit = defineEmits<{
 
 const keyword = defineModel<string>("keyword", { required: true });
 const activePane = ref("table");
+const chartTablePane = ref<HTMLElement | null>(null);
+const chartPaneHeight = ref(0);
 const currentViewId = computed(() => viewId(props.view));
 const title = computed(() => viewDisplayTitle(props.view, "加载视图"));
 const columns = computed(() => listRenderColumns(props.view));
@@ -69,9 +71,20 @@ const chartData = computed(() => legacyChartData(rows.value));
 const resultPageIndex = computed(() => listPageIndex(props.data, props.pageIndex));
 const resultTotalItems = computed(() => listTotalItems(props.data));
 
+async function lockChartPaneHeight() {
+  if (!chartView.value || !props.data || chartPaneHeight.value) return;
+  await nextTick();
+  if (!chartView.value || chartPaneHeight.value) return;
+  const height = chartTablePane.value?.getBoundingClientRect().height ?? 0;
+  if (height > 0) chartPaneHeight.value = Math.round(height);
+}
+
 watch([currentViewId, templateKind, () => props.navigationRevision], () => {
   activePane.value = "table";
+  chartPaneHeight.value = 0;
 });
+
+watch(() => props.data, () => void lockChartPaneHeight(), { immediate: true });
 </script>
 
 <template>
@@ -111,7 +124,7 @@ watch([currentViewId, templateKind, () => props.navigationRevision], () => {
 
     <SudokuPanels v-if="sudokuView" :disabled="disabled" :panel-data="panelData" :panels="viewColumns(view)" @refresh-panel="emit('refreshPanel', $event)" />
 
-    <div v-if="supportedTemplate && !sudokuView" v-show="!chartView || activePane === 'table'" class="table-wrap view-table">
+    <div ref="chartTablePane" v-if="supportedTemplate && !sudokuView" v-show="!chartView || activePane === 'table'" class="table-wrap view-table">
       <ListDataTable
         :columns="columns"
         :disabled="disabled"
@@ -121,7 +134,7 @@ watch([currentViewId, templateKind, () => props.navigationRevision], () => {
         @select="(row, viewId) => emit('select', row, viewId)"
       />
     </div>
-    <LegacyChartPanel v-if="chartView && activePane === 'chart'" :data="chartData" />
+    <LegacyChartPanel v-if="chartView && activePane === 'chart'" :data="chartData" :rendered-height="chartPaneHeight" />
     <LegacyPagination
       v-if="supportedTemplate && data"
       class="list-pagination"

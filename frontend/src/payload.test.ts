@@ -383,6 +383,10 @@ describe("App defaults", () => {
     expect(appSource).toContain(':navigation-revision="viewNavigationRevision"');
     expect(viewListPanelSource).toContain("watch([currentViewId, templateKind, () => props.navigationRevision]");
     expect(viewListPanelSource).toContain('activePane.value = "table";');
+    expect(viewListPanelSource).toContain("const chartPaneHeight = ref(0)");
+    expect(viewListPanelSource).toContain("await nextTick()");
+    expect(viewListPanelSource).toContain("chartTablePane.value?.getBoundingClientRect().height");
+    expect(viewListPanelSource).toContain(':rendered-height="chartPaneHeight"');
     expect(viewListPanelSource).toContain("<Tabs");
     expect(viewListPanelSource).toContain("<Tab value=\"chart\"");
     expect(viewListPanelSource).toContain('<Tab value="table">数据</Tab>');
@@ -397,6 +401,10 @@ describe("App defaults", () => {
     expect(legacyChartPanelSource).toContain('return props.data.labels[index] || ""');
     expect(legacyChartPanelSource).toContain('v-if="index < data.labels.length && showLabel(index)"');
     expect(legacyChartPanelSource).toContain('class="legacy-chart"');
+    expect(legacyChartPanelSource).toContain("renderedHeight?: number");
+    expect(legacyChartPanelSource).toContain(":style=\"paneStyle\"");
+    expect(legacyChartPanelSource).toContain("props.compact || fixedHeight.value");
+    expect(legacyChartPanelSource).toContain("const renderedPlotWidth = plotWidth * renderedWidth.value / width.value");
     const chartPaneStyle = styleSource.slice(
       styleSource.indexOf(".legacy-chart-pane {"),
       styleSource.indexOf(".legacy-chart {")

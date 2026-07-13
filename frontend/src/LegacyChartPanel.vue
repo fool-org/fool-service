@@ -3,11 +3,17 @@ import { computed, onMounted, onUnmounted, ref } from "vue";
 import { legacyChartScale, legacyChartStackGeometry } from "./legacyChartGeometry";
 import type { LegacyChartData, LegacyChartSeries } from "./viewWorkflow";
 
-const props = defineProps<{ compact?: boolean; data: LegacyChartData; title?: string }>();
+const props = defineProps<{ compact?: boolean; data: LegacyChartData; renderedHeight?: number; title?: string }>();
 const chartElement = ref<SVGSVGElement | null>(null);
 const height = props.compact ? 160 : 300;
 const width = ref(720);
 const renderedWidth = ref(720);
+const fixedHeight = computed(() => {
+  const renderedHeight = props.renderedHeight ?? 0;
+  return !props.compact && renderedHeight > 0 ? Math.round(renderedHeight) : 0;
+});
+const paneStyle = computed(() => fixedHeight.value ? { height: `${fixedHeight.value}px`, minHeight: "0" } : undefined);
+const chartStyle = computed(() => fixedHeight.value ? { height: "100%", minHeight: "0" } : undefined);
 const hiddenSeriesNames = ref<string[]>([]);
 const activeTooltipIndex = ref<number | null>(null);
 const tooltipPosition = ref({ left: 0, top: 0 });
@@ -25,7 +31,7 @@ onMounted(() => {
     const rect = entry?.contentRect;
     if (!rect?.width) return;
     renderedWidth.value = rect.width;
-    if (props.compact && rect.height) width.value = Math.max(320, Math.round(rect.width * height / rect.height));
+    if ((props.compact || fixedHeight.value) && rect.height) width.value = Math.max(320, Math.round(rect.width * height / rect.height));
   });
   resizeObserver.observe(chartElement.value);
 });
@@ -122,8 +128,10 @@ function baseValue(series: LegacyChartSeries, index: number) {
 }
 
 function showLabel(index: number) {
-  if (props.compact) {
-    const maxLabels = Math.max(2, Math.floor((width.value - plot.left - plotRight.value) / 100));
+  if (props.compact || fixedHeight.value) {
+    const plotWidth = width.value - plot.left - plotRight.value;
+    const renderedPlotWidth = plotWidth * renderedWidth.value / width.value;
+    const maxLabels = Math.max(2, Math.floor(renderedPlotWidth / 100));
     if (labelCount.value <= maxLabels) return true;
     const lastIndex = labelCount.value - 1;
     return Array.from({ length: maxLabels }, (_, position) =>
@@ -190,8 +198,8 @@ function tooltipValue(series: LegacyChartSeries) {
 </script>
 
 <template>
-  <div class="legacy-chart-pane" :class="{ 'compact-chart': compact }">
-    <svg ref="chartElement" class="legacy-chart" :viewBox="`0 0 ${width} ${height}`" role="img" aria-label="视图数据图表">
+  <div class="legacy-chart-pane" :class="{ 'compact-chart': compact }" :style="paneStyle">
+    <svg ref="chartElement" class="legacy-chart" :style="chartStyle" :viewBox="`0 0 ${width} ${height}`" role="img" aria-label="视图数据图表">
       <text v-if="compact && title" class="chart-title" x="8" y="22">{{ title }}</text>
       <g v-for="tick in ticks" :key="tick" class="chart-grid-line">
         <line :x1="plot.left" :x2="width - plotRight" :y1="y(tick)" :y2="y(tick)" />
