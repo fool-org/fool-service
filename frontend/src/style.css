@@ -561,18 +561,18 @@ label {
 }
 
 .list-pagination {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
+  justify-items: start;
 }
 
-.fresh-time {
-  display: inline-flex;
-  gap: 6px;
-  align-items: center;
-  color: #64748b;
-  font-size: 0.8rem;
+.list-pagination .p-paginator {
+  justify-content: flex-start;
+  padding-inline: 0;
+}
+
+.record-info {
+  color: #333333;
+  font-size: 14px;
 }
 
 .legacy-chart-pane {
@@ -893,10 +893,6 @@ label {
     padding: 0 14px 14px;
   }
 
-  .list-pagination {
-    display: grid;
-  }
-
   .list-query-input {
     flex: 1 1 100%;
   }
@@ -907,11 +903,6 @@ label {
 
   .sudoku-panel {
     grid-column: 1 / -1;
-  }
-
-  .list-pagination .p-paginator {
-    justify-content: flex-start;
-    padding-inline: 0;
   }
 
   .button-row,

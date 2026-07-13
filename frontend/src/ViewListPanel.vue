@@ -14,12 +14,10 @@ import SudokuPanels from "./SudokuPanels.vue";
 import {
   createOperations,
   legacyChartData,
-  listFreshTime,
   listPageIndex,
   listRenderColumns,
   listRows,
   listTotalItems,
-  listTotalPages,
   operationKey,
   operationLabel,
   operationTargetViewId,
@@ -70,8 +68,6 @@ const templateName = computed(() => viewTemplateName(props.view));
 const chartData = computed(() => legacyChartData(rows.value));
 const resultPageIndex = computed(() => listPageIndex(props.data, props.pageIndex));
 const resultTotalItems = computed(() => listTotalItems(props.data));
-const resultTotalPages = computed(() => listTotalPages(props.data));
-const resultFreshTime = computed(() => listFreshTime(props.data));
 
 watch([currentViewId, templateKind, () => props.navigationRevision], () => {
   activePane.value = "table";
@@ -130,17 +126,17 @@ function changePage(event: PageState) {
     </div>
     <LegacyChartPanel v-if="chartView && activePane === 'chart' && chartData.series.length" :data="chartData" />
     <div v-else-if="chartView && activePane === 'chart'" class="empty-state compact">暂无图表数据。</div>
-    <div v-if="supportedTemplate && (rows.length || resultTotalItems || resultFreshTime)" class="list-pagination">
+    <div v-if="supportedTemplate && data" class="list-pagination">
+      <span class="record-info">共{{ resultTotalItems }}条记录</span>
       <Paginator
         :first="Math.max(0, (resultPageIndex - 1) * pageSize)"
+        :page-link-size="7"
         :rows="pageSize"
         :total-records="resultTotalItems"
         :disabled="disabled"
-        template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
-        current-page-report-template="第 {currentPage} / {totalPages} 页 · 共 {totalRecords} 条"
+        template="PrevPageLink PageLinks NextPageLink"
         @page="changePage"
       />
-      <span v-if="resultFreshTime" class="fresh-time"><i class="pi pi-clock"></i> 更新时间 {{ resultFreshTime }}</span>
     </div>
   </article>
 </template>

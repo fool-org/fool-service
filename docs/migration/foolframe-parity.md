@@ -118,6 +118,14 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-13: restored `view.jade` / `viewWithChart.jade` pagination from
+  `navbar.js`. Main list pages now render the record total above Previous,
+  up to seven directly selectable page links, and Next; the Vue-only First,
+  Last, and current-page report controls were removed. Main list `FreshTime`
+  was also removed because the old templates show it only in Sudoku partials.
+  Authenticated desktop/mobile browser acceptance expanded the local list from
+  8 to 11 rows, selected page 2, observed its single row, then removed all
+  three exact test rows and verified the list returned to 8 rows on page 1.
 - 2026-07-13: fixed same-model operation execution when nullable legacy
   `ArgModel` metadata is hydrated as `0`. `DataQueryService` now treats only a
   positive argument-model id as a cross-model operation, so the seeded detail
@@ -1664,9 +1672,10 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   prefers legacy `querydata.Cols` for fallback table headers before deriving
   columns from row `Items`. This matches FoolFrame `querylistdata.js`, which
   builds list headers from the data response `Cols` field.
-- 2026-07-04: the main Vue View workflow now displays legacy
-  `querydata.FreshTime` beside the list paging status, matching FoolFrame's
-  list panel update-time surface without adding a custom date parser.
+- 2026-07-04: the Vue View workflow parses legacy `querydata.FreshTime` without
+  adding a custom date parser. A 2026-07-13 template audit narrowed its visible
+  use to the old Sudoku List/Map/Chart partials; normal and chart list pages do
+  not render it.
 - 2026-07-04: report-grid row projection now ignores `ListDataItem.values`
   and builds output cells from legacy row `Items` only. This keeps the
   migrated `makereport` / `getrpt` path aligned with View/query metadata and

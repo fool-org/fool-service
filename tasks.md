@@ -1082,6 +1082,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Treat legacy zero argument-model IDs as unset for same-model operations;
       prove the seeded detail Save reaches its update path, returns the old
       success result dialog, and leaves the idempotent target row unchanged.
+- [x] Restore `navbar.js` main-list paging: show record totals above Previous,
+      up to seven direct page links, and Next; remove Vue-only First/Last and
+      main-list `FreshTime`, then prove page 2 queries and cleanup at runtime.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

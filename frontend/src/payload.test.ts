@@ -304,11 +304,14 @@ describe("App defaults", () => {
 
   it("renders list paging from legacy querydata totals", () => {
     expect(viewListPanelSource).toContain("resultTotalItems");
-    expect(viewListPanelSource).toContain("resultFreshTime");
     expect(viewListPanelSource).toContain("event.page + 1");
     expect(viewListPanelSource).toContain("<Paginator");
-    expect(viewListPanelSource).toContain("current-page-report-template");
-    expect(viewListPanelSource).toContain("更新时间 {{ resultFreshTime }}");
+    expect(viewListPanelSource).toContain('class="record-info">共{{ resultTotalItems }}条记录');
+    expect(viewListPanelSource).toContain(':page-link-size="7"');
+    expect(viewListPanelSource).toContain('template="PrevPageLink PageLinks NextPageLink"');
+    expect(viewListPanelSource).not.toContain("FirstPageLink");
+    expect(viewListPanelSource).not.toContain("LastPageLink");
+    expect(viewListPanelSource).not.toContain("更新时间 {{ resultFreshTime }}");
     expect(listDataTableSource).toContain('header="操作"');
   });
 

@@ -7,7 +7,6 @@ import {
   buildLegacyReadItemViewRequest
 } from "./payload";
 import {
-  listFreshTime,
   listPageIndex,
   listRenderColumns,
   listRows,
@@ -47,7 +46,6 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
   const resultPageIndex = computed(() => listPageIndex(dataResponse.value?.data, Number(options.pageIndex.value)));
   const resultTotalItems = computed(() => listTotalItems(dataResponse.value?.data));
   const resultTotalPages = computed(() => listTotalPages(dataResponse.value?.data));
-  const resultFreshTime = computed(() => listFreshTime(dataResponse.value?.data));
 
   function canRenderLoadedView() {
     return listRenderColumns(viewResponse.value?.data).length > 0;
@@ -195,7 +193,6 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
     resultPageIndex,
     resultTotalItems,
     resultTotalPages,
-    resultFreshTime,
     readItemViewFor,
     loadLegacyListView,
     loadReadItemView,
