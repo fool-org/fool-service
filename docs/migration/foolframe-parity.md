@@ -3219,3 +3219,11 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   document overflow or browser warnings. The adjacent endpoint-clipping audit
   also found that ECharts 3.1.7 does not clip the bar group to the grid, so the
   existing half-width first/last extension remains correct and unchanged.
+- 2026-07-14: removed the Vue-only card frame around the shared chart surface.
+  Old `viewWithChart.jade` supplies a plain chart tab pane, while Sudoku's
+  `.sw-partialchart` sets only width and 200px height; neither adds another
+  border, radius, or content inset around ECharts. The shared Vue pane now has
+  zero border, radius, and padding for both entrypoints. Docker `/view100`
+  measured the SVG and pane at the same `40,235` desktop origin and `30,403.84`
+  mobile origin; `/view103` likewise retained an edge-aligned 328x200 compact
+  chart. Both pages remained free of document overflow and browser warnings.

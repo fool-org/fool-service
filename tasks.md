@@ -1351,6 +1351,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore ECharts 3.1.7's default square bar corners: remove the Vue-only
       fixed SVG radius from the shared top-level/Sudoku renderer while keeping
       View-derived series geometry and responsive width behavior unchanged.
+- [x] Match the old plain chart mounting surfaces: remove the Vue-only border,
+      radius, and padding from the shared top-level/Sudoku chart pane while
+      retaining the legacy 200px compact height and existing chart behavior.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
