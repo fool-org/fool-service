@@ -1088,6 +1088,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `viewWithChart.jade`'s left-aligned search form and full-width
       Data/Chart tabs without changing normal `view.jade`'s right-aligned
       toolbar; verify desktop and 390px geometry in the deployed frontend.
+- [x] Restore Sudoku `Map.jade` presentation: keep location details in marker
+      popups, remove the Vue-only coordinate list, and preserve the old fixed
+      200px map height on desktop and mobile.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

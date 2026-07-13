@@ -2726,3 +2726,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   navigation re-enters a View, including Home, menu, and browser-history paths
   that resolve to the same View id. Query, paging, and automatic refresh keep
   the user's current tab because they do not represent page entry.
+- 2026-07-13: restored the old Sudoku `Map.jade` presentation contract. The
+  shared Leaflet panel now keeps marker details in the clickable popup instead
+  of rendering a Vue-only coordinate list below the map, and `.sw-map`'s fixed
+  200px height is preserved at desktop and mobile widths. The View-derived
+  marker mapping and existing refresh footer remain unchanged.

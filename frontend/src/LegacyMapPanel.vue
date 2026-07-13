@@ -83,11 +83,5 @@ function markerName(marker: LegacyMapMarker) {
       :aria-label="`${markers.length} 个地图位置`"
     ></div>
     <p v-if="mapError" class="error-message">{{ mapError }}</p>
-    <ul class="map-location-list">
-      <li v-for="marker in markers" :key="`${marker.longitude}-${marker.latitude}-${markerName(marker)}`">
-        <strong>{{ markerName(marker) }}</strong>
-        <span>{{ marker.latitude }}, {{ marker.longitude }}</span>
-      </li>
-    </ul>
   </div>
 </template>

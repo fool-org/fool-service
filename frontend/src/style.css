@@ -532,32 +532,11 @@ label {
 
 .legacy-map {
   width: 100%;
-  min-height: 280px;
-  aspect-ratio: 16 / 9;
+  height: 200px;
   border: 1px solid #e2e8f0;
   border-radius: 6px;
   background: #f1f5f9;
   z-index: 0;
-}
-
-.map-location-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  color: #475569;
-  font-size: 0.8rem;
-}
-
-.map-location-list li {
-  display: grid;
-  gap: 2px;
-}
-
-.map-location-list strong {
-  color: #0f172a;
 }
 
 .list-pagination {

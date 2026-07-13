@@ -394,6 +394,7 @@ describe("App defaults", () => {
     expect(legacyMapPanelSource).toContain("map.fitBounds");
     expect(legacyMapPanelSource).toContain("title.textContent");
     expect(legacyMapPanelSource).toContain("marker.info[0]");
+    expect(legacyMapPanelSource).not.toContain("map-location-list");
     expect(legacyMapPanelSource).toContain("没有有效的地图位置。");
     expect(legacyMapPanelSource).not.toContain('"Location"');
   });
