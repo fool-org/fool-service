@@ -371,12 +371,11 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                 </div>
                 <div class="table-wrap detail-picker-results">
                   <ListDataTable
-                    v-if="candidateState(group).queried"
                     :columns="candidateColumns(group)"
                     :condensed="false"
                     default-action-label="选择"
                     :disabled="pending"
-                    :minimum-rows="candidateState(group).pageSize"
+                    :minimum-rows="candidateState(group).queried ? candidateState(group).pageSize : 0"
                     :row-operations="[]"
                     :rows="candidateRows(group)"
                     selected-object-id=""

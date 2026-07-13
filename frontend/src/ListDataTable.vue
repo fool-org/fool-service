@@ -75,6 +75,7 @@ function tableRowClass(row: RenderedListDataItem) {
 <template>
   <DataTable
     class="metadata-data-table"
+    :class="{ 'metadata-empty-table': !columns.length || !renderedRows.length }"
     :value="columns.length ? renderedRows : []"
     :row-class="tableRowClass"
     scrollable

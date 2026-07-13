@@ -2970,3 +2970,9 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   instead of inserting the final Vue-only `暂无数据。` fallback. The five explicit
   List/Group/Map/Item/linechart branches and their View-first loaders are
   unchanged.
+- 2026-07-14: restored `detailview.js`'s candidate-table initialization order.
+  Opening a select-existing child dialog now shows the loaded candidate View's
+  headings before the first query, with no data/filler rows; after querying it
+  still pads to ten rows like `querylistdata.js`. The shared table suppresses
+  PrimeVue's automatic empty row, and selecting a candidate still closes the
+  dialog and stages the View-projected child without an immediate save.

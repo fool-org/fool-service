@@ -290,7 +290,8 @@ describe("App defaults", () => {
     expect(appSource).toContain("if (resetPage) setCandidateState(group, { pageIndex: 1 })");
     expect(appSource).toContain("await queryExistingDetailItems(group, false)");
     expect(viewDetailPanelSource).toContain("candidateRecordInfo(candidateState(group))");
-    expect(viewDetailPanelSource).toContain('v-if="candidateState(group).queried"');
+    expect(viewDetailPanelSource).not.toContain('v-if="candidateState(group).queried"');
+    expect(viewDetailPanelSource).toContain(':minimum-rows="candidateState(group).queried ? candidateState(group).pageSize : 0"');
     expect(viewDetailPanelSource).not.toContain("暂无候选记录。");
     expect(viewDetailPanelSource.indexOf('class="detail-picker-results"')).toBeLessThan(
       viewDetailPanelSource.indexOf("<LegacyPagination")
@@ -342,6 +343,7 @@ describe("App defaults", () => {
     expect(listDataTableSource).not.toContain('v-if="columns.length"');
     expect(listDataTableSource).not.toContain("暂无数据。");
     expect(listDataTableSource).not.toContain("请先加载视图。");
+    expect(listDataTableSource).toContain("'metadata-empty-table': !columns.length || !renderedRows.length");
     expect(listDataTableSource).toContain("striped: true");
     expect(listDataTableSource).toContain(':striped-rows="striped"');
     expect(sudokuPanelsSource.match(/:striped="false"/g)).toHaveLength(2);
@@ -579,7 +581,7 @@ describe("App defaults", () => {
     expect(pickerSource).toContain('aria-label="查询条件"');
     expect(pickerSource).not.toContain("<label>");
     expect(viewDetailPanelSource).toContain("<LegacyPagination");
-    expect(pickerSource).toContain(':minimum-rows="candidateState(group).pageSize"');
+    expect(pickerSource).toContain(':minimum-rows="candidateState(group).queried ? candidateState(group).pageSize : 0"');
     expect(viewDetailPanelSource).toContain(':total-items="candidateState(group).totalItem"');
     expect(viewDetailPanelSource).toContain('@page="emit(\'loadCandidatePage\', group, $event)"');
     expect(pickerSource).toContain('label="取消" severity="secondary" outlined');

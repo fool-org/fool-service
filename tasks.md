@@ -1242,6 +1242,9 @@ item must land with its matching implementation and validation evidence.
       until View columns exist.
 - [x] Restore `Sudoku.jade`'s unmatched child `ViewFile` behavior by leaving the
       panel content empty instead of displaying a Vue-only generic data message.
+- [x] Restore select-existing candidate initialization: show View-derived table
+      headings before the first query without an automatic empty row, then keep
+      ten-row query padding and local-only candidate staging.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
