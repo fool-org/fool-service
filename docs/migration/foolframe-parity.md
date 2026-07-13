@@ -3202,3 +3202,11 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   footer with zero buttons, one passive anchor, and exactly two executable
   refresh buttons across the page. At 390px the footer ended at x=359 with no
   document overflow.
+- 2026-07-14: restored `groupview.js`'s simple-child text presentation. The
+  `ListViewType=1` tab still renders the View-contract string `这是简单项`, but it
+  no longer routes that text through the Vue-wide 128px centered gray empty
+  state. A focused class now leaves it as a top-left 14px/20px `#333` line,
+  matching the old controller's direct append into the child panel. Docker
+  `/view103` retained Group tab switching and rendered a 20px-high line with
+  zero Group empty-state elements. At 390px the text remained within
+  `48..342` and document overflow stayed false.

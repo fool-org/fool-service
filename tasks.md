@@ -1345,6 +1345,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `subitem.js`'s Item footer: render blank update time and passive
       Refresh text after the six-row View-derived matrix without adding a
       third executable Sudoku refresh command.
+- [x] Restore `groupview.js`'s simple-child presentation: render the legacy
+      plain `这是简单项` line at the Group tab's top-left instead of centering it
+      in a Vue empty-state surface.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

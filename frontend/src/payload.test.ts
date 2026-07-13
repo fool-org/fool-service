@@ -559,6 +559,8 @@ describe("App defaults", () => {
     expect(sudokuPanelsSource).toContain('<Tabs v-if="sudokuGroupPanels(panel).length"');
     expect(sudokuPanelsSource).toContain("<TabList>");
     expect(sudokuPanelsSource).toContain("这是简单项");
+    expect(sudokuPanelsSource).toContain('class="sudoku-simple-item"');
+    expect(sudokuPanelsSource).not.toContain('class="empty-state compact">这是简单项');
     expect(sudokuPanelsSource).not.toContain("暂无数据。");
   });
 

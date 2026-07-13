@@ -169,7 +169,7 @@ watch(allPanelsReady, async (ready) => {
                   :striped="false"
                 />
               </div>
-              <div v-else-if="sudokuPanelListViewType(childPanel) === 1" class="empty-state compact">这是简单项</div>
+              <div v-else-if="sudokuPanelListViewType(childPanel) === 1" class="sudoku-simple-item">这是简单项</div>
               <div v-if="sudokuPanelListViewType(childPanel) === 0" class="sudoku-panel-footer">
                 <span class="sudoku-panel-detail-link">详细</span>
                 <span>更新时间 {{ sudokuPanelFreshTime(childPanel) }}</span>
