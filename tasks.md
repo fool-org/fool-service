@@ -1339,6 +1339,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `mapview.js` info-window geometry: keep a 240x100 View-derived
       popup body and group metadata details two items per row across desktop
       and mobile map panels.
+- [x] Restore template-specific Sudoku headers: use static active tabs for
+      List/Map/linechart, the Item panel heading and inert Detail link, and no
+      Vue-only parent heading above Group child tabs.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

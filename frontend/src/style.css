@@ -424,7 +424,8 @@ label {
   background: transparent;
 }
 
-.legacy-tabs .p-tab {
+.legacy-tabs .p-tab,
+:is(.sudoku-panel-list, .sudoku-panel-map, .sudoku-panel-linechart) .sudoku-panel-heading {
   margin: 0 2px -1px 0;
   border: 1px solid transparent;
   border-radius: 4px 4px 0 0;
@@ -442,7 +443,8 @@ label {
   color: #23527c;
 }
 
-.legacy-tabs .p-tab.p-tab-active {
+.legacy-tabs .p-tab.p-tab-active,
+:is(.sudoku-panel-list, .sudoku-panel-map, .sudoku-panel-linechart) .sudoku-panel-heading {
   border-color: #dddddd;
   border-bottom-color: #ffffff;
   background: #ffffff;
@@ -736,6 +738,9 @@ label {
   grid-column: span var(--sudoku-panel-span, 12);
   min-height: 180px;
   overflow: hidden;
+  border-color: #dddddd;
+  border-radius: 4px;
+  box-shadow: 0 1px 1px rgb(0 0 0 / 5%);
 }
 
 .sudoku-panel-heading {
@@ -743,6 +748,38 @@ label {
   width: 100%;
   align-items: center;
   justify-content: space-between;
+}
+
+:is(.sudoku-panel-list, .sudoku-panel-map, .sudoku-panel-linechart) > .p-panel-header {
+  padding: 0;
+  border-bottom: 1px solid #dddddd;
+}
+
+:is(.sudoku-panel-list, .sudoku-panel-map, .sudoku-panel-linechart) .sudoku-panel-heading {
+  width: auto;
+}
+
+.sudoku-panel-item > .p-panel-header {
+  padding: 10px 15px;
+  border-bottom: 1px solid #dddddd;
+  background: #f5f5f5;
+}
+
+.sudoku-panel-item .sudoku-panel-heading {
+  color: #333333;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.sudoku-panel-group > .p-panel-header {
+  display: none;
+}
+
+.sudoku-panel-detail-link {
+  color: #337ab7;
+  font-size: 14px;
+  font-weight: 400;
 }
 
 .sudoku-panel-footer {
@@ -756,6 +793,12 @@ label {
 .sudoku-panel-footer span {
   color: #64748b;
   font-size: 0.72rem;
+}
+
+.sudoku-panel-footer .sudoku-panel-detail-link {
+  margin-right: auto;
+  color: #337ab7;
+  font-size: 14px;
 }
 
 .sudoku-panel-passive-refresh {

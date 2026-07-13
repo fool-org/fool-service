@@ -3184,3 +3184,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   eligibility. Docker `/view103` measured a 241x100 content box after browser
   rounding and a 287px outer popup; at 390px that popup stayed within
   coordinates `66..353` with no document overflow.
+- 2026-07-14: restored each Sudoku include's template-specific header instead
+  of rendering every ViewFile through one Prime panel title. List, Map, and
+  linechart now use the old single active Bootstrap tab presentation; Item
+  uses the gray `panel-heading` with its inert blue `详细` text; Group starts
+  directly with its View-derived child tabs and restores the List child's
+  inert footer `详细` text. The shared loop now adds only a ViewFile-kind class
+  and two conditional spans; data loading and tab state are unchanged. Docker
+  `/view103` exposed four visible outer headers rather than the Vue-only five,
+  retained both Group tabs, and showed two inert Detail texts. At 390px all
+  five 330px panel shells stayed inside `30..360` with no document overflow.

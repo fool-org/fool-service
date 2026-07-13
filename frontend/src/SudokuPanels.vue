@@ -111,11 +111,13 @@ watch(allPanelsReady, async (ready) => {
       v-for="panel in panels"
       :key="`${sudokuPanelViewId(panel)}-${fieldTitle(panel)}-${sudokuPanelKind(panel)}`"
       class="sudoku-panel"
+      :class="`sudoku-panel-${sudokuPanelKind(panel)}`"
       :style="{ '--sudoku-panel-span': sudokuPanelWidth(panel) }"
     >
       <template #header>
         <div class="sudoku-panel-heading">
-          <strong>{{ fieldTitle(panel) }}</strong>
+          <span>{{ fieldTitle(panel) }}</span>
+          <span v-if="sudokuPanelKind(panel) === 'item'" class="sudoku-panel-detail-link">详细</span>
         </div>
       </template>
       <div v-if="sudokuPanelKind(panel) === 'list'" class="table-wrap sudoku-panel-body">
@@ -169,6 +171,7 @@ watch(allPanelsReady, async (ready) => {
               </div>
               <div v-else-if="sudokuPanelListViewType(childPanel) === 1" class="empty-state compact">这是简单项</div>
               <div v-if="sudokuPanelListViewType(childPanel) === 0" class="sudoku-panel-footer">
+                <span class="sudoku-panel-detail-link">详细</span>
                 <span>更新时间 {{ sudokuPanelFreshTime(childPanel) }}</span>
                 <Button type="button" label="刷新" severity="secondary" text size="small" :disabled="disabled" @click="emit('refreshPanel', childPanel)" />
               </div>

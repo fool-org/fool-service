@@ -474,6 +474,10 @@ describe("App defaults", () => {
     expect(sudokuPanelsSource).toContain("<span>更新时间 {{ sudokuPanelFreshTime(panel) }}</span>");
     expect(sudokuWorkflowSource).toContain('if (kind === "map")');
     expect(sudokuPanelsSource).toContain('class="sudoku-grid"');
+    expect(sudokuPanelsSource).toContain(':class="`sudoku-panel-${sudokuPanelKind(panel)}`"');
+    expect(sudokuPanelsSource).toContain("<span>{{ fieldTitle(panel) }}</span>");
+    expect(sudokuPanelsSource).not.toContain("<strong>{{ fieldTitle(panel) }}</strong>");
+    expect(sudokuPanelsSource.match(/class="sudoku-panel-detail-link"/g)).toHaveLength(2);
     expect(sudokuPanelsSource).toContain("allPanelsReady");
     expect(sudokuPanelsSource).toContain("gridAutoRows: panelHeight || 'auto'");
     expect(sudokuPanelsSource).toContain("Math.max(...heights)");
