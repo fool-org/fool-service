@@ -20,6 +20,7 @@ const chartStyle = computed(() => fixedHeight.value ? { height: "100%", minHeigh
 const hiddenSeriesNames = ref<string[]>([]);
 const hoveredSeriesName = ref<string | null>(null);
 const activeTooltipIndex = ref<number | null>(null);
+const lastTooltipPosition = ref<{ left: number; top: number } | null>(null);
 const tooltipPosition = ref({ left: 0, top: 0 });
 const tooltipAlignRight = ref(false);
 const tooltipAlignBottom = ref(false);
@@ -36,10 +37,12 @@ onMounted(() => {
     if (!rect?.width) return;
     if (entry.target === legendElement.value) {
       renderedLegendWidth.value = rect.width;
+      refreshAxisTooltip();
       return;
     }
     renderedWidth.value = rect.width;
     if ((props.compact || fixedHeight.value) && rect.height) width.value = Math.max(320, Math.round(rect.width * height / rect.height));
+    refreshAxisTooltip();
   }));
   resizeObserver.observe(chartElement.value);
   if (legendElement.value) resizeObserver.observe(legendElement.value);
@@ -170,13 +173,21 @@ function toggleSeries(series: LegacyChartSeries, index: number) {
   hiddenSeriesNames.value = hiddenSeriesNames.value.includes(name)
     ? hiddenSeriesNames.value.filter((item) => item !== name)
     : [...hiddenSeriesNames.value, name];
-  activeTooltipIndex.value = null;
+  hideAxisTooltip();
 }
 
-function showAxisTooltip(event: MouseEvent) {
+function refreshAxisTooltip() {
+  const chart = chartElement.value;
+  const position = lastTooltipPosition.value;
+  if (!chart || !position) return;
+  const rect = chart.getBoundingClientRect();
+  showAxisTooltip({ clientX: rect.left + position.left, clientY: rect.top + position.top });
+}
+
+function showAxisTooltip(event: Pick<MouseEvent, "clientX" | "clientY">) {
   const chart = chartElement.value;
   if (!chart || !visibleSeries.value.length) {
-    activeTooltipIndex.value = null;
+    hideAxisTooltip();
     return;
   }
   const rect = chart.getBoundingClientRect();
@@ -185,10 +196,11 @@ function showAxisTooltip(event: MouseEvent) {
   const viewX = (event.clientX - rect.left) * width.value / rect.width;
   const viewY = (event.clientY - rect.top) * height / rect.height;
   if (viewX < plot.left || viewX > width.value - plotRight.value || viewY < plot.top || viewY > height - plot.bottom) {
-    activeTooltipIndex.value = null;
+    hideAxisTooltip();
     return;
   }
   const plotWidth = width.value - plot.left - plotRight.value;
+  lastTooltipPosition.value = { left: event.clientX - rect.left, top: event.clientY - rect.top };
   activeTooltipIndex.value = labelCount.value === 1
     ? 0
     : Math.round((viewX - plot.left) / plotWidth * (labelCount.value - 1));
@@ -202,6 +214,7 @@ function showAxisTooltip(event: MouseEvent) {
 
 function hideAxisTooltip() {
   activeTooltipIndex.value = null;
+  lastTooltipPosition.value = null;
 }
 
 function hasTooltipValue(series: LegacyChartSeries) {

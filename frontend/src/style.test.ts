@@ -105,4 +105,12 @@ describe("shared chart styles", () => {
     expect(styleSource).toContain(".chart-bar:hover");
     expect(styleSource).toContain(".chart-scatter:hover");
   });
+
+  it("replays the last chart-local pointer position after resize", () => {
+    expect(chartSource).toContain("const lastTooltipPosition = ref<{ left: number; top: number } | null>(null)");
+    expect(chartSource.match(/refreshAxisTooltip\(\);/g)).toHaveLength(2);
+    expect(chartSource).toContain("showAxisTooltip({ clientX: rect.left + position.left, clientY: rect.top + position.top })");
+    expect(chartSource).toContain("lastTooltipPosition.value = { left: event.clientX - rect.left, top: event.clientY - rect.top }");
+    expect(chartSource).toContain("lastTooltipPosition.value = null");
+  });
 });

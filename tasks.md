@@ -1387,6 +1387,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore ECharts 3.1.7 axis-tooltip coordinate bounds: clear the shared
       pointer and tooltip above, below, or beside the actual plot while keeping
       nearest-category movement inside top-level and compact charts.
+- [x] Restore ECharts 3.1.7 tooltip refresh after chart resize: replay the last
+      chart-local point through shared bounds/category logic so responsive
+      top-level and compact charts reposition or clear stale tooltip state.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

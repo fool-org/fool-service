@@ -3365,3 +3365,17 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   tooltip inside and none above/below the plot at desktop and 390x844;
   `/view103` passed the same checks in its 328x200 compact chart. The deployed
   frontend image was `sha256:546232e72b4aeb567e0372e36b21d91ea5b87b061826b6216eaae34c665481b6`.
+- 2026-07-14: restored ECharts 3.1.7's tooltip refresh after chart resize. Old
+  `ECharts.resize` updates the chart, then `TooltipView.render` replays its last
+  canvas-local pointer through `_manuallyShowTip`, allowing the new coordinate
+  system to reposition or hide it. Vue previously left the old absolute
+  tooltip position active: shrinking desktop `/view100` to 390x844 produced a
+  330px pane with 852px scroll width and an 882px full-page screenshot. The
+  shared renderer now retains only the last in-plot chart-local point and
+  reuses its existing bounds/nearest-category function after chart or legend
+  resize. The same path clears points that moved outside the new plot and
+  recalculates points that remain inside. Docker `/view100` returned to a 390px
+  full-page width after the failing desktop-to-mobile path, while `/view103`
+  also cleared its out-of-range compact tooltip. Browser logs were empty and
+  the deployed frontend image was
+  `sha256:58ce23aa75747250dd7a998f513f2f1696b408a7658728ef8411ff552f9520b9`.
