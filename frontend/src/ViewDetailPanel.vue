@@ -345,7 +345,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
         </TabList>
         <TabPanels>
           <TabPanel v-for="group in detailItemGroups" :key="groupKey(group)" :value="groupKey(group)">
-            <div v-if="!schemaOnly" class="detail-collection-toolbar">
+            <div v-if="!schemaOnly" class="detail-collection-toolbar legacy-button-group">
               <Button type="button" label="增加" icon="pi pi-plus" severity="secondary" outlined :disabled="pending" @click="addItem(group)" />
             </div>
             <Dialog

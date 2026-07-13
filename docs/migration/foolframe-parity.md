@@ -2864,3 +2864,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   Inline Edit/Save and Delete now render as text commands instead of bordered
   buttons while retaining icons, danger emphasis, staged mutations, and the
   existing parent-save boundary.
+- 2026-07-13: restored the child collection Add command's shared default-group
+  geometry. The existing secondary outlined command now reuses the same 34px,
+  6x12px, 14/20px group contract as the detail toolbar without changing its
+  direct-add or select-existing dispatch.

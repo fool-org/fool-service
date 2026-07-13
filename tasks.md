@@ -1181,6 +1181,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `detailView.jade` child-row link presentation: use lightweight
       Edit/Save and Delete commands while preserving inline staging, danger
       emphasis, and parent-save persistence.
+- [x] Restore the child collection Add command's default group geometry by
+      reusing the shared 34px detail command contract without changing its
+      metadata-driven add path.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

@@ -256,7 +256,7 @@ describe("App defaults", () => {
   });
 
   it("opens select-from-existing collection candidates in the legacy modal flow", () => {
-    expect(viewDetailPanelSource).toContain('<div v-if="!schemaOnly" class="detail-collection-toolbar">');
+    expect(viewDetailPanelSource).toContain('<div v-if="!schemaOnly" class="detail-collection-toolbar legacy-button-group">');
     expect(viewDetailPanelSource).toContain('label="增加"');
     expect(viewDetailPanelSource).toContain("function addItem(group");
     expect(viewDetailPanelSource).toContain("nextObjectId()");
@@ -817,7 +817,7 @@ describe("App defaults", () => {
     expect(appSource).toContain(':schema-only="isMetadataOnlyView"');
     expect(viewDetailPanelSource).toContain("已加载视图定义。");
     expect(viewDetailPanelSource).toContain('v-if="selectedObjectId || (schemaOnly && detailItemGroups.length)"');
-    expect(viewDetailPanelSource).toContain('v-if="!schemaOnly" class="detail-collection-toolbar"');
+    expect(viewDetailPanelSource).toContain('v-if="!schemaOnly" class="detail-collection-toolbar legacy-button-group"');
     expect(viewDetailPanelSource).toContain(':colspan="schemaOnly ? 1 : childActionColumnCount(group)"');
     expect(viewDetailPanelSource).toContain('<tbody v-if="!schemaOnly">');
     expect(viewDetailPanelSource).not.toContain('v-if="schemaOnly && detailItemGroups.length" class="view-items-panel"');
