@@ -1240,6 +1240,8 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore the shared old-page table lifecycle: always retain an empty table
       shell, remove generic Vue empty/loading copy, and keep rows suppressed
       until View columns exist.
+- [x] Restore `Sudoku.jade`'s unmatched child `ViewFile` behavior by leaving the
+      panel content empty instead of displaying a Vue-only generic data message.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

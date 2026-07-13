@@ -2965,3 +2965,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `暂无数据。` / `请先加载视图。` copy, matching the empty tables in `view.jade`,
   `viewWithChart.jade`, and the candidate dialog. It still passes no rows until
   View columns exist, so data DTO rows cannot render ahead of View metadata.
+- 2026-07-14: restored `Sudoku.jade`'s unmatched child `ViewFile` behavior.
+  Unknown partial names now leave their existing panel content area empty
+  instead of inserting the final Vue-only `暂无数据。` fallback. The five explicit
+  List/Group/Map/Item/linechart branches and their View-first loaders are
+  unchanged.

@@ -491,7 +491,7 @@ describe("App defaults", () => {
     expect(sudokuPanelsSource).toContain('<Tabs v-if="sudokuGroupPanels(panel).length"');
     expect(sudokuPanelsSource).toContain("<TabList>");
     expect(sudokuPanelsSource).toContain("这是简单项");
-    expect(sudokuPanelsSource.match(/暂无数据。/g)).toHaveLength(1);
+    expect(sudokuPanelsSource).not.toContain("暂无数据。");
   });
 
   it("resets the main View search to the first page", () => {

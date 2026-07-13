@@ -168,7 +168,6 @@ watch(allPanelsReady, async (ready) => {
           </TabPanels>
         </Tabs>
       </div>
-      <div v-else class="empty-state compact">暂无数据。</div>
       <div v-if="sudokuPanelRefreshable(panel)" class="sudoku-panel-footer">
         <span v-if="sudokuPanelFreshTime(panel)">更新时间 {{ sudokuPanelFreshTime(panel) }}</span>
         <Button type="button" label="刷新" severity="secondary" text size="small" :disabled="disabled" @click="emit('refreshPanel', panel)" />
