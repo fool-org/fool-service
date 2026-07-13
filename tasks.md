@@ -1276,6 +1276,8 @@ item must land with its matching implementation and validation evidence.
       opening setup, then hide setup while generating and reopen with results.
 - [x] Restore `mkreport.js` output-selection stability: select the first added
       output once, then preserve the current selection on later/duplicate adds.
+- [x] Restore `initQueryView` candidate headings: render only loaded View field
+      labels and keep the row-level Select action without an added header label.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

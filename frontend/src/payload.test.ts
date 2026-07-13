@@ -125,11 +125,14 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain(':show-default-action="true"');
     expect(appSource).not.toContain("rowValue(row, column)");
     expect(listDataTableSource).toContain("defaultActionLabel");
+    expect(listDataTableSource).toContain("showActionHeader");
+    expect(listDataTableSource).toContain("showActionHeader: true");
     expect(listDataTableSource).toContain("showDefaultAction");
     expect(listDataTableSource).toContain("showDefaultAction: false");
     expect(listDataTableSource).toContain("<DataTable");
     expect(listDataTableSource).toContain("<Column v-for");
-    expect(listDataTableSource).toContain('<Column v-if="rowOperations.length || showDefaultAction" header="操作">');
+    expect(listDataTableSource).toContain('v-if="rowOperations.length || showDefaultAction"');
+    expect(listDataTableSource).toContain("showActionHeader ? undefined : { display: 'none' }");
     expect(listDataTableSource).not.toContain('align-frozen="right"');
     expect(listDataTableSource).not.toContain('icon="pi pi-arrow-right"');
     expect(listDataTableSource).toMatch(/v-if="showDefaultAction"[\s\S]*?:label="defaultActionLabel"[\s\S]*?severity="secondary"\s+outlined/);
@@ -293,6 +296,7 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain("candidateRecordInfo(candidateState(group))");
     expect(viewDetailPanelSource).not.toContain('v-if="candidateState(group).queried"');
     expect(viewDetailPanelSource).toContain(':minimum-rows="candidateState(group).queried ? candidateState(group).pageSize : 0"');
+    expect(viewDetailPanelSource).toContain(':show-action-header="false"');
     expect(viewDetailPanelSource).not.toContain("暂无候选记录。");
     expect(viewDetailPanelSource.indexOf('class="detail-picker-results"')).toBeLessThan(
       viewDetailPanelSource.indexOf("<LegacyPagination")

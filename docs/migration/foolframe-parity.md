@@ -3031,3 +3031,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   the user's current selected output instead of jumping to the appended item.
   Duplicate additions remain no-ops and now also preserve selection, so the
   subsequent move, delete, and sort commands target the same row as old Web.
+- 2026-07-14: restored `initQueryView`'s candidate-table heading matrix. The
+  select-existing dialog now shows only the loaded candidate View's field
+  headings, without the Vue-only `操作` label. Queried rows retain their
+  row-level Select command in the unlabeled trailing column, preserving the
+  shared table component and the existing View-first candidate workflow.

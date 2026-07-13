@@ -379,6 +379,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                     :row-operations="[]"
                     :rows="candidateRows(group)"
                     selected-object-id=""
+                    :show-action-header="false"
                     :show-default-action="true"
                     @select="(row) => selectExistingItem(group, row)"
                   />

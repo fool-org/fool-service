@@ -31,6 +31,7 @@ const props = withDefaults(defineProps<{
   rowOperations: OperationInfo[];
   rows: ListDataItem[];
   selectedObjectId?: string;
+  showActionHeader?: boolean;
   showDefaultAction?: boolean;
   striped?: boolean;
 }>(), {
@@ -38,6 +39,7 @@ const props = withDefaults(defineProps<{
   defaultActionLabel: "Open",
   minimumRows: 0,
   selectedObjectId: "",
+  showActionHeader: true,
   showDefaultAction: false,
   striped: true
 });
@@ -88,7 +90,11 @@ function tableRowClass(row: RenderedListDataItem) {
         <template v-else>{{ rowValue(row, column) }}</template>
       </template>
     </Column>
-    <Column v-if="rowOperations.length || showDefaultAction" header="操作">
+    <Column
+      v-if="rowOperations.length || showDefaultAction"
+      header="操作"
+      :header-style="showActionHeader ? undefined : { display: 'none' }"
+    >
       <template #body="{ data: row }">
         <div v-if="!isFiller(row)" class="table-actions">
           <Button
