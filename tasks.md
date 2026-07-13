@@ -1106,6 +1106,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Match `Sudoku.jade`'s heading boundary: start directly with child panels
       instead of showing a Vue-only root View title, while preserving normal
       list and chart View headings.
+- [x] Match `detailView.jade`'s exact select-existing initial feedback:
+      `记录数未知,请查询` before the first candidate Find, while preserving
+      metadata-first loading and queried total counts.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

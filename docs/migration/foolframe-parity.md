@@ -2754,3 +2754,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `Sudoku.jade` starts directly with its child-panel row, so the shared list
   heading now renders only for non-Sudoku templates. All five child metadata
   titles remain visible, and normal/chart View titles are unchanged.
+- 2026-07-13: restored `detailView.jade`'s exact pre-query candidate feedback.
+  The select-existing dialog now shows `记录数未知,请查询` after its View
+  metadata loads and before Find/paging queries any rows; queried states still
+  use `共N条记录` through the same shared helper.
