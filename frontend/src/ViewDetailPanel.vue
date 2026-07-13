@@ -290,6 +290,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
       :visible="true"
       modal
       header="操作提示"
+      :closable="false"
       :draggable="false"
       @update:visible="(visible) => { if (!visible) emit('dismissInfo') }"
     >
@@ -305,6 +306,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
       :visible="true"
       modal
       header="发生错误"
+      :closable="false"
       :draggable="false"
       @update:visible="(visible) => { if (!visible) emit('dismissError') }"
     >
@@ -319,6 +321,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
       :visible="true"
       modal
       header="执行结果"
+      :closable="false"
       :draggable="false"
       @update:visible="(visible) => { if (!visible) emit('dismissOperationResult') }"
     >

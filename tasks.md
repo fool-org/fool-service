@@ -1154,6 +1154,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore Bootstrap query-control geometry in the shared list/candidate
       toolbars: 34px controls with 6x12px padding and 14/20px typography while
       preserving responsive placement and search events.
+- [x] Restore old dialog close-command availability: remove invented header
+      Close actions from message/feedback/result dialogs while retaining the
+      footer commands and the real candidate/report header close paths.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

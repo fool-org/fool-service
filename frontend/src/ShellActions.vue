@@ -41,6 +41,7 @@ function openMessage(message: MessageInfo) {
       :visible="true"
       modal
       header="系统消息"
+      :closable="false"
       :draggable="false"
       @update:visible="(visible) => { if (!visible) emit('dismissMessage') }"
     >

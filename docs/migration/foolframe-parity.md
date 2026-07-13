@@ -2824,3 +2824,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   now use the old 34px height, 6x12px padding, 14px type, 20px line height, and
   4px radius while retaining their existing desktop placement, mobile wrap,
   Enter submission, and View-derived query state.
+- 2026-07-13: restored old dialog close-command availability. System messages,
+  operation success/error feedback, and operation execution results now omit
+  PrimeVue's invented header Close button and retain their old footer commands;
+  select-existing and report-setup dialogs remain header-closable as their Jade
+  templates specify.

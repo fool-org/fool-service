@@ -157,6 +157,14 @@ describe("App defaults", () => {
       viewDetailPanelSource.indexOf('v-if="operationResult"'),
       viewDetailPanelSource.indexOf('class="view-items-panel"')
     );
+    const infoDialogSource = viewDetailPanelSource.slice(
+      viewDetailPanelSource.indexOf('v-if="infoMessage"'),
+      viewDetailPanelSource.indexOf('v-if="errorMessage"')
+    );
+    const errorDialogSource = viewDetailPanelSource.slice(
+      viewDetailPanelSource.indexOf('v-if="errorMessage"'),
+      viewDetailPanelSource.indexOf('v-if="operationResult"')
+    );
 
     expect(appSource).toContain("dataOperations(detailResponse.value?.data)");
     expect(appSource).toContain("detailViewOperations");
@@ -184,6 +192,9 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).not.toContain("<Message v-if=\"operationResult\"");
     expect(operationDialogSource).toContain('label="确定"');
     expect(operationDialogSource).not.toContain('label="关闭"');
+    expect(infoDialogSource).toContain(':closable="false"');
+    expect(errorDialogSource).toContain(':closable="false"');
+    expect(operationDialogSource).toContain(':closable="false"');
     expect(toolbarSource.match(/icon="pi pi-check"/g)).toHaveLength(2);
     expect(toolbarSource).not.toContain('icon="pi pi-save"');
     expect(toolbarSource).not.toContain('icon="pi pi-bolt"');
@@ -972,6 +983,7 @@ describe("App defaults", () => {
     expect(shellActionsSource).toContain('header="系统消息"');
     expect(shellActionsSource).toContain('label="查看详细"');
     expect(shellActionsSource).toContain('label="确定"');
+    expect(shellActionsSource).toContain(':closable="false"');
     expect(shellActionsSource).toContain('emit("dismissMessage")');
     expect(shellActionsSource).toContain('emit("openMessage", message)');
     expect(appSource).toContain("pushLegacyPath(legacyDetailHref(targetViewId, targetObjectId))");
