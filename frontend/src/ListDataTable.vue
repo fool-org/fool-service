@@ -31,11 +31,13 @@ const props = withDefaults(defineProps<{
   rows: ListDataItem[];
   selectedObjectId?: string;
   showDefaultAction?: boolean;
+  striped?: boolean;
 }>(), {
   defaultActionLabel: "Open",
   minimumRows: 0,
   selectedObjectId: "",
-  showDefaultAction: false
+  showDefaultAction: false,
+  striped: true
 });
 
 const emit = defineEmits<{
@@ -75,7 +77,7 @@ function tableRowClass(row: RenderedListDataItem) {
     :value="renderedRows"
     :row-class="tableRowClass"
     scrollable
-    striped-rows
+    :striped-rows="striped"
     size="small"
   >
     <Column v-for="column in columns" :key="columnKey(column)" :header="columnTitle(column)" :style="tableColumnStyle(column)">

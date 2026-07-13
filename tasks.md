@@ -1133,6 +1133,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore the old shared `.table-hover` feedback for normal, chart,
       candidate, and Sudoku metadata tables with the Bootstrap `#f5f5f5`
       background while retaining contextual row hover colors.
+- [x] Restore template-specific Bootstrap striping: use exact first-row
+      `#f9f9f9` stripes for normal/chart/candidate tables and disable striping
+      for Sudoku List/Group List through the shared table prop.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

@@ -316,6 +316,9 @@ describe("App defaults", () => {
     expect(listDataTableSource).toContain(':style="tableColumnStyle(column)"');
     expect(listDataTableSource).toContain('return "legacy-filler-row"');
     expect(listDataTableSource).toContain('v-if="!isFiller(row)" class="table-actions"');
+    expect(listDataTableSource).toContain("striped: true");
+    expect(listDataTableSource).toContain(':striped-rows="striped"');
+    expect(sudokuPanelsSource.match(/:striped="false"/g)).toHaveLength(2);
     expect(legacyPaginationSource).toContain("event.page + 1");
     expect(legacyPaginationSource).toContain("<Paginator");
     expect(legacyPaginationSource).toContain('class="record-info"');

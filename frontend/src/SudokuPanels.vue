@@ -119,6 +119,7 @@ watch(allPanelsReady, async (ready) => {
           :row-operations="[]"
           :rows="sudokuPanelRows(panel)"
           :show-default-action="false"
+          :striped="false"
         />
       </div>
       <LegacyChartPanel
@@ -153,6 +154,7 @@ watch(allPanelsReady, async (ready) => {
                   :row-operations="[]"
                   :rows="sudokuPanelRows(childPanel)"
                   :show-default-action="false"
+                  :striped="false"
                 />
               </div>
               <div v-else-if="sudokuPanelListViewType(childPanel) === 1" class="empty-state compact">这是简单项</div>

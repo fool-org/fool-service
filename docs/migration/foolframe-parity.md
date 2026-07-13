@@ -2793,3 +2793,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   normal lists, chart data, candidate results, and Sudoku lists. Every shared
   metadata row now uses the old `#f5f5f5` hover background; the more specific
   contextual `RowFmt` hover colors continue to take precedence.
+- 2026-07-13: restored each template's Bootstrap stripe contract. Normal,
+  chart, and candidate tables now stripe the first row with exact `#f9f9f9`
+  and alternate with white, while Sudoku List/Group List tables opt out like
+  `includes/List.jade`; one shared `striped` prop avoids separate renderers.

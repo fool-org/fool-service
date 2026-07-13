@@ -485,6 +485,14 @@ label {
   overflow-wrap: anywhere;
 }
 
+.metadata-data-table.p-datatable-striped .p-datatable-tbody > tr.p-row-even {
+  background: #f9f9f9;
+}
+
+.metadata-data-table.p-datatable-striped .p-datatable-tbody > tr.p-row-odd {
+  background: #ffffff;
+}
+
 .metadata-data-table .p-datatable-tbody > tr:hover > td {
   background: #f5f5f5;
 }
