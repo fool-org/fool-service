@@ -439,6 +439,8 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                         :label="editingItemKey === itemKey(group, item) ? '保存' : '编辑'"
                         :icon="editingItemKey === itemKey(group, item) ? 'pi pi-save' : 'pi pi-pencil'"
                         size="small"
+                        severity="secondary"
+                        text
                         :disabled="pending"
                         @click="toggleDetailItem(group, item)"
                       />
@@ -448,7 +450,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                       </a>
                     </td>
                     <td>
-                      <Button type="button" label="删除" icon="pi pi-trash" size="small" severity="danger" outlined :disabled="pending" @click="deleteItem(group, item)" />
+                      <Button type="button" label="删除" icon="pi pi-trash" size="small" severity="danger" text :disabled="pending" @click="deleteItem(group, item)" />
                     </td>
                     <td v-if="groupDetailViewId(group)">
                       <a class="detail-item-link" :href="detailItemHref(group, item)">

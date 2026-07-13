@@ -1178,6 +1178,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `detailView.jade` detail command hierarchy: group Edit, Save, and
       View operations as contiguous default commands while preserving edit
       state, save enablement, and operation dispatch.
+- [x] Restore `detailView.jade` child-row link presentation: use lightweight
+      Edit/Save and Delete commands while preserving inline staging, danger
+      emphasis, and parent-save persistence.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

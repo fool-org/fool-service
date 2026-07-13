@@ -2860,3 +2860,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   Save, and View operations now share one contiguous secondary outlined group
   with stable 34px geometry; existing edit/save enablement and operation events
   remain unchanged.
+- 2026-07-13: restored `detailView.jade`'s lightweight child-row actions.
+  Inline Edit/Save and Delete now render as text commands instead of bordered
+  buttons while retaining icons, danger emphasis, staged mutations, and the
+  existing parent-save boundary.

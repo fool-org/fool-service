@@ -231,6 +231,9 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain("groupDetailViewId(group)");
     expect(viewDetailPanelSource).toContain("function detailItemHref");
     expect(viewDetailPanelSource).toContain('v-if="!groupSelectFromExists(group) && groupDetailViewId(group)"');
+    expect(viewDetailPanelSource).toMatch(/:label="editingItemKey[\s\S]*?severity="secondary"\s+text/);
+    expect(viewDetailPanelSource).toContain('label="删除" icon="pi pi-trash" size="small" severity="danger" text');
+    expect(viewDetailPanelSource).not.toContain('label="删除" icon="pi pi-trash" size="small" severity="danger" outlined');
     expect(viewDetailPanelSource).toContain(':href="detailItemHref(group, item)"');
     expect(viewDetailPanelSource).toContain("详细");
     expect(viewDetailPanelSource).toContain('editingItemKey === itemKey(group, item) && !groupDetailViewId(group)');
