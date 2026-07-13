@@ -360,6 +360,7 @@ describe("App defaults", () => {
   it("renders the legacy Sudoku template from ViewFile panels", () => {
     expect(appSource).toContain("viewUsesSudokuTemplate(viewResponse.value?.data)");
     expect(viewListPanelSource).toContain("SudokuPanels");
+    expect(viewListPanelSource).toContain('v-if="!sudokuView" class="panel-heading"');
     expect(viewListPanelSource).toContain('v-if="supportedTemplate && !sudokuView" class="workflow-toolbar"');
     expect(viewListPanelSource).toContain('v-if="supportedTemplate && !sudokuView" v-show="!chartView || activePane === \'table\'"');
     expect(appSource).toContain("useSudokuPanels");

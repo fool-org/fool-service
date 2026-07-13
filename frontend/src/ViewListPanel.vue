@@ -80,7 +80,7 @@ function changePage(event: PageState) {
 
 <template>
   <article class="panel view-list-panel">
-    <div class="panel-heading">
+    <div v-if="!sudokuView" class="panel-heading">
       <h2>{{ title }}</h2>
     </div>
     <div v-if="supportedTemplate && !sudokuView" class="workflow-toolbar" :class="{ 'chart-workflow-toolbar': chartView }">

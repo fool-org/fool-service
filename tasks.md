@@ -1103,6 +1103,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `subitem.js`'s Sudoku Item matrix: render two View-derived fields
       per row, pad to six rows, and isolate the table in a small reusable child
       component without binding a business DTO.
+- [x] Match `Sudoku.jade`'s heading boundary: start directly with child panels
+      instead of showing a Vue-only root View title, while preserving normal
+      list and chart View headings.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

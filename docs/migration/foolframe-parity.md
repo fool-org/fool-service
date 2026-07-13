@@ -2750,3 +2750,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   six rows instead of showing one field per row. The 29-line Item component
   keeps this table projection out of the parent panel dispatcher and continues
   to consume only `querydatadetail` SimpleData metadata.
+- 2026-07-13: removed the Vue-only root View title from Sudoku. Old
+  `Sudoku.jade` starts directly with its child-panel row, so the shared list
+  heading now renders only for non-Sudoku templates. All five child metadata
+  titles remain visible, and normal/chart View titles are unchanged.
