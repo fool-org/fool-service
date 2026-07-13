@@ -121,8 +121,7 @@ watch([currentViewId, templateKind, () => props.navigationRevision], () => {
         @select="(row, viewId) => emit('select', row, viewId)"
       />
     </div>
-    <LegacyChartPanel v-if="chartView && activePane === 'chart' && chartData.series.length" :data="chartData" />
-    <div v-else-if="chartView && activePane === 'chart'" class="empty-state compact">暂无图表数据。</div>
+    <LegacyChartPanel v-if="chartView && activePane === 'chart'" :data="chartData" />
     <LegacyPagination
       v-if="supportedTemplate && data"
       class="list-pagination"

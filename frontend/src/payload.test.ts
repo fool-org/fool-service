@@ -379,6 +379,10 @@ describe("App defaults", () => {
     expect(viewListPanelSource).toContain('<template v-if="listView">');
     expect(viewListPanelSource).not.toContain('class="pi pi-chart-line"');
     expect(viewListPanelSource).toContain("<LegacyChartPanel");
+    expect(viewListPanelSource).toContain('v-if="chartView && activePane === \'chart\'" :data="chartData"');
+    expect(viewListPanelSource).not.toContain("暂无图表数据。");
+    expect(legacyChartPanelSource).toContain('return props.data.labels[index] || ""');
+    expect(legacyChartPanelSource).toContain('v-if="index < data.labels.length && showLabel(index)"');
     expect(legacyChartPanelSource).toContain('class="legacy-chart"');
     expect(legacyChartPanelSource).toContain("<polyline");
     expect(legacyChartPanelSource).toContain("<rect");

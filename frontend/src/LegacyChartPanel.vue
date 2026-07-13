@@ -83,7 +83,7 @@ function showLabel(index: number) {
 }
 
 function label(index: number) {
-  return props.data.labels[index] || String(index + 1);
+  return props.data.labels[index] || "";
 }
 
 function seriesName(series: LegacyChartSeries, index: number) {
@@ -101,7 +101,7 @@ function seriesName(series: LegacyChartSeries, index: number) {
       <line class="chart-axis" :x1="plot.left" :x2="plot.left" :y1="plot.top" :y2="height - plot.bottom" />
       <line class="chart-axis" :x1="plot.left" :x2="width - plot.right" :y1="y(0)" :y2="y(0)" />
       <g v-for="(_, index) in labelCount" :key="index">
-        <text v-if="showLabel(index)" class="chart-axis-label" :x="x(index)" :y="height - 18" text-anchor="middle">
+        <text v-if="index < data.labels.length && showLabel(index)" class="chart-axis-label" :x="x(index)" :y="height - 18" text-anchor="middle">
           {{ label(index) }}
         </text>
       </g>

@@ -2929,3 +2929,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   type, and selected-column controls instead of replacing them with
   `暂无报表字段。`; the output-type list also stays empty until a real metadata
   candidate exists. Normal metadata-driven output selection is unchanged.
+- 2026-07-14: restored `viewWithChart.js`'s zero-series chart surface. The Chart
+  tab now keeps the shared SVG axes mounted after a zero-row query instead of
+  replacing them with `暂无图表数据。`. Horizontal labels render only from
+  legacy chart-axis metadata and no longer invent numeric positions when the
+  old ECharts `xAxis.data` would be empty.

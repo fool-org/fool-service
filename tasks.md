@@ -1219,6 +1219,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `view.jade`'s zero-field report-output structure: retain all three
       metadata selection controls, remove the Vue-only empty sentence, and do
       not invent an output type before a candidate column exists.
+- [x] Restore `viewWithChart.js`'s zero-series chart surface: retain the chart
+      axes after a zero-row query, remove the Vue-only empty sentence, and draw
+      horizontal labels only when legacy chart-axis metadata supplies them.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
