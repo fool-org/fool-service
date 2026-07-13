@@ -408,6 +408,9 @@ describe("App defaults", () => {
     expect(legacyChartPanelSource).toContain('class="chart-bar"');
     expect(legacyChartPanelSource).toContain("renderedWidth.value = rect.width");
     expect(legacyChartPanelSource).toContain("props.compact ? 28 : 15 * width.value / renderedWidth.value");
+    expect(legacyChartPanelSource).toContain("const plotRight = computed(() => width.value * 0.2)");
+    expect(legacyChartPanelSource).toContain(':x2="width - plotRight"');
+    expect(legacyChartPanelSource).not.toContain("right: 18");
     expect(legacyChartPanelSource).toContain("<circle");
     expect(legacyChartPanelSource).not.toContain("<meter");
     expect(legacyChartPanelSource).toContain('"#c23531", "#2f4554", "#61a0a8"');

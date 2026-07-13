@@ -1290,6 +1290,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `swchartLine.js getOption` bar width: cap top-level chart bars at
       15 rendered pixels across responsive sizes while preserving the compact
       realtime chart branch that had no legacy `barMaxWidth` setting.
+- [x] Restore both `swchartLine.js` chart layouts: reserve the legacy 20% right
+      grid space and move the horizontal metadata legend to the right-middle,
+      stacking only on narrow screens to keep the plot readable.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

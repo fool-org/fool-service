@@ -7,7 +7,8 @@ const chartElement = ref<SVGSVGElement | null>(null);
 const height = props.compact ? 160 : 300;
 const width = ref(720);
 const renderedWidth = ref(720);
-const plot = { left: 52, right: 18, top: 18, bottom: 46 };
+const plot = { left: 52, top: 18, bottom: 46 };
+const plotRight = computed(() => width.value * 0.2);
 const colors = ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83"];
 const formatter = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
 let resizeObserver: ResizeObserver | undefined;
@@ -42,7 +43,7 @@ const ticks = computed(() => Array.from({ length: 5 }, (_, index) =>
 const barSeries = computed(() => props.data.series.filter((series) => series.type === "bar"));
 
 function x(index: number) {
-  const plotWidth = width.value - plot.left - plot.right;
+  const plotWidth = width.value - plot.left - plotRight.value;
   if (labelCount.value === 1) return plot.left + plotWidth / 2;
   return plot.left + plotWidth * index / (labelCount.value - 1);
 }
@@ -75,7 +76,7 @@ function lineAreaPath(series: LegacyChartSeries) {
 
 function barWidth() {
   const maxWidth = props.compact ? 28 : 15 * width.value / renderedWidth.value;
-  return Math.min(maxWidth, (width.value - plot.left - plot.right) / labelCount.value / Math.max(1, barSeries.value.length) * 0.62);
+  return Math.min(maxWidth, (width.value - plot.left - plotRight.value) / labelCount.value / Math.max(1, barSeries.value.length) * 0.62);
 }
 
 function barX(series: LegacyChartSeries, index: number) {
@@ -101,7 +102,7 @@ function valueLabelY(value: number) {
 
 function showLabel(index: number) {
   if (props.compact) {
-    const maxLabels = Math.max(2, Math.floor((width.value - plot.left - plot.right) / 100));
+    const maxLabels = Math.max(2, Math.floor((width.value - plot.left - plotRight.value) / 100));
     if (labelCount.value <= maxLabels) return true;
     const lastIndex = labelCount.value - 1;
     return Array.from({ length: maxLabels }, (_, position) =>
@@ -125,12 +126,12 @@ function seriesName(series: LegacyChartSeries, index: number) {
   <div class="legacy-chart-pane" :class="{ 'compact-chart': compact }">
     <svg ref="chartElement" class="legacy-chart" :viewBox="`0 0 ${width} ${height}`" role="img" aria-label="视图数据图表">
       <g v-for="tick in ticks" :key="tick" class="chart-grid-line">
-        <line :x1="plot.left" :x2="width - plot.right" :y1="y(tick)" :y2="y(tick)" />
+        <line :x1="plot.left" :x2="width - plotRight" :y1="y(tick)" :y2="y(tick)" />
         <text :x="plot.left - 8" :y="y(tick) + 4" text-anchor="end">{{ formatter.format(tick) }}</text>
       </g>
       <line class="chart-axis" :x1="plot.left" :x2="plot.left" :y1="plot.top" :y2="height - plot.bottom" />
-      <line class="chart-axis" :x1="plot.left" :x2="width - plot.right" :y1="y(0)" :y2="y(0)" />
-      <text v-if="data.axisName" class="chart-axis-name" :x="width - plot.right" :y="height - 2" text-anchor="end">{{ data.axisName }}</text>
+      <line class="chart-axis" :x1="plot.left" :x2="width - plotRight" :y1="y(0)" :y2="y(0)" />
+      <text v-if="data.axisName" class="chart-axis-name" :x="width - plotRight" :y="height - 2" text-anchor="end">{{ data.axisName }}</text>
       <g v-for="(_, index) in labelCount" :key="index">
         <text v-if="index < data.labels.length && showLabel(index)" class="chart-axis-label" :x="x(index)" :y="height - 18" text-anchor="middle">
           {{ label(index) }}

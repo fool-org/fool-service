@@ -841,8 +841,8 @@ label {
 }
 
 .legacy-chart-pane {
-  display: grid;
-  gap: 10px;
+  position: relative;
+  display: block;
   min-height: 280px;
   min-width: 0;
   border: 1px solid #e2e8f0;
@@ -860,7 +860,6 @@ label {
 .legacy-chart-pane.compact-chart {
   height: 200px;
   min-height: 200px;
-  grid-template-rows: minmax(0, 1fr) auto;
 }
 
 .compact-chart .legacy-chart {
@@ -909,11 +908,15 @@ label {
 }
 
 .chart-legend {
+  position: absolute;
+  top: 50%;
+  right: 12px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px 16px;
+  flex-wrap: nowrap;
+  gap: 10px;
   margin: 0;
   padding: 0;
+  transform: translateY(-50%);
   list-style: none;
 }
 
@@ -933,6 +936,14 @@ label {
 
 .chart-legend small {
   color: #64748b;
+}
+
+@media (max-width: 600px) {
+  .chart-legend {
+    right: 4px;
+    flex-direction: column;
+    gap: 6px;
+  }
 }
 
 .detail-field-grid {

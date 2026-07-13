@@ -3061,3 +3061,10 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   11.822px. The compact Sudoku branch retains its previous shared-renderer cap
   because the old realtime `LineChartController` did not configure
   `barMaxWidth`; View-derived series and all other chart geometry are unchanged.
+- 2026-07-14: restored both old chart entrypoints' `grid.right: '20%'` and
+  right-middle legend placement. Top-level and compact charts now reserve the
+  right fifth of the shared SVG plot and position the metadata-series legend in
+  that space instead of below the chart. Desktop retains ECharts 3.1.7's
+  horizontal default; narrow screens stack the same legend entries vertically
+  within the reserved column to avoid covering plotted values. Existing series,
+  responsive 15px bars, and View-derived labels remain unchanged.
