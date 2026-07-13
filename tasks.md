@@ -1175,6 +1175,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `view.jade` report-output toolbar grouping: separate
       move/remove commands from sort commands with compact reusable groups and
       preserve all existing output-column mutations.
+- [x] Restore `detailView.jade` detail command hierarchy: group Edit, Save, and
+      View operations as contiguous default commands while preserving edit
+      state, save enablement, and operation dispatch.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

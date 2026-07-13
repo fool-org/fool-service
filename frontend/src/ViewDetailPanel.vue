@@ -204,12 +204,14 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
       <h2>{{ isCreatingObject ? `${title} -新建` : selectedObjectId ? `${title} -${selectedObjectId}` : title }}</h2>
     </div>
 
-    <div v-if="selectedObjectId && (viewCanEdit || isCreatingObject)" class="detail-toolbar">
+    <div v-if="selectedObjectId && (viewCanEdit || isCreatingObject)" class="detail-toolbar legacy-button-group">
       <Button
         v-if="!isCreatingObject"
         type="button"
         label="编辑"
         icon="pi pi-pencil"
+        severity="secondary"
+        outlined
         :disabled="pending || isEditing"
         @click="isEditing = true"
       />
@@ -217,6 +219,8 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
         type="button"
         label="保存"
         icon="pi pi-check"
+        severity="secondary"
+        outlined
         :loading="saving"
         :disabled="pending || !isEditing"
         @click="emit('saveSelectedObject')"

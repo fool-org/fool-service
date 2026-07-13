@@ -2856,3 +2856,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   movement/removal and sort controls now occupy separate compact, labelled
   groups with old toolbar spacing, while reusing the existing icon commands
   and metadata-driven output state.
+- 2026-07-13: restored `detailView.jade`'s default detail command group. Edit,
+  Save, and View operations now share one contiguous secondary outlined group
+  with stable 34px geometry; existing edit/save enablement and operation events
+  remain unchanged.

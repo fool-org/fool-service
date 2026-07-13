@@ -150,7 +150,7 @@ describe("App defaults", () => {
       appSource.indexOf("function applyDefaultAppView")
     );
     const toolbarSource = viewDetailPanelSource.slice(
-      viewDetailPanelSource.indexOf('class="detail-toolbar"'),
+      viewDetailPanelSource.indexOf('class="detail-toolbar legacy-button-group"'),
       viewDetailPanelSource.indexOf('class="detail-field-grid detail-field-edit"')
     );
     const operationDialogSource = viewDetailPanelSource.slice(
@@ -173,7 +173,10 @@ describe("App defaults", () => {
     expect(operationHandlerSource).toMatch(/if \(editing\) \{[\s\S]*?请先保存当前信息[\s\S]*?return;[\s\S]*?runOperation\(id\)/);
     expect(appSource).toContain(':error-message="errorMessage"');
     expect(appSource).toContain("@dismiss-error=\"errorMessage = ''\"");
-    expect(viewDetailPanelSource).toContain('class="detail-toolbar"');
+    expect(viewDetailPanelSource).toContain('class="detail-toolbar legacy-button-group"');
+    expect(toolbarSource).toContain('label="编辑"');
+    expect(toolbarSource).toContain('label="保存"');
+    expect(toolbarSource.match(/severity="secondary"\s+outlined/g)).toHaveLength(3);
     expect(viewDetailPanelSource).toContain('v-for="operation in detailViewOperations"');
     expect(viewDetailPanelSource).toContain("emit('runViewOperation', operation, isEditing)");
     expect(viewDetailPanelSource).toContain('header="发生错误"');
