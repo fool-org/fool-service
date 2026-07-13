@@ -1100,6 +1100,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Match `Sudoku.jade`'s root rendering boundary: remove the shared Vue root
       data table after the child panel grid while preserving normal-list and
       `viewWithChart` root tables.
+- [x] Restore `subitem.js`'s Sudoku Item matrix: render two View-derived fields
+      per row, pad to six rows, and isolate the table in a small reusable child
+      component without binding a business DTO.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

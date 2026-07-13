@@ -4,6 +4,7 @@ import nginxConfig from "../nginx.conf?raw";
 import viteConfig from "../vite.config.ts?raw";
 import appSource from "./App.vue?raw";
 import legacyChartPanelSource from "./LegacyChartPanel.vue?raw";
+import legacyItemPanelSource from "./LegacyItemPanel.vue?raw";
 import legacyMapPanelSource from "./LegacyMapPanel.vue?raw";
 import legacyMenuNavSource from "./LegacyMenuNav.vue?raw";
 import listDataTableSource from "./ListDataTable.vue?raw";
@@ -411,6 +412,9 @@ describe("App defaults", () => {
 
     expect(sudokuPanelsSource).toContain("sudokuPanelKind(panel) === 'item'");
     expect(sudokuPanelsSource).toContain("sudokuPanelItemFields(panel)");
+    expect(sudokuPanelsSource).toContain("<LegacyItemPanel");
+    expect(legacyItemPanelSource).toContain("Math.max(6, Math.ceil(props.fields.length / 2))");
+    expect(legacyItemPanelSource).toContain('colspan="2"');
     expect(sudokuLoadSource).toContain('sudokuPanelKind(panel) !== "item"');
     expect(sudokuLoadSource).toContain("/api/v1/data/querydatadetail");
     expect(sudokuLoadSource).toContain("buildQueryDataDetailRequest");

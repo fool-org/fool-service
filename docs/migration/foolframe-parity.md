@@ -2745,3 +2745,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   shared list renderer now mounts its root table only for normal list and
   `viewWithChart` templates, while `Sudoku.jade` routes render only their
   View-derived child panels. Normal/chart root tables remain unchanged.
+- 2026-07-13: restored `subitem.js`'s Sudoku Item field matrix. View-derived
+  detail fields now render two label/value pairs per row and pad to at least
+  six rows instead of showing one field per row. The 29-line Item component
+  keeps this table projection out of the parent panel dispatcher and continues
+  to consume only `querydatadetail` SimpleData metadata.

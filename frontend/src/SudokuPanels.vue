@@ -9,6 +9,7 @@ import TabPanels from "primevue/tabpanels";
 import Tabs from "primevue/tabs";
 import type { ListViewInfo, ListViewResult, QueryDataDetailResult, TableColumnInfo } from "./api";
 import LegacyChartPanel from "./LegacyChartPanel.vue";
+import LegacyItemPanel from "./LegacyItemPanel.vue";
 import LegacyMapPanel from "./LegacyMapPanel.vue";
 import ListDataTable from "./ListDataTable.vue";
 import {
@@ -130,16 +131,10 @@ watch(allPanelsReady, async (ready) => {
         class="sudoku-panel-body"
         :markers="sudokuPanelMarkers(panel)"
       />
-      <div v-else-if="sudokuPanelKind(panel) === 'item' && sudokuPanelItemFields(panel).length" class="table-wrap sudoku-panel-body">
-        <table class="legacy-item-table">
-          <tbody>
-            <tr v-for="(item, index) in sudokuPanelItemFields(panel)" :key="`${item.label}-${index}`">
-              <th>{{ item.label }}</th>
-              <td>{{ item.text }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <LegacyItemPanel
+        v-else-if="sudokuPanelKind(panel) === 'item' && sudokuPanelItemFields(panel).length"
+        :fields="sudokuPanelItemFields(panel)"
+      />
       <div v-else-if="sudokuPanelKind(panel) === 'group' && sudokuGroupPanels(panel).length" class="sudoku-panel-body">
         <Tabs :value="sudokuChildKey(sudokuGroupPanels(panel)[0], 0)">
           <TabList>
