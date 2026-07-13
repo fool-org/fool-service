@@ -60,10 +60,17 @@ describe("shared chart styles", () => {
   filter: brightness(1.1);
 }`);
     expect(styleSource).toContain(`.chart-series.series-highlighted .chart-scatter {
-  transform: scale(1.25);
+  transform: scale(1.3);
 }`);
     expect(styleSource).toContain(`.chart-legend button:hover {
   filter: brightness(1.1);
 }`);
+  });
+
+  it("matches ECharts scatter symbol defaults", () => {
+    expect(chartSource).toContain("const scatterRadius = computed(() => 5 * width.value / renderedWidth.value)");
+    expect(chartSource).toContain(':r="scatterRadius"');
+    expect(chartSource).toContain('opacity="0.8"');
+    expect(chartSource).not.toContain('r="6"');
   });
 });

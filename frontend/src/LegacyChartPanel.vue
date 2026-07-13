@@ -24,6 +24,7 @@ const tooltipAlignRight = ref(false);
 const tooltipAlignBottom = ref(false);
 const plot = { left: 52, top: props.compact && props.title ? 38 : 18, bottom: 46 };
 const plotRight = computed(() => width.value * Math.max(0.2, (renderedLegendWidth.value + 5) / renderedWidth.value));
+const scatterRadius = computed(() => 5 * width.value / renderedWidth.value);
 const colors = ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83"];
 const formatter = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
 let resizeObserver: ResizeObserver | undefined;
@@ -255,7 +256,8 @@ function tooltipValue(series: LegacyChartSeries) {
             class="chart-scatter"
             :cx="x(index)"
             :cy="y(renderedValue(series, index))"
-            r="6"
+            :r="scatterRadius"
+            opacity="0.8"
             :fill="colors[seriesIndex % colors.length]"
           />
           <text class="chart-value-label" :x="valueLabelX(series, index)" :y="valueLabelY(series, index)">{{ formatter.format(value) }}</text>

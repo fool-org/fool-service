@@ -3274,3 +3274,15 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `:hover` or DOM `mouseenter`; the event-to-class runtime transition therefore
   remains covered by production-source contracts rather than direct pointer
   observation in this slice.
+- 2026-07-14: restored ECharts 3.1.7's default scatter-symbol presentation.
+  Old `swchartLine.js` configures `symbol: 'circle'` without a size or style
+  override, so `ScatterSeries.js` supplies a 10px symbol and 0.8 opacity while
+  `Symbol.js` expands emphasis to 13px. The shared SVG now converts the 5px
+  radius through its existing rendered-width ratio, keeping the actual marker
+  diameter at 10px despite responsive viewBox scaling, and uses a 1.3 emphasis
+  scale. A temporary, restored View-first metadata probe changed seeded Price
+  from `EditType=12` to `14`: Docker `/view100` rendered eight 10px/0.8 scatter
+  marks at both 1280x720 and 390x844, retained click hide/show, 414px/470px
+  chart heights, two sampled mobile labels, and no overflow or browser logs.
+  Both metadata tables were restored to `EditType=12`; after backend restart,
+  the default page again rendered one Price line and zero scatter marks.

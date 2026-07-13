@@ -989,7 +989,7 @@ label {
 }
 
 .chart-series.series-highlighted .chart-scatter {
-  transform: scale(1.25);
+  transform: scale(1.3);
 }
 
 .chart-axis-hit {

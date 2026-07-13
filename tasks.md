@@ -1366,6 +1366,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore ECharts 3.1.7 legend hover linking: set and clear one shared
       View-series emphasis state on legend enter/leave while retaining click
       selection and the existing top-level/Sudoku renderer.
+- [x] Restore ECharts 3.1.7 scatter-symbol defaults: render metadata scatter
+      points at 10 actual pixels with 0.8 opacity across responsive viewBox
+      sizes and expand legend-linked emphasis to the old 13-pixel target.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
