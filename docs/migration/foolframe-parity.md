@@ -3339,3 +3339,19 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   metadata tables were restored to `12`, and the restarted default page again
   rendered eight bars, one line, zero scatter marks, and eight value labels.
   Sudoku `/view103` retained 100 bar labels in its contained 328x200 chart.
+- 2026-07-14: restored ECharts 3.1.7's chart value-text precision. Both old
+  `swchartLine.js` paths push View `FmtValue` strings directly into series data.
+  ECharts bar labels use that raw option text, scatter labels use its numeric
+  value, and axis tooltips apply `addCommas` without truncating decimals. The
+  shared chart model now retains optional View-formatted values beside numeric
+  geometry and one 19-line formatting helper serves labels, ticks, and
+  tooltips. Docker `/view100` changed Amount labels from `1.5` to
+  `1.5000000000` and the category-1002 tooltip from `3,450` to
+  `3,450.0000000000`; desktop and 390x844 tooltips stayed contained and the
+  settled 330px pane had no overflow. `/view103` retained 100 bar labels in its
+  328x200 pane and showed `0.2500000000 / 62,500.0000000000` for its latest
+  sample. A temporary Price `EditType=14` probe confirmed scatter labels remain
+  numeric `3450 / 62500` while their tooltip preserves View precision. Both
+  metadata tables were restored to `12`; the default page returned to eight
+  bars, one line, and zero scatter marks. This supersedes earlier short tooltip
+  examples as parity targets.

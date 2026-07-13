@@ -782,6 +782,7 @@ export function listRows(result?: ListViewResult) {
 }
 
 export interface LegacyChartSeries {
+  formattedValues?: string[];
   name: string;
   stack?: string;
   type: "line" | "bar" | "scatter";
@@ -827,14 +828,17 @@ export function legacyChartData(rows: ListDataItem[]): LegacyChartData {
       if (!series[seriesIndex]) {
         const name = firstDisplayValue([item.prpShowName, item.PrpShowName, item.prpId, item.PrpId]);
         series.push({
+          formattedValues: [],
           name,
           stack: name,
           type,
           values: []
         });
       }
-      const value = Number(firstDisplayValue([item.fmtValue, item.FmtValue, item.objId, item.ObjId]));
+      const formattedValue = firstDisplayValue([item.fmtValue, item.FmtValue]);
+      const value = Number(firstDisplayValue([formattedValue, item.objId, item.ObjId]));
       if (Number.isFinite(value)) {
+        series[seriesIndex].formattedValues?.push(formattedValue);
         series[seriesIndex].values.push(value);
       }
       seriesIndex += 1;
@@ -861,6 +865,7 @@ export function appendLegacyChartSample(
       series: sample.series.map((series) => ({
         ...series,
         stack: "a",
+        formattedValues: [...Array<string>(size).fill("0"), series.formattedValues?.[0] ?? String(series.values[0] ?? 0)].slice(-size),
         values: [...Array<number>(size).fill(0), series.values[0] ?? 0].slice(-size)
       }))
     };
@@ -871,6 +876,10 @@ export function appendLegacyChartSample(
     labels: [...current.labels, label].slice(-size),
     series: current.series.map((series, index) => ({
       ...series,
+      formattedValues: [
+        ...(series.formattedValues ?? series.values.map(String)),
+        sample.series[index]?.formattedValues?.[0] ?? String(sample.series[index]?.values[0] ?? 0)
+      ].slice(-size),
       values: [...series.values, sample.series[index]?.values[0] ?? 0].slice(-size)
     }))
   };

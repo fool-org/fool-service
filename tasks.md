@@ -1381,6 +1381,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore ECharts 3.1.7 bar/scatter value-label defaults: center 12px white
       labels inside each bar or scatter symbol and retain scatter's 0.8
       opacity across top-level and compact shared chart entrypoints.
+- [x] Restore ECharts 3.1.7 chart value-text precision: retain View `FmtValue`
+      beside numeric geometry, use raw text for bar labels, numeric text for
+      scatter labels, and preserve all decimals in comma-formatted tooltips.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

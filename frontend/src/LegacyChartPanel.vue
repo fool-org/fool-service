@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue";
+import { legacyChartNumberText, legacyChartTooltipText, legacyChartValueText } from "./legacyChartFormat";
 import { legacyChartScale, legacyChartStackGeometry } from "./legacyChartGeometry";
 import type { LegacyChartData, LegacyChartSeries } from "./viewWorkflow";
 
@@ -26,7 +27,6 @@ const plot = { left: 52, top: props.compact && props.title ? 38 : 18, bottom: 46
 const plotRight = computed(() => width.value * Math.max(0.2, (renderedLegendWidth.value + 5) / renderedWidth.value));
 const scatterRadius = computed(() => 5 * width.value / renderedWidth.value);
 const colors = ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83"];
-const formatter = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
 let resizeObserver: ResizeObserver | undefined;
 
 onMounted(() => {
@@ -204,7 +204,7 @@ function hasTooltipValue(series: LegacyChartSeries) {
 }
 
 function tooltipValue(series: LegacyChartSeries) {
-  return formatter.format(series.values[activeTooltipIndex.value ?? 0]);
+  return legacyChartTooltipText(series, activeTooltipIndex.value ?? 0);
 }
 </script>
 
@@ -223,7 +223,7 @@ function tooltipValue(series: LegacyChartSeries) {
       <text v-if="compact && title" class="chart-title" x="8" y="22">{{ title }}</text>
       <g v-for="tick in ticks" :key="tick" class="chart-grid-line">
         <line :x1="plot.left" :x2="width - plotRight" :y1="y(tick)" :y2="y(tick)" />
-        <text :x="plot.left - 8" :y="y(tick) + 4" text-anchor="end">{{ formatter.format(tick) }}</text>
+        <text :x="plot.left - 8" :y="y(tick) + 4" text-anchor="end">{{ legacyChartNumberText(tick) }}</text>
       </g>
       <line class="chart-axis" :x1="plot.left" :x2="plot.left" :y1="plot.top" :y2="height - plot.bottom" />
       <line class="chart-axis" :x1="plot.left" :x2="width - plotRight" :y1="y(0)" :y2="y(0)" />
@@ -285,7 +285,7 @@ function tooltipValue(series: LegacyChartSeries) {
             :y="valueLabelY(series, index)"
             :opacity="series.type === 'scatter' ? 0.8 : undefined"
             dominant-baseline="central"
-          >{{ formatter.format(value) }}</text>
+          >{{ legacyChartValueText(series, index) }}</text>
         </template>
       </g>
       <line

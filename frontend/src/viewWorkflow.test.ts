@@ -268,7 +268,7 @@ describe("view workflow helpers", () => {
         Items: [
           { PrpShowName: "Day", FmtValue: "Mon", EditType: 11 },
           { PrpShowName: "Orders", FmtValue: "7", EditType: 12 },
-          { PrpShowName: "Volume", FmtValue: "12", EditType: 13 },
+          { PrpShowName: "Volume", FmtValue: "12.3400", EditType: 13 },
           { PrpShowName: "Noise", FmtValue: "ignored", EditType: 0 }
         ]
       },
@@ -276,15 +276,15 @@ describe("view workflow helpers", () => {
         Items: [
           { PrpShowName: "Day", FmtValue: "Tue", EditType: "ChartAxis" },
           { PrpShowName: "Orders", FmtValue: "9", EditType: "ChartLine" },
-          { PrpShowName: "Volume", FmtValue: "11", EditType: "ChartBar" }
+          { PrpShowName: "Volume", FmtValue: "11.0000", EditType: "ChartBar" }
         ]
       }
     ])).toEqual({
       axisName: "Day",
       labels: ["Mon", "Tue"],
       series: [
-        { name: "Orders", stack: "Orders", type: "line", values: [7, 9] },
-        { name: "Volume", stack: "Volume", type: "bar", values: [12, 11] }
+        { formattedValues: ["7", "9"], name: "Orders", stack: "Orders", type: "line", values: [7, 9] },
+        { formattedValues: ["12.3400", "11.0000"], name: "Volume", stack: "Volume", type: "bar", values: [12.34, 11] }
       ]
     });
     expect(legacyChartData([{ Items: [{ PrpShowName: "DTO", FmtValue: "5", EditType: 0 }] }])).toEqual({
@@ -308,8 +308,8 @@ describe("view workflow helpers", () => {
       axisName: "Time",
       labels: ["", "", "A"],
       series: [
-        { name: "Price", stack: "a", type: "line", values: [0, 0, 1] },
-        { name: "Volume", stack: "a", type: "bar", values: [0, 0, 2] }
+        { formattedValues: ["0", "0", "1"], name: "Price", stack: "a", type: "line", values: [0, 0, 1] },
+        { formattedValues: ["0", "0", "2"], name: "Volume", stack: "a", type: "bar", values: [0, 0, 2] }
       ]
     });
 
@@ -325,8 +325,8 @@ describe("view workflow helpers", () => {
       axisName: "Time",
       labels: ["", "A", "B"],
       series: [
-        { name: "Price", stack: "a", type: "line", values: [0, 1, 3] },
-        { name: "Volume", stack: "a", type: "bar", values: [0, 2, 4] }
+        { formattedValues: ["0", "1", "3"], name: "Price", stack: "a", type: "line", values: [0, 1, 3] },
+        { formattedValues: ["0", "2", "4"], name: "Volume", stack: "a", type: "bar", values: [0, 2, 4] }
       ]
     });
   });
