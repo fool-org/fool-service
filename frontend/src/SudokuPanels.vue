@@ -7,11 +7,12 @@ import TabList from "primevue/tablist";
 import TabPanel from "primevue/tabpanel";
 import TabPanels from "primevue/tabpanels";
 import Tabs from "primevue/tabs";
-import type { ListViewInfo, ListViewResult, QueryDataDetailResult, TableColumnInfo } from "./api";
+import type { TableColumnInfo } from "./api";
 import LegacyChartPanel from "./LegacyChartPanel.vue";
 import LegacyItemPanel from "./LegacyItemPanel.vue";
 import LegacyMapPanel from "./LegacyMapPanel.vue";
 import ListDataTable from "./ListDataTable.vue";
+import type { SudokuPanelResult } from "./useSudokuPanels";
 import {
   fieldTitle,
   legacyChartData,
@@ -27,7 +28,7 @@ import {
 
 const props = defineProps<{
   disabled?: boolean;
-  panelData: Record<number, { view: ListViewInfo; data: ListViewResult | null; detail?: QueryDataDetailResult | null }>;
+  panelData: Record<number, SudokuPanelResult>;
   panels: TableColumnInfo[];
 }>();
 const emit = defineEmits<{ refreshPanel: [panel: TableColumnInfo] }>();
@@ -55,7 +56,8 @@ function sudokuPanelFreshTime(panel: TableColumnInfo) {
 }
 
 function sudokuPanelChart(panel: TableColumnInfo) {
-  return legacyChartData(sudokuPanelRows(panel));
+  const result = sudokuPanelResult(panel);
+  return result?.chart ?? legacyChartData(sudokuPanelRows(panel));
 }
 
 function sudokuPanelMarkers(panel: TableColumnInfo) {

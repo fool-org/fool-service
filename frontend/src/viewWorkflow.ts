@@ -765,7 +765,7 @@ export function listPageIndex(result: ListViewResult | undefined, fallback = 1) 
   return result?.pageIndex ?? result?.PageIndex ?? result?.pageInfo?.pageIndex ?? fallback;
 }
 
-export function listAutoFreshTime(result?: ListViewResult) {
+export function listAutoFreshTime(result?: ListViewResult | QueryDataDetailResult) {
   return Number(result?.autoFreshTime ?? result?.AutoFreshTime ?? 0) || 0;
 }
 
@@ -839,6 +839,37 @@ export function legacyChartData(rows: ListDataItem[]): LegacyChartData {
   }
 
   return { axisName, labels, series };
+}
+
+export function appendLegacyChartSample(
+  current: LegacyChartData | undefined,
+  result: QueryDataDetailResult | undefined,
+  limit = 100
+): LegacyChartData {
+  const requestedSize = Math.trunc(limit);
+  const size = Number.isFinite(requestedSize) && requestedSize > 0 ? requestedSize : 100;
+  const sample = legacyChartData([{ Items: detailResultSimpleData(result) }]);
+  const label = sample.labels[0] ?? "";
+
+  if (!current) {
+    return {
+      axisName: sample.axisName,
+      labels: [...Array<string>(size).fill(""), label].slice(-size),
+      series: sample.series.map((series) => ({
+        ...series,
+        values: [...Array<number>(size).fill(0), series.values[0] ?? 0].slice(-size)
+      }))
+    };
+  }
+
+  return {
+    axisName: current.axisName,
+    labels: [...current.labels, label].slice(-size),
+    series: current.series.map((series, index) => ({
+      ...series,
+      values: [...series.values, sample.series[index]?.values[0] ?? 0].slice(-size)
+    }))
+  };
 }
 
 export function legacyMapMarkers(rows: ListDataItem[]): LegacyMapMarker[] {

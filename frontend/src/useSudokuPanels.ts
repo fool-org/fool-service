@@ -4,6 +4,7 @@ import { postApi } from "./api";
 import { buildQueryDataDetailRequest } from "./payload";
 import type { WorkflowActionRunner } from "./useViewDataWorkflow";
 import {
+  appendLegacyChartSample,
   listAutoFreshTime,
   sudokuPanelKind,
   sudokuPanelListViewType,
@@ -11,11 +12,13 @@ import {
   viewColumns,
   viewId
 } from "./viewWorkflow";
+import type { LegacyChartData } from "./viewWorkflow";
 
 export type SudokuPanelResult = {
   view: ListViewInfo;
   data: ListViewResult | null;
   detail?: QueryDataDetailResult | null;
+  chart?: LegacyChartData;
 };
 
 interface SudokuPanelWorkflowOptions {
@@ -44,8 +47,11 @@ export function useSudokuPanels(options: SudokuPanelWorkflowOptions) {
     if (!panelViewId) return;
     const response = await loadPanel(panel);
     if (!response) return;
-    mergePanelResult(panelViewId, response);
-    scheduleRefresh(panel, response);
+    const next = sudokuPanelKind(panel) === "linechart" && response.detail
+      ? { ...response, chart: appendLegacyChartSample(panelData.value[panelViewId]?.chart, response.detail) }
+      : response;
+    mergePanelResult(panelViewId, next);
+    scheduleRefresh(panel, next);
     if (sudokuPanelKind(panel) !== "group") return;
     for (const childPanel of viewColumns(response.view)) {
       const childViewId = sudokuPanelViewId(childPanel);
@@ -59,14 +65,17 @@ export function useSudokuPanels(options: SudokuPanelWorkflowOptions) {
 
   async function loadPanel(panel: TableColumnInfo) {
     const panelViewId = sudokuPanelViewId(panel);
-    if (sudokuPanelKind(panel) !== "item") {
-      return options.loadViewDataById(panelViewId, "sudoku-panel", 5);
-    }
-    const panelViewResponse = await options.loadViewById(panelViewId, "sudoku-item");
+    const kind = sudokuPanelKind(panel);
+    if (kind === "item" || kind === "linechart") return loadDetailPanel(panelViewId, `sudoku-${kind}`);
+    return options.loadViewDataById(panelViewId, "sudoku-panel", 5);
+  }
+
+  async function loadDetailPanel(panelViewId: number, label: string) {
+    const panelViewResponse = await options.loadViewById(panelViewId, label);
     if (!panelViewResponse) return null;
     const loadedViewId = viewId(panelViewResponse.data, panelViewId);
     if (!loadedViewId) return { view: panelViewResponse.data, data: null, detail: null };
-    const detailResponse = await options.runAction("sudoku-item-detail", () =>
+    const detailResponse = await options.runAction(`${label}-detail`, () =>
       postApi<QueryDataDetailResult>("/api/v1/data/querydatadetail", buildQueryDataDetailRequest({
         token: options.token.value,
         viewId: loadedViewId,
@@ -83,7 +92,8 @@ export function useSudokuPanels(options: SudokuPanelWorkflowOptions) {
       [panelViewId]: {
         ...next,
         data: next.data ?? current?.data ?? null,
-        detail: next.detail ?? current?.detail
+        detail: next.detail ?? current?.detail,
+        chart: next.chart ?? current?.chart
       }
     };
   }
@@ -92,7 +102,8 @@ export function useSudokuPanels(options: SudokuPanelWorkflowOptions) {
     const key = refreshKey(panel);
     const activeTimer = refreshTimers.get(key);
     if (activeTimer !== undefined) window.clearInterval(activeTimer);
-    const seconds = listAutoFreshTime(result.data || undefined);
+    const refreshSource = sudokuPanelKind(panel) === "linechart" ? result.detail : result.data;
+    const seconds = listAutoFreshTime(refreshSource || undefined);
     if (seconds <= 0) {
       refreshTimers.delete(key);
       return;

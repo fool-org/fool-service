@@ -455,7 +455,7 @@ describe("App defaults", () => {
     expect(appSource).toContain("useSudokuPanels");
     expect(appSource).toContain("loadSudokuPanels");
     expect(sudokuWorkflowSource).toContain('loadViewDataById(panelViewId, "sudoku-panel", 5)');
-    expect(sudokuWorkflowSource).toContain("scheduleRefresh(panel, response)");
+    expect(sudokuWorkflowSource).toContain("scheduleRefresh(panel, next)");
     expect(appSource).toContain("stopSudokuPanelRefresh()");
     expect(viewListPanelSource).toContain("@refresh-panel=\"emit('refreshPanel', $event)\"");
     expect(sudokuPanelsSource).toContain("listFreshTime");
@@ -481,6 +481,11 @@ describe("App defaults", () => {
     expect(sudokuPanelsSource).not.toContain("linechart' && sudokuPanelChart(panel).series.length");
     expect(sudokuPanelsSource).toContain("<LegacyChartPanel");
     expect(sudokuPanelsSource).toContain("compact");
+    expect(sudokuPanelsSource).toContain("result?.chart ?? legacyChartData");
+    expect(sudokuWorkflowSource).toContain('kind === "item" || kind === "linechart"');
+    expect(sudokuWorkflowSource).toContain('postApi<QueryDataDetailResult>("/api/v1/data/querydatadetail"');
+    expect(sudokuWorkflowSource).toContain("appendLegacyChartSample");
+    expect(sudokuWorkflowSource).toContain('sudokuPanelKind(panel) === "linechart" ? result.detail : result.data');
     expect(sudokuPanelsSource).not.toContain("<meter");
   });
 
@@ -510,7 +515,7 @@ describe("App defaults", () => {
     expect(sudokuPanelsSource).toContain("<LegacyItemPanel");
     expect(legacyItemPanelSource).toContain("Math.max(6, Math.ceil(props.fields.length / 2))");
     expect(legacyItemPanelSource).toContain('colspan="2"');
-    expect(sudokuLoadSource).toContain('sudokuPanelKind(panel) !== "item"');
+    expect(sudokuLoadSource).toContain('kind === "item" || kind === "linechart"');
     expect(sudokuLoadSource).toContain("/api/v1/data/querydatadetail");
     expect(sudokuLoadSource).toContain("buildQueryDataDetailRequest");
     expect(sudokuPanelsSource).toContain("legacyItemDetailFields");

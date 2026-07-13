@@ -1301,6 +1301,11 @@ item must land with its matching implementation and validation evidence.
       View-derived category on mouse movement, draw the default axis pointer,
       list only selected metadata series, suppress all-hidden content, and
       reuse the bounded overlay across top-level and compact charts.
+- [x] Restore `LineChartController` realtime data semantics for Sudoku
+      `linechart`: load its child View before `querydatadetail`, initialize the
+      metadata series as a 100-point zero window, append one detail sample per
+      refresh, and schedule from detail `AutoFreshTime` without changing the
+      list-backed top-level chart.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

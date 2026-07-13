@@ -3083,3 +3083,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   series leave the tooltip, all-hidden charts show no pointer/content, and the
   same bounded overlay serves top-level, mobile, and compact charts without
   restoring transparent line symbols or adding a chart dependency.
+- 2026-07-14: restored `LineChartController`'s realtime data path for Sudoku
+  `linechart` panels. Vue now loads the child View first, queries one
+  `querydatadetail` sample, initializes the View-derived series as a 100-point
+  zero window, and appends/shifts one sample on each detail refresh. The timer
+  reads detail `AutoFreshTime`; list and map panels retain their five-row
+  `querydata` path, and top-level `viewWithChart` remains list-backed. Docker
+  `/view103` proved 100 bars and 200 two-series labels, then retained those
+  counts with two trailing `1001 / 0.25 / 62500` samples after manual refresh;
+  the same chart stayed bounded at 390px and `/view100` retained eight list
+  categories.

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ListDataItem } from "./api";
 import {
+  appendLegacyChartSample,
   buildAddedDetailItem,
   buildAddedItemProperty,
   buildDeletedItemProperty,
@@ -290,6 +291,43 @@ describe("view workflow helpers", () => {
       axisName: "",
       labels: [],
       series: []
+    });
+  });
+
+  it("appends detail chart samples into the legacy fixed rolling window", () => {
+    const first = appendLegacyChartSample(undefined, {
+      Data: {
+        SimpleData: [
+          { PrpShowName: "Time", FmtValue: "A", EditType: 11 },
+          { PrpShowName: "Price", FmtValue: "1", EditType: 12 },
+          { PrpShowName: "Volume", FmtValue: "2", EditType: 13 }
+        ]
+      }
+    }, 3);
+    expect(first).toEqual({
+      axisName: "Time",
+      labels: ["", "", "A"],
+      series: [
+        { name: "Price", type: "line", values: [0, 0, 1] },
+        { name: "Volume", type: "bar", values: [0, 0, 2] }
+      ]
+    });
+
+    expect(appendLegacyChartSample(first, {
+      data: {
+        simpleData: [
+          { prpShowName: "Changed axis", fmtValue: "B", editType: 11 },
+          { prpShowName: "Changed price", fmtValue: "3", editType: 12 },
+          { prpShowName: "Changed volume", fmtValue: "4", editType: 13 }
+        ]
+      }
+    }, 3)).toEqual({
+      axisName: "Time",
+      labels: ["", "A", "B"],
+      series: [
+        { name: "Price", type: "line", values: [0, 1, 3] },
+        { name: "Volume", type: "bar", values: [0, 2, 4] }
+      ]
     });
   });
 
