@@ -1091,6 +1091,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore Sudoku `Map.jade` presentation: keep location details in marker
       popups, remove the Vue-only coordinate list, and preserve the old fixed
       200px map height on desktop and mobile.
+- [x] Restore Sudoku `linechart.jade`'s fixed 200px partial without shrinking
+      the shared `viewWithChart` page; adapt the compact SVG viewBox and mobile
+      label density to the rendered panel geometry.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

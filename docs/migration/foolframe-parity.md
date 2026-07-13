@@ -2731,3 +2731,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   of rendering a Vue-only coordinate list below the map, and `.sw-map`'s fixed
   200px height is preserved at desktop and mobile widths. The View-derived
   marker mapping and existing refresh footer remain unchanged.
+- 2026-07-13: restored the old Sudoku `linechart.jade` fixed partial height
+  without changing `viewWithChart`. Sudoku alone opts into a reusable compact
+  chart mode matching `.sw-partialchart`'s 200px container; its SVG viewBox
+  follows the rendered aspect ratio and mobile labels are sampled to prevent
+  overlap. Normal chart pages retain the original 720x300 viewBox and sizing.

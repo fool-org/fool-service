@@ -101,6 +101,7 @@ function sudokuPanelRefreshable(panel: TableColumnInfo) {
       <LegacyChartPanel
         v-else-if="sudokuPanelKind(panel) === 'linechart' && sudokuPanelChart(panel).series.length"
         class="sudoku-panel-body"
+        compact
         :data="sudokuPanelChart(panel)"
       />
       <LegacyMapPanel

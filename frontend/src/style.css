@@ -571,6 +571,17 @@ label {
   overflow: visible;
 }
 
+.legacy-chart-pane.compact-chart {
+  height: 200px;
+  min-height: 200px;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.compact-chart .legacy-chart {
+  height: 100%;
+  min-height: 0;
+}
+
 .chart-grid-line line {
   stroke: #e2e8f0;
   stroke-width: 1;

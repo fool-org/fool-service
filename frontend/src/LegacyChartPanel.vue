@@ -1,13 +1,26 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import type { LegacyChartData, LegacyChartSeries } from "./viewWorkflow";
 
-const props = defineProps<{ data: LegacyChartData }>();
-const width = 720;
-const height = 300;
+const props = defineProps<{ compact?: boolean; data: LegacyChartData }>();
+const chartElement = ref<SVGSVGElement | null>(null);
+const height = props.compact ? 160 : 300;
+const width = ref(720);
 const plot = { left: 52, right: 18, top: 18, bottom: 46 };
 const colors = ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83"];
 const formatter = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
+let resizeObserver: ResizeObserver | undefined;
+
+onMounted(() => {
+  if (!props.compact || !chartElement.value) return;
+  resizeObserver = new ResizeObserver(([entry]) => {
+    const rect = entry?.contentRect;
+    if (rect?.width && rect.height) width.value = Math.max(320, Math.round(rect.width * height / rect.height));
+  });
+  resizeObserver.observe(chartElement.value);
+});
+
+onUnmounted(() => resizeObserver?.disconnect());
 
 const labelCount = computed(() => Math.max(
   1,
@@ -26,7 +39,7 @@ const ticks = computed(() => Array.from({ length: 5 }, (_, index) =>
 const barSeries = computed(() => props.data.series.filter((series) => series.type === "bar"));
 
 function x(index: number) {
-  const plotWidth = width - plot.left - plot.right;
+  const plotWidth = width.value - plot.left - plot.right;
   return plot.left + plotWidth * (index + 0.5) / labelCount.value;
 }
 
@@ -40,7 +53,7 @@ function linePoints(series: LegacyChartSeries) {
 }
 
 function barWidth() {
-  return Math.min(28, (width - plot.left - plot.right) / labelCount.value / Math.max(1, barSeries.value.length) * 0.62);
+  return Math.min(28, (width.value - plot.left - plot.right) / labelCount.value / Math.max(1, barSeries.value.length) * 0.62);
 }
 
 function barX(series: LegacyChartSeries, index: number) {
@@ -57,6 +70,14 @@ function barHeight(value: number) {
 }
 
 function showLabel(index: number) {
+  if (props.compact) {
+    const maxLabels = Math.max(2, Math.floor((width.value - plot.left - plot.right) / 100));
+    if (labelCount.value <= maxLabels) return true;
+    const lastIndex = labelCount.value - 1;
+    return Array.from({ length: maxLabels }, (_, position) =>
+      Math.round(lastIndex * position / (maxLabels - 1))
+    ).includes(index);
+  }
   const step = Math.max(1, Math.ceil(labelCount.value / 8));
   return index % step === 0 || index === labelCount.value - 1;
 }
@@ -71,8 +92,8 @@ function seriesName(series: LegacyChartSeries, index: number) {
 </script>
 
 <template>
-  <div class="legacy-chart-pane">
-    <svg class="legacy-chart" :viewBox="`0 0 ${width} ${height}`" role="img" aria-label="视图数据图表">
+  <div class="legacy-chart-pane" :class="{ 'compact-chart': compact }">
+    <svg ref="chartElement" class="legacy-chart" :viewBox="`0 0 ${width} ${height}`" role="img" aria-label="视图数据图表">
       <g v-for="tick in ticks" :key="tick" class="chart-grid-line">
         <line :x1="plot.left" :x2="width - plot.right" :y1="y(tick)" :y2="y(tick)" />
         <text :x="plot.left - 8" :y="y(tick) + 4" text-anchor="end">{{ formatter.format(tick) }}</text>

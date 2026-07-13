@@ -340,6 +340,8 @@ describe("App defaults", () => {
     expect(legacyChartPanelSource).toContain('"#c23531", "#2f4554", "#61a0a8"');
     expect(legacyChartPanelSource).toContain("`系列 ${index + 1}`");
     expect(legacyChartPanelSource).toContain('aria-label="视图数据图表"');
+    expect(legacyChartPanelSource).toContain("'compact-chart': compact");
+    expect(legacyChartPanelSource).toContain("rect.width * height / rect.height");
     expect(legacyChartPanelSource).not.toContain("{{ series.type }}");
   });
 
@@ -382,6 +384,7 @@ describe("App defaults", () => {
     expect(sudokuPanelsSource).toContain("sudokuPanelKind(panel) === 'linechart'");
     expect(sudokuPanelsSource).toContain("sudokuPanelChart(panel).series");
     expect(sudokuPanelsSource).toContain("<LegacyChartPanel");
+    expect(sudokuPanelsSource).toContain("compact");
     expect(sudokuPanelsSource).not.toContain("<meter");
   });
 
