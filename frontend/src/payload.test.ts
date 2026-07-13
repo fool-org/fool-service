@@ -550,6 +550,7 @@ describe("App defaults", () => {
 
     expect(viewDetailPanelSource).toContain("groupSelectFromExists(group)");
     expect(pickerSource).toContain('class="candidate-query-toolbar"');
+    expect(viewDetailPanelSource).toContain('<template #closeicon><span class="legacy-dialog-close-icon" aria-hidden="true">&times;</span></template>');
     expect(pickerSource).toContain('class="candidate-query-input"');
     expect(pickerSource).toContain('placeholder="输入条件"');
     expect(pickerSource).toContain('aria-label="查询条件"');
@@ -891,6 +892,7 @@ describe("App defaults", () => {
     expect(appSource).toContain(':view-id="currentViewId"');
     expect(viewReportPanelSource).toContain("<Dialog");
     expect(viewReportPanelSource).toContain("modal");
+    expect(viewReportPanelSource).toContain('<template #closeicon><span class="legacy-dialog-close-icon" aria-hidden="true">&times;</span></template>');
     expect(viewReportPanelSource).toContain('<Tab value="output"');
     expect(viewReportPanelSource).toContain('<Tab value="conditions"');
     expect(viewReportPanelSource).toContain('<Tab value="save"');

@@ -1157,6 +1157,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore old dialog close-command availability: remove invented header
       Close actions from message/feedback/result dialogs while retaining the
       footer commands and the real candidate/report header close paths.
+- [x] Restore Bootstrap header close presentation for candidate/report setup:
+      reuse one 21px bold `×` slot and shared borderless opacity states while
+      preserving PrimeVue close events and accessibility.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

@@ -355,6 +355,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
               :dismissable-mask="!pending"
               @update:visible="(visible) => { if (!visible) pickerGroupKey = '' }"
             >
+              <template #closeicon><span class="legacy-dialog-close-icon" aria-hidden="true">&times;</span></template>
               <div class="detail-picker-content">
                 <div class="candidate-query-toolbar">
                   <InputText

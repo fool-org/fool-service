@@ -233,6 +233,7 @@ onMounted(() => void loadReportColumns());
     :dismissable-mask="!pending"
     @update:visible="(visible) => { if (!visible) emit('close') }"
   >
+    <template #closeicon><span class="legacy-dialog-close-icon" aria-hidden="true">&times;</span></template>
     <template #header>
       <div class="report-dialog-heading">
         <strong>{{ showingResults ? "报表结果" : "生成报表" }}</strong>

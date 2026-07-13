@@ -2829,3 +2829,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   PrimeVue's invented header Close button and retain their old footer commands;
   select-existing and report-setup dialogs remain header-closable as their Jade
   templates specify.
+- 2026-07-13: restored Bootstrap's header close presentation for the remaining
+  closable candidate and report-setup dialogs. Both reuse one `×` slot and one
+  shared 21px bold, borderless, transparent close style with old 0.2 resting
+  and 0.5 hover/focus opacity; PrimeVue continues to own the close event and
+  accessible button label.
