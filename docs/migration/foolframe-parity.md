@@ -3016,3 +3016,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   the loaded View has zero report fields, matching the old controls and creating
   one empty condition row through the existing draft builder. Request-pending
   protection and View-derived field options remain unchanged.
+- 2026-07-14: restored `menuinfo.js`'s non-navigable child-menu structure.
+  Submenu entries with `ViewId=0` now render as plain list text instead of
+  Vue-only disabled buttons, while entries with a View id retain the shared
+  desktop/mobile navigation command. Menu labels, images, expansion state, and
+  View-driven routing remain unchanged.

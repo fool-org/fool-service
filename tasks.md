@@ -1269,6 +1269,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `view.jade` / `mkreport.js` report-condition Add availability:
       keep both Add commands actionable with zero View fields and create one
       empty condition row through the existing View-driven editor.
+- [x] Restore `menuinfo.js` non-navigable submenu rendering: show `ViewId=0`
+      children as plain list text instead of disabled buttons while preserving
+      View-backed child navigation in the shared desktop/mobile component.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

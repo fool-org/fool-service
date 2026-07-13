@@ -888,6 +888,9 @@ describe("App defaults", () => {
     expect(legacyMenuNavSource).toContain('class="nav-menu-image"');
     expect(legacyMenuNavSource).toContain('legacyAuthNo(item) === expandedAuthCode && subItems.length');
     expect(legacyMenuNavSource).toContain(':aria-expanded="legacyAuthViewId(item) ? undefined : legacyAuthNo(item) === expandedAuthCode"');
+    expect(legacyMenuNavSource).toContain('<button v-if="legacyAuthViewId(child)"');
+    expect(legacyMenuNavSource).toContain('<span v-else class="nav-static-item">');
+    expect(legacyMenuNavSource).not.toContain('disabled || !legacyAuthViewId(child)');
     expect(menuSource).toContain("legacyAuthViewId(item)");
     expect(menuSource).toContain("closeShellNavigation()");
     expect(menuSource).toContain("applyRequestedViewId(itemViewId)");

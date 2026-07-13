@@ -32,18 +32,23 @@ defineEmits<{
         </span>
       </button>
       <div v-if="legacyAuthNo(item) === expandedAuthCode && subItems.length" class="nav-sublist">
-        <button
+        <template
           v-for="child in subItems"
           :key="legacyAuthNo(child) || legacyAuthText(child)"
-          type="button"
-          :disabled="disabled || !legacyAuthViewId(child)"
-          @click="$emit('select', child)"
         >
-          <span class="nav-label">
-            <img v-if="legacyAuthImageUrl(child)" class="nav-menu-image" :src="legacyAuthImageUrl(child)" alt="" />
-            <span>{{ legacyAuthText(child) || legacyAuthNo(child) }}</span>
+          <button v-if="legacyAuthViewId(child)" type="button" :disabled="disabled" @click="$emit('select', child)">
+            <span class="nav-label">
+              <img v-if="legacyAuthImageUrl(child)" class="nav-menu-image" :src="legacyAuthImageUrl(child)" alt="" />
+              <span>{{ legacyAuthText(child) || legacyAuthNo(child) }}</span>
+            </span>
+          </button>
+          <span v-else class="nav-static-item">
+            <span class="nav-label">
+              <img v-if="legacyAuthImageUrl(child)" class="nav-menu-image" :src="legacyAuthImageUrl(child)" alt="" />
+              <span>{{ legacyAuthText(child) || legacyAuthNo(child) }}</span>
+            </span>
           </span>
-        </button>
+        </template>
       </div>
     </div>
   </nav>

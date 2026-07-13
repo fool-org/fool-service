@@ -128,7 +128,8 @@ label {
   font-size: 10px;
 }
 
-.nav-list button {
+.nav-list button,
+.nav-static-item {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
@@ -147,7 +148,12 @@ label {
   text-align: left;
 }
 
-.nav-list button span {
+.nav-static-item {
+  cursor: default;
+}
+
+.nav-list button span,
+.nav-static-item span {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -187,7 +193,8 @@ label {
   position: relative;
 }
 
-.nav-list-horizontal button {
+.nav-list-horizontal button,
+.nav-list-horizontal .nav-static-item {
   width: auto;
   min-width: 0;
   min-height: 50px;
@@ -208,7 +215,8 @@ label {
   padding: 5px 0;
 }
 
-.nav-list-horizontal .nav-sublist button {
+.nav-list-horizontal .nav-sublist button,
+.nav-list-horizontal .nav-sublist .nav-static-item {
   width: 100%;
   min-height: 0;
   margin-bottom: -1px;
@@ -265,7 +273,8 @@ label {
   margin-bottom: 12px;
 }
 
-.mobile-navigation .nav-sublist button {
+.mobile-navigation .nav-sublist button,
+.mobile-navigation .nav-sublist .nav-static-item {
   padding-left: 25px;
 }
 
