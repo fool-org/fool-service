@@ -5,9 +5,11 @@ import type { LegacyChartData, LegacyChartSeries } from "./viewWorkflow";
 
 const props = defineProps<{ compact?: boolean; data: LegacyChartData; renderedHeight?: number; title?: string }>();
 const chartElement = ref<SVGSVGElement | null>(null);
+const legendElement = ref<HTMLUListElement | null>(null);
 const height = props.compact ? 160 : 300;
 const width = ref(720);
 const renderedWidth = ref(720);
+const renderedLegendWidth = ref(0);
 const fixedHeight = computed(() => {
   const renderedHeight = props.renderedHeight ?? 0;
   return !props.compact && renderedHeight > 0 ? Math.round(renderedHeight) : 0;
@@ -20,20 +22,25 @@ const tooltipPosition = ref({ left: 0, top: 0 });
 const tooltipAlignRight = ref(false);
 const tooltipAlignBottom = ref(false);
 const plot = { left: 52, top: props.compact && props.title ? 38 : 18, bottom: 46 };
-const plotRight = computed(() => width.value * 0.2);
+const plotRight = computed(() => width.value * Math.max(0.2, (renderedLegendWidth.value + 5) / renderedWidth.value));
 const colors = ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83"];
 const formatter = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
 let resizeObserver: ResizeObserver | undefined;
 
 onMounted(() => {
   if (!chartElement.value) return;
-  resizeObserver = new ResizeObserver(([entry]) => {
+  resizeObserver = new ResizeObserver((entries) => entries.forEach((entry) => {
     const rect = entry?.contentRect;
     if (!rect?.width) return;
+    if (entry.target === legendElement.value) {
+      renderedLegendWidth.value = rect.width;
+      return;
+    }
     renderedWidth.value = rect.width;
     if ((props.compact || fixedHeight.value) && rect.height) width.value = Math.max(320, Math.round(rect.width * height / rect.height));
-  });
+  }));
   resizeObserver.observe(chartElement.value);
+  if (legendElement.value) resizeObserver.observe(legendElement.value);
 });
 
 onUnmounted(() => resizeObserver?.disconnect());
@@ -283,7 +290,7 @@ function tooltipValue(series: LegacyChartSeries) {
         </span>
       </template>
     </div>
-    <ul class="chart-legend">
+    <ul ref="legendElement" class="chart-legend">
       <li v-for="({ series, index }) in legendSeries" :key="seriesName(series, index)">
         <button
           type="button"
@@ -291,8 +298,13 @@ function tooltipValue(series: LegacyChartSeries) {
           :class="{ 'series-hidden': !isSeriesVisible(series, index) }"
           @click="toggleSeries(series, index)"
         >
-          <span :style="{ backgroundColor: isSeriesVisible(series, index) ? colors[index % colors.length] : '#cccccc' }"></span>
-          <strong>{{ seriesName(series, index) }}</strong>
+          <span
+            class="chart-legend-symbol"
+            :class="`series-${series.type}`"
+            :style="{ color: isSeriesVisible(series, index) ? colors[index % colors.length] : '#cccccc' }"
+            aria-hidden="true"
+          ></span>
+          <span>{{ seriesName(series, index) }}</span>
         </button>
       </li>
     </ul>

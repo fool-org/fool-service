@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import chartSource from "./LegacyChartPanel.vue?raw";
 import styleSource from "./style.css?inline";
 
 describe("shared chart styles", () => {
@@ -22,5 +23,29 @@ describe("shared chart styles", () => {
   fill: #333333;
   font-size: 12px;
 }`);
+  });
+
+  it("matches ECharts legend item geometry", () => {
+    expect(chartSource).toContain('class="chart-legend-symbol"');
+    expect(chartSource).toContain(':class="`series-${series.type}`"');
+    expect(chartSource).toContain('ref="legendElement" class="chart-legend"');
+    expect(chartSource).toContain("Math.max(0.2, (renderedLegendWidth.value + 5) / renderedWidth.value)");
+    expect(chartSource).toContain("resizeObserver.observe(legendElement.value)");
+    expect(chartSource).not.toContain("<strong>{{ seriesName(series, index) }}</strong>");
+    expect(styleSource).toContain(`.chart-legend li {
+  font-size: 12px;
+}`);
+    expect(styleSource).toContain(`grid-template-columns: 25px auto;
+  gap: 5px;`);
+    expect(styleSource).toContain(`.chart-legend-symbol {
+  position: relative;
+  display: block;
+  width: 25px;
+  height: 14px;
+  border-radius: 3.5px;
+  background: currentColor;
+}`);
+    expect(styleSource).toContain(".chart-legend-symbol.series-line::after");
+    expect(styleSource).toContain(".chart-legend-symbol.series-scatter");
   });
 });

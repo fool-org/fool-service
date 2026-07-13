@@ -3248,3 +3248,15 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   470px chart-height locks; `/view103` retained its 328x200 compact chart.
   Labels did not overlap, document overflow stayed false, and all three page
   checks had no browser warnings or errors.
+- 2026-07-14: restored ECharts 3.1.7's legend-item geometry and typography.
+  The shared legend now uses the old 25x14 item slot, 5px icon/text gap, 10px
+  item gap, normal 12px `#333` text, and 5px right inset. Bar series use the
+  old 3.5px-radius round rectangle; line series use the old 1px line with its
+  centered 11.2px fallback circle; scatter retains the centered 14px circle.
+  Hidden items keep those dimensions and switch glyph/text to `#ccc`. The
+  existing ResizeObserver also measures dynamic View-derived legend names, so
+  the plot keeps the old 20% right grid unless the real legend is wider.
+  Docker `/view100` retained 92.28px desktop clearance; at 390x844 its 73.98px
+  legend ended exactly where the plot began, with no overlap or overflow.
+  `/view103` retained the same zero-overlap rule in its 328x200 compact pane,
+  and all checked pages had no browser warnings or errors.

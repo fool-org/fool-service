@@ -421,7 +421,6 @@ describe("App defaults", () => {
     expect(legacyChartPanelSource).not.toContain("Math.max(1, Math.abs(y(renderedValue");
     expect(legacyChartPanelSource).toContain("renderedWidth.value = rect.width");
     expect(legacyChartPanelSource).toContain("props.compact ? 28 : 15 * width.value / renderedWidth.value");
-    expect(legacyChartPanelSource).toContain("const plotRight = computed(() => width.value * 0.2)");
     expect(legacyChartPanelSource).toContain(':x2="width - plotRight"');
     expect(legacyChartPanelSource).not.toContain("right: 18");
     expect(legacyChartPanelSource).toContain("const hiddenSeriesNames = ref<string[]>([])");

@@ -1041,7 +1041,7 @@ label {
 .chart-legend {
   position: absolute;
   top: 50%;
-  right: 12px;
+  right: 5px;
   display: flex;
   flex-wrap: nowrap;
   gap: 10px;
@@ -1052,19 +1052,21 @@ label {
 }
 
 .chart-legend li {
-  font-size: 0.78rem;
+  font-size: 12px;
 }
 
 .chart-legend button {
   display: grid;
-  grid-template-columns: 10px auto;
-  gap: 6px;
+  grid-template-columns: 25px auto;
+  gap: 5px;
   align-items: center;
   padding: 0;
   border: 0;
   background: transparent;
-  color: inherit;
+  color: #333333;
   font: inherit;
+  font-weight: 400;
+  line-height: 14px;
   cursor: pointer;
 }
 
@@ -1077,21 +1079,46 @@ label {
   color: #cccccc;
 }
 
-.chart-legend button > span {
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
+.chart-legend-symbol {
+  position: relative;
+  display: block;
+  width: 25px;
+  height: 14px;
+  border-radius: 3.5px;
+  background: currentColor;
 }
 
-.chart-legend small {
-  color: #64748b;
+.chart-legend-symbol.series-line {
+  border-radius: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 6.5px,
+    currentColor 6.5px,
+    currentColor 7.5px,
+    transparent 7.5px
+  );
+}
+
+.chart-legend-symbol.series-line::after {
+  position: absolute;
+  top: 1.4px;
+  left: 6.9px;
+  width: 11.2px;
+  height: 11.2px;
+  border-radius: 50%;
+  background: currentColor;
+  content: "";
+}
+
+.chart-legend-symbol.series-scatter {
+  width: 14px;
+  border-radius: 50%;
+  justify-self: center;
 }
 
 @media (max-width: 600px) {
   .chart-legend {
-    right: 4px;
     flex-direction: column;
-    gap: 6px;
   }
 }
 

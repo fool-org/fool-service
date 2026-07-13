@@ -1360,6 +1360,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore ECharts 3.1.7's default axis presentation: use its `#333` 1px
       axis, `#333` 12px labels, and `#ccc` 1px split lines in the shared
       top-level/Sudoku renderer and exercise the CSS contract in Vitest.
+- [x] Restore ECharts 3.1.7 legend-item presentation: render type-specific
+      25x14 bar/line/scatter glyphs with normal 12px text and keep dynamic
+      View-derived names outside the plot at narrow widths.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
