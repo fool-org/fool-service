@@ -2767,3 +2767,6 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `navbar.updateNavbar`, so the Vue dialog now reuses the same extracted
   seven-link Previous/Page/Next component as the main list instead of its
   invented `第 x / y 页` status. Pre-query candidate pagination stays hidden.
+- 2026-07-13: restored `detailView.jade`'s candidate dismissal copy. The
+  functional footer action is now `取消` and still closes without adding a
+  child row. The old inert `确定` placeholder remains intentionally omitted.

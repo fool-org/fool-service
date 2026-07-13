@@ -1115,6 +1115,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore the candidate dialog's `navbar.updateNavbar` interaction: reuse
       the main list's extracted seven-link Previous/Page/Next paginator and
       remove the Vue-only `第 x / y 页` control without duplicating page state.
+- [x] Match `detailView.jade`'s functional candidate footer action: label the
+      dismiss command `取消`, preserve no-change close behavior, and do not
+      restore the old inert `确定` placeholder.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

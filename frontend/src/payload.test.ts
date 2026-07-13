@@ -520,6 +520,8 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain("<LegacyPagination");
     expect(viewDetailPanelSource).toContain(':total-items="candidateState(group).totalItem"');
     expect(viewDetailPanelSource).toContain('@page="emit(\'loadCandidatePage\', group, $event)"');
+    expect(pickerSource).toContain('label="取消"');
+    expect(pickerSource).not.toContain('label="关闭"');
     expect(viewDetailPanelSource).not.toContain("每页条数");
     expect(viewDetailPanelSource).not.toContain("updateCandidatePageSize");
     expect(viewDetailPanelSource).not.toContain("updateCandidatePage");

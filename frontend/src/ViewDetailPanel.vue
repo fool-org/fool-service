@@ -391,7 +391,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                 />
               </div>
               <template #footer>
-                <Button type="button" label="关闭" severity="secondary" text :disabled="pending" @click="pickerGroupKey = ''" />
+                <Button type="button" label="取消" severity="secondary" text :disabled="pending" @click="pickerGroupKey = ''" />
               </template>
             </Dialog>
             <div class="table-wrap detail-items-table">
