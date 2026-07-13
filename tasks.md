@@ -1184,6 +1184,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore the child collection Add command's default group geometry by
       reusing the shared 34px detail command contract without changing its
       metadata-driven add path.
+- [x] Restore the candidate table's default Select action as a default outlined
+      command without changing shared metadata rows, View operations, or
+      select-existing staging.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

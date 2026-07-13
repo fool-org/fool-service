@@ -2868,3 +2868,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   geometry. The existing secondary outlined command now reuses the same 34px,
   6x12px, 14/20px group contract as the detail toolbar without changing its
   direct-add or select-existing dispatch.
+- 2026-07-13: restored `querylistdata.js`'s default candidate Select command.
+  The shared table's candidate-only default action now renders secondary
+  outlined like old `.btn.btn-default`, while metadata View operations retain
+  their lightweight link presentation and both continue using one renderer.

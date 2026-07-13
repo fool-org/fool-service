@@ -108,7 +108,8 @@ function tableRowClass(row: RenderedListDataItem) {
             :disabled="disabled"
             :label="defaultActionLabel"
             size="small"
-            text
+            severity="secondary"
+            outlined
             @click="emit('select', row)"
           />
         </div>

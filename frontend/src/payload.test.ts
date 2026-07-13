@@ -132,6 +132,7 @@ describe("App defaults", () => {
     expect(listDataTableSource).toContain('<Column v-if="rowOperations.length || showDefaultAction" header="操作">');
     expect(listDataTableSource).not.toContain('align-frozen="right"');
     expect(listDataTableSource).not.toContain('icon="pi pi-arrow-right"');
+    expect(listDataTableSource).toMatch(/v-if="showDefaultAction"[\s\S]*?:label="defaultActionLabel"[\s\S]*?severity="secondary"\s+outlined/);
   });
 
   it("does not render data rows before View columns exist", () => {
