@@ -829,7 +829,8 @@ describe("App defaults", () => {
     expect(itemViewSource).not.toContain("queryDetail");
     expect(itemViewSource).not.toContain("querydatadetail");
     expect(appSource).toContain(':schema-only="isMetadataOnlyView"');
-    expect(viewDetailPanelSource).toContain("已加载视图定义。");
+    expect(viewDetailPanelSource).not.toContain("已加载视图定义。");
+    expect(viewDetailPanelSource).not.toContain("请从列表选择记录。");
     expect(viewDetailPanelSource).toContain('v-if="detailItemGroups.length && (selectedObjectId || schemaOnly)"');
     expect(viewDetailPanelSource).toContain('v-if="!schemaOnly" class="detail-collection-toolbar legacy-button-group"');
     expect(viewDetailPanelSource).toContain(':colspan="schemaOnly ? 1 : childActionColumnCount(group)"');

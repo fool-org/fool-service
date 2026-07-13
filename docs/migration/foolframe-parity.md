@@ -2955,3 +2955,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   Items, and unknown child `ListViewType` tabs retain an empty tab panel instead
   of showing Vue-only `暂无数据。`. List children, the legacy `这是简单项` branch,
   tab selection, and View-first child loading remain unchanged.
+- 2026-07-14: removed Vue-only detail initialization copy from the old read-item
+  and detail surfaces. `/itemview:id` now proceeds directly from its View title
+  to View-derived fields and collection tabs like `item.jade`, without
+  `已加载视图定义。`; the unreachable no-object detail placeholder was removed
+  with it. The read-item route still does not query or bind a business data DTO.

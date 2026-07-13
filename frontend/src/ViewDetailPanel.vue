@@ -278,10 +278,6 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
         />
       </label>
     </div>
-    <div v-else-if="!selectedObjectId" class="empty-state compact">
-      {{ schemaOnly ? "已加载视图定义。" : "请从列表选择记录。" }}
-    </div>
-
     <div v-if="!isEditing && (selectedObjectId || schemaOnly)" class="detail-field-grid">
       <div v-for="item in detailRows" :key="fieldKey(item)">
         <span>{{ fieldTitle(item) }}</span>

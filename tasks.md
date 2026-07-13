@@ -1234,6 +1234,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `Group.jade` / `groupview.js` empty-content behavior: keep empty
       Group bodies and unknown child-type tab panels blank instead of inserting
       Vue-only empty-state copy.
+- [x] Remove Vue-only detail initialization copy from `/itemview:id` and the
+      standalone detail panel while preserving View-only schema rendering and
+      avoiding an empty-object data query.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
