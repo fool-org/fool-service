@@ -231,7 +231,6 @@ function tooltipValue(series: LegacyChartSeries) {
             :width="barWidth()"
             :height="barHeight(series, index)"
             :fill="colors[seriesIndex % colors.length]"
-            rx="2"
           />
           <circle
             v-else-if="series.type === 'scatter'"

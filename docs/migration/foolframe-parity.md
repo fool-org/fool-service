@@ -3210,3 +3210,12 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `/view103` retained Group tab switching and rendered a 20px-high line with
   zero Group empty-state elements. At 390px the text remained within
   `48..342` and document overflow stayed false.
+- 2026-07-14: restored ECharts 3.1.7's default square bar corners. The shared
+  SVG renderer no longer applies a Vue-only `rx=2` radius to top-level or
+  compact bars; old `swchartLine.js` supplies no `barBorderRadius`, so the
+  ECharts `BarView` fallback is zero. Docker `/view100` rendered eight 15px
+  bars with no `rx`/`ry`, while `/view103` retained its 100 realtime bar nodes
+  with the same square-corner contract. Desktop and 390px checks had no
+  document overflow or browser warnings. The adjacent endpoint-clipping audit
+  also found that ECharts 3.1.7 does not clip the bar group to the grid, so the
+  existing half-width first/last extension remains correct and unchanged.

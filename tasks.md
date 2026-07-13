@@ -1348,6 +1348,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `groupview.js`'s simple-child presentation: render the legacy
       plain `这是简单项` line at the Group tab's top-left instead of centering it
       in a Vue empty-state surface.
+- [x] Restore ECharts 3.1.7's default square bar corners: remove the Vue-only
+      fixed SVG radius from the shared top-level/Sudoku renderer while keeping
+      View-derived series geometry and responsive width behavior unchanged.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

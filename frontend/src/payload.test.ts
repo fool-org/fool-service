@@ -409,6 +409,7 @@ describe("App defaults", () => {
     expect(legacyChartPanelSource).not.toContain("plotWidth * (index + 0.5) / labelCount.value");
     expect(legacyChartPanelSource).not.toContain("<polyline");
     expect(legacyChartPanelSource).toContain('class="chart-bar"');
+    expect(legacyChartPanelSource).not.toContain('rx="2"');
     expect(legacyChartPanelSource).not.toContain("Math.max(1, Math.abs(y(renderedValue");
     expect(legacyChartPanelSource).toContain("renderedWidth.value = rect.width");
     expect(legacyChartPanelSource).toContain("props.compact ? 28 : 15 * width.value / renderedWidth.value");
