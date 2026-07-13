@@ -474,15 +474,24 @@ label {
 
 .metadata-data-table .p-datatable-thead > tr > th {
   background: #ffffff;
+  border-bottom: 2px solid #dddddd;
   color: #333333;
   font-size: 14px;
+  font-weight: 700;
   letter-spacing: 0;
+  line-height: 1.42857143;
   text-transform: none;
+  vertical-align: bottom;
 }
 
 .metadata-data-table .p-datatable-tbody > tr > td {
+  border-bottom: 0;
+  border-top: 1px solid #dddddd;
+  font-size: 14px;
+  line-height: 1.42857143;
   max-width: 260px;
   overflow-wrap: anywhere;
+  vertical-align: top;
 }
 
 .metadata-data-table .p-datatable-thead > tr > th,

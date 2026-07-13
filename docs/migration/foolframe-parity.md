@@ -2801,3 +2801,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   chart tables retain `.table-condensed`'s exact 5px cell padding; candidate
   and Sudoku List/Group List tables use the default 8px. A shared `condensed`
   prop replaces PrimeVue's previous unconditional small size.
+- 2026-07-13: restored Bootstrap table-cell geometry in the shared renderer.
+  Headers are now 14px bold, 20px high-line, bottom-aligned with a 2px `#ddd`
+  divider; body cells use the same type scale, top alignment, and a 1px `#ddd`
+  top border instead of PrimeVue's centered slate-bordered rows.

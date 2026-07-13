@@ -1139,6 +1139,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore template-specific Bootstrap table density through the shared
       renderer: 5px for condensed normal/chart tables and 8px for candidate
       and Sudoku tables without duplicating markup or data state.
+- [x] Restore Bootstrap table-cell geometry in the shared renderer: 14px/20px
+      typography, bold bottom-aligned headers with 2px `#ddd`, and top-aligned
+      body cells with 1px `#ddd` borders.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
