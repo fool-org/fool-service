@@ -1306,6 +1306,10 @@ item must land with its matching implementation and validation evidence.
       metadata series as a 100-point zero window, append one detail sample per
       refresh, and schedule from detail `AutoFreshTime` without changing the
       list-backed top-level chart.
+- [x] Restore Sudoku partial footer interaction boundaries: keep List and Group
+      List refresh commands active, render linechart/Map refresh copy as the
+      old inert anchors with blank update times, retain linechart's timer, and
+      stop scheduling refreshes for the one-shot Map controller.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

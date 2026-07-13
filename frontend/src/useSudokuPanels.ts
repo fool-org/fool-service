@@ -102,7 +102,12 @@ export function useSudokuPanels(options: SudokuPanelWorkflowOptions) {
     const key = refreshKey(panel);
     const activeTimer = refreshTimers.get(key);
     if (activeTimer !== undefined) window.clearInterval(activeTimer);
-    const refreshSource = sudokuPanelKind(panel) === "linechart" ? result.detail : result.data;
+    const kind = sudokuPanelKind(panel);
+    if (kind === "map") {
+      refreshTimers.delete(key);
+      return;
+    }
+    const refreshSource = kind === "linechart" ? result.detail : result.data;
     const seconds = listAutoFreshTime(refreshSource || undefined);
     if (seconds <= 0) {
       refreshTimers.delete(key);

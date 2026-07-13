@@ -459,7 +459,12 @@ describe("App defaults", () => {
     expect(appSource).toContain("stopSudokuPanelRefresh()");
     expect(viewListPanelSource).toContain("@refresh-panel=\"emit('refreshPanel', $event)\"");
     expect(sudokuPanelsSource).toContain("listFreshTime");
+    expect(sudokuPanelsSource).toContain('sudokuPanelKind(panel) !== "list"');
     expect(sudokuPanelsSource).toContain("emit('refreshPanel', panel)");
+    expect(sudokuPanelsSource).toContain("sudokuPanelManualRefreshable(panel)");
+    expect(sudokuPanelsSource).toContain('class="sudoku-panel-passive-refresh"');
+    expect(sudokuPanelsSource).toContain("<span>更新时间 {{ sudokuPanelFreshTime(panel) }}</span>");
+    expect(sudokuWorkflowSource).toContain('if (kind === "map")');
     expect(sudokuPanelsSource).toContain('class="sudoku-grid"');
     expect(sudokuPanelsSource).toContain("allPanelsReady");
     expect(sudokuPanelsSource).toContain("gridAutoRows: panelHeight || 'auto'");
@@ -485,7 +490,7 @@ describe("App defaults", () => {
     expect(sudokuWorkflowSource).toContain('kind === "item" || kind === "linechart"');
     expect(sudokuWorkflowSource).toContain('postApi<QueryDataDetailResult>("/api/v1/data/querydatadetail"');
     expect(sudokuWorkflowSource).toContain("appendLegacyChartSample");
-    expect(sudokuWorkflowSource).toContain('sudokuPanelKind(panel) === "linechart" ? result.detail : result.data');
+    expect(sudokuWorkflowSource).toContain('kind === "linechart" ? result.detail : result.data');
     expect(sudokuPanelsSource).not.toContain("<meter");
   });
 

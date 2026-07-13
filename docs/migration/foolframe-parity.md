@@ -3093,3 +3093,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   counts with two trailing `1001 / 0.25 / 62500` samples after manual refresh;
   the same chart stayed bounded at 390px and `/view100` retained eight list
   categories.
+- 2026-07-14: restored Sudoku partial footer interaction boundaries from
+  `List.jade`, `linechart.jade`, and `Map.jade`. List and Group List retain
+  their active refresh commands and formatted `querytime`; linechart and Map
+  now show the old blank `更新时间` plus an inert anchor with no click handler.
+  Linechart continues its detail-driven timer, while Map matches its old
+  one-shot controller and no longer schedules list `AutoFreshTime`. Docker
+  `/view103` exposed exactly two real refresh buttons, passive Price Chart and
+  Customer Map text had no link/button role, clicking Price Chart left its
+  100-point tail unchanged, and the passive footer stayed inside a 328px panel
+  with no document overflow at 390px.
