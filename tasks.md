@@ -1190,6 +1190,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore condensed report-condition control geometry: 34px Select/Input
       controls with shared form padding and typography while preserving field,
       comparison, value, grouping, and mobile-scroll behavior.
+- [x] Restore `view.jade`'s report-output Add command: use a right-aligned
+      secondary outlined 34px arrow and keep it visible above the mobile dialog
+      footer without changing output selection or deduplication.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

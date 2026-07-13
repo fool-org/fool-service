@@ -2876,3 +2876,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   Join, field, comparison, state, and text controls now share the migrated 34px,
   6x12px, 14/20px form contract while preserving the old table-like column
   layout, horizontal mobile scrolling, and metadata-driven input switching.
+- 2026-07-13: restored `view.jade`'s report-output Add command hierarchy. The
+  right-arrow remains icon-only and right-aligned but now uses a secondary
+  outlined 34x34 command instead of an invented filled primary action. Mobile
+  output lists use a shorter responsive height so the command stays above the
+  dialog footer; output selection, deduplication, and state remain unchanged.

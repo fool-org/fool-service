@@ -940,6 +940,8 @@ describe("App defaults", () => {
     expect(reportOutputSelectorSource).toContain("候选列");
     expect(reportOutputSelectorSource).toContain("输出方式");
     expect(reportOutputSelectorSource).toContain("已选列");
+    expect(reportOutputSelectorSource).toContain('aria-label="加入已选列" size="small" severity="secondary" outlined');
+    expect(reportOutputSelectorSource).toContain("min-height: 180px");
     expect(reportOutputSelectorSource).toContain("moveOutput");
     expect(reportOutputSelectorSource.match(/class="legacy-button-group-xs"/g)).toHaveLength(2);
     expect(reportOutputSelectorSource).toContain('role="group" aria-label="调整已选列"');

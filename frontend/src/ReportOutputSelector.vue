@@ -103,7 +103,7 @@ function orderLabel(orderType?: string) {
       <select v-model="selectedTypeId" size="10" :disabled="disabled || !selectedCandidate" aria-label="输出方式">
         <option v-for="option in queryTypeOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
       </select>
-      <Button type="button" icon="pi pi-arrow-right" title="加入已选列" aria-label="加入已选列" :disabled="disabled || !selectedCandidate" @click="addOutput" />
+      <Button type="button" icon="pi pi-arrow-right" title="加入已选列" aria-label="加入已选列" size="small" severity="secondary" outlined :disabled="disabled || !selectedCandidate" @click="addOutput" />
     </section>
 
     <section>
@@ -160,6 +160,9 @@ function orderLabel(orderType?: string) {
 
 .report-output-method .p-button {
   justify-self: end;
+  width: 34px;
+  height: 34px;
+  padding: 0;
 }
 
 .report-output-actions {
@@ -172,6 +175,10 @@ function orderLabel(orderType?: string) {
 @media (max-width: 700px) {
   .report-output-selector {
     grid-template-columns: 1fr;
+  }
+
+  .report-output-selector select {
+    min-height: 180px;
   }
 }
 </style>
