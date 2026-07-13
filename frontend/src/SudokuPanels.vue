@@ -114,6 +114,7 @@ watch(allPanelsReady, async (ready) => {
       <div v-if="sudokuPanelKind(panel) === 'list'" class="table-wrap sudoku-panel-body">
         <ListDataTable
           :columns="sudokuPanelColumns(panel)"
+          :condensed="false"
           :disabled="Boolean(disabled)"
           :minimum-rows="5"
           :row-operations="[]"
@@ -149,6 +150,7 @@ watch(allPanelsReady, async (ready) => {
               <div v-if="sudokuPanelListViewType(childPanel) === 0" class="table-wrap sudoku-panel-body">
                 <ListDataTable
                   :columns="sudokuPanelColumns(childPanel)"
+                  :condensed="false"
                   :disabled="Boolean(disabled)"
                   :minimum-rows="5"
                   :row-operations="[]"

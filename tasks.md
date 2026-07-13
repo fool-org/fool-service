@@ -1136,6 +1136,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore template-specific Bootstrap striping: use exact first-row
       `#f9f9f9` stripes for normal/chart/candidate tables and disable striping
       for Sudoku List/Group List through the shared table prop.
+- [x] Restore template-specific Bootstrap table density through the shared
+      renderer: 5px for condensed normal/chart tables and 8px for candidate
+      and Sudoku tables without duplicating markup or data state.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

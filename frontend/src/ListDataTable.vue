@@ -24,6 +24,7 @@ interface RenderedListDataItem extends ListDataItem {
 
 const props = withDefaults(defineProps<{
   columns: TableColumnInfo[];
+  condensed?: boolean;
   defaultActionLabel?: string;
   disabled: boolean;
   minimumRows?: number;
@@ -33,6 +34,7 @@ const props = withDefaults(defineProps<{
   showDefaultAction?: boolean;
   striped?: boolean;
 }>(), {
+  condensed: true,
   defaultActionLabel: "Open",
   minimumRows: 0,
   selectedObjectId: "",
@@ -78,7 +80,7 @@ function tableRowClass(row: RenderedListDataItem) {
     :row-class="tableRowClass"
     scrollable
     :striped-rows="striped"
-    size="small"
+    :size="condensed ? 'small' : undefined"
   >
     <Column v-for="column in columns" :key="columnKey(column)" :header="columnTitle(column)" :style="tableColumnStyle(column)">
       <template #body="{ data: row }">

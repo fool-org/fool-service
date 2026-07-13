@@ -2797,3 +2797,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   chart, and candidate tables now stripe the first row with exact `#f9f9f9`
   and alternate with white, while Sudoku List/Group List tables opt out like
   `includes/List.jade`; one shared `striped` prop avoids separate renderers.
+- 2026-07-13: restored template-specific Bootstrap table density. Normal and
+  chart tables retain `.table-condensed`'s exact 5px cell padding; candidate
+  and Sudoku List/Group List tables use the default 8px. A shared `condensed`
+  prop replaces PrimeVue's previous unconditional small size.

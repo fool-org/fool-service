@@ -485,6 +485,16 @@ label {
   overflow-wrap: anywhere;
 }
 
+.metadata-data-table .p-datatable-thead > tr > th,
+.metadata-data-table .p-datatable-tbody > tr > td {
+  padding: 8px;
+}
+
+.metadata-data-table.p-datatable-sm .p-datatable-thead > tr > th,
+.metadata-data-table.p-datatable-sm .p-datatable-tbody > tr > td {
+  padding: 5px;
+}
+
 .metadata-data-table.p-datatable-striped .p-datatable-tbody > tr.p-row-even {
   background: #f9f9f9;
 }

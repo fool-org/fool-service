@@ -319,6 +319,10 @@ describe("App defaults", () => {
     expect(listDataTableSource).toContain("striped: true");
     expect(listDataTableSource).toContain(':striped-rows="striped"');
     expect(sudokuPanelsSource.match(/:striped="false"/g)).toHaveLength(2);
+    expect(listDataTableSource).toContain("condensed: true");
+    expect(listDataTableSource).toContain(`:size="condensed ? 'small' : undefined"`);
+    expect(sudokuPanelsSource.match(/:condensed="false"/g)).toHaveLength(2);
+    expect(viewDetailPanelSource).toContain(':condensed="false"');
     expect(legacyPaginationSource).toContain("event.page + 1");
     expect(legacyPaginationSource).toContain("<Paginator");
     expect(legacyPaginationSource).toContain('class="record-info"');

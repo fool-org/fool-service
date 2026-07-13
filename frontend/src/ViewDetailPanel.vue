@@ -369,6 +369,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                   <ListDataTable
                     v-if="candidateRows(group).length"
                     :columns="candidateColumns(group)"
+                    :condensed="false"
                     default-action-label="选择"
                     :disabled="pending"
                     :minimum-rows="candidateState(group).pageSize"
