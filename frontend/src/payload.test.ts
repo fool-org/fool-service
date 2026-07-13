@@ -956,6 +956,8 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).not.toContain("pi-object-group");
     expect(viewReportPanelSource).not.toContain("未设置条件，将包含全部记录。");
     expect(viewReportPanelSource).toContain("groupReportConditions");
+    expect(viewReportPanelSource).toContain("reportConditionGroupError");
+    expect(viewReportPanelSource).toContain('aria-label="合并分组" :disabled="pending"');
     expect(viewReportPanelSource).toContain("condition-group-marker");
     expect(viewReportPanelSource).toContain("拆分分组");
     expect(viewReportPanelSource).not.toContain("`G${id}`");

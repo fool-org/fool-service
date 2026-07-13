@@ -2894,3 +2894,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   PrimeIcons `pi-object-group` name was replaced with the installed `pi-list`
   equivalent of old `glyphicon-list`, retaining the existing icon-only label,
   grouping event, availability rule, and condition state.
+- 2026-07-13: restored `mkreport.js`'s condition-merge interaction. The merge
+  command remains available outside request-pending state; one selected row
+  reports `不能合并单个`, gaps/partial groups report `不连续不能合并`, and a
+  valid contiguous selection still groups and clears its checks. Zero selection
+  now reports an explicit message instead of reproducing the old script error.

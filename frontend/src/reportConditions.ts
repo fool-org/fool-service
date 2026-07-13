@@ -20,6 +20,13 @@ export function canGroupReportConditions(conditions: ReportConditionDraft[], sel
   return selectedGroupContext(conditions, selectedIds) !== null;
 }
 
+export function reportConditionGroupError(conditions: ReportConditionDraft[], selectedIds: number[]) {
+  const selectedCount = conditions.filter((condition) => selectedIds.includes(condition.id)).length;
+  if (!selectedCount) return "请选择要合并的条件";
+  if (selectedCount === 1) return "不能合并单个";
+  return selectedGroupContext(conditions, selectedIds) ? "" : "不连续不能合并";
+}
+
 export function groupReportConditions(conditions: ReportConditionDraft[], selectedIds: number[]) {
   const context = selectedGroupContext(conditions, selectedIds);
   if (!context) return conditions;

@@ -24,8 +24,8 @@ import {
 import { buildLegacyListViewRequest, buildMakeReportRequest } from "./payload";
 import {
   buildReportConditionFilter,
-  canGroupReportConditions,
   groupReportConditions,
+  reportConditionGroupError,
   type ReportConditionDraft,
   ungroupReportConditions
 } from "./reportConditions";
@@ -76,7 +76,6 @@ const reportRows = computed(() => reportRowsFromCells(reportGridCells(reportResp
 const resultPage = computed(() => reportGridPage(reportResponse.value?.data, currentPage.value));
 const resultPages = computed(() => reportGridTotalPages(reportResponse.value?.data));
 const conditionsComplete = computed(() => conditions.value.every((condition) => condition.columnId && condition.compareId));
-const canGroupConditions = computed(() => canGroupReportConditions(conditions.value, selectedConditionIds.value));
 const canRun = computed(() => reportCols.value.length > 0 && conditionsComplete.value && !props.pending);
 const filterExp = computed<ReportFilterExp | undefined>(() => buildReportConditionFilter(conditions.value, simpleFilter));
 
@@ -126,6 +125,8 @@ function addCondition() {
 }
 
 function groupSelectedConditions() {
+  statusMessage.value = reportConditionGroupError(conditions.value, selectedConditionIds.value);
+  if (statusMessage.value) return;
   conditions.value = groupReportConditions(conditions.value, selectedConditionIds.value);
   selectedConditionIds.value = [];
 }
@@ -286,7 +287,7 @@ onMounted(() => void loadReportColumns());
                 <Button type="button" icon="pi pi-plus" class="report-condition-icon" size="small" severity="secondary" text title="增加条件" aria-label="增加条件" :disabled="pending || !modelColumns.length" @click="addCondition" />
                 <span aria-hidden="true"></span>
                 <span aria-hidden="true"></span>
-                <Button type="button" icon="pi pi-list" class="report-condition-icon" size="small" severity="secondary" text title="合并分组" aria-label="合并分组" :disabled="pending || !canGroupConditions" @click="groupSelectedConditions" />
+                <Button type="button" icon="pi pi-list" class="report-condition-icon" size="small" severity="secondary" text title="合并分组" aria-label="合并分组" :disabled="pending" @click="groupSelectedConditions" />
                 <strong>与/或</strong>
                 <strong>字段</strong>
                 <strong>运算</strong>

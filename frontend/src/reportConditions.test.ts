@@ -4,6 +4,7 @@ import {
   buildReportConditionFilter,
   canGroupReportConditions,
   groupReportConditions,
+  reportConditionGroupError,
   type ReportConditionDraft,
   ungroupReportConditions
 } from "./reportConditions";
@@ -45,6 +46,14 @@ describe("report condition groups", () => {
     expect(canGroupReportConditions(conditions, [1, 3])).toBe(false);
     const grouped = groupReportConditions(conditions, [1, 2]);
     expect(canGroupReportConditions(grouped, [1, 3])).toBe(false);
+  });
+
+  it("reports legacy merge-selection feedback", () => {
+    expect(reportConditionGroupError(conditions, [])).toBe("请选择要合并的条件");
+    expect(reportConditionGroupError(conditions, [1])).toBe("不能合并单个");
+    expect(reportConditionGroupError(conditions, [1, 3])).toBe("不连续不能合并");
+    expect(reportConditionGroupError(conditions, [1, 2])).toBe("");
+    expect(reportConditionGroupError(groupReportConditions(conditions, [1, 2]), [2, 3])).toBe("不连续不能合并");
   });
 
   it("removes one nested group level", () => {

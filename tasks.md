@@ -1200,6 +1200,9 @@ item must land with its matching implementation and validation evidence.
       and trailing Add row without the Vue-only explanatory empty-state copy.
 - [x] Restore the report-condition merge glyph with the installed `pi-list`
       equivalent of old `glyphicon-list` without changing grouping behavior.
+- [x] Restore `mkreport.js` condition-merge availability and feedback: keep the
+      command actionable, report single/non-contiguous selections, and preserve
+      successful contiguous grouping through the shared condition validator.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
