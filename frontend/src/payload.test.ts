@@ -263,6 +263,7 @@ describe("App defaults", () => {
     expect(appSource).toContain('const candidateViewLoading = computed(() => pendingAction.value === "child-select-view")');
     expect(appSource).toContain(":load-existing-detail-view=\"loadExistingDetailView\"");
     expect(viewDetailPanelSource).toContain("emit('queryExistingDetailItems', group)");
+    expect(viewDetailPanelSource).toContain('@keyup.enter="emit(\'queryExistingDetailItems\', group)"');
     expect(appSource).toContain("async function queryExistingDetailItems(group: QueryDataDetailItemGroup, resetPage = true)");
     expect(appSource).toContain("if (resetPage) setCandidateState(group, { pageIndex: 1 })");
     expect(appSource).toContain("await queryExistingDetailItems(group, false)");

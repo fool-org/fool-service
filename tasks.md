@@ -1109,6 +1109,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Match `detailView.jade`'s exact select-existing initial feedback:
       `记录数未知,请查询` before the first candidate Find, while preserving
       metadata-first loading and queried total counts.
+- [x] Match `detailView.jade`'s candidate form submission: pressing Enter in
+      the select-existing query input runs the same metadata-driven search as
+      the Find button and preserves existing result/paging state.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

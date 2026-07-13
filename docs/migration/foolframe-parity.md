@@ -2758,3 +2758,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   The select-existing dialog now shows `记录数未知,请查询` after its View
   metadata loads and before Find/paging queries any rows; queried states still
   use `共N条记录` through the same shared helper.
+- 2026-07-13: restored `detailView.jade`'s candidate-search Enter submission.
+  The metadata-driven candidate input now sends the same existing query event
+  as its Find button when Enter is pressed, matching the old form's implicit
+  submit behavior without duplicating query or paging state.

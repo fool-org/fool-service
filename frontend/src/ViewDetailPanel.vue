@@ -355,7 +355,12 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                 <div class="inline-fields">
                   <label>
                     查询条件
-                    <InputText :model-value="candidateState(group).keyword" fluid @input="emit('updateCandidateKeyword', group, $event)" />
+                    <InputText
+                      :model-value="candidateState(group).keyword"
+                      fluid
+                      @input="emit('updateCandidateKeyword', group, $event)"
+                      @keyup.enter="emit('queryExistingDetailItems', group)"
+                    />
                   </label>
                   <Button type="button" label="查找" severity="secondary" outlined :disabled="pending" @click="emit('queryExistingDetailItems', group)" />
                 </div>
