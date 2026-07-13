@@ -2886,3 +2886,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   selected output and rely on their existing no-op guards at empty/boundary
   states; sorting now appends `[升序]` / `[降序]` directly with no Vue-only
   space. Request-pending protection and metadata-driven output state remain.
+- 2026-07-13: restored `view.jade`'s empty report-condition structure. The
+  condition tab now shows only its header controls and trailing Add row before
+  any condition exists, removing the Vue-only explanatory empty-state text
+  while preserving both Add entry points and all filter/group state.

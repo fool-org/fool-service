@@ -1196,6 +1196,8 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `mkreport.js` report-output toolbar interaction: keep move,
       remove, and sort commands available at empty/boundary states with no-op
       handlers, and append sort labels without an extra space.
+- [x] Restore `view.jade`'s empty report-condition structure: retain the header
+      and trailing Add row without the Vue-only explanatory empty-state copy.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

@@ -316,7 +316,6 @@ onMounted(() => void loadReportColumns());
                   <span v-else aria-hidden="true"></span>
                 </div>
               </div>
-              <div v-else class="empty-state compact">未设置条件，将包含全部记录。</div>
               <div class="report-condition-footer">
                 <Button type="button" icon="pi pi-plus" class="report-condition-icon" size="small" severity="secondary" text title="增加条件" aria-label="增加条件" :disabled="pending || !modelColumns.length" @click="addCondition" />
               </div>
