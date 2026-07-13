@@ -324,7 +324,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
       <p>{{ operationResult.success ? "操作成功" : "操作失败" }}</p>
       <p>{{ operationResult.message }}</p>
       <template #footer>
-        <Button type="button" label="关闭" severity="secondary" @click="emit('dismissOperationResult')" />
+        <Button type="button" label="确定" severity="secondary" @click="emit('dismissOperationResult')" />
       </template>
     </Dialog>
 

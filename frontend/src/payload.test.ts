@@ -150,6 +150,10 @@ describe("App defaults", () => {
       viewDetailPanelSource.indexOf('class="detail-toolbar"'),
       viewDetailPanelSource.indexOf('class="detail-field-grid detail-field-edit"')
     );
+    const operationDialogSource = viewDetailPanelSource.slice(
+      viewDetailPanelSource.indexOf('v-if="operationResult"'),
+      viewDetailPanelSource.indexOf('class="view-items-panel"')
+    );
 
     expect(appSource).toContain("dataOperations(detailResponse.value?.data)");
     expect(appSource).toContain("detailViewOperations");
@@ -175,6 +179,8 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain('operationResult.success ? "操作成功" : "操作失败"');
     expect(viewDetailPanelSource).toContain("emit('dismissOperationResult')");
     expect(viewDetailPanelSource).not.toContain("<Message v-if=\"operationResult\"");
+    expect(operationDialogSource).toContain('label="确定"');
+    expect(operationDialogSource).not.toContain('label="关闭"');
     expect(toolbarSource.match(/icon="pi pi-check"/g)).toHaveLength(2);
     expect(toolbarSource).not.toContain('icon="pi pi-save"');
     expect(toolbarSource).not.toContain('icon="pi pi-bolt"');

@@ -978,7 +978,7 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore the old detail-page error dialog outlet so edit guards, validation
       failures, and detail API errors are visible and explicitly dismissible.
 - [x] Restore `operation.js` result feedback as an `执行结果` modal with the
-      old `操作成功`/`操作失败` summary, return message, and explicit close.
+      old `操作成功`/`操作失败` summary, return message, and `确定` command.
 - [x] Restore `operation.js` response timing by showing the result immediately;
       remove Vue-only success refreshes of both list and detail data.
 - [x] Restore `detailview.js` child-delete staging: hide deleted rows locally,

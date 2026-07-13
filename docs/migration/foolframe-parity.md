@@ -168,7 +168,7 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-12: restored `operation.js`/`showdetailinfo` result interaction.
   Completed business operations now open an `执行结果` modal with the old
   `操作成功`/`操作失败` summary and return message, replacing the Vue-only
-  inline Message. Closing the modal clears the existing result state.
+  inline Message. Its old `确定` command clears the existing result state.
 - 2026-07-12: restored legacy operation-result timing. Vue no longer waits for
   extra list and detail queries after a successful operation; like
   `operation.js`, it presents the response immediately and leaves refresh to the
