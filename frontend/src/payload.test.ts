@@ -1017,6 +1017,8 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).toContain("<strong>运算</strong>");
     expect(viewReportPanelSource).toContain("<strong>值</strong>");
     expect(viewReportPanelSource).toContain('class="report-condition-footer"');
+    expect(viewReportPanelSource).not.toContain("pending || !modelColumns.length");
+    expect(viewReportPanelSource.match(/aria-label="增加条件" :disabled="pending"/g)).toHaveLength(2);
     expect(viewReportPanelSource).not.toContain(' label="合并分组"');
     expect(viewReportPanelSource).not.toContain(' label="增加条件"');
     expect(reportConditionsSource).toContain("buildReportConditionFilter");

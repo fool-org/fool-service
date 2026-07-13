@@ -299,7 +299,7 @@ onMounted(() => void loadReportColumns());
           <section class="report-section">
             <div class="report-condition-editor">
               <div class="report-condition-header">
-                <Button type="button" icon="pi pi-plus" class="report-condition-icon" size="small" severity="secondary" text title="增加条件" aria-label="增加条件" :disabled="pending || !modelColumns.length" @click="addCondition" />
+                <Button type="button" icon="pi pi-plus" class="report-condition-icon" size="small" severity="secondary" text title="增加条件" aria-label="增加条件" :disabled="pending" @click="addCondition" />
                 <span aria-hidden="true"></span>
                 <span aria-hidden="true"></span>
                 <Button type="button" icon="pi pi-list" class="report-condition-icon" size="small" severity="secondary" text title="合并分组" aria-label="合并分组" :disabled="pending" @click="groupSelectedConditions" />
@@ -341,7 +341,7 @@ onMounted(() => void loadReportColumns());
                 </div>
               </div>
               <div class="report-condition-footer">
-                <Button type="button" icon="pi pi-plus" class="report-condition-icon" size="small" severity="secondary" text title="增加条件" aria-label="增加条件" :disabled="pending || !modelColumns.length" @click="addCondition" />
+                <Button type="button" icon="pi pi-plus" class="report-condition-icon" size="small" severity="secondary" text title="增加条件" aria-label="增加条件" :disabled="pending" @click="addCondition" />
               </div>
             </div>
           </section>

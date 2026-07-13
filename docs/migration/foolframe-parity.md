@@ -3011,3 +3011,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   no candidate column is selected, matching the old unconditional controls and
   relying on the existing `addOutput` no-op guard. Request-pending protection,
   duplicate-output handling, and View-derived report metadata remain unchanged.
+- 2026-07-14: restored `view.jade` / `mkreport.js` report-condition Add-command
+  availability. Both header and trailing Add buttons now remain actionable when
+  the loaded View has zero report fields, matching the old controls and creating
+  one empty condition row through the existing draft builder. Request-pending
+  protection and View-derived field options remain unchanged.

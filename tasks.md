@@ -1266,6 +1266,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `view.jade` / `mkreport.js` report-output control availability:
       keep the output-method list and Add arrow actionable without a selected
       candidate while retaining the existing no-op and duplicate guards.
+- [x] Restore `view.jade` / `mkreport.js` report-condition Add availability:
+      keep both Add commands actionable with zero View fields and create one
+      empty condition row through the existing View-driven editor.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
