@@ -2914,3 +2914,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   replacing them with the invented `暂无报表数据。` message. A zero-match Docker
   report retains only the protocol-supplied column heading, matching the old
   `mkreport.js` row-clear-and-append flow.
+- 2026-07-14: restored `detailView.jade`'s empty child-collection rendering.
+  A defined child group with zero visible rows now retains its tab and table
+  heading without the Vue-only `暂无子项。` row, while a detail View with no
+  child-group metadata renders no empty collection panel. Existing staged
+  delete behavior and parent-save persistence remain unchanged.

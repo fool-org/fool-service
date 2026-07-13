@@ -336,8 +336,8 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
       </template>
     </Dialog>
 
-    <div v-if="selectedObjectId || (schemaOnly && detailItemGroups.length)" class="view-items-panel">
-      <Tabs v-if="detailItemGroups.length" v-model:value="activeGroupKey" class="detail-collection-tabs legacy-tabs">
+    <div v-if="detailItemGroups.length && (selectedObjectId || schemaOnly)" class="view-items-panel">
+      <Tabs v-model:value="activeGroupKey" class="detail-collection-tabs legacy-tabs">
         <TabList scrollable>
           <Tab v-for="group in detailItemGroups" :key="groupKey(group)" :value="groupKey(group)">
             {{ groupTitle(group) }}
@@ -459,16 +459,12 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                       </a>
                     </td>
                   </tr>
-                  <tr v-if="!groupItems(group).length">
-                    <td :colspan="groupColumns(group).length + childActionColumnCount(group)">暂无子项。</td>
-                  </tr>
                 </tbody>
               </table>
             </div>
           </TabPanel>
         </TabPanels>
       </Tabs>
-      <div v-else class="empty-state compact">暂无子项。</div>
     </div>
   </article>
 </template>

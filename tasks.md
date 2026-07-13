@@ -1210,6 +1210,9 @@ item must land with its matching implementation and validation evidence.
       duplicating grouping or filter state.
 - [x] Restore `view.jade`'s fixed report-result table for zero data: retain the
       empty table body and remove the Vue-only empty-state sentence.
+- [x] Restore `detailView.jade`'s empty child-collection rendering: retain the
+      metadata-defined tab and heading-only table after staged row removal,
+      remove the Vue-only empty copy, and omit the panel when no group exists.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

@@ -250,10 +250,12 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain('<th v-for="field in groupColumns(group)"');
     expect(viewDetailPanelSource).toContain('<th :colspan="schemaOnly ? 1 : childActionColumnCount(group)">操作</th>');
     expect(viewDetailPanelSource).toContain('<tbody v-if="!schemaOnly">');
-    expect(viewDetailPanelSource).toContain(':colspan="groupColumns(group).length + childActionColumnCount(group)"');
     expect(viewDetailPanelSource).not.toContain('class="detail-item-actions"');
     expect(viewDetailPanelSource).toContain('<tr v-for="item in groupItems(group)"');
     expect(viewDetailPanelSource).not.toContain("<span>{{ groupItems(group).length }}</span>");
+    expect(viewDetailPanelSource).toContain('v-if="detailItemGroups.length && (selectedObjectId || schemaOnly)" class="view-items-panel"');
+    expect(viewDetailPanelSource).not.toContain('v-if="!groupItems(group).length"');
+    expect(viewDetailPanelSource).not.toContain("暂无子项。");
   });
 
   it("opens select-from-existing collection candidates in the legacy modal flow", () => {
@@ -269,7 +271,7 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).not.toContain("item-add-row");
     expect(viewDetailPanelSource).not.toContain("newChildDraftValue");
     expect(viewDetailPanelSource).toContain("if (props.isCreatingObject)");
-    expect(viewDetailPanelSource).toContain('v-if="selectedObjectId || (schemaOnly && detailItemGroups.length)" class="view-items-panel"');
+    expect(viewDetailPanelSource).toContain('v-if="detailItemGroups.length && (selectedObjectId || schemaOnly)" class="view-items-panel"');
     expect(viewDetailPanelSource).not.toContain('selectedObjectId && !isCreatingObject');
     expect(viewDetailPanelSource).toContain('header="操作提示"');
     expect(viewDetailPanelSource).toContain("<p>操作成功</p>");
@@ -583,7 +585,7 @@ describe("App defaults", () => {
 
   it("renders child group labels and rows through shared group helpers", () => {
     expect(viewDetailPanelSource).toContain("groupTitle(group)");
-    expect(viewDetailPanelSource).toContain("groupItems(group).length");
+    expect(viewDetailPanelSource).not.toContain("groupItems(group).length");
     expect(viewDetailPanelSource).toContain("v-for=\"item in groupItems(group)\"");
     expect(viewDetailPanelSource).toContain("itemDataId(item)");
     expect(viewDetailPanelSource).not.toContain("group.itemName");
@@ -817,7 +819,7 @@ describe("App defaults", () => {
     expect(itemViewSource).not.toContain("querydatadetail");
     expect(appSource).toContain(':schema-only="isMetadataOnlyView"');
     expect(viewDetailPanelSource).toContain("已加载视图定义。");
-    expect(viewDetailPanelSource).toContain('v-if="selectedObjectId || (schemaOnly && detailItemGroups.length)"');
+    expect(viewDetailPanelSource).toContain('v-if="detailItemGroups.length && (selectedObjectId || schemaOnly)"');
     expect(viewDetailPanelSource).toContain('v-if="!schemaOnly" class="detail-collection-toolbar legacy-button-group"');
     expect(viewDetailPanelSource).toContain(':colspan="schemaOnly ? 1 : childActionColumnCount(group)"');
     expect(viewDetailPanelSource).toContain('<tbody v-if="!schemaOnly">');
