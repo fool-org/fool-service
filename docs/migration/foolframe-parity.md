@@ -3026,3 +3026,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   hides setup while `mkrpt` runs before reopening the same surface as the report
   result. Failed requests still restore the setup dialog with Vue's existing
   error feedback, while report columns and request payloads remain View-driven.
+- 2026-07-14: restored `mkreport.js`'s selected-output stability. Adding the
+  first report output selects the first list option, while later additions keep
+  the user's current selected output instead of jumping to the appended item.
+  Duplicate additions remain no-ops and now also preserve selection, so the
+  subsequent move, delete, and sort commands target the same row as old Web.

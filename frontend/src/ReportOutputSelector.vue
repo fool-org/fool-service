@@ -57,11 +57,11 @@ function chooseCandidate() {
 
 function addOutput() {
   if (!selectedCandidate.value) return;
+  const hadOutputs = outputs.value.length > 0;
   const next = addReportOutput(outputs.value, selectedCandidate.value, selectedTypeId.value);
+  if (next === outputs.value) return;
   outputs.value = next;
-  const selectedColumnId = reportModelColumnId(selectedCandidate.value);
-  const index = next.findIndex((output) => output.colId === selectedColumnId && output.selectedTypeId === selectedTypeId.value);
-  selectedOutputIndex.value = index >= 0 ? index : null;
+  if (!hadOutputs) selectedOutputIndex.value = 0;
 }
 
 function moveOutput(offset: number) {

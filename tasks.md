@@ -1274,6 +1274,8 @@ item must land with its matching implementation and validation evidence.
       View-backed child navigation in the shared desktop/mobile component.
 - [x] Restore `mkreport.js` dialog timing: wait for report View metadata before
       opening setup, then hide setup while generating and reopen with results.
+- [x] Restore `mkreport.js` output-selection stability: select the first added
+      output once, then preserve the current selection on later/duplicate adds.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
