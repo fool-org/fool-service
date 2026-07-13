@@ -1768,9 +1768,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-04: Vue list rows now keep `RequireSelect=true` operations even
   when the operation `ViewId` is `0`. This matches FoolFrame
   `querylistdata.js`, which still renders the operation name for the row but
-  does not attach a `setselect(...)` target. Vue shows those metadata actions
-  as disabled buttons, so the rendered page reflects the View metadata without
-  inventing a concrete business DTO action or a fake detail View transition.
+  does not attach a `setselect(...)` target. Vue renders those metadata actions
+  as inert text without a button role or handler, so the page reflects the View
+  metadata without inventing a concrete DTO action or fake detail transition.
 - 2026-07-04: Vue list rows now render `RequireSelect=true` operations that
   have a target `ViewId`, matching FoolFrame `querylistdata.js`, which calls
   `setselect(operation.ViewId, row.Id, rowIndex)` for row-level operation
@@ -3158,3 +3158,11 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   so Docker verification covered regressions: `/view103` retained 100 bars,
   two legends, and Price y=`66.49981`; `/view100` retained eight bars and two
   legends. The compact pane remained within `31..359` at 390px with no overflow.
+- 2026-07-14: restored `querylistdata.js`'s non-target row-operation
+  presentation. `RequireSelect=true` operations whose metadata `ViewId` is
+  zero now remain visible as inert Bootstrap-link-colored text, with no button
+  role or selection handler, instead of Vue-only disabled buttons. Operations
+  with a target View retain the existing shared navigation button. Docker
+  `/view100` showed all 16 seeded `删除` / `保存` names across eight rows with
+  zero table-action buttons and computed `#337ab7` color; at 390px the table
+  pane stayed 328px wide and document scroll width remained exactly 390px.

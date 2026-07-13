@@ -97,17 +97,19 @@ function tableRowClass(row: RenderedListDataItem) {
     >
       <template #body="{ data: row }">
         <div v-if="!isFiller(row)" class="table-actions">
-          <Button
-            v-for="operation in rowOperations"
-            :key="operationKey(operation)"
-            type="button"
-            :disabled="disabled || operationTargetViewId(operation) <= 0"
-            :label="operationLabel(operation)"
-            size="small"
-            severity="secondary"
-            text
-            @click="emit('select', row, operationTargetViewId(operation))"
-          />
+          <template v-for="operation in rowOperations" :key="operationKey(operation)">
+            <Button
+              v-if="operationTargetViewId(operation) > 0"
+              type="button"
+              :disabled="disabled"
+              :label="operationLabel(operation)"
+              size="small"
+              severity="secondary"
+              text
+              @click="emit('select', row, operationTargetViewId(operation))"
+            />
+            <span v-else class="legacy-inert-operation">{{ operationLabel(operation) }}</span>
+          </template>
           <Button
             v-if="showDefaultAction"
             type="button"

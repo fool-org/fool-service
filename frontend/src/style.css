@@ -718,6 +718,14 @@ label {
   align-items: center;
 }
 
+.legacy-inert-operation {
+  color: #337ab7;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  padding: 5px 10px;
+  white-space: nowrap;
+}
+
 .sudoku-grid {
   display: grid;
   gap: 12px;

@@ -432,8 +432,8 @@ item must land with its matching implementation and validation evidence.
       `ViewId` for the Vue `initnew` / `savenewobj` flow.
 - [x] Render list row operations with target `ViewId` and keep selected detail
       load/save/lookup/operation execution bound to the active detail View.
-- [x] Render list row operations without a target `ViewId` as disabled
-      metadata actions instead of dropping them from the View-rendered page.
+- [x] Render list row operations without a target `ViewId` as inert metadata
+      text without a button role or selection handler, matching old Web.
 - [x] Render View workflow paging controls from legacy `querydata` totals and
       keep page navigation on the loaded `ViewId`.
 - [x] Reset the main View workflow search/load action to page 1 before
@@ -1330,6 +1330,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `swchartLine.js` stack ids across both chart paths: use each
       View-derived metadata name for top-level stacks, retain realtime `a`,
       group matching bar slots, and collapse duplicate legend names.
+- [x] Restore `querylistdata.js` non-target row-operation presentation: keep
+      metadata names visible as inert link-colored text without disabled button
+      semantics, while target View operations retain navigation buttons.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

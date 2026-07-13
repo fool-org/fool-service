@@ -319,7 +319,9 @@ describe("App defaults", () => {
     expect(viewListPanelSource).toContain(':row-operations="rowItems"');
     expect(listDataTableSource).toContain("rowOperations");
     expect(listDataTableSource).toContain("emit('select', row, operationTargetViewId(operation))");
-    expect(listDataTableSource).toContain("operationTargetViewId(operation) <= 0");
+    expect(listDataTableSource).toContain('v-if="operationTargetViewId(operation) > 0"');
+    expect(listDataTableSource).toContain('v-else class="legacy-inert-operation"');
+    expect(listDataTableSource).not.toContain("disabled || operationTargetViewId(operation) <= 0");
   });
 
   it("initializes child add drafts as soon as read-item View metadata loads", () => {
