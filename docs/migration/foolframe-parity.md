@@ -3301,3 +3301,14 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   overflow, and empty browser logs. Both metadata tables were restored to
   Price `EditType=12`; the default page again rendered eight bars, one line,
   and zero scatter marks.
+- 2026-07-14: restored ECharts 3.1.7's line-area opacity. Both old
+  `swchartLine.js` branches enable `areaStyle.normal` without an opacity
+  override, and `LineView.js` assigns the resulting polygon `opacity = 0.7`.
+  The shared Vue renderer now uses 0.7 instead of its invented 0.2 while
+  retaining the View-derived series color. Docker `/view100` changed the one
+  Price area from computed `0.2` to `0.7` with fill `#2f4554`; desktop retained
+  its 414px chart and eight labels, while 390x844 retained 470px, two labels,
+  legend hide/show, no overflow, and empty browser logs. The container and
+  browser both loaded the rebuilt `index-Ct6fVG-u.css` asset; a cache-busting
+  query was used after the existing browser tab initially reused the prior
+  hashed stylesheet.

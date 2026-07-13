@@ -1372,6 +1372,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore ECharts 3.1.7 item hover targets: keep the axis-tooltip hit
       surface below bar/scatter graphics, route plot movement through the
       shared SVG, and apply the old direct item emphasis without losing tooltip.
+- [x] Restore ECharts 3.1.7 line-area opacity: use the old `LineView` 0.7
+      default for both View-backed chart entrypoints while retaining series
+      color, legend selection, and responsive geometry.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

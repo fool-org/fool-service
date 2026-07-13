@@ -77,6 +77,12 @@ describe("shared chart styles", () => {
     expect(chartSource).not.toContain('r="6"');
   });
 
+  it("matches the ECharts line-area opacity", () => {
+    expect(styleSource).toContain(`.chart-line-area {
+  opacity: 0.7;
+}`);
+  });
+
   it("keeps chart items above the axis tooltip hit surface", () => {
     expect(chartSource).toContain('@mousemove="showAxisTooltip"');
     expect(chartSource).toContain('@mouseleave="hideAxisTooltip"');
