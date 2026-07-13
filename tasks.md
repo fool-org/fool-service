@@ -1336,6 +1336,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `mapview.js`'s async marker lifecycle: redraw the shared Leaflet
       marker layer when child View data arrives and bind popups only when the
       View-derived title or information fields exist.
+- [x] Restore `mapview.js` info-window geometry: keep a 240x100 View-derived
+      popup body and group metadata details two items per row across desktop
+      and mobile map panels.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

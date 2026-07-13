@@ -56,7 +56,9 @@ function renderMarkers() {
       radius: 8,
       weight: 2
     }).addTo(markerLayer);
-    if (marker.title || marker.info.length) layer.bindPopup(markerPopup(marker));
+    if (marker.title || marker.info.length) {
+      layer.bindPopup(markerPopup(marker), { minWidth: 240, maxWidth: 240 });
+    }
   }
 
   const bounds = leafletApi.latLngBounds(points.map(({ latitude, longitude }) => [latitude, longitude]));
@@ -67,12 +69,17 @@ function renderMarkers() {
 
 function markerPopup(marker: LegacyMapMarker) {
   const content = document.createElement("div");
+  content.className = "legacy-map-popup";
   const title = document.createElement("strong");
   title.textContent = markerName(marker);
   content.append(title);
-  for (const item of marker.info) {
-    const row = document.createElement("div");
-    row.textContent = `${item.label}: ${item.text}`;
+  for (let index = 0; index < marker.info.length; index += 2) {
+    const row = document.createElement("p");
+    for (const item of marker.info.slice(index, index + 2)) {
+      const detail = document.createElement("span");
+      detail.textContent = `${item.label}:${item.text}`;
+      row.append(detail);
+    }
     content.append(row);
   }
   return content;

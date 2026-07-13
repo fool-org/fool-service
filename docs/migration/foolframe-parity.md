@@ -3176,3 +3176,11 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   marker paths. The rebuilt Docker page rendered two actual paths, and both
   seeded popups showed their View-derived customer name and id. At 390px the
   same two markers remained visible in a 328px map with no document overflow.
+- 2026-07-14: restored `mapview.js`'s info-window geometry and detail grouping.
+  Leaflet popups now use the old 240px content width and fixed 100px content
+  height, with View-derived information items grouped two per paragraph row
+  instead of one Vue-only row per field. Popup content remains DOM-built and
+  escaped, and the shared component still supplies title fallback and popup
+  eligibility. Docker `/view103` measured a 241x100 content box after browser
+  rounding and a 287px outer popup; at 390px that popup stayed within
+  coordinates `66..353` with no document overflow.

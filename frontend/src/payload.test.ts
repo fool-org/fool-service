@@ -515,7 +515,10 @@ describe("App defaults", () => {
     expect(legacyMapPanelSource).toContain("markerLayer.clearLayers()");
     expect(legacyMapPanelSource).toContain("map.setView([39.94917, 116.32], 18)");
     expect(legacyMapPanelSource).toContain("leafletApi.circleMarker");
-    expect(legacyMapPanelSource).toContain("if (marker.title || marker.info.length) layer.bindPopup(markerPopup(marker))");
+    expect(legacyMapPanelSource).toContain("if (marker.title || marker.info.length) {");
+    expect(legacyMapPanelSource).toContain("{ minWidth: 240, maxWidth: 240 }");
+    expect(legacyMapPanelSource).toContain('content.className = "legacy-map-popup"');
+    expect(legacyMapPanelSource).toContain("index += 2");
     expect(legacyMapPanelSource).toContain("map.fitBounds");
     expect(legacyMapPanelSource).toContain("title.textContent");
     expect(legacyMapPanelSource).toContain("marker.info[0]");

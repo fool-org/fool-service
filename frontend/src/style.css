@@ -782,6 +782,22 @@ label {
   z-index: 0;
 }
 
+.legacy-map-popup {
+  height: 100px;
+  overflow: auto;
+}
+
+.legacy-map-popup strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.legacy-map-popup p {
+  display: flex;
+  gap: 4px 12px;
+  margin: 0 0 4px;
+}
+
 .legacy-pagination {
   display: grid;
   justify-items: start;
