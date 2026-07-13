@@ -788,6 +788,7 @@ export interface LegacyChartSeries {
 }
 
 export interface LegacyChartData {
+  axisName: string;
   labels: string[];
   series: LegacyChartSeries[];
 }
@@ -805,14 +806,16 @@ export interface LegacyMapMarker {
 }
 
 export function legacyChartData(rows: ListDataItem[]): LegacyChartData {
+  let axisName = "";
   const labels: string[] = [];
   const series: LegacyChartSeries[] = [];
 
-  for (const row of rows) {
+  for (const [rowIndex, row] of rows.entries()) {
     let seriesIndex = 0;
     for (const item of rowItems(row)) {
       const editType = String(item.editType ?? item.EditType ?? "").toLowerCase();
       if (editType === "11" || editType === "chartaxis") {
+        if (rowIndex === 0) axisName = firstDisplayValue([item.prpShowName, item.PrpShowName]);
         labels.push(firstDisplayValue([item.fmtValue, item.FmtValue]));
         continue;
       }
@@ -835,7 +838,7 @@ export function legacyChartData(rows: ListDataItem[]): LegacyChartData {
     }
   }
 
-  return { labels, series };
+  return { axisName, labels, series };
 }
 
 export function legacyMapMarkers(rows: ListDataItem[]): LegacyMapMarker[] {

@@ -3042,3 +3042,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   tooltips and all line/bar/scatter values use the old visible label behavior.
   Top-level `viewWithChart` and Sudoku linechart panels reuse the same renderer;
   no chart dependency, business DTO branch, or duplicated panel was added.
+- 2026-07-14: restored `swchartLine.js`'s metadata horizontal-axis name. The
+  first result row's `EditType=11` field label now becomes shared chart
+  `axisName` and renders at the end of the horizontal axis, while its per-row
+  formatted values remain the category labels. Top-level and Sudoku charts use
+  the same projection and renderer without a business-field fallback.

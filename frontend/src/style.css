@@ -874,7 +874,8 @@ label {
 }
 
 .chart-grid-line text,
-.chart-axis-label {
+.chart-axis-label,
+.chart-axis-name {
   fill: #64748b;
   font-size: 11px;
 }

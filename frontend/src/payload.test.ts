@@ -399,6 +399,7 @@ describe("App defaults", () => {
     expect(legacyChartPanelSource).toContain('class="chart-line"');
     expect(legacyChartPanelSource).toContain('class="chart-line-hit"');
     expect(legacyChartPanelSource).toContain('class="chart-value-label"');
+    expect(legacyChartPanelSource).toContain('v-if="data.axisName" class="chart-axis-name"');
     expect(legacyChartPanelSource).not.toContain("<polyline");
     expect(legacyChartPanelSource).toContain("<rect");
     expect(legacyChartPanelSource).toContain("<circle");

@@ -125,6 +125,7 @@ function seriesName(series: LegacyChartSeries, index: number) {
       </g>
       <line class="chart-axis" :x1="plot.left" :x2="plot.left" :y1="plot.top" :y2="height - plot.bottom" />
       <line class="chart-axis" :x1="plot.left" :x2="width - plot.right" :y1="y(0)" :y2="y(0)" />
+      <text v-if="data.axisName" class="chart-axis-name" :x="width - plot.right" :y="y(0) + 16" text-anchor="end">{{ data.axisName }}</text>
       <g v-for="(_, index) in labelCount" :key="index">
         <text v-if="index < data.labels.length && showLabel(index)" class="chart-axis-label" :x="x(index)" :y="height - 18" text-anchor="middle">
           {{ label(index) }}

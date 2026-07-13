@@ -1281,6 +1281,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `swchartLine.js` series presentation in the shared chart renderer:
       smooth and fill line series, hide their point symbols, retain point
       tooltips, and show the metadata-series value labels.
+- [x] Restore `swchartLine.js` horizontal-axis naming: carry the first row's
+      `EditType=11` View field name through shared chart data and render it at
+      the axis end in top-level and Sudoku charts.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

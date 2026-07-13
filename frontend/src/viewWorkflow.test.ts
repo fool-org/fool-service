@@ -279,6 +279,7 @@ describe("view workflow helpers", () => {
         ]
       }
     ])).toEqual({
+      axisName: "Day",
       labels: ["Mon", "Tue"],
       series: [
         { name: "Orders", type: "line", values: [7, 9] },
@@ -286,6 +287,7 @@ describe("view workflow helpers", () => {
       ]
     });
     expect(legacyChartData([{ Items: [{ PrpShowName: "DTO", FmtValue: "5", EditType: 0 }] }])).toEqual({
+      axisName: "",
       labels: [],
       series: []
     });
