@@ -1317,6 +1317,9 @@ item must land with its matching implementation and validation evidence.
       `boundaryGap: [0, '50%']`: expand the upper bound from the raw data span
       before crossing zero, retain legend-filtered ranges, and preserve the
       empty/all-hidden `0..1` fallback through shared tested geometry.
+- [x] Restore ECharts 3.1.7 value-axis nicifying after the boundary gap: choose
+      the old 1/2/3/5/10 decimal interval, round extents outward, and render the
+      resulting variable tick count across top-level and compact charts.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

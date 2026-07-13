@@ -3120,3 +3120,11 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   Amount-only `0..0.375` range and all-hidden mode remained `0..1` without a
   pointer or tooltip. The compact chart and top tick stayed bounded at 390px.
   ECharts interval nicifying remains a separate axis-parity step.
+- 2026-07-14: completed the next ECharts 3.1.7 value-axis step by restoring
+  `niceTicks` / `niceExtent` interval selection. Shared chart geometry now uses
+  the old 1/2/3/5/10 decimal thresholds, rounds the boundary-expanded extent
+  outward, and emits the resulting variable tick count. Seeded Price renders
+  six `0..100,000` ticks at `20,000` intervals in both `/view103` and
+  `/view100`; Amount-only renders `0..0.4` at `0.1`, and all-hidden renders six
+  `0..1` ticks at `0.2`. All six mobile labels remained inside the 328px pane
+  with no document overflow.
