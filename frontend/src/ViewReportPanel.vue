@@ -293,8 +293,7 @@ onMounted(() => void loadReportColumns());
       <TabPanels>
         <TabPanel value="output">
           <section class="report-section">
-            <ReportOutputSelector v-if="modelColumns.length" v-model="reportCols" :columns="modelColumns" :disabled="pending" />
-            <div v-else class="empty-state compact">暂无报表字段。</div>
+            <ReportOutputSelector v-model="reportCols" :columns="modelColumns" :disabled="pending" />
           </section>
         </TabPanel>
 

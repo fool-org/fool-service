@@ -23,7 +23,8 @@ const candidateOptions = computed(() => props.columns.map((column) => ({
 })));
 const selectedCandidate = computed(() => props.columns.find((column) => columnKey(column) === candidateKey.value));
 const queryTypeOptions = computed(() => {
-  const options = reportModelQueryTypes(selectedCandidate.value || {}).map((option) => ({
+  if (!selectedCandidate.value) return [];
+  const options = reportModelQueryTypes(selectedCandidate.value).map((option) => ({
     label: reportModelOptionName(option),
     value: reportModelOptionId(option)
   }));

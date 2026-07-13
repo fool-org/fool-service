@@ -1216,6 +1216,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `querylistdata.js`'s zero-result candidate table: mount the
       shared metadata table after the first query even with no matches, retain
       ten filler rows and record count, and remove the Vue-only empty sentence.
+- [x] Restore `view.jade`'s zero-field report-output structure: retain all three
+      metadata selection controls, remove the Vue-only empty sentence, and do
+      not invent an output type before a candidate column exists.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
