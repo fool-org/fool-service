@@ -66,13 +66,15 @@ public class DataQueryServiceRunOperationTest {
     }
 
     @Test
-    public void runLegacyUpdateOperationSavesObjectAndReturnsSuccessMessage() {
+    public void runLegacyUpdateOperationTreatsZeroArgModelAsUnset() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
         ViewDataService viewDataService = mock(ViewDataService.class);
         DataQueryService service = service(daoService, modelDataService, viewDataService);
         Model model = model();
-        View view = view(operation(7002L, OperationBaseType.UPDATE, "保存成功"));
+        ViewOperation operation = operation(7002L, OperationBaseType.UPDATE, "保存成功");
+        operation.getOperation().setArgModelId(0L);
+        View view = view(operation);
         DbMysqlDynamic data = new DbMysqlDynamic(model);
         data.set("orderId", "1001");
         when(viewDataService.getViewData("100", null)).thenReturn(view);
@@ -83,6 +85,7 @@ public class DataQueryServiceRunOperationTest {
         LegacyRunOperationResult result = service.runLegacyOperation(request("1001", 100L, 7002L));
 
         verify(modelDataService).saveData(data);
+        verify(modelDataService, never()).getModel("0");
         assertTrue(result.isSuccess());
         assertEquals("保存成功", result.getReturnMsg());
     }

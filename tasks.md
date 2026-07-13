@@ -1079,6 +1079,9 @@ item must land with its matching implementation and validation evidence.
       View-first Vue workflow; preserve Sudoku row data when list/chart/item
       panels share a View id and keep both mobile shell navigation controls
       inside the 390px viewport.
+- [x] Treat legacy zero argument-model IDs as unset for same-model operations;
+      prove the seeded detail Save reaches its update path, returns the old
+      success result dialog, and leaves the idempotent target row unchanged.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

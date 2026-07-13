@@ -118,6 +118,15 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-13: fixed same-model operation execution when nullable legacy
+  `ArgModel` metadata is hydrated as `0`. `DataQueryService` now treats only a
+  positive argument-model id as a cross-model operation, so the seeded detail
+  `保存` command reaches its normal update path and returns `保存成功`. An
+  authenticated browser replay on `/view100/1002` verified the old `执行结果`
+  success dialog and `确定` dismissal; a full-row database snapshot was
+  identical before and after the idempotent save. The same replay clicked the
+  `Orders List` Sudoku refresh, advanced `FreshTime`, retained five rows and
+  stayed on `/view103`, with no browser console errors.
 - 2026-07-12: returned `getnotify` to a protocol-only compatibility surface.
   The old Web never calls it and `DataService.GetNotify` throws
   `NotImplementedException`, so Vue no longer polls it or renders invented menu
@@ -289,8 +298,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `useSudokuPanels.ts` composable owns loading, merging, and timers, reducing
   `App.vue` from 1153 to 1057 lines. All 132 frontend
   tests, TypeScript/Vite and Compose frontend builds, deployed runtime doctor,
-  and repository harness pass. Visible refresh clicking remains in final
-  authenticated browser acceptance.
+  and repository harness pass. Authenticated browser acceptance on 2026-07-13
+  clicked the `Orders List` refresh, advanced its timestamp from `11:05:45` to
+  `11:06:13`, preserved five rows, and kept the `/view103` route.
 - 2026-07-12: restored `querylistdata.js` local `FreshTime` presentation. The
   shared Vue View helper now formats current ISO timestamps and legacy
   `/Date(...)/`-style values through the browser locale for main and Sudoku
@@ -356,8 +366,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   `ReturnObjId` remain protocol aliases rather than invented navigation because
   the old Web operation client does not use them. All 132 frontend tests, the
   TypeScript/Vite and Compose frontend builds, deployed runtime doctor, and
-  repository harness pass. Visible message replay remains in final
-  authenticated browser acceptance.
+  repository harness pass. Authenticated browser acceptance on 2026-07-13
+  replayed the seeded detail `保存` command, observed `操作成功` / `保存成功`, and
+  closed the result with the old `确定` command without route or data drift.
 - 2026-07-12: restored old Web child `DetailViewId` branching from
   `detailView.jade`. Child groups with no detail View remain inline editable;
   groups with a configured detail View render read-only row values and an Edit
@@ -2639,8 +2650,10 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   CAPTCHA content. At 1440x900 and 390x844, the 240px login form and all
   controls remain inside the viewport with no horizontal overflow. Reset clears
   username, password, and CAPTCHA and requests a new image; Refresh requests a
-  new image, clears only CAPTCHA input, and preserves username/password. The
-  current authenticated replay remains pending fresh CAPTCHA authorization.
+  new image, clears only CAPTCHA input, and preserves username/password. Fresh
+  CAPTCHA authorization on 2026-07-13 completed the authenticated desktop/mobile
+  workflow replay and the final Sudoku-refresh/operation-result interaction
+  checks recorded under `artifacts/runs/20260713-final-visible-interactions/`.
 - 2026-07-12: restored the old `item.jade` collection-definition interaction.
   `/itemview:id` now renders `getreaditemview.DetailViews` as selectable tabs
   with each child View's metadata field table instead of flattening every child

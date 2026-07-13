@@ -401,7 +401,7 @@ public class DataQueryService {
         IDynamicData data = modelDataService.getOneData(view.getViewModel(), request.getObjectId());
         boolean success;
         try {
-            if (legacyOperation.getArgModelId() != null) {
+            if (legacyOperation.getArgModelId() != null && legacyOperation.getArgModelId() > 0) {
                 success = executeArgModelOperation(legacyOperation, data, request.getToken());
             } else {
                 OperationCommandValues commandValues = applyOperationCommands(
