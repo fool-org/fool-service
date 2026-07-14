@@ -3391,3 +3391,17 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `/view103` passed the same `1/1/1/0` timing contract in its compact chart,
   with empty browser logs. The deployed frontend image was
   `sha256:57e7266ab950e6205ed61401f78def30e5e44e3ba77485c986628f7ea53ec5cb`.
+- 2026-07-14: restored ECharts 3.1.7's tooltip box and movement defaults. An
+  exact 720x300 old-library probe measured `display:block`, 21px line height,
+  73px three-row height, nowrap text, `z-index:9999999`, a 20px pointer gap,
+  and 0.4s `left/top` transitions using
+  `cubic-bezier(0.23, 1, 0.32, 1)`. Vue's shared tooltip used a 2px-gap grid,
+  20.3px inherited line height, 74.89px height, 8px offset, `z-index:2`, and no
+  movement transition. The shared CSS now matches the old metrics while
+  removing the redundant child nowrap rule. Docker `/view100` measured the
+  exact 73px box, 20px transform, and dual 0.4s transitions; moving left from
+  260px to 460px sampled 292.15px immediately and 435.22px at 100ms before
+  settling. Desktop, 390px `/view100`, and 390px compact `/view103` screenshots
+  retained visible tooltips without document overflow or browser logs. The
+  deployed frontend image was
+  `sha256:d0773decc43337eb65fcd489fa936c0de787880fc88933b3dfec5bae7cb33d4d`.

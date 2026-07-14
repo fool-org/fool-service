@@ -121,4 +121,16 @@ describe("shared chart styles", () => {
     expect(chartSource).toContain('@mouseleave="scheduleAxisTooltipHide"');
     expect(chartSource).toContain("clearTimeout(hideTooltipTimer)");
   });
+
+  it("matches the ECharts tooltip box and movement defaults", () => {
+    const tooltipStyle = styleSource.match(/\.chart-axis-tooltip \{([\s\S]*?)\}/)?.[1] ?? "";
+    expect(tooltipStyle).toContain("z-index: 9999999");
+    expect(tooltipStyle).toContain("display: block");
+    expect(tooltipStyle).toContain("line-height: 21px");
+    expect(tooltipStyle).toContain("white-space: nowrap");
+    expect(tooltipStyle).toContain("transition: left 0.4s cubic-bezier(0.23, 1, 0.32, 1), top 0.4s cubic-bezier(0.23, 1, 0.32, 1)");
+    expect(tooltipStyle).not.toContain("gap:");
+    expect(styleSource).toContain("translate(20px, 20px)");
+    expect(styleSource).toContain("translate(calc(-100% - 20px), calc(-100% - 20px))");
+  });
 });

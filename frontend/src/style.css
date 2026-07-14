@@ -1008,33 +1008,30 @@ label {
 
 .chart-axis-tooltip {
   position: absolute;
-  z-index: 2;
-  display: grid;
-  gap: 2px;
+  z-index: 9999999;
+  display: block;
   padding: 5px;
   border-radius: 4px;
   background: rgba(50, 50, 50, 0.7);
   color: #ffffff;
   font-size: 14px;
+  line-height: 21px;
   pointer-events: none;
-  transform: translate(8px, 8px);
+  white-space: nowrap;
+  transition: left 0.4s cubic-bezier(0.23, 1, 0.32, 1), top 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  transform: translate(20px, 20px);
 }
 
 .chart-axis-tooltip.align-right {
-  transform: translate(calc(-100% - 8px), 8px);
+  transform: translate(calc(-100% - 20px), 20px);
 }
 
 .chart-axis-tooltip.align-bottom {
-  transform: translate(8px, calc(-100% - 8px));
+  transform: translate(20px, calc(-100% - 20px));
 }
 
 .chart-axis-tooltip.align-right.align-bottom {
-  transform: translate(calc(-100% - 8px), calc(-100% - 8px));
-}
-
-.chart-axis-tooltip strong,
-.chart-axis-tooltip span {
-  white-space: nowrap;
+  transform: translate(calc(-100% - 20px), calc(-100% - 20px));
 }
 
 .chart-axis-tooltip span {

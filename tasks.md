@@ -1393,6 +1393,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore ECharts 3.1.7's default tooltip hide delay: keep one cancellable
       100ms timer for plot exit/mouseleave while explicit legend and no-data
       cleanup remains immediate in the shared renderer.
+- [x] Restore ECharts 3.1.7 tooltip box and movement defaults: use its block
+      layout, 21px rows, 20px pointer gap, nowrap/high-layer surface, and 0.4s
+      left/top easing across shared top-level and compact charts.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
