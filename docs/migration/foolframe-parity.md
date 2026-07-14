@@ -3517,3 +3517,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   request path, or second error abstraction was added. The deployed frontend
   image was
   `sha256:752f0d84bee8ab6c45b48912c533a809c3333574adb82341f1b93c4661310c55`.
+  Docker browser replay stopped the backend after loading the login page and
+  submitted `admin/admin` with a test code. The request settled without a
+  dialog; all three inputs and the CAPTCHA image remained unchanged, the Login
+  action returned to enabled, and browser errors were empty. The backend was
+  restored afterward and `/test` passed.

@@ -46,9 +46,19 @@ every change atomically while retaining View-first rendering and code reuse.
 - Compose reported MySQL healthy, Redis/backend/frontend running, and
   `db-migrate` at `Exited (0)`; backend `/test` passed after startup.
 - Repository harness and `git diff --check` passed before the atomic commit.
+- Docker browser replay loaded the login page, filled authorized `admin/admin`
+  and a test code, stopped the backend, and submitted the form. The request
+  settled without a dialog; username, password, code, and CAPTCHA image stayed
+  unchanged, the Login action returned to enabled, and browser errors were
+  empty.
+- The backend was restored after replay. `/test` passed and `db-migrate`
+  returned to `Exited (0)`.
+
+## Runtime Evidence
+
+- `artifacts/runs/20260714-legacy-login-http-error/transport-error.png`
 
 ## Skipped Checks And Risks
 
-- Browser transport-failure replay is deferred to a separate validation commit.
 - The full old FoolFrame application was not booted; checked-in `login.js`
   supplies the old callback behavior.

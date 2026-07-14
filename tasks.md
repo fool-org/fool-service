@@ -1423,7 +1423,8 @@ item must land with its matching implementation and validation evidence.
       browser-verify the lifecycle at desktop and 390px without overflow.
 - [x] Restore `login.js`'s empty HTTP-error callback: suppress the shared
       transport exception after a response-less login attempt while preserving
-      fields, CAPTCHA, and response-backed business-error dialog behavior.
+      fields, CAPTCHA, and response-backed business-error dialog behavior;
+      browser-verify the stopped-backend path and restore Compose afterward.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
