@@ -2775,6 +2775,14 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   geometry, inline Find command, and responsive input expansion; the Vue-only
   visible label was replaced by the old intended `输入条件` input prompt while
   retaining an accessible name and Enter submission.
+- 2026-07-15: restored the plain-text query controls rendered by `view.jade`
+  and `detailView.jade`. The shared main-list and select-existing inputs now use
+  `type="text"` instead of Vue's native-search variation, removing the
+  browser-specific clear affordance while retaining the intended `输入条件`
+  prompt, accessible name, Enter submission, Find command, and View-derived
+  keyword request. Full frontend tests passed (20 files, 205 tests), the
+  production build passed, and authorized browser checks against clean commit
+  `9a68d879` proved both text inputs and HTTP 200 keyword queries.
 - 2026-07-13: restored `querylistdata.js`'s fixed page-row presentation. The
   shared metadata table now pads only missing rows with inert striped cells:
   normal/chart/candidate queries keep ten body rows and Sudoku List/Group List
