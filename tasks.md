@@ -1445,6 +1445,9 @@ item must land with its matching implementation and validation evidence.
       response-less `getcheckcode` transport errors while retaining the current
       image, fields, successful replacement, and login business-error dialog;
       browser-verify the settled Nginx `502` path and restored backend.
+- [x] Restore `index.jade`'s external vendor-link intent: prefix bare `AppUrl`
+      metadata with `http://` while retaining current absolute HTTP(S) values,
+      so the footer never resolves a legacy host as an application-relative path.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

@@ -1285,6 +1285,9 @@ describe("App defaults", () => {
     expect(loginPanelSource).toContain('label="重置"');
     expect(loginPanelSource).toContain("@click=\"emit('refresh')\"");
     expect(loginPanelSource).not.toContain("function reset()");
+    expect(loginPanelSource).toContain('!appUrl.value.includes("://") ? `http://${appUrl.value}` : appUrl.value');
+    expect(loginPanelSource).toContain(':href="appHref"');
+    expect(loginPanelSource).not.toContain(':href="appUrl"');
     expect(loginPanelSource).toContain('header="发生错误"');
     expect(loginPanelSource).toContain("错误代码:{{ errorCode }}");
     expect(loginPanelSource).toContain("错误信息:${errorMessage}");

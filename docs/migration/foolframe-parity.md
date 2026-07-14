@@ -3604,3 +3604,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   kept all three controls enabled. The backend was restored, `/test` passed,
   and the 1280x720 artifact is
   `artifacts/runs/20260714-legacy-login-request-controls/refresh-failure.jpg`.
+- 2026-07-14: restored `index.jade`'s external vendor-link intent. The old
+  template treats `AppUrl` as a bare host and prefixes `http://`, while Vue
+  previously bound the value directly and therefore resolved a bare host as a
+  path under the current application. `LoginPanel` now adds the old HTTP scheme
+  only when the View metadata has no scheme, while retaining already absolute
+  `http://` or `https://` values supported by the current backend contract. The
+  same initapp aliases and single footer link remain; no router, URL helper, or
+  business DTO state was added. Frontend tests/build, Compose replacement,
+  runtime doctor, and repository harness pass; the deployed frontend image is
+  `sha256:ce7a2f81272de55d1209e60a9bf79335e206945e62d738347fc13e8bc6dc5884`.

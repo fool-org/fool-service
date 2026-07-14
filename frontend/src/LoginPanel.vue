@@ -37,6 +37,7 @@ const appImage = computed(() => text(props.appInfo?.appImg, props.appInfo?.AppIm
 const appVersion = computed(() => text(props.appInfo?.appVersion, props.appInfo?.AppVersion));
 const appPowerBy = computed(() => text(props.appInfo?.appPowerBy, props.appInfo?.AppPowerBy));
 const appUrl = computed(() => text(props.appInfo?.appUrl, props.appInfo?.AppUrl));
+const appHref = computed(() => appUrl.value && !appUrl.value.includes("://") ? `http://${appUrl.value}` : appUrl.value);
 const dbId = computed(() => legacyInitAppDbId(props.appInfo));
 const effectiveCheckCode = computed(() => props.checkCode ?? legacyInitAppCheckCode(props.appInfo));
 const captchaKey = computed(() => legacyCheckCodeKey(effectiveCheckCode.value));
@@ -92,7 +93,7 @@ function submit() {
 
     <footer v-if="appVersion || appPowerBy">
       <span>{{ appVersion }}</span>
-      <a v-if="appPowerBy && appUrl" :href="appUrl" rel="noreferrer" target="_blank">{{ appPowerBy }}</a>
+      <a v-if="appPowerBy && appHref" :href="appHref" rel="noreferrer" target="_blank">{{ appPowerBy }}</a>
       <span v-else>{{ appPowerBy }}</span>
     </footer>
   </main>
