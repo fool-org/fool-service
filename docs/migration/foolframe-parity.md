@@ -4008,5 +4008,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `silentTransport` option through logout. Successful route replacement,
   session cleanup, fresh login metadata/CAPTCHA, shell controls, payloads,
   routes, and DTOs are unchanged. All 193 frontend tests, TypeScript/Vite
-  production build, and repository harness pass. Docker/browser evidence
-  remains required.
+  production build, and repository harness pass. The deployed Docker frontend
+  image is
+  `sha256:39b8a37c1696b9122c4832fc4a0538b367d2207625ed2ae603dcb95d47f73781`.
+  An authorized `/view100` browser replay stopped the backend and invoked
+  `安全退出`. After Nginx settled logout as HTTP 502, the URL, authenticated
+  shell, token, and 8 View rows remained with no `发生错误` dialog. After
+  backend recovery, the same command returned HTTP 200, replaced the route with
+  `/`, cleared the shell, and rendered the fresh login flow. Compose was
+  healthy, `db-migrate` was `Exited (0)`, View intervals and row counts were
+  unchanged, and all 67 runtime-doctor checks passed.
