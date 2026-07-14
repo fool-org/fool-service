@@ -64,8 +64,13 @@ describe("App defaults", () => {
     expect(mainViewSource).not.toContain("<label>");
     expect(mainViewSource).toContain('label="查找"');
     expect(mainViewSource).toContain('label="查找" severity="secondary" outlined');
+    expect(mainViewSource).toContain('label="查找" severity="secondary" outlined @click="emit(\'search\')"');
+    expect(mainViewSource).not.toContain('label="查找" severity="secondary" outlined :disabled="disabled"');
     expect(mainViewSource).toContain('label="统计"');
+    expect(mainViewSource).toContain('label="统计" severity="secondary" outlined :disabled="!currentViewId"');
+    expect(mainViewSource).not.toContain('disabled || !currentViewId');
     expect(mainViewSource).toContain('<template v-if="listView">');
+    expect(mainViewSource).not.toMatch(/v-for="operation in createItems"[\s\S]*?:disabled="disabled"[\s\S]*?@click="emit\('newObject'/);
     expect(mainViewSource).not.toContain('icon="pi pi-search"');
     expect(mainViewSource).not.toContain('icon="pi pi-chart-bar"');
     expect(mainViewSource).not.toContain('icon="pi pi-plus"');

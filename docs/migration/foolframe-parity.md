@@ -3647,3 +3647,10 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   no dialog opened. Unpausing completed the request, restored Find, left all
   shell controls enabled on `/main`, and produced no browser console errors.
   Backend `/test`, Compose, and all 67 runtime-doctor checks passed afterward.
+- 2026-07-14: restored `view.jade` / `viewWithChart.jade` top-command request
+  availability. Their Find, Report, and metadata create controls have no
+  request-pending disabled state, so the operators can invoke them while an
+  earlier View request is in flight. Vue now leaves Find and create commands
+  active and retains only Report's pre-View initialization guard. Shared row
+  actions, Sudoku panels, pagination, detail, and report internals keep their
+  existing request boundaries; no new prop, state, or request path was added.
