@@ -1497,7 +1497,7 @@ item must land with its matching implementation and validation evidence.
       current page when Find directly invokes `querylistdata.query`, while
       retaining page-one reset for plain View Find and scheduled refresh;
       browser-verify on a temporary second page and remove the seed rows.
-- [ ] Restore `timer.js` registration cadence: keep one one-second ticker for
+- [x] Restore `timer.js` registration cadence: keep one one-second ticker for
       an unchanged `AutoFreshTime`, preserve its old first-tick counter, and do
       not restart it after manual Find, paging, or same-interval responses;
       browser-verify initial and repeated one-second timestamps.

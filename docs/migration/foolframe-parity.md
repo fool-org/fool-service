@@ -3825,5 +3825,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   increment sequence, and leaves that timer running across manual Find,
   pagination, and same-interval responses. View navigation and actual interval
   changes still clear it; hidden Chart panes still consume due ticks without a
-  request. No request, payload, DTO, route, or component was added. Runtime
-  timestamp evidence remains required before closure.
+  request. No request, payload, DTO, route, or component was added. Docker image
+  `sha256:67ee985fe976be13e5c12b573f0716b63b5d5e05b6a12185e7490f014f5a7b02`
+  was accepted with View 100 temporarily set to one second. Nginx recorded the
+  initial query at `17:54:19.215`, the first tick at `17:54:21.259`, then ticks
+  at `22.257`, `23.245`, and `24.245`, matching the old delayed first tick and
+  one-second continuation. With the backend paused, Find stayed active and 18
+  manual/scheduled requests completed together after resume, proving the ticker
+  remained registered. Both interval rows were restored to zero; a subsequent
+  2.6-second window recorded zero requests. View/file and row-count state was
+  unchanged, Compose was healthy, and all 67 runtime-doctor checks passed.
