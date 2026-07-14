@@ -3582,3 +3582,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   component state was added. Frontend tests/build, Compose replacement,
   runtime doctor, and repository harness pass; the deployed frontend image is
   `sha256:e07db3e06f2df0d420f5707b55daf3a3e7379a5313edf103a8e610ecc3fe9d8c`.
+- 2026-07-14: restored `login.js`'s silent CAPTCHA-refresh HTTP-error branch.
+  The old refresh request defines only a success callback, so transport/server
+  failure leaves the current image and login fields in place without opening
+  the shared error modal. Vue's `loadCheckCode` now clears only `runAction`'s
+  transient transport message when no response exists, mirroring the existing
+  login-request boundary. Successful refresh still replaces the View's key and
+  image, while response-backed login errors remain unchanged. No component,
+  request route, or error abstraction was added. Frontend tests/build, Compose
+  replacement, runtime doctor, and repository harness pass; the deployed image
+  is `sha256:e6808b1d432cb229b1deab15ed416e1316d8a0329583590ea710a42fb2ddc537`.

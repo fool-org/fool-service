@@ -1235,8 +1235,14 @@ describe("App defaults", () => {
   });
 
   it("moves the legacy checkcode route into the signed-out login panel", () => {
+    const checkCodeSource = appSource.slice(
+      appSource.indexOf("async function loadCheckCode"),
+      appSource.indexOf("async function prepareLegacyLogin")
+    );
     expect(appSource).toContain("/api/v1/auth/getcheckcode");
     expect(appSource).toContain("checkCodeResponse");
+    expect(checkCodeSource).toContain("if (!response) {");
+    expect(checkCodeSource).toContain('errorMessage.value = "";');
     expect(loginPanelSource).toContain('placeholder="验证码"');
     expect(loginPanelSource).toContain("captchaImage");
     expect(loginPanelSource).toContain('label="刷新"');

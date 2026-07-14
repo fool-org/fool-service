@@ -1440,6 +1440,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `login.js`'s always-available controls: keep the Login label fixed
       and leave Login, Refresh, and Reset enabled during requests while retaining
       only the initialization guard for a missing CAPTCHA key.
+- [x] Restore `login.js`'s silent CAPTCHA-refresh HTTP-error path: suppress only
+      response-less `getcheckcode` transport errors while retaining the current
+      image, fields, successful replacement, and login business-error dialog.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

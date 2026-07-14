@@ -355,10 +355,12 @@ async function loadMainInfo() {
 
 async function loadCheckCode() {
   const response = await runAction("getcheckcode", () => postApi<CheckCodeResult>("/api/v1/auth/getcheckcode", {}));
-  if (response) {
-    checkCodeResponse.value = response;
-    checkCodeKey.value = legacyCheckCodeKey(response.data);
+  if (!response) {
+    errorMessage.value = "";
+    return;
   }
+  checkCodeResponse.value = response;
+  checkCodeKey.value = legacyCheckCodeKey(response.data);
 }
 
 async function refreshLoginCheckCode() {
