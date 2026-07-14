@@ -1594,6 +1594,10 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `view.jade`'s inert report-save command: keep its report-name
       field and visible enabled footer button, remove the Vue-only `saverpt`
       dispatch and status feedback, and browser-verify a click emits no request.
+- [x] Restore the static `view.jade` report draft lifecycle: retain selected
+      outputs, conditions, report name, and active tab across Cancel/reopen,
+      reload candidate metadata on each open, and reset the draft only when
+      navigating to another View.
 - [x] Expose the old Sudoku Item `POST /itemview` data route as
       `/api/v1/data/itemview`, reusing `querydatadetail` and accepting the real
       `id` / `objid` / `idxep` request; guard it in runtime doctor.

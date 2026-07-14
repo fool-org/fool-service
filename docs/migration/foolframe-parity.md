@@ -4287,3 +4287,24 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   from loaded View and row identifiers against the legacy alias. Compose was
   healthy, `db-migrate` was `Exited (0)`, and order 1001 plus the
   8-order/4-item counts were unchanged.
+- 2026-07-15: restored the static `view.jade` report-dialog draft lifecycle.
+  Old Cancel only dismisses the existing modal, while `mkreport.initquery`
+  reloads candidate metadata without resetting selected outputs, conditions,
+  report name, or active tab. Vue now keeps `ViewReportPanel` mounted for the
+  current list View, toggles its visibility separately, and reloads report
+  metadata on each open; changing View still destroys the keyed component and
+  its draft. No report DTO or business state was lifted into App. Focused tests
+  passed (92/92), as did all 206 frontend tests, the TypeScript/Vite production
+  build, and diff check. The repository harness remained blocked only by an
+  unrelated concurrent `AppManageMigrationTest.java` at 2106 lines against its
+  2100-line limit. Exact implementation commit `6d4714b4` produced deployed
+  image
+  `sha256:ca2a3d4894cc777a7255db647b80bfe30a96ef86b7eda1aa9780957d03dc4b76`,
+  entry `index-CvJ-YQFt.js`, report chunk `ViewReportPanel-BHiJuoyK.js`, and
+  shared editor chunk `MetadataFieldEditor-BQJAjYF6.js`. Authorized
+  `admin/admin` browser acceptance opened `/view101` twice with an HTTP-200
+  View-derived report metadata response. The second open issued a fresh
+  metadata request while retaining the Save tab, report name, selected output,
+  and condition value from the first open. Cancel and logout completed without
+  browser errors. Compose was healthy, `db-migrate` was `Exited (0)`, and order
+  1001 plus the 8-order/4-item counts were unchanged.
