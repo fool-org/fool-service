@@ -47,9 +47,20 @@ every change atomically while retaining View-first rendering and code reuse.
   `Exited (0)`; backend `/test` passed.
 - Repository harness, native-required absence check, and `git diff --check`
   passed before the atomic commit.
+- A versioned Docker browser entry confirmed username, password, and CAPTCHA
+  had no native required flag. Submitting all three empty reached `loginv2` and
+  displayed `10006` / `Check code error.`.
+- The backend request log recorded empty `UserId`, `PassWord`, and `CheckCode`
+  with the initapp-derived `DbId=car_wash` and current check-code key.
+- Before dismissal, all inputs and the CAPTCHA image stayed unchanged. Close
+  kept the inputs empty, replaced the CAPTCHA, and the complete browser run
+  ended without errors.
+
+## Runtime Evidence
+
+- `artifacts/runs/20260714-legacy-empty-login-submit/empty-submit-dialog.png`
 
 ## Skipped Checks And Risks
 
-- Browser empty-submit replay is deferred to a separate validation commit.
 - The full old FoolFrame application was not booted; checked-in Jade and
   JavaScript supply the old validation boundary.

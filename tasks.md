@@ -1430,7 +1430,8 @@ item must land with its matching implementation and validation evidence.
       submit an initapp database id only when the View received exactly one.
 - [x] Restore `index.jade`'s server-owned login validation: remove browser
       `required` constraints from username, password, and CAPTCHA so empty
-      submits reach the existing response-backed legacy error lifecycle.
+      submits reach the existing response-backed legacy error lifecycle;
+      browser-verify the server request, dialog, and dismissal refresh order.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

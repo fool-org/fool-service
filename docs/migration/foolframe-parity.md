@@ -3543,3 +3543,9 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   lifecycle handle empty values without a second local error state. The
   deployed frontend image was
   `sha256:189aefedf24967381da206e677c90c2077d6b09f18a39a209fe8c4de1dcaa1ae`.
+  A versioned Docker browser entry confirmed all three controls had no native
+  required flag. Submitting them empty reached `loginv2`, whose backend log
+  recorded empty user/password/code with `DbId=car_wash`, and displayed the
+  response-backed `10006` / `Check code error.` dialog. Inputs and CAPTCHA image
+  stayed unchanged until Close; dismissal kept the inputs empty and replaced
+  the CAPTCHA. The complete run ended with no browser errors.
