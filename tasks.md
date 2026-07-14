@@ -1574,6 +1574,10 @@ item must land with its matching implementation and validation evidence.
       shared feedback when `querydatadetail` or `initnew` has a network/non-2xx
       failure after View metadata succeeds, retain business errors, and
       browser-verify both failures plus successful recovery.
+- [x] Restore the server-rendered list View metadata transport surface:
+      suppress shared feedback when `getlistview` has a network/non-2xx failure
+      on `/`, `/main`, or `/view:id`, retain business errors and the
+      View-before-data gate, and browser-verify all failures plus recovery.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from

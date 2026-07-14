@@ -4188,3 +4188,25 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   order on both paths, restored normal panels, and logout returned HTTP 200.
   Compose was healthy, `db-migrate` was `Exited (0)`, order 1001 plus the
   8-order/4-item counts were unchanged, and all 67 runtime-doctor checks passed.
+- 2026-07-15: aligned the server-rendered list View metadata transport surface.
+  FoolFrame's authenticated `/`, `/main`, and `/view:id` routes render only
+  inside the `getlistview` `postandget` callback; request errors only log and do
+  not continue to `querydata` or show shared browser feedback. Vue now passes
+  the existing `silentTransport` option through `getlistview`, preserving its
+  View-before-data gate. Response-backed business errors, successful list
+  rendering, payloads, routes, DTOs, components, and pending state are
+  unchanged; no helper, state, or abstraction was added. Focused workflow tests
+  passed (9/9), as did all 195 frontend tests, the TypeScript/Vite production
+  build, repository harness, and diff check. Exact implementation commit
+  `37ef7662` produced deployed image
+  `sha256:5994dd9cd2c76931cb767ec15bec1ae95a164036b769eaa28275740ad0f58efa`
+  and entry bundle `index-CN0-wUor.js`. Authorized `admin/admin` browser
+  acceptance forced `getlistview` HTTP 502 independently on `/`, `/main`, and
+  `/view100`; each retained its route and authenticated shell without
+  `发生错误` or transport text, and issued zero `querydata` requests. A separate
+  HTTP-200 nonzero-code response retained the shared business-error dialog.
+  Removing the failure returned `getlistview` HTTP 200 before `querydata` 200,
+  restored the order list with BTC-USDT and ETH-USDT rows, and logout returned
+  HTTP 200. Compose was healthy, `db-migrate` was `Exited (0)`, order 1001 plus
+  the 8-order/4-item counts were unchanged, and all 67 runtime-doctor checks
+  passed.
