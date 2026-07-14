@@ -3555,3 +3555,12 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   response-backed `10006` / `Check code error.` dialog. Inputs and CAPTCHA image
   stayed unchanged until Close; dismissal kept the inputs empty and replaced
   the CAPTCHA. The complete run ended with no browser errors.
+- 2026-07-14: restored `login.js`'s raw login-input submission. The old
+  controller forwards username, password, and CAPTCHA exactly as read from the
+  controls, and `index.jade` places no maximum length on the CAPTCHA input. Vue
+  previously trimmed username/CAPTCHA and capped the latter at eight
+  characters, silently changing the request before the server-owned validation
+  path. `LoginPanel` now emits all three original strings and removes the
+  maxlength constraint while retaining the same component-owned state,
+  submit event, and response dialog lifecycle. The deployed frontend image was
+  `sha256:5fbcfe36761833a209c9fde34e5ad4426ddf7252ac181df87c4f4dedbde11fd4`.

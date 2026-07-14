@@ -1433,6 +1433,9 @@ item must land with its matching implementation and validation evidence.
       `required` constraints from username, password, and CAPTCHA so empty
       submits reach the existing response-backed legacy error lifecycle;
       browser-verify the server request, dialog, and dismissal refresh order.
+- [x] Restore `login.js`'s raw input contract: submit username, password, and
+      CAPTCHA without frontend trimming, and remove the Vue-only CAPTCHA
+      maxlength so server validation receives the operator's exact strings.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
