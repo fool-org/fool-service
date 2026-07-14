@@ -1469,7 +1469,7 @@ item must land with its matching implementation and validation evidence.
       leave metadata Add, inline Edit/Save, Delete, and existing detail links
       available while unrelated requests are pending; retain the edit-state
       guard and browser-verify without persisting staged child changes.
-- [ ] Restore `detailView.jade` parent-detail command availability: keep Edit,
+- [x] Restore `detailView.jade` parent-detail command availability: keep Edit,
       Save, View operations, and metadata lookup editors active during
       unrelated requests while retaining edit-state and own-save protection;
       browser-verify without persisting detail changes.

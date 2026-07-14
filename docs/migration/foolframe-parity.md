@@ -3707,5 +3707,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   or its own save request is running. Lookup editors retain their existing
   local loading state. The change deletes the now-unused detail `pending` prop
   and lookup context flag without adding state, requests, DTO bindings, or
-  duplicate components. Docker browser acceptance remains required before the
-  task is closed.
+  duplicate components. Authorized Docker browser acceptance logged in with
+  `admin/admin`, opened `/view102/1001`, paused the backend, and started a real
+  `getsubmenu` request from Views. Edit remained enabled and entered the edit
+  session; Save and the Customer AutoComplete were then both enabled while the
+  unrelated request was pending. No save was submitted. After unpausing and
+  reloading, the detail returned to read-only `BTC-USDT / Ada Capital / Open`,
+  MySQL order and child rows were unchanged, Compose was healthy, and all 67
+  runtime-doctor checks passed. Current runtime metadata has no parent View
+  operation, so its no-global-lock branch remains covered by the source
+  contract.
