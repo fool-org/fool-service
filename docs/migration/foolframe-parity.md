@@ -3458,3 +3458,14 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   state from 0 to 1. The 1280px page had no document overflow or browser errors.
   The deployed frontend image was
   `sha256:3d78d766dddb77ff8af1c2948504965b36619f66b289d34e5f2ddc85966d1d48`.
+- 2026-07-14: restored the two old no-default-View home routes instead of
+  conflating their templates. Old login replaces the URL with `/main`;
+  `routes.main` renders `Sudoku.jade`'s long configuration guidance when
+  `App.DefaultViewId` is empty, while authenticated `/` renders `main.jade`'s
+  `默认首页 还没有配置`. Vue previously stayed on `/` after login and displayed
+  the Sudoku copy for every unconfigured home. Successful login now replaces
+  the path with `/main`, and the existing metadata-only default-View branch
+  selects the checked-in text for the current old route. No business data DTO,
+  router dependency, or duplicate View decision was added. The deployed bundle
+  contains both exact template strings in one app chunk and the frontend image
+  was `sha256:d83c8470e885da5a2cd8f0aa7cba4b622e9e36a9aa3be12c12d746899c672345`.

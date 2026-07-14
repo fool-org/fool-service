@@ -885,11 +885,15 @@ describe("App defaults", () => {
     expect(homeSource).toContain("applyRequestedViewId(defaultViewId)");
     expect(homeSource).toContain("await loadViewWorkflow(true)");
     expect(homeSource).toContain("showUnconfiguredHome.value = true");
+    expect(homeSource).toContain('window.location.pathname === "/main"');
     expect(appSource).toContain("await loadPrimarySection(false);");
     expect(appSource).toContain("async function openMobilePrimarySection()");
     expect(appSource).toContain("await openPrimarySection();");
     expect(appSource).toContain('<a href="/" @click.prevent="openPrimarySection">');
+    expect(appSource).toContain('replaceLegacyPath("/main")');
+    expect(appSource).toContain("默认首页 还没有配置");
     expect(appSource).toContain("欢迎使用SOWAY无码系统，这是默认的首页，没有配置，请参考相关说明进行设定");
+    expect(appSource).toContain("{{ unconfiguredHomeMessage }}");
     expect(appSource.match(/showUnconfiguredHome\.value = false;/g)?.length).toBeGreaterThanOrEqual(4);
   });
 

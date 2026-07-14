@@ -136,6 +136,7 @@ const subMenuParentAuthCode = ref("");
 const isMetadataOnlyView = ref(false);
 const isStandaloneDetail = ref(false);
 const showUnconfiguredHome = ref(false);
+const unconfiguredHomeMessage = ref("");
 const showViewReport = ref(false);
 const selectedObjectId = ref("");
 const isCreatingObject = ref(false);
@@ -325,6 +326,7 @@ async function submitLegacyLogin(user: string, secret: string, database: string,
   if (await loginV2()) {
     password.value = "";
     checkCodeValue.value = "";
+    replaceLegacyPath("/main");
     await enterAuthenticatedShell();
     return;
   }
@@ -410,6 +412,9 @@ async function loadPrimarySection(updatePath: boolean) {
   stopAutoRefresh();
   showViewReport.value = false;
   showUnconfiguredHome.value = true;
+  unconfiguredHomeMessage.value = window.location.pathname === "/main"
+    ? "欢迎使用SOWAY无码系统，这是默认的首页，没有配置，请参考相关说明进行设定"
+    : "默认首页 还没有配置";
   isMetadataOnlyView.value = false;
   isStandaloneDetail.value = false;
   selectedObjectId.value = "";
@@ -1070,7 +1075,7 @@ function syncDetailDrafts() {
       </Drawer>
 
       <section class="view-workflow" :class="{ 'metadata-only': isMetadataOnlyView || isStandaloneDetail || isUnsupportedView }" aria-label="View workflow">
-        <p v-if="showUnconfiguredHome" class="home-empty-state">欢迎使用SOWAY无码系统，这是默认的首页，没有配置，请参考相关说明进行设定</p>
+        <p v-if="showUnconfiguredHome" class="home-empty-state">{{ unconfiguredHomeMessage }}</p>
         <ViewListPanel
           v-if="!showUnconfiguredHome && !isMetadataOnlyView && !isStandaloneDetail"
           v-model:keyword="viewKeyword"

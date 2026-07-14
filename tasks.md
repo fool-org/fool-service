@@ -1410,6 +1410,10 @@ item must land with its matching implementation and validation evidence.
       aliases from `getmain`, avoid an immediate post-login message request,
       and let the 15-second timer call only `getmsg` without invented repeated
       `getuserinfo` requests.
+- [x] Restore old no-default-View route behavior: successful login replaces
+      the path with `/main`, that route keeps `Sudoku.jade` guidance, and Home
+      `/` uses `main.jade`'s shorter configuration text through the existing
+      `App.DefaultViewId` metadata branch.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
