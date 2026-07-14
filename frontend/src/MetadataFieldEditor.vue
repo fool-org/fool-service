@@ -6,7 +6,7 @@ import InputText from "primevue/inputtext";
 import Select from "primevue/select";
 import Textarea from "primevue/textarea";
 import type { InputQueryItem, InputQueryResult, ListDataValue } from "./api";
-import { postApi } from "./api";
+import { isTransportError, postApi } from "./api";
 import {
   fieldInputChecked,
   fieldInputMaxLength,
@@ -109,7 +109,9 @@ async function searchLookup(query: string) {
       lookupError.value = response.message || "查找失败。";
     }
   } catch (error) {
-    lookupError.value = error instanceof Error ? error.message : "查找失败。";
+    if (!isTransportError(error)) {
+      lookupError.value = error instanceof Error ? error.message : "查找失败。";
+    }
   } finally {
     lookupPending.value = false;
   }

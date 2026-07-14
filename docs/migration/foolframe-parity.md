@@ -4018,3 +4018,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `/`, cleared the shell, and rendered the fresh login flow. Compose was
   healthy, `db-migrate` was `Exited (0)`, View intervals and row counts were
   unchanged, and all 67 runtime-doctor checks passed.
+- 2026-07-15: aligned `setextype.js`'s success-only BusinessObject lookup
+  transport path. The old typeahead source handles candidates and
+  response-backed errors only inside `$http.success`; network and non-2xx
+  failures do not render field feedback. Vue now reuses the existing transport
+  classifier in `MetadataFieldEditor` and suppresses only that inline transport
+  message. Loading cleanup, the typed input, response-backed lookup errors,
+  View-derived identity and parent context, selection behavior, request payload,
+  route, and DTO are unchanged. All 193 frontend tests, TypeScript/Vite
+  production build, and repository harness pass. Docker/browser evidence
+  remains required.

@@ -735,6 +735,8 @@ describe("App defaults", () => {
     expect(metadataFieldEditorSource).toContain("未找到匹配的选项");
     expect(metadataFieldEditorSource).toContain("&ndash; {{ option.id }}");
     expect(metadataFieldEditorSource).toContain("查找更多");
+    expect(metadataFieldEditorSource).toContain('import { isTransportError, postApi } from "./api"');
+    expect(metadataFieldEditorSource).toContain("if (!isTransportError(error))");
     expect(metadataFieldEditorSource).not.toContain("lookupDisabled");
     expect(appSource).not.toContain("lookupDisabled");
     expect(metadataFieldEditorSource).not.toContain("<InputGroup>");
