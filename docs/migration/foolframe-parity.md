@@ -3853,3 +3853,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   and no HTTP, network, or shared error appeared. After backend restart, Find
   succeeded in the same session. View 100 remained file `990001` with refresh
   interval zero, and order/item counts remained 8/4.
+- 2026-07-15: aligned the detail candidate picker's data-query transport branch.
+  `detailView.jade` mounts `QuerylistdataController` inside `#selectdialog`, so
+  its Find and paging requests inherit the same success-only `/data/querylist`
+  path as the main list. Vue now reuses the existing `silentTransport` action
+  policy only for `child-select-data`, preserving candidate rows, record count,
+  and page state when the request has a network or non-2xx failure. Candidate
+  View metadata loading and response-backed business errors remain unchanged;
+  no component, View/Data projection, payload, route, DTO, or abstraction was
+  added. All 187 frontend tests, TypeScript/Vite build, and repository harness
+  pass. Docker/browser evidence remains required before closure.

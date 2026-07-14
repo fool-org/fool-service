@@ -1505,6 +1505,10 @@ item must land with its matching implementation and validation evidence.
       pagination, and timer state without showing Vue's shared error message
       when a main View query has a network/non-2xx failure, while retaining
       response-backed business errors; browser-verify with the backend stopped.
+- [ ] Restore the detail candidate picker's shared `querylistdata.js` silent
+      HTTP-error path: keep candidate rows, record count, and paging without a
+      shared error on data-query transport failure, while retaining View-load
+      and response-backed business errors; browser-verify with backend stopped.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from

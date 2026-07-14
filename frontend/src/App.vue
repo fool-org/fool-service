@@ -953,7 +953,11 @@ async function queryExistingDetailItems(group: QueryDataDetailItemGroup, resetPa
     pageSize: state.pageSize,
     keyword: state.keyword
   });
-  const data = await runAction("child-select-data", () => postApi<ListViewResult>("/api/v1/data/querydata", dataRequest));
+  const data = await runAction(
+    "child-select-data",
+    () => postApi<ListViewResult>("/api/v1/data/querydata", dataRequest),
+    { silentTransport: true }
+  );
   if (!data) {
     return;
   }

@@ -616,6 +616,15 @@ describe("App defaults", () => {
     expect(appSource).not.toContain("buildQueryRequest");
   });
 
+  it("keeps legacy candidate query transport failures silent", () => {
+    const candidateQuerySource = appSource.slice(
+      appSource.indexOf("async function queryExistingDetailItems"),
+      appSource.indexOf("function addExistingDetailItem")
+    );
+    expect(candidateQuerySource).toContain('"child-select-data"');
+    expect(candidateQuerySource).toContain("{ silentTransport: true }");
+  });
+
   it("uses keyword search without exposing a raw QueryFilter", () => {
     const currentQuerySource = viewDataWorkflowSource.slice(
       viewDataWorkflowSource.indexOf("async function queryCurrentViewData"),
