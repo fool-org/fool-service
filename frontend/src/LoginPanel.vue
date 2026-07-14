@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import Button from "primevue/button";
+import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
-import Message from "primevue/message";
 import Select from "primevue/select";
 import type { CheckCodeResult, LegacyInitAppResult, LegacyStoreBaseInfo } from "./api";
 import { legacyCheckCodeImage, legacyCheckCodeKey, legacyInitAppCheckCode } from "./viewWorkflow";
@@ -10,10 +10,12 @@ import { legacyCheckCodeImage, legacyCheckCodeKey, legacyInitAppCheckCode } from
 const props = defineProps<{
   appInfo?: LegacyInitAppResult;
   checkCode?: CheckCodeResult;
+  errorCode: string;
   errorMessage: string;
   pending: boolean;
 }>();
 const emit = defineEmits<{
+  dismissError: [];
   refresh: [];
   submit: [userId: string, password: string, dbId: string, checkCode: string];
 }>();
@@ -93,13 +95,27 @@ function submit() {
       </div>
       <input name="check-code-key" type="hidden" :value="captchaKey" />
 
-      <Message v-if="errorMessage" severity="error" :closable="false">{{ errorMessage }}</Message>
-
       <div class="login-actions">
         <Button type="submit" :label="pending ? '登录中...' : '登录'" :loading="pending" :disabled="pending || !captchaKey" />
         <Button type="button" label="重置" severity="secondary" :disabled="pending" @click="emit('refresh')" />
       </div>
     </form>
+
+    <Dialog
+      v-if="errorMessage"
+      :visible="true"
+      modal
+      header="发生错误"
+      :closable="false"
+      :draggable="false"
+      @update:visible="(visible) => { if (!visible) emit('dismissError') }"
+    >
+      <p v-if="errorCode">错误代码:{{ errorCode }}</p>
+      <p>{{ errorCode ? `错误信息:${errorMessage}` : errorMessage }}</p>
+      <template #footer>
+        <Button type="button" label="关闭" severity="secondary" outlined @click="emit('dismissError')" />
+      </template>
+    </Dialog>
 
     <footer v-if="appVersion || appPowerBy">
       <span>{{ appVersion }}</span>

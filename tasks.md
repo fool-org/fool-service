@@ -1417,6 +1417,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `login.js` Reset state semantics: preserve username, password,
       and database selection while reusing the existing CAPTCHA refresh event;
       omit the old blank error-modal intermediary as a presentation cleanup.
+- [x] Restore `login.js` failure feedback timing: adapt legacy error code/message
+      before rendering, open the old `发生错误` footer-close dialog, preserve
+      login fields, and refresh the CAPTCHA only after dialog dismissal.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

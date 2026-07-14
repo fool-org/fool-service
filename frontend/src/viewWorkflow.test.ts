@@ -74,6 +74,7 @@ import {
   legacyItemDetailFields,
   legacyMapMarkers,
   legacyMainMenuItems,
+  legacyLoginErrorCode,
   legacyLoginErrorMessage,
   legacyMessageContent,
   legacyMessageId,
@@ -1112,6 +1113,7 @@ describe("view workflow helpers", () => {
     expect(legacyNotifyCountForAuth(notifies.Notifies, "1")).toBe(5);
     expect(legacyUserName({ User: { UserName: "Admin", LoginName: "admin" } })).toBe("Admin");
     expect(legacyUserAvatar({ User: { UserAvtarUrl: "/avatars/admin.png" } })).toBe("/avatars/admin.png");
+    expect(legacyLoginErrorCode({ Error: { Code: 10006 } })).toBe("10006");
     expect(legacyLoginErrorMessage({ Error: { Message: "Invalid login" } })).toBe("Invalid login");
     expect(legacyEnumValues(enums)).toHaveLength(1);
     expect(legacyEnumName(enums.EnumValues[0])).toBe("Open");

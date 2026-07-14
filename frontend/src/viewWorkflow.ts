@@ -223,6 +223,11 @@ export function legacyLoginErrorMessage(source?: LegacyLoginResult) {
   return firstDisplayValue([error?.message, error?.Message]);
 }
 
+export function legacyLoginErrorCode(source?: LegacyLoginResult) {
+  const error = source?.error ?? source?.Error;
+  return firstDisplayValue([error?.code, error?.Code]);
+}
+
 export function legacyCheckCodeKey(source?: CheckCodeResult) {
   return firstDisplayValue([source?.key, source?.Key]);
 }

@@ -67,6 +67,7 @@ import {
   legacyCheckCodeKey,
   legacyInitAppCheckCode,
   legacyInitAppDbId,
+  legacyLoginErrorCode,
   legacyLoginErrorMessage,
   legacyDetailHref,
   legacyDetailPath,
@@ -165,6 +166,7 @@ const subMenuResponse = ref<CommonResponse<LegacySubMenuResult> | null>(null);
 const detailResponse = ref<CommonResponse<QueryDataDetailResult> | null>(null);
 const activeShellMessage = ref<MessageInfo | null>(null);
 const errorMessage = ref("");
+const loginErrorCode = ref("");
 const infoMessage = ref("");
 const operationResult = ref<{ message: string; success: boolean } | null>(null);
 const pendingAction = ref("");
@@ -311,6 +313,7 @@ async function loginV2() {
   applyDefaultAppView(response.data);
   token.value = response.data?.token || response.data?.Token || "";
   if (!token.value) {
+    loginErrorCode.value = legacyLoginErrorCode(response.data);
     errorMessage.value = legacyLoginErrorMessage(response.data) || "登录失败。";
     return false;
   }
@@ -323,16 +326,19 @@ async function submitLegacyLogin(user: string, secret: string, database: string,
   password.value = secret;
   legacyDbId.value = database;
   checkCodeValue.value = checkCode;
+  loginErrorCode.value = "";
   if (await loginV2()) {
     password.value = "";
     checkCodeValue.value = "";
     replaceLegacyPath("/main");
     await enterAuthenticatedShell();
-    return;
   }
-  const loginError = errorMessage.value || "登录失败。";
+}
+
+async function dismissLoginError() {
+  errorMessage.value = "";
+  loginErrorCode.value = "";
   await refreshLoginCheckCode();
-  errorMessage.value = loginError;
 }
 
 async function loadMainInfo() {
@@ -483,6 +489,7 @@ function clearLegacySession() {
   token.value = "";
   mainInfoResponse.value = null;
   activeShellMessage.value = null;
+  loginErrorCode.value = "";
   infoMessage.value = "";
   clearPendingDetailChanges();
   checkCodeResponse.value = null;
@@ -1005,8 +1012,10 @@ function syncDetailDrafts() {
     v-if="!token"
     :app-info="initAppResponse?.data"
     :check-code="checkCodeResponse?.data"
+    :error-code="loginErrorCode"
     :error-message="errorMessage"
     :pending="Boolean(pendingAction)"
+    @dismiss-error="dismissLoginError"
     @refresh="refreshLoginCheckCode"
     @submit="submitLegacyLogin"
   />

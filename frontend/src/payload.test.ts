@@ -1244,6 +1244,14 @@ describe("App defaults", () => {
   });
 
   it("moves the legacy loginv2 route into the signed-out login panel", () => {
+    const submitLoginSource = appSource.slice(
+      appSource.indexOf("async function submitLegacyLogin"),
+      appSource.indexOf("async function dismissLoginError")
+    );
+    const dismissLoginErrorSource = appSource.slice(
+      appSource.indexOf("async function dismissLoginError"),
+      appSource.indexOf("async function loadMainInfo")
+    );
     expect(appSource).toContain("/api/v1/auth/loginv2");
     expect(appSource).toContain("localStorage.setItem(\"fool-service-token\", token.value)");
     expect(appSource).toContain("async function submitLegacyLogin");
@@ -1253,6 +1261,14 @@ describe("App defaults", () => {
     expect(loginPanelSource).toContain('label="重置"');
     expect(loginPanelSource).toContain("@click=\"emit('refresh')\"");
     expect(loginPanelSource).not.toContain("function reset()");
+    expect(loginPanelSource).toContain('header="发生错误"');
+    expect(loginPanelSource).toContain("错误代码:{{ errorCode }}");
+    expect(loginPanelSource).toContain("错误信息:${errorMessage}");
+    expect(loginPanelSource).toContain('label="关闭" severity="secondary" outlined');
+    expect(appSource).toContain(':error-code="loginErrorCode"');
+    expect(appSource).toContain('@dismiss-error="dismissLoginError"');
+    expect(submitLoginSource).not.toContain("refreshLoginCheckCode");
+    expect(dismissLoginErrorSource).toContain("await refreshLoginCheckCode()");
     expect(loginPanelSource).not.toContain("Welcome back");
     expect(loginPanelSource).not.toContain("<Card");
     expect(appSource).not.toContain("Legacy Login V2");

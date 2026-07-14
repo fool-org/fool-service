@@ -3489,3 +3489,15 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   username/password, cleared only the CAPTCHA input, and changed the CAPTCHA
   image at desktop and 390x844. The mobile viewport and document widths were
   both 390px and browser errors were empty.
+- 2026-07-14: restored the old login-failure dialog lifecycle. `login.js` sends
+  unsuccessful login responses to `showerror.showmsg` and registers CAPTCHA
+  refresh for `hidden.bs.modal`; `layout.jade` renders `发生错误`, code/info
+  paragraphs, and a single footer `关闭`. Vue previously displayed an inline
+  error and replaced the CAPTCHA before the operator could read it. The shared
+  response adapter now exposes only display code/message primitives, the login
+  panel renders the old non-header-closable dialog, and dismissal clears the
+  display state before requesting the next code. Username/password/database
+  state stays component-owned and unchanged. Legacy code/message labels are
+  normalized instead of reproducing the old caller's reversed arguments. The
+  deployed frontend image was
+  `sha256:3d02fc2c7c0797ca7f5029e86f429f8843b318bfa1c75d65118a6e60bb6ff9d4`.
