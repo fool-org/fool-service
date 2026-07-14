@@ -1266,8 +1266,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore the report-condition merge glyph with the installed `pi-list`
       equivalent of old `glyphicon-list` without changing grouping behavior.
 - [x] Restore `mkreport.js` condition-merge availability and feedback: keep the
-      command actionable, report single/non-contiguous selections, and preserve
-      successful contiguous grouping through the shared condition validator.
+      command actionable, silently retain zero selection, report
+      single/non-contiguous selections, and preserve successful contiguous
+      grouping through the shared condition validator.
 - [x] Restore old report-result paging boundaries: keep Previous/Next available
       and move first/last-page no-op checks into one local page-change handler.
 - [x] Restore `mkreport.js` grouped-condition selection: show one representative

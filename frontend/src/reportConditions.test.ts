@@ -50,7 +50,7 @@ describe("report condition groups", () => {
   });
 
   it("reports legacy merge-selection feedback", () => {
-    expect(reportConditionGroupError(conditions, [])).toBe("请选择要合并的条件");
+    expect(reportConditionGroupError(conditions, [])).toBe("");
     expect(reportConditionGroupError(conditions, [1])).toBe("不能合并单个");
     expect(reportConditionGroupError(conditions, [1, 3])).toBe("不连续不能合并");
     expect(reportConditionGroupError(conditions, [1, 2])).toBe("");

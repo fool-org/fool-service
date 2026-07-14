@@ -33,7 +33,7 @@ export function reportConditionSelectionIds(
 
 export function reportConditionGroupError(conditions: ReportConditionDraft[], selectedIds: number[]) {
   const selected = conditions.filter((condition) => selectedIds.includes(condition.id));
-  if (!selected.length) return "请选择要合并的条件";
+  if (!selected.length) return "";
   const selectedUnits = new Set(selected.map((condition) =>
     condition.groupPath[0] === undefined ? `condition:${condition.id}` : `group:${condition.groupPath[0]}`
   ));
