@@ -4102,3 +4102,28 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   restored Admin and Order List. After safe logout, a fake token's HTTP-200
   business error still cleared storage and rendered login. Compose was healthy,
   `db-migrate` was `Exited (0)`, and all 67 runtime-doctor checks passed.
+- 2026-07-15: aligned `detailview.js beginsave()` transport handling. The old
+  handler opens the non-dismissible `保存中` dialog before `save` / `new` and
+  hides it only inside `$http.success`; a network or non-2xx failure therefore
+  leaves that dialog visible without shared error feedback. Vue now passes the
+  existing `silentTransport` option through `saveobj` and `savenewobj`, and
+  closes its save dialog on a failed request only when a response-backed
+  business error populated the existing error state. Successful save, staged
+  child changes, View-derived fields and identity, `history.back()` navigation,
+  payloads, routes, DTOs, and components are unchanged; no new state, helper,
+  or abstraction was added. Focused/full frontend tests passed (83 focused; 19
+  files and 193 tests full), as did the TypeScript/Vite production build,
+  repository harness, and diff check. A clean `ecb8592e` build was deployed as
+  tagged frontend image
+  `sha256:67ce4a79d9e15cb8de295ac221b0a0479c47a734325915fab5c5eee61baa8f1c`
+  with entry bundle `index-CYqoDW3m.js`. An authorized isolated browser context
+  read the local CAPTCHA, logged in with `admin/admin`, opened `/view102/1001`,
+  and received deterministic HTTP 502 only from `saveobj`; the detail route and
+  sole `保存中` dialog remained, while `发生错误` and transport text stayed
+  absent. Removing the failure and repeating the unchanged save returned HTTP
+  200 and performed the old back navigation to `/main`. A second isolated
+  context forced HTTP 502 only from `savenewobj` on `/new102`; the same save
+  dialog remained without shared/transport feedback, and the request did not
+  reach the backend. Both sessions logged out successfully. Compose was
+  healthy, `db-migrate` was `Exited (0)`, order 1001 plus the final
+  8-order/4-item counts were unchanged, and all 67 runtime-doctor checks passed.

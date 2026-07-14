@@ -1557,6 +1557,11 @@ item must land with its matching implementation and validation evidence.
       preserve the current token, URL, and shell without an error dialog on
       network/non-2xx failure, retain stale-token return to login, and
       browser-verify HTTP 502 plus both success and business-error recovery.
+- [x] Restore `detailview.js beginsave()` transport handling: keep the
+      non-dismissible `保存中` dialog and suppress shared transport feedback
+      when `saveobj` / `savenewobj` has a network/non-2xx failure, retain
+      response-backed business errors, and browser-verify both failure branches
+      plus successful back-navigation recovery without data drift.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from
