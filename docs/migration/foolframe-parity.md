@@ -4167,3 +4167,24 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   View-derived panel per path. Logout returned HTTP 200. Compose was healthy,
   `db-migrate` was `Exited (0)`, order 1001 plus the 8-order/4-item counts were
   unchanged, and all 67 runtime-doctor checks passed.
+- 2026-07-15: aligned the server-rendered detail/new data transport surface
+  after View metadata succeeds. FoolFrame's `getItem` and `initnew` routes call
+  `res.render('detailView', ...)` only from their `querydatadetail` / `initnew`
+  `postandget` callbacks; request errors only log and leave the render callback
+  untouched. Vue now passes the existing `silentTransport` option through both
+  data requests. The View-before-data gate, response-backed business errors,
+  successful detail/new rendering, payloads, routes, DTOs, components, and
+  pending state are unchanged; no helper, state, or abstraction was added.
+  Focused payload tests passed (84/84), as did all 195 frontend tests, the
+  TypeScript/Vite production build, repository harness, and diff check. Exact
+  implementation commit `545ed181` produced deployed image
+  `sha256:800448bbf2cd98fed8f701435461415e6a7b9d03dca8784b0e3820ba8e6584b0`
+  and entry bundle `index-D4PLU5xf.js`. Authorized `admin/admin` browser
+  acceptance loaded `getreaditemview` HTTP 200 before forcing HTTP 502 from
+  `querydatadetail` on `/view102/1001` and `initnew` on `/new102`. Both routes
+  retained one View-derived panel without `发生错误` or transport text. A
+  separate HTTP-200 nonzero-code detail response still rendered the shared
+  business-error dialog. Removing the failures returned View/data HTTP 200 in
+  order on both paths, restored normal panels, and logout returned HTTP 200.
+  Compose was healthy, `db-migrate` was `Exited (0)`, order 1001 plus the
+  8-order/4-item counts were unchanged, and all 67 runtime-doctor checks passed.

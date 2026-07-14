@@ -1570,6 +1570,10 @@ item must land with its matching implementation and validation evidence.
       suppress shared feedback when `getreaditemview` has a network/non-2xx
       failure on item, detail, or new routes, retain the View-before-data gate,
       and browser-verify all three failures plus successful recovery.
+- [x] Restore the server-rendered detail/new data transport surface: suppress
+      shared feedback when `querydatadetail` or `initnew` has a network/non-2xx
+      failure after View metadata succeeds, retain business errors, and
+      browser-verify both failures plus successful recovery.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from
