@@ -697,7 +697,7 @@ async function loadViewWorkflow(resetPage = false) {
 
 async function searchCurrentView() {
   stopAutoRefresh();
-  pageIndex.value = 1;
+  if (!isChartView.value) pageIndex.value = 1;
   const response = await queryCurrentViewData();
   if (!response) return;
   selectedObjectId.value = "";

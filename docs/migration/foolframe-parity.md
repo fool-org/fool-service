@@ -3804,3 +3804,11 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `/view100` showed the eight seeded rows and emitted zero requests in another
   2.6-second window. Compose was healthy and all 67 runtime-doctor checks
   passed.
+- 2026-07-15: aligned `ViewWithChartController.query` paging. In the old
+  chart template, Find calls `querylistdata.query`, which invokes the bound
+  `querydata` callback directly and therefore retains the current page. Plain
+  `view.jade` Find still calls its local `query`, which resets to page one.
+  Vue now applies its existing page reset only to non-chart manual searches;
+  scheduled refresh retains its separate page-one reset. No payload, View/Data
+  projection, DTO, route, or component changed. Docker/browser evidence on a
+  real second page remains required before closure.

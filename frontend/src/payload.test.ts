@@ -578,13 +578,15 @@ describe("App defaults", () => {
     expect(sudokuPanelsSource).not.toContain("暂无数据。");
   });
 
-  it("resets the main View search to the first page", () => {
+  it("resets plain View search while preserving the chart View page", () => {
     const searchSource = appSource.slice(
       appSource.indexOf("async function searchCurrentView"),
       appSource.indexOf("async function loadLegacyDetailPath")
     );
-    expect(searchSource).toContain("pageIndex.value = 1");
-    expect(searchSource.indexOf("pageIndex.value = 1")).toBeLessThan(searchSource.indexOf("queryCurrentViewData()"));
+    expect(searchSource).toContain("if (!isChartView.value) pageIndex.value = 1");
+    expect(searchSource.indexOf("if (!isChartView.value) pageIndex.value = 1")).toBeLessThan(
+      searchSource.indexOf("queryCurrentViewData()")
+    );
     expect(viewListPanelSource).toContain("emit('search')");
     expect(appSource).toContain('@search="searchCurrentView"');
   });

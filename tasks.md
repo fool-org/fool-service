@@ -1493,6 +1493,10 @@ item must land with its matching implementation and validation evidence.
       scheduled `viewWithChart` refresh while its Data pane is hidden, while
       keeping manual Find active on the Chart pane and preserving normal View
       timer concurrency; browser-verify with a temporary one-second interval.
+- [ ] Restore `ViewWithChartController.query` paging: keep a chart View's
+      current page when Find directly invokes `querylistdata.query`, while
+      retaining page-one reset for plain View Find and scheduled refresh;
+      browser-verify on a temporary second page and remove the seed rows.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from
