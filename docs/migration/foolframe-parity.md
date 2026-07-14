@@ -3469,3 +3469,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   router dependency, or duplicate View decision was added. The deployed bundle
   contains both exact template strings in one app chunk and the frontend image
   was `sha256:d83c8470e885da5a2cd8f0aa7cba4b622e9e36a9aa3be12c12d746899c672345`.
+  An authenticated Docker replay temporarily changed `SW_APP_VIEW` from 100 to
+  0: login landed on `/main` with only the long guidance, Home changed the URL
+  to `/` with only `默认首页 还没有配置`, and both routes stayed at exactly
+  390px document width on a 390x844 viewport. Browser errors were empty, the
+  test session logged out, and `SW_APP_VIEW=100` was restored afterward.

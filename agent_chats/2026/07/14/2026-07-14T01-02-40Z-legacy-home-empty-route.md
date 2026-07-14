@@ -50,6 +50,13 @@ every change atomically while retaining View-first rendering and code reuse.
 - `docker compose build frontend` and forced frontend recreation passed with
   image `sha256:d83c8470e885da5a2cd8f0aa7cba4b622e9e36a9aa3be12c12d746899c672345`.
 - The deployed Nginx app chunk contains both exact Jade strings.
+- An authenticated Docker replay temporarily changed
+  `SW_APPLICATION.SW_APP_VIEW` from 100 to 0. Successful `admin/admin` login
+  landed on `/main` and showed only the long `Sudoku.jade` guidance; clicking
+  desktop Home changed the URL to `/` and showed only `默认首页 还没有配置`.
+- Both empty-home routes retained viewport and document widths of exactly 390px
+  at 390x844. Browser console errors were empty, the test session logged out,
+  and the database value was restored to 100.
 - Full frontend tests/build, repository harness, Compose health, backend
   `/test`, and `git diff --check` passed before the atomic commit.
 
@@ -57,13 +64,11 @@ every change atomically while retaining View-first rendering and code reuse.
 
 - Deployed bundle `/usr/share/nginx/html/assets/index-D9gZczne.js` in the
   `fool-service-frontend-1` container.
+- `artifacts/runs/20260714-legacy-empty-home-visible/empty-main-desktop.png`
+- `artifacts/runs/20260714-legacy-empty-home-visible/empty-main-mobile.png`
+- `artifacts/runs/20260714-legacy-empty-home-visible/empty-root-mobile.png`
 
 ## Skipped Checks And Risks
 
 - The full old FoolFrame application was not booted; checked-in route,
   JavaScript, and Jade sources supplied the old contract.
-- Visible no-default-View browser replay was not run because the Docker app is
-  configured with default View 100 and the browser run had already been
-  finalized before this route divergence was found. A future replay may
-  temporarily clear and restore `SW_APPLICATION.SW_APP_VIEW` to cover both
-  `/main` and Home `/` without changing seed data permanently.
