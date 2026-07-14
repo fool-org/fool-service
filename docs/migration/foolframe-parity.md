@@ -3501,3 +3501,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   normalized instead of reproducing the old caller's reversed arguments. The
   deployed frontend image was
   `sha256:3d02fc2c7c0797ca7f5029e86f429f8843b318bfa1c75d65118a6e60bb6ff9d4`.
+  Docker browser replay submitted an invalid code at desktop and 390x844:
+  both runs displayed `10006` / `Check code error.`, retained username,
+  password, entered code, and CAPTCHA image until dismissal, then preserved
+  credentials while clearing the code and replacing the CAPTCHA. The mobile
+  dialog stayed inside a 390px document with no browser errors.

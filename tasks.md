@@ -1419,7 +1419,8 @@ item must land with its matching implementation and validation evidence.
       omit the old blank error-modal intermediary as a presentation cleanup.
 - [x] Restore `login.js` failure feedback timing: adapt legacy error code/message
       before rendering, open the old `发生错误` footer-close dialog, preserve
-      login fields, and refresh the CAPTCHA only after dialog dismissal.
+      login fields, and refresh the CAPTCHA only after dialog dismissal;
+      browser-verify the lifecycle at desktop and 390px without overflow.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

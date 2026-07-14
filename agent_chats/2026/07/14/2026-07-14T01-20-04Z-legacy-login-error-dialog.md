@@ -55,11 +55,19 @@ every change atomically while retaining View-first rendering and code reuse.
   image `sha256:3d02fc2c7c0797ca7f5029e86f429f8843b318bfa1c75d65118a6e60bb6ff9d4`.
 - Full frontend tests/build, repository harness, Compose health, backend
   `/test`, and `git diff --check` passed before the atomic commit.
+- Docker browser replay submitted an invalid code at desktop and 390x844. Both
+  runs displayed `10006` / `Check code error.`, kept username, password, code,
+  and CAPTCHA image unchanged until dismissal, then preserved credentials while
+  clearing the code and replacing the CAPTCHA.
+- The 390px dialog stayed inside the viewport, document width remained 390px,
+  and browser error logs were empty.
+
+## Runtime Evidence
+
+- `artifacts/runs/20260714-legacy-login-error-dialog/error-desktop.png`
+- `artifacts/runs/20260714-legacy-login-error-dialog/error-mobile.png`
 
 ## Skipped Checks And Risks
 
 - The full old FoolFrame application was not booted; checked-in Jade and
   JavaScript supplied the old dialog lifecycle.
-- Browser failure/dismissal replay is deferred to the next validation slice
-  because the current browser run was already finalized before this gap was
-  implemented.
