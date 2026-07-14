@@ -1457,7 +1457,7 @@ item must land with its matching implementation and validation evidence.
       metadata menus, submenus, and both `安全退出` controls actionable while
       unrelated requests are pending; browser-verify the paused-backend path
       without widening the change to View/detail/report controls.
-- [ ] Restore `view.jade` / `viewWithChart.jade` top-command availability:
+- [x] Restore `view.jade` / `viewWithChart.jade` top-command availability:
       leave Find, Report, and metadata create commands active during unrelated
       View requests while retaining pending protection in row actions, paging,
       Sudoku, detail, and report internals; browser-verify the in-flight state.

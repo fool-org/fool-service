@@ -36,9 +36,16 @@ commits.
 - `python scripts/runtime_doctor.py` passed all 67 checks.
 - Deployed frontend image:
   `sha256:9608f77af0dfbd8b30026ed60dcb044fad9d2442cc022ced5ee33cc18400be40`.
+- Authorized Docker browser acceptance logged in as `admin`, opened the normal
+  list at `/view101`, paused the backend, and started a real `querydata`
+  request. At 600ms Find and Report both remained enabled; clicking Report
+  during the pending query loaded the report dialog after the backend resumed.
+  The current Docker seed has no non-row create operation, so the frontend
+  metadata test remains the executable proof for the create-command state.
+- The backend was unpaused immediately after the browser check, the report
+  column request completed normally, `/test` passed, Compose returned to the
+  expected state, and all 67 runtime-doctor checks passed again.
 
 ## Risks And Follow-ups
 
-- Browser acceptance must inspect the top commands during a paused-backend View
-  request and restore the backend afterward.
 - `docs/superpowers/` is unrelated untracked work and remains untouched.

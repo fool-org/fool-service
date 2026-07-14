@@ -3654,3 +3654,10 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   active and retains only Report's pre-View initialization guard. Shared row
   actions, Sudoku panels, pagination, detail, and report internals keep their
   existing request boundaries; no new prop, state, or request path was added.
+  Authorized Docker browser acceptance opened normal list `/view101`, paused
+  the backend, and started a real `querydata` request. At 600ms Find and Report
+  remained enabled; Report was clicked during that pending query and its dialog
+  loaded normally once the backend resumed. The current Docker metadata has no
+  non-row create operation, so the 179-test frontend suite retains the runtime
+  metadata fixture that proves create commands remain active. Backend `/test`,
+  Compose state, and all 67 runtime-doctor checks passed afterward.
