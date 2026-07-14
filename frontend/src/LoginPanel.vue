@@ -26,6 +26,7 @@ const emit = defineEmits<{
 const userId = ref("");
 const password = ref("");
 const checkCodeValue = ref("");
+const resetDialogVisible = ref(false);
 
 function text(...values: unknown[]) {
   const value = values.find((item) => typeof item === "string" && item.trim());
@@ -50,6 +51,15 @@ watch(captchaKey, () => {
 function submit() {
   emit("submit", userId.value, password.value, dbId.value, checkCodeValue.value);
 }
+
+function dismissLoginDialog() {
+  if (resetDialogVisible.value) {
+    resetDialogVisible.value = false;
+    emit("refresh");
+    return;
+  }
+  emit("dismissError");
+}
 </script>
 
 <template>
@@ -71,23 +81,23 @@ function submit() {
 
       <div class="login-actions">
         <Button type="submit" label="登录" :disabled="!captchaKey" />
-        <Button type="button" label="重置" severity="secondary" @click="emit('refresh')" />
+        <Button type="button" label="重置" severity="secondary" @click="resetDialogVisible = true" />
       </div>
     </form>
 
     <Dialog
-      v-if="errorMessage"
+      v-if="errorMessage || resetDialogVisible"
       :visible="true"
       modal
       header="发生错误"
       :closable="false"
       :draggable="false"
-      @update:visible="(visible) => { if (!visible) emit('dismissError') }"
+      @update:visible="(visible) => { if (!visible) dismissLoginDialog() }"
     >
       <p v-if="errorCode">错误代码:{{ errorCode }}</p>
-      <p>{{ errorCode ? `错误信息:${errorMessage}` : errorMessage }}</p>
+      <p v-if="errorMessage">{{ errorCode ? `错误信息:${errorMessage}` : errorMessage }}</p>
       <template #footer>
-        <Button type="button" label="关闭" severity="secondary" outlined @click="emit('dismissError')" />
+        <Button type="button" label="关闭" severity="secondary" outlined @click="dismissLoginDialog" />
       </template>
     </Dialog>
 

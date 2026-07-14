@@ -1362,8 +1362,12 @@ describe("App defaults", () => {
     expect(loginPanelSource).not.toContain("pending || !captchaKey");
     expect(appSource).not.toContain(':pending="Boolean(pendingAction)"\n    @dismiss-error');
     expect(loginPanelSource).toContain('label="重置"');
-    expect(loginPanelSource).toContain("@click=\"emit('refresh')\"");
+    expect(loginPanelSource).toContain('@click="resetDialogVisible = true"');
     expect(loginPanelSource).not.toContain("function reset()");
+    expect(loginPanelSource).toContain('v-if="errorMessage || resetDialogVisible"');
+    expect(loginPanelSource).toContain("if (resetDialogVisible.value) {");
+    expect(loginPanelSource).toContain('resetDialogVisible.value = false;\n    emit("refresh");');
+    expect(loginPanelSource).toContain('emit("dismissError");');
     expect(loginPanelSource).toContain('!appUrl.value.includes("://") ? `http://${appUrl.value}` : appUrl.value');
     expect(loginPanelSource).toContain(':href="appHref"');
     expect(loginPanelSource).not.toContain(':href="appUrl"');
@@ -1371,6 +1375,7 @@ describe("App defaults", () => {
     expect(loginPanelSource).toContain("错误代码:{{ errorCode }}");
     expect(loginPanelSource).toContain("错误信息:${errorMessage}");
     expect(loginPanelSource).toContain('label="关闭" severity="secondary" outlined');
+    expect(loginPanelSource).toContain('@click="dismissLoginDialog"');
     expect(appSource).toContain(':error-code="loginErrorCode"');
     expect(appSource).toContain('@dismiss-error="dismissLoginError"');
     expect(loginSource).toContain('if (!response) {');
