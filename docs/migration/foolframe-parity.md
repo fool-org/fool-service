@@ -3011,6 +3011,15 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   no candidate column is selected, matching the old unconditional controls and
   relying on the existing `addOutput` no-op guard. Request-pending protection,
   duplicate-output handling, and View-derived report metadata remain unchanged.
+- 2026-07-15: restored `mkreport.js`'s exact output-type metadata behavior. The
+  old candidate change handler appends only the selected column's real
+  `QueryTypes`; when none exist, the output-method list stays empty and Add is a
+  no-op. Vue no longer invents an `原值` option for that case, while retaining
+  the old shortcut that automatically adds a candidate changed to exactly one
+  real output type. Full frontend tests passed (19 files, 197 tests), the
+  production build passed, and authorized isolated-browser checks against the
+  clean `9259f616` image proved real explicit Add, empty-metadata no-op,
+  single-type auto-add, and HTTP 200 login/logout.
 - 2026-07-14: restored `view.jade` / `mkreport.js` report-condition Add-command
   availability. Both header and trailing Add buttons now remain actionable when
   the loaded View has zero report fields, matching the old controls and creating
