@@ -190,8 +190,7 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain("emit('runViewOperation', operation, isEditing)");
     expect(viewDetailPanelSource).toContain('header="发生错误"');
     expect(viewDetailPanelSource).toContain("emit('dismissError')");
-    expect(toolbarSource).toMatch(/v-for="operation in detailViewOperations"[\s\S]*?:disabled="pending"/);
-    expect(toolbarSource).not.toMatch(/v-for="operation in detailViewOperations"[\s\S]*?:disabled="pending \|\| isEditing"/);
+    expect(toolbarSource).not.toContain(':disabled="pending"');
     expect(viewDetailPanelSource).not.toContain("operationParams(operation)");
     expect(appSource).toContain("legacyRunOperationMessage(response.data)");
     expect(appSource).toContain("operationResult.value = { message, success }");
@@ -229,9 +228,11 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain('v-if="isEditing" class="detail-field-grid detail-field-edit"');
     expect(viewDetailPanelSource).toContain('v-if="!isEditing && (selectedObjectId || schemaOnly)" class="detail-field-grid"');
     expect(viewDetailPanelSource).toContain('v-if="!isEditing && (selectedObjectId || schemaOnly)"');
-    expect(viewDetailPanelSource).toContain(':disabled="pending || isEditing"');
+    expect(viewDetailPanelSource).toContain(':disabled="isEditing"');
     expect(viewDetailPanelSource).toContain('v-if="!isCreatingObject"');
-    expect(viewDetailPanelSource).toContain(':disabled="pending || !isEditing"');
+    expect(viewDetailPanelSource).toContain(':disabled="saving || !isEditing"');
+    expect(viewDetailPanelSource).not.toContain("pending: boolean");
+    expect(appSource).not.toContain(':pending="Boolean(pendingAction)"\n          :schema-only');
     expect(viewDetailPanelSource).not.toContain('v-if="!isEditing"\n        type="button"\n        label="编辑"');
     expect(viewDetailPanelSource).not.toContain('v-else\n        type="button"\n        label="保存"');
     expect(viewDetailPanelSource).toContain("isEditing.value = props.isCreatingObject");
@@ -716,6 +717,8 @@ describe("App defaults", () => {
     expect(metadataFieldEditorSource).toContain("未找到匹配的选项");
     expect(metadataFieldEditorSource).toContain("&ndash; {{ option.id }}");
     expect(metadataFieldEditorSource).toContain("查找更多");
+    expect(metadataFieldEditorSource).not.toContain("lookupDisabled");
+    expect(appSource).not.toContain("lookupDisabled");
     expect(metadataFieldEditorSource).not.toContain("<InputGroup>");
     expect(metadataFieldEditorSource).not.toContain("<Listbox");
   });

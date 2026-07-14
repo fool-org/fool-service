@@ -55,7 +55,6 @@ const props = defineProps<{
   isPendingAddedItem: (group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) => boolean;
   loadExistingDetailView: (group: QueryDataDetailItemGroup) => Promise<boolean>;
   operationResult: { message: string; success: boolean } | null;
-  pending: boolean;
   saveDialogVisible: boolean;
   saving: boolean;
   schemaOnly: boolean;
@@ -212,7 +211,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
         icon="pi pi-pencil"
         severity="secondary"
         outlined
-        :disabled="pending || isEditing"
+        :disabled="isEditing"
         @click="isEditing = true"
       />
       <Button
@@ -222,7 +221,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
         severity="secondary"
         outlined
         :loading="saving"
-        :disabled="pending || !isEditing"
+        :disabled="saving || !isEditing"
         @click="emit('saveSelectedObject')"
       />
       <template v-if="!isCreatingObject">
@@ -230,7 +229,6 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
           v-for="operation in detailViewOperations"
           :key="operationKey(operation)"
           type="button"
-          :disabled="pending"
           :label="operationLabel(operation)"
           icon="pi pi-check"
           severity="secondary"

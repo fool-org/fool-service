@@ -3700,3 +3700,12 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   discarded the staged change, metadata was restored to `101/101`, MySQL child
   rows were unchanged, Compose returned healthy, and the restored page again
   rendered Add, Delete, and Detail links.
+- 2026-07-15: aligned `detailView.jade`'s parent-detail command availability.
+  The old Edit, Save, View-operation, and field lookup controls do not inherit
+  a page-wide HTTP pending flag. Vue now removes that global lock, keeps Edit
+  tied to its edit session, and disables Save only when no edit session exists
+  or its own save request is running. Lookup editors retain their existing
+  local loading state. The change deletes the now-unused detail `pending` prop
+  and lookup context flag without adding state, requests, DTO bindings, or
+  duplicate components. Docker browser acceptance remains required before the
+  task is closed.

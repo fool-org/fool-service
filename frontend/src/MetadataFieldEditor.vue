@@ -37,12 +37,10 @@ const props = withDefaults(
     objectId?: string;
     ownerId?: string;
     isAdded?: boolean;
-    lookupDisabled?: boolean;
     readonlyValue?: string;
   }>(),
   {
     isAdded: false,
-    lookupDisabled: false,
     objectId: "",
     ownerId: "",
     options: () => [],
@@ -142,7 +140,6 @@ function updateLookupTerm(term: string | LookupChoice | null) {
       :delay="300"
       :min-length="1"
       :loading="lookupPending"
-      :disabled="lookupDisabled"
       force-selection
       fluid
       @complete="searchLookup($event.query)"

@@ -231,7 +231,6 @@ const candidateViewLoading = computed(() => pendingAction.value === "child-selec
 const savingDetail = computed(() => pendingAction.value === "saveobj" || pendingAction.value === "savenewobj");
 const fieldEditorContext = computed(() => ({
   isAdded: isCreatingObject.value,
-  lookupDisabled: Boolean(pendingAction.value),
   objectId: selectedObjectId.value,
   ownerId: detailOwnerId.value,
   token: token.value,
@@ -1125,7 +1124,6 @@ function syncDetailDrafts() {
           :info-message="infoMessage"
           :load-existing-detail-view="loadExistingDetailView"
           :operation-result="operationResult"
-          :pending="Boolean(pendingAction)"
           :schema-only="isMetadataOnlyView"
           :save-dialog-visible="saveDialogVisible"
           :saving="savingDetail"
