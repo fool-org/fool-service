@@ -3747,5 +3747,15 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   while a page request is still in flight. Request paths, page-boundary guards,
   and metadata adapters are unchanged.
   The change deletes one prop chain and all report-only disabled bindings; it
-  adds no state, request, route, DTO binding, or duplicate component. Docker
-  browser acceptance remains required before the task is closed.
+  adds no state, request, route, DTO binding, or duplicate component.
+  Authorized Docker browser acceptance used `view101` and seven temporary
+  order-item rows to expose two report pages. During a paused `saverpt` request,
+  every setup button/select remained enabled and Add Condition created a local
+  row. Initial Confirm still hid setup and returned a two-page report. During a
+  paused next-page request, results and Return remained visible; Return restored
+  setup immediately, and the late failed response did not reopen results. The
+  result header retained no close button, while setup Close remained active.
+  Browser locator clicks centered on the dialog instead of the empty mask, so
+  physical mask dismissal remains source-contract coverage rather than claimed
+  browser evidence. All seven temporary items were removed, `/view101` returned
+  to four rows, Compose was healthy, and all 67 runtime-doctor checks passed.

@@ -48,11 +48,40 @@ commits without coupling Vue components to concrete business DTOs.
   passed once more.
 - After narrowing `reportRunning` to initial generation, the 17-file/183-test
   suite, production build, and harness passed again.
-- Pending Docker rebuild, runtime doctor, and authorized browser acceptance.
+- `docker compose build frontend` and final frontend replacement passed.
+- Deployed frontend image:
+  `sha256:8a5e0ea34a7e23e67589b9b50c97f2d5ebd1426d41ce9070619be8b97872ba76`.
+- `docker compose ps -a` showed backend/frontend/MySQL/Redis running and
+  `db-migrate` at `Exited (0)`.
+- `python scripts/runtime_doctor.py` passed all 67 checks before and after
+  browser acceptance; backend `/test` passed through the doctor.
+- Authorized browser acceptance used `view101` and temporarily inserted items
+  `990101` through `990107`, producing eleven rows and two report pages.
+- During a paused-backend `saverpt` request, all setup buttons and selects had
+  `disabled=false`; switching to Conditions and clicking Add Condition created
+  one local condition row. The backend's existing no-op save route returned
+  `报表定义已提交。` after resume.
+- Selecting Item ID and Confirm preserved initial-generation hiding and opened
+  `报表结果 共2页 当前第1页` with no header Close button.
+- During a paused-backend next-page `mkrpt`, the result dialog remained visible
+  and Previous, Next, export placeholders, and Return all had `disabled=false`.
+  Return immediately restored setup before the request settled. The delayed
+  request eventually failed after the pause, but rendered `无法生成报表。` in
+  setup and did not reopen results.
+- Setup Close remained active and closed the dialog. Physical mask clicks could
+  not be proven because the browser locator centered clicks on dialog content;
+  `dismissable-mask` remains covered by the focused source contract.
+- All seven temporary items were deleted. MySQL returned to eight orders and
+  four order items; reloaded `/view101` showed four records, no Page 2, no
+  temporary text, and no dialog. Order `1001` remained
+  `BTC-USDT / customer 3001 / state 0`.
 
 ## Risks And Follow-ups
 
-- Browser-verify setup tabs/commands during an unrelated request, then result
-  paging and Return during a page `mkrpt`, without saving a report definition.
-- Remove any temporary local acceptance rows and verify original data afterward.
+- This parity slice is closed; the broader old-page migration remains active.
+- Mask dismissal retains a small browser-evidence gap described above; its
+  component contract and the shared PrimeVue pattern are unchanged.
+- No screenshot artifact was retained because the acceptance depended on DOM
+  enabled state and temporary request/database state; final runtime and data
+  restoration were verified directly.
 - `docs/superpowers/` is unrelated untracked work and remains untouched.

@@ -1477,7 +1477,7 @@ item must land with its matching implementation and validation evidence.
       keep list row links and page commands active during unrelated requests,
       preserve page-boundary and Sudoku refresh guards, and browser-verify with
       temporary local rows that are removed afterward.
-- [ ] Restore `view.jade` / `mkreport.js` report-command availability: keep
+- [x] Restore `view.jade` / `mkreport.js` report-command availability: keep
       setup fields and commands active during unrelated requests, and keep
       result paging, Return, and mask dismissal visible during page requests;
       retain initial-generation hiding and the no-close-button result header.
