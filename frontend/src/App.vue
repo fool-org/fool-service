@@ -615,8 +615,10 @@ async function runOperation(operationId: number) {
     operationId
   });
 
-  return runAction("runoperation", () =>
-    postApi<LegacyRunOperationResult>("/api/v1/data/runoperation", request)
+  return runAction(
+    "runoperation",
+    () => postApi<LegacyRunOperationResult>("/api/v1/data/runoperation", request),
+    { silentTransport: true }
   );
 }
 

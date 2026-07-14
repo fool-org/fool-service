@@ -1529,6 +1529,10 @@ item must land with its matching implementation and validation evidence.
       tick start `getmsg` even while an earlier poll is pending, retain silent
       transport failures and session timer cleanup, and browser-verify
       overlapping requests against a paused backend.
+- [ ] Restore `operation.js`'s success-only transport path: suppress shared
+      detail errors and keep the result dialog closed when `runoperation` has a
+      network/non-2xx failure, then browser-verify failure and successful
+      recovery without changing the View-derived operation payload.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from

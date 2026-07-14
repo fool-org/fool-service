@@ -3965,3 +3965,11 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   safe logout. Compose was healthy, `db-migrate` was `Exited (0)`, View refresh
   intervals and row counts were unchanged, and all 67 runtime-doctor checks
   passed.
+- 2026-07-15: aligned `operation.js`'s success-only transport path. The old
+  `runoperation` service opens `执行结果` only from its `$http.success` callback;
+  network and non-2xx failures provide no shared detail error or result dialog.
+  Vue now passes the existing `silentTransport` option through the one
+  View-derived operation request. Response-backed results, edit-state guards,
+  request payloads, operation metadata, routes, DTOs, and result presentation
+  are unchanged. All 193 frontend tests, TypeScript/Vite production build, and
+  repository harness pass. Docker/browser evidence remains required.

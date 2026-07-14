@@ -155,6 +155,10 @@ describe("App defaults", () => {
   });
 
   it("renders detail View operations from the loaded detail payload", () => {
+    const operationRequestSource = appSource.slice(
+      appSource.indexOf("async function runOperation"),
+      appSource.indexOf("async function runViewOperation")
+    );
     const operationHandlerSource = appSource.slice(
       appSource.indexOf("async function runViewOperation"),
       appSource.indexOf("function applyDefaultAppView")
@@ -190,6 +194,7 @@ describe("App defaults", () => {
     expect(toolbarSource).not.toContain(':disabled="pending"');
     expect(viewDetailPanelSource).not.toContain("operationParams(operation)");
     expect(appSource).toContain("legacyRunOperationMessage(response.data)");
+    expect(operationRequestSource).toContain("{ silentTransport: true }");
     expect(appSource).toContain("operationResult.value = { message, success }");
     expect(operationHandlerSource).not.toContain("queryCurrentViewData()");
     expect(operationHandlerSource).not.toContain("queryDetail()");
