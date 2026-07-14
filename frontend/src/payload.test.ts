@@ -696,7 +696,7 @@ describe("App defaults", () => {
     expect(appSource).toContain("scheduleAutoRefresh(response.data)");
     expect(appSource).toContain("window.setInterval");
     expect(appSource).toContain("pageIndex.value = 1");
-    expect(appSource).toContain("if (!pendingAction.value)");
+    expect(appSource).not.toContain("if (!pendingAction.value)");
     expect(appSource).toContain("onUnmounted(() => {");
     expect(appSource).toContain("stopAutoRefresh()");
     expect(appSource).toContain("stopShellPolling()");

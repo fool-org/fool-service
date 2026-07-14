@@ -3774,3 +3774,10 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   error dialog appeared, Compose was healthy, and all 67 runtime-doctor checks
   passed. Seeded panel refresh intervals are zero, so timer concurrency remains
   focused source-contract coverage.
+- 2026-07-15: aligned `timer.js` main View auto-refresh concurrency. The old
+  timer invokes each registered query callback when due without checking for an
+  active HTTP request. Vue now removes its extra global-pending guard while
+  retaining the metadata interval, timer cleanup, page-one reset, and shared
+  `queryCurrentViewData` path. The change removes one conditional and adds no
+  state, request type, route, DTO binding, or component. Docker/browser runtime
+  evidence remains required before the task is closed.

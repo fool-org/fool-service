@@ -810,10 +810,8 @@ function scheduleAutoRefresh(result?: ListViewResult) {
   const seconds = listAutoFreshTime(result);
   if (seconds > 0) {
     autoRefreshTimer = window.setInterval(() => {
-      if (!pendingAction.value) {
-        pageIndex.value = 1;
-        void queryCurrentViewData();
-      }
+      pageIndex.value = 1;
+      void queryCurrentViewData();
     }, seconds * 1000);
   }
 }
