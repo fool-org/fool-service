@@ -476,7 +476,7 @@ describe("App defaults", () => {
     expect(viewListPanelSource).toContain('v-if="supportedTemplate && !sudokuView" v-show="tableVisible"');
     expect(appSource).toContain("useSudokuPanels");
     expect(appSource).toContain("loadSudokuPanels");
-    expect(sudokuWorkflowSource).toContain('loadViewDataById(panelViewId, "sudoku-panel", 5)');
+    expect(sudokuWorkflowSource).toContain('loadViewDataById(panelViewId, "sudoku-panel", 5, silentTransport)');
     expect(sudokuWorkflowSource).toContain("scheduleRefresh(panel, next)");
     expect(appSource).toContain("stopSudokuPanelRefresh()");
     expect(viewListPanelSource).toContain("@refresh-panel=\"emit('refreshPanel', $event)\"");

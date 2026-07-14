@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ref } from "vue";
 import type { CommonResponse } from "./api";
-import { useViewDataWorkflow } from "./useViewDataWorkflow";
+import { type WorkflowActionOptions, useViewDataWorkflow } from "./useViewDataWorkflow";
 
 describe("useViewDataWorkflow", () => {
   afterEach(() => {
@@ -159,6 +159,28 @@ describe("useViewDataWorkflow", () => {
     expect(calls[1].payload).not.toHaveProperty("queryFilter");
     expect(response?.view.ViewId).toBe(201);
     expect(response?.data?.Data).toEqual([{ Items: [{ PrpId: "childName", FmtValue: "One" }] }]);
+  });
+
+  it("forwards one action policy through panel View and data loads", async () => {
+    const actionOptions: Array<WorkflowActionOptions | undefined> = [];
+    vi.stubGlobal("fetch", vi.fn(async (path: string) => path === "/api/v1/view/getlistview"
+      ? jsonResponse({ ViewId: 201, Items: [{ Name: "Name", PropertyName: "name" }] })
+      : jsonResponse({ Data: [] })));
+    const workflow = useViewDataWorkflow({
+      ...baseRefs(),
+      runAction: async <T>(
+        _label: string,
+        action: () => Promise<CommonResponse<T>>,
+        options?: WorkflowActionOptions
+      ) => {
+        actionOptions.push(options);
+        return action();
+      }
+    });
+
+    await workflow.loadViewDataById(200, "sudoku-panel", 5, { silentTransport: true });
+
+    expect(actionOptions).toEqual([{ silentTransport: true }, { silentTransport: true }]);
   });
 
   it("loads a child panel View without querying row data", async () => {

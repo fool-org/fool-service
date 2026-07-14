@@ -2,7 +2,7 @@ import { ref, type Ref } from "vue";
 import type { CommonResponse, ListViewInfo, ListViewResult, QueryDataDetailResult, TableColumnInfo } from "./api";
 import { postApi } from "./api";
 import { buildQueryDataDetailRequest } from "./payload";
-import type { WorkflowActionRunner } from "./useViewDataWorkflow";
+import type { WorkflowActionOptions, WorkflowActionRunner } from "./useViewDataWorkflow";
 import {
   appendLegacyChartSample,
   listAutoFreshTime,
@@ -21,10 +21,21 @@ export type SudokuPanelResult = {
   chart?: LegacyChartData;
 };
 
+const silentTransport: WorkflowActionOptions = { silentTransport: true };
+
 interface SudokuPanelWorkflowOptions {
   enabled: Readonly<Ref<boolean>>;
-  loadViewById: (viewId: number, label?: string) => Promise<CommonResponse<ListViewInfo> | null>;
-  loadViewDataById: (viewId: number, label?: string, pageSize?: number) => Promise<SudokuPanelResult | null>;
+  loadViewById: (
+    viewId: number,
+    label?: string,
+    actionOptions?: WorkflowActionOptions
+  ) => Promise<CommonResponse<ListViewInfo> | null>;
+  loadViewDataById: (
+    viewId: number,
+    label?: string,
+    pageSize?: number,
+    actionOptions?: WorkflowActionOptions
+  ) => Promise<SudokuPanelResult | null>;
   panels: Readonly<Ref<TableColumnInfo[]>>;
   runAction: WorkflowActionRunner;
   token: Ref<string>;
@@ -55,7 +66,7 @@ export function useSudokuPanels(options: SudokuPanelWorkflowOptions) {
     for (const childPanel of viewColumns(response.view)) {
       const childViewId = sudokuPanelViewId(childPanel);
       if (!childViewId || sudokuPanelListViewType(childPanel) !== 0) continue;
-      const childResponse = await options.loadViewDataById(childViewId, "sudoku-panel", 5);
+      const childResponse = await options.loadViewDataById(childViewId, "sudoku-panel", 5, silentTransport);
       if (!childResponse) continue;
       mergePanelResult(childViewId, childResponse);
       scheduleRefresh(childPanel, childResponse);
@@ -66,20 +77,22 @@ export function useSudokuPanels(options: SudokuPanelWorkflowOptions) {
     const panelViewId = sudokuPanelViewId(panel);
     const kind = sudokuPanelKind(panel);
     if (kind === "item" || kind === "linechart") return loadDetailPanel(panelViewId, `sudoku-${kind}`);
-    return options.loadViewDataById(panelViewId, "sudoku-panel", 5);
+    return options.loadViewDataById(panelViewId, "sudoku-panel", 5, silentTransport);
   }
 
   async function loadDetailPanel(panelViewId: number, label: string) {
-    const panelViewResponse = await options.loadViewById(panelViewId, label);
+    const panelViewResponse = await options.loadViewById(panelViewId, label, silentTransport);
     if (!panelViewResponse) return null;
     const loadedViewId = viewId(panelViewResponse.data, panelViewId);
     if (!loadedViewId) return { view: panelViewResponse.data, data: null, detail: null };
-    const detailResponse = await options.runAction(`${label}-detail`, () =>
-      postApi<QueryDataDetailResult>("/api/v1/data/querydatadetail", buildQueryDataDetailRequest({
+    const detailResponse = await options.runAction(
+      `${label}-detail`,
+      () => postApi<QueryDataDetailResult>("/api/v1/data/querydatadetail", buildQueryDataDetailRequest({
         token: options.token.value,
         viewId: loadedViewId,
         objId: ""
-      }))
+      })),
+      silentTransport
     );
     return { view: panelViewResponse.data, data: null, detail: detailResponse?.data ?? null };
   }

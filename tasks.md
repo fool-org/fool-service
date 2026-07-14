@@ -1509,6 +1509,10 @@ item must land with its matching implementation and validation evidence.
       HTTP-error path: keep candidate rows, record count, and paging without a
       shared error on data-query transport failure, while retaining View-load
       and response-backed business errors; browser-verify with backend stopped.
+- [ ] Restore success-only Sudoku panel transport handling across legacy
+      `querylistdata.js`, `groupview.js`, and `ServerUtil.js` paths: preserve
+      loaded List/Group/Map/Item/chart content without a shared transport error,
+      retain business errors, and browser-verify a stopped-backend Refresh.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from

@@ -3871,3 +3871,14 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   HTTP, network, or shared error. Find succeeded in the same dialog after the
   backend restarted. View metadata and order/item counts remained unchanged,
   Compose was healthy, and all 67 runtime-doctor checks passed.
+- 2026-07-15: aligned success-only transport handling across Sudoku panels.
+  Root List and grouped List panels use `querylistdata.js`, Group metadata uses
+  `groupview.js`, and Map, Item, and line-chart data use `ServerUtil.js`; none
+  defines an HTTP error callback. The shared Vue panel loaders now accept one
+  optional action policy, and only `useSudokuPanels` supplies the existing
+  `silentTransport` policy to its View, list-data, and detail-data requests.
+  Failed transport leaves already merged metadata/data/chart state in place,
+  while response-backed business errors and non-Sudoku callers remain
+  unchanged. No component, route, DTO binding, dependency, or request-specific
+  abstraction was added. All 189 frontend tests, TypeScript/Vite build, and
+  repository harness pass. Docker/browser evidence remains required.

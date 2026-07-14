@@ -137,20 +137,31 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
     return response;
   }
 
-  async function loadViewById(requestedViewId: number, label = "view") {
+  async function loadViewById(
+    requestedViewId: number,
+    label = "view",
+    actionOptions: WorkflowActionOptions = {}
+  ) {
     if (requestedViewId <= 0) {
       return null;
     }
-    return options.runAction(`${label}-view`, () =>
-      postApi<ListViewInfo>("/api/v1/view/getlistview", buildLegacyListViewRequest({
+    return options.runAction(
+      `${label}-view`,
+      () => postApi<ListViewInfo>("/api/v1/view/getlistview", buildLegacyListViewRequest({
         token: options.token.value,
         viewId: requestedViewId
-      }))
+      })),
+      actionOptions
     );
   }
 
-  async function loadViewDataById(requestedViewId: number, label = "view-data", pageSize = 10) {
-    const viewResponse = await loadViewById(requestedViewId, label);
+  async function loadViewDataById(
+    requestedViewId: number,
+    label = "view-data",
+    pageSize = 10,
+    actionOptions: WorkflowActionOptions = {}
+  ) {
+    const viewResponse = await loadViewById(requestedViewId, label, actionOptions);
     if (!viewResponse) {
       return null;
     }
@@ -158,13 +169,15 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
     if (!loadedViewId || !listRenderColumns(viewResponse.data).length) {
       return { view: viewResponse.data, data: null };
     }
-    const dataResponse = await options.runAction(`${label}-data`, () =>
-      postApi<ListViewResult>("/api/v1/data/querydata", buildLegacyQueryDataRequest({
+    const dataResponse = await options.runAction(
+      `${label}-data`,
+      () => postApi<ListViewResult>("/api/v1/data/querydata", buildLegacyQueryDataRequest({
         token: options.token.value,
         viewId: loadedViewId,
         pageIndex: 1,
         pageSize
-      }))
+      })),
+      actionOptions
     );
     return { view: viewResponse.data, data: dataResponse?.data ?? null };
   }

@@ -13,4 +13,11 @@ describe("SudokuPanels legacy interactions", () => {
     expect(sudokuWorkflowSource).toContain("void refreshPanel(panel)");
     expect(appSource).not.toContain(':disabled="Boolean(pendingAction)"');
   });
+
+  it("keeps success-only panel transport failures silent", () => {
+    expect(sudokuWorkflowSource).toContain("const silentTransport: WorkflowActionOptions = { silentTransport: true }");
+    expect(sudokuWorkflowSource).toContain('loadViewDataById(panelViewId, "sudoku-panel", 5, silentTransport)');
+    expect(sudokuWorkflowSource).toContain("loadViewById(panelViewId, label, silentTransport)");
+    expect(sudokuWorkflowSource).toContain("silentTransport\n    );");
+  });
 });
