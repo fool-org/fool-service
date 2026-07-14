@@ -890,6 +890,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore old report condition-row initialization: add an empty field and
       operator, delay the value editor until a View field is chosen, keep the
       first relation cell blank, and use the old `与/或` labels.
+- [x] Restore `mkreport.js` / `setextype.js` report-condition value controls:
+      derive enum, Boolean, date/time, numeric, and BusinessObject editors from
+      the selected View column while preserving lookup id/display filter values.
 - [x] Restore the compact old report condition table layout: icon-only add and
       group controls, operation columns before data fields, visible field
       headers, and both top and bottom add-condition entry points.

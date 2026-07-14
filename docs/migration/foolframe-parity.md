@@ -290,6 +290,18 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   relation cell blank, and creates the value editor only after metadata drives
   a field/comparison choice. Visible relation labels again use `与/或`; the
   request values remain legacy `and/or`.
+- 2026-07-15: restored `mkreport.js` report-condition value controls through
+  the shared `setextype.js` metadata path. The selected report/View column now
+  drives enum, Boolean, date, time, date-time, constrained numeric, and
+  BusinessObject editors instead of collapsing every non-enum value to text.
+  A 43-line adapter maps report metadata into the existing generic field editor;
+  no concrete business DTO or duplicate editor was added. BusinessObject
+  filters retain the selected id as `ValueExp` and suggestion text as
+  `ValueFmt`, while Boolean filters retain `true/false` plus `是/否`. Full
+  frontend tests passed (20 files, 203 tests), the production build passed, and
+  authorized browser acceptance against exact commit `1c974a72` exercised all
+  seven types through the real report UI and `mkrpt` request without changing
+  the seeded 8-order/4-item data.
 - 2026-07-12: restored the compact report condition table from `view.jade`.
   The condition tab again has icon-only add/group commands, `与/或` / `字段` /
   `运算` / `值` headers, old operation-column ordering, and add commands above
