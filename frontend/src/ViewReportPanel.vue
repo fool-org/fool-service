@@ -48,7 +48,6 @@ import {
 } from "./viewWorkflow";
 
 const props = defineProps<{
-  pending: boolean;
   runAction: WorkflowActionRunner;
   token: string;
   viewId: number;
@@ -252,9 +251,9 @@ onMounted(() => void loadReportColumns());
     :visible="true"
     modal
     class="report-dialog"
-    :closable="!pending && !showingResults"
+    :closable="!showingResults"
     :draggable="false"
-    :dismissable-mask="!pending"
+    dismissable-mask
     @update:visible="(visible) => { if (!visible) emit('close') }"
   >
     <template #closeicon><span class="legacy-dialog-close-icon" aria-hidden="true">&times;</span></template>
@@ -270,8 +269,8 @@ onMounted(() => void loadReportColumns());
       <div class="report-result-heading">
         <p>报表结果 共{{ resultPages }}页 当前第{{ resultPage }}页</p>
         <div class="report-result-actions legacy-button-group-xs">
-          <Button type="button" label="前一页" severity="secondary" outlined :disabled="pending" @click="changeReportPage(-1)" />
-          <Button type="button" label="下一页" severity="secondary" outlined :disabled="pending" @click="changeReportPage(1)" />
+          <Button type="button" label="前一页" severity="secondary" outlined @click="changeReportPage(-1)" />
+          <Button type="button" label="下一页" severity="secondary" outlined @click="changeReportPage(1)" />
           <Button type="button" label="导出当前页" severity="secondary" outlined />
           <Button type="button" label="导出全部" severity="secondary" outlined />
         </div>
@@ -299,7 +298,7 @@ onMounted(() => void loadReportColumns());
       <TabPanels>
         <TabPanel value="output">
           <section class="report-section">
-            <ReportOutputSelector v-model="reportCols" :columns="modelColumns" :disabled="pending" />
+            <ReportOutputSelector v-model="reportCols" :columns="modelColumns" />
           </section>
         </TabPanel>
 
@@ -307,10 +306,10 @@ onMounted(() => void loadReportColumns());
           <section class="report-section">
             <div class="report-condition-editor">
               <div class="report-condition-header">
-                <Button type="button" icon="pi pi-plus" class="report-condition-icon" size="small" severity="secondary" text title="增加条件" aria-label="增加条件" :disabled="pending" @click="addCondition" />
+                <Button type="button" icon="pi pi-plus" class="report-condition-icon" size="small" severity="secondary" text title="增加条件" aria-label="增加条件" @click="addCondition" />
                 <span aria-hidden="true"></span>
                 <span aria-hidden="true"></span>
-                <Button type="button" icon="pi pi-list" class="report-condition-icon" size="small" severity="secondary" text title="合并分组" aria-label="合并分组" :disabled="pending" @click="groupSelectedConditions" />
+                <Button type="button" icon="pi pi-list" class="report-condition-icon" size="small" severity="secondary" text title="合并分组" aria-label="合并分组" @click="groupSelectedConditions" />
                 <strong>与/或</strong>
                 <strong>字段</strong>
                 <strong>运算</strong>
@@ -319,7 +318,7 @@ onMounted(() => void loadReportColumns());
               <div v-if="conditions.length" class="report-conditions">
                 <div v-for="(condition, index) in conditions" :key="condition.id" class="report-condition-row" :style="{ marginLeft: `${condition.groupPath.length * 14}px` }">
                   <span aria-hidden="true"></span>
-                  <Button type="button" icon="pi pi-trash" class="report-condition-icon" severity="danger" text title="删除条件" aria-label="删除条件" :disabled="pending" @click="removeCondition(index)" />
+                  <Button type="button" icon="pi pi-trash" class="report-condition-icon" severity="danger" text title="删除条件" aria-label="删除条件" @click="removeCondition(index)" />
                   <Checkbox
                     v-if="!condition.groupPath.length || startsConditionGroup(condition, index)"
                     :model-value="conditionSelectionChecked(condition)"
@@ -337,19 +336,19 @@ onMounted(() => void loadReportColumns());
                       :class="{ 'is-alternate': depthIndex % 2 === 1 }"
                       aria-hidden="true"
                     ></span>
-                    <Button v-if="startsConditionGroup(condition, index)" type="button" icon="pi pi-reply" class="report-condition-icon" severity="secondary" text size="small" title="拆分分组" aria-label="拆分分组" :disabled="pending" @click="ungroupCondition(condition)" />
+                    <Button v-if="startsConditionGroup(condition, index)" type="button" icon="pi pi-reply" class="report-condition-icon" severity="secondary" text size="small" title="拆分分组" aria-label="拆分分组" @click="ungroupCondition(condition)" />
                   </div>
-                  <Select v-if="index" v-model="condition.join" :options="joinOptions" option-label="label" option-value="value" aria-label="条件关系" :disabled="pending" />
+                  <Select v-if="index" v-model="condition.join" :options="joinOptions" option-label="label" option-value="value" aria-label="条件关系" />
                   <span v-else aria-hidden="true"></span>
-                  <Select v-model="condition.columnId" :options="modelColumnOptions()" option-label="label" option-value="value" aria-label="条件字段" :disabled="pending" @change="updateConditionColumn(condition)" />
-                  <Select v-model="condition.compareId" :options="compareTypeOptions(condition)" option-label="label" option-value="value" aria-label="条件运算" :disabled="pending" />
-                  <Select v-if="condition.columnId && condition.compareId && states(condition).length" v-model="condition.value" :options="stateOptions(condition)" option-label="label" option-value="value" aria-label="条件值" :disabled="pending" />
-                  <InputText v-else-if="condition.columnId && condition.compareId" v-model="condition.value" aria-label="条件值" :disabled="pending" fluid />
+                  <Select v-model="condition.columnId" :options="modelColumnOptions()" option-label="label" option-value="value" aria-label="条件字段" @change="updateConditionColumn(condition)" />
+                  <Select v-model="condition.compareId" :options="compareTypeOptions(condition)" option-label="label" option-value="value" aria-label="条件运算" />
+                  <Select v-if="condition.columnId && condition.compareId && states(condition).length" v-model="condition.value" :options="stateOptions(condition)" option-label="label" option-value="value" aria-label="条件值" />
+                  <InputText v-else-if="condition.columnId && condition.compareId" v-model="condition.value" aria-label="条件值" fluid />
                   <span v-else aria-hidden="true"></span>
                 </div>
               </div>
               <div class="report-condition-footer">
-                <Button type="button" icon="pi pi-plus" class="report-condition-icon" size="small" severity="secondary" text title="增加条件" aria-label="增加条件" :disabled="pending" @click="addCondition" />
+                <Button type="button" icon="pi pi-plus" class="report-condition-icon" size="small" severity="secondary" text title="增加条件" aria-label="增加条件" @click="addCondition" />
               </div>
             </div>
           </section>
@@ -368,10 +367,10 @@ onMounted(() => void loadReportColumns());
     </Tabs>
 
     <template #footer>
-      <Button v-if="showingResults" type="button" label="返回" :disabled="pending" @click="backToReportSetup" />
-      <Button v-if="!showingResults" type="button" label="取消" severity="secondary" outlined :disabled="pending" @click="emit('close')" />
-      <Button v-if="!showingResults" type="button" label="确定" :disabled="pending" @click="runReport()" />
-      <Button v-if="!showingResults" type="button" label="保存报表定义" severity="info" :disabled="pending" @click="saveReport" />
+      <Button v-if="showingResults" type="button" label="返回" @click="backToReportSetup" />
+      <Button v-if="!showingResults" type="button" label="取消" severity="secondary" outlined @click="emit('close')" />
+      <Button v-if="!showingResults" type="button" label="确定" @click="runReport()" />
+      <Button v-if="!showingResults" type="button" label="保存报表定义" severity="info" @click="saveReport" />
     </template>
   </Dialog>
 </template>

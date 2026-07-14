@@ -1039,8 +1039,8 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).not.toContain('label="前一页" size="small"');
     expect(viewReportPanelSource).toContain("function changeReportPage(offset: number)");
     expect(viewReportPanelSource).toContain("page > Math.max(1, resultPages.value)");
-    expect(viewReportPanelSource).toContain('label="前一页" severity="secondary" outlined :disabled="pending" @click="changeReportPage(-1)"');
-    expect(viewReportPanelSource).toContain('label="下一页" severity="secondary" outlined :disabled="pending" @click="changeReportPage(1)"');
+    expect(viewReportPanelSource).toContain('label="前一页" severity="secondary" outlined @click="changeReportPage(-1)"');
+    expect(viewReportPanelSource).toContain('label="下一页" severity="secondary" outlined @click="changeReportPage(1)"');
     const currentPageExport = viewReportPanelSource.match(/<Button[^>]*label="导出当前页"[^>]*\/>/)?.[0] ?? "";
     const allPagesExport = viewReportPanelSource.match(/<Button[^>]*label="导出全部"[^>]*\/>/)?.[0] ?? "";
     expect(currentPageExport).toContain('label="导出当前页"');
@@ -1069,7 +1069,7 @@ describe("App defaults", () => {
   it("builds report output and conditions from View metadata", () => {
     expect(viewReportPanelSource).toContain("/api/v1/report/getmkqview");
     expect(viewReportPanelSource).toContain("ReportOutputSelector");
-    expect(viewReportPanelSource).toContain('<ReportOutputSelector v-model="reportCols" :columns="modelColumns" :disabled="pending" />');
+    expect(viewReportPanelSource).toContain('<ReportOutputSelector v-model="reportCols" :columns="modelColumns" />');
     expect(viewReportPanelSource).not.toContain("暂无报表字段。");
     expect(reportOutputSelectorSource).toContain("if (!selectedCandidate.value) return []");
     expect(viewReportPanelSource).toContain("const pageSize = 10");
@@ -1106,7 +1106,7 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).toContain("groupReportConditions");
     expect(viewReportPanelSource).toContain("reportConditionGroupError");
     expect(viewReportPanelSource).toContain("reportConditionSelectionIds");
-    expect(viewReportPanelSource).toContain('aria-label="合并分组" :disabled="pending"');
+    expect(viewReportPanelSource).toContain('aria-label="合并分组" @click="groupSelectedConditions"');
     expect(viewReportPanelSource).toContain('v-if="!condition.groupPath.length || startsConditionGroup(condition, index)"');
     expect(viewReportPanelSource).toContain(':model-value="conditionSelectionChecked(condition)"');
     expect(viewReportPanelSource).not.toContain('<Checkbox v-model="selectedConditionIds"');
@@ -1126,7 +1126,7 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).toContain("<strong>值</strong>");
     expect(viewReportPanelSource).toContain('class="report-condition-footer"');
     expect(viewReportPanelSource).not.toContain("pending || !modelColumns.length");
-    expect(viewReportPanelSource.match(/aria-label="增加条件" :disabled="pending"/g)).toHaveLength(2);
+    expect(viewReportPanelSource.match(/aria-label="增加条件" @click="addCondition"/g)).toHaveLength(2);
     expect(viewReportPanelSource).not.toContain(' label="合并分组"');
     expect(viewReportPanelSource).not.toContain(' label="增加条件"');
     expect(reportConditionsSource).toContain("buildReportConditionFilter");
@@ -1150,8 +1150,8 @@ describe("App defaults", () => {
     expect(footerSource).not.toContain('icon="pi pi-play"');
     expect(footerSource).not.toContain('icon="pi pi-save"');
     expect(footerSource).toContain('label="取消" severity="secondary" outlined');
-    expect(footerSource).toContain('label="确定" :disabled="pending"');
-    expect(footerSource).toContain('label="保存报表定义" severity="info" :disabled="pending"');
+    expect(footerSource).toContain('label="确定" @click="runReport()"');
+    expect(footerSource).toContain('label="保存报表定义" severity="info" @click="saveReport"');
     expect(viewReportPanelSource).not.toContain("canRun");
     expect(viewReportPanelSource).not.toContain("conditionsComplete");
     expect(footerSource).not.toContain('severity="secondary" text');

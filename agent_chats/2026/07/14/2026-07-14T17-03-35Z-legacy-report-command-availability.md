@@ -1,0 +1,45 @@
+# Legacy Report Command Availability
+
+## Prompt
+
+Continue aligning the old page layout, style, and interactions in atomic
+commits without coupling Vue components to concrete business DTOs.
+
+## Scope
+
+- Compared report setup and result commands in `view.jade` and `mkreport.js`
+  with `ViewReportPanel.vue` and `ReportOutputSelector.vue`.
+- Removed the Vue-only global request lock from output and condition editors,
+  setup footer commands, result paging/Return, and mask dismissal.
+- Preserved the result header's old no-close-button layout, request paths,
+  local state, page guards, and View metadata adapters.
+- Removed the now-unused report `pending` prop chain and output-selector
+  disabled prop; added no state, route, request, DTO binding, or duplicate
+  component.
+
+## Changed Files
+
+- `frontend/src/App.vue`
+- `frontend/src/ViewReportPanel.vue`
+- `frontend/src/ReportOutputSelector.vue`
+- `frontend/src/ViewReportPanel.test.ts`
+- `frontend/src/payload.test.ts`
+- `docs/migration/foolframe-parity.md`
+- `tasks.md`
+- `agent_chats/2026/07/14/2026-07-14T17-03-35Z-legacy-report-command-availability.md`
+
+## Validation
+
+- `cd frontend && npm test` passed: 17 files, 183 tests.
+- `cd frontend && npm run build` passed.
+- `python scripts/check_repo_harness.py` passed.
+- The focused `ViewReportPanel.test.ts` contract is 16 lines and
+  `ViewReportPanel.vue` shrank from 379 to 376 lines.
+- Pending Docker rebuild, runtime doctor, and authorized browser acceptance.
+
+## Risks And Follow-ups
+
+- Browser-verify setup tabs/commands during initial `mkrpt`, then result paging
+  and Return during a second `mkrpt`, without saving a report definition.
+- Remove any temporary local acceptance rows and verify original data afterward.
+- `docs/superpowers/` is unrelated untracked work and remains untouched.

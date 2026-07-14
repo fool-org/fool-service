@@ -11,7 +11,7 @@ import {
   reportModelQueryTypes
 } from "./viewWorkflow";
 
-const props = defineProps<{ columns: ReportModelColumn[]; disabled: boolean }>();
+const props = defineProps<{ columns: ReportModelColumn[] }>();
 const outputs = defineModel<ReportCol[]>({ required: true });
 const candidateKey = ref("");
 const selectedTypeId = ref("");
@@ -94,34 +94,34 @@ function orderLabel(orderType?: string) {
   <div class="report-output-selector">
     <section>
       <h3>候选列</h3>
-      <select v-model="candidateKey" size="10" :disabled="disabled" aria-label="候选列" @change="chooseCandidate">
+      <select v-model="candidateKey" size="10" aria-label="候选列" @change="chooseCandidate">
         <option v-for="option in candidateOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
       </select>
     </section>
 
     <section class="report-output-method">
       <h3>输出方式</h3>
-      <select v-model="selectedTypeId" size="10" :disabled="disabled" aria-label="输出方式">
+      <select v-model="selectedTypeId" size="10" aria-label="输出方式">
         <option v-for="option in queryTypeOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
       </select>
-      <Button type="button" icon="pi pi-arrow-right" title="加入已选列" aria-label="加入已选列" size="small" severity="secondary" outlined :disabled="disabled" @click="addOutput" />
+      <Button type="button" icon="pi pi-arrow-right" title="加入已选列" aria-label="加入已选列" size="small" severity="secondary" outlined @click="addOutput" />
     </section>
 
     <section>
       <h3>已选列</h3>
-      <select v-model="selectedOutputIndex" size="10" :disabled="disabled" aria-label="已选列">
+      <select v-model="selectedOutputIndex" size="10" aria-label="已选列">
         <option v-for="option in selectedOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
       </select>
       <div class="report-output-actions">
         <div class="legacy-button-group-xs" role="group" aria-label="调整已选列">
-          <Button type="button" icon="pi pi-arrow-up" title="上调" aria-label="上调" severity="secondary" text :disabled="disabled" @click="moveOutput(-1)" />
-          <Button type="button" icon="pi pi-arrow-down" title="下调" aria-label="下调" severity="secondary" text :disabled="disabled" @click="moveOutput(1)" />
-          <Button type="button" icon="pi pi-trash" title="删除" aria-label="删除" severity="danger" text :disabled="disabled" @click="removeOutput" />
+          <Button type="button" icon="pi pi-arrow-up" title="上调" aria-label="上调" severity="secondary" text @click="moveOutput(-1)" />
+          <Button type="button" icon="pi pi-arrow-down" title="下调" aria-label="下调" severity="secondary" text @click="moveOutput(1)" />
+          <Button type="button" icon="pi pi-trash" title="删除" aria-label="删除" severity="danger" text @click="removeOutput" />
         </div>
         <div class="legacy-button-group-xs" role="group" aria-label="设置排序">
-          <Button type="button" icon="pi pi-sort-alpha-down" title="升序" aria-label="升序" severity="secondary" text :disabled="disabled" @click="orderOutput('0')" />
-          <Button type="button" icon="pi pi-sort-alpha-up" title="降序" aria-label="降序" severity="secondary" text :disabled="disabled" @click="orderOutput('1')" />
-          <Button type="button" icon="pi pi-times" title="取消排序" aria-label="取消排序" severity="secondary" text :disabled="disabled" @click="orderOutput('2')" />
+          <Button type="button" icon="pi pi-sort-alpha-down" title="升序" aria-label="升序" severity="secondary" text @click="orderOutput('0')" />
+          <Button type="button" icon="pi pi-sort-alpha-up" title="降序" aria-label="降序" severity="secondary" text @click="orderOutput('1')" />
+          <Button type="button" icon="pi pi-times" title="取消排序" aria-label="取消排序" severity="secondary" text @click="orderOutput('2')" />
         </div>
       </div>
     </section>

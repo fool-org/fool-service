@@ -1477,6 +1477,10 @@ item must land with its matching implementation and validation evidence.
       keep list row links and page commands active during unrelated requests,
       preserve page-boundary and Sudoku refresh guards, and browser-verify with
       temporary local rows that are removed afterward.
+- [ ] Restore `view.jade` / `mkreport.js` report-command availability: keep
+      setup fields, output/condition commands, Cancel/Confirm/Save, result
+      paging, Return, and mask dismissal active during report requests while
+      retaining the result header's no-close-button layout; browser-verify.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from

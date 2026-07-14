@@ -3735,3 +3735,12 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   three temporary rows were deleted, the list returned to eight rows with no
   second page or active Save row buttons, and all 67 runtime-doctor checks
   passed.
+- 2026-07-15: aligned `view.jade` / `mkreport.js` report-command request
+  availability. The old output, condition, footer, result-page, Return, and
+  modal-dismiss controls do not read a global HTTP pending flag. Vue now
+  removes that flag from the report panel and output selector while preserving
+  the old result header's lack of a close button. The existing request paths,
+  local report state, page-boundary guards, and metadata adapters are unchanged.
+  The change deletes one prop chain and all report-only disabled bindings; it
+  adds no state, request, route, DTO binding, or duplicate component. Docker
+  browser acceptance remains required before the task is closed.

@@ -1149,7 +1149,6 @@ function syncDetailDrafts() {
         <ViewReportPanel
           v-if="showViewReport && isListView && !isMetadataOnlyView && !isStandaloneDetail && currentViewId"
           :key="currentViewId"
-          :pending="Boolean(pendingAction)"
           :run-action="runAction"
           :token="token"
           :view-id="currentViewId"
