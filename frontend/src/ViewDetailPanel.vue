@@ -342,7 +342,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
         <TabPanels>
           <TabPanel v-for="group in detailItemGroups" :key="groupKey(group)" :value="groupKey(group)">
             <div v-if="!schemaOnly" class="detail-collection-toolbar legacy-button-group">
-              <Button type="button" label="增加" icon="pi pi-plus" severity="secondary" outlined :disabled="pending" @click="addItem(group)" />
+              <Button type="button" label="增加" icon="pi pi-plus" severity="secondary" outlined @click="addItem(group)" />
             </div>
             <Dialog
               v-if="!schemaOnly"
@@ -435,7 +435,6 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                         size="small"
                         severity="secondary"
                         text
-                        :disabled="pending"
                         @click="toggleDetailItem(group, item)"
                       />
                       <a v-if="!groupSelectFromExists(group) && groupDetailViewId(group)" class="detail-item-link" :href="detailItemHref(group, item)">
@@ -444,7 +443,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                       </a>
                     </td>
                     <td>
-                      <Button type="button" label="删除" icon="pi pi-trash" size="small" severity="danger" text :disabled="pending" @click="deleteItem(group, item)" />
+                      <Button type="button" label="删除" icon="pi pi-trash" size="small" severity="danger" text @click="deleteItem(group, item)" />
                     </td>
                     <td v-if="groupDetailViewId(group)">
                       <a class="detail-item-link" :href="detailItemHref(group, item)">

@@ -1465,6 +1465,10 @@ item must land with its matching implementation and validation evidence.
       Find, Select, pagination, close, mask-dismiss, and Cancel interactions
       available while a candidate query is pending; browser-verify against a
       paused-backend `querydata` request without changing View/Data DTOs.
+- [ ] Restore `detailView.jade`'s always-active child collection commands:
+      leave metadata Add, inline Edit/Save, Delete, and existing detail links
+      available while unrelated requests are pending; retain the edit-state
+      guard and browser-verify without persisting staged child changes.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from

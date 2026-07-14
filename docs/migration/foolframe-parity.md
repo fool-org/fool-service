@@ -3679,3 +3679,11 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   backend was restored after every request; `/view102/1001` showed no error
   dialog, Compose and `/test` passed, and all 67 runtime-doctor checks were
   green afterward.
+- 2026-07-15: restored `detailView.jade`'s child collection command
+  availability. Its metadata Add, inline Edit/Save, Delete, and detail links
+  have no global request-pending state; `detailview.js` gates inline editing on
+  the existing page edit state instead. Vue now removes `pendingAction` only
+  from Add, inline Edit/Save, and Delete while retaining that edit guard and
+  leaving the already-active detail links unchanged. Candidate loading, main
+  detail save, View operations, and report boundaries are untouched; no state,
+  request path, DTO binding, or duplicate component was added.
