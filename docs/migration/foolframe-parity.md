@@ -4062,3 +4062,14 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   200 and restored CAPTCHA, Login, and version metadata. Compose was healthy,
   `db-migrate` was `Exited (0)`, View metadata and row counts were unchanged, and
   all 67 runtime-doctor checks passed.
+- 2026-07-15: aligned `setextype.js`'s success-only enum-option transport path.
+  The old editor creates its Select and presents response-backed errors only
+  inside the `getenum` success callback; network and non-2xx failures do not use
+  shared feedback. `useFieldEnums` now reuses the shared
+  `WorkflowActionRunner` type instead of its duplicate local signature and
+  passes the existing `silentTransport` option for `getenums`. View-derived
+  model ids, cache behavior, successful options, response-backed errors, field
+  values, components, payloads, routes, and DTOs are unchanged. Focused/full
+  frontend tests passed (1/1 focused; 19 files and 193 tests full), as did the
+  production build, repository harness, and diff check. Docker/browser evidence
+  remains required.

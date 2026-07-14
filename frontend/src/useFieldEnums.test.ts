@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { ref } from "vue";
 import type { CommonResponse } from "./api";
 import { useFieldEnums } from "./useFieldEnums";
+import type { WorkflowActionOptions } from "./useViewDataWorkflow";
 
 describe("useFieldEnums", () => {
   afterEach(() => {
@@ -10,6 +11,7 @@ describe("useFieldEnums", () => {
 
   it("loads enum options by field model id and skips cached models", async () => {
     const requests: Record<string, unknown>[] = [];
+    const actionOptions: (WorkflowActionOptions | undefined)[] = [];
     vi.stubGlobal("fetch", vi.fn(async (_path: string, init?: RequestInit) => {
       requests.push(JSON.parse(String(init?.body || "{}")) as Record<string, unknown>);
       return new Response(JSON.stringify({
@@ -18,7 +20,14 @@ describe("useFieldEnums", () => {
         data: { EnumValues: [{ Name: "Open", Value: 0 }, { Name: "Filled", Value: 1 }] }
       }), { status: 200 });
     }));
-    const enums = useFieldEnums(ref("token-1"), async <T>(_label: string, action: () => Promise<CommonResponse<T>>) => action());
+    const enums = useFieldEnums(ref("token-1"), async <T>(
+      _label: string,
+      action: () => Promise<CommonResponse<T>>,
+      options?: WorkflowActionOptions
+    ) => {
+      actionOptions.push(options);
+      return action();
+    });
 
     await enums.loadFieldEnums([
       { PrpId: "state", PrpType: "Enum", PrpModelId: 300 },
@@ -28,6 +37,7 @@ describe("useFieldEnums", () => {
     await enums.loadFieldEnums([{ PrpId: "cached", PrpType: "Enum", PrpModelId: 300 }]);
 
     expect(requests).toEqual([{ token: "token-1", modelId: "300" }]);
+    expect(actionOptions).toEqual([{ silentTransport: true }]);
     expect(enums.enumOptions.value["300"]).toEqual([
       { label: "Open", value: "0" },
       { label: "Filled", value: "1" }
