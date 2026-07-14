@@ -3835,3 +3835,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   remained registered. Both interval rows were restored to zero; a subsequent
   2.6-second window recorded zero requests. View/file and row-count state was
   unchanged, Compose was healthy, and all 67 runtime-doctor checks passed.
+- 2026-07-15: aligned `querylistdata.js`'s silent HTTP-error path. Its legacy
+  `$http.post(...).success(...)` query has no `.error(...)` callback, so a
+  network or non-2xx failure leaves the rendered table, pagination, and timer
+  state in place without opening shared error feedback; response-backed
+  `data.error` still uses the old error UI. The shared Vue API wrapper now
+  classifies transport failures separately from business errors, and the main
+  View query alone asks `runAction` to suppress that transport presentation.
+  Other actions retain existing error behavior, and no View/Data projection,
+  payload, route, DTO, or component changed. Docker/browser evidence remains
+  required before closure.

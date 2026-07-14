@@ -714,22 +714,33 @@ export interface LegacyRunOperationResult {
   ReturnMsg?: string;
 }
 
+export class ApiTransportError extends Error {}
+
+export function isTransportError(error: unknown) {
+  return error instanceof ApiTransportError;
+}
+
 export async function postApi<T>(path: string, payload: unknown): Promise<CommonResponse<T>> {
-  const response = await fetch(path, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-  });
+  let response: Response;
+  try {
+    response = await fetch(path, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+  } catch (error) {
+    throw new ApiTransportError(error instanceof Error ? error.message : String(error));
+  }
 
   const body = (await response.json().catch(() => null)) as CommonResponse<T> | null;
   if (!response.ok) {
-    throw new Error(body?.message || `HTTP ${response.status}`);
+    throw new ApiTransportError(body?.message || `HTTP ${response.status}`);
   }
 
   if (!body) {
-    throw new Error("Empty response body.");
+    throw new ApiTransportError("Empty response body.");
   }
   if (body.code !== 0) {
     throw new Error(body.message || `API code ${body.code}`);

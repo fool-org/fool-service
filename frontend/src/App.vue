@@ -22,6 +22,7 @@ import {
   type MessageInfo,
   type OperationInfo,
   type SaveItemProperty,
+  isTransportError,
   postApi
 } from "./api";
 import LoginPanel from "./LoginPanel.vue";
@@ -31,7 +32,7 @@ import { useChildDrafts } from "./useChildDrafts";
 import { useFieldEnums } from "./useFieldEnums";
 import { usePendingChildChanges } from "./usePendingChildChanges";
 import { useSudokuPanels } from "./useSudokuPanels";
-import { useViewDataWorkflow } from "./useViewDataWorkflow";
+import { type WorkflowActionOptions, useViewDataWorkflow } from "./useViewDataWorkflow";
 import { enumFieldOptions, nextObjectId } from "./viewShell";
 import {
   buildAddedDetailItem,
@@ -266,14 +267,20 @@ let autoRefreshInterval = 0;
 let shellPollTimer: number | undefined;
 let shellPollInFlight = false;
 
-async function runAction<T>(label: string, action: () => Promise<CommonResponse<T>>) {
+async function runAction<T>(
+  label: string,
+  action: () => Promise<CommonResponse<T>>,
+  options: WorkflowActionOptions = {}
+) {
   pendingAction.value = label;
   errorMessage.value = "";
 
   try {
     return await action();
   } catch (error) {
-    errorMessage.value = error instanceof Error ? error.message : String(error);
+    if (!options.silentTransport || !isTransportError(error)) {
+      errorMessage.value = error instanceof Error ? error.message : String(error);
+    }
     return null;
   } finally {
     pendingAction.value = "";

@@ -20,8 +20,13 @@ import {
 
 export type WorkflowActionRunner = <T>(
   label: string,
-  action: () => Promise<CommonResponse<T>>
+  action: () => Promise<CommonResponse<T>>,
+  options?: WorkflowActionOptions
 ) => Promise<CommonResponse<T> | null>;
+
+export interface WorkflowActionOptions {
+  silentTransport?: boolean;
+}
 
 export interface ViewDataWorkflowRefs {
   token: Ref<string>;
@@ -121,8 +126,10 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
       keyword: filters.keyword
     });
 
-    const response = await options.runAction(label, () =>
-      postApi<ListViewResult>("/api/v1/data/querydata", request)
+    const response = await options.runAction(
+      label,
+      () => postApi<ListViewResult>("/api/v1/data/querydata", request),
+      { silentTransport: true }
     );
     if (response) {
       dataResponse.value = response;

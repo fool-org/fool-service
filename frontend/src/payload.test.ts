@@ -595,6 +595,8 @@ describe("App defaults", () => {
   it("keeps the Vue workspace on view-id driven legacy view and data APIs", () => {
     expect(viewDataWorkflowSource).toContain("/api/v1/view/getlistview");
     expect(viewDataWorkflowSource).toContain("/api/v1/data/querydata");
+    expect(viewDataWorkflowSource).toContain("{ silentTransport: true }");
+    expect(appSource).toContain("!options.silentTransport || !isTransportError(error)");
     expect(viewDataWorkflowSource).toContain("viewDetailViewId(view, loadedViewId)");
     expect(appSource).toContain("function openListObject(row: ListDataItem, targetViewId = 0)");
     expect(appSource).toContain("legacyDetailHref(targetViewId");
