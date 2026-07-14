@@ -3669,3 +3669,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   loading, detail saves, child mutation, and report controls retain their
   existing request boundaries. The change deletes conditional UI state, adds
   no request path or DTO binding, and keeps the shared table/paginator.
+  Authorized Docker browser acceptance opened `/view102/1001`, loaded four
+  View-driven candidates, paused the backend, and started real candidate
+  `querydata` requests. Find, all four Select commands, Page 1, Close, Cancel,
+  and backdrop dismissal stayed actionable while requests were pending. Select
+  staged `2002 / Existing fee` locally and closed the picker; reload discarded
+  it without a save, and MySQL still mapped item `2002` to order `1002`.
+  Physical backdrop clicks covered PrimeVue's mousedown/up mask contract. The
+  backend was restored after every request; `/view102/1001` showed no error
+  dialog, Compose and `/test` passed, and all 67 runtime-doctor checks were
+  green afterward.

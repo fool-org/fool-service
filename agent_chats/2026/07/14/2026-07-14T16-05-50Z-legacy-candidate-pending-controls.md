@@ -40,10 +40,21 @@ commits without coupling Vue components to concrete business DTOs.
   test is 17 lines instead of extending the 1,600-line payload test.
 - Deployed frontend image:
   `sha256:2d110390d9ab522530b5247621453d51fea2a14168ddde651eb6d5967728e0d1`.
+- Authorized Docker browser acceptance logged in as `admin`, opened
+  `/view102/1001`, and entered the metadata-driven Items candidate picker.
+  After an initial query loaded four rows, the backend was paused and a second
+  `querydata` request was started. At 650ms Find, Close, Cancel, all four Select
+  commands, and Page 1 remained enabled.
+- While candidate requests were pending, Cancel closed immediately; selecting
+  `2002 / Existing fee` closed the picker and staged the row locally; clicking
+  Page 1 kept the picker open; Close then dismissed it. A reload removed the
+  unsaved staged row, and MySQL still mapped item `2002` to order `1002`.
+- Physical pointer clicks on the modal backdrop closed the picker both normally
+  and during a pending query, covering PrimeVue's mousedown/up mask contract.
+- The backend was unpaused after each request. The final page stayed on
+  `/view102/1001` with no picker or error dialog; Compose, backend `/test`, and
+  all 67 runtime-doctor checks passed afterward.
 
 ## Risks And Follow-ups
 
-- Browser acceptance must open the existing-item picker, pause the backend,
-  issue a real candidate `querydata` request, verify every picker interaction,
-  and restore the backend afterward.
 - `docs/superpowers/` is unrelated untracked work and remains untouched.
