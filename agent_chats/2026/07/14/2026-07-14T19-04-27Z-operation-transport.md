@@ -30,13 +30,26 @@ keeping files controlled, logic reusable, and rendering View-first.
 - `cd frontend && npm run build`
 - `python scripts/check_repo_harness.py`
 - `git diff --check`
-- Pending Compose deployment and authorized stopped-backend browser acceptance.
+- `docker compose build frontend`
+- `docker compose up -d --no-deps --force-recreate frontend`
+- Authorized local CAPTCHA and `admin/admin` browser acceptance on
+  `/view100/1002`: after backend stop, the enabled View operation's
+  `runoperation` settled as HTTP 502 while the detail heading and Admin user
+  remained visible with no shared error or operation-result dialog.
+- After backend recovery, the same operation returned HTTP 200 and opened
+  `执行结果 / 操作成功 / 保存成功`; `确定` dismissed it and safe logout returned to
+  the login form.
+- `docker compose ps -a` confirmed backend/frontend/MySQL/Redis running and
+  `db-migrate` at `Exited (0)`.
+- Frontend container/image matched
+  `sha256:233148af80bf9ed10f33e2d83c6a9edff97444aa7973ad0155a0a6dcdaf2a741`.
+- Database proof remained `SW_SYS_VIEW(100)=default 102 / interval 0`,
+  `fool_sys_view(100)=interval 0`, `market_order=8`, and
+  `market_order_item=4`; order 1002 retained its seeded ETH-USDT values.
+- `python scripts/runtime_doctor.py` (all 67 checks passed)
 
 ## Risks And Follow-ups
 
-- Browser acceptance should load a real detail View, stop the backend, invoke
-  its seeded operation, prove no shared error/result dialog appears, restore
-  the backend, and prove the existing result dialog still opens on success.
 - Response-backed business errors remain visible through the legacy result
   path; this slice suppresses only transport failures.
 - `docs/superpowers/` is unrelated untracked work and remains untouched.

@@ -3972,4 +3972,14 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   View-derived operation request. Response-backed results, edit-state guards,
   request payloads, operation metadata, routes, DTOs, and result presentation
   are unchanged. All 193 frontend tests, TypeScript/Vite production build, and
-  repository harness pass. Docker/browser evidence remains required.
+  repository harness pass. The deployed Docker frontend image is
+  `sha256:233148af80bf9ed10f33e2d83c6a9edff97444aa7973ad0155a0a6dcdaf2a741`.
+  An authorized `/view100/1002` replay stopped the backend and invoked the
+  enabled View-derived Save operation. After Nginx settled `runoperation` as
+  HTTP 502, the detail page retained its heading and Admin user with no
+  `发生错误` or `执行结果` dialog. After backend recovery, the same command
+  returned HTTP 200 and opened `执行结果 / 操作成功 / 保存成功`; `确定` closed it
+  and safe logout returned to the login form. Compose was healthy,
+  `db-migrate` was `Exited (0)`, View intervals and order counts were unchanged,
+  order 1002 retained its seeded ETH-USDT values, and all 67 runtime-doctor
+  checks passed.
