@@ -12,7 +12,6 @@ import {
   type LegacyMainResult,
   type LegacyRunOperationResult,
   type LegacySubMenuResult,
-  type LegacyUserInfoResult,
   type QueryDataDetailResult,
   type QueryDataDetailDataItem,
   type QueryDataDetailItemGroup,
@@ -159,7 +158,6 @@ const {
 } = useChildDrafts();
 
 const initAppResponse = ref<CommonResponse<LegacyInitAppResult> | null>(null);
-const legacyUserInfoResponse = ref<CommonResponse<LegacyUserInfoResult> | null>(null);
 const mainInfoResponse = ref<CommonResponse<LegacyMainResult> | null>(null);
 const checkCodeResponse = ref<CommonResponse<CheckCodeResult> | null>(null);
 const subMenuResponse = ref<CommonResponse<LegacySubMenuResult> | null>(null);
@@ -220,8 +218,8 @@ const detailItemGroups = computed<QueryDataDetailItemGroup[]>(() =>
 const detailViewOperations = computed(() => dataOperations(detailResponse.value?.data));
 const topMenuItems = computed(() => legacyMainMenuItems(mainInfoResponse.value?.data));
 const subMenuItems = computed(() => legacySubMenuItems(subMenuResponse.value?.data));
-const shellUserAvatar = computed(() => legacyUserAvatar(legacyUserInfoResponse.value?.data));
-const shellUserName = computed(() => legacyUserName(legacyUserInfoResponse.value?.data));
+const shellUserAvatar = computed(() => legacyUserAvatar(mainInfoResponse.value?.data));
+const shellUserName = computed(() => legacyUserName(mainInfoResponse.value?.data));
 const shellAppName = computed(() => legacyAppName(mainInfoResponse.value?.data, "Fool Service"));
 const shellAppVersion = computed(() => legacyAppVersion(mainInfoResponse.value?.data));
 const shellAppPowerBy = computed(() => legacyAppPowerBy(mainInfoResponse.value?.data));
@@ -263,7 +261,7 @@ const {
 });
 let autoRefreshTimer: number | undefined;
 let shellPollTimer: number | undefined;
-let shellRefreshInFlight = false;
+let shellPollInFlight = false;
 
 async function runAction<T>(label: string, action: () => Promise<CommonResponse<T>>) {
   pendingAction.value = label;
@@ -442,30 +440,28 @@ async function openShellMessage(message: MessageInfo) {
   await loadViewWorkflow(true);
 }
 
-async function refreshShellStatus() {
-  if (!token.value || shellRefreshInFlight) return;
-  shellRefreshInFlight = true;
+async function pollShellMessages() {
+  if (!token.value || shellPollInFlight) return;
+  shellPollInFlight = true;
   try {
-    const request = buildTokenRequest(token.value);
-    const [user, messages] = await Promise.allSettled([
-      postApi<LegacyUserInfoResult>("/api/v1/auth/getuserinfo", request),
-      postApi<GetMessageResult>("/api/v1/message/getmsg", request)
-    ]);
-    if (user.status === "fulfilled") legacyUserInfoResponse.value = user.value;
-    if (messages.status === "fulfilled") {
-      const fetchedMessages = legacyMessages(messages.value.data);
-      if (fetchedMessages.length) {
-        activeShellMessage.value = fetchedMessages[0];
-      }
+    const messages = await postApi<GetMessageResult>(
+      "/api/v1/message/getmsg",
+      buildTokenRequest(token.value)
+    );
+    const fetchedMessages = legacyMessages(messages.data);
+    if (fetchedMessages.length) {
+      activeShellMessage.value = fetchedMessages[0];
     }
+  } catch {
+    // Keep best-effort polling failures out of the active View error surface.
   } finally {
-    shellRefreshInFlight = false;
+    shellPollInFlight = false;
   }
 }
 
 function startShellPolling() {
   stopShellPolling();
-  shellPollTimer = window.setInterval(() => void refreshShellStatus(), 15_000);
+  shellPollTimer = window.setInterval(() => void pollShellMessages(), 15_000);
 }
 
 function stopShellPolling() {
@@ -480,7 +476,6 @@ function clearLegacySession() {
   stopShellPolling();
   closeShellNavigation();
   token.value = "";
-  legacyUserInfoResponse.value = null;
   mainInfoResponse.value = null;
   activeShellMessage.value = null;
   infoMessage.value = "";
@@ -760,7 +755,6 @@ async function loadInitialRoute() {
 async function enterAuthenticatedShell() {
   await loadInitialRoute();
   if (!token.value) return;
-  await refreshShellStatus();
   startShellPolling();
 }
 

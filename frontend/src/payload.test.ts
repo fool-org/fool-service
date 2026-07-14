@@ -1145,10 +1145,16 @@ describe("App defaults", () => {
   });
 
   it("moves legacy message polling into the signed-in shell", () => {
+    const enterShellSource = appSource.slice(
+      appSource.indexOf("async function enterAuthenticatedShell"),
+      appSource.indexOf("function handleHistoryNavigation")
+    );
     expect(appSource).toContain("/api/v1/message/getmsg");
     expect(appSource).toContain("15_000");
-    expect(appSource).toContain("const fetchedMessages = legacyMessages(messages.value.data)");
+    expect(appSource).toContain("const fetchedMessages = legacyMessages(messages.data)");
     expect(appSource).toContain("activeShellMessage.value = fetchedMessages[0]");
+    expect(enterShellSource).toContain("startShellPolling();");
+    expect(enterShellSource).not.toContain("pollShellMessages");
     expect(appSource).toContain('v-if="token"');
     expect(shellActionsSource).toContain("系统消息");
     expect(shellActionsSource).toContain('v-if="activeMessage"');
@@ -1201,8 +1207,10 @@ describe("App defaults", () => {
       appSource.indexOf("function clearLegacySession"),
       appSource.indexOf("async function logout")
     );
-    expect(appSource).toContain("/api/v1/auth/getuserinfo");
-    expect(appSource).toContain("legacyUserInfoResponse");
+    expect(appSource).not.toContain("/api/v1/auth/getuserinfo");
+    expect(appSource).not.toContain("legacyUserInfoResponse");
+    expect(appSource).toContain("legacyUserName(mainInfoResponse.value?.data)");
+    expect(appSource).toContain("legacyUserAvatar(mainInfoResponse.value?.data)");
     expect(appSource).toContain("legacyUserName");
     expect(appSource).toContain("legacyUserAvatar");
     expect(shellActionsSource).toContain("userName");

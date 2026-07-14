@@ -3444,3 +3444,17 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   Docker polling rendered `2099-01-01 19:04:05` at 390x844 with document width
   exactly 390px and no browser errors. The deployed frontend image was
   `sha256:e470df2f8e0c9821a53f076c8baccd29458a136f68b6e8f756fac0a19ff9f7ae`.
+- 2026-07-14: restored the old shell's user source and first-message timing.
+  `default.jade` renders `data.User` from the initial main response, while
+  `message.js` only registers its `getmsg` callback with the 15-second timer;
+  neither performs an immediate message request nor repeatedly refreshes user
+  info. Vue previously discarded `getmain.User`, immediately consumed one
+  message after login, and paired every message poll with an invented
+  `getuserinfo` request. The shell now renders both user aliases directly from
+  `getmain`, keeps no second user-response state, and runs only `getmsg` when
+  the interval expires. A fresh authorized Docker login displayed `Admin`
+  immediately, showed no message dialog at about 1.5 or 8.5 seconds, then
+  opened the seeded dialog after the first 15-second period and moved its DB
+  state from 0 to 1. The 1280px page had no document overflow or browser errors.
+  The deployed frontend image was
+  `sha256:3d78d766dddb77ff8af1c2948504965b36619f66b289d34e5f2ddc85966d1d48`.

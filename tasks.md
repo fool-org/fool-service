@@ -1406,6 +1406,10 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `message.js` generated-time handling: parse current camel
       LocalDateTime and legacy Pascal `/Date(ms)/` through one shared adapter,
       render local `yyyy-MM-dd hh:mm:ss`, and preserve invalid server text.
+- [x] Restore old shell initialization and polling boundaries: render user
+      aliases from `getmain`, avoid an immediate post-login message request,
+      and let the 15-second timer call only `getmsg` without invented repeated
+      `getuserinfo` requests.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
