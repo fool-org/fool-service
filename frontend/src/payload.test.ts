@@ -1406,9 +1406,21 @@ describe("App defaults", () => {
   });
 
   it("runs legacy savenewobj from the rendered View workflow", () => {
+    const saveRequestSource = appSource.slice(
+      appSource.indexOf("async function saveObj"),
+      appSource.indexOf("async function runOperation")
+    );
+    const saveHandlerSource = appSource.slice(
+      appSource.indexOf("async function saveSelectedObject"),
+      appSource.indexOf("function finishSaveNavigation")
+    );
+
     expect(appSource).toContain("/api/v1/data/savenewobj");
     expect(appSource).toContain("async function saveSelectedObject");
+    expect(saveRequestSource.match(/\{ silentTransport: true \}/g)).toHaveLength(2);
     expect(appSource).toContain("saveDialogVisible.value = true");
+    expect(saveHandlerSource).toContain("if (errorMessage.value) saveDialogVisible.value = false");
+    expect(saveHandlerSource).not.toContain("if (!saved) {\n    saveDialogVisible.value = false;");
     expect(appSource).toContain("navigateAfterSave.value = true");
     expect(appSource).toContain("function finishSaveNavigation");
     expect(appSource).toContain("window.history.back()");

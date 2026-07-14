@@ -602,7 +602,11 @@ async function saveObj(itemproperties: SaveItemProperty[] = []) {
     itemproperties
   });
 
-  const response = await runAction("saveobj", () => postApi<void>("/api/v1/data/saveobj", request));
+  const response = await runAction(
+    "saveobj",
+    () => postApi<void>("/api/v1/data/saveobj", request),
+    { silentTransport: true }
+  );
   return Boolean(response);
 }
 
@@ -615,7 +619,11 @@ async function saveNewObj() {
     ...newObjectOwner
   });
 
-  const response = await runAction("savenewobj", () => postApi<void>("/api/v1/data/savenewobj", request));
+  const response = await runAction(
+    "savenewobj",
+    () => postApi<void>("/api/v1/data/savenewobj", request),
+    { silentTransport: true }
+  );
   return Boolean(response);
 }
 
@@ -883,7 +891,7 @@ async function saveSelectedObject() {
   saveDialogVisible.value = true;
   const saved = isCreatingObject.value ? await saveNewObj() : await saveObj(pendingItemProperties.value);
   if (!saved) {
-    saveDialogVisible.value = false;
+    if (errorMessage.value) saveDialogVisible.value = false;
     return;
   }
   isCreatingObject.value = false;
