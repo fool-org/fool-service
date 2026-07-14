@@ -98,7 +98,7 @@ describe("shared chart styles", () => {
 
   it("keeps chart items above the axis tooltip hit surface", () => {
     expect(chartSource).toContain('@mousemove="showAxisTooltip"');
-    expect(chartSource).toContain('@mouseleave="hideAxisTooltip"');
+    expect(chartSource).toContain('@mouseleave="scheduleAxisTooltipHide"');
     expect(chartSource).toContain("viewX < plot.left || viewX > width.value - plotRight.value");
     expect(chartSource).toContain("viewY < plot.top || viewY > height - plot.bottom");
     expect(chartSource.indexOf('class="chart-axis-hit"')).toBeLessThan(chartSource.indexOf('class="chart-series"'));
@@ -112,5 +112,13 @@ describe("shared chart styles", () => {
     expect(chartSource).toContain("showAxisTooltip({ clientX: rect.left + position.left, clientY: rect.top + position.top })");
     expect(chartSource).toContain("lastTooltipPosition.value = { left: event.clientX - rect.left, top: event.clientY - rect.top }");
     expect(chartSource).toContain("lastTooltipPosition.value = null");
+  });
+
+  it("keeps the ECharts tooltip hide delay cancellable", () => {
+    expect(chartSource).toContain("let hideTooltipTimer: ReturnType<typeof setTimeout> | undefined");
+    expect(chartSource).toContain("if (hideTooltipTimer !== undefined) return");
+    expect(chartSource).toContain("}, 100)");
+    expect(chartSource).toContain('@mouseleave="scheduleAxisTooltipHide"');
+    expect(chartSource).toContain("clearTimeout(hideTooltipTimer)");
   });
 });

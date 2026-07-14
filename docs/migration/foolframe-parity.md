@@ -3379,3 +3379,15 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   also cleared its out-of-range compact tooltip. Browser logs were empty and
   the deployed frontend image was
   `sha256:58ce23aa75747250dd7a998f513f2f1696b408a7658728ef8411ff552f9520b9`.
+- 2026-07-14: restored ECharts 3.1.7's default 100ms tooltip hide delay. Old
+  `TooltipModel` sets `hideDelay: 100`; `TooltipContent.hideLater` schedules
+  one hide while `show` cancels it on re-entry. Vue previously removed the
+  shared axis tooltip in the same out-of-plot event: Docker `/view100` changed
+  from `inside=1, immediate=0, 10ms=0, 50ms=0` to
+  `inside=1, immediate=1, 50ms=1, 120ms=0`. Re-entering at 50ms retained one
+  tooltip and recalculated its category, while a later full leave still hid it.
+  The shared scheduler does not reset on repeated outside movement, is cleared
+  on explicit hide/unmount, and leaves legend/no-data cleanup immediate. Mobile
+  `/view103` passed the same `1/1/1/0` timing contract in its compact chart,
+  with empty browser logs. The deployed frontend image was
+  `sha256:57e7266ab950e6205ed61401f78def30e5e44e3ba77485c986628f7ea53ec5cb`.

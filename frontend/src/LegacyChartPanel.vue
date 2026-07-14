@@ -29,6 +29,7 @@ const plotRight = computed(() => width.value * Math.max(0.2, (renderedLegendWidt
 const scatterRadius = computed(() => 5 * width.value / renderedWidth.value);
 const colors = ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83"];
 let resizeObserver: ResizeObserver | undefined;
+let hideTooltipTimer: ReturnType<typeof setTimeout> | undefined;
 
 onMounted(() => {
   if (!chartElement.value) return;
@@ -48,7 +49,10 @@ onMounted(() => {
   if (legendElement.value) resizeObserver.observe(legendElement.value);
 });
 
-onUnmounted(() => resizeObserver?.disconnect());
+onUnmounted(() => {
+  resizeObserver?.disconnect();
+  clearTimeout(hideTooltipTimer);
+});
 
 const labelCount = computed(() => Math.max(
   1,
@@ -196,9 +200,11 @@ function showAxisTooltip(event: Pick<MouseEvent, "clientX" | "clientY">) {
   const viewX = (event.clientX - rect.left) * width.value / rect.width;
   const viewY = (event.clientY - rect.top) * height / rect.height;
   if (viewX < plot.left || viewX > width.value - plotRight.value || viewY < plot.top || viewY > height - plot.bottom) {
-    hideAxisTooltip();
+    scheduleAxisTooltipHide();
     return;
   }
+  clearTimeout(hideTooltipTimer);
+  hideTooltipTimer = undefined;
   const plotWidth = width.value - plot.left - plotRight.value;
   lastTooltipPosition.value = { left: event.clientX - rect.left, top: event.clientY - rect.top };
   activeTooltipIndex.value = labelCount.value === 1
@@ -212,7 +218,17 @@ function showAxisTooltip(event: Pick<MouseEvent, "clientX" | "clientY">) {
   tooltipAlignBottom.value = event.clientY > rect.top + rect.height / 2;
 }
 
+function scheduleAxisTooltipHide() {
+  if (hideTooltipTimer !== undefined) return;
+  hideTooltipTimer = setTimeout(() => {
+    hideTooltipTimer = undefined;
+    hideAxisTooltip();
+  }, 100);
+}
+
 function hideAxisTooltip() {
+  clearTimeout(hideTooltipTimer);
+  hideTooltipTimer = undefined;
   activeTooltipIndex.value = null;
   lastTooltipPosition.value = null;
 }
@@ -236,7 +252,7 @@ function tooltipValue(series: LegacyChartSeries) {
       role="img"
       aria-label="视图数据图表"
       @mousemove="showAxisTooltip"
-      @mouseleave="hideAxisTooltip"
+      @mouseleave="scheduleAxisTooltipHide"
     >
       <text v-if="compact && title" class="chart-title" x="8" y="22">{{ title }}</text>
       <g v-for="tick in ticks" :key="tick" class="chart-grid-line">

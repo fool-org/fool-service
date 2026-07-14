@@ -1390,6 +1390,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore ECharts 3.1.7 tooltip refresh after chart resize: replay the last
       chart-local point through shared bounds/category logic so responsive
       top-level and compact charts reposition or clear stale tooltip state.
+- [x] Restore ECharts 3.1.7's default tooltip hide delay: keep one cancellable
+      100ms timer for plot exit/mouseleave while explicit legend and no-data
+      cleanup remains immediate in the shared renderer.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
