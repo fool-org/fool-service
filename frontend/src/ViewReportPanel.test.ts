@@ -19,8 +19,14 @@ describe("ViewReportPanel legacy interactions", () => {
   });
 
   it("keeps the report closed when its metadata request has a transport failure", () => {
+    expect(viewReportPanelSource).toContain("async function runSuccessOnlyAction<T>");
     expect(viewReportPanelSource).toContain("transportFailed = isTransportError(error)");
     expect(viewReportPanelSource).toContain("{ silentTransport: true }");
-    expect(viewReportPanelSource).toMatch(/if \(transportFailed\) \{\s+emit\("close"\);\s+return;/);
+    expect(viewReportPanelSource).toContain('if (transportFailed) return emit("close")');
+  });
+
+  it("keeps initial and paging report transport failures on their legacy surfaces", () => {
+    expect(viewReportPanelSource).toContain('runSuccessOnlyAction("mkrpt"');
+    expect(viewReportPanelSource).toMatch(/if \(transportFailed\) \{\s+if \(revealResults\) emit\("close"\);\s+return;/);
   });
 });

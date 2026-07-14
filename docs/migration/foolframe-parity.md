@@ -3923,3 +3923,15 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   returned HTTP 200 and opened `生成报表` with the View-derived Item ID and Item
   Name candidates. Compose was healthy, `db-migrate` was `Exited (0)`, metadata
   and row counts were unchanged, and all 67 runtime-doctor checks passed.
+- 2026-07-15: aligned the report-generation transport branches in
+  `MakeReportController` and `ShowReportController`. The old initial command
+  hides setup before its success-only `mkrpt` request, so transport failure
+  leaves both report dialogs closed. Paging uses the same success-only request
+  without hiding results, so failure retains the current result. Vue now reuses
+  one component-local success-only action helper for report metadata and
+  generation requests: initial transport failure closes the hidden component,
+  while paging failure preserves result state; neither opens transport feedback.
+  Response-backed errors, successful generation, paging boundaries,
+  View-derived report state, payloads, routes, and DTOs are unchanged.
+  All 193 frontend tests, TypeScript/Vite build, and repository harness pass.
+  Docker/browser evidence remains required.

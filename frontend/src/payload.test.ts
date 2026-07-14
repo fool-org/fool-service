@@ -1072,9 +1072,11 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).toContain("const reportSetupLoading = ref(true)");
     expect(viewReportPanelSource).toContain("const reportRunning = ref(false)");
     expect(viewReportPanelSource).toContain('v-if="!reportSetupLoading && !reportRunning"');
-    expect(viewReportPanelSource.indexOf("reportRunning.value = true")).toBeLessThan(
-      viewReportPanelSource.indexOf('props.runAction("mkrpt"')
+    const runReportSource = viewReportPanelSource.slice(
+      viewReportPanelSource.indexOf("async function runReport"),
+      viewReportPanelSource.indexOf("function changeReportPage")
     );
+    expect(runReportSource).toMatch(/reportRunning\.value = revealResults;[\s\S]*runSuccessOnlyAction\("mkrpt"/);
     expect(viewReportPanelSource).toContain('@click="backToReportSetup"');
     expect(appSource).not.toContain("Report Grid");
   });

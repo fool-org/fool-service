@@ -179,17 +179,13 @@ function simpleFilter(condition: ReportConditionDraft): ReportFilterExp | null {
   };
 }
 
-async function loadReportColumns() {
-  statusMessage.value = "";
+async function runSuccessOnlyAction<T>(label: string, action: () => Promise<CommonResponse<T>>) {
   let transportFailed = false;
   const response = await props.runAction(
-    "report-columns",
+    label,
     async () => {
       try {
-        return await postApi<ReportModelResult>("/api/v1/report/getmkqview", buildLegacyListViewRequest({
-          token: props.token,
-          viewId: props.viewId
-        }));
+        return await action();
       } catch (error) {
         transportFailed = isTransportError(error);
         throw error;
@@ -197,10 +193,18 @@ async function loadReportColumns() {
     },
     { silentTransport: true }
   );
-  if (transportFailed) {
-    emit("close");
-    return;
-  }
+  return { response, transportFailed };
+}
+
+async function loadReportColumns() {
+  statusMessage.value = "";
+  const { response, transportFailed } = await runSuccessOnlyAction("report-columns", () =>
+    postApi<ReportModelResult>("/api/v1/report/getmkqview", buildLegacyListViewRequest({
+      token: props.token,
+      viewId: props.viewId
+    }))
+  );
+  if (transportFailed) return emit("close");
   reportSetupLoading.value = false;
   if (!response) {
     statusMessage.value = "无法加载报表字段。";
@@ -227,10 +231,14 @@ async function runReport(page = currentPage.value) {
   statusMessage.value = "";
   const revealResults = !showingResults.value;
   reportRunning.value = revealResults;
-  const response = await props.runAction("mkrpt", () =>
+  const { response, transportFailed } = await runSuccessOnlyAction("mkrpt", () =>
     postApi<ReportGridResult>("/api/v1/report/mkrpt", buildRequest())
   );
   reportRunning.value = false;
+  if (transportFailed) {
+    if (revealResults) emit("close");
+    return;
+  }
   if (response) {
     reportResponse.value = response;
     if (revealResults) showingResults.value = true;
