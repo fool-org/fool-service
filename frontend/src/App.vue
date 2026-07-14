@@ -353,7 +353,11 @@ async function dismissLoginError() {
 }
 
 async function loadMainInfo() {
-  const response = await runAction("getmain", () => postApi<LegacyMainResult>("/api/v1/auth/getmain", token.value));
+  const response = await runAction(
+    "getmain",
+    () => postApi<LegacyMainResult>("/api/v1/auth/getmain", token.value),
+    { silentTransport: true }
+  );
   if (response) {
     mainInfoResponse.value = response;
     applyDefaultAppView(response.data);
@@ -679,6 +683,7 @@ async function ensureLegacyShell() {
   if (!token.value) return false;
   if (mainInfoResponse.value) return true;
   if (await loadMainInfo()) return true;
+  if (!errorMessage.value) return false;
   clearLegacySession();
   await prepareLegacyLogin();
   return false;

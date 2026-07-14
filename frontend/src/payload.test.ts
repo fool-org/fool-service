@@ -960,13 +960,22 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).not.toContain('v-if="schemaOnly && detailItemGroups.length" class="view-items-panel"');
   });
 
-  it("returns stale stored tokens to the signed-out login screen", () => {
+  it("keeps getmain transport failures on the shell while returning stale tokens to login", () => {
+    const mainInfoSource = appSource.slice(
+      appSource.indexOf("async function loadMainInfo"),
+      appSource.indexOf("async function loadCheckCode")
+    );
     const shellSource = appSource.slice(
       appSource.indexOf("async function ensureLegacyShell"),
       appSource.indexOf("async function loadViewWorkflow")
     );
 
+    expect(mainInfoSource).toContain("{ silentTransport: true }");
     expect(shellSource).toContain("if (await loadMainInfo()) return true");
+    expect(shellSource).toContain("if (!errorMessage.value) return false");
+    expect(shellSource.indexOf("if (!errorMessage.value) return false")).toBeLessThan(
+      shellSource.indexOf("clearLegacySession()")
+    );
     expect(shellSource).toContain("clearLegacySession()");
     expect(shellSource).toContain("await prepareLegacyLogin()");
     expect(shellSource).toContain("return false");
