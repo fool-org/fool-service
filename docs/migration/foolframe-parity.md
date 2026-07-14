@@ -3623,3 +3623,11 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   values empty again, the link disappeared, and all 67 runtime-doctor checks
   passed. The inspected 1280x720 bare-host artifact is
   `artifacts/runs/20260714-legacy-login-vendor-link/bare-url.jpg`.
+- 2026-07-14: guarded `index.jade`'s implicit Enter login contract. The old
+  Login button omits `type`, making it the form's default submit button; HTML
+  implicit submission fires that button's click, so `ng-click="hello()"` runs
+  before Angular prevents page submission. Vue's existing submit button and
+  `@submit.prevent="submit"` already reproduce that interaction. A source
+  contract now locks both pieces together without adding a key listener,
+  component state, request path, or DTO binding. Deployed browser acceptance
+  remains to prove Enter reaches `loginv2` with the restored bundle.

@@ -1276,7 +1276,9 @@ describe("App defaults", () => {
     expect(loginPanelSource).not.toContain("userId.value.trim()");
     expect(loginPanelSource).not.toContain("checkCodeValue.value.trim()");
     expect(loginPanelSource).not.toContain('maxlength="8"');
+    expect(loginPanelSource).toContain('<form class="login-form" aria-label="登录" @submit.prevent="submit">');
     expect(loginPanelSource).toContain('<Button type="submit" label="登录" :disabled="!captchaKey" />');
+    expect(loginPanelSource).not.toContain('<Button type="button" label="登录"');
     expect(loginPanelSource).not.toContain("登录中...");
     expect(loginPanelSource).not.toContain(":loading=");
     expect(loginPanelSource).not.toContain(':disabled="pending"');
