@@ -52,9 +52,20 @@ every change atomically while retaining View-first rendering and code reuse.
 - Compose retained backend/frontend/Redis/MySQL running and `db-migrate` at
   `Exited (0)`; backend `/test` passed.
 - Repository harness and `git diff --check` passed before the atomic commit.
+- A versioned Docker browser entry loaded the current bundle and rendered no
+  database select/combobox while initapp exposed exactly one `car_wash` entry.
+- Authorized `admin/admin` login with a freshly read local CAPTCHA reached
+  `/main`. The backend success log recorded `DbId=car_wash`, and the View-first
+  shell rendered Order List.
+- Logout returned to the same three-input/no-picker page at 1280px. Document
+  width stayed 1280px and the clean browser run ended without errors.
+
+## Runtime Evidence
+
+- `artifacts/runs/20260714-legacy-login-database-binding/clean-login.png`
+- `artifacts/runs/20260714-legacy-login-database-binding/authenticated-clean.png`
 
 ## Skipped Checks And Risks
 
-- Browser login replay is deferred to a separate validation commit.
 - The full old FoolFrame application was not booted; checked-in Jade and
   JavaScript supply the old binding contract.

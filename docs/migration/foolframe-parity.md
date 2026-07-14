@@ -3533,6 +3533,12 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   state. Seeded Docker still supplies the single `car_wash` database through
   initapp rather than frontend configuration. The deployed frontend image was
   `sha256:f42ba03afdc7e2aec2ed5513e9197d4a31ba5622d1557f8aa2f52be03333e045`.
+  A versioned Docker browser entry loaded the current bundle with zero database
+  controls while initapp exposed exactly one `car_wash` database. Authorized
+  `admin/admin` login within the CAPTCHA lifetime reached `/main`; the backend
+  success log recorded `DbId=car_wash`, and the View-first shell rendered Order
+  List. Logout returned to the same three-input/no-picker page at 1280px with
+  no document overflow or browser errors.
 - 2026-07-14: restored `index.jade`'s server-owned empty-login validation. The
   old username, password, and CAPTCHA inputs have no `required` attributes;
   `login.js` submits their current values and lets the login response drive the
