@@ -1058,7 +1058,7 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).toContain("showingResults.value = true");
     expect(viewReportPanelSource).toContain("const reportSetupLoading = ref(true)");
     expect(viewReportPanelSource).toContain("const reportRunning = ref(false)");
-    expect(viewReportPanelSource).toContain('v-if="!reportSetupLoading && !reportRunning"');
+    expect(viewReportPanelSource).toContain('v-if="!reportSetupLoading && (!reportRunning || showingResults)"');
     expect(viewReportPanelSource.indexOf("reportRunning.value = true")).toBeLessThan(
       viewReportPanelSource.indexOf('props.runAction("mkrpt"')
     );

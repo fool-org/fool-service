@@ -11,8 +11,10 @@ commits without coupling Vue components to concrete business DTOs.
   with `ViewReportPanel.vue` and `ReportOutputSelector.vue`.
 - Removed the Vue-only global request lock from output and condition editors,
   setup footer commands, result paging/Return, and mask dismissal.
-- Preserved the result header's old no-close-button layout, request paths,
-  local state, page guards, and View metadata adapters.
+- Preserved initial-generation setup hiding and the result header's old
+  no-close-button layout, but kept results visible during paging requests like
+  `ShowReportController`.
+- Preserved request paths, local state, page guards, and View metadata adapters.
 - Removed the now-unused report `pending` prop chain and output-selector
   disabled prop; added no state, route, request, DTO binding, or duplicate
   component.
@@ -35,11 +37,13 @@ commits without coupling Vue components to concrete business DTOs.
 - `python scripts/check_repo_harness.py` passed.
 - The focused `ViewReportPanel.test.ts` contract is 16 lines and
   `ViewReportPanel.vue` shrank from 379 to 376 lines.
+- After separating initial-generation hiding from result-page visibility, the
+  same 17-file/183-test suite, production build, and harness passed again.
 - Pending Docker rebuild, runtime doctor, and authorized browser acceptance.
 
 ## Risks And Follow-ups
 
-- Browser-verify setup tabs/commands during initial `mkrpt`, then result paging
-  and Return during a second `mkrpt`, without saving a report definition.
+- Browser-verify setup tabs/commands during an unrelated request, then result
+  paging and Return during a page `mkrpt`, without saving a report definition.
 - Remove any temporary local acceptance rows and verify original data afterward.
 - `docs/superpowers/` is unrelated untracked work and remains untouched.

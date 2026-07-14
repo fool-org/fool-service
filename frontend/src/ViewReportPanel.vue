@@ -247,7 +247,7 @@ onMounted(() => void loadReportColumns());
 
 <template>
   <Dialog
-    v-if="!reportSetupLoading && !reportRunning"
+    v-if="!reportSetupLoading && (!reportRunning || showingResults)"
     :visible="true"
     modal
     class="report-dialog"

@@ -3739,8 +3739,10 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   availability. The old output, condition, footer, result-page, Return, and
   modal-dismiss controls do not read a global HTTP pending flag. Vue now
   removes that flag from the report panel and output selector while preserving
-  the old result header's lack of a close button. The existing request paths,
-  local report state, page-boundary guards, and metadata adapters are unchanged.
+  the old result header's lack of a close button. Initial generation still
+  hides setup before `mkrpt`, while result paging now leaves the result dialog
+  visible like `ShowReportController`. The existing request paths, local report
+  state, page-boundary guards, and metadata adapters are unchanged.
   The change deletes one prop chain and all report-only disabled bindings; it
   adds no state, request, route, DTO binding, or duplicate component. Docker
   browser acceptance remains required before the task is closed.
