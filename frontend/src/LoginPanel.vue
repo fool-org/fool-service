@@ -60,14 +60,6 @@ watch(captchaKey, () => {
   checkCodeValue.value = "";
 });
 
-function reset() {
-  userId.value = "";
-  password.value = "";
-  checkCodeValue.value = "";
-  dbId.value = databases.value[0] ? databaseId(databases.value[0]) : "";
-  emit("refresh");
-}
-
 function submit() {
   emit("submit", userId.value.trim(), password.value, dbId.value, checkCodeValue.value.trim());
 }
@@ -105,7 +97,7 @@ function submit() {
 
       <div class="login-actions">
         <Button type="submit" :label="pending ? '登录中...' : '登录'" :loading="pending" :disabled="pending || !captchaKey" />
-        <Button type="button" label="重置" severity="secondary" :disabled="pending" @click="reset" />
+        <Button type="button" label="重置" severity="secondary" :disabled="pending" @click="emit('refresh')" />
       </div>
     </form>
 

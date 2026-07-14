@@ -28,9 +28,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Add runtime evidence bundles for Docker/browser smoke checks after the
       Docker stack stabilizes.
 - [x] Revalidate the current signed-out login page at desktop and 390x844:
-      controls remain inside the viewport, Reset clears all fields and refreshes
-      the CAPTCHA, and Refresh preserves credentials while clearing only the
-      CAPTCHA input. Evidence is under
+      controls remain inside the viewport, and Refresh preserves credentials
+      while requesting a new CAPTCHA and clearing only the CAPTCHA input.
+      Layout evidence is under
       `artifacts/runs/20260712-login-layout-current/`.
 - [x] Revalidate the current authenticated desktop and 390x844 View-first
       workflow after fresh authorization to read and fill the current local
@@ -1414,6 +1414,9 @@ item must land with its matching implementation and validation evidence.
       the path with `/main`, that route keeps `Sudoku.jade` guidance, and Home
       `/` uses `main.jade`'s shorter configuration text through the existing
       `App.DefaultViewId` metadata branch.
+- [x] Restore `login.js` Reset state semantics: preserve username, password,
+      and database selection while reusing the existing CAPTCHA refresh event;
+      omit the old blank error-modal intermediary as a presentation cleanup.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

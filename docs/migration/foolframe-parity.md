@@ -3474,3 +3474,14 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   to `/` with only `默认首页 还没有配置`, and both routes stayed at exactly
   390px document width on a 390x844 viewport. Browser errors were empty, the
   test session logged out, and `SW_APP_VIEW=100` was restored afterward.
+- 2026-07-14: restored `login.js` Reset state semantics. Old `showerror()`
+  registers CAPTCHA refresh for modal dismissal but never clears username,
+  password, or the hidden/single database selection. Vue's Reset instead
+  erased every field before requesting a new code. The button now emits the
+  same existing refresh event as the explicit Refresh command; the established
+  CAPTCHA-key watcher clears only the code input. The obsolete blank error
+  modal remains intentionally omitted as presentation cleanup. `LoginPanel.vue`
+  shrank by eight lines and no second reset path or state adapter was added.
+  This supersedes the earlier migration note that described full-field Reset
+  clearing as parity. The deployed frontend image was
+  `sha256:47584bab5223758aa3d384c119fb79ea6d41034948d15432c8f8fa38e82f3d2c`.

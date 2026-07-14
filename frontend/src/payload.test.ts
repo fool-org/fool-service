@@ -1251,6 +1251,8 @@ describe("App defaults", () => {
     expect(loginPanelSource).toContain('placeholder="密码"');
     expect(loginPanelSource).toContain("pending ? '登录中...' : '登录'");
     expect(loginPanelSource).toContain('label="重置"');
+    expect(loginPanelSource).toContain("@click=\"emit('refresh')\"");
+    expect(loginPanelSource).not.toContain("function reset()");
     expect(loginPanelSource).not.toContain("Welcome back");
     expect(loginPanelSource).not.toContain("<Card");
     expect(appSource).not.toContain("Legacy Login V2");
