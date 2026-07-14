@@ -36,4 +36,11 @@ describe("ViewReportPanel legacy interactions", () => {
     expect(viewReportPanelSource).not.toContain("/api/v1/report/saverpt");
     expect(viewReportPanelSource).not.toContain("报表定义已提交。");
   });
+
+  it("keeps the old single-type shortcut but requires a real output type", () => {
+    expect(reportOutputSelectorSource).toContain('@change="chooseCandidate"');
+    expect(reportOutputSelectorSource).toContain("if (!queryTypeOptions.value.length) return;");
+    expect(reportOutputSelectorSource).toContain("if (queryTypeOptions.value.length === 1) addOutput();");
+    expect(reportOutputSelectorSource).not.toContain('{ label: "原值", value: "" }');
+  });
 });

@@ -24,11 +24,10 @@ const candidateOptions = computed(() => props.columns.map((column) => ({
 const selectedCandidate = computed(() => props.columns.find((column) => columnKey(column) === candidateKey.value));
 const queryTypeOptions = computed(() => {
   if (!selectedCandidate.value) return [];
-  const options = reportModelQueryTypes(selectedCandidate.value).map((option) => ({
+  return reportModelQueryTypes(selectedCandidate.value).map((option) => ({
     label: reportModelOptionName(option),
     value: reportModelOptionId(option)
   }));
-  return options.length ? options : [{ label: "原值", value: "" }];
 });
 const selectedOptions = computed(() => outputs.value.map((output, index) => ({
   label: `${output.colName || output.colId || "字段"}${orderLabel(output.orderType)}`,
@@ -57,6 +56,7 @@ function chooseCandidate() {
 
 function addOutput() {
   if (!selectedCandidate.value) return;
+  if (!queryTypeOptions.value.length) return;
   const hadOutputs = outputs.value.length > 0;
   const next = addReportOutput(outputs.value, selectedCandidate.value, selectedTypeId.value);
   if (next === outputs.value) return;
