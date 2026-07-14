@@ -1545,10 +1545,10 @@ item must land with its matching implementation and validation evidence.
       path: keep the View-derived lookup input without inline error feedback on
       network/non-2xx failure, retain response-backed errors, and browser-verify
       successful candidate recovery without changing the lookup DTO.
-- [ ] Restore the signed-out `index` / `soway.initapp` transport surface: keep
+- [x] Restore the signed-out `index` / `soway.initapp` transport surface: keep
       Vue's static login shell without a browser error dialog when initial app
-      metadata has a network/non-2xx failure, then browser-verify a restored
-      backend and page reload recover the metadata/CAPTCHA flow.
+      metadata has a network/non-2xx failure, then browser-verify real Nginx
+      HTTP 502/504 and live backend reload recover metadata/CAPTCHA/login.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from

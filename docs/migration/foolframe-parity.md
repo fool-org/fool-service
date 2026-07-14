@@ -4046,4 +4046,19 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   of copying the old permanently pending navigation. Successful metadata,
   CAPTCHA/database adapters, login behavior, request payload, route, and DTO are
   unchanged. All 193 frontend tests, TypeScript/Vite production build, and
-  repository harness pass. Docker/browser evidence remains required.
+  repository harness pass. An isolated acceptance deployed frontend image
+  `sha256:d1144dc7db08cf0b9c8cbeb636911ee1ff2e5169c06e35fdeab5ea2d932dceb1`
+  and served bundle `index-BmTy2PHd.js`. Its authorized browser context returned
+  deterministic HTTP 502 from `initapp`; the three visible login inputs remained
+  and no `发生错误` or transport text appeared. Removing the interception and
+  reloading returned HTTP 200 from `initapp`; a locally read CAPTCHA plus
+  `admin/admin` then returned HTTP 200 from `loginv2`, reached `/main`, rendered
+  Admin and Order List, and logged out successfully. A final shared-stack replay
+  deployed and matched image
+  `sha256:86f7f14ea319c50361d3e99c87979596e21e09c80a85d119a0928c3e583dda26`,
+  stopped the backend, and recorded real Nginx HTTP 502/504 responses. A fresh
+  failed page retained the same three-input fallback, omitted CAPTCHA, disabled
+  Login, and showed no error dialog; backend recovery and reload returned HTTP
+  200 and restored CAPTCHA, Login, and version metadata. Compose was healthy,
+  `db-migrate` was `Exited (0)`, View metadata and row counts were unchanged, and
+  all 67 runtime-doctor checks passed.
