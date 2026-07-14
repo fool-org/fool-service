@@ -1608,6 +1608,9 @@ item must land with its matching implementation and validation evidence.
       rendering: use `initapp.AppName` while signed out and
       `getmain.App.AppName` after authentication, without deriving page
       metadata from View/data DTOs.
+- [x] Separate old report candidate lifecycles: preserve the selected candidate
+      across result Return, rebuild it to the first View column only on a new
+      metadata load, and keep output controls untouched in both paths.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from

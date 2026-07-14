@@ -4339,3 +4339,25 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   restored the cached signed-out title without another metadata request.
   Compose was healthy, `db-migrate` was `Exited (0)`, and all 68
   runtime-doctor checks passed.
+- 2026-07-15: separated the two old report candidate lifecycles.
+  `MakeReportController.mkrpt` hides setup and `ShowReportController.back`
+  shows that same modal without calling `mkreport.initquery`, so returning from
+  results must retain the selected candidate. Clicking `统计` again does call
+  `initquery`, rebuilds `#rpt-candidate`, and returns it to the first option
+  while leaving output methods and selected outputs untouched. Vue now keeps
+  the candidate in View-scoped UI state, resets it only after successful report
+  metadata loading, and resolves the native change event before the parent
+  model round trip. No App state, business DTO, store, route, dependency, or
+  duplicate output builder was added; the selector/panel remain 181/409 lines.
+  Focused tests passed (100/100), as did all 211 frontend tests and the
+  TypeScript/Vite production build. Implementation commits `e6d22c12` and
+  `ef18d38d` produced final deployed image
+  `sha256:c9767bf5e725f2918934de8aed2628d3efb289bb72964885417ecfae9e9be2b3`
+  with report chunk `ViewReportPanel-D-lrTGwB.js`. Authorized `admin/admin`
+  browser acceptance on `/view101` selected `第二列 / 第二计数`, added
+  `第二列[第二计数]`, generated one report, and returned without a second
+  metadata request; candidate, methods, selected method, and output all
+  remained. Cancel/reopen raised the metadata count to two and reset only the
+  candidate to `第一列`. Logout returned HTTP 200 with no browser errors. All
+  68 runtime-doctor checks passed, Compose was healthy, `db-migrate` was
+  `Exited (0)`, and order 1001 plus the 8-order/4-item counts were unchanged.
