@@ -5,6 +5,11 @@ import listDataTableSource from "./ListDataTable.vue?raw";
 import viewListPanelSource from "./ViewListPanel.vue?raw";
 
 describe("ViewListPanel legacy interactions", () => {
+  it("uses the old plain-text query input", () => {
+    expect(viewListPanelSource).toContain('class="list-query-input" type="text"');
+    expect(viewListPanelSource).not.toContain('class="list-query-input" type="search"');
+  });
+
   it("keeps row navigation and pagination active during requests", () => {
     const tableSource = viewListPanelSource.slice(
       viewListPanelSource.indexOf("<ListDataTable"),

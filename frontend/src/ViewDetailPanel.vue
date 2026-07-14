@@ -346,7 +346,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                   <InputText
                     :model-value="candidateState(group).keyword"
                     class="candidate-query-input"
-                    type="search"
+                    type="text"
                     placeholder="输入条件"
                     aria-label="查询条件"
                     @input="emit('updateCandidateKeyword', group, $event)"

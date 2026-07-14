@@ -2,6 +2,16 @@ import { describe, expect, it } from "vitest";
 import viewDetailPanelSource from "./ViewDetailPanel.vue?raw";
 
 describe("ViewDetailPanel legacy interactions", () => {
+  it("uses the old plain-text candidate query input", () => {
+    const pickerSource = viewDetailPanelSource.slice(
+      viewDetailPanelSource.indexOf('class="candidate-query-toolbar"'),
+      viewDetailPanelSource.indexOf('class="table-wrap detail-picker-results"')
+    );
+
+    expect(pickerSource).toContain('type="text"');
+    expect(pickerSource).not.toContain('type="search"');
+  });
+
   it("keeps candidate-dialog commands active during requests", () => {
     const pickerSource = viewDetailPanelSource.slice(
       viewDetailPanelSource.indexOf('class="detail-picker-content"'),
