@@ -20,6 +20,41 @@ Design source: `docs/installation-and-initialization.md`. Owner: Codex.
       migrations, system initialization, and application installation.
       Acceptance: design, code, tasks, and delivery evidence agree.
 
+## Active: Agent Configuration Workflow
+
+- [x] Bootstrap the ordered backend agent/session boundary for
+      report/query -> form/view -> model -> data-source -> event/automation.
+- [x] Add the first agent API surface for capability discovery, session
+      creation, message recording, and ordered stage advancement.
+- [x] Persist agent session state through a JDBC store when application
+      `JdbcTemplate` is available, with in-memory storage only as a fallback.
+- [x] Return a low-risk read-only report/query draft shell from the first
+      agent stage, including report/query endpoints and a View-scoped payload.
+- [x] Wire the report/query agent stage to concrete read-only query/report
+      draft generation with actual View/model column hydration against
+      `fool-query` and `fool-report`.
+- [x] Wire the form/view agent stage to concrete read-only View draft
+      generation with actual field, child collection, and operation metadata
+      hydration against `fool-view`.
+- [x] Wire the model agent stage to concrete read-only model draft generation
+      with actual property, relation, operation, and DDL dry-run metadata
+      hydration against `fool-model`.
+- [ ] Add a runtime read-only preview gate that compares the hydrated agent
+      `ReportCols` with `/api/v1/report/getmkqview` before enabling saved
+      report definitions.
+- [ ] Add a runtime read-only preview gate that compares the hydrated agent
+      form/view draft with `/api/v1/view/getlistview` before enabling View
+      metadata writes or operation execution.
+- [ ] Add a runtime DDL dry-run preview gate that compares the hydrated agent
+      model draft with the target table schema before enabling model metadata
+      writes.
+- [x] Wire the data-source agent stage to concrete connection catalog,
+      credential-reference, and routing validation drafts.
+- [x] Wire the event/automation agent stage to concrete trigger, recipient,
+      idempotency, and audit dry-run drafts.
+- [ ] Add frontend workspace entry points after the backend session contract is
+      stable enough for browser smoke automation.
+
 ## Active: Vue Interface Upgrade
 
 Design source: `docs/frontend/ui-design-system.md`. Owner: Codex. Each checked

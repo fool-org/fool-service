@@ -30,6 +30,7 @@
         <module>fool-db-manage</module>
         <module>fool-event</module>
         <module>fool-report</module>
+        <module>fool-agent</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -163,6 +164,11 @@
             <dependency>
                 <groupId>com.github.yfge.fool</groupId>
                 <artifactId>fool-report</artifactId>
+                <version>${fool.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.yfge.fool</groupId>
+                <artifactId>fool-agent</artifactId>
                 <version>${fool.version}</version>
             </dependency>
             <dependency>

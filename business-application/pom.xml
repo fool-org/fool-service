@@ -36,6 +36,10 @@
         </dependency>
         <dependency>
             <groupId>com.github.yfge.fool</groupId>
+            <artifactId>fool-agent</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.yfge.fool</groupId>
             <artifactId>fool-dao</artifactId>
         </dependency>
         <dependency>
