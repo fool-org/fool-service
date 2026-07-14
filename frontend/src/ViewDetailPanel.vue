@@ -371,7 +371,6 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                     :columns="candidateColumns(group)"
                     :condensed="false"
                     default-action-label="选择"
-                    :disabled="false"
                     :minimum-rows="candidateState(group).queried ? candidateState(group).pageSize : 0"
                     :row-operations="[]"
                     :rows="candidateRows(group)"
@@ -383,7 +382,6 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                 </div>
                 <LegacyPagination
                   class="candidate-results-footer"
-                  :disabled="false"
                   :page-index="candidateState(group).pageIndex"
                   :page-size="candidateState(group).pageSize"
                   :record-label="candidateRecordInfo(candidateState(group))"

@@ -3717,3 +3717,12 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   runtime-doctor checks passed. Current runtime metadata has no parent View
   operation, so its no-global-lock branch remains covered by the source
   contract.
+- 2026-07-15: aligned `view.jade` row-navigation and `navbar.js` paging request
+  availability. Old row links navigate immediately, and old page links are
+  disabled only by first/last-page boundaries; neither inherits the active
+  `querylistdata` request state. Vue now leaves main-list row commands and the
+  shared legacy paginator active during unrelated requests. The table keeps an
+  optional disabled boundary for Sudoku callers, while Sudoku refresh remains
+  unchanged. Removing redundant false props also simplifies the already-active
+  detail candidate table. No state, request, route, or DTO binding was added.
+  Docker browser acceptance remains required before the task is closed.

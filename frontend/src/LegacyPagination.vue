@@ -2,7 +2,6 @@
 import Paginator, { type PageState } from "primevue/paginator";
 
 withDefaults(defineProps<{
-  disabled: boolean;
   pageIndex: number;
   pageSize: number;
   recordLabel?: string;
@@ -31,7 +30,6 @@ function changePage(event: PageState) {
       :page-link-size="7"
       :rows="pageSize"
       :total-records="totalItems"
-      :disabled="disabled"
       template="PrevPageLink PageLinks NextPageLink"
       @page="changePage"
     >

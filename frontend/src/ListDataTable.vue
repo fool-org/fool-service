@@ -26,7 +26,7 @@ const props = withDefaults(defineProps<{
   columns: TableColumnInfo[];
   condensed?: boolean;
   defaultActionLabel?: string;
-  disabled: boolean;
+  disabled?: boolean;
   minimumRows?: number;
   rowOperations: OperationInfo[];
   rows: ListDataItem[];
@@ -37,6 +37,7 @@ const props = withDefaults(defineProps<{
 }>(), {
   condensed: true,
   defaultActionLabel: "Open",
+  disabled: false,
   minimumRows: 0,
   selectedObjectId: "",
   showActionHeader: true,

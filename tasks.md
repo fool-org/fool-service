@@ -1473,6 +1473,10 @@ item must land with its matching implementation and validation evidence.
       Save, View operations, and metadata lookup editors active during
       unrelated requests while retaining edit-state and own-save protection;
       browser-verify without persisting detail changes.
+- [ ] Restore `view.jade` row-navigation and `navbar.js` paging availability:
+      keep list row links and page commands active during unrelated requests,
+      preserve page-boundary and Sudoku refresh guards, and browser-verify with
+      temporary local rows that are removed afterward.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from

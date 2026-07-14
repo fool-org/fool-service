@@ -12,7 +12,7 @@ describe("ViewDetailPanel legacy interactions", () => {
     expect(viewDetailPanelSource).not.toContain(':dismissable-mask="!pending"');
     expect(viewDetailPanelSource).toContain("dismissable-mask");
     expect(pickerSource).not.toContain(':disabled="pending"');
-    expect(pickerSource.match(/:disabled="false"/g)).toHaveLength(2);
+    expect(pickerSource).not.toContain(':disabled=');
   });
 
   it("keeps legacy child collection commands active during requests", () => {

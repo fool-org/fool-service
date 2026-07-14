@@ -126,7 +126,6 @@ watch(() => props.data, () => void lockChartPaneHeight(), { immediate: true });
     <div ref="chartTablePane" v-if="supportedTemplate && !sudokuView" v-show="!chartView || activePane === 'table'" class="table-wrap view-table">
       <ListDataTable
         :columns="columns"
-        :disabled="disabled"
         :minimum-rows="pageSize"
         :row-operations="rowItems"
         :rows="rows"
@@ -137,7 +136,6 @@ watch(() => props.data, () => void lockChartPaneHeight(), { immediate: true });
     <LegacyPagination
       v-if="supportedTemplate && data"
       class="list-pagination"
-      :disabled="disabled"
       :page-index="resultPageIndex"
       :page-size="pageSize"
       :total-items="resultTotalItems"
