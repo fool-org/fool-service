@@ -3571,3 +3571,14 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   all values and CAPTCHA image unchanged until Close; dismissal preserved both
   credential strings, cleared the code, replaced the image, and ended with no
   browser errors.
+- 2026-07-14: restored `login.js`'s always-available login controls. The old
+  page has no request-pending state, so Login keeps its fixed label and Login,
+  Refresh, and Reset remain available while an HTTP request is in flight. Vue
+  no longer passes global workflow pending state into `LoginPanel`, renders a
+  spinner/`登录中...`, or locks those controls. The submit button retains only
+  the pre-render compatibility guard for a missing CAPTCHA key because the old
+  server-rendered page is not shown before that key exists. The shared request
+  runner already allows concurrent requests, so no second request path or
+  component state was added. Frontend tests/build, Compose replacement,
+  runtime doctor, and repository harness pass; the deployed frontend image is
+  `sha256:e07db3e06f2df0d420f5707b55daf3a3e7379a5313edf103a8e610ecc3fe9d8c`.

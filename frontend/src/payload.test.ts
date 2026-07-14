@@ -1270,7 +1270,12 @@ describe("App defaults", () => {
     expect(loginPanelSource).not.toContain("userId.value.trim()");
     expect(loginPanelSource).not.toContain("checkCodeValue.value.trim()");
     expect(loginPanelSource).not.toContain('maxlength="8"');
-    expect(loginPanelSource).toContain("pending ? '登录中...' : '登录'");
+    expect(loginPanelSource).toContain('<Button type="submit" label="登录" :disabled="!captchaKey" />');
+    expect(loginPanelSource).not.toContain("登录中...");
+    expect(loginPanelSource).not.toContain(":loading=");
+    expect(loginPanelSource).not.toContain(':disabled="pending"');
+    expect(loginPanelSource).not.toContain("pending || !captchaKey");
+    expect(appSource).not.toContain(':pending="Boolean(pendingAction)"\n    @dismiss-error');
     expect(loginPanelSource).toContain('label="重置"');
     expect(loginPanelSource).toContain("@click=\"emit('refresh')\"");
     expect(loginPanelSource).not.toContain("function reset()");

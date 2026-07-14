@@ -16,7 +16,6 @@ const props = defineProps<{
   checkCode?: CheckCodeResult;
   errorCode: string;
   errorMessage: string;
-  pending: boolean;
 }>();
 const emit = defineEmits<{
   dismissError: [];
@@ -65,13 +64,13 @@ function submit() {
       <InputText v-model="checkCodeValue" aria-label="验证码" autocomplete="one-time-code" placeholder="验证码" fluid />
       <div class="captcha-preview">
         <img v-if="captchaImage" alt="验证码" :src="`data:image/jpeg;base64,${captchaImage}`" />
-        <Button type="button" label="刷新" severity="secondary" text :disabled="pending" @click="emit('refresh')" />
+        <Button type="button" label="刷新" severity="secondary" text @click="emit('refresh')" />
       </div>
       <input name="check-code-key" type="hidden" :value="captchaKey" />
 
       <div class="login-actions">
-        <Button type="submit" :label="pending ? '登录中...' : '登录'" :loading="pending" :disabled="pending || !captchaKey" />
-        <Button type="button" label="重置" severity="secondary" :disabled="pending" @click="emit('refresh')" />
+        <Button type="submit" label="登录" :disabled="!captchaKey" />
+        <Button type="button" label="重置" severity="secondary" @click="emit('refresh')" />
       </div>
     </form>
 

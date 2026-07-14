@@ -1437,6 +1437,9 @@ item must land with its matching implementation and validation evidence.
       CAPTCHA without frontend trimming, and remove the Vue-only CAPTCHA
       maxlength so server validation receives the operator's exact strings;
       browser-verify the exact backend request and dismissal state.
+- [x] Restore `login.js`'s always-available controls: keep the Login label fixed
+      and leave Login, Refresh, and Reset enabled during requests while retaining
+      only the initialization guard for a missing CAPTCHA key.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

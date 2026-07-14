@@ -1017,7 +1017,6 @@ function syncDetailDrafts() {
     :check-code="checkCodeResponse?.data"
     :error-code="loginErrorCode"
     :error-message="errorMessage"
-    :pending="Boolean(pendingAction)"
     @dismiss-error="dismissLoginError"
     @refresh="refreshLoginCheckCode"
     @submit="submitLegacyLogin"
