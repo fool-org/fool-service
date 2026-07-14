@@ -17,4 +17,10 @@ describe("ViewReportPanel legacy interactions", () => {
     expect(viewReportPanelSource).toContain('label="取消" severity="secondary" outlined @click="emit(\'close\')"');
     expect(viewReportPanelSource).toContain('label="返回" @click="backToReportSetup"');
   });
+
+  it("keeps the report closed when its metadata request has a transport failure", () => {
+    expect(viewReportPanelSource).toContain("transportFailed = isTransportError(error)");
+    expect(viewReportPanelSource).toContain("{ silentTransport: true }");
+    expect(viewReportPanelSource).toMatch(/if \(transportFailed\) \{\s+emit\("close"\);\s+return;/);
+  });
 });

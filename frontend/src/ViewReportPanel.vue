@@ -19,6 +19,7 @@ import {
   type ReportGridResult,
   type ReportModelColumn,
   type ReportModelResult,
+  isTransportError,
   postApi
 } from "./api";
 import { buildLegacyListViewRequest, buildMakeReportRequest } from "./payload";
@@ -180,12 +181,26 @@ function simpleFilter(condition: ReportConditionDraft): ReportFilterExp | null {
 
 async function loadReportColumns() {
   statusMessage.value = "";
-  const response = await props.runAction("report-columns", () =>
-    postApi<ReportModelResult>("/api/v1/report/getmkqview", buildLegacyListViewRequest({
-      token: props.token,
-      viewId: props.viewId
-    }))
+  let transportFailed = false;
+  const response = await props.runAction(
+    "report-columns",
+    async () => {
+      try {
+        return await postApi<ReportModelResult>("/api/v1/report/getmkqview", buildLegacyListViewRequest({
+          token: props.token,
+          viewId: props.viewId
+        }));
+      } catch (error) {
+        transportFailed = isTransportError(error);
+        throw error;
+      }
+    },
+    { silentTransport: true }
   );
+  if (transportFailed) {
+    emit("close");
+    return;
+  }
   reportSetupLoading.value = false;
   if (!response) {
     statusMessage.value = "无法加载报表字段。";

@@ -3907,3 +3907,12 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   then rendered all 8 seeded records. Compose was healthy, `db-migrate` was
   `Exited (0)`, metadata and row counts were unchanged, and all 67
   runtime-doctor checks passed.
+- 2026-07-15: aligned `mkreport.initquery`'s success-only transport path. The
+  old report setup opens only inside the successful `/report/mkqview` callback;
+  a network or non-2xx failure leaves the main View unchanged. Vue now reuses
+  the existing transport classification and `silentTransport` action option,
+  closing the still-hidden report component only for transport failures.
+  Response-backed business errors, report success behavior, View-derived
+  columns, routes, payloads, and DTOs are unchanged. All 192 frontend tests,
+  TypeScript/Vite build, and repository harness pass. Docker/browser evidence
+  remains required.
