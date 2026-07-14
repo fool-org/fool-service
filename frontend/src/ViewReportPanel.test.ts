@@ -46,7 +46,7 @@ describe("ViewReportPanel legacy interactions", () => {
   });
 
   it("keeps output types empty until the old candidate change event", () => {
-    expect(reportOutputSelectorSource).toContain("const queryTypeOptions = ref<");
+    expect(reportOutputSelectorSource).toContain('defineModel<{ label: string; value: string }[]>("queryTypeOptions"');
     expect(reportOutputSelectorSource).toContain("queryTypeOptions.value = selectedCandidate.value");
   });
 
@@ -58,6 +58,9 @@ describe("ViewReportPanel legacy interactions", () => {
     expect(metadataWatch).not.toContain("queryTypeOptions.value");
     expect(metadataWatch).not.toContain("selectedTypeId.value");
     expect(reportOutputSelectorSource).toContain("selectedTypeName");
+    expect(viewReportPanelSource).toContain('v-model:query-type-options="reportQueryTypeOptions"');
+    expect(viewReportPanelSource).toContain('v-model:selected-type-id="reportSelectedTypeId"');
+    expect(viewReportPanelSource).toContain('v-model:selected-output-index="reportSelectedOutputIndex"');
   });
 
   it("reuses the View metadata field editor for report condition values", () => {

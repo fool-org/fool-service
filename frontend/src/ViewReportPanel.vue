@@ -64,6 +64,9 @@ const reportName = ref("");
 const modelResponse = ref<CommonResponse<ReportModelResult> | null>(null);
 const reportResponse = ref<CommonResponse<ReportGridResult> | null>(null);
 const reportCols = ref<ReportCol[]>([]);
+const reportQueryTypeOptions = ref<{ label: string; value: string }[]>([]);
+const reportSelectedTypeId = ref("");
+const reportSelectedOutputIndex = ref<number | null>(null);
 const conditions = ref<ReportConditionDraft[]>([]);
 const selectedConditionIds = ref<number[]>([]);
 const statusMessage = ref("");
@@ -320,7 +323,13 @@ watch(() => props.visible, (visible) => { if (visible) void loadReportColumns();
       <TabPanels>
         <TabPanel value="output">
           <section class="report-section">
-            <ReportOutputSelector v-model="reportCols" :columns="modelColumns" />
+            <ReportOutputSelector
+              v-model="reportCols"
+              v-model:query-type-options="reportQueryTypeOptions"
+              v-model:selected-output-index="reportSelectedOutputIndex"
+              v-model:selected-type-id="reportSelectedTypeId"
+              :columns="modelColumns"
+            />
           </section>
         </TabPanel>
 

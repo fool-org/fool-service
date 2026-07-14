@@ -13,10 +13,10 @@ import {
 
 const props = defineProps<{ columns: ReportModelColumn[] }>();
 const outputs = defineModel<ReportCol[]>({ required: true });
+const queryTypeOptions = defineModel<{ label: string; value: string }[]>("queryTypeOptions", { required: true });
+const selectedTypeId = defineModel<string>("selectedTypeId", { required: true });
+const selectedOutputIndex = defineModel<number | null>("selectedOutputIndex", { required: true });
 const candidateKey = ref("");
-const queryTypeOptions = ref<{ label: string; value: string }[]>([]);
-const selectedTypeId = ref("");
-const selectedOutputIndex = ref<number | null>(null);
 
 const candidateOptions = computed(() => props.columns.map((column) => ({
   label: reportModelColumnName(column),
