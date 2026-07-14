@@ -29,4 +29,9 @@ describe("ViewReportPanel legacy interactions", () => {
     expect(viewReportPanelSource).toContain('runSuccessOnlyAction("mkrpt"');
     expect(viewReportPanelSource).toMatch(/if \(transportFailed\) \{\s+if \(revealResults\) emit\("close"\);\s+return;/);
   });
+
+  it("keeps report-save transport failures silent on the setup surface", () => {
+    expect(viewReportPanelSource).toContain('runSuccessOnlyAction("saverpt"');
+    expect(viewReportPanelSource).toMatch(/runSuccessOnlyAction\("saverpt"[\s\S]+if \(transportFailed\) return;/);
+  });
 });

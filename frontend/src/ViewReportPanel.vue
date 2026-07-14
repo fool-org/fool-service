@@ -255,9 +255,10 @@ function changeReportPage(offset: number) {
 
 async function saveReport() {
   statusMessage.value = "";
-  const response = await props.runAction("saverpt", () =>
+  const { response, transportFailed } = await runSuccessOnlyAction("saverpt", () =>
     postApi<void>("/api/v1/report/saverpt", buildRequest(reportName.value))
   );
+  if (transportFailed) return;
   statusMessage.value = response ? "报表定义已提交。" : "无法保存报表定义。";
 }
 
