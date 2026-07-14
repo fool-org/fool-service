@@ -46,10 +46,18 @@ describe("ViewReportPanel legacy interactions", () => {
   });
 
   it("keeps output types empty until the old candidate change event", () => {
-    expect(reportOutputSelectorSource).toContain("const candidateActivated = ref(false);");
-    expect(reportOutputSelectorSource).toContain("if (!candidateActivated.value || !selectedCandidate.value) return [];");
-    expect(reportOutputSelectorSource).toContain("candidateActivated.value = false;");
-    expect(reportOutputSelectorSource).toContain("candidateActivated.value = true;");
+    expect(reportOutputSelectorSource).toContain("const queryTypeOptions = ref<");
+    expect(reportOutputSelectorSource).toContain("queryTypeOptions.value = selectedCandidate.value");
+  });
+
+  it("rebuilds candidates but retains output methods when report metadata reloads", () => {
+    const metadataWatch = reportOutputSelectorSource.match(
+      /watch\(\(\) => props\.columns,[\s\S]*?\}, \{ immediate: true \}\);/
+    )?.[0] || "";
+    expect(metadataWatch).toContain('candidateKey.value = columns[0] ? columnKey(columns[0]) : "";');
+    expect(metadataWatch).not.toContain("queryTypeOptions.value");
+    expect(metadataWatch).not.toContain("selectedTypeId.value");
+    expect(reportOutputSelectorSource).toContain("selectedTypeName");
   });
 
   it("reuses the View metadata field editor for report condition values", () => {

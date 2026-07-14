@@ -14,7 +14,7 @@ import {
 const props = defineProps<{ columns: ReportModelColumn[] }>();
 const outputs = defineModel<ReportCol[]>({ required: true });
 const candidateKey = ref("");
-const candidateActivated = ref(false);
+const queryTypeOptions = ref<{ label: string; value: string }[]>([]);
 const selectedTypeId = ref("");
 const selectedOutputIndex = ref<number | null>(null);
 
@@ -23,24 +23,13 @@ const candidateOptions = computed(() => props.columns.map((column) => ({
   value: columnKey(column)
 })));
 const selectedCandidate = computed(() => props.columns.find((column) => columnKey(column) === candidateKey.value));
-const queryTypeOptions = computed(() => {
-  if (!candidateActivated.value || !selectedCandidate.value) return [];
-  return reportModelQueryTypes(selectedCandidate.value).map((option) => ({
-    label: reportModelOptionName(option),
-    value: reportModelOptionId(option)
-  }));
-});
 const selectedOptions = computed(() => outputs.value.map((output, index) => ({
   label: `${output.colName || output.colId || "字段"}${orderLabel(output.orderType)}`,
   value: index
 })));
 
 watch(() => props.columns, (columns) => {
-  if (!columns.some((column) => columnKey(column) === candidateKey.value)) {
-    candidateKey.value = columns[0] ? columnKey(columns[0]) : "";
-  }
-  candidateActivated.value = false;
-  selectedTypeId.value = "";
+  candidateKey.value = columns[0] ? columnKey(columns[0]) : "";
 }, { immediate: true });
 
 function columnKey(column: ReportModelColumn) {
@@ -52,7 +41,12 @@ function selectFirstQueryType() {
 }
 
 function chooseCandidate() {
-  candidateActivated.value = true;
+  queryTypeOptions.value = selectedCandidate.value
+    ? reportModelQueryTypes(selectedCandidate.value).map((option) => ({
+      label: reportModelOptionName(option),
+      value: reportModelOptionId(option)
+    }))
+    : [];
   selectFirstQueryType();
   if (queryTypeOptions.value.length === 1) addOutput();
 }
@@ -61,7 +55,8 @@ function addOutput() {
   if (!selectedCandidate.value) return;
   if (!queryTypeOptions.value.length) return;
   const hadOutputs = outputs.value.length > 0;
-  const next = addReportOutput(outputs.value, selectedCandidate.value, selectedTypeId.value);
+  const selectedTypeName = queryTypeOptions.value.find((option) => option.value === selectedTypeId.value)?.label;
+  const next = addReportOutput(outputs.value, selectedCandidate.value, selectedTypeId.value, selectedTypeName);
   if (next === outputs.value) return;
   outputs.value = next;
   if (!hadOutputs) selectedOutputIndex.value = 0;

@@ -22,6 +22,12 @@ describe("report outputs", () => {
     expect(addReportOutput(both, amount, "sum")).toBe(both);
   });
 
+  it("uses the retained output-method text with the rebuilt candidate list", () => {
+    expect(addReportOutput([], amount, "count", "计数")).toEqual([
+      { colName: "金额[计数]", colId: "amount", selectedTypeId: "count", orderType: "2", index: 0 }
+    ]);
+  });
+
   it("moves and reindexes selected outputs", () => {
     const outputs = addReportOutput(addReportOutput([], amount, "raw"), amount, "sum");
     expect(moveReportOutput(outputs, 1, -1).map((output) => [output.selectedTypeId, output.index])).toEqual([

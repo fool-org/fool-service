@@ -11,12 +11,12 @@ function reindex(outputs: ReportCol[]) {
   return outputs.map((output, index) => ({ ...output, index }));
 }
 
-export function addReportOutput(outputs: ReportCol[], column: ReportModelColumn, selectedTypeId: string) {
+export function addReportOutput(outputs: ReportCol[], column: ReportModelColumn, selectedTypeId: string, selectedTypeName?: string) {
   const colId = reportModelColumnId(column);
   if (outputs.some((output) => output.colId === colId && output.selectedTypeId === selectedTypeId)) return outputs;
   const selectedType = reportModelQueryTypes(column).find((option) => reportModelOptionId(option) === selectedTypeId);
   const columnName = reportModelColumnName(column);
-  const typeName = selectedType ? reportModelOptionName(selectedType) : "";
+  const typeName = selectedTypeName ?? (selectedType ? reportModelOptionName(selectedType) : "");
   return reindex([...outputs, {
     colName: typeName ? `${columnName}[${typeName}]` : columnName,
     colId,
