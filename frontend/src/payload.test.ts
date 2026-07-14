@@ -1128,7 +1128,7 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).toContain(':columns="modelColumns"');
     expect(viewReportPanelSource).not.toContain("暂无报表字段。");
     expect(reportOutputSelectorSource).toContain('defineModel<{ label: string; value: string }[]>("queryTypeOptions"');
-    expect(reportOutputSelectorSource).toContain("queryTypeOptions.value = selectedCandidate.value");
+    expect(reportOutputSelectorSource).toContain("queryTypeOptions.value = candidate");
     expect(viewReportPanelSource).toContain("const pageSize = 10");
     expect(viewReportPanelSource).not.toContain("InputNumber");
     expect(viewReportPanelSource).not.toContain("每页条数");
@@ -1141,7 +1141,7 @@ describe("App defaults", () => {
     expect(reportOutputSelectorSource).toContain("已选列");
     expect(reportOutputSelectorSource).toContain('aria-label="加入已选列" size="small" severity="secondary" outlined');
     expect(reportOutputSelectorSource).not.toContain("disabled || !selectedCandidate");
-    expect(reportOutputSelectorSource).toContain("if (!selectedCandidate.value) return;");
+    expect(reportOutputSelectorSource).toContain("if (!candidate) return;");
     expect(reportOutputSelectorSource).toContain("const hadOutputs = outputs.value.length > 0;");
     expect(reportOutputSelectorSource).toContain("if (next === outputs.value) return;");
     expect(reportOutputSelectorSource).toContain("if (!hadOutputs) selectedOutputIndex.value = 0;");

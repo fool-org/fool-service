@@ -41,13 +41,13 @@ describe("ViewReportPanel legacy interactions", () => {
   it("keeps the old single-type shortcut but requires a real output type", () => {
     expect(reportOutputSelectorSource).toContain('@change="chooseCandidate"');
     expect(reportOutputSelectorSource).toContain("if (!queryTypeOptions.value.length) return;");
-    expect(reportOutputSelectorSource).toContain("if (queryTypeOptions.value.length === 1) addOutput();");
+    expect(reportOutputSelectorSource).toContain("if (queryTypeOptions.value.length === 1) addOutput(candidate);");
     expect(reportOutputSelectorSource).not.toContain('{ label: "原值", value: "" }');
   });
 
   it("keeps output types empty until the old candidate change event", () => {
     expect(reportOutputSelectorSource).toContain('defineModel<{ label: string; value: string }[]>("queryTypeOptions"');
-    expect(reportOutputSelectorSource).toContain("queryTypeOptions.value = selectedCandidate.value");
+    expect(reportOutputSelectorSource).toContain("queryTypeOptions.value = candidate");
   });
 
   it("rebuilds candidates but retains output methods when report metadata reloads", () => {
@@ -67,6 +67,12 @@ describe("ViewReportPanel legacy interactions", () => {
       viewReportPanelSource.indexOf("watch(() => props.visible")
     );
     expect(backToSetup).not.toContain("reportCandidateKey");
+  });
+
+  it("uses the changed candidate before its parent model round trip", () => {
+    expect(reportOutputSelectorSource).toContain("(event.currentTarget as HTMLSelectElement).value");
+    expect(reportOutputSelectorSource).toContain("addOutput(candidate)");
+    expect(reportOutputSelectorSource).toContain('@click="addOutput()"');
   });
 
   it("reuses the View metadata field editor for report condition values", () => {

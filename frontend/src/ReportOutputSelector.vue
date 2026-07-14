@@ -36,23 +36,25 @@ function selectFirstQueryType() {
   selectedTypeId.value = queryTypeOptions.value[0]?.value || "";
 }
 
-function chooseCandidate() {
-  queryTypeOptions.value = selectedCandidate.value
-    ? reportModelQueryTypes(selectedCandidate.value).map((option) => ({
+function chooseCandidate(event: Event) {
+  const key = (event.currentTarget as HTMLSelectElement).value;
+  const candidate = props.columns.find((column) => columnKey(column) === key);
+  queryTypeOptions.value = candidate
+    ? reportModelQueryTypes(candidate).map((option) => ({
       label: reportModelOptionName(option),
       value: reportModelOptionId(option)
     }))
     : [];
   selectFirstQueryType();
-  if (queryTypeOptions.value.length === 1) addOutput();
+  if (queryTypeOptions.value.length === 1) addOutput(candidate);
 }
 
-function addOutput() {
-  if (!selectedCandidate.value) return;
+function addOutput(candidate: ReportModelColumn | undefined = selectedCandidate.value) {
+  if (!candidate) return;
   if (!queryTypeOptions.value.length) return;
   const hadOutputs = outputs.value.length > 0;
   const selectedTypeName = queryTypeOptions.value.find((option) => option.value === selectedTypeId.value)?.label;
-  const next = addReportOutput(outputs.value, selectedCandidate.value, selectedTypeId.value, selectedTypeName);
+  const next = addReportOutput(outputs.value, candidate, selectedTypeId.value, selectedTypeName);
   if (next === outputs.value) return;
   outputs.value = next;
   if (!hadOutputs) selectedOutputIndex.value = 0;
@@ -98,7 +100,7 @@ function orderLabel(orderType?: string) {
       <select v-model="selectedTypeId" size="10" aria-label="输出方式">
         <option v-for="option in queryTypeOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
       </select>
-      <Button type="button" icon="pi pi-arrow-right" title="加入已选列" aria-label="加入已选列" size="small" severity="secondary" outlined @click="addOutput" />
+      <Button type="button" icon="pi pi-arrow-right" title="加入已选列" aria-label="加入已选列" size="small" severity="secondary" outlined @click="addOutput()" />
     </section>
 
     <section>
