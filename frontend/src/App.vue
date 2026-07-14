@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onMounted, onUnmounted, ref } from "vue";
+import { computed, defineAsyncComponent, onMounted, onUnmounted, ref, watchEffect } from "vue";
 import Button from "primevue/button";
 import Drawer from "primevue/drawer";
 import {
@@ -228,6 +228,11 @@ const shellUserName = computed(() => legacyUserName(mainInfoResponse.value?.data
 const shellAppName = computed(() => legacyAppName(mainInfoResponse.value?.data, "Fool Service"));
 const shellAppVersion = computed(() => legacyAppVersion(mainInfoResponse.value?.data));
 const shellAppPowerBy = computed(() => legacyAppPowerBy(mainInfoResponse.value?.data));
+watchEffect(() => {
+  document.title = token.value
+    ? shellAppName.value
+    : legacyAppName(initAppResponse.value?.data, "Fool Service");
+});
 const viewCanEdit = computed(() => dataCanEdit(detailResponse.value?.data));
 const candidateViewLoading = computed(() => pendingAction.value === "child-select-view");
 const savingDetail = computed(() => pendingAction.value === "saveobj" || pendingAction.value === "savenewobj");

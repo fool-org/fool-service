@@ -1413,6 +1413,13 @@ describe("App defaults", () => {
     expect(viewShellSource).not.toContain("services");
   });
 
+  it("renders the old application name in the browser title", () => {
+    expect(appSource).toContain("watchEffect(() =>");
+    expect(appSource).toContain("document.title = token.value");
+    expect(appSource).toContain('legacyAppName(initAppResponse.value?.data, "Fool Service")');
+    expect(appSource).toContain("shellAppName.value");
+  });
+
   it("keeps the old text-only application brand in the shell", () => {
     expect(appSource.match(/<h2 class="brand(?: drawer-brand)?">/g)).toHaveLength(2);
     expect(appSource).toContain("{{ shellAppName }}");
