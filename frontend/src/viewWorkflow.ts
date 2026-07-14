@@ -214,7 +214,9 @@ export function legacyInitAppCheckCode(source?: LegacyInitAppResult) {
 }
 
 export function legacyInitAppDbId(source?: LegacyInitAppResult) {
-  const db = firstList(source?.dbs, source?.Dbs)[0];
+  const databases = firstList(source?.dbs, source?.Dbs);
+  if (databases.length !== 1) return "";
+  const db = databases[0];
   return firstDisplayValue([db?.dbId, db?.DbId]);
 }
 

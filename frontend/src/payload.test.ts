@@ -1261,6 +1261,11 @@ describe("App defaults", () => {
     expect(appSource).toContain("async function submitLegacyLogin");
     expect(loginPanelSource).toContain('placeholder="用户名"');
     expect(loginPanelSource).toContain('placeholder="密码"');
+    expect(loginPanelSource).toContain("legacyInitAppDbId(props.appInfo)");
+    expect(loginPanelSource).not.toContain("<Select");
+    expect(loginPanelSource).not.toContain("databaseOptions");
+    expect(appSource).toContain('const legacyDbId = ref("")');
+    expect(appSource).not.toContain('const legacyDbId = ref("car_wash")');
     expect(loginPanelSource).toContain("pending ? '登录中...' : '登录'");
     expect(loginPanelSource).toContain('label="重置"');
     expect(loginPanelSource).toContain("@click=\"emit('refresh')\"");

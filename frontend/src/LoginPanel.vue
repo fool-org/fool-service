@@ -3,9 +3,13 @@ import { computed, ref, watch } from "vue";
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
-import Select from "primevue/select";
-import type { CheckCodeResult, LegacyInitAppResult, LegacyStoreBaseInfo } from "./api";
-import { legacyCheckCodeImage, legacyCheckCodeKey, legacyInitAppCheckCode } from "./viewWorkflow";
+import type { CheckCodeResult, LegacyInitAppResult } from "./api";
+import {
+  legacyCheckCodeImage,
+  legacyCheckCodeKey,
+  legacyInitAppCheckCode,
+  legacyInitAppDbId
+} from "./viewWorkflow";
 
 const props = defineProps<{
   appInfo?: LegacyInitAppResult;
@@ -22,7 +26,6 @@ const emit = defineEmits<{
 
 const userId = ref("");
 const password = ref("");
-const dbId = ref("");
 const checkCodeValue = ref("");
 
 function text(...values: unknown[]) {
@@ -30,33 +33,15 @@ function text(...values: unknown[]) {
   return typeof value === "string" ? value.trim() : "";
 }
 
-function databaseId(database: LegacyStoreBaseInfo) {
-  return text(database.dbId, database.DbId);
-}
-
-function databaseName(database: LegacyStoreBaseInfo) {
-  return text(database.dbName, database.DbName, databaseId(database));
-}
-
 const appName = computed(() => text(props.appInfo?.appName, props.appInfo?.AppName, "Fool Service"));
 const appImage = computed(() => text(props.appInfo?.appImg, props.appInfo?.AppImg));
 const appVersion = computed(() => text(props.appInfo?.appVersion, props.appInfo?.AppVersion));
 const appPowerBy = computed(() => text(props.appInfo?.appPowerBy, props.appInfo?.AppPowerBy));
 const appUrl = computed(() => text(props.appInfo?.appUrl, props.appInfo?.AppUrl));
-const databases = computed(() => props.appInfo?.dbs ?? props.appInfo?.Dbs ?? []);
-const databaseOptions = computed(() => databases.value.map((database) => ({
-  label: databaseName(database),
-  value: databaseId(database)
-})));
+const dbId = computed(() => legacyInitAppDbId(props.appInfo));
 const effectiveCheckCode = computed(() => props.checkCode ?? legacyInitAppCheckCode(props.appInfo));
 const captchaKey = computed(() => legacyCheckCodeKey(effectiveCheckCode.value));
 const captchaImage = computed(() => legacyCheckCodeImage(effectiveCheckCode.value));
-
-watch(databases, (items) => {
-  if (!items.some((item) => databaseId(item) === dbId.value)) {
-    dbId.value = items[0] ? databaseId(items[0]) : "";
-  }
-}, { immediate: true });
 
 watch(captchaKey, () => {
   checkCodeValue.value = "";
@@ -77,17 +62,6 @@ function submit() {
     <form class="login-form" aria-label="登录" @submit.prevent="submit">
       <InputText v-model="userId" aria-label="用户名" autocomplete="username" placeholder="用户名" required fluid />
       <InputText v-model="password" aria-label="密码" autocomplete="current-password" placeholder="密码" required type="password" fluid />
-      <Select
-        v-if="databases.length > 1"
-        v-model="dbId"
-        aria-label="数据库"
-        :options="databaseOptions"
-        option-label="label"
-        option-value="value"
-        placeholder="数据库"
-        required
-        fluid
-      />
       <InputText v-model="checkCodeValue" aria-label="验证码" autocomplete="one-time-code" maxlength="8" placeholder="验证码" required fluid />
       <div class="captcha-preview">
         <img v-if="captchaImage" alt="验证码" :src="`data:image/jpeg;base64,${captchaImage}`" />

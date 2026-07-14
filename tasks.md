@@ -1425,6 +1425,9 @@ item must land with its matching implementation and validation evidence.
       transport exception after a response-less login attempt while preserving
       fields, CAPTCHA, and response-backed business-error dialog behavior;
       browser-verify the stopped-backend path and restore Compose afterward.
+- [x] Restore `index.jade`'s single-database login binding: remove the invented
+      multi-database Select and hard-coded `car_wash` frontend fallback, and
+      submit an initapp database id only when the View received exactly one.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

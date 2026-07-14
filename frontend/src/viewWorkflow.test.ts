@@ -1077,6 +1077,9 @@ describe("view workflow helpers", () => {
     expect(legacyCheckCodeKey(camel.checkCode)).toBe("key-2");
     expect(legacyCheckCodeCode(camel.checkCode)).toBe("D4EF");
     expect(legacyCheckCodeImage(camel.checkCode)).toBe("camel-image");
+    expect(legacyInitAppDbId({ Dbs: [] })).toBe("");
+    const multipleDatabases = pascal.Dbs.concat({ DbId: "backup", DbName: "Backup" });
+    expect(legacyInitAppDbId({ Dbs: multipleDatabases })).toBe("");
   });
 
   it("reads tool-panel lists and fields from Pascal or camel legacy payloads", () => {

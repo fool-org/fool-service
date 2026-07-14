@@ -3522,3 +3522,14 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   dialog; all three inputs and the CAPTCHA image remained unchanged, the Login
   action returned to enabled, and browser errors were empty. The backend was
   restored afterward and `/test` passed.
+- 2026-07-14: restored `index.jade`'s single-database binding boundary. The old
+  template emits one hidden `dbid` only when `data.Dbs.length == 1`; it does not
+  render a multi-database picker. Vue previously invented a visible Select and
+  retained a hard-coded `car_wash` fallback in the shell. The login View now
+  derives its hidden submission value through the existing initapp adapter,
+  which returns an id only for exactly one database, and the shell starts with
+  no database default. This removes the picker, its local option/name helpers,
+  and 26 lines from `LoginPanel.vue` without adding a component or business DTO
+  state. Seeded Docker still supplies the single `car_wash` database through
+  initapp rather than frontend configuration. The deployed frontend image was
+  `sha256:f42ba03afdc7e2aec2ed5513e9197d4a31ba5622d1557f8aa2f52be03333e045`.

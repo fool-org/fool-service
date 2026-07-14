@@ -123,7 +123,7 @@ const userId = ref("");
 const password = ref("");
 const legacyAppId = "fool-service";
 const legacyAppKey = "fool-service";
-const legacyDbId = ref("car_wash");
+const legacyDbId = ref("");
 const legacyListViewId = ref(0);
 const readItemViewId = ref(0);
 const pageIndex = ref(1);
@@ -292,7 +292,7 @@ async function initApp() {
     initAppResponse.value = response;
     const checkCode = legacyInitAppCheckCode(response.data);
     checkCodeKey.value = legacyCheckCodeKey(checkCode) || checkCodeKey.value;
-    legacyDbId.value = legacyInitAppDbId(response.data) || legacyDbId.value;
+    legacyDbId.value = legacyInitAppDbId(response.data);
   }
 }
 
