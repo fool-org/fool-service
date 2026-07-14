@@ -1566,6 +1566,10 @@ item must land with its matching implementation and validation evidence.
       non-dismissible `加载中` dialog open without shared transport feedback
       when the child candidate `getlistview` request has a network/non-2xx
       failure, then browser-verify View-first recovery before candidate data.
+- [x] Restore the server-rendered read-item View metadata transport surface:
+      suppress shared feedback when `getreaditemview` has a network/non-2xx
+      failure on item, detail, or new routes, retain the View-before-data gate,
+      and browser-verify all three failures plus successful recovery.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from
