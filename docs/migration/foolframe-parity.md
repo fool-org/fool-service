@@ -3725,4 +3725,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   optional disabled boundary for Sudoku callers, while Sudoku refresh remains
   unchanged. Removing redundant false props also simplifies the already-active
   detail candidate table. No state, request, route, or DTO binding was added.
-  Docker browser acceptance remains required before the task is closed.
+  Authorized Docker browser acceptance temporarily added three clearly marked
+  local orders to expose Page 2 and set operation `7002`'s result View to `102`
+  so its old row-link branch rendered. With the backend paused, Page 2 remained
+  enabled during `getsubmenu`, switched immediately, and loaded order `1001`
+  after resume. During a separate pending list query, row `1001`'s Save-labelled
+  link remained enabled and navigated directly to `/view102/1001`; no operation
+  or save request ran. The operation result View was restored to `NULL`, all
+  three temporary rows were deleted, the list returned to eight rows with no
+  second page or active Save row buttons, and all 67 runtime-doctor checks
+  passed.
