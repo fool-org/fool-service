@@ -4037,3 +4037,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   to login. Compose was healthy, `db-migrate` was `Exited (0)`, View metadata,
   order/detail counts, and order 1002 were unchanged, and all 67 runtime-doctor
   checks passed.
+- 2026-07-15: aligned the signed-out `index` / `soway.initapp` transport
+  surface. FoolFrame initializes app metadata on the server; its shared
+  `postandget` network-error handler only logs and never invokes the route's
+  render callback, so no browser business error is produced. Vue now passes the
+  existing `silentTransport` option through only its initial `initapp` request.
+  The static fallback login shell and request cleanup remain available instead
+  of copying the old permanently pending navigation. Successful metadata,
+  CAPTCHA/database adapters, login behavior, request payload, route, and DTO are
+  unchanged. All 193 frontend tests, TypeScript/Vite production build, and
+  repository harness pass. Docker/browser evidence remains required.

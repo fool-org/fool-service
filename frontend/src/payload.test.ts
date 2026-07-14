@@ -1352,9 +1352,15 @@ describe("App defaults", () => {
   });
 
   it("loads legacy initapp metadata for the signed-out login panel", () => {
+    const initAppSource = appSource.slice(
+      appSource.indexOf("async function initApp"),
+      appSource.indexOf("async function loginV2")
+    );
+
     expect(appSource).toContain("/api/v1/auth/initapp");
     expect(appSource).toContain("initAppResponse");
     expect(appSource).toContain("async function prepareLegacyLogin");
+    expect(initAppSource).toContain("{ silentTransport: true }");
     expect(loginPanelSource).toContain("appInfo");
     expect(appSource).not.toContain("Init App");
   });

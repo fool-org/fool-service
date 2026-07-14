@@ -287,11 +287,13 @@ async function runAction<T>(
 }
 
 async function initApp() {
-  const response = await runAction("initapp", () =>
-    postApi<LegacyInitAppResult>("/api/v1/auth/initapp", {
+  const response = await runAction(
+    "initapp",
+    () => postApi<LegacyInitAppResult>("/api/v1/auth/initapp", {
       AppId: legacyAppId,
       AppKey: legacyAppKey
-    })
+    }),
+    { silentTransport: true }
   );
 
   if (response) {
