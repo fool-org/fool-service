@@ -380,6 +380,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
               </div>
               <template #footer>
                 <Button type="button" label="取消" severity="secondary" outlined @click="pickerGroupKey = ''" />
+                <Button type="button" label="确定" />
               </template>
             </Dialog>
             <div class="table-wrap detail-items-table">

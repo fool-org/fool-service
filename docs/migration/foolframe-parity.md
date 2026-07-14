@@ -495,8 +495,9 @@ This document records the current migration state from `../FoolFrame` to `fool-s
   disabled states, and handlers are unchanged.
 - 2026-07-12: restored text-only commands inside the `detailView.jade`
   select-existing child flow. Candidate `查找`, previous/next paging, and
-  `关闭` no longer carry invented icons; row selection still owns confirmation
-  and closes immediately, so the old inert `确定` placeholder stays omitted.
+  `取消` no longer carry invented icons; row selection still owns confirmation
+  and closes immediately. The old inert `确定` placeholder was restored later
+  as a visible no-op command.
 - 2026-07-10: completed the authenticated Vue browser acceptance after explicit
   permission to read the local CAPTCHA and use the Docker `admin/admin`
   account. Desktop and 390x844 checks exercised the default View-first list,
@@ -2791,7 +2792,8 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   invented `第 x / y 页` status. Pre-query candidate pagination stays hidden.
 - 2026-07-13: restored `detailView.jade`'s candidate dismissal copy. The
   functional footer action is now `取消` and still closes without adding a
-  child row. The old inert `确定` placeholder remains intentionally omitted.
+  child row. The old inert `确定` placeholder was restored later without a
+  handler.
 - 2026-07-13: restored `detailView.jade`'s compact right-aligned candidate
   query form. Candidate search now shares the main list's 240px desktop input
   geometry, inline Find command, and responsive input expansion; the Vue-only

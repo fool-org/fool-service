@@ -1170,9 +1170,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore the candidate dialog's `navbar.updateNavbar` interaction: reuse
       the main list's extracted seven-link Previous/Page/Next paginator and
       remove the Vue-only `第 x / y 页` control without duplicating page state.
-- [x] Match `detailView.jade`'s functional candidate footer action: label the
-      dismiss command `取消`, preserve no-change close behavior, and do not
-      restore the old inert `确定` placeholder.
+- [x] Match `detailView.jade`'s candidate footer: label the dismiss command
+      `取消`, preserve no-change close behavior, and render the old inert `确定`
+      placeholder without adding selection state or a handler.
 - [x] Match `detailView.jade`'s candidate query-form placement: reuse the main
       list's compact right-aligned input/Find layout, remove the Vue-only
       visible label, and preserve responsive and Enter-query behavior.

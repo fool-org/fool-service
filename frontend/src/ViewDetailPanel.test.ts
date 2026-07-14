@@ -25,6 +25,16 @@ describe("ViewDetailPanel legacy interactions", () => {
     expect(pickerSource).not.toContain(':disabled=');
   });
 
+  it("renders the old inert candidate confirmation command", () => {
+    const dialogStart = viewDetailPanelSource.indexOf('class="detail-picker-dialog"');
+    const footerStart = viewDetailPanelSource.indexOf("<template #footer>", dialogStart);
+    const footerSource = viewDetailPanelSource.slice(footerStart, viewDetailPanelSource.indexOf("</template>", footerStart));
+
+    expect(footerSource).toContain('label="取消"');
+    expect(footerSource).toContain('label="确定"');
+    expect(footerSource.match(/@click=/g)).toHaveLength(1);
+  });
+
   it("keeps legacy child collection commands active during requests", () => {
     const collectionSource = viewDetailPanelSource.slice(
       viewDetailPanelSource.indexOf('class="detail-collection-toolbar legacy-button-group"'),
