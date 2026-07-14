@@ -4371,6 +4371,26 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   candidate to `第一列`. Logout returned HTTP 200 with no browser errors. All
   68 runtime-doctor checks passed, Compose was healthy, `db-migrate` was
   `Exited (0)`, and order 1001 plus the 8-order/4-item counts were unchanged.
+- 2026-07-15: completed the previously source-only report paging-failure state.
+  `ShowReportController.next/pre` changes `$rootScope.pageindex` before calling
+  the success-only request, and `mkreport` updates only cells and total pages on
+  success. A transport failure therefore advances the visible page number while
+  retaining the prior table. Vue now renders the requested component page
+  directly instead of preferring a stale response `CurrentPage`; the unused
+  response-page adapter was removed. No report DTO, request, route, component,
+  or fallback was added. Focused tests passed (144/144), as did all 212 frontend
+  tests, the TypeScript/Vite production build, repository harness, and diff
+  check. Exact implementation commit `b6ea15fd` produced deployed image
+  `sha256:62ebb6e74f03da62d9d6e14353da843445006f73cb20b992ea7fe52ffe731caf`
+  with report chunk `ViewReportPanel-Bc-_HvrS.js`. Authorized `admin/admin`
+  browser acceptance on `/view101` returned a two-page report, then forced the
+  page-2 request to HTTP 502. The heading advanced to page 2 while page-1 cells
+  remained; another Next emitted no request at the boundary, and Previous
+  requested/restored page 1. No shared error dialog or page exception appeared;
+  the console contained only the expected browser resource line for HTTP 502.
+  Logout returned HTTP 200. All 68 runtime-doctor checks passed, Compose was
+  healthy, `db-migrate` was `Exited (0)`, and order 1001 plus the
+  8-order/4-item counts were unchanged.
 - 2026-07-15: restored the dismissible result-modal lifecycle from
   `view.jade` and Bootstrap 3.3.5. The old report result has default
   `backdrop:true` and `keyboard:true`; hiding it by backdrop or Escape does not

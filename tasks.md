@@ -1631,6 +1631,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore default Bootstrap dismissal for report results: reopen setup after
       mask/Escape close without resetting the report page, while keeping
       explicit Return as the only reset to page one.
+- [x] Restore `ShowReportController` paging-failure page state: advance the
+      visible requested page before transport settles, retain prior result
+      cells on failure, and keep next/previous boundaries on that page index.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from
