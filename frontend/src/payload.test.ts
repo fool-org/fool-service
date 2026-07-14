@@ -1266,6 +1266,7 @@ describe("App defaults", () => {
     expect(loginPanelSource).not.toContain("databaseOptions");
     expect(appSource).toContain('const legacyDbId = ref("")');
     expect(appSource).not.toContain('const legacyDbId = ref("car_wash")');
+    expect(loginPanelSource).not.toContain(" required");
     expect(loginPanelSource).toContain("pending ? '登录中...' : '登录'");
     expect(loginPanelSource).toContain('label="重置"');
     expect(loginPanelSource).toContain("@click=\"emit('refresh')\"");

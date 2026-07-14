@@ -60,9 +60,9 @@ function submit() {
     </header>
 
     <form class="login-form" aria-label="登录" @submit.prevent="submit">
-      <InputText v-model="userId" aria-label="用户名" autocomplete="username" placeholder="用户名" required fluid />
-      <InputText v-model="password" aria-label="密码" autocomplete="current-password" placeholder="密码" required type="password" fluid />
-      <InputText v-model="checkCodeValue" aria-label="验证码" autocomplete="one-time-code" maxlength="8" placeholder="验证码" required fluid />
+      <InputText v-model="userId" aria-label="用户名" autocomplete="username" placeholder="用户名" fluid />
+      <InputText v-model="password" aria-label="密码" autocomplete="current-password" placeholder="密码" type="password" fluid />
+      <InputText v-model="checkCodeValue" aria-label="验证码" autocomplete="one-time-code" maxlength="8" placeholder="验证码" fluid />
       <div class="captcha-preview">
         <img v-if="captchaImage" alt="验证码" :src="`data:image/jpeg;base64,${captchaImage}`" />
         <Button type="button" label="刷新" severity="secondary" text :disabled="pending" @click="emit('refresh')" />

@@ -3533,3 +3533,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   state. Seeded Docker still supplies the single `car_wash` database through
   initapp rather than frontend configuration. The deployed frontend image was
   `sha256:f42ba03afdc7e2aec2ed5513e9197d4a31ba5622d1557f8aa2f52be03333e045`.
+- 2026-07-14: restored `index.jade`'s server-owned empty-login validation. The
+  old username, password, and CAPTCHA inputs have no `required` attributes;
+  `login.js` submits their current values and lets the login response drive the
+  shared error dialog. Vue's native form constraints previously stopped an
+  empty submission before `loginV2`, creating a separate browser validation
+  path absent from FoolFrame. The three constraints are removed, so the
+  existing submit, response adapter, dialog, and dismissal/CAPTCHA refresh
+  lifecycle handle empty values without a second local error state. The
+  deployed frontend image was
+  `sha256:189aefedf24967381da206e677c90c2077d6b09f18a39a209fe8c4de1dcaa1ae`.

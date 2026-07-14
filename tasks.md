@@ -1428,6 +1428,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `index.jade`'s single-database login binding: remove the invented
       multi-database Select and hard-coded `car_wash` frontend fallback, and
       submit an initapp database id only when the View received exactly one.
+- [x] Restore `index.jade`'s server-owned login validation: remove browser
+      `required` constraints from username, password, and CAPTCHA so empty
+      submits reach the existing response-backed legacy error lifecycle.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
