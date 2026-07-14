@@ -380,11 +380,13 @@ async function prepareLegacyLogin() {
 }
 
 async function loadSubMenu() {
-  const response = await runAction("getsubmenu", () =>
-    postApi<LegacySubMenuResult>("/api/v1/auth/getsubmenu", {
+  const response = await runAction(
+    "getsubmenu",
+    () => postApi<LegacySubMenuResult>("/api/v1/auth/getsubmenu", {
       token: token.value,
       ParentAuthCode: subMenuParentAuthCode.value.trim()
-    })
+    }),
+    { silentTransport: true }
   );
   if (response) {
     subMenuResponse.value = response;

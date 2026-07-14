@@ -3983,3 +3983,12 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `db-migrate` was `Exited (0)`, View intervals and order counts were unchanged,
   order 1002 retained its seeded ETH-USDT values, and all 67 runtime-doctor
   checks passed.
+- 2026-07-15: aligned `menuinfo.js`'s success-only submenu transport path. The
+  old Bootstrap parent opens independently of its `$http.success` callback;
+  network and non-2xx failures leave an empty expanded menu without error
+  feedback. Vue already matched the expand-before-request and second-click
+  collapse timing, and now passes the existing `silentTransport` option through
+  `getsubmenu`. Response-backed data, desktop/mobile shared rendering, menu
+  metadata, routes, and DTOs are unchanged. All 193 frontend tests,
+  TypeScript/Vite production build, and repository harness pass. Docker/browser
+  evidence remains required.

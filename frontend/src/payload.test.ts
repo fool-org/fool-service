@@ -972,6 +972,10 @@ describe("App defaults", () => {
   });
 
   it("keeps legacy top menus visible while opening child View ids", () => {
+    const subMenuRequestSource = appSource.slice(
+      appSource.indexOf("async function loadSubMenu"),
+      appSource.indexOf("async function openShellMenu")
+    );
     const menuSource = appSource.slice(
       appSource.indexOf("async function openShellMenu"),
       appSource.indexOf("async function loadLegacyListView")
@@ -1007,6 +1011,7 @@ describe("App defaults", () => {
     expect(menuSource).toContain("if (authNo === subMenuParentAuthCode.value)");
     expect(menuSource).toContain("subMenuResponse.value = null");
     expect(menuSource).toContain("await loadSubMenu()");
+    expect(subMenuRequestSource).toContain("{ silentTransport: true }");
     expect(menuSource).not.toContain("if (legacyAuthViewId(item)) mobileMenuOpen.value = false");
   });
 
