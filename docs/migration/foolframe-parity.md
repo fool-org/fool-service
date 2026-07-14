@@ -3020,6 +3020,16 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   production build passed, and authorized isolated-browser checks against the
   clean `9259f616` image proved real explicit Add, empty-metadata no-op,
   single-type auto-add, and HTTP 200 login/logout.
+- 2026-07-15: restored `mkreport.initquery`'s initial output-method activation.
+  Loading report metadata now selects the first candidate while leaving the
+  output-method list empty, matching the old template until the candidate
+  `change` handler runs. A real change then exposes only that candidate's
+  metadata: multiple types require explicit Add, one type auto-adds, and zero
+  types remain an Add no-op. The activation flag stays local to the 188-line
+  selector and adds no report DTO or shared business state. Full frontend tests
+  passed (19 files, 198 tests), the production build and repository harness
+  passed, and authorized browser acceptance against the exact clean `31e0174d`
+  image proved all three paths without changing the seeded 8-order/4-item data.
 - 2026-07-14: restored `view.jade` / `mkreport.js` report-condition Add-command
   availability. Both header and trailing Add buttons now remain actionable when
   the loaded View has zero report fields, matching the old controls and creating

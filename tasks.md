@@ -1199,6 +1199,10 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `mkreport.js` output-type metadata behavior: do not synthesize an
       `原值` option when `QueryTypes` is empty, while retaining the old
       single-type candidate-change shortcut and Add-command no-op.
+- [x] Restore `mkreport.initquery` output-method activation: keep the first
+      candidate selected with an empty output-method list until an actual
+      candidate change, then retain multi-type explicit Add, single-type
+      auto-add, and zero-type no-op behavior.
 - [x] Restore `view.jade`'s empty report-condition structure: retain the header
       and trailing Add row without the Vue-only explanatory empty-state copy.
 - [x] Restore the report-condition merge glyph with the installed `pi-list`
