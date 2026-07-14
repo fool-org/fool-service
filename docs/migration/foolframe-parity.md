@@ -3899,4 +3899,11 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   login error dialog retains its error-code and CAPTCHA lifecycle. Transport
   suppression, response classification, View/Data projection, routes, and DTO
   bindings are unchanged. All 191 frontend tests, TypeScript/Vite build, and
-  repository harness pass. Docker/browser evidence remains required.
+  repository harness pass. The deployed Docker frontend image is
+  `sha256:c7d7b6939aae34405b3a6f8dd0f9455f42cb59757923222e7b66c16b33f6d8da`.
+  An authorized browser replay of `/view999999` opened one `发生错误` dialog
+  containing `发生未知错误` and one `关闭` command; Nginx recorded the backing
+  `getlistview` request as HTTP 200. Closing removed the dialog, and `/view100`
+  then rendered all 8 seeded records. Compose was healthy, `db-migrate` was
+  `Exited (0)`, metadata and row counts were unchanged, and all 67
+  runtime-doctor checks passed.

@@ -1513,7 +1513,7 @@ item must land with its matching implementation and validation evidence.
       `querylistdata.js`, `groupview.js`, and `ServerUtil.js` paths: preserve
       loaded List/Group/Map/Item/chart content without a shared transport error,
       retain business errors, and browser-verify a stopped-backend Refresh.
-- [ ] Restore `querylistdata.js` response-backed error presentation: replace the
+- [x] Restore `querylistdata.js` response-backed error presentation: replace the
       main View's inline Message with the shared `发生错误` / `关闭` dialog, reuse
       it for detail errors, retain silent transport handling, and browser-verify
       an HTTP-200 nonzero-code View failure plus dismissal.
