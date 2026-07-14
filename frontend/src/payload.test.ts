@@ -1068,7 +1068,8 @@ describe("App defaults", () => {
   it("opens the legacy report workflow from the rendered View", () => {
     expect(appSource).toContain("ViewReportPanel");
     expect(appSource).toContain("showViewReport = !showViewReport");
-    expect(appSource).toContain('v-if="showViewReport && isListView && !isMetadataOnlyView && !isStandaloneDetail && currentViewId"');
+    expect(appSource).toContain('v-if="isListView && !isMetadataOnlyView && !isStandaloneDetail && currentViewId"');
+    expect(appSource).toContain(':visible="showViewReport"');
     expect(appSource).toContain("showViewReport.value = false;");
     expect(appSource).toContain(':view-id="currentViewId"');
     expect(viewReportPanelSource).toContain("<Dialog");
@@ -1110,7 +1111,7 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).toContain("showingResults.value = true");
     expect(viewReportPanelSource).toContain("const reportSetupLoading = ref(true)");
     expect(viewReportPanelSource).toContain("const reportRunning = ref(false)");
-    expect(viewReportPanelSource).toContain('v-if="!reportSetupLoading && !reportRunning"');
+    expect(viewReportPanelSource).toContain('v-if="visible && !reportSetupLoading && !reportRunning"');
     const runReportSource = viewReportPanelSource.slice(
       viewReportPanelSource.indexOf("async function runReport"),
       viewReportPanelSource.indexOf("function changeReportPage")

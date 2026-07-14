@@ -1198,10 +1198,11 @@ function syncDetailDrafts() {
           @update-detail-item="updateDetailItem"
         />
         <ViewReportPanel
-          v-if="showViewReport && isListView && !isMetadataOnlyView && !isStandaloneDetail && currentViewId"
+          v-if="isListView && !isMetadataOnlyView && !isStandaloneDetail && currentViewId"
           :key="currentViewId"
           :run-action="runAction"
           :token="token"
+          :visible="showViewReport"
           :view-id="currentViewId"
           @close="showViewReport = false"
         />

@@ -13,7 +13,7 @@ describe("ViewReportPanel legacy interactions", () => {
     expect(viewReportPanelSource).toContain("dismissable-mask");
     expect(viewReportPanelSource).toContain("const revealResults = !showingResults.value");
     expect(viewReportPanelSource).toContain("reportRunning.value = revealResults");
-    expect(viewReportPanelSource).toContain('v-if="!reportSetupLoading && !reportRunning"');
+    expect(viewReportPanelSource).toContain('v-if="visible && !reportSetupLoading && !reportRunning"');
     expect(viewReportPanelSource).toContain("if (revealResults) showingResults.value = true");
     expect(viewReportPanelSource).toContain('label="取消" severity="secondary" outlined @click="emit(\'close\')"');
     expect(viewReportPanelSource).toContain('label="返回" @click="backToReportSetup"');
@@ -59,5 +59,13 @@ describe("ViewReportPanel legacy interactions", () => {
     expect(metadataFieldEditorSource).toContain('emit("update:formattedValue", choice.label)');
     expect(metadataFieldEditorSource).toContain('emit("update:formattedValue", "")');
     expect(viewReportPanelSource).not.toContain('v-else-if="condition.columnId && condition.compareId"');
+  });
+
+  it("keeps the old report draft mounted across cancel and reopen", () => {
+    expect(appSource).toContain('v-if="isListView && !isMetadataOnlyView && !isStandaloneDetail && currentViewId"');
+    expect(appSource).toContain(':visible="showViewReport"');
+    expect(viewReportPanelSource).toContain("watch(() => props.visible");
+    expect(viewReportPanelSource).toContain('v-if="visible && !reportSetupLoading && !reportRunning"');
+    expect(viewReportPanelSource).not.toContain("reportCols.value = [];");
   });
 });

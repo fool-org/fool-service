@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import Button from "primevue/button";
 import Checkbox from "primevue/checkbox";
 import Dialog from "primevue/dialog";
@@ -53,6 +53,7 @@ import {
 const props = defineProps<{
   runAction: WorkflowActionRunner;
   token: string;
+  visible: boolean;
   viewId: number;
 }>();
 const emit = defineEmits<{ close: [] }>();
@@ -203,6 +204,7 @@ async function runSuccessOnlyAction<T>(label: string, action: () => Promise<Comm
 }
 
 async function loadReportColumns() {
+  reportSetupLoading.value = true;
   statusMessage.value = "";
   const { response, transportFailed } = await runSuccessOnlyAction("report-columns", () =>
     postApi<ReportModelResult>("/api/v1/report/getmkqview", buildLegacyListViewRequest({
@@ -217,7 +219,6 @@ async function loadReportColumns() {
     return;
   }
   modelResponse.value = response;
-  reportCols.value = [];
 }
 
 function buildRequest() {
@@ -263,12 +264,12 @@ function backToReportSetup() {
   currentPage.value = 1;
 }
 
-onMounted(() => void loadReportColumns());
+watch(() => props.visible, (visible) => { if (visible) void loadReportColumns(); }, { immediate: true });
 </script>
 
 <template>
   <Dialog
-    v-if="!reportSetupLoading && !reportRunning"
+    v-if="visible && !reportSetupLoading && !reportRunning"
     :visible="true"
     modal
     class="report-dialog"
