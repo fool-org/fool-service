@@ -1521,7 +1521,7 @@ item must land with its matching implementation and validation evidence.
       report setup closed without shared or local error feedback when its
       View-derived column request has a network/non-2xx failure, then
       browser-verify failure and recovery without changing report DTOs.
-- [ ] Restore `mkreport` generation's success-only transport behavior: keep
+- [x] Restore `mkreport` generation's success-only transport behavior: keep
       setup/result dialogs hidden after an initial report failure, retain the
       current result during paging failure, suppress transport feedback, and
       browser-verify initial failure plus successful recovery.

@@ -3934,4 +3934,14 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   Response-backed errors, successful generation, paging boundaries,
   View-derived report state, payloads, routes, and DTOs are unchanged.
   All 193 frontend tests, TypeScript/Vite build, and repository harness pass.
-  Docker/browser evidence remains required.
+  The deployed Docker frontend image is
+  `sha256:08bc0b9824639e4de05f1b782e2774105ec6fd897c0ac8531b3724c05ec014eb`.
+  An authorized browser replay loaded `/view101` report setup before stopping
+  the backend. Initial generation settled as Nginx HTTP 504 while setup,
+  results, and error dialogs all remained absent and the four list rows stayed
+  visible. After backend restart, the same workflow selected Item ID / original
+  value, returned HTTP 200, and opened `报表结果 共1页 当前第1页` with all four
+  values. Compose was healthy, `db-migrate` was `Exited (0)`, metadata and row
+  counts were unchanged, and all 67 runtime-doctor checks passed. Paging-failure
+  state retention remains covered by the focused source contract because the
+  seeded report has one page.

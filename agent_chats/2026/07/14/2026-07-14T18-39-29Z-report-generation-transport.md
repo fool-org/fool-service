@@ -32,16 +32,28 @@ keeping files controlled, logic reusable, and rendering View-first.
 - `cd frontend && npm test` (19 files, 193 tests passed)
 - `cd frontend && npm run build`
 - `python scripts/check_repo_harness.py`
-- Pending Compose build and authorized stopped-backend browser acceptance.
+- `docker compose build frontend`
+- `docker compose up -d --no-deps --force-recreate frontend`
+- Authorized browser acceptance with local `admin/admin` login:
+  `/view101` report setup loaded before backend stop. Initial generation
+  eventually settled with zero setup/result/error dialogs and retained all 4
+  list rows. After backend restart, selecting Item ID / original value opened
+  `报表结果 共1页 当前第1页` with all four values.
+- Nginx recorded the failed `POST /api/v1/report/mkrpt` as HTTP 504 after its
+  upstream connect timeout, then the recovery request as HTTP 200.
+- `docker compose ps -a` confirmed backend/frontend/MySQL/Redis running and
+  `db-migrate` at `Exited (0)`.
+- Frontend container/image matched
+  `sha256:08bc0b9824639e4de05f1b782e2774105ec6fd897c0ac8531b3724c05ec014eb`.
+- Database proof remained `SW_SYS_VIEW(100).VIEW_DEFAULT=102`, both View refresh
+  intervals `0`, `market_order=8`, and `market_order_item=4`.
+- `python scripts/runtime_doctor.py` (all 67 checks passed)
 
 ## Risks And Follow-ups
 
-- Browser acceptance should load `/view101`, open report setup, stop the
-  backend, run the report, prove setup/results/errors remain absent, restore
-  the backend, and prove successful result generation.
 - Paging transport failure should retain existing results; proving it requires
-  a temporary second report page and remains optional if initial failure and
-  source-contract coverage pass.
+  a temporary second report page and remains source-contract-covered in this
+  slice because the seeded report has one page.
 - Candidate View metadata-load transport behavior remains a separate decision
   because old `initQueryView` leaves its loading dialog open indefinitely.
 - `docs/superpowers/` is unrelated untracked work and remains untouched.
