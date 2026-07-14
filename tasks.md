@@ -1604,6 +1604,10 @@ item must land with its matching implementation and validation evidence.
 - [x] Expose the old Sudoku Item `POST /itemview` data route as
       `/api/v1/data/itemview`, reusing `querydatadetail` and accepting the real
       `id` / `objid` / `idxep` request; guard it in runtime doctor.
+- [x] Restore `layout.jade` / `default.jade` application browser-title
+      rendering: use `initapp.AppName` while signed out and
+      `getmain.App.AppName` after authentication, without deriving page
+      metadata from View/data DTOs.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from

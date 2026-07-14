@@ -4324,3 +4324,18 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   zero, and `Item Name[计数]` remained. A second Add produced
   `Item ID[计数]`; login/logout returned HTTP 200, both metadata requests used
   View 101, Compose was healthy, and all 68 runtime-doctor checks passed.
+- 2026-07-15: restored the application browser title rendered by
+  `layout.jade` / `default.jade`. Vue now derives the signed-out title from
+  `initapp.AppName` and the authenticated title from `getmain.App.AppName`,
+  using the static HTML title only as a metadata fallback. No View/data DTO,
+  route, store, or dependency was added. Focused tests passed (85/85), as did
+  all 210 frontend tests and the TypeScript/Vite production build. Exact
+  implementation commit `a98e3012` produced deployed image
+  `sha256:63d5995451ac3184c16409441f9612c9fb16b0ca2b38c123d710b43ee4f71f67`.
+  Authorized `admin/admin` browser acceptance intercepted only the real
+  `initapp` application-name fields: the signed-out document title and page
+  heading both became `Legacy Login Title`, login returned HTTP 200 and changed
+  the title plus shell brand to `Fool Service`, and logout returned HTTP 200 and
+  restored the cached signed-out title without another metadata request.
+  Compose was healthy, `db-migrate` was `Exited (0)`, and all 68
+  runtime-doctor checks passed.
