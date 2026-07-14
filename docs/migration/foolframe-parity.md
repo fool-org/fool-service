@@ -4431,3 +4431,21 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   next request to page 1. Logout returned HTTP 200 with no browser errors. All
   68 runtime-doctor checks passed, Compose was healthy, `db-migrate` was
   `Exited (0)`, and order 1001 plus the 8-order/4-item counts were unchanged.
+- 2026-07-15: completed a stable-HEAD authenticated frontend matrix after the
+  latest login and report lifecycle fixes. Exact HEAD `fd513c53` used frontend
+  image
+  `sha256:8d8a2cabf1887e8699cb9c2f6c1428e93505d78d2010a3ff16e415403a674d2c`.
+  Authorized `admin/admin` acceptance loaded `/view100`, `/view101`,
+  `/view102`, `/view103`, `/itemview100`, `/view100/1001`, and `/new100`.
+  Every list/detail/new route returned HTTP 200 and loaded View metadata before
+  its data request; Sudoku child panels followed the same per-panel boundary.
+  The report flow loaded View 101 columns, generated `Item Name[计数] = 4`, and
+  returned to setup with the candidate, method, and output intact without a
+  second metadata request. At 1440px every route matched document width; at
+  390px both Sudoku and detail documents remained exactly 390px while rendering
+  their tables, chart, map, item, and group content. Login/logout returned HTTP
+  200, all 65 observed API requests succeeded, and browser console/page errors
+  were empty. All 212 frontend tests, the production build, repository harness,
+  and 68 runtime-doctor checks passed. Compose was healthy, `db-migrate` was
+  `Exited (0)`, and the database retained 8 orders, 4 order items, and order
+  1001 as `BTC-USDT` / state `0` / customer `3001`.

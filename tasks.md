@@ -1673,6 +1673,10 @@ item must land with its matching implementation and validation evidence.
       error dialog without refreshing, preserve all login fields, and request a
       new CAPTCHA only after Close while keeping business-error dismissal
       separate.
+- [x] Run a stable-HEAD authenticated frontend matrix across list, chart,
+      Sudoku, item metadata, detail, new, and report routes; prove View-first
+      request order, desktop/mobile containment, clean browser logs, and no
+      database drift.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from
