@@ -43,4 +43,11 @@ describe("ViewReportPanel legacy interactions", () => {
     expect(reportOutputSelectorSource).toContain("if (queryTypeOptions.value.length === 1) addOutput();");
     expect(reportOutputSelectorSource).not.toContain('{ label: "原值", value: "" }');
   });
+
+  it("keeps output types empty until the old candidate change event", () => {
+    expect(reportOutputSelectorSource).toContain("const candidateActivated = ref(false);");
+    expect(reportOutputSelectorSource).toContain("if (!candidateActivated.value || !selectedCandidate.value) return [];");
+    expect(reportOutputSelectorSource).toContain("candidateActivated.value = false;");
+    expect(reportOutputSelectorSource).toContain("candidateActivated.value = true;");
+  });
 });

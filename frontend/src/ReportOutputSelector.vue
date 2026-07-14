@@ -14,6 +14,7 @@ import {
 const props = defineProps<{ columns: ReportModelColumn[] }>();
 const outputs = defineModel<ReportCol[]>({ required: true });
 const candidateKey = ref("");
+const candidateActivated = ref(false);
 const selectedTypeId = ref("");
 const selectedOutputIndex = ref<number | null>(null);
 
@@ -23,7 +24,7 @@ const candidateOptions = computed(() => props.columns.map((column) => ({
 })));
 const selectedCandidate = computed(() => props.columns.find((column) => columnKey(column) === candidateKey.value));
 const queryTypeOptions = computed(() => {
-  if (!selectedCandidate.value) return [];
+  if (!candidateActivated.value || !selectedCandidate.value) return [];
   return reportModelQueryTypes(selectedCandidate.value).map((option) => ({
     label: reportModelOptionName(option),
     value: reportModelOptionId(option)
@@ -38,7 +39,8 @@ watch(() => props.columns, (columns) => {
   if (!columns.some((column) => columnKey(column) === candidateKey.value)) {
     candidateKey.value = columns[0] ? columnKey(columns[0]) : "";
   }
-  selectFirstQueryType();
+  candidateActivated.value = false;
+  selectedTypeId.value = "";
 }, { immediate: true });
 
 function columnKey(column: ReportModelColumn) {
@@ -50,6 +52,7 @@ function selectFirstQueryType() {
 }
 
 function chooseCandidate() {
+  candidateActivated.value = true;
   selectFirstQueryType();
   if (queryTypeOptions.value.length === 1) addOutput();
 }

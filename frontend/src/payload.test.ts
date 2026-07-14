@@ -1124,7 +1124,7 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).toContain("ReportOutputSelector");
     expect(viewReportPanelSource).toContain('<ReportOutputSelector v-model="reportCols" :columns="modelColumns" />');
     expect(viewReportPanelSource).not.toContain("暂无报表字段。");
-    expect(reportOutputSelectorSource).toContain("if (!selectedCandidate.value) return []");
+    expect(reportOutputSelectorSource).toContain("if (!candidateActivated.value || !selectedCandidate.value) return []");
     expect(viewReportPanelSource).toContain("const pageSize = 10");
     expect(viewReportPanelSource).not.toContain("InputNumber");
     expect(viewReportPanelSource).not.toContain("每页条数");
