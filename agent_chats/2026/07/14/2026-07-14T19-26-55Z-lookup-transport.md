@@ -29,11 +29,27 @@ keeping files controlled, logic reusable, and rendering View-first.
 - `cd frontend && npm run build`
 - `python scripts/check_repo_harness.py`
 - `git diff --check`
-- Pending Docker deployment and authorized stopped-backend browser acceptance.
+- Built detached implementation commit `84caa4ea` as tagged image
+  `fool-service-frontend:lookup-84caa4ea`; the running frontend container and
+  tag both resolved to
+  `sha256:a15b749f64296711d4b4e8accd4116b162717c7ddb5a5fbfba3e75c692894e69`.
+- Authorized local CAPTCHA and `admin/admin` browser acceptance loaded
+  `/view100/1002`, entered edit mode, and used the View-derived Customer
+  BusinessObject field. With the backend stopped, `Ada` triggered Nginx HTTP
+  502 while the input remained without an inline transport error. After backend
+  recovery, the same query returned HTTP 200 and rendered
+  `Ada Capital - 3001`; safe logout returned to login.
+- `docker compose ps -a` confirmed backend/frontend/MySQL/Redis running and
+  `db-migrate` at `Exited (0)`.
+- Database proof remained `SW_SYS_VIEW(100)=default 102 / interval 0`,
+  `fool_sys_view(100)=interval 0`, `market_order=8`, and
+  `market_order_item=4`; order 1002 retained ETH-USDT, amount 1.5, price 3450,
+  customer 3002, and state 1.
+- `python scripts/runtime_doctor.py` (all 67 checks passed)
 
 ## Risks And Follow-ups
 
-- Browser acceptance should open a View-derived BusinessObject editor, stop the
-  backend, search, prove the input remains without inline transport feedback,
-  restore the backend, and prove candidates recover.
+- The first local Compose build was replaced by a concurrent uncommitted
+  `initapp` validation flow. Final acceptance rebuilt and tagged detached commit
+  `84caa4ea`, then verified the running container image before testing.
 - `docs/superpowers/` is unrelated untracked work and remains untouched.

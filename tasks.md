@@ -1541,7 +1541,7 @@ item must land with its matching implementation and validation evidence.
       authenticated View, token, and URL without a shared error when logout has
       a network/non-2xx failure, then browser-verify successful retry returns to
       `/` and refreshes the login flow.
-- [ ] Restore `setextype.js`'s success-only BusinessObject lookup transport
+- [x] Restore `setextype.js`'s success-only BusinessObject lookup transport
       path: keep the View-derived lookup input without inline error feedback on
       network/non-2xx failure, retain response-backed errors, and browser-verify
       successful candidate recovery without changing the lookup DTO.

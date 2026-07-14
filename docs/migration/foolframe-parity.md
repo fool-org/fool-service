@@ -4026,5 +4026,14 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   message. Loading cleanup, the typed input, response-backed lookup errors,
   View-derived identity and parent context, selection behavior, request payload,
   route, and DTO are unchanged. All 193 frontend tests, TypeScript/Vite
-  production build, and repository harness pass. Docker/browser evidence
-  remains required.
+  production build, and repository harness pass. The exact implementation
+  commit was deployed as tagged Docker image
+  `sha256:a15b749f64296711d4b4e8accd4116b162717c7ddb5a5fbfba3e75c692894e69`.
+  An authorized `/view100/1002` replay entered edit mode through View-derived
+  detail metadata and used its Customer BusinessObject field. With the backend
+  stopped, Nginx settled `inputquery` as HTTP 502 while `Ada` remained in the
+  field with no inline transport error. After backend recovery, the same query
+  returned HTTP 200 and rendered `Ada Capital - 3001`; safe logout then returned
+  to login. Compose was healthy, `db-migrate` was `Exited (0)`, View metadata,
+  order/detail counts, and order 1002 were unchanged, and all 67 runtime-doctor
+  checks passed.
