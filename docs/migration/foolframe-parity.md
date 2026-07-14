@@ -4210,3 +4210,24 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   HTTP 200. Compose was healthy, `db-migrate` was `Exited (0)`, order 1001 plus
   the 8-order/4-item counts were unchanged, and all 67 runtime-doctor checks
   passed.
+- 2026-07-15: restored `view.jade`'s inert report-save command. The old report
+  footer renders `保存报表定义` with `ng-click="saverpt()"`, but
+  `mkreport.js` never defines that scope function; clicking the enabled command
+  therefore does not call the otherwise-present `/report/saverpt` route or
+  present success/failure feedback. Vue now keeps the report-name field and
+  visible enabled footer command while removing its invented save handler,
+  request, payload name injection, and status messages. Report metadata,
+  generation, conditions, output selection, the backend compatibility route,
+  DTOs, and other dialog commands are unchanged. The report component shrank
+  from 401 to 391 lines. Focused tests passed (88/88), as did all 196 frontend
+  tests, the TypeScript/Vite production build, repository harness, and diff
+  check. Exact implementation commit `7069f765` produced deployed image
+  `sha256:a0ab8a20af2e84b7013de6c50e57346a9b24e0bbcf54f0296914e351f14e4358`
+  and entry bundle `index-hTPS1fYg.js`. Authorized `admin/admin` browser
+  acceptance opened `/view101`, loaded report metadata with HTTP 200, entered
+  a report name, and clicked the visible enabled save command. The dialog,
+  name, and route remained unchanged, zero `saverpt` requests were emitted, and
+  no success, failure, or shared error text appeared. Cancel closed the dialog
+  and logout returned HTTP 200. Compose was healthy, `db-migrate` was
+  `Exited (0)`, order 1001 plus the 8-order/4-item counts were unchanged, and
+  all 67 runtime-doctor checks passed.

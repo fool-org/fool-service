@@ -1578,6 +1578,9 @@ item must land with its matching implementation and validation evidence.
       suppress shared feedback when `getlistview` has a network/non-2xx failure
       on `/`, `/main`, or `/view:id`, retain business errors and the
       View-before-data gate, and browser-verify all failures plus recovery.
+- [x] Restore `view.jade`'s inert report-save command: keep its report-name
+      field and visible enabled footer button, remove the Vue-only `saverpt`
+      dispatch and status feedback, and browser-verify a click emits no request.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from
