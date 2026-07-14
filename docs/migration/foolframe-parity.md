@@ -3485,3 +3485,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   This supersedes the earlier migration note that described full-field Reset
   clearing as parity. The deployed frontend image was
   `sha256:47584bab5223758aa3d384c119fb79ea6d41034948d15432c8f8fa38e82f3d2c`.
+  Docker browser replay filled all three visible inputs, then proved Reset kept
+  username/password, cleared only the CAPTCHA input, and changed the CAPTCHA
+  image at desktop and 390x844. The mobile viewport and document widths were
+  both 390px and browser errors were empty.
