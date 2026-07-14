@@ -4361,3 +4361,22 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   candidate to `第一列`. Logout returned HTTP 200 with no browser errors. All
   68 runtime-doctor checks passed, Compose was healthy, `db-migrate` was
   `Exited (0)`, and order 1001 plus the 8-order/4-item counts were unchanged.
+- 2026-07-15: restored the dismissible result-modal lifecycle from
+  `view.jade` and Bootstrap 3.3.5. The old report result has default
+  `backdrop:true` and `keyboard:true`; hiding it by backdrop or Escape does not
+  call `ShowReportController.back`, so its page index remains unchanged, while
+  the next `统计` still opens report setup. Vue now clears only its result/setup
+  presentation flag when the dialog emits a dismiss event and leaves
+  `currentPage` untouched. Explicit `返回` remains the sole page reset. No App
+  state, report DTO, route, dependency, or helper abstraction was added; the
+  report panel remains 414 lines. Focused tests passed (97/97), as did all 212
+  frontend tests and the TypeScript/Vite production build. Exact implementation
+  commit `cb2b23d0` produced deployed image
+  `sha256:201af77f6aa3cd9762204e91d3ea842bf0904f9d1e2502507916f409ded2a51d`
+  with report chunk `ViewReportPanel-eJYK5ZH5.js`. Authorized `admin/admin`
+  browser acceptance on `/view101` generated page 1, paged to 2, dismissed the
+  result by its mask, and reopened setup. The resulting report request sequence
+  was `[1,2,2,1]`: mask/reopen preserved page 2, while explicit Return reset the
+  next request to page 1. Logout returned HTTP 200 with no browser errors. All
+  68 runtime-doctor checks passed, Compose was healthy, `db-migrate` was
+  `Exited (0)`, and order 1001 plus the 8-order/4-item counts were unchanged.

@@ -1611,6 +1611,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Separate old report candidate lifecycles: preserve the selected candidate
       across result Return, rebuild it to the first View column only on a new
       metadata load, and keep output controls untouched in both paths.
+- [x] Restore default Bootstrap dismissal for report results: reopen setup after
+      mask/Escape close without resetting the report page, while keeping
+      explicit Return as the only reset to page one.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from
