@@ -1681,6 +1681,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Browser-verify `detailView.jade`'s restored inert candidate `确定`
       command at desktop and 390px: keep the dialog, route, and child rows
       unchanged and emit no candidate/save request when clicked.
+- [x] Browser-verify empty `mkreport.js` condition merge as a silent no-op:
+      keep the report dialog, empty condition state, and route unchanged without
+      Vue-only feedback or a report request.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from

@@ -4471,3 +4471,20 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   while resolving its two already-cached bases; the host-validated `dist` was
   injected into the existing Nginx image for runtime acceptance, producing
   `sha256:671bda982089ffad5c49c81be527d63131a50880dff8ce2c161dead51a93123b`.
+- 2026-07-15: removed the Vue-only zero-selection report-merge feedback. Old
+  `mkreport.js` emits alerts only for one selected unit or a non-contiguous
+  selection; clicking merge with no selected condition reaches its broken
+  empty-array path without presenting operator feedback. Vue now keeps that
+  visible interaction as a safe silent no-op rather than showing
+  `请选择要合并的条件`. Single/non-contiguous feedback and successful grouping
+  remain unchanged in the existing shared condition helper. Exact
+  implementation commit `317efc30` changed one production line. All 213
+  frontend tests, the TypeScript/Vite build, repository harness, and 68
+  runtime-doctor checks passed. Authorized `admin/admin` acceptance opened
+  `/view101`, loaded report metadata, switched to the empty Conditions tab,
+  and clicked merge. The dialog count stayed one, condition rows stayed zero,
+  the URL remained `/view101`, no message appeared, and no report request was
+  emitted after the initial `getmkqview`; subsequent access-log entries were
+  only scheduled `getmsg` polls. Browser warnings/errors were empty and logout
+  returned HTTP 200. The clean runtime image was
+  `sha256:1678b94c10769ada34071d57b59331c1aa0a54f98e2b2fc76993f09b6cbe47b2`.
