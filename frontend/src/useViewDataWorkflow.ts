@@ -98,8 +98,10 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
       viewId
     });
 
-    const response = await options.runAction("read-item-view", () =>
-      postApi<ReadItemViewInfo>("/api/v1/view/getreaditemview", request)
+    const response = await options.runAction(
+      "read-item-view",
+      () => postApi<ReadItemViewInfo>("/api/v1/view/getreaditemview", request),
+      { silentTransport: true }
     );
     if (response) {
       readItemViewResponse.value = response;
