@@ -3564,3 +3564,10 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   maxlength constraint while retaining the same component-owned state,
   submit event, and response dialog lifecycle. The deployed frontend image was
   `sha256:5fbcfe36761833a209c9fde34e5ad4426ddf7252ac181df87c4f4dedbde11fd4`.
+  A versioned Docker browser replay accepted a 13-character CAPTCHA input and
+  submitted credentials with surrounding spaces. The backend log recorded
+  `UserId=" admin "`, `PassWord=" secret "`, and
+  `CheckCode="0123456789ABC"` exactly. The response-backed `10006` dialog kept
+  all values and CAPTCHA image unchanged until Close; dismissal preserved both
+  credential strings, cleared the code, replaced the image, and ended with no
+  browser errors.

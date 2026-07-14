@@ -46,9 +46,20 @@ every change atomically while retaining View-first rendering and code reuse.
   `Exited (0)`; backend `/test` passed.
 - Repository harness, raw-input absence checks, and `git diff --check` passed
   before the atomic commit.
+- A versioned Docker browser entry accepted username/password with surrounding
+  spaces and the 13-character CAPTCHA text `0123456789ABC` without truncation.
+- The backend request log recorded `UserId=" admin "`,
+  `PassWord=" secret "`, and `CheckCode="0123456789ABC"` exactly.
+- The response-backed `10006` dialog kept all values and the CAPTCHA image
+  unchanged. Close preserved both credential strings, cleared the code,
+  replaced the image, retained 1280px document width, and produced no browser
+  errors.
+
+## Runtime Evidence
+
+- `artifacts/runs/20260714-legacy-raw-login-input/raw-input-dialog.png`
 
 ## Skipped Checks And Risks
 
-- Browser raw-request replay is deferred to a separate validation commit.
 - The full old FoolFrame application was not booted; checked-in Jade and
   JavaScript supply the old request contract.

@@ -1435,7 +1435,8 @@ item must land with its matching implementation and validation evidence.
       browser-verify the server request, dialog, and dismissal refresh order.
 - [x] Restore `login.js`'s raw input contract: submit username, password, and
       CAPTCHA without frontend trimming, and remove the Vue-only CAPTCHA
-      maxlength so server validation receives the operator's exact strings.
+      maxlength so server validation receives the operator's exact strings;
+      browser-verify the exact backend request and dismissal state.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
