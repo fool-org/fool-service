@@ -1549,7 +1549,7 @@ item must land with its matching implementation and validation evidence.
       Vue's static login shell without a browser error dialog when initial app
       metadata has a network/non-2xx failure, then browser-verify real Nginx
       HTTP 502/504 and live backend reload recover metadata/CAPTCHA/login.
-- [ ] Restore `setextype.js`'s success-only enum-option transport path: keep the
+- [x] Restore `setextype.js`'s success-only enum-option transport path: keep the
       View-derived detail editor without a shared error dialog when `getenums`
       has a network/non-2xx failure, retain response-backed enum errors/cache,
       and browser-verify a successful retry after recovery.

@@ -4071,8 +4071,17 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   model ids, cache behavior, successful options, response-backed errors, field
   values, components, payloads, routes, and DTOs are unchanged. Focused/full
   frontend tests passed (1/1 focused; 19 files and 193 tests full), as did the
-  production build, repository harness, and diff check. Docker/browser evidence
-  remains required.
+  production build, repository harness, and diff check. Docker deployed the
+  exact implementation commit as frontend image
+  `sha256:64e38d31bfeb773d97915abb80f968c6c948ba044321dd5efb85aeb07c1b1b38`.
+  Authorized `admin/admin` browser acceptance used View 102 metadata, whose
+  editable State field is Enum model 102. A deterministic browser interception
+  returned HTTP 502 only from `getenums`; `/view102/1001` kept the View-derived
+  detail and edit controls without a shared dialog or HTTP/error text. Removing
+  the interception and reloading returned HTTP 200 through Nginx, and the State
+  Select exposed `Open` and `Filled`; logout also returned HTTP 200. Compose was
+  healthy, `db-migrate` was `Exited (0)`, order 1001 and row counts were
+  unchanged, and all 67 runtime-doctor checks passed.
 - 2026-07-15: aligned the authenticated `index` / `soway.getmain` transport
   surface. FoolFrame's root route renders only from the `getmain` callback;
   shared `postandget` request errors only log and do not replace the current
