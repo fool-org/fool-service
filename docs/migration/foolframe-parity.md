@@ -3810,5 +3810,11 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `view.jade` Find still calls its local `query`, which resets to page one.
   Vue now applies its existing page reset only to non-chart manual searches;
   scheduled refresh retains its separate page-one reset. No payload, View/Data
-  projection, DTO, route, or component changed. Docker/browser evidence on a
-  real second page remains required before closure.
+  projection, DTO, route, or component changed. Docker image
+  `sha256:4d772ca09299a01ba343c80bf840e35a4139225de43844d6b27add795e1b3f84`
+  was accepted with three temporary orders and seven temporary order items.
+  View 100 Page 2 retained `aria-current=page`, Chart selection, and its 1001
+  data point after Find; plain View 101 Page 2 returned to Page 1 after Find.
+  All temporary rows were removed, order/item counts returned to 8/4, View
+  100's file/interval metadata remained at 990001/0, Compose was healthy, and
+  all 67 runtime-doctor checks passed.
