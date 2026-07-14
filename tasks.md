@@ -1553,6 +1553,10 @@ item must land with its matching implementation and validation evidence.
       View-derived detail editor without a shared error dialog when `getenums`
       has a network/non-2xx failure, retain response-backed enum errors/cache,
       and browser-verify a successful retry after recovery.
+- [x] Restore the authenticated `index` / `soway.getmain` transport surface:
+      preserve the current token, URL, and shell without an error dialog on
+      network/non-2xx failure, retain stale-token return to login, and
+      browser-verify HTTP 502 plus both success and business-error recovery.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from

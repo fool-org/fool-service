@@ -4073,3 +4073,23 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   frontend tests passed (1/1 focused; 19 files and 193 tests full), as did the
   production build, repository harness, and diff check. Docker/browser evidence
   remains required.
+- 2026-07-15: aligned the authenticated `index` / `soway.getmain` transport
+  surface. FoolFrame's root route renders only from the `getmain` callback;
+  shared `postandget` request errors only log and do not replace the current
+  browser document. Vue now passes the existing `silentTransport` policy to
+  `getmain` and returns before session cleanup when `runAction` leaves its
+  freshly cleared error state empty. Response-backed stale-token errors still
+  clear local state and prepare the login flow. Successful main metadata,
+  View-first loading, payload, route, DTO, components, and login behavior are
+  unchanged; no ref, helper, or abstraction was added. Focused/full frontend
+  tests passed (83 focused; 19 files and 193 tests full), as did the production
+  build, repository harness, and diff check. A clean `c4941f64` archive produced
+  deployed image
+  `sha256:34e3ed81d17b883b95ce24070d5639cc64e43b3f95777f49e16392f0d8124da8`
+  and bundle `index-BWT3CjNo.js`. An authorized isolated browser context logged
+  in with a locally read CAPTCHA, then received deterministic HTTP 502 from
+  `getmain`: `/main`, its token, and `.app-shell` remained without a login form,
+  error dialog, or transport text. Removing the failure returned HTTP 200 and
+  restored Admin and Order List. After safe logout, a fake token's HTTP-200
+  business error still cleared storage and rendered login. Compose was healthy,
+  `db-migrate` was `Exited (0)`, and all 67 runtime-doctor checks passed.
