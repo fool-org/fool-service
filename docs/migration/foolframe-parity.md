@@ -4308,3 +4308,19 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   and condition value from the first open. Cancel and logout completed without
   browser errors. Compose was healthy, `db-migrate` was `Exited (0)`, and order
   1001 plus the 8-order/4-item counts were unchanged.
+- 2026-07-15: completed the report-reopen output-control boundary after a live
+  browser check exposed a gap missed by source-only tests. FoolFrame rebuilds
+  `#rpt-candidate` in `mkreport.initquery` but leaves `#rtp-selecttype` and
+  `#rtp-selected` untouched. Vue now owns those three control values in the
+  still-mounted `ViewReportPanel`, while `ReportOutputSelector` continues to
+  own their mutations. The state stays component-local and no App state, DTO,
+  store, route, or dependency was added. Focused tests passed 97/97, all 208
+  frontend tests and the production build passed, and exact commit `2b7d66fa`
+  produced deployed image
+  `sha256:fdac83a762b1f6a1d796b9936a32b073e8430ed2a7f9ff960abf41cdae3945a9`.
+  Authorized `admin/admin` acceptance on `/view101` selected
+  `Item Name / 计数`, added that output, canceled, and reopened. The candidate
+  reset to `Item ID`, while `原值/计数`, selected `计数`, selected output index
+  zero, and `Item Name[计数]` remained. A second Add produced
+  `Item ID[计数]`; login/logout returned HTTP 200, both metadata requests used
+  View 101, Compose was healthy, and all 68 runtime-doctor checks passed.

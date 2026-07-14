@@ -1598,6 +1598,9 @@ item must land with its matching implementation and validation evidence.
       outputs, conditions, report name, and active tab across Cancel/reopen,
       reload candidate metadata on each open, and reset the draft only when
       navigating to another View.
+- [x] Preserve `mkreport.initquery`'s untouched output controls across report
+      reopen: keep the output-method options, selected method, and selected
+      output index while the candidate list rebuilds to its first View column.
 - [x] Expose the old Sudoku Item `POST /itemview` data route as
       `/api/v1/data/itemview`, reusing `querydatadetail` and accepting the real
       `id` / `objid` / `idxep` request; guard it in runtime doctor.
