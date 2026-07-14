@@ -14,6 +14,8 @@ commits without coupling Vue components to concrete business DTOs.
 - Preserved initial-generation setup hiding and the result header's old
   no-close-button layout, but kept results visible during paging requests like
   `ShowReportController`.
+- Kept Return authoritative during an in-flight page request so its late
+  response updates data without reopening results.
 - Preserved request paths, local state, page guards, and View metadata adapters.
 - Removed the now-unused report `pending` prop chain and output-selector
   disabled prop; added no state, route, request, DTO binding, or duplicate
@@ -39,6 +41,8 @@ commits without coupling Vue components to concrete business DTOs.
   `ViewReportPanel.vue` shrank from 379 to 376 lines.
 - After separating initial-generation hiding from result-page visibility, the
   same 17-file/183-test suite, production build, and harness passed again.
+- After protecting Return from a late paging response, those same three checks
+  passed once more.
 - Pending Docker rebuild, runtime doctor, and authorized browser acceptance.
 
 ## Risks And Follow-ups

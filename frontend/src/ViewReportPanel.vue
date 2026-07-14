@@ -210,6 +210,7 @@ function buildRequest(name?: string) {
 async function runReport(page = currentPage.value) {
   currentPage.value = Math.max(1, page);
   statusMessage.value = "";
+  const revealResults = !showingResults.value;
   reportRunning.value = true;
   const response = await props.runAction("mkrpt", () =>
     postApi<ReportGridResult>("/api/v1/report/mkrpt", buildRequest())
@@ -217,7 +218,7 @@ async function runReport(page = currentPage.value) {
   reportRunning.value = false;
   if (response) {
     reportResponse.value = response;
-    showingResults.value = true;
+    if (revealResults) showingResults.value = true;
   } else {
     statusMessage.value = "无法生成报表。";
   }

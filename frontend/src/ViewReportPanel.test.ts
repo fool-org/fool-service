@@ -11,6 +11,8 @@ describe("ViewReportPanel legacy interactions", () => {
     expect(viewReportPanelSource).toContain(':closable="!showingResults"');
     expect(viewReportPanelSource).toContain("dismissable-mask");
     expect(viewReportPanelSource).toContain('v-if="!reportSetupLoading && (!reportRunning || showingResults)"');
+    expect(viewReportPanelSource).toContain("const revealResults = !showingResults.value");
+    expect(viewReportPanelSource).toContain("if (revealResults) showingResults.value = true");
     expect(viewReportPanelSource).toContain('label="取消" severity="secondary" outlined @click="emit(\'close\')"');
     expect(viewReportPanelSource).toContain('label="返回" @click="backToReportSetup"');
   });
