@@ -26,6 +26,7 @@ export type WorkflowActionRunner = <T>(
 
 export interface WorkflowActionOptions {
   silentTransport?: boolean;
+  preservePendingOnTransport?: boolean;
 }
 
 export interface ViewDataWorkflowRefs {

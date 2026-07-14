@@ -4127,3 +4127,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   reach the backend. Both sessions logged out successfully. Compose was
   healthy, `db-migrate` was `Exited (0)`, order 1001 plus the final
   8-order/4-item counts were unchanged, and all 67 runtime-doctor checks passed.
+- 2026-07-15: aligned `detailview.js initQueryView()` transport handling. The
+  old candidate flow opens its non-dismissible `加载中` dialog before requesting
+  the linked View, and closes it only inside the `$http.success` callback before
+  querying candidate data. `WorkflowActionOptions` now has a narrow pending
+  retention policy, used only by the child `getlistview` request together with
+  silent transport handling. View-first ordering, linked View id, candidate
+  columns, later query payload/data, components, routes, and DTOs are unchanged;
+  no state owner or helper was added. Focused tests passed (84/84), as did all
+  195 frontend tests, the production build, repository harness, and diff check.
+  Docker/browser evidence remains required.

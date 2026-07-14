@@ -273,16 +273,19 @@ async function runAction<T>(
 ) {
   pendingAction.value = label;
   errorMessage.value = "";
+  let preservePending = false;
 
   try {
     return await action();
   } catch (error) {
-    if (!options.silentTransport || !isTransportError(error)) {
+    const silentTransport = options.silentTransport === true && isTransportError(error);
+    preservePending = silentTransport && options.preservePendingOnTransport === true;
+    if (!silentTransport) {
       errorMessage.value = error instanceof Error ? error.message : String(error);
     }
     return null;
   } finally {
-    pendingAction.value = "";
+    if (!preservePending) pendingAction.value = "";
   }
 }
 
@@ -944,7 +947,11 @@ async function loadExistingDetailView(group: QueryDataDetailItemGroup) {
     token: token.value,
     viewId
   });
-  const view = await runAction("child-select-view", () => postApi<ListViewInfo>("/api/v1/view/getlistview", viewRequest));
+  const view = await runAction(
+    "child-select-view",
+    () => postApi<ListViewInfo>("/api/v1/view/getlistview", viewRequest),
+    { silentTransport: true, preservePendingOnTransport: true }
+  );
   if (!view) {
     return false;
   }

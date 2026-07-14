@@ -598,7 +598,7 @@ describe("App defaults", () => {
     expect(viewDataWorkflowSource).toContain("/api/v1/view/getlistview");
     expect(viewDataWorkflowSource).toContain("/api/v1/data/querydata");
     expect(viewDataWorkflowSource).toContain("{ silentTransport: true }");
-    expect(appSource).toContain("!options.silentTransport || !isTransportError(error)");
+    expect(appSource).toContain("options.silentTransport === true && isTransportError(error)");
     expect(viewDataWorkflowSource).toContain("viewDetailViewId(view, loadedViewId)");
     expect(appSource).toContain("function openListObject(row: ListDataItem, targetViewId = 0)");
     expect(appSource).toContain("legacyDetailHref(targetViewId");
@@ -625,6 +625,22 @@ describe("App defaults", () => {
     );
     expect(candidateQuerySource).toContain('"child-select-data"');
     expect(candidateQuerySource).toContain("{ silentTransport: true }");
+  });
+
+  it("keeps the legacy candidate View loader pending on transport failures", () => {
+    const actionRunnerSource = appSource.slice(
+      appSource.indexOf("async function runAction"),
+      appSource.indexOf("async function initApp")
+    );
+    const candidateViewSource = appSource.slice(
+      appSource.indexOf("async function loadExistingDetailView"),
+      appSource.indexOf("async function queryExistingDetailItems")
+    );
+
+    expect(actionRunnerSource).toContain("let preservePending = false");
+    expect(actionRunnerSource).toContain("options.preservePendingOnTransport === true");
+    expect(actionRunnerSource).toContain('if (!preservePending) pendingAction.value = ""');
+    expect(candidateViewSource).toContain("{ silentTransport: true, preservePendingOnTransport: true }");
   });
 
   it("uses keyword search without exposing a raw QueryFilter", () => {
