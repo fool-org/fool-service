@@ -34,9 +34,14 @@ commits.
 - `python scripts/runtime_doctor.py` passed all 67 checks.
 - Restored deployed frontend image:
   `sha256:ce7a2f81272de55d1209e60a9bf79335e206945e62d738347fc13e8bc6dc5884`.
+- Authorized Chrome acceptance loaded the current deployed bundle, filled
+  `admin/admin` and the current local CAPTCHA, then pressed Enter from the
+  CAPTCHA input without clicking Login.
+- The page entered the Admin shell and loaded Order List, proving the existing
+  form submit handler reached `loginv2`. No key listener or implementation
+  change was required.
 
 ## Risks And Follow-ups
 
-- Browser acceptance must prove Enter reaches `loginv2` with the restored
-  deployed bundle.
+- This implicit-submit parity slice is closed; broader migration work remains.
 - `docs/superpowers/` is unrelated untracked work and remains untouched.

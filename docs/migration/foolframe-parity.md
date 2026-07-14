@@ -3629,8 +3629,11 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   before Angular prevents page submission. Vue's existing submit button and
   `@submit.prevent="submit"` already reproduce that interaction. A source
   contract now locks both pieces together without adding a key listener,
-  component state, request path, or DTO binding. Deployed browser acceptance
-  remains to prove Enter reaches `loginv2` with the restored bundle.
+  component state, request path, or DTO binding. Authorized Chrome acceptance
+  filled `admin/admin` and the current local CAPTCHA, focused the CAPTCHA input,
+  and pressed Enter without clicking Login. The deployed page entered the Admin
+  shell and loaded Order List, proving the existing form submit path reached
+  `loginv2`; no implementation change was needed.
 - 2026-07-14: restored `tbar.jade`'s always-available shell navigation. The old
   Home, metadata menu, submenu, and `安全退出` controls have no request-pending
   disabled state; their Angular handlers remain callable while another HTTP

@@ -1449,7 +1449,7 @@ item must land with its matching implementation and validation evidence.
       metadata with `http://` while retaining current absolute HTTP(S) values,
       so the footer never resolves a legacy host as an application-relative
       path; browser-verify both forms and restore the Docker metadata row.
-- [ ] Guard `index.jade`'s implicit Enter login: retain the form submit handler
+- [x] Guard `index.jade`'s implicit Enter login: retain the form submit handler
       and default submit button so Enter fires the old `ng-click="hello()"`
       equivalent; browser-verify that Enter reaches `loginv2` before closing
       this parity slice.
