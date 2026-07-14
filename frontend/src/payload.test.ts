@@ -1188,7 +1188,7 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).not.toContain("QueryFilter");
   });
 
-  it("keeps the legacy save report route in the View report panel", () => {
+  it("keeps the legacy inert save report command in the View report panel", () => {
     const footerSource = viewReportPanelSource.slice(viewReportPanelSource.indexOf("<template #footer>"));
 
     expect(viewReportPanelSource).toContain("保存报表定义");
@@ -1196,7 +1196,7 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).toContain("输入报表信息以保存该报表");
     expect(viewReportPanelSource).not.toContain('ref("视图报表")');
     expect(viewReportPanelSource).not.toContain("<h3>保存报表</h3>");
-    expect(viewReportPanelSource).toContain("/api/v1/report/saverpt");
+    expect(viewReportPanelSource).not.toContain("/api/v1/report/saverpt");
     expect(appSource).not.toContain("Save Report Definition");
     expect(footerSource).not.toContain('icon="pi pi-arrow-left"');
     expect(footerSource).not.toContain('icon="pi pi-times"');
@@ -1204,7 +1204,8 @@ describe("App defaults", () => {
     expect(footerSource).not.toContain('icon="pi pi-save"');
     expect(footerSource).toContain('label="取消" severity="secondary" outlined');
     expect(footerSource).toContain('label="确定" @click="runReport()"');
-    expect(footerSource).toContain('label="保存报表定义" severity="info" @click="saveReport"');
+    expect(footerSource).toContain('label="保存报表定义" severity="info"');
+    expect(footerSource).not.toContain('@click="saveReport"');
     expect(viewReportPanelSource).not.toContain("canRun");
     expect(viewReportPanelSource).not.toContain("conditionsComplete");
     expect(footerSource).not.toContain('severity="secondary" text');

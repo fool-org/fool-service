@@ -214,15 +214,14 @@ async function loadReportColumns() {
   reportCols.value = [];
 }
 
-function buildRequest(name?: string) {
+function buildRequest() {
   return buildMakeReportRequest({
     token: props.token,
     viewId: props.viewId,
     currentPage: currentPage.value,
     pageSize,
     reportCols: reportCols.value.map((column, index) => ({ ...column, index })),
-    filterExp: filterExp.value,
-    reportName: name
+    filterExp: filterExp.value
   });
 }
 
@@ -251,15 +250,6 @@ function changeReportPage(offset: number) {
   const page = resultPage.value + offset;
   if (page < 1 || page > Math.max(1, resultPages.value)) return;
   void runReport(page);
-}
-
-async function saveReport() {
-  statusMessage.value = "";
-  const { response, transportFailed } = await runSuccessOnlyAction("saverpt", () =>
-    postApi<void>("/api/v1/report/saverpt", buildRequest(reportName.value))
-  );
-  if (transportFailed) return;
-  statusMessage.value = response ? "报表定义已提交。" : "无法保存报表定义。";
 }
 
 function backToReportSetup() {
@@ -395,7 +385,7 @@ onMounted(() => void loadReportColumns());
       <Button v-if="showingResults" type="button" label="返回" @click="backToReportSetup" />
       <Button v-if="!showingResults" type="button" label="取消" severity="secondary" outlined @click="emit('close')" />
       <Button v-if="!showingResults" type="button" label="确定" @click="runReport()" />
-      <Button v-if="!showingResults" type="button" label="保存报表定义" severity="info" @click="saveReport" />
+      <Button v-if="!showingResults" type="button" label="保存报表定义" severity="info" />
     </template>
   </Dialog>
 </template>

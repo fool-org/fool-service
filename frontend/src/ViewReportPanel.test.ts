@@ -30,8 +30,10 @@ describe("ViewReportPanel legacy interactions", () => {
     expect(viewReportPanelSource).toMatch(/if \(transportFailed\) \{\s+if \(revealResults\) emit\("close"\);\s+return;/);
   });
 
-  it("keeps report-save transport failures silent on the setup surface", () => {
-    expect(viewReportPanelSource).toContain('runSuccessOnlyAction("saverpt"');
-    expect(viewReportPanelSource).toMatch(/runSuccessOnlyAction\("saverpt"[\s\S]+if \(transportFailed\) return;/);
+  it("keeps the old inert report-save command visible", () => {
+    expect(viewReportPanelSource).toContain('label="保存报表定义" severity="info"');
+    expect(viewReportPanelSource).not.toContain("saveReport");
+    expect(viewReportPanelSource).not.toContain("/api/v1/report/saverpt");
+    expect(viewReportPanelSource).not.toContain("报表定义已提交。");
   });
 });
