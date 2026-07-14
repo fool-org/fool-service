@@ -3506,3 +3506,14 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   password, entered code, and CAPTCHA image until dismissal, then preserved
   credentials while clearing the code and replacing the CAPTCHA. The mobile
   dialog stayed inside a 390px document with no browser errors.
+- 2026-07-14: restored `login.js`'s silent HTTP-error branch. The old
+  `$http.post(...).error` callback is empty, so a transport/server failure
+  leaves the login fields and CAPTCHA in place without opening the business
+  error dialog. Vue's shared request wrapper previously exposed that exception
+  through the same `发生错误` surface used for a successful HTTP response with
+  `IsLogin=false`. `loginV2` now clears only the wrapper's transient display
+  error when no response exists; response-backed legacy error code/message
+  handling and dialog-dismissal refresh remain unchanged. No component,
+  request path, or second error abstraction was added. The deployed frontend
+  image was
+  `sha256:752f0d84bee8ab6c45b48912c533a809c3333574adb82341f1b93c4661310c55`.

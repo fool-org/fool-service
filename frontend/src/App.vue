@@ -309,7 +309,10 @@ async function loginV2() {
     })
   );
 
-  if (!response) return false;
+  if (!response) {
+    errorMessage.value = "";
+    return false;
+  }
   applyDefaultAppView(response.data);
   token.value = response.data?.token || response.data?.Token || "";
   if (!token.value) {

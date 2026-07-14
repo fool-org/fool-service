@@ -1421,6 +1421,9 @@ item must land with its matching implementation and validation evidence.
       before rendering, open the old `发生错误` footer-close dialog, preserve
       login fields, and refresh the CAPTCHA only after dialog dismissal;
       browser-verify the lifecycle at desktop and 390px without overflow.
+- [x] Restore `login.js`'s empty HTTP-error callback: suppress the shared
+      transport exception after a response-less login attempt while preserving
+      fields, CAPTCHA, and response-backed business-error dialog behavior.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

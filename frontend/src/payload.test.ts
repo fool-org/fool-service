@@ -1244,6 +1244,10 @@ describe("App defaults", () => {
   });
 
   it("moves the legacy loginv2 route into the signed-out login panel", () => {
+    const loginSource = appSource.slice(
+      appSource.indexOf("async function loginV2"),
+      appSource.indexOf("async function submitLegacyLogin")
+    );
     const submitLoginSource = appSource.slice(
       appSource.indexOf("async function submitLegacyLogin"),
       appSource.indexOf("async function dismissLoginError")
@@ -1267,6 +1271,8 @@ describe("App defaults", () => {
     expect(loginPanelSource).toContain('label="关闭" severity="secondary" outlined');
     expect(appSource).toContain(':error-code="loginErrorCode"');
     expect(appSource).toContain('@dismiss-error="dismissLoginError"');
+    expect(loginSource).toContain('if (!response) {');
+    expect(loginSource).toContain('errorMessage.value = "";');
     expect(submitLoginSource).not.toContain("refreshLoginCheckCode");
     expect(dismissLoginErrorSource).toContain("await refreshLoginCheckCode()");
     expect(loginPanelSource).not.toContain("Welcome back");
