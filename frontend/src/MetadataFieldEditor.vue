@@ -53,6 +53,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   "update:modelValue": [value: string];
+  "update:formattedValue": [value: string];
 }>();
 
 type LookupChoice = {
@@ -120,13 +121,17 @@ async function searchLookup(query: string) {
 function selectLookup(choice: LookupChoice) {
   const id = inputQueryItemId(choice.item);
   emit("update:modelValue", id);
+  emit("update:formattedValue", choice.label);
   lookupTerm.value = choice.label;
   lookupOptions.value = [];
 }
 
 function updateLookupTerm(term: string | LookupChoice | null) {
   lookupTerm.value = term || "";
-  if (term === "" || term === null) emit("update:modelValue", "");
+  if (term === "" || term === null) {
+    emit("update:modelValue", "");
+    emit("update:formattedValue", "");
+  }
 }
 </script>
 

@@ -746,7 +746,8 @@ describe("App defaults", () => {
     expect(metadataFieldEditorSource).toContain("watch(() => props.field");
     expect(metadataFieldEditorSource).toContain("lookupTerm.value = props.readonlyValue || props.modelValue");
     expect(metadataFieldEditorSource).toContain('@update:model-value="updateLookupTerm"');
-    expect(metadataFieldEditorSource).toContain('if (term === "" || term === null) emit("update:modelValue", "")');
+    expect(metadataFieldEditorSource).toContain('if (term === "" || term === null) {');
+    expect(metadataFieldEditorSource).toContain('emit("update:modelValue", "")');
     expect(metadataFieldEditorSource).not.toContain(':placeholder="readonlyValue || modelValue"');
     expect(metadataFieldEditorSource).toContain("未找到匹配的选项");
     expect(metadataFieldEditorSource).toContain("&ndash; {{ option.id }}");
@@ -1169,7 +1170,7 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).toContain('{ label: "与", value: "and" }');
     expect(viewReportPanelSource).toContain('columnId: ""');
     expect(viewReportPanelSource).toContain('compareId: ""');
-    expect(viewReportPanelSource).toContain('v-else-if="condition.columnId && condition.compareId"');
+    expect(viewReportPanelSource).toContain('<MetadataFieldEditor v-if="condition.columnId && condition.compareId"');
     expect(viewReportPanelSource).not.toContain("const column = modelColumns.value[0]");
     expect(viewReportPanelSource).not.toContain('class="condition-first"');
     expect(viewReportPanelSource).toContain('class="report-condition-header"');

@@ -11,6 +11,7 @@ import TabList from "primevue/tablist";
 import TabPanel from "primevue/tabpanel";
 import TabPanels from "primevue/tabpanels";
 import Tabs from "primevue/tabs";
+import MetadataFieldEditor from "./MetadataFieldEditor.vue";
 import ReportOutputSelector from "./ReportOutputSelector.vue";
 import {
   type CommonResponse,
@@ -23,6 +24,7 @@ import {
   postApi
 } from "./api";
 import { buildLegacyListViewRequest, buildMakeReportRequest } from "./payload";
+import { reportConditionEditorField, reportConditionFormattedValue, reportConditionInitialValue } from "./reportConditionValue";
 import {
   buildReportConditionFilter,
   groupReportConditions,
@@ -75,6 +77,7 @@ const joinOptions = [
 ];
 
 const modelColumns = computed(() => reportModelColumns(modelResponse.value?.data));
+const conditionEditorFields = computed(() => new Map(modelColumns.value.map((column) => [columnKey(column), reportConditionEditorField(column)])));
 const reportRows = computed(() => reportRowsFromCells(reportGridCells(reportResponse.value?.data)));
 const resultPage = computed(() => reportGridPage(reportResponse.value?.data, currentPage.value));
 const resultPages = computed(() => reportGridTotalPages(reportResponse.value?.data));
@@ -114,11 +117,14 @@ function stateOptions(condition: ReportConditionDraft) {
   }));
 }
 
+function conditionEditorField(condition: ReportConditionDraft) { return conditionEditorFields.value.get(condition.columnId) || reportConditionEditorField({}); }
+
 function addCondition() {
   conditions.value.push({
     id: nextConditionId++,
     columnId: "",
     compareId: "",
+    formattedValue: "",
     groupPath: [],
     join: "and",
     value: ""
@@ -160,22 +166,22 @@ function removeCondition(index: number) {
 }
 
 function updateConditionColumn(condition: ReportConditionDraft) {
+  const column = columnFor(condition) || {};
   const compare = compareTypes(condition)[0];
-  const state = states(condition)[0];
   condition.compareId = compare ? reportModelOptionId(compare) : "";
-  condition.value = state ? reportModelStateValue(state) : "";
+  condition.value = reportConditionInitialValue(column);
+  condition.formattedValue = "";
 }
 
 function simpleFilter(condition: ReportConditionDraft): ReportFilterExp | null {
   const column = columnFor(condition);
   const compare = compareTypes(condition).find((option) => reportModelOptionId(option) === condition.compareId);
   if (!column || !compare) return null;
-  const state = states(condition).find((item) => reportModelStateValue(item) === condition.value);
   return {
     col: { id: reportModelColumnId(column), name: reportModelColumnName(column) },
     compareOp: { id: reportModelOptionId(compare), name: reportModelOptionName(compare) },
     valueExp: condition.value,
-    valueFmt: state ? reportModelStateText(state) : condition.value
+    valueFmt: reportConditionFormattedValue(column, condition.value, condition.formattedValue)
   };
 }
 
@@ -357,8 +363,7 @@ onMounted(() => void loadReportColumns());
                   <span v-else aria-hidden="true"></span>
                   <Select v-model="condition.columnId" :options="modelColumnOptions()" option-label="label" option-value="value" aria-label="条件字段" @change="updateConditionColumn(condition)" />
                   <Select v-model="condition.compareId" :options="compareTypeOptions(condition)" option-label="label" option-value="value" aria-label="条件运算" />
-                  <Select v-if="condition.columnId && condition.compareId && states(condition).length" v-model="condition.value" :options="stateOptions(condition)" option-label="label" option-value="value" aria-label="条件值" />
-                  <InputText v-else-if="condition.columnId && condition.compareId" v-model="condition.value" aria-label="条件值" fluid />
+                  <MetadataFieldEditor v-if="condition.columnId && condition.compareId" v-model="condition.value" :field="conditionEditorField(condition)" :options="stateOptions(condition)" :token="token" :view-id="viewId" @update:formatted-value="condition.formattedValue = $event" />
                   <span v-else aria-hidden="true"></span>
                 </div>
               </div>

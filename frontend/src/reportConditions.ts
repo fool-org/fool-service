@@ -4,6 +4,7 @@ export interface ReportConditionDraft {
   id: number;
   columnId: string;
   compareId: string;
+  formattedValue?: string;
   groupPath: number[];
   join: "and" | "or";
   value: string;

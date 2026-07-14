@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import appSource from "./App.vue?raw";
+import metadataFieldEditorSource from "./MetadataFieldEditor.vue?raw";
 import reportOutputSelectorSource from "./ReportOutputSelector.vue?raw";
 import viewReportPanelSource from "./ViewReportPanel.vue?raw";
 
@@ -49,5 +50,14 @@ describe("ViewReportPanel legacy interactions", () => {
     expect(reportOutputSelectorSource).toContain("if (!candidateActivated.value || !selectedCandidate.value) return [];");
     expect(reportOutputSelectorSource).toContain("candidateActivated.value = false;");
     expect(reportOutputSelectorSource).toContain("candidateActivated.value = true;");
+  });
+
+  it("reuses the View metadata field editor for report condition values", () => {
+    expect(viewReportPanelSource).toContain("<MetadataFieldEditor");
+    expect(viewReportPanelSource).toContain(':field="conditionEditorField(condition)"');
+    expect(viewReportPanelSource).toContain('@update:formatted-value="condition.formattedValue = $event"');
+    expect(metadataFieldEditorSource).toContain('emit("update:formattedValue", choice.label)');
+    expect(metadataFieldEditorSource).toContain('emit("update:formattedValue", "")');
+    expect(viewReportPanelSource).not.toContain('v-else-if="condition.columnId && condition.compareId"');
   });
 });
