@@ -39,10 +39,26 @@ commits without coupling Vue components to concrete business DTOs.
   contract remains 29 lines.
 - Deployed frontend image:
   `sha256:76920c26a2a12fae917dd3da1bc01dfd46245fac73d1b9b6fd393575929ecaa4`.
+- Authorized Docker browser acceptance logged in with `admin/admin`, opened
+  `/view102/1001`, paused the backend, and started a real `getsubmenu` request.
+- During that request Add remained enabled and opened the existing loading
+  dialog, Delete staged removal of item `2001` locally, and all three Detail
+  links retained their `/view101/<item-id>` targets.
+- Temporarily changing only View item `1204` from
+  `edit_view_id/selected_view_id=101/101` to `0/0` exposed the metadata-driven
+  inline branch. Its Edit and Save controls both stayed enabled and completed
+  their local state transitions while `getsubmenu` was pending.
+- No detail save was submitted. Reload restored item `2001`; MySQL still held
+  the same three order `1001` child rows. View item `1204` was restored to
+  `list_view_id/edit_view_id/selected_view_id=101/101/101`, and the final page
+  again rendered Add, Delete, and Detail links.
+- After restoration, `/test`, Compose state, all 67 runtime-doctor checks, and
+  the repository harness passed again.
 
 ## Risks And Follow-ups
 
-- Browser acceptance must pause the backend during an unrelated detail request,
-  verify Add, inline Edit/Save, Delete, and detail links stay actionable, avoid
-  saving staged changes, and restore the backend afterward.
+- This parity slice is closed; the broader old-page migration remains active.
+- No screenshot artifact was retained because the acceptance depended on DOM
+  enabled state and temporary request/metadata state; the final database and
+  Compose restoration were verified directly.
 - `docs/superpowers/` is unrelated untracked work and remains untouched.

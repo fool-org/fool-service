@@ -3686,4 +3686,14 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   from Add, inline Edit/Save, and Delete while retaining that edit guard and
   leaving the already-active detail links unchanged. Candidate loading, main
   detail save, View operations, and report boundaries are untouched; no state,
-  request path, DTO binding, or duplicate component was added.
+  request path, DTO binding, or duplicate component was added. Authorized
+  Docker browser acceptance opened `/view102/1001`, paused the backend, and
+  started a real `getsubmenu` request. Add remained enabled and started the
+  existing candidate-loading dialog; Delete staged removal of item `2001`
+  locally; all three Detail links retained their legacy paths. A temporary
+  View-metadata switch from `edit_view_id/selected_view_id=101/101` to `0/0`
+  exposed the old inline branch, where Edit and Save both remained actionable
+  during the same pending request. No detail save was submitted. Reload
+  discarded the staged change, metadata was restored to `101/101`, MySQL child
+  rows were unchanged, Compose returned healthy, and the restored page again
+  rendered Add, Delete, and Detail links.
