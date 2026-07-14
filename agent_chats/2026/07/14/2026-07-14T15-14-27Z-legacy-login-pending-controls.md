@@ -38,9 +38,15 @@ commits.
 - `python scripts/runtime_doctor.py` passed all checks.
 - Deployed frontend image:
   `sha256:e07db3e06f2df0d420f5707b55daf3a3e7379a5313edf103a8e610ecc3fe9d8c`.
+- Docker browser acceptance filled `admin/admin` with CAPTCHA text `WAIT`,
+  paused the backend, submitted Login, and inspected the page at 800ms.
+- Login, Refresh, and Reset remained enabled; Login retained its fixed label
+  without a busy state, all values remained intact, and no dialog opened.
+- Screenshot:
+  `artifacts/runs/20260714-legacy-login-request-controls/in-flight-controls.jpg`
+  (1280x720).
 
 ## Risks And Follow-ups
 
-- Browser acceptance for overlapping login and CAPTCHA requests remains to be
-  captured after deploying the rebuilt frontend image.
+- No unresolved risk remains for this interaction slice.
 - `docs/superpowers/` is unrelated untracked work and remains untouched.

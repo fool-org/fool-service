@@ -3582,6 +3582,12 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   component state was added. Frontend tests/build, Compose replacement,
   runtime doctor, and repository harness pass; the deployed frontend image is
   `sha256:e07db3e06f2df0d420f5707b55daf3a3e7379a5313edf103a8e610ecc3fe9d8c`.
+  Docker browser acceptance paused the backend after filling `admin/admin` and
+  `WAIT`, then submitted Login. At 800ms the request remained in flight while
+  Login, Refresh, and Reset were all enabled, Login retained its fixed label
+  and no busy state, all fields remained intact, and no dialog opened. The
+  1280x720 artifact is
+  `artifacts/runs/20260714-legacy-login-request-controls/in-flight-controls.jpg`.
 - 2026-07-14: restored `login.js`'s silent CAPTCHA-refresh HTTP-error branch.
   The old refresh request defines only a success callback, so transport/server
   failure leaves the current image and login fields in place without opening
@@ -3592,3 +3598,9 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   request route, or error abstraction was added. Frontend tests/build, Compose
   replacement, runtime doctor, and repository harness pass; the deployed image
   is `sha256:e6808b1d432cb229b1deab15ed416e1316d8a0329583590ea710a42fb2ddc537`.
+  A separate Docker browser replay stopped the backend before Refresh and
+  waited for Nginx to record the settled `502` response. The page retained the
+  exact CAPTCHA image and `admin/admin/KEEP4` fields, rendered no dialog, and
+  kept all three controls enabled. The backend was restored, `/test` passed,
+  and the 1280x720 artifact is
+  `artifacts/runs/20260714-legacy-login-request-controls/refresh-failure.jpg`.

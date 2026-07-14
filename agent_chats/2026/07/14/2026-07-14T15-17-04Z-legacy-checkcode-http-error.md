@@ -34,9 +34,16 @@ commits.
 - `python scripts/runtime_doctor.py` passed all 67 checks.
 - Deployed frontend image:
   `sha256:e6808b1d432cb229b1deab15ed416e1316d8a0329583590ea710a42fb2ddc537`.
+- Docker browser acceptance stopped the backend before clicking Refresh and
+  waited until Nginx recorded a settled `502` for `getcheckcode`.
+- The CAPTCHA image and `admin/admin/KEEP4` fields remained unchanged, no
+  dialog opened, and Login, Refresh, and Reset all remained enabled.
+- The backend was restored and `/test` passed.
+- Screenshot:
+  `artifacts/runs/20260714-legacy-login-request-controls/refresh-failure.jpg`
+  (1280x720).
 
 ## Risks And Follow-ups
 
-- Browser acceptance should stop the backend after page load, click Refresh,
-  and prove the existing image/fields remain without a dialog.
+- No unresolved risk remains for this interaction slice.
 - `docs/superpowers/` is unrelated untracked work and remains untouched.

@@ -1439,10 +1439,12 @@ item must land with its matching implementation and validation evidence.
       browser-verify the exact backend request and dismissal state.
 - [x] Restore `login.js`'s always-available controls: keep the Login label fixed
       and leave Login, Refresh, and Reset enabled during requests while retaining
-      only the initialization guard for a missing CAPTCHA key.
+      only the initialization guard for a missing CAPTCHA key; browser-verify
+      all three controls during a real paused-backend login request.
 - [x] Restore `login.js`'s silent CAPTCHA-refresh HTTP-error path: suppress only
       response-less `getcheckcode` transport errors while retaining the current
-      image, fields, successful replacement, and login business-error dialog.
+      image, fields, successful replacement, and login business-error dialog;
+      browser-verify the settled Nginx `502` path and restored backend.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
