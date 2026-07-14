@@ -130,6 +130,7 @@ const pageIndex = ref(1);
 const pageSize = ref(10);
 const viewKeyword = ref("");
 const viewNavigationRevision = ref(0);
+const viewTableVisible = ref(true);
 const detailViewId = ref(0);
 const checkCodeKey = ref("");
 const checkCodeValue = ref("");
@@ -672,6 +673,7 @@ async function ensureLegacyShell() {
 async function loadViewWorkflow(resetPage = false) {
   viewNavigationRevision.value += 1;
   stopAutoRefresh();
+  viewTableVisible.value = true;
   showViewReport.value = false;
   showUnconfiguredHome.value = false;
   operationResult.value = null;
@@ -810,6 +812,7 @@ function scheduleAutoRefresh(result?: ListViewResult) {
   const seconds = listAutoFreshTime(result);
   if (seconds > 0) {
     autoRefreshTimer = window.setInterval(() => {
+      if (!viewTableVisible.value) return;
       pageIndex.value = 1;
       void queryCurrentViewData();
     }, seconds * 1000);
@@ -1098,6 +1101,7 @@ function syncDetailDrafts() {
           @refresh-panel="refreshSudokuPanel"
           @search="searchCurrentView"
           @select="openListObject"
+          @table-visibility="viewTableVisible = $event"
           @toggle-report="showViewReport = !showViewReport"
         />
 

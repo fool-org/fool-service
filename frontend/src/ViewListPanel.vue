@@ -46,6 +46,7 @@ const emit = defineEmits<{
   refreshPanel: [panel: TableColumnInfo];
   search: [];
   select: [row: ListDataItem, viewId?: number];
+  tableVisibility: [visible: boolean];
   toggleReport: [];
 }>();
 
@@ -65,6 +66,7 @@ const listView = computed(() => templateKind.value === "list");
 const chartView = computed(() => templateKind.value === "chart");
 const sudokuView = computed(() => templateKind.value === "sudoku");
 const supportedTemplate = computed(() => templateKind.value !== "unsupported");
+const tableVisible = computed(() => !chartView.value || activePane.value === "table");
 const templateName = computed(() => viewTemplateName(props.view));
 const chartData = computed(() => legacyChartData(rows.value));
 const resultPageIndex = computed(() => listPageIndex(props.data, props.pageIndex));
@@ -84,6 +86,7 @@ watch([currentViewId, templateKind, () => props.navigationRevision], () => {
 });
 
 watch(() => props.data, () => void lockChartPaneHeight(), { immediate: true });
+watch(tableVisible, (visible) => emit("tableVisibility", visible), { immediate: true });
 </script>
 
 <template>
@@ -122,7 +125,7 @@ watch(() => props.data, () => void lockChartPaneHeight(), { immediate: true });
 
     <SudokuPanels v-if="sudokuView" :panel-data="panelData" :panels="viewColumns(view)" @refresh-panel="emit('refreshPanel', $event)" />
 
-    <div ref="chartTablePane" v-if="supportedTemplate && !sudokuView" v-show="!chartView || activePane === 'table'" class="table-wrap view-table">
+    <div ref="chartTablePane" v-if="supportedTemplate && !sudokuView" v-show="tableVisible" class="table-wrap view-table">
       <ListDataTable
         :columns="columns"
         :minimum-rows="pageSize"

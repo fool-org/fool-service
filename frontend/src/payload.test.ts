@@ -473,7 +473,7 @@ describe("App defaults", () => {
     expect(viewListPanelSource).toContain("SudokuPanels");
     expect(viewListPanelSource).toContain('v-if="!sudokuView" class="panel-heading"');
     expect(viewListPanelSource).toContain('v-if="supportedTemplate && !sudokuView" class="workflow-toolbar"');
-    expect(viewListPanelSource).toContain('v-if="supportedTemplate && !sudokuView" v-show="!chartView || activePane === \'table\'"');
+    expect(viewListPanelSource).toContain('v-if="supportedTemplate && !sudokuView" v-show="tableVisible"');
     expect(appSource).toContain("useSudokuPanels");
     expect(appSource).toContain("loadSudokuPanels");
     expect(sudokuWorkflowSource).toContain('loadViewDataById(panelViewId, "sudoku-panel", 5)');
@@ -695,6 +695,7 @@ describe("App defaults", () => {
     expect(appSource).toContain("listAutoFreshTime");
     expect(appSource).toContain("scheduleAutoRefresh(response.data)");
     expect(appSource).toContain("window.setInterval");
+    expect(appSource).toContain("if (!viewTableVisible.value) return");
     expect(appSource).toContain("pageIndex.value = 1");
     expect(appSource).not.toContain("if (!pendingAction.value)");
     expect(appSource).toContain("onUnmounted(() => {");

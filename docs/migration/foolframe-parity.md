@@ -3788,3 +3788,11 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   were restored to zero, a fresh `/view100` load showed the eight seeded rows,
   and another 2.6-second window recorded no refresh request. Compose was
   healthy and all 67 runtime-doctor checks passed.
+- 2026-07-15: aligned the `querylistdata.js` visible-table timer gate for
+  `viewWithChart`. The old timer registers `$scope.query`, which skips its
+  scheduled request when `#datalist` is hidden by the Chart tab, while the
+  separate `ViewWithChartController.query` path keeps manual Find active. Vue
+  now derives table visibility from its existing metadata-selected template
+  and active tab, reports that presentation state to App, and checks it only
+  inside the scheduled callback. Normal View concurrency and manual Find are
+  unchanged; Docker/browser runtime evidence remains required before closure.
