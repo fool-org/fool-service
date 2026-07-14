@@ -19,6 +19,7 @@ describe("ViewListPanel legacy interactions", () => {
     expect(listDataTableSource).toContain("disabled?: boolean");
     expect(listDataTableSource).toContain("disabled: false");
     expect(legacyPaginationSource).not.toContain("disabled");
-    expect(viewListPanelSource).toContain('<SudokuPanels v-if="sudokuView" :disabled="disabled"');
+    expect(viewListPanelSource).not.toContain("disabled: boolean");
+    expect(viewListPanelSource).not.toMatch(/<SudokuPanels[^>]*:disabled=/);
   });
 });

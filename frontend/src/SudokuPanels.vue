@@ -27,7 +27,6 @@ import {
 } from "./viewWorkflow";
 
 const props = defineProps<{
-  disabled?: boolean;
   panelData: Record<number, SudokuPanelResult>;
   panels: TableColumnInfo[];
 }>();
@@ -124,7 +123,6 @@ watch(allPanelsReady, async (ready) => {
         <ListDataTable
           :columns="sudokuPanelColumns(panel)"
           :condensed="false"
-          :disabled="Boolean(disabled)"
           :minimum-rows="5"
           :row-operations="[]"
           :rows="sudokuPanelRows(panel)"
@@ -161,7 +159,6 @@ watch(allPanelsReady, async (ready) => {
                 <ListDataTable
                   :columns="sudokuPanelColumns(childPanel)"
                   :condensed="false"
-                  :disabled="Boolean(disabled)"
                   :minimum-rows="5"
                   :row-operations="[]"
                   :rows="sudokuPanelRows(childPanel)"
@@ -173,7 +170,7 @@ watch(allPanelsReady, async (ready) => {
               <div v-if="sudokuPanelListViewType(childPanel) === 0" class="sudoku-panel-footer">
                 <span class="sudoku-panel-detail-link">详细</span>
                 <span>更新时间 {{ sudokuPanelFreshTime(childPanel) }}</span>
-                <Button type="button" label="刷新" severity="secondary" text size="small" :disabled="disabled" @click="emit('refreshPanel', childPanel)" />
+                <Button type="button" label="刷新" severity="secondary" text size="small" @click="emit('refreshPanel', childPanel)" />
               </div>
             </TabPanel>
           </TabPanels>
@@ -181,7 +178,7 @@ watch(allPanelsReady, async (ready) => {
       </div>
       <div v-if="sudokuPanelHasFooter(panel)" class="sudoku-panel-footer">
         <span>更新时间 {{ sudokuPanelFreshTime(panel) }}</span>
-        <Button v-if="sudokuPanelManualRefreshable(panel)" type="button" label="刷新" severity="secondary" text size="small" :disabled="disabled" @click="emit('refreshPanel', panel)" />
+        <Button v-if="sudokuPanelManualRefreshable(panel)" type="button" label="刷新" severity="secondary" text size="small" @click="emit('refreshPanel', panel)" />
         <a v-else class="sudoku-panel-passive-refresh">刷新</a>
       </div>
     </Panel>

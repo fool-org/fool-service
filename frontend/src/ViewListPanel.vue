@@ -32,7 +32,6 @@ import {
 
 const props = defineProps<{
   data?: ListViewResult;
-  disabled: boolean;
   errorMessage?: string;
   navigationRevision: number;
   pageIndex: number;
@@ -121,7 +120,7 @@ watch(() => props.data, () => void lockChartPaneHeight(), { immediate: true });
       </TabList>
     </Tabs>
 
-    <SudokuPanels v-if="sudokuView" :disabled="disabled" :panel-data="panelData" :panels="viewColumns(view)" @refresh-panel="emit('refreshPanel', $event)" />
+    <SudokuPanels v-if="sudokuView" :panel-data="panelData" :panels="viewColumns(view)" @refresh-panel="emit('refreshPanel', $event)" />
 
     <div ref="chartTablePane" v-if="supportedTemplate && !sudokuView" v-show="!chartView || activePane === 'table'" class="table-wrap view-table">
       <ListDataTable

@@ -257,7 +257,6 @@ const {
   loadViewById,
   loadViewDataById,
   panels: sudokuPanels,
-  pendingAction,
   runAction,
   token
 });
@@ -1091,7 +1090,6 @@ function syncDetailDrafts() {
           v-model:keyword="viewKeyword"
           :page-size="pageSize"
           :data="dataResponse?.data"
-          :disabled="Boolean(pendingAction)"
           :error-message="errorMessage"
           :navigation-revision="viewNavigationRevision"
           :page-index="pageIndex"

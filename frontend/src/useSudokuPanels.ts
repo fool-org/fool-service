@@ -26,7 +26,6 @@ interface SudokuPanelWorkflowOptions {
   loadViewById: (viewId: number, label?: string) => Promise<CommonResponse<ListViewInfo> | null>;
   loadViewDataById: (viewId: number, label?: string, pageSize?: number) => Promise<SudokuPanelResult | null>;
   panels: Readonly<Ref<TableColumnInfo[]>>;
-  pendingAction: Ref<string>;
   runAction: WorkflowActionRunner;
   token: Ref<string>;
 }
@@ -114,7 +113,7 @@ export function useSudokuPanels(options: SudokuPanelWorkflowOptions) {
       return;
     }
     refreshTimers.set(key, window.setInterval(() => {
-      if (!options.pendingAction.value) void refreshPanel(panel);
+      void refreshPanel(panel);
     }, seconds * 1000));
   }
 

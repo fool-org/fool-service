@@ -3759,3 +3759,12 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   physical mask dismissal remains source-contract coverage rather than claimed
   browser evidence. All seven temporary items were removed, `/view101` returned
   to four rows, Compose was healthy, and all 67 runtime-doctor checks passed.
+- 2026-07-15: aligned `GroupViewController` Sudoku refresh request availability.
+  Its generated root/group Refresh anchors and registered list timers invoke
+  query directly without a global pending check. Vue now removes the remaining
+  `disabled` prop chain from `App` through `ViewListPanel` and `SudokuPanels`,
+  and panel timers no longer skip refresh solely because another request is in
+  flight. Map passive refresh, panel-specific timers, requests, View metadata,
+  and rendered panel data remain unchanged. The change deletes state plumbing
+  without adding a path, DTO binding, or component. Docker browser acceptance
+  remains required before the task is closed.
