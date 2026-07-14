@@ -1533,7 +1533,7 @@ item must land with its matching implementation and validation evidence.
       detail errors and keep the result dialog closed when `runoperation` has a
       network/non-2xx failure, then browser-verify failure and successful
       recovery without changing the View-derived operation payload.
-- [ ] Restore `menuinfo.js`'s success-only submenu transport path: keep the
+- [x] Restore `menuinfo.js`'s success-only submenu transport path: keep the
       metadata parent expanded without a shared error when `getsubmenu` has a
       network/non-2xx failure, then browser-verify empty expansion and
       successful child recovery without changing menu metadata or routes.

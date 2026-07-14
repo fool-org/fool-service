@@ -28,12 +28,28 @@ keeping files controlled, logic reusable, and rendering View-first.
 - `cd frontend && npm run build`
 - `python scripts/check_repo_harness.py`
 - `git diff --check`
-- Pending Compose deployment and authorized stopped-backend browser acceptance.
+- `docker compose build frontend`
+- `docker compose up -d --no-deps --force-recreate frontend`
+- Initial Nginx start failed with `host not found in upstream "backend"` because
+  the backend had become stopped/paused. Backend and frontend were restored and
+  both endpoints returned HTTP 200 before browser acceptance began.
+- Authorized local CAPTCHA and `admin/admin` browser acceptance: with backend
+  stopped, clicking Views immediately set `aria-expanded=true`, kept the 8-row
+  View visible, and showed no child or shared error after `getsubmenu` settled
+  as HTTP 502.
+- After backend recovery, collapse then re-expand returned HTTP 200 and rendered
+  `OrderList`. Selecting it navigated to `/view100`, collapsed the menu, and
+  retained all rows; safe logout returned to the login form.
+- `docker compose ps -a` confirmed backend/frontend/MySQL/Redis running and
+  `db-migrate` at `Exited (0)`.
+- Frontend container/image matched
+  `sha256:267e07af1258c49319a61bbac4930ea6140fe64a284cb981075c11b70700cfc3`.
+- Database proof remained `SW_SYS_VIEW(100)=default 102 / interval 0`,
+  `fool_sys_view(100)=interval 0`, `market_order=8`, and
+  `market_order_item=4`.
+- `python scripts/runtime_doctor.py` (all 67 checks passed)
 
 ## Risks And Follow-ups
 
-- Browser acceptance should stop the backend, expand Views, prove the parent
-  stays expanded and empty without a shared error, restore the backend, and
-  prove the existing child returns.
 - Response-backed menu errors are outside this transport-only slice.
 - `docs/superpowers/` is unrelated untracked work and remains untouched.

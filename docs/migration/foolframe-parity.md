@@ -3991,4 +3991,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `getsubmenu`. Response-backed data, desktop/mobile shared rendering, menu
   metadata, routes, and DTOs are unchanged. All 193 frontend tests,
   TypeScript/Vite production build, and repository harness pass. Docker/browser
-  evidence remains required.
+  acceptance deployed frontend image
+  `sha256:267e07af1258c49319a61bbac4930ea6140fe64a284cb981075c11b70700cfc3`.
+  With the backend stopped, clicking Views immediately set `aria-expanded=true`
+  while retaining all 8 list rows. After Nginx settled `getsubmenu` as HTTP 502,
+  the menu remained expanded and empty with no `发生错误` dialog. After backend
+  recovery, collapse then re-expand returned HTTP 200 and rendered `OrderList`;
+  selecting it navigated to `/view100`, collapsed the menu, and retained all
+  rows. Safe logout returned to login. Compose was healthy, `db-migrate` was
+  `Exited (0)`, View intervals and row counts were unchanged, and all 67
+  runtime-doctor checks passed.
