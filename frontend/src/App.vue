@@ -570,8 +570,10 @@ async function queryDetail(viewId = Number(detailViewId.value), objectId = selec
     objId: objectId
   });
 
-  const response = await runAction("detail", () =>
-    postApi<QueryDataDetailResult>("/api/v1/data/querydatadetail", request)
+  const response = await runAction(
+    "detail",
+    () => postApi<QueryDataDetailResult>("/api/v1/data/querydatadetail", request),
+    { silentTransport: true }
   );
   if (response) {
     detailResponse.value = response;
@@ -590,8 +592,10 @@ async function initNew(viewId: number, parentObjId = "") {
     parentObjId
   });
 
-  const response = await runAction("initnew", () =>
-    postApi<QueryDataDetailResult>("/api/v1/data/initnew", request)
+  const response = await runAction(
+    "initnew",
+    () => postApi<QueryDataDetailResult>("/api/v1/data/initnew", request),
+    { silentTransport: true }
   );
   return response;
 }

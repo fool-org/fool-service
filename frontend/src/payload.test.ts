@@ -837,6 +837,7 @@ describe("App defaults", () => {
       detailSource.indexOf("/api/v1/data/querydatadetail")
     );
     expect(detailSource).toContain("if (!readView?.data) return null");
+    expect(detailSource).toContain("{ silentTransport: true }");
   });
 
   it("renders detail fields from read-item View metadata, not raw DTO rows", () => {
@@ -1417,8 +1418,14 @@ describe("App defaults", () => {
   });
 
   it("runs legacy initnew from the rendered View workflow", () => {
-    expect(appSource).toContain("/api/v1/data/initnew");
-    expect(appSource).toContain("async function initNew(viewId: number");
+    const initNewSource = appSource.slice(
+      appSource.indexOf("async function initNew"),
+      appSource.indexOf("async function saveObj")
+    );
+
+    expect(initNewSource).toContain("/api/v1/data/initnew");
+    expect(initNewSource).toContain("async function initNew(viewId: number");
+    expect(initNewSource).toContain("{ silentTransport: true }");
   });
 
   it("runs legacy savenewobj from the rendered View workflow", () => {
