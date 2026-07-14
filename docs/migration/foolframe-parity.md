@@ -3862,4 +3862,12 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   View metadata loading and response-backed business errors remain unchanged;
   no component, View/Data projection, payload, route, DTO, or abstraction was
   added. All 187 frontend tests, TypeScript/Vite build, and repository harness
-  pass. Docker/browser evidence remains required before closure.
+  pass. The deployed Docker image is
+  `sha256:7179af2aed562a4959a0529e1dfda3cd796b246b3d218501f28dd7ab59a99869`.
+  Authorized browser acceptance opened `/view100/1001`, loaded four candidate
+  rows from the candidate View, and then stopped the backend. Nginx recorded
+  settled `querydata` `502` / `504` failures while the dialog retained four
+  Select commands, `共4条记录`, its fixed ten-row table, active Find, and no
+  HTTP, network, or shared error. Find succeeded in the same dialog after the
+  backend restarted. View metadata and order/item counts remained unchanged,
+  Compose was healthy, and all 67 runtime-doctor checks passed.
