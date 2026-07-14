@@ -1489,7 +1489,7 @@ item must land with its matching implementation and validation evidence.
       `querylistdata` refresh run during other requests while retaining timer
       cleanup, page reset, and the existing metadata-driven interval; verify
       overlapping requests with a temporary one-second View interval.
-- [ ] Restore `querylistdata.js`'s visible-table timer gate: pause only the
+- [x] Restore `querylistdata.js`'s visible-table timer gate: pause only the
       scheduled `viewWithChart` refresh while its Data pane is hidden, while
       keeping manual Find active on the Chart pane and preserving normal View
       timer concurrency; browser-verify with a temporary one-second interval.

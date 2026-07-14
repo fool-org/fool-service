@@ -33,11 +33,24 @@ concrete business DTOs.
 - `cd frontend && npm test` passed: 19 files, 185 tests.
 - `cd frontend && npm run build` passed, including `vue-tsc --noEmit`.
 - `python scripts/check_repo_harness.py` passed.
-- Pending Docker rebuild and authorized browser/runtime acceptance.
+- Rebuilt and deployed frontend image
+  `sha256:0dbfcad41a1b686af6d94a677888356d9d2edbf5c9453e485a170a30c56acceb`;
+  the running container used that exact image.
+- Compose was healthy with `db-migrate` at `Exited (0)`; all 67
+  `python scripts/runtime_doctor.py` checks passed.
+- Temporarily changed `SW_SYS_VIEW.VIEW_AUTOFRESHINTERVAL` and
+  `fool_sys_view.auto_fresh_interval` for top-level chart View 100 from zero to
+  one second.
+- Authorized browser acceptance on `/view100` showed consecutive one-second
+  Nginx `querydata` entries while Data was selected. Switching to Chart kept
+  Find active and produced zero requests in a 3.1-second window; clicking Find
+  there produced exactly one request while Chart remained selected.
+- Restored both metadata values to zero. A fresh `/view100` rendered the eight
+  seeded rows, and a subsequent 2.6-second window produced zero `querydata`
+  requests.
 
 ## Risks And Follow-ups
 
-- Temporarily set the seeded top-level chart View interval to one second,
-  compare Data-tab and Chart-tab request counts, prove manual Find still sends
-  a request on Chart, then restore the exact original metadata values.
+- The visibility gate deliberately affects only scheduled main View refreshes;
+  manual Find and Sudoku panel timers keep their separate old-code paths.
 - `docs/superpowers/` is unrelated untracked work and remains untouched.

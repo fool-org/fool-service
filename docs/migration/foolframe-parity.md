@@ -3795,4 +3795,12 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   now derives table visibility from its existing metadata-selected template
   and active tab, reports that presentation state to App, and checks it only
   inside the scheduled callback. Normal View concurrency and manual Find are
-  unchanged; Docker/browser runtime evidence remains required before closure.
+  unchanged. Docker image
+  `sha256:0dbfcad41a1b686af6d94a677888356d9d2edbf5c9453e485a170a30c56acceb`
+  was accepted with both View 100 interval rows temporarily changed from zero
+  to one second. Nginx recorded consecutive one-second Data-tab requests, zero
+  requests during a 3.1-second Chart-tab window, and exactly one request for a
+  Chart-tab manual Find. Both interval rows were restored to zero; a fresh
+  `/view100` showed the eight seeded rows and emitted zero requests in another
+  2.6-second window. Compose was healthy and all 67 runtime-doctor checks
+  passed.
