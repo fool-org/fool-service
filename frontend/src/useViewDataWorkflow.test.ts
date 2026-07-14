@@ -130,7 +130,7 @@ describe("useViewDataWorkflow", () => {
     expect(workflow.readItemViewFor(60)).toEqual(response?.data);
   });
 
-  it("keeps read-item View transport failures out of the rendered error surface", async () => {
+  it("keeps server-rendered View metadata transport failures out of the error surface", async () => {
     const actionOptions: Array<WorkflowActionOptions | undefined> = [];
     vi.stubGlobal("fetch", vi.fn(async () => jsonResponse({ ViewId: 60, Items: [] })));
     const workflow = useViewDataWorkflow({
@@ -146,9 +146,10 @@ describe("useViewDataWorkflow", () => {
       }
     });
 
-    await workflow.loadReadItemView();
+    await workflow.loadLegacyListView();
+    await workflow.loadReadItemView(55);
 
-    expect(actionOptions).toEqual([{ silentTransport: true }]);
+    expect(actionOptions).toEqual([{ silentTransport: true }, { silentTransport: true }]);
   });
 
   it("loads a child panel by getlistview before querydata", async () => {

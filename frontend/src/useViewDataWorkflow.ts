@@ -78,8 +78,10 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
       viewId: requestedViewId
     });
 
-    const response = await options.runAction("legacy-list-view", () =>
-      postApi<ListViewInfo>("/api/v1/view/getlistview", request)
+    const response = await options.runAction(
+      "legacy-list-view",
+      () => postApi<ListViewInfo>("/api/v1/view/getlistview", request),
+      { silentTransport: true }
     );
     if (response) {
       viewResponse.value = response;
