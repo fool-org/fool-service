@@ -69,6 +69,17 @@ describe("ViewReportPanel legacy interactions", () => {
     expect(backToSetup).not.toContain("reportCandidateKey");
   });
 
+  it("reopens setup after dismissing results without resetting its page", () => {
+    const dismissResult = viewReportPanelSource.slice(
+      viewReportPanelSource.indexOf("function dismissReportDialog"),
+      viewReportPanelSource.indexOf("watch(() => props.visible")
+    );
+    expect(dismissResult).toContain("showingResults.value = false;");
+    expect(dismissResult).toContain('emit("close")');
+    expect(dismissResult).not.toContain("currentPage.value");
+    expect(viewReportPanelSource).toContain("if (!visible) dismissReportDialog()");
+  });
+
   it("uses the changed candidate before its parent model round trip", () => {
     expect(reportOutputSelectorSource).toContain("(event.currentTarget as HTMLSelectElement).value");
     expect(reportOutputSelectorSource).toContain("addOutput(candidate)");

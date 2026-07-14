@@ -269,6 +269,11 @@ function backToReportSetup() {
   currentPage.value = 1;
 }
 
+function dismissReportDialog() {
+  showingResults.value = false;
+  emit("close");
+}
+
 watch(() => props.visible, (visible) => { if (visible) void loadReportColumns(); }, { immediate: true });
 </script>
 
@@ -281,7 +286,7 @@ watch(() => props.visible, (visible) => { if (visible) void loadReportColumns();
     :closable="!showingResults"
     :draggable="false"
     dismissable-mask
-    @update:visible="(visible) => { if (!visible) emit('close') }"
+    @update:visible="(visible) => { if (!visible) dismissReportDialog() }"
   >
     <template #closeicon><span class="legacy-dialog-close-icon" aria-hidden="true">&times;</span></template>
     <template #header>
