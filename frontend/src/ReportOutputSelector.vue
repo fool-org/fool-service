@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed } from "vue";
 import Button from "primevue/button";
 import type { ReportCol, ReportModelColumn } from "./api";
 import { addReportOutput, moveReportOutput, removeReportOutput, setReportOutputOrder } from "./reportOutputs";
@@ -13,10 +13,10 @@ import {
 
 const props = defineProps<{ columns: ReportModelColumn[] }>();
 const outputs = defineModel<ReportCol[]>({ required: true });
+const candidateKey = defineModel<string>("candidateKey", { required: true });
 const queryTypeOptions = defineModel<{ label: string; value: string }[]>("queryTypeOptions", { required: true });
 const selectedTypeId = defineModel<string>("selectedTypeId", { required: true });
 const selectedOutputIndex = defineModel<number | null>("selectedOutputIndex", { required: true });
-const candidateKey = ref("");
 
 const candidateOptions = computed(() => props.columns.map((column) => ({
   label: reportModelColumnName(column),
@@ -27,10 +27,6 @@ const selectedOptions = computed(() => outputs.value.map((output, index) => ({
   label: `${output.colName || output.colId || "字段"}${orderLabel(output.orderType)}`,
   value: index
 })));
-
-watch(() => props.columns, (columns) => {
-  candidateKey.value = columns[0] ? columnKey(columns[0]) : "";
-}, { immediate: true });
 
 function columnKey(column: ReportModelColumn) {
   return reportModelColumnId(column) || reportModelColumnName(column);

@@ -51,16 +51,22 @@ describe("ViewReportPanel legacy interactions", () => {
   });
 
   it("rebuilds candidates but retains output methods when report metadata reloads", () => {
-    const metadataWatch = reportOutputSelectorSource.match(
-      /watch\(\(\) => props\.columns,[\s\S]*?\}, \{ immediate: true \}\);/
-    )?.[0] || "";
-    expect(metadataWatch).toContain('candidateKey.value = columns[0] ? columnKey(columns[0]) : "";');
-    expect(metadataWatch).not.toContain("queryTypeOptions.value");
-    expect(metadataWatch).not.toContain("selectedTypeId.value");
+    expect(reportOutputSelectorSource).toContain('defineModel<string>("candidateKey"');
+    expect(reportOutputSelectorSource).not.toContain("watch(() => props.columns");
+    expect(viewReportPanelSource).toContain('reportCandidateKey.value = modelColumns.value[0] ? columnKey(modelColumns.value[0]) : "";');
+    expect(viewReportPanelSource).toContain('v-model:candidate-key="reportCandidateKey"');
     expect(reportOutputSelectorSource).toContain("selectedTypeName");
     expect(viewReportPanelSource).toContain('v-model:query-type-options="reportQueryTypeOptions"');
     expect(viewReportPanelSource).toContain('v-model:selected-type-id="reportSelectedTypeId"');
     expect(viewReportPanelSource).toContain('v-model:selected-output-index="reportSelectedOutputIndex"');
+  });
+
+  it("keeps the selected candidate when returning from report results", () => {
+    const backToSetup = viewReportPanelSource.slice(
+      viewReportPanelSource.indexOf("function backToReportSetup"),
+      viewReportPanelSource.indexOf("watch(() => props.visible")
+    );
+    expect(backToSetup).not.toContain("reportCandidateKey");
   });
 
   it("reuses the View metadata field editor for report condition values", () => {

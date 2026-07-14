@@ -64,6 +64,7 @@ const reportName = ref("");
 const modelResponse = ref<CommonResponse<ReportModelResult> | null>(null);
 const reportResponse = ref<CommonResponse<ReportGridResult> | null>(null);
 const reportCols = ref<ReportCol[]>([]);
+const reportCandidateKey = ref("");
 const reportQueryTypeOptions = ref<{ label: string; value: string }[]>([]);
 const reportSelectedTypeId = ref("");
 const reportSelectedOutputIndex = ref<number | null>(null);
@@ -222,6 +223,7 @@ async function loadReportColumns() {
     return;
   }
   modelResponse.value = response;
+  reportCandidateKey.value = modelColumns.value[0] ? columnKey(modelColumns.value[0]) : "";
 }
 
 function buildRequest() {
@@ -325,6 +327,7 @@ watch(() => props.visible, (visible) => { if (visible) void loadReportColumns();
           <section class="report-section">
             <ReportOutputSelector
               v-model="reportCols"
+              v-model:candidate-key="reportCandidateKey"
               v-model:query-type-options="reportQueryTypeOptions"
               v-model:selected-output-index="reportSelectedOutputIndex"
               v-model:selected-type-id="reportSelectedTypeId"
