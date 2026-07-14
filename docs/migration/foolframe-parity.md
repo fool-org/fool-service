@@ -3431,3 +3431,16 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   viewport with no document overflow or browser errors. The deployed frontend
   image was
   `sha256:4765222fedd4d9f671e93aa4ba4004ed4f906ba1038254c34539a3d983050f04`.
+- 2026-07-14: restored `message.js` generated-time parsing and formatting. The
+  old polling controller extracts the epoch from Pascal `GernerationTime`,
+  creates a local `Date`, and renders `yyyy-MM-dd hh:mm:ss`. Vue previously
+  extracted the first digits from every alias and formatted through UTC, so a
+  camel LocalDateTime such as `2099-01-01T19:04:05` became 1970. The shared
+  adapter now accepts current camel LocalDateTime and legacy `/Date(ms)/`,
+  preserves invalid server text, and formats through local date fields. Its
+  parser is also reused by list refresh-time formatting instead of adding a
+  message-only conversion path. A fresh authorized `admin/admin` API login
+  proved the real response exposes both aliases for one instant. Authenticated
+  Docker polling rendered `2099-01-01 19:04:05` at 390x844 with document width
+  exactly 390px and no browser errors. The deployed frontend image was
+  `sha256:e470df2f8e0c9821a53f076c8baccd29458a136f68b6e8f756fac0a19ff9f7ae`.

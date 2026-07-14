@@ -1083,7 +1083,7 @@ describe("view workflow helpers", () => {
     const menu = { Items: [{ AuthNo: "1", Text: "Home", ViewId: 100, Index: 2 }] };
     const messages = { Messages: [{
       MessageID: "m1",
-      GernerationTime: "/Date(0)/",
+      GernerationTime: `/Date(${new Date(1970, 0, 1).getTime()})/`,
       MessageContent: "Ready",
       ResultView: 100,
       ResultKey: "1001"
@@ -1121,6 +1121,17 @@ describe("view workflow helpers", () => {
     expect(inputQueryItemText(inputQuery.Items[0])).toBe("Ada");
     expect(inputQueryItemId(undefined as never)).toBe("");
     expect(inputQueryItemText(undefined as never)).toBe("");
+  });
+
+  it("formats camel and Pascal legacy message times", () => {
+    const localEpoch = new Date(2026, 6, 3, 10, 20, 30).getTime();
+
+    expect(legacyMessageTime({
+      gernerationTime: "2099-01-02T03:04:05",
+      GernerationTime: "/Date(0)/"
+    })).toBe("2099-01-02 03:04:05");
+    expect(legacyMessageTime({ GernerationTime: `/Date(${localEpoch})/` })).toBe("2026-07-03 10:20:30");
+    expect(legacyMessageTime({ gernerationTime: "server clock unavailable" })).toBe("server clock unavailable");
   });
 
   it("reads runoperation success from camel or legacy result fields", () => {

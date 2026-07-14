@@ -1403,6 +1403,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `showerror.js` no-target message-detail availability: keep
       `查看详细` enabled like the old `href='#'` anchor, but leave the current
       dialog and URL unchanged when the message has no target View.
+- [x] Restore `message.js` generated-time handling: parse current camel
+      LocalDateTime and legacy Pascal `/Date(ms)/` through one shared adapter,
+      render local `yyyy-MM-dd hh:mm:ss`, and preserve invalid server text.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

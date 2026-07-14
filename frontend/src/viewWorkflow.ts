@@ -287,10 +287,12 @@ export function legacyMessageContent(message: MessageInfo) {
 
 export function legacyMessageTime(message: MessageInfo) {
   const raw = firstDisplayValue([message.gernerationTime, message.GernerationTime]);
-  const millis = raw.match(/-?\d+/)?.[0];
-  if (!millis) return raw;
-  const date = new Date(Number(millis));
-  return Number.isNaN(date.getTime()) ? raw : date.toISOString().slice(0, 19).replace("T", " ");
+  const date = parseDisplayDate(raw);
+  if (!date) return raw;
+  const parts = [
+    date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds()
+  ].map(twoDigit);
+  return `${date.getFullYear()}-${parts[0]}-${parts[1]} ${parts[2]}:${parts[3]}:${parts[4]}`;
 }
 
 export function legacyMessageResultView(message: MessageInfo) {
@@ -772,9 +774,8 @@ export function listAutoFreshTime(result?: ListViewResult | QueryDataDetailResul
 export function listFreshTime(result?: ListViewResult) {
   const value = displayValue(result?.freshTime ?? result?.FreshTime);
   if (!value) return "";
-  const legacy = value.match(/^\/Date\((-?\d+)(?:[+-]\d{4})?\)\/$/);
-  const date = legacy ? new Date(Number(legacy[1])) : new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
+  const date = parseDisplayDate(value);
+  return date ? date.toLocaleString() : value;
 }
 
 export function listRows(result?: ListViewResult) {
@@ -1243,6 +1244,16 @@ function reportCellValue(cell: ReportCell) {
 function finiteNumber(value: unknown, fallback: number) {
   const result = Number(value);
   return Number.isFinite(result) ? result : fallback;
+}
+
+function parseDisplayDate(value: string) {
+  const legacy = value.match(/^\/Date\((-?\d+)(?:[+-]\d{4})?\)\/$/);
+  const date = legacy ? new Date(Number(legacy[1])) : new Date(value);
+  return Number.isNaN(date.getTime()) ? undefined : date;
+}
+
+function twoDigit(value: number) {
+  return String(value).padStart(2, "0");
 }
 
 function fieldFromReadItem(item: ReadItemViewItemInfo): ListDataValue {
