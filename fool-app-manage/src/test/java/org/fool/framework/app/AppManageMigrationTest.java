@@ -1384,7 +1384,6 @@ public class AppManageMigrationTest {
                 "LINE_ORDER_ID",
                 true);
     }
-
     @Test
     public void daoAppInstallGatewayExecutesLegacyModelAndRelationDdl() {
         RecordingDaoService daoService = new RecordingDaoService();
@@ -1544,6 +1543,9 @@ public class AppManageMigrationTest {
         assertEquals("Order列表", listView.getName());
         assertEquals(Long.valueOf(77L), detailView.getModelId());
         assertEquals(detailView.getViewId(), listView.getDefaultViewId());
+        assertEquals(Boolean.FALSE, detailView.getCheckAuth());
+        assertEquals(Integer.valueOf(0), detailView.getAutoFreshInterval());
+        assertEquals(Boolean.TRUE, detailView.getCanEdit());
         assertEquals(detailView.getViewId(), detailFirstItem.getOwnerViewId());
         assertEquals(listView.getViewId(), listFirstItem.getOwnerViewId());
         assertEquals(Long.valueOf(771L), detailFirstItem.getPropertyId());

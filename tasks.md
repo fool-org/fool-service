@@ -3,6 +3,23 @@
 This file is the repo-local work-state surface until an external tracker is
 explicitly named as authoritative for fool-service.
 
+## Active: Installation and Initialization
+
+Design source: `docs/installation-and-initialization.md`. Owner: Codex.
+
+- [x] Add one idempotent system initialization coordinator that discovers the
+      configured framework model packages, installs legacy metadata, executes
+      model/relation DDL, and creates missing default Views in a fixed order.
+      Acceptance: focused tests prove ordering and repeat-safe gateway calls.
+- [x] Wire the coordinator into Spring Boot startup behind
+      `fool.app.initialization.enabled`, enable it for Docker, and fail startup
+      when initialization fails. Acceptance: a rebuilt backend adds non-Market
+      system modules/models and a second restart does not duplicate them.
+- [x] Keep application provisioning on the same installation boundary through
+      `AppInstaller.createApp(...)`, and document the split between database
+      migrations, system initialization, and application installation.
+      Acceptance: design, code, tasks, and delivery evidence agree.
+
 ## Active: Vue Interface Upgrade
 
 Design source: `docs/frontend/ui-design-system.md`. Owner: Codex. Each checked

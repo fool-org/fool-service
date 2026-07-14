@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class AppInstaller {
@@ -40,6 +41,31 @@ public class AppInstaller {
         }
 
         return created == null ? app : created;
+    }
+
+    public SystemInitializationResult initializeSystem(
+            String metadataConnection,
+            String dataConnection,
+            AppModuleSource source) {
+        AppModuleSource moduleSource = Objects.requireNonNull(source, "System module source is required.");
+        List<Model> models = moduleSource.getModels();
+        List<String> metadataItems = gateway.installModuleSource(
+                metadataConnection,
+                dataConnection,
+                moduleSource);
+        List<String> schemaStatements = gateway.installModelSchemas(
+                metadataConnection,
+                dataConnection,
+                models);
+        List<String> defaultViews = gateway.installDefaultViews(
+                metadataConnection,
+                dataConnection,
+                models);
+        return new SystemInitializationResult(
+                models.size(),
+                metadataItems,
+                schemaStatements,
+                defaultViews);
     }
 
     private BootstrapMenuItem prepareMenu(String sysCon, BootstrapMenuItem template) {

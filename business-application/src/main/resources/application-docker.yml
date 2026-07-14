@@ -27,3 +27,8 @@ logging:
     path: /app/logs
   level:
     root: INFO
+
+fool:
+  app:
+    initialization:
+      enabled: true

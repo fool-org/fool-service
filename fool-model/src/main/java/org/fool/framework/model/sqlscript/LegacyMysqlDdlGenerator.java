@@ -35,7 +35,7 @@ public class LegacyMysqlDdlGenerator {
             if (isBlank(property.getColumn())) {
                 continue;
             }
-            definitions.add(columnSql(property, false));
+            definitions.add(columnSql(property, false, property == model.getIdProperty()));
             if (Boolean.TRUE.equals(property.getCheck())) {
                 String group = normalizeGroup(property.getIxGroup(), table);
                 keyGroups.computeIfAbsent(group, ignored -> new ArrayList<>()).add(normalizeIdentifier(property.getColumn()));
@@ -100,7 +100,7 @@ public class LegacyMysqlDdlGenerator {
             } else {
                 column.setPropertyType(PropertyType.String);
             }
-            columns.add(columnSql(column, true));
+            columns.add(columnSql(column, true, false));
         }
         return columns;
     }
@@ -128,10 +128,10 @@ public class LegacyMysqlDdlGenerator {
         }
     }
 
-    private String columnSql(Property property, boolean multiMap) {
+    private String columnSql(Property property, boolean multiMap, boolean allowAutoIncrement) {
         String type = propertyTypeSql(property, multiMap);
         String nullable = Boolean.TRUE.equals(property.getAllowDbNull()) ? "NULL" : "NOT NULL";
-        if (property.getPropertyType() == PropertyType.IdentifyId && !multiMap) {
+        if (property.getPropertyType() == PropertyType.IdentifyId && !multiMap && allowAutoIncrement) {
             return "`" + normalizeIdentifier(property.getColumn()) + "` BIGINT NOT NULL AUTO_INCREMENT";
         }
         return "`" + normalizeIdentifier(property.getColumn()) + "` " + type + " " + nullable + defaultValueSql(property);

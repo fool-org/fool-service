@@ -118,6 +118,16 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 
 ## Recent Parity Increments
 
+- 2026-07-15: completed the missing installation boundary documented in
+  `docs/installation-and-initialization.md`. Docker startup now discovers 79
+  framework models after `db-migrate`, installs code-owned metadata, executes
+  resumable model/relation DDL, and creates missing default Views before the
+  application is considered initialized. Composite `@Id` groups preserve their
+  declared types, legacy relation matching is null-safe, and incomplete DDL can
+  restart across an already-added relation column. Runtime acceptance recorded
+  83 unique model rows including the four Market seed models, 118 unique Views,
+  478 properties, and 13 relations; a backend restart kept every count stable,
+  produced zero duplicate model/relation groups and zero property rewrites.
 - 2026-07-13: restored `viewWithChart.jade`'s template-specific layout. Its
   search form now stays left aligned, while normal `view.jade` keeps the old
   `navbar-right` placement, and the Data/Chart tab rule again spans the content

@@ -7,6 +7,8 @@ import org.fool.framework.common.annotation.Id;
 import org.fool.framework.common.annotation.Key;
 import org.fool.framework.common.annotation.MultiType;
 import org.fool.framework.common.annotation.ReferToProperty;
+import org.fool.framework.common.annotation.SqlGenerate;
+import org.fool.framework.common.annotation.SqlGenerateConfig;
 import org.fool.framework.common.annotation.Table;
 import org.fool.framework.common.data.ObjectWithSubItem;
 import org.fool.framework.model.model.EnumValue;
@@ -330,8 +332,19 @@ public class ReflectiveAppModuleSource implements AppModuleSource {
     }
 
     private boolean isDefaultIdProperty(Property property) {
-        return Boolean.TRUE.equals(property.getCheck())
-                && (property.getIxGroup() == null || property.getIxGroup().isBlank());
+        Field field = fieldsByProperty.get(property);
+        if (field == null) {
+            return false;
+        }
+        if (field.getDeclaredAnnotation(Id.class) != null) {
+            return true;
+        }
+        for (Column column : field.getDeclaredAnnotationsByType(Column.class)) {
+            if (column.identify()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void wireRelations() {
@@ -495,10 +508,14 @@ public class ReflectiveAppModuleSource implements AppModuleSource {
 
         Id id = field.getDeclaredAnnotation(Id.class);
         if (id != null) {
-            property.setPropertyType(PropertyType.IdentifyId);
+            SqlGenerate sqlGenerate = field.getDeclaredAnnotation(SqlGenerate.class);
+            if (isDefaultIdGroup(id.value())
+                    || (sqlGenerate != null && SqlGenerateConfig.AUTO_INCREMENT.equals(sqlGenerate.value()))) {
+                property.setPropertyType(PropertyType.IdentifyId);
+            }
             property.setCheck(true);
             property.setAllowDbNull(false);
-            property.setIxGroup("");
+            property.setIxGroup(isDefaultIdGroup(id.value()) ? "" : id.value());
         }
         Key key = field.getDeclaredAnnotation(Key.class);
         if (key != null) {
@@ -507,6 +524,10 @@ public class ReflectiveAppModuleSource implements AppModuleSource {
         }
         fieldsByProperty.put(property, field);
         return property;
+    }
+
+    private boolean isDefaultIdGroup(String group) {
+        return group == null || group.isBlank() || "Id".equals(group);
     }
 
     private static List<Field> modelFields(Class<?> type) {

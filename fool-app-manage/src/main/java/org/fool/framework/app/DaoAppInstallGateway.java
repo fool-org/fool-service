@@ -16,8 +16,10 @@ import org.fool.framework.view.model.ViewItem;
 import org.fool.framework.view.model.ViewOperation;
 import org.fool.framework.view.service.LegacyAutoViewFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -253,8 +255,35 @@ public class DaoAppInstallGateway implements AppInstallGateway {
             }
         }
 
-        statements.forEach(schemaDao::execute);
+        statements.forEach(statement -> executeSchemaStatement(schemaDao, statement));
         return statements;
+    }
+
+    private void executeSchemaStatement(DaoService schemaDao, String statement) {
+        try {
+            schemaDao.execute(statement);
+        } catch (DataAccessException exception) {
+            if (isExistingRelationColumn(statement, exception)) {
+                return;
+            }
+            throw exception;
+        }
+    }
+
+    private boolean isExistingRelationColumn(String statement, DataAccessException exception) {
+        if (statement == null
+                || !statement.trim().toUpperCase().startsWith("ALTER TABLE")
+                || !statement.toUpperCase().contains(" ADD COLUMN ")) {
+            return false;
+        }
+        Throwable cause = exception;
+        while (cause != null) {
+            if (cause instanceof SQLException sqlException && sqlException.getErrorCode() == 1060) {
+                return true;
+            }
+            cause = cause.getCause();
+        }
+        return false;
     }
 
     @Override
@@ -462,31 +491,56 @@ public class DaoAppInstallGateway implements AppInstallGateway {
             if (property == null || property.getName() == null) {
                 continue;
             }
-            AppInstalledProperty existing = findInstalledProperty(
-                    daoService,
-                    installedModel.getModelId(),
-                    property.getName());
-            if (existing != null) {
-                property.setId(existing.getPropertyId());
-                installedProperties.put(property, existing);
-                installMultiDbMaps(daoService, property, existing);
-                continue;
-            }
             AppInstalledModel propertyModel = property.getPropertyModel() == null
                     ? null
                     : installedModels.get(property.getPropertyModel());
             Long propertyModelId = propertyModel == null ? null : propertyModel.getModelId();
-            AppInstalledProperty installedProperty = AppInstalledProperty.fromProperty(
+            AppInstalledProperty desired = AppInstalledProperty.fromProperty(
                     property,
                     installedModel,
                     propertyModelId,
                     connectionType,
                     connection);
-            daoService.create(installedProperty);
-            property.setId(installedProperty.getPropertyId());
-            installedProperties.put(property, installedProperty);
-            installMultiDbMaps(daoService, property, installedProperty);
+            AppInstalledProperty existing = findInstalledProperty(
+                    daoService,
+                    installedModel.getModelId(),
+                    property.getName());
+            if (existing != null) {
+                desired.setPropertyId(existing.getPropertyId());
+                if (!sameCodeOwnedPropertyMetadata(existing, desired)) {
+                    daoService.save(desired);
+                }
+                property.setId(desired.getPropertyId());
+                installedProperties.put(property, desired);
+                installMultiDbMaps(daoService, property, desired);
+                continue;
+            }
+            daoService.create(desired);
+            property.setId(desired.getPropertyId());
+            installedProperties.put(property, desired);
+            installMultiDbMaps(daoService, property, desired);
         }
+    }
+
+    private boolean sameCodeOwnedPropertyMetadata(
+            AppInstalledProperty existing,
+            AppInstalledProperty desired) {
+        return existing.getPropertyType() == desired.getPropertyType()
+                && Objects.equals(existing.getConnectionType(), desired.getConnectionType())
+                && Objects.equals(zeroWhenNull(existing.getPropertyModelId()), zeroWhenNull(desired.getPropertyModelId()))
+                && Objects.equals(existing.getArray(), desired.getArray())
+                && Objects.equals(existing.getColumnName(), desired.getColumnName())
+                && Objects.equals(existing.getPropertyName(), desired.getPropertyName())
+                && Objects.equals(existing.getMultiMap(), desired.getMultiMap())
+                && Objects.equals(existing.getIxGroup(), desired.getIxGroup())
+                && Objects.equals(existing.getCheck(), desired.getCheck())
+                && Objects.equals(zeroWhenNull(existing.getGenerationType()), zeroWhenNull(desired.getGenerationType()))
+                && Objects.equals(existing.getAllowDbNull(), desired.getAllowDbNull())
+                && Objects.equals(existing.getOwnerModelId(), desired.getOwnerModelId());
+    }
+
+    private long zeroWhenNull(Number value) {
+        return value == null ? 0L : value.longValue();
     }
 
     private void installMultiDbMaps(
@@ -709,9 +763,9 @@ public class DaoAppInstallGateway implements AppInstallGateway {
                         + "`SW_SYS_RELATION_TARGETPROPERTY`,`SW_SYS_RELATION_TABLE`,"
                         + "`SW_SYS_RELATION_SOURCECOL`,`SW_SYS_RELATION_TARGETCOL`,"
                         + "`SW_SYS_RELATION_CANBENULL` "
-                        + "FROM `SW_SYS_RELATION` WHERE `SW_SYS_RELATION_SOURCEPROPERTY` = ? "
-                        + "AND `SW_SYS_RELATION_TABLE` = ? AND `SW_SYS_RELATION_SOURCECOL` = ? "
-                        + "AND `SW_SYS_RELATION_TARGETCOL` = ?",
+                        + "FROM `SW_SYS_RELATION` WHERE `SW_SYS_RELATION_SOURCEPROPERTY` <=> ? "
+                        + "AND `SW_SYS_RELATION_TABLE` <=> ? AND `SW_SYS_RELATION_SOURCECOL` <=> ? "
+                        + "AND `SW_SYS_RELATION_TARGETCOL` <=> ?",
                 sourcePropertyId,
                 relationTable,
                 propertyColumn,
@@ -735,9 +789,13 @@ public class DaoAppInstallGateway implements AppInstallGateway {
     }
 
     private Integer connectionType(String sysCon, String databaseConnection) {
-        return sysCon != null && sysCon.equals(databaseConnection)
+        return Objects.equals(normalizedConnection(sysCon), normalizedConnection(databaseConnection))
                 ? AppInstalledModel.CONNECTION_TYPE_APP_SYS
                 : AppInstalledModel.CONNECTION_TYPE_CURRENT;
+    }
+
+    private String normalizedConnection(String connection) {
+        return connection == null || connection.isBlank() ? null : connection.trim();
     }
 
     private List<Relation> safeRelations(Model model) {
@@ -813,6 +871,7 @@ public class DaoAppInstallGateway implements AppInstallGateway {
         installed.setDefaultViewId(view.getDefaultDetailView() == null ? null : view.getDefaultDetailView().getId());
         installed.setViewType(view.getViewType() == null ? null : view.getViewType().code());
         installed.setConnectionType(AppInstalledModel.CONNECTION_TYPE_CURRENT);
+        installed.setCheckAuth(false);
         installed.setAutoFreshInterval(view.getAutoFreshInterval());
         installed.setCanEdit(true);
         return installed;
