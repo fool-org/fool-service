@@ -969,6 +969,8 @@ describe("App defaults", () => {
     expect(legacyMenuNavSource).toContain(':aria-expanded="legacyAuthViewId(item) ? undefined : legacyAuthNo(item) === expandedAuthCode"');
     expect(legacyMenuNavSource).toContain('<button v-if="legacyAuthViewId(child)"');
     expect(legacyMenuNavSource).toContain('<span v-else class="nav-static-item">');
+    expect(legacyMenuNavSource).not.toContain("disabled");
+    expect(appSource).not.toContain('<LegacyMenuNav\n          :disabled="Boolean(pendingAction)"');
     expect(legacyMenuNavSource).not.toContain('disabled || !legacyAuthViewId(child)');
     expect(menuSource).toContain("legacyAuthViewId(item)");
     expect(menuSource).toContain("closeShellNavigation()");
@@ -1225,6 +1227,8 @@ describe("App defaults", () => {
     expect(shellActionsSource).toMatch(/\.shell-user-name\s*\{[^}]*color: #337ab7;[^}]*padding: 10px 15px;/s);
     expect(appSource).toContain("安全退出");
     expect(appSource).toContain('aria-label="Mobile safe logout"');
+    expect(appSource).toContain('<button type="button" @click="logout">安全退出</button>');
+    expect(appSource).not.toContain('<button type="button" :disabled="Boolean(pendingAction)" @click="logout">安全退出</button>');
     expect(appSource.indexOf("安全退出")).toBeGreaterThan(appSource.indexOf("<LegacyMenuNav"));
     expect(shellActionsSource).not.toContain("安全退出");
     expect(appSource).not.toContain("Legacy User Info");

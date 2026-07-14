@@ -1037,7 +1037,6 @@ function syncDetailDrafts() {
           <button type="button" @click="openPrimarySection">首页</button>
         </nav>
         <LegacyMenuNav
-          :disabled="Boolean(pendingAction)"
           :expanded-auth-code="subMenuParentAuthCode"
           horizontal
           :items="topMenuItems"
@@ -1046,7 +1045,7 @@ function syncDetailDrafts() {
           @select="openShellMenu"
         />
         <nav class="nav-list nav-list-horizontal" aria-label="Safe logout">
-          <button type="button" :disabled="Boolean(pendingAction)" @click="logout">安全退出</button>
+          <button type="button" @click="logout">安全退出</button>
         </nav>
       </div>
 
@@ -1075,7 +1074,6 @@ function syncDetailDrafts() {
           <button type="button" @click="openMobilePrimarySection">首页</button>
         </nav>
         <LegacyMenuNav
-          :disabled="Boolean(pendingAction)"
           :expanded-auth-code="subMenuParentAuthCode"
           :items="topMenuItems"
           label="Mobile FoolFrame menu"
@@ -1083,7 +1081,7 @@ function syncDetailDrafts() {
           @select="openMobileShellMenu"
         />
         <nav class="nav-list" aria-label="Mobile safe logout">
-          <button type="button" :disabled="Boolean(pendingAction)" @click="logout">安全退出</button>
+          <button type="button" @click="logout">安全退出</button>
         </nav>
       </Drawer>
 

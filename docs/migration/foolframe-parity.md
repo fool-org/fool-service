@@ -3631,3 +3631,11 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   contract now locks both pieces together without adding a key listener,
   component state, request path, or DTO binding. Deployed browser acceptance
   remains to prove Enter reaches `loginv2` with the restored bundle.
+- 2026-07-14: restored `tbar.jade`'s always-available shell navigation. The old
+  Home, metadata menu, submenu, and `安全退出` controls have no request-pending
+  disabled state; their Angular handlers remain callable while another HTTP
+  request is in flight. Vue no longer passes global `pendingAction` into the
+  shared desktop/mobile menu or disables either logout command. View, detail,
+  save, and report controls retain their existing request boundaries. Removing
+  the unused menu prop shrinks the shared component without adding state or a
+  second navigation path.
