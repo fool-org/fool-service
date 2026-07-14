@@ -4250,3 +4250,20 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   and logout returned HTTP 200. Compose was healthy, `db-migrate` was
   `Exited (0)`, order 1001 plus the 8-order/4-item counts were unchanged, and
   all 67 runtime-doctor checks passed.
+- 2026-07-15: exposed the old Sudoku Item data-route alias. FoolFrame's
+  `src/Web/public/javascripts/app/subitem.js` posts `/itemview` with `id`,
+  `objid`, and the original `idxep` spelling after the route View has rendered.
+  The migrated API already accepted those fields through
+  `querydatadetail`, so `/api/v1/data/itemview` now maps to the same controller
+  method without adding a DTO, service branch, or duplicate query path.
+  Annotation coverage passed (5/5) in the focused Java 17 Maven run, with all
+  nine required modules successful; the runtime-doctor compile check,
+  repository harness, and diff check also passed. Local Maven could not compile
+  Java 17 because the host Maven uses an older JDK (`invalid target release:
+  17`), so the focused test ran in `maven:3.9-eclipse-temurin-17`. Exact
+  implementation commit `25136a0a` produced deployed backend image
+  `sha256:06c8105a09f472a27d221c5d17991870d074b5a9c30231bc3c5dc0a00139773d`.
+  All 68 runtime-doctor checks passed, including an authenticated request built
+  from loaded View and row identifiers against the legacy alias. Compose was
+  healthy, `db-migrate` was `Exited (0)`, and order 1001 plus the
+  8-order/4-item counts were unchanged.

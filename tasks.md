@@ -1588,6 +1588,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `view.jade`'s inert report-save command: keep its report-name
       field and visible enabled footer button, remove the Vue-only `saverpt`
       dispatch and status feedback, and browser-verify a click emits no request.
+- [x] Expose the old Sudoku Item `POST /itemview` data route as
+      `/api/v1/data/itemview`, reusing `querydatadetail` and accepting the real
+      `id` / `objid` / `idxep` request; guard it in runtime doctor.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from
