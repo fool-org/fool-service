@@ -6,9 +6,11 @@ import org.fool.framework.view.dto.LegacyQueryDataDetailRequest;
 import org.fool.framework.view.dto.QueryDataDetailResult;
 import org.fool.framework.view.service.DataQueryService;
 import org.junit.Test;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.lang.reflect.Field;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
@@ -16,6 +18,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DataControllerLegacyQueryDataDetailTest {
+    @Test
+    public void queryDataDetailExposesLegacyItemviewRoute() throws Exception {
+        PostMapping mapping = DataController.class
+                .getMethod("queryDataDetail", LegacyQueryDataDetailRequest.class)
+                .getAnnotation(PostMapping.class);
+
+        assertArrayEquals(new String[]{"/querydatadetail", "/itemview"}, mapping.value());
+    }
+
     @Test
     public void queryDataDetailMapsLegacyViewIdAndObjectId() throws Exception {
         DataQueryService dataQueryService = mock(DataQueryService.class);

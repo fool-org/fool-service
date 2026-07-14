@@ -67,7 +67,7 @@ public class DataController {
                 request.getKeyword()));
     }
 
-    @PostMapping("/querydatadetail")
+    @PostMapping({"/querydatadetail", "/itemview"})
     @ResponseBody
     public CommonResponse<QueryDataDetailResult> queryDataDetail(@RequestBody LegacyQueryDataDetailRequest request) {
         String viewId = request.getViewId() == null ? null : request.getViewId().toString();

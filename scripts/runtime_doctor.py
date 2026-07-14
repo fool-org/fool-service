@@ -1134,6 +1134,17 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             timeout,
         ))
 
+    def query_detail_legacy_itemview_route_from_loaded_view() -> bool:
+        view_id = view_state.get("detailViewId")
+        object_id = view_state.get("objectId")
+        if not view_id or not object_id:
+            return False
+        return detail_response_ok(post_json(
+            f"{frontend_url}/api/v1/data/itemview",
+            {"id": view_id, "objid": object_id, "idxep": ""},
+            timeout,
+        ))
+
     def init_new_from_loaded_detail_view() -> bool:
         view_id = view_state.get("detailViewId")
         if not view_id:
@@ -1975,6 +1986,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "data:querydatadetail-legacy-web-payload",
             query_detail_legacy_web_payload_from_loaded_view,
             "POST /api/v1/data/querydatadetail accepts legacy Web itemview id/objid/idexp aliases",
+        ),
+        (
+            "data:itemview-legacy-web-route",
+            query_detail_legacy_itemview_route_from_loaded_view,
+            "POST /api/v1/data/itemview accepts the subitem.js id/objid/idxep request",
         ),
         (
             "view:getreaditemview-detailviews",
