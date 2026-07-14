@@ -3954,4 +3954,14 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   15-second timer, silent transport handling, timer cleanup, first-message
   display, protocol adapters, routes, and DTOs are unchanged. All 193 frontend
   tests, TypeScript/Vite production build, and repository harness pass.
-  Docker/browser evidence remains required.
+  The deployed Docker frontend image is
+  `sha256:a6be14106ff3180e0a96e594a1c55105c2c87df23a7b8cc6e85f18a978afbddc`.
+  After an authorized `admin/admin` login, the backend was paused at 03:00:05.
+  Frontend Nginx held 2 established backend connections at 03:00:26 and 5 at
+  03:00:52. After resume at 03:01:03, its access log settled four accumulated
+  `getmsg` requests together as HTTP 200, directly proving overlapping polls;
+  the fifth paused connection was an unrelated `initapp`. The page retained
+  Admin, showed no error dialog, and a recovery Find returned all 8 rows before
+  safe logout. Compose was healthy, `db-migrate` was `Exited (0)`, View refresh
+  intervals and row counts were unchanged, and all 67 runtime-doctor checks
+  passed.

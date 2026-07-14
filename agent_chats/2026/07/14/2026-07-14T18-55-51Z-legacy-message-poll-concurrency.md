@@ -30,13 +30,27 @@ keeping files controlled, logic reusable, and rendering View-first.
 - `cd frontend && npm run build`
 - `python scripts/check_repo_harness.py`
 - `git diff --check`
-- Pending Compose deployment and authorized paused-backend browser acceptance.
+- `docker compose build frontend`
+- `docker compose up -d --no-deps --force-recreate frontend`
+- Authorized local CAPTCHA and `admin/admin` browser acceptance:
+  backend paused at 03:00:05, with 2 established Nginx-to-backend connections
+  at 03:00:26 and 5 at 03:00:52. Resume at 03:01:03 settled four accumulated
+  `POST /api/v1/message/getmsg` requests together as HTTP 200; the fifth paused
+  connection was an unrelated `initapp` request.
+- The recovered `/main` page retained Admin, showed no error dialog, and Find
+  returned all 8 View rows through an HTTP 200 `querydata`; safe logout then
+  returned to the login form.
+- `docker compose ps -a` confirmed backend/frontend/MySQL/Redis running and
+  `db-migrate` at `Exited (0)`.
+- Frontend container/image matched
+  `sha256:a6be14106ff3180e0a96e594a1c55105c2c87df23a7b8cc6e85f18a978afbddc`.
+- Database proof remained `SW_SYS_VIEW(100)=default 102 / interval 0`,
+  `fool_sys_view(100)=interval 0`, `market_order=8`, and
+  `market_order_item=4`.
+- `python scripts/runtime_doctor.py` (all 67 checks passed)
 
 ## Risks And Follow-ups
 
-- Browser acceptance should authenticate with the authorized local CAPTCHA,
-  pause the backend for more than two polling periods, prove multiple pending
-  `getmsg` requests, resume it, and confirm the shell remains usable.
 - Overlapping message requests can complete out of order, which matches the old
   timer and `$http` behavior rather than adding a new ordering guarantee.
 - `docs/superpowers/` is unrelated untracked work and remains untouched.
