@@ -1481,7 +1481,7 @@ item must land with its matching implementation and validation evidence.
       setup fields and commands active during unrelated requests, and keep
       result paging, Return, and mask dismissal visible during page requests;
       retain initial-generation hiding and the no-close-button result header.
-- [ ] Restore `GroupViewController` Sudoku refresh availability: keep root and
+- [x] Restore `GroupViewController` Sudoku refresh availability: keep root and
       grouped-list Refresh commands plus panel auto-refresh active during other
       requests, while retaining map passive-refresh and existing panel timers;
       browser-verify the two visible Refresh commands on `/view103`.

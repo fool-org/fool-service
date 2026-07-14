@@ -35,12 +35,28 @@ commits without coupling Vue components to concrete business DTOs.
 - `python scripts/check_repo_harness.py` passed.
 - The focused `SudokuPanels.test.ts` contract is 16 lines; App, ViewListPanel,
   SudokuPanels, and `useSudokuPanels.ts` all shrank.
-- Pending Docker rebuild, runtime doctor, and authorized browser acceptance.
+- `docker compose build frontend` and frontend replacement passed.
+- Deployed frontend image:
+  `sha256:2c62bfe876064e73d48b30d422f2cb6d0bc7e0086fdf4d6830bddb3ea0cf5733`.
+- `docker compose ps -a` showed backend/frontend/MySQL/Redis running and
+  `db-migrate` at `Exited (0)`.
+- `python scripts/runtime_doctor.py` passed all 67 checks; backend `/test`
+  passed through the doctor.
+- Authorized browser acceptance logged in with `admin/admin`, opened
+  `/view103`, and confirmed two active Refresh buttons for Orders List and
+  Order Group.
+- With the backend paused, Orders List Refresh started a real panel request.
+  Both buttons retained `disabled=false`, and Order Group Refresh was clicked
+  successfully while the first request remained pending.
+- After backend resume, both buttons remained enabled, Orders List rendered a
+  fresh timestamp, and no error dialog appeared. No database data or metadata
+  was changed.
 
 ## Risks And Follow-ups
 
-- Browser-verify both visible Refresh commands during a real paused-backend
-  panel request and restore Compose afterward.
+- This parity slice is closed; the broader old-page migration remains active.
 - Auto-refresh remains source-contract coverage because seeded Sudoku panels
   have zero refresh interval.
+- No screenshot artifact was retained because enabled state and request
+  concurrency were verified from the live DOM and restored runtime directly.
 - `docs/superpowers/` is unrelated untracked work and remains untouched.

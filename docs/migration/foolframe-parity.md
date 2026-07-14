@@ -3766,5 +3766,11 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   and panel timers no longer skip refresh solely because another request is in
   flight. Map passive refresh, panel-specific timers, requests, View metadata,
   and rendered panel data remain unchanged. The change deletes state plumbing
-  without adding a path, DTO binding, or component. Docker browser acceptance
-  remains required before the task is closed.
+  without adding a path, DTO binding, or component. Authorized Docker browser
+  acceptance opened `/view103`, paused the backend, and clicked the Orders List
+  Refresh. Both that root command and Order Group's child-list Refresh retained
+  `disabled=false`; the second command also fired while the first request was
+  pending. After resume both remained active, the list timestamp updated, no
+  error dialog appeared, Compose was healthy, and all 67 runtime-doctor checks
+  passed. Seeded panel refresh intervals are zero, so timer concurrency remains
+  focused source-contract coverage.
