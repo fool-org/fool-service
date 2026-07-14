@@ -4371,6 +4371,27 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   candidate to `第一列`. Logout returned HTTP 200 with no browser errors. All
   68 runtime-doctor checks passed, Compose was healthy, `db-migrate` was
   `Exited (0)`, and order 1001 plus the 8-order/4-item counts were unchanged.
+- 2026-07-15: restored `index.jade` Reset's modal-close sequencing. The old
+  `showerror()` opens the shared blank `发生错误` modal and registers CAPTCHA
+  refresh on `hidden.bs.modal`; it does not refresh when Reset is clicked.
+  Vue now keeps that presentation state inside `LoginPanel`, opens the same
+  dialog from Reset, and emits the existing refresh event only when Close is
+  pressed. Business login errors still use the parent-owned dismiss path, and
+  username, password, hidden database, CAPTCHA request, and DTO ownership are
+  unchanged. `LoginPanel.vue` remains 199 lines. Focused tests passed (85/85),
+  as did all 212 frontend tests, the TypeScript/Vite production build,
+  repository harness, and diff check. Exact implementation commit `5d04def0`
+  produced image
+  `sha256:f089382d2eef340138511a803e0b7ed7253570432c964bc54be7f24bb56e786b`
+  with entry bundle `index-DR8HOYTi.js`. Browser acceptance on the exact image
+  filled `admin/admin` and a stale CAPTCHA, clicked Reset, and observed zero
+  check-code requests for 500 ms while all fields and the image remained
+  unchanged. Close then issued exactly one HTTP-200 check-code request, cleared
+  only the CAPTCHA input, and replaced the image. Reading that local code
+  completed login to `/main`; login/logout returned HTTP 200, and browser
+  console/page errors were empty. All 68 runtime-doctor checks passed, Compose
+  was healthy, `db-migrate` was `Exited (0)`, and order 1001 plus the
+  8-order/4-item counts were unchanged.
 - 2026-07-15: completed the previously source-only report paging-failure state.
   `ShowReportController.next/pre` changes `$rootScope.pageindex` before calling
   the success-only request, and `mkreport` updates only cells and total pages on

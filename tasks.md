@@ -1669,6 +1669,10 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `ShowReportController` paging-failure page state: advance the
       visible requested page before transport settles, retain prior result
       cells on failure, and keep next/previous boundaries on that page index.
+- [x] Restore `index.jade` Reset's modal-close sequencing: open the blank shared
+      error dialog without refreshing, preserve all login fields, and request a
+      new CAPTCHA only after Close while keeping business-error dismissal
+      separate.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from
