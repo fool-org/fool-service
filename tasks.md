@@ -1677,6 +1677,9 @@ item must land with its matching implementation and validation evidence.
       Sudoku, item metadata, detail, new, and report routes; prove View-first
       request order, desktop/mobile containment, clean browser logs, and no
       database drift.
+- [x] Browser-verify `detailView.jade`'s restored inert candidate `确定`
+      command at desktop and 390px: keep the dialog, route, and child rows
+      unchanged and emit no candidate/save request when clicked.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from

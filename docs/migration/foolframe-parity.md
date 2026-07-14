@@ -4451,3 +4451,23 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   and 68 runtime-doctor checks passed. Compose was healthy, `db-migrate` was
   `Exited (0)`, and the database retained 8 orders, 4 order items, and order
   1001 as `BTC-USDT` / state `0` / customer `3001`.
+- 2026-07-15: restored `detailView.jade`'s visible inert candidate `确定`
+  command. The old select-existing footer renders `取消` followed by `确定`,
+  but only row-level `选择` owns confirmation and the footer command has no
+  handler. Vue now renders the missing enabled text command beside the existing
+  Cancel action without adding selection state, a request, a DTO branch, or a
+  second close path. Exact implementation commit `7da1b4b9` kept the component
+  at 448 lines. All 213 frontend tests, the TypeScript/Vite production build,
+  repository harness, and 68 runtime-doctor checks passed. Authorized
+  `admin/admin` browser acceptance opened the real Items candidate dialog on
+  `/view100/1001`; clicking `确定` retained one dialog, the same URL, and all
+  three rendered child rows. The Nginx log delta contained only the scheduled
+  `getmsg` poll, with no candidate, save, or add request. At 1280px both footer
+  commands shared one row; at 390x844 the dialog stayed between x=16 and x=374,
+  and document width equaled the 390px viewport. Browser warnings/errors were
+  empty, logout returned HTTP 200, and Compose retained `db-migrate` at
+  `Exited (0)`. The standard Compose build was downgraded because the local
+  Docker builder's registry proxy returned `only one connection allowed`
+  while resolving its two already-cached bases; the host-validated `dist` was
+  injected into the existing Nginx image for runtime acceptance, producing
+  `sha256:671bda982089ffad5c49c81be527d63131a50880dff8ce2c161dead51a93123b`.
