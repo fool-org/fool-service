@@ -3914,5 +3914,12 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   closing the still-hidden report component only for transport failures.
   Response-backed business errors, report success behavior, View-derived
   columns, routes, payloads, and DTOs are unchanged. All 192 frontend tests,
-  TypeScript/Vite build, and repository harness pass. Docker/browser evidence
-  remains required.
+  TypeScript/Vite build, and repository harness pass. The deployed Docker
+  frontend image is
+  `sha256:3dffceff8cd5975770354e62affd317b0107531d9fa23bd73e1cd7f2b4d4f5f8`.
+  An authorized browser replay kept all four `/view101` rows visible while the
+  backend was stopped; clicking `统计` produced no report or error dialog, and
+  Nginx recorded `getmkqview` as `502`. After backend restart, the same command
+  returned HTTP 200 and opened `生成报表` with the View-derived Item ID and Item
+  Name candidates. Compose was healthy, `db-migrate` was `Exited (0)`, metadata
+  and row counts were unchanged, and all 67 runtime-doctor checks passed.

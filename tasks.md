@@ -1517,7 +1517,7 @@ item must land with its matching implementation and validation evidence.
       main View's inline Message with the shared `发生错误` / `关闭` dialog, reuse
       it for detail errors, retain silent transport handling, and browser-verify
       an HTTP-200 nonzero-code View failure plus dismissal.
-- [ ] Restore `mkreport.initquery`'s success-only transport behavior: keep the
+- [x] Restore `mkreport.initquery`'s success-only transport behavior: keep the
       report setup closed without shared or local error feedback when its
       View-derived column request has a network/non-2xx failure, then
       browser-verify failure and recovery without changing report DTOs.
