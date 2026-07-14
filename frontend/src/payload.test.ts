@@ -4,6 +4,7 @@ import nginxConfig from "../nginx.conf?raw";
 import viteConfig from "../vite.config.ts?raw";
 import appSource from "./App.vue?raw";
 import legacyChartPanelSource from "./LegacyChartPanel.vue?raw";
+import legacyErrorDialogSource from "./LegacyErrorDialog.vue?raw";
 import legacyItemPanelSource from "./LegacyItemPanel.vue?raw";
 import legacyMapPanelSource from "./LegacyMapPanel.vue?raw";
 import legacyMenuNavSource from "./LegacyMenuNav.vue?raw";
@@ -170,10 +171,6 @@ describe("App defaults", () => {
       viewDetailPanelSource.indexOf('v-if="infoMessage"'),
       viewDetailPanelSource.indexOf('v-if="errorMessage"')
     );
-    const errorDialogSource = viewDetailPanelSource.slice(
-      viewDetailPanelSource.indexOf('v-if="errorMessage"'),
-      viewDetailPanelSource.indexOf('v-if="operationResult"')
-    );
 
     expect(appSource).toContain("dataOperations(detailResponse.value?.data)");
     expect(appSource).toContain("detailViewOperations");
@@ -188,7 +185,7 @@ describe("App defaults", () => {
     expect(toolbarSource.match(/severity="secondary"\s+outlined/g)).toHaveLength(3);
     expect(viewDetailPanelSource).toContain('v-for="operation in detailViewOperations"');
     expect(viewDetailPanelSource).toContain("emit('runViewOperation', operation, isEditing)");
-    expect(viewDetailPanelSource).toContain('header="发生错误"');
+    expect(legacyErrorDialogSource).toContain('header="发生错误"');
     expect(viewDetailPanelSource).toContain("emit('dismissError')");
     expect(toolbarSource).not.toContain(':disabled="pending"');
     expect(viewDetailPanelSource).not.toContain("operationParams(operation)");
@@ -204,7 +201,7 @@ describe("App defaults", () => {
     expect(operationDialogSource).toContain('label="确定"');
     expect(operationDialogSource).not.toContain('label="关闭"');
     expect(infoDialogSource).toContain(':closable="false"');
-    expect(errorDialogSource).toContain(':closable="false"');
+    expect(legacyErrorDialogSource).toContain(':closable="false"');
     expect(operationDialogSource).toContain(':closable="false"');
     expect(toolbarSource.match(/icon="pi pi-check"/g)).toHaveLength(2);
     expect(toolbarSource).not.toContain('icon="pi pi-save"');

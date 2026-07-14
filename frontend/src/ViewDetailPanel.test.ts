@@ -26,4 +26,10 @@ describe("ViewDetailPanel legacy interactions", () => {
     expect(collectionSource).toContain('label="删除" icon="pi pi-trash"');
     expect(collectionSource).not.toContain(':disabled="pending"');
   });
+
+  it("reuses the shared legacy error dialog", () => {
+    expect(viewDetailPanelSource).toContain('<LegacyErrorDialog :message="errorMessage"');
+    expect(viewDetailPanelSource).toContain('@dismiss="emit(\'dismissError\')"');
+    expect(viewDetailPanelSource).not.toContain('header="发生错误"');
+  });
 });

@@ -1116,6 +1116,7 @@ function syncDetailDrafts() {
           :page-index="pageIndex"
           :panel-data="sudokuPanelData"
           :view="viewResponse?.data"
+          @dismiss-error="errorMessage = ''"
           @new-object="openNewObject"
           @page="loadResultPage"
           @refresh-panel="refreshSudokuPanel"

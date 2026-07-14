@@ -10,6 +10,7 @@ import TabPanels from "primevue/tabpanels";
 import Tabs from "primevue/tabs";
 import type { ListDataItem, ListDataValue, OperationInfo, QueryDataDetailDataItem, QueryDataDetailItemGroup, TableColumnInfo } from "./api";
 import { fieldInputType } from "./fieldInput";
+import LegacyErrorDialog from "./LegacyErrorDialog.vue";
 import LegacyPagination from "./LegacyPagination.vue";
 import ListDataTable from "./ListDataTable.vue";
 import MetadataFieldEditor from "./MetadataFieldEditor.vue";
@@ -299,20 +300,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
       </template>
     </Dialog>
 
-    <Dialog
-      v-if="errorMessage"
-      :visible="true"
-      modal
-      header="发生错误"
-      :closable="false"
-      :draggable="false"
-      @update:visible="(visible) => { if (!visible) emit('dismissError') }"
-    >
-      <p>{{ errorMessage }}</p>
-      <template #footer>
-        <Button type="button" label="关闭" severity="secondary" outlined @click="emit('dismissError')" />
-      </template>
-    </Dialog>
+    <LegacyErrorDialog :message="errorMessage" @dismiss="emit('dismissError')" />
 
     <Dialog
       v-if="operationResult"

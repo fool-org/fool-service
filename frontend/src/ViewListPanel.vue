@@ -8,6 +8,7 @@ import TabList from "primevue/tablist";
 import Tabs from "primevue/tabs";
 import type { ListDataItem, ListViewInfo, ListViewResult, QueryDataDetailResult, TableColumnInfo } from "./api";
 import LegacyChartPanel from "./LegacyChartPanel.vue";
+import LegacyErrorDialog from "./LegacyErrorDialog.vue";
 import LegacyPagination from "./LegacyPagination.vue";
 import ListDataTable from "./ListDataTable.vue";
 import SudokuPanels from "./SudokuPanels.vue";
@@ -41,6 +42,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
+  dismissError: [];
   newObject: [viewId: number];
   page: [pageIndex: number];
   refreshPanel: [panel: TableColumnInfo];
@@ -111,7 +113,7 @@ watch(tableVisible, (visible) => emit("tableVisibility", visible), { immediate: 
       </template>
     </div>
 
-    <Message v-if="errorMessage" severity="error" :closable="false">{{ errorMessage }}</Message>
+    <LegacyErrorDialog :message="errorMessage" @dismiss="emit('dismissError')" />
     <Message v-if="!supportedTemplate" severity="warn" :closable="false">
       旧版模板 {{ templateName }} 尚未迁移。
     </Message>

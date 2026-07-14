@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import legacyErrorDialogSource from "./LegacyErrorDialog.vue?raw";
 import legacyPaginationSource from "./LegacyPagination.vue?raw";
 import listDataTableSource from "./ListDataTable.vue?raw";
 import viewListPanelSource from "./ViewListPanel.vue?raw";
@@ -21,5 +22,12 @@ describe("ViewListPanel legacy interactions", () => {
     expect(legacyPaginationSource).not.toContain("disabled");
     expect(viewListPanelSource).not.toContain("disabled: boolean");
     expect(viewListPanelSource).not.toMatch(/<SudokuPanels[^>]*:disabled=/);
+  });
+
+  it("opens shared View errors in the legacy dialog", () => {
+    expect(viewListPanelSource).toContain('<LegacyErrorDialog :message="errorMessage"');
+    expect(viewListPanelSource).not.toContain('<Message v-if="errorMessage"');
+    expect(legacyErrorDialogSource).toContain('header="发生错误"');
+    expect(legacyErrorDialogSource).toContain('label="关闭" severity="secondary" outlined');
   });
 });

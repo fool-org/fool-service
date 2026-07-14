@@ -3890,3 +3890,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   Refresh succeeded in the same session and advanced the List update time from
   `18:21:12` to `18:22:16`. Compose was healthy, metadata and row counts were
   unchanged, and all 67 runtime-doctor checks passed.
+- 2026-07-15: aligned the main View's response-backed error outlet with
+  `querylistdata.js` and `showerror.js`. Legacy business errors open the shared
+  `发生错误` modal with one `关闭` command; they are not rendered as an inline
+  table Message. Vue now uses one small `LegacyErrorDialog` in both main View
+  and detail surfaces, removing the duplicated detail modal markup. The main
+  panel emits dismissal to the existing shared error state, while the separate
+  login error dialog retains its error-code and CAPTCHA lifecycle. Transport
+  suppression, response classification, View/Data projection, routes, and DTO
+  bindings are unchanged. All 191 frontend tests, TypeScript/Vite build, and
+  repository harness pass. Docker/browser evidence remains required.
