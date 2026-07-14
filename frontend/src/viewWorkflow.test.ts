@@ -119,7 +119,6 @@ import {
   reportModelStateText,
   reportModelStateValue,
   reportGridCells,
-  reportGridPage,
   reportGridTotalPages,
   reportGridTotalRecords,
   reportRowsFromCells,
@@ -1173,7 +1172,6 @@ describe("view workflow helpers", () => {
       ["Symbol"],
       ["BTC-USDT"]
     ]);
-    expect(reportGridPage({ CurrentPage: 2 }, 1)).toBe(2);
     expect(reportGridTotalPages({ TotalPages: 3 })).toBe(3);
     expect(reportGridTotalRecords({ TotalRecords: 21 })).toBe(21);
   });

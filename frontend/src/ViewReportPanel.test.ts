@@ -29,6 +29,8 @@ describe("ViewReportPanel legacy interactions", () => {
   it("keeps initial and paging report transport failures on their legacy surfaces", () => {
     expect(viewReportPanelSource).toContain('runSuccessOnlyAction("mkrpt"');
     expect(viewReportPanelSource).toMatch(/if \(transportFailed\) \{\s+if \(revealResults\) emit\("close"\);\s+return;/);
+    expect(viewReportPanelSource).toContain("const resultPage = computed(() => currentPage.value);");
+    expect(viewReportPanelSource).not.toContain("reportGridPage");
   });
 
   it("keeps the old inert report-save command visible", () => {

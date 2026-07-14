@@ -36,7 +36,6 @@ import {
 import type { WorkflowActionRunner } from "./useViewDataWorkflow";
 import {
   reportGridCells,
-  reportGridPage,
   reportGridTotalPages,
   reportModelColumnId,
   reportModelColumnName,
@@ -84,7 +83,7 @@ const joinOptions = [
 const modelColumns = computed(() => reportModelColumns(modelResponse.value?.data));
 const conditionEditorFields = computed(() => new Map(modelColumns.value.map((column) => [columnKey(column), reportConditionEditorField(column)])));
 const reportRows = computed(() => reportRowsFromCells(reportGridCells(reportResponse.value?.data)));
-const resultPage = computed(() => reportGridPage(reportResponse.value?.data, currentPage.value));
+const resultPage = computed(() => currentPage.value);
 const resultPages = computed(() => reportGridTotalPages(reportResponse.value?.data));
 const filterExp = computed<ReportFilterExp | undefined>(() => buildReportConditionFilter(conditions.value, simpleFilter));
 

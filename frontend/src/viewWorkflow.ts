@@ -942,10 +942,6 @@ export function reportGridCells(result: ReportGridResult | undefined) {
   return firstList(result?.cells, result?.Cells);
 }
 
-export function reportGridPage(result: ReportGridResult | undefined, fallback = 1) {
-  return Number(result?.currentPage ?? result?.CurrentPage ?? fallback) || fallback;
-}
-
 export function reportGridTotalPages(result: ReportGridResult | undefined) {
   return Number(result?.totalPages ?? result?.TotalPages ?? 0) || 0;
 }
