@@ -3843,5 +3843,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   classifies transport failures separately from business errors, and the main
   View query alone asks `runAction` to suppress that transport presentation.
   Other actions retain existing error behavior, and no View/Data projection,
-  payload, route, DTO, or component changed. Docker/browser evidence remains
-  required before closure.
+  payload, route, DTO, or component changed. Frontend tests/build, Compose
+  replacement, repository harness, and all 67 runtime-doctor checks pass; the
+  deployed image is
+  `sha256:17e563ff5095bb9226a916f3c3b61c0664a6dd7f9072498a147cb2369764dc4e`.
+  Authorized browser acceptance loaded the eight seeded rows, stopped the
+  backend, and clicked Find. Nginx recorded the expected `querydata` `502`,
+  while the existing rows/paginator remained, the command became available,
+  and no HTTP, network, or shared error appeared. After backend restart, Find
+  succeeded in the same session. View 100 remained file `990001` with refresh
+  interval zero, and order/item counts remained 8/4.

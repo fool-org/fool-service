@@ -1501,7 +1501,7 @@ item must land with its matching implementation and validation evidence.
       an unchanged `AutoFreshTime`, preserve its old first-tick counter, and do
       not restart it after manual Find, paging, or same-interval responses;
       browser-verify initial and repeated one-second timestamps.
-- [ ] Restore `querylistdata.js`'s silent HTTP-error path: keep existing rows,
+- [x] Restore `querylistdata.js`'s silent HTTP-error path: keep existing rows,
       pagination, and timer state without showing Vue's shared error message
       when a main View query has a network/non-2xx failure, while retaining
       response-backed business errors; browser-verify with the backend stopped.
