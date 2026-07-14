@@ -3418,3 +3418,16 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   document width exactly 390px. Clicking both placeholders left the dialog and
   URL unchanged. The deployed frontend image was
   `sha256:b6016cd9be7c542565a42413dfe13716f388f3245a1f363d7f50e572a54d6dec`.
+- 2026-07-14: restored `showerror.js` no-target system-message interaction.
+  Old `default.jade` always renders `查看详细` as an active anchor and
+  `showevtmsg` assigns `href='#'` when `ResultView` is empty or zero; clicking
+  that placeholder does not close the modal. Vue no longer disables the
+  command. Its existing handler now returns before either emit when the shared
+  View-first adapter resolves no target, while positive targets retain the
+  existing close-and-navigate path. A seeded Docker message with null View and
+  object ids was marked pushed by the real 15-second polling route. Desktop
+  and 390x844 rendered one enabled command; clicking it left one dialog and
+  `http://localhost:8081/` unchanged. The 390px dialog stayed within the
+  viewport with no document overflow or browser errors. The deployed frontend
+  image was
+  `sha256:4765222fedd4d9f671e93aa4ba4004ed4f906ba1038254c34539a3d983050f04`.

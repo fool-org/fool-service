@@ -1154,6 +1154,8 @@ describe("App defaults", () => {
     expect(shellActionsSource).toContain('v-if="activeMessage"');
     expect(shellActionsSource).toContain('header="系统消息"');
     expect(shellActionsSource).toContain('label="查看详细"');
+    expect(shellActionsSource).not.toContain(":disabled=");
+    expect(shellActionsSource).toContain("if (!legacyMessageResultView(message)) return;");
     expect(shellActionsSource).toContain('label="确定"');
     expect(shellActionsSource).toContain('label="确定" severity="secondary" outlined');
     expect(shellActionsSource).toContain(':closable="false"');

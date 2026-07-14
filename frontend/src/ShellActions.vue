@@ -18,11 +18,8 @@ const emit = defineEmits<{
   openMessage: [message: MessageInfo];
 }>();
 
-function canOpenMessage(message: MessageInfo) {
-  return legacyMessageResultView(message) > 0;
-}
-
 function openMessage(message: MessageInfo) {
+  if (!legacyMessageResultView(message)) return;
   emit("dismissMessage");
   emit("openMessage", message);
 }
@@ -53,7 +50,6 @@ function openMessage(message: MessageInfo) {
           label="查看详细"
           severity="secondary"
           outlined
-          :disabled="!canOpenMessage(activeMessage)"
           @click="openMessage(activeMessage)"
         />
         <Button type="button" label="确定" severity="secondary" outlined @click="emit('dismissMessage')" />

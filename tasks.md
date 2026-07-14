@@ -1400,6 +1400,9 @@ item must land with its matching implementation and validation evidence.
       eventless `导出当前页` / `导出全部` controls after paging without adding a
       request, download path, DTO state, or handler absent from `mkreport.js`,
       and wrap the intact group below the page summary on narrow screens.
+- [x] Restore `showerror.js` no-target message-detail availability: keep
+      `查看详细` enabled like the old `href='#'` anchor, but leave the current
+      dialog and URL unchanged when the message has no target View.
 
 ## Backlog
 - No open repo-local task-state items. Continue from
