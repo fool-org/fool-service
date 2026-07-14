@@ -651,7 +651,7 @@ describe("App defaults", () => {
   it("renders select-existing child controls through the shared group helper", () => {
     const pickerSource = viewDetailPanelSource.slice(
       viewDetailPanelSource.indexOf('class="detail-picker-content"'),
-      viewDetailPanelSource.indexOf('class="detail-items-table"')
+      viewDetailPanelSource.indexOf('class="table-wrap detail-items-table"')
     );
 
     expect(viewDetailPanelSource).toContain("groupSelectFromExists(group)");

@@ -1461,6 +1461,10 @@ item must land with its matching implementation and validation evidence.
       leave Find, Report, and metadata create commands active during unrelated
       View requests while retaining pending protection in row actions, paging,
       Sudoku, detail, and report internals; browser-verify the in-flight state.
+- [ ] Restore `detailView.jade`'s always-active existing-item picker: keep its
+      Find, Select, pagination, close, mask-dismiss, and Cancel interactions
+      available while a candidate query is pending; browser-verify against a
+      paused-backend `querydata` request without changing View/Data DTOs.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from

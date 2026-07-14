@@ -350,9 +350,8 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
               modal
               class="detail-picker-dialog"
               :header="`选择 ${groupTitle(group)}`"
-              :closable="!pending"
               :draggable="false"
-              :dismissable-mask="!pending"
+              dismissable-mask
               @update:visible="(visible) => { if (!visible) pickerGroupKey = '' }"
             >
               <template #closeicon><span class="legacy-dialog-close-icon" aria-hidden="true">&times;</span></template>
@@ -367,14 +366,14 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                     @input="emit('updateCandidateKeyword', group, $event)"
                     @keyup.enter="emit('queryExistingDetailItems', group)"
                   />
-                  <Button type="button" label="查找" severity="secondary" outlined :disabled="pending" @click="emit('queryExistingDetailItems', group)" />
+                  <Button type="button" label="查找" severity="secondary" outlined @click="emit('queryExistingDetailItems', group)" />
                 </div>
                 <div class="table-wrap detail-picker-results">
                   <ListDataTable
                     :columns="candidateColumns(group)"
                     :condensed="false"
                     default-action-label="选择"
-                    :disabled="pending"
+                    :disabled="false"
                     :minimum-rows="candidateState(group).queried ? candidateState(group).pageSize : 0"
                     :row-operations="[]"
                     :rows="candidateRows(group)"
@@ -386,7 +385,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                 </div>
                 <LegacyPagination
                   class="candidate-results-footer"
-                  :disabled="pending"
+                  :disabled="false"
                   :page-index="candidateState(group).pageIndex"
                   :page-size="candidateState(group).pageSize"
                   :record-label="candidateRecordInfo(candidateState(group))"
@@ -396,7 +395,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
                 />
               </div>
               <template #footer>
-                <Button type="button" label="取消" severity="secondary" outlined :disabled="pending" @click="pickerGroupKey = ''" />
+                <Button type="button" label="取消" severity="secondary" outlined @click="pickerGroupKey = ''" />
               </template>
             </Dialog>
             <div class="table-wrap detail-items-table">

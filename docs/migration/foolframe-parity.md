@@ -3661,3 +3661,11 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   non-row create operation, so the 179-test frontend suite retains the runtime
   metadata fixture that proves create commands remain active. Backend `/test`,
   Compose state, and all 67 runtime-doctor checks passed afterward.
+- 2026-07-14: restored `detailView.jade`'s existing-item picker command
+  availability. The old modal and its shared `querylistdata.js` controller have
+  no request-pending lock, so Find, row Select, pagination, header close,
+  backdrop dismissal, and Cancel remain actionable while a candidate query is
+  in flight. Vue now removes only those invented picker guards; candidate View
+  loading, detail saves, child mutation, and report controls retain their
+  existing request boundaries. The change deletes conditional UI state, adds
+  no request path or DTO binding, and keeps the shared table/paginator.
