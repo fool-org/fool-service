@@ -3881,4 +3881,12 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   while response-backed business errors and non-Sudoku callers remain
   unchanged. No component, route, DTO binding, dependency, or request-specific
   abstraction was added. All 189 frontend tests, TypeScript/Vite build, and
-  repository harness pass. Docker/browser evidence remains required.
+  repository harness pass. The deployed Docker image is
+  `sha256:c3280b496c00c46f4a65400c09e87b06a04de513b06320d675a8f43a7a6341a1`.
+  Authorized browser acceptance loaded `/view103` with List, Group, chart, map,
+  and item content, then stopped the backend and clicked the first List Refresh.
+  Nginx recorded `getlistview` as `502`; every loaded panel and both Refresh
+  commands remained, with no HTTP, network, or shared error. After restart,
+  Refresh succeeded in the same session and advanced the List update time from
+  `18:21:12` to `18:22:16`. Compose was healthy, metadata and row counts were
+  unchanged, and all 67 runtime-doctor checks passed.
