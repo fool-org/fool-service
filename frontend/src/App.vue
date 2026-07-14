@@ -509,7 +509,11 @@ function clearLegacySession() {
 }
 
 async function logout() {
-  const response = await runAction("logout", () => postApi<void>("/api/v1/auth/logout", buildTokenRequest(token.value)));
+  const response = await runAction(
+    "logout",
+    () => postApi<void>("/api/v1/auth/logout", buildTokenRequest(token.value)),
+    { silentTransport: true }
+  );
   if (response) {
     replaceLegacyPath("/");
     clearLegacySession();

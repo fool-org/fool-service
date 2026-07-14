@@ -1273,6 +1273,7 @@ describe("App defaults", () => {
     expect(appSource).not.toContain("Legacy User Info");
     expect(appSource).toContain("clearLegacySession()");
     expect(appSource).toContain("await prepareLegacyLogin()");
+    expect(logoutSource).toContain("{ silentTransport: true }");
     expect(logoutSource).toContain('replaceLegacyPath("/")');
     expect(clearSessionSource).not.toContain("replaceLegacyPath");
   });

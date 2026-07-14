@@ -1537,6 +1537,10 @@ item must land with its matching implementation and validation evidence.
       metadata parent expanded without a shared error when `getsubmenu` has a
       network/non-2xx failure, then browser-verify empty expansion and
       successful child recovery without changing menu metadata or routes.
+- [ ] Restore `menuinfo.js`'s success-only logout transport path: retain the
+      authenticated View, token, and URL without a shared error when logout has
+      a network/non-2xx failure, then browser-verify successful retry returns to
+      `/` and refreshes the login flow.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from

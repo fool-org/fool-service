@@ -4001,3 +4001,12 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   rows. Safe logout returned to login. Compose was healthy, `db-migrate` was
   `Exited (0)`, View intervals and row counts were unchanged, and all 67
   runtime-doctor checks passed.
+- 2026-07-15: aligned `menuinfo.js`'s success-only logout transport path. The
+  old controller clears the session and reloads the root route only inside its
+  `$http.success` callback; network and non-2xx failures leave the authenticated
+  page unchanged without feedback. Vue now passes the existing
+  `silentTransport` option through logout. Successful route replacement,
+  session cleanup, fresh login metadata/CAPTCHA, shell controls, payloads,
+  routes, and DTOs are unchanged. All 193 frontend tests, TypeScript/Vite
+  production build, and repository harness pass. Docker/browser evidence
+  remains required.
