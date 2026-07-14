@@ -30,12 +30,24 @@ commits without coupling Vue components to concrete business DTOs.
 - `python scripts/check_repo_harness.py` passed.
 - The focused `AutoRefresh.test.ts` contract is 15 lines; App lost one
   request-skipping conditional.
-- Pending Docker rebuild, runtime doctor, and authorized browser/runtime
-  acceptance.
+- Docker image
+  `sha256:5e8bb2a8e6cbb7167f035ad884c171ff5ba577fdeb63d627a396ca81741ef391`
+  was rebuilt and deployed.
+- Compose was healthy with `db-migrate` at `Exited (0)`; all 67
+  `python scripts/runtime_doctor.py` checks passed.
+- Temporarily changed `SW_SYS_VIEW.VIEW_AUTOFRESHINTERVAL` and
+  `fool_sys_view.auto_fresh_interval` for View 100 from zero to one second.
+- On authorized `/view100`, paused the backend, clicked Find, and waited 2.6
+  seconds. Find stayed active, no error dialog appeared, and the frontend
+  Nginx log recorded 36 `querydata` requests after the acceptance marker,
+  proving scheduled calls were not skipped behind the pending manual request.
+- Restored both metadata values to zero. A fresh `/view100` load showed the
+  eight seeded rows, and a subsequent 2.6-second log window contained zero
+  `querydata` requests.
 
 ## Risks And Follow-ups
 
-- Temporarily set View 100's refresh interval to one second, prove multiple
-  `querydata` calls while another is paused, then restore the exact original
-  metadata value.
+- The concurrency behavior intentionally allows overlapping View requests,
+  matching the old timer contract; slow responses can therefore complete out
+  of order as they could in FoolFrame.
 - `docs/superpowers/` is unrelated untracked work and remains untouched.

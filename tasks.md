@@ -1485,7 +1485,7 @@ item must land with its matching implementation and validation evidence.
       grouped-list Refresh commands plus panel auto-refresh active during other
       requests, while retaining map passive-refresh and existing panel timers;
       browser-verify the two visible Refresh commands on `/view103`.
-- [ ] Restore `timer.js` main View auto-refresh concurrency: let scheduled
+- [x] Restore `timer.js` main View auto-refresh concurrency: let scheduled
       `querylistdata` refresh run during other requests while retaining timer
       cleanup, page reset, and the existing metadata-driven interval; verify
       overlapping requests with a temporary one-second View interval.

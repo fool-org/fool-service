@@ -3779,5 +3779,12 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   active HTTP request. Vue now removes its extra global-pending guard while
   retaining the metadata interval, timer cleanup, page-one reset, and shared
   `queryCurrentViewData` path. The change removes one conditional and adds no
-  state, request type, route, DTO binding, or component. Docker/browser runtime
-  evidence remains required before the task is closed.
+  state, request type, route, DTO binding, or component. Docker image
+  `sha256:5e8bb2a8e6cbb7167f035ad884c171ff5ba577fdeb63d627a396ca81741ef391`
+  was accepted with both View 100 interval rows temporarily changed from zero
+  to one second. With the backend paused, the visible Find command stayed
+  active while the manual query and scheduled refreshes overlapped; the Nginx
+  log recorded 36 `querydata` requests after the acceptance marker. Both rows
+  were restored to zero, a fresh `/view100` load showed the eight seeded rows,
+  and another 2.6-second window recorded no refresh request. Compose was
+  healthy and all 67 runtime-doctor checks passed.
