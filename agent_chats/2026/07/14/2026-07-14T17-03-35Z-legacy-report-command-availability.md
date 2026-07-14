@@ -16,6 +16,9 @@ commits without coupling Vue components to concrete business DTOs.
   `ShowReportController`.
 - Kept Return authoritative during an in-flight page request so its late
   response updates data without reopening results.
+- Limited the existing `reportRunning` flag to initial generation, allowing
+  Return to restore setup immediately during page requests without adding
+  another state flag.
 - Preserved request paths, local state, page guards, and View metadata adapters.
 - Removed the now-unused report `pending` prop chain and output-selector
   disabled prop; added no state, route, request, DTO binding, or duplicate
@@ -43,6 +46,8 @@ commits without coupling Vue components to concrete business DTOs.
   same 17-file/183-test suite, production build, and harness passed again.
 - After protecting Return from a late paging response, those same three checks
   passed once more.
+- After narrowing `reportRunning` to initial generation, the 17-file/183-test
+  suite, production build, and harness passed again.
 - Pending Docker rebuild, runtime doctor, and authorized browser acceptance.
 
 ## Risks And Follow-ups

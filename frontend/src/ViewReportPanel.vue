@@ -211,7 +211,7 @@ async function runReport(page = currentPage.value) {
   currentPage.value = Math.max(1, page);
   statusMessage.value = "";
   const revealResults = !showingResults.value;
-  reportRunning.value = true;
+  reportRunning.value = revealResults;
   const response = await props.runAction("mkrpt", () =>
     postApi<ReportGridResult>("/api/v1/report/mkrpt", buildRequest())
   );
@@ -248,7 +248,7 @@ onMounted(() => void loadReportColumns());
 
 <template>
   <Dialog
-    v-if="!reportSetupLoading && (!reportRunning || showingResults)"
+    v-if="!reportSetupLoading && !reportRunning"
     :visible="true"
     modal
     class="report-dialog"
