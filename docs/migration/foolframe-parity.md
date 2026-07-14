@@ -3945,3 +3945,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   counts were unchanged, and all 67 runtime-doctor checks passed. Paging-failure
   state retention remains covered by the focused source contract because the
   seeded report has one page.
+- 2026-07-15: aligned `timer.js` / `message.js` polling concurrency. The old
+  one-second ticker invokes the registered message callback whenever its
+  15-second interval is due, without checking whether an earlier `$http`
+  request is pending. Vue inherited an extra `shellPollInFlight` gate from its
+  former combined user/message refresh and therefore skipped ticks during slow
+  requests. The gate and its state are now removed; the existing token guard,
+  15-second timer, silent transport handling, timer cleanup, first-message
+  display, protocol adapters, routes, and DTOs are unchanged. All 193 frontend
+  tests, TypeScript/Vite production build, and repository harness pass.
+  Docker/browser evidence remains required.

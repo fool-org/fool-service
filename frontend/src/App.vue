@@ -265,7 +265,6 @@ const {
 let autoRefreshTimer: number | undefined;
 let autoRefreshInterval = 0;
 let shellPollTimer: number | undefined;
-let shellPollInFlight = false;
 
 async function runAction<T>(
   label: string,
@@ -464,8 +463,7 @@ async function openShellMessage(message: MessageInfo) {
 }
 
 async function pollShellMessages() {
-  if (!token.value || shellPollInFlight) return;
-  shellPollInFlight = true;
+  if (!token.value) return;
   try {
     const messages = await postApi<GetMessageResult>(
       "/api/v1/message/getmsg",
@@ -477,8 +475,6 @@ async function pollShellMessages() {
     }
   } catch {
     // Keep best-effort polling failures out of the active View error surface.
-  } finally {
-    shellPollInFlight = false;
   }
 }
 

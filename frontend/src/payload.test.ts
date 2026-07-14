@@ -1178,8 +1178,14 @@ describe("App defaults", () => {
       appSource.indexOf("async function enterAuthenticatedShell"),
       appSource.indexOf("function handleHistoryNavigation")
     );
+    const pollShellSource = appSource.slice(
+      appSource.indexOf("async function pollShellMessages"),
+      appSource.indexOf("function startShellPolling")
+    );
     expect(appSource).toContain("/api/v1/message/getmsg");
     expect(appSource).toContain("15_000");
+    expect(pollShellSource).toContain("if (!token.value) return;");
+    expect(pollShellSource).not.toContain("shellPollInFlight");
     expect(appSource).toContain("const fetchedMessages = legacyMessages(messages.data)");
     expect(appSource).toContain("activeShellMessage.value = fetchedMessages[0]");
     expect(enterShellSource).toContain("startShellPolling();");

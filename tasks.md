@@ -1525,6 +1525,10 @@ item must land with its matching implementation and validation evidence.
       setup/result dialogs hidden after an initial report failure, retain the
       current result during paging failure, suppress transport feedback, and
       browser-verify initial failure plus successful recovery.
+- [ ] Restore `timer.js` / `message.js` polling concurrency: let each 15-second
+      tick start `getmsg` even while an earlier poll is pending, retain silent
+      transport failures and session timer cleanup, and browser-verify
+      overlapping requests against a paused backend.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from
