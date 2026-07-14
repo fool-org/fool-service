@@ -3638,4 +3638,12 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   shared desktop/mobile menu or disables either logout command. View, detail,
   save, and report controls retain their existing request boundaries. Removing
   the unused menu prop shrinks the shared component without adding state or a
-  second navigation path.
+  second navigation path. Frontend tests/build, Compose replacement, runtime
+  doctor, and the repository harness pass; the deployed frontend image is
+  `sha256:588a1016381c2b8e7d192c7a85c54690bd3013ab5ad0eec25092263f08f48a75`.
+  Authorized Docker browser acceptance logged in as `admin`, paused the backend,
+  and started a real `querydata` request. At 800ms Home, Views, and
+  `安全退出` remained enabled while the View-local Find command was disabled and
+  no dialog opened. Unpausing completed the request, restored Find, left all
+  shell controls enabled on `/main`, and produced no browser console errors.
+  Backend `/test`, Compose, and all 67 runtime-doctor checks passed afterward.

@@ -37,9 +37,18 @@ commits.
 - `python scripts/runtime_doctor.py` passed all 67 checks.
 - Deployed frontend image:
   `sha256:588a1016381c2b8e7d192c7a85c54690bd3013ab5ad0eec25092263f08f48a75`.
+- Used the authorized local CAPTCHA with `admin/admin` and reached `/main` on
+  the deployed bundle.
+- Paused the backend, clicked Find to hold a real `querydata` request in flight,
+  and inspected the shell at 800ms: Home, Views, and `安全退出` were enabled;
+  the View-local Find command remained disabled and no dialog opened.
+- Unpaused the backend; the query completed, Find re-enabled, the shell controls
+  stayed enabled, the URL remained `/main`, and browser console errors were
+  empty.
+- Backend `/test`, Compose state, and all 67 runtime-doctor checks passed after
+  backend restoration.
 
 ## Risks And Follow-ups
 
-- Browser acceptance must inspect desktop shell controls during a real
-  paused-backend View request and restore the backend afterward.
+- No unresolved risk remains for this interaction slice.
 - `docs/superpowers/` is unrelated untracked work and remains untouched.

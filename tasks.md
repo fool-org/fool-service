@@ -1453,7 +1453,7 @@ item must land with its matching implementation and validation evidence.
       and default submit button so Enter fires the old `ng-click="hello()"`
       equivalent; browser-verify that Enter reaches `loginv2` before closing
       this parity slice.
-- [ ] Restore `tbar.jade`'s always-available shell navigation: keep Home,
+- [x] Restore `tbar.jade`'s always-available shell navigation: keep Home,
       metadata menus, submenus, and both `安全退出` controls actionable while
       unrelated requests are pending; browser-verify the paused-backend path
       without widening the change to View/detail/report controls.
