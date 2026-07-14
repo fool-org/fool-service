@@ -3818,3 +3818,12 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   All temporary rows were removed, order/item counts returned to 8/4, View
   100's file/interval metadata remained at 990001/0, Compose was healthy, and
   all 67 runtime-doctor checks passed.
+- 2026-07-15: aligned `timer.js` registration cadence. The old service owns one
+  global one-second ticker, starts a listener counter at zero, and only changes
+  registration when Angular observes a different interval. Vue now retains one
+  main View timer for an unchanged `AutoFreshTime`, uses the same due-check then
+  increment sequence, and leaves that timer running across manual Find,
+  pagination, and same-interval responses. View navigation and actual interval
+  changes still clear it; hidden Chart panes still consume due ticks without a
+  request. No request, payload, DTO, route, or component was added. Runtime
+  timestamp evidence remains required before closure.

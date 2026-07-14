@@ -584,6 +584,7 @@ describe("App defaults", () => {
       appSource.indexOf("async function loadLegacyDetailPath")
     );
     expect(searchSource).toContain("if (!isChartView.value) pageIndex.value = 1");
+    expect(searchSource).not.toContain("stopAutoRefresh()");
     expect(searchSource.indexOf("if (!isChartView.value) pageIndex.value = 1")).toBeLessThan(
       searchSource.indexOf("queryCurrentViewData()")
     );
@@ -697,7 +698,8 @@ describe("App defaults", () => {
     expect(appSource).toContain("listAutoFreshTime");
     expect(appSource).toContain("scheduleAutoRefresh(response.data)");
     expect(appSource).toContain("window.setInterval");
-    expect(appSource).toContain("if (!viewTableVisible.value) return");
+    expect(appSource).toContain("autoRefreshInterval === seconds");
+    expect(appSource).toContain("if (viewTableVisible.value)");
     expect(appSource).toContain("pageIndex.value = 1");
     expect(appSource).not.toContain("if (!pendingAction.value)");
     expect(appSource).toContain("onUnmounted(() => {");

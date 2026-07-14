@@ -262,6 +262,7 @@ const {
   token
 });
 let autoRefreshTimer: number | undefined;
+let autoRefreshInterval = 0;
 let shellPollTimer: number | undefined;
 let shellPollInFlight = false;
 
@@ -696,7 +697,6 @@ async function loadViewWorkflow(resetPage = false) {
 }
 
 async function searchCurrentView() {
-  stopAutoRefresh();
   if (!isChartView.value) pageIndex.value = 1;
   const response = await queryCurrentViewData();
   if (!response) return;
@@ -805,17 +805,26 @@ function stopAutoRefresh() {
     window.clearInterval(autoRefreshTimer);
     autoRefreshTimer = undefined;
   }
+  autoRefreshInterval = 0;
 }
 
 function scheduleAutoRefresh(result?: ListViewResult) {
-  stopAutoRefresh();
   const seconds = listAutoFreshTime(result);
+  if (autoRefreshTimer !== undefined && autoRefreshInterval === seconds) return;
+  stopAutoRefresh();
+  autoRefreshInterval = seconds;
   if (seconds > 0) {
+    let elapsed = 0;
     autoRefreshTimer = window.setInterval(() => {
-      if (!viewTableVisible.value) return;
-      pageIndex.value = 1;
-      void queryCurrentViewData();
-    }, seconds * 1000);
+      if (elapsed === seconds) {
+        if (viewTableVisible.value) {
+          pageIndex.value = 1;
+          void queryCurrentViewData();
+        }
+        elapsed = 0;
+      }
+      elapsed += 1;
+    }, 1000);
   }
 }
 
