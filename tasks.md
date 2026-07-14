@@ -1562,7 +1562,7 @@ item must land with its matching implementation and validation evidence.
       when `saveobj` / `savenewobj` has a network/non-2xx failure, retain
       response-backed business errors, and browser-verify both failure branches
       plus successful back-navigation recovery without data drift.
-- [ ] Restore `detailview.js initQueryView()` transport handling: keep the
+- [x] Restore `detailview.js initQueryView()` transport handling: keep the
       non-dismissible `加载中` dialog open without shared transport feedback
       when the child candidate `getlistview` request has a network/non-2xx
       failure, then browser-verify View-first recovery before candidate data.

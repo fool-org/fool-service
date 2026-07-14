@@ -4136,4 +4136,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   columns, later query payload/data, components, routes, and DTOs are unchanged;
   no state owner or helper was added. Focused tests passed (84/84), as did all
   195 frontend tests, the production build, repository harness, and diff check.
-  Docker/browser evidence remains required.
+  Exact implementation commit `7f73f8cd` produced deployed image
+  `sha256:79cabbce9c94555003e6ca015323c1a6277566cf2fa25d695c835c33edbb3965`
+  and entry bundle `index-f7c4WPnZ.js`. Authorized `admin/admin` browser
+  acceptance forced HTTP 502 only from the child `getlistview`: the request
+  sequence contained no `querydata`, the sole `加载中 / 正在加载，请稍后....`
+  dialog remained, and no shared/transport error appeared. After removing the
+  failure and reloading, `getlistview` returned HTTP 200 before `querydata` 200,
+  opened `选择 Items`, and rendered `共4条记录`; logout returned HTTP 200.
+  Compose was healthy, `db-migrate` was `Exited (0)`, View/order data was
+  unchanged, and all 67 runtime-doctor checks passed.

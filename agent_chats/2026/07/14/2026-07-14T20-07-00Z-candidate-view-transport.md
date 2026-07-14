@@ -31,12 +31,28 @@ keeping files controlled, logic reusable, and rendering View-first.
 - `cd frontend && npm run build`
 - `python scripts/check_repo_harness.py`
 - `git diff --check`
-- Pending Docker deployment and authorized browser acceptance.
+- Built and deployed exact implementation commit `7f73f8cd` as image
+  `sha256:79cabbce9c94555003e6ca015323c1a6277566cf2fa25d695c835c33edbb3965`;
+  the running container matched it and served `index-f7c4WPnZ.js`.
+- Authorized browser acceptance read the local CAPTCHA and used `admin/admin`.
+  A deterministic HTTP 502 limited to the child candidate `getlistview` left
+  the non-dismissible `加载中 / 正在加载，请稍后....` dialog visible without
+  shared/transport feedback. The captured request sequence contained one
+  `getlistview` and zero `querydata` calls.
+- Removing the failure and reloading returned HTTP 200 from `getlistview`,
+  opened `选择 Items`, then returned HTTP 200 from `querydata` only after
+  `查找`; the picker rendered `共4条记录`. Logout returned HTTP 200.
+- `docker compose ps -a` showed backend/frontend up, MySQL/Redis healthy, and
+  `db-migrate` at `Exited (0)`.
+- Final database evidence retained six rows in each View table, eight orders,
+  four order items, and unchanged order 1001 values.
+- `python scripts/runtime_doctor.py` (67/67 passed)
 
 ## Risks And Follow-ups
 
-- Browser acceptance should force only the child candidate `getlistview`
-  request to HTTP 502, prove the loader remains without shared feedback, then
-  reload without the failure and prove the linked View opens before data query.
+- The forced 502 was a deterministic browser interception, so Nginx recorded
+  the recovered HTTP 200 requests; the browser response supplied 502 evidence.
+- The deliberately pending loader requires a reload before retry, matching the
+  old controller rather than adding a new recovery affordance.
 - Unrelated README/POM, agent-session, `docs/superpowers/`, and `fool-agent/`
   work remains untouched and excluded from this delivery.
