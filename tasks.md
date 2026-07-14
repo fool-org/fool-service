@@ -1171,7 +1171,7 @@ item must land with its matching implementation and validation evidence.
       default, Confirm primary, and the existing View-derived save workflow.
 - [x] Restore `view.jade` report-result paging presentation: keep functional
       Previous/Next commands in one right-aligned extra-small button group and
-      continue omitting the old eventless export placeholders.
+      keep the old eventless export placeholders as a separate parity slice.
 - [x] Restore `view.jade` report-output toolbar grouping: separate
       move/remove commands from sort commands with compact reusable groups and
       preserve all existing output-column mutations.
@@ -1396,6 +1396,10 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore ECharts 3.1.7 tooltip box and movement defaults: use its block
       layout, 21px rows, 20px pointer gap, nowrap/high-layer surface, and 0.4s
       left/top easing across shared top-level and compact charts.
+- [x] Restore `view.jade`'s complete report-result command group: append the
+      eventless `导出当前页` / `导出全部` controls after paging without adding a
+      request, download path, DTO state, or handler absent from `mkreport.js`,
+      and wrap the intact group below the page summary on narrow screens.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

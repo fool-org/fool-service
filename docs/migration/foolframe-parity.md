@@ -303,8 +303,8 @@ This document records the current migration state from `../FoolFrame` to `fool-s
 - 2026-07-12: restored the working part of the old report-result modal. Vue now
   renders every report matrix row as a normal striped/hoverable table row,
   uses the old `前一页` / `下一页` controls, exposes only `返回` in the result
-  footer, and resets page state to one when returning to report setup. The old
-  markup's inert export buttons remain omitted rather than becoming fake UI.
+  footer, and resets page state to one when returning to report setup. At that
+  slice, the old markup's eventless export buttons remained omitted.
 - 2026-07-12: restored Sudoku panel refresh semantics from old Web
   `includes/List.jade`, `querylistdata.js`, and `groupview.js`. Top-level and
   grouped list panels expose `FreshTime` with a text refresh command; targeted
@@ -3405,3 +3405,16 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   retained visible tooltips without document overflow or browser logs. The
   deployed frontend image was
   `sha256:d0773decc43337eb65fcd489fa936c0de787880fc88933b3dfec5bae7cb33d4d`.
+- 2026-07-14: restored `view.jade`'s complete report-result command row. The
+  old template places eventless `导出当前页` / `导出全部` buttons after the
+  working paging pair, and `mkreport.js` defines no export handler. Vue now
+  renders the same two no-op commands in the existing extra-small group without
+  inventing a request, export DTO, download path, or business state. This
+  supersedes the earlier intentional omission while preserving the old
+  interaction boundary. The result heading now wraps that intact command group
+  below its page summary when needed, preventing overlap at 390px. Authenticated
+  Docker `/view101` rendered the four commands in old order; at 390x844 the
+  summary ended at y=268.73 and the 225px command group began at y=276.73 with
+  document width exactly 390px. Clicking both placeholders left the dialog and
+  URL unchanged. The deployed frontend image was
+  `sha256:b6016cd9be7c542565a42413dfe13716f388f3245a1f363d7f50e572a54d6dec`.

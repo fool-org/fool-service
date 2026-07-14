@@ -272,6 +272,8 @@ onMounted(() => void loadReportColumns());
         <div class="report-result-actions legacy-button-group-xs">
           <Button type="button" label="前一页" severity="secondary" outlined :disabled="pending" @click="changeReportPage(-1)" />
           <Button type="button" label="下一页" severity="secondary" outlined :disabled="pending" @click="changeReportPage(1)" />
+          <Button type="button" label="导出当前页" severity="secondary" outlined />
+          <Button type="button" label="导出全部" severity="secondary" outlined />
         </div>
       </div>
       <div class="table-wrap report-results">

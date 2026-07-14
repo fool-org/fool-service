@@ -134,3 +134,12 @@ describe("shared chart styles", () => {
     expect(styleSource).toContain("translate(calc(-100% - 20px), calc(-100% - 20px))");
   });
 });
+
+describe("shared report styles", () => {
+  it("wraps the complete result command group without splitting its buttons", () => {
+    expect(styleSource).toContain(`.report-result-heading {
+  flex-wrap: wrap;
+  gap: 8px;
+}`);
+  });
+});

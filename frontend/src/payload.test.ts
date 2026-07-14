@@ -1027,6 +1027,12 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).toContain("page > Math.max(1, resultPages.value)");
     expect(viewReportPanelSource).toContain('label="前一页" severity="secondary" outlined :disabled="pending" @click="changeReportPage(-1)"');
     expect(viewReportPanelSource).toContain('label="下一页" severity="secondary" outlined :disabled="pending" @click="changeReportPage(1)"');
+    const currentPageExport = viewReportPanelSource.match(/<Button[^>]*label="导出当前页"[^>]*\/>/)?.[0] ?? "";
+    const allPagesExport = viewReportPanelSource.match(/<Button[^>]*label="导出全部"[^>]*\/>/)?.[0] ?? "";
+    expect(currentPageExport).toContain('label="导出当前页"');
+    expect(allPagesExport).toContain('label="导出全部"');
+    expect(currentPageExport).not.toContain("@click");
+    expect(allPagesExport).not.toContain("@click");
     expect(viewReportPanelSource).toContain('class="report-result-table"');
     expect(viewReportPanelSource).toContain("backToReportSetup");
     expect(viewReportPanelSource).toContain("currentPage.value = 1");
