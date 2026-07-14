@@ -35,9 +35,20 @@ commits.
 - `python scripts/runtime_doctor.py` passed all 67 checks.
 - Deployed frontend image:
   `sha256:ce7a2f81272de55d1209e60a9bf79335e206945e62d738347fc13e8bc6dc5884`.
+- Backed up the Docker app metadata row as `SW_APP_COMPANY=NULL` and
+  `SW_APP_URL=NULL`.
+- With `Legacy Vendor` / `legacy.vendor.test/path`, Docker initapp exposed the
+  bare value and the browser rendered both `href` forms as
+  `http://legacy.vendor.test/path` with `target=_blank`.
+- With `https://legacy.vendor.test/secure`, both browser href forms retained
+  that exact absolute URL with no duplicate scheme.
+- Restored both database fields to `NULL`; initapp returned empty strings and
+  a fresh browser load rendered zero vendor links.
+- `python scripts/runtime_doctor.py` passed all 67 checks after restoration.
+- Screenshot:
+  `artifacts/runs/20260714-legacy-login-vendor-link/bare-url.jpg` (1280x720).
 
 ## Risks And Follow-ups
 
-- The Docker seed currently leaves App company/URL empty. Browser acceptance
-  should temporarily exercise a bare host and restore the database row.
+- No unresolved risk remains for this interaction slice.
 - `docs/superpowers/` is unrelated untracked work and remains untouched.

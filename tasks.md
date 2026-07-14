@@ -1447,7 +1447,8 @@ item must land with its matching implementation and validation evidence.
       browser-verify the settled Nginx `502` path and restored backend.
 - [x] Restore `index.jade`'s external vendor-link intent: prefix bare `AppUrl`
       metadata with `http://` while retaining current absolute HTTP(S) values,
-      so the footer never resolves a legacy host as an application-relative path.
+      so the footer never resolves a legacy host as an application-relative
+      path; browser-verify both forms and restore the Docker metadata row.
 
 ## Backlog
 - No open repo-local task-state items. Continue from

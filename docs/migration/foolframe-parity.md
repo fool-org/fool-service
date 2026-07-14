@@ -3614,3 +3614,12 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   business DTO state was added. Frontend tests/build, Compose replacement,
   runtime doctor, and repository harness pass; the deployed frontend image is
   `sha256:ce7a2f81272de55d1209e60a9bf79335e206945e62d738347fc13e8bc6dc5884`.
+  Docker browser acceptance temporarily set the same app metadata to
+  `Legacy Vendor` with `legacy.vendor.test/path`, then with
+  `https://legacy.vendor.test/secure`. The rendered anchor's attribute and
+  resolved URL were respectively `http://legacy.vendor.test/path` and the
+  unchanged HTTPS value, both with `_blank`; document width remained 1280px.
+  The original `NULL` company/URL row was restored, initapp returned both
+  values empty again, the link disappeared, and all 67 runtime-doctor checks
+  passed. The inspected 1280x720 bare-host artifact is
+  `artifacts/runs/20260714-legacy-login-vendor-link/bare-url.jpg`.
