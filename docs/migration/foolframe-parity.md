@@ -4824,3 +4824,18 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   repository harness passed afterward. Existing shared `ViewDetailPanel.vue`
   staging is therefore sufficient; no page branch, concrete DTO, or duplicate
   child editor was added.
+- 2026-07-15: completed real-browser proof for `setextype.js`'s Boolean editor
+  without changing application source. Imported Model detail View 146 exposes
+  `autoSysId` for model 181 as a real type-8 field. Authorized `admin/admin`
+  replay loaded `getreaditemview(146)` before `querydatadetail(146,181)` and
+  rendered exactly one checked checkbox with an empty editor text wrapper, so
+  Vue did not invent a visible `是/否` value. Clicking the checkbox changed it
+  only to local unchecked state and emitted zero API or write requests; the
+  mobile reload restored checked state from the unchanged database value.
+  Desktop and mobile document widths matched their 1280px and 390px
+  viewports, browser runtime/log errors were zero, and screenshots are under
+  `artifacts/runs/20260715-boolean-editor/`. `SW_SYS_MODEL.MODEL_AUTOID`
+  remained `1` before and after the run. All 69 runtime checks and the
+  repository harness passed afterward. The existing shared
+  `MetadataFieldEditor.vue` checkbox path is therefore sufficient; no fixture,
+  concrete DTO, page branch, or duplicate Boolean editor was added.

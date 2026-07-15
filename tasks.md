@@ -1758,6 +1758,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Browser-verify `detailview.js` inline child-edit staging with reversible
       View metadata and dedicated rows: row Save stays local, parent Save owns
       the write, and desktop/mobile runs restore metadata and data exactly.
+- [x] Browser-verify `setextype.js`'s Boolean editor through imported Model
+      View 146: render one checked checkbox without invented `是/否` text,
+      toggle locally without a request, and retain the stored value on reload.
 
 ## Backlog
 - Continue from `docs/migration/foolframe-parity.md` only when a concrete
