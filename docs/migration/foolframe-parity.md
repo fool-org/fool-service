@@ -4714,3 +4714,19 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   dispatch or View/Data binding mismatch was found, so this slice adds no Vue
   branch or DTO. Remaining imported-View work is now the reversible mutation
   matrix for genuinely editable new/edit/save/child/delete/operation paths.
+- 2026-07-15: completed real browser new/edit/save acceptance on the imported
+  ApplicationDatabase View pair 123/122. FoolFrame `AutoViewFactory` proves the
+  56 generated list pairs expose `新建` and `编辑` as result-View navigation,
+  while actual persistence remains the shared `detailView.js` new/save path.
+  Authorized `admin/admin` acceptance clicked `新建` on `/view123`, entered
+  `99150715` / `CDX-NEW` on `/new122`, and sent `savenewobj`; the persisted
+  `SysId` was then opened through `/view122/:id` at 390px, edited to
+  `CDX-EDIT`, and sent `saveobj`. The observed chain included View-first
+  `getlistview/querydata` and `getreaditemview/initnew` before both writes.
+  Desktop and mobile document widths matched 1280px and 390px, browser
+  runtime/log errors were zero, and screenshots are under
+  `artifacts/runs/20260715-legacy-appdb-mutation/`. The dedicated temporary row
+  was deleted in cleanup and `DB_AppDB` exactly returned to its original sole
+  `App_Id=1, DBNo=01, SysId=1` row. All 69 runtime-doctor checks then passed.
+  No page-specific Vue branch or DTO was needed. Remaining mutation work is
+  shared child-row add/edit/delete plus the real OrderList model operations.

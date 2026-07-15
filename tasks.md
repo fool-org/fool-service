@@ -1738,10 +1738,13 @@ item must land with its matching implementation and validation evidence.
 - [x] Classify all 118 imported Views by old template and supported interaction
       surface, then record a stable route matrix beyond the 60 list reads and
       47 data-backed default-detail reads already covered.
-- [ ] Run reversible browser write acceptance for the imported Views that are
-      genuinely editable: new, edit, save, child-row mutation, delete, and View
-      operations, restoring the database after each case.
+- [x] Run reversible browser new/edit/save acceptance on imported
+      ApplicationDatabase at desktop and 390px, including real persistence and
+      exact `DB_AppDB` restoration.
+- [ ] Complete reversible browser write acceptance for shared child-row
+      mutation and the delete/View operations actually exposed by metadata,
+      restoring the database after each case.
 
 ## Backlog
-- Close the two imported-View acceptance items above, then continue from
+- Close the remaining mutation-acceptance item above, then continue from
   `docs/migration/foolframe-parity.md` only when a concrete legacy gap is found.
