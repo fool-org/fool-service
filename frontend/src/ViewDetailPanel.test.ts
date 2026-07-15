@@ -47,6 +47,10 @@ describe("ViewDetailPanel legacy interactions", () => {
     expect(viewDetailPanelSource).not.toContain('<strong>{{ fieldDisplayValue(item)');
   });
 
+  it("restores item.jade's schema-only value placeholder", () => {
+    expect(viewDetailPanelSource).toContain('schemaOnly ? "你好" : fieldDisplayValue(item) || "\\u00a0"');
+  });
+
   it("keeps legacy child collection commands active during requests", () => {
     const collectionSource = viewDetailPanelSource.slice(
       viewDetailPanelSource.indexOf('class="detail-collection-toolbar legacy-button-group"'),

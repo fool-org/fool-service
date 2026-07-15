@@ -220,7 +220,7 @@ describe("App defaults", () => {
     expect(appSource).toContain('viewDisplayTitle(currentReadItemView.value, "详情")');
     expect(viewDetailPanelSource).toContain("`${title} -新建`");
     expect(viewDetailPanelSource).toContain("`${title} -${selectedObjectId}`");
-    expect(viewDetailPanelSource).toContain('fieldDisplayValue(item) || "\\u00a0"');
+    expect(viewDetailPanelSource).toContain('schemaOnly ? "你好" : fieldDisplayValue(item) || "\\u00a0"');
     expect(viewDetailPanelSource).not.toContain("primevue/tag");
     expect(viewDetailPanelSource).not.toContain("未选择记录");
     expect(appSource).not.toContain('viewDisplayTitle(currentReadItemView.value, "Detail")');

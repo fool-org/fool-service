@@ -4920,3 +4920,28 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   8 orders, and 4 order items. Future editor work must start with a newly
   reachable View/PropertyType combination rather than stale generic backlog
   wording.
+- 2026-07-15: restored `item.jade`'s literal schema-only value placeholder.
+  The old template renders every top-level View item as its metadata name plus
+  `你好`; Vue rendered the same six `/itemview100` fields with empty values.
+  `ViewDetailPanel.vue` now selects that placeholder only when `schemaOnly` is
+  true, leaving normal detail rows on `fieldDisplayValue` and adding no DTO,
+  View-id branch, component, or request. Authorized `admin/admin` browser
+  acceptance changed the first `Order ID` value from empty to `你好` at both
+  1280px and 390px. The route still requested only `getmain` then
+  `getreaditemview(100)`, emitted zero writes, kept the `Items` tab at
+  `aria-selected=false`, and rendered zero visible child tables before a tab
+  click. A same-session `/view112/1` check retained the real first value `1`
+  through `getreaditemview/querydatadetail/getenums`, proving the placeholder
+  does not leak into object data. Document widths matched both viewports and
+  browser runtime/log errors were zero. Screenshots are under
+  `artifacts/runs/20260715-itemview-placeholder/` with desktop SHA-256
+  `2202e252cf83751ebbe4b4a18dd2f59b7870ec6514c0b2ac05271299194ae51d`
+  and mobile SHA-256
+  `af976d2bd594035eec59172f57ac883f9cda9cc356dac7c280db019150cbfafc`.
+  All 226 frontend tests, the production build, 118/118 View matrix, 69
+  runtime checks, and repository harness passed. Standard Compose frontend
+  build remained blocked by the Buildx activity-file permission; the validated
+  clean `dist` was injected into Nginx image
+  `sha256:43800318f00ba54b508e42eb578bf358e63d20ec3206d0897f3fa5826dc0bf7c`,
+  whose host/container `index.html` SHA-256 matched at
+  `b1f4e0ecff1137e854fb80d7ab76c22404a9425e461cb20234af034b0b6efb43`.

@@ -1773,6 +1773,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Audit editor coverage from all 927 current ViewItems before adding any
       widget: map all 465 editable items through their View model/property and
       confirm the shared Vue editor covers every reachable legacy type.
+- [x] Restore `item.jade`'s schema-only field value placeholder: show `你好`
+      for each View-derived field on `/itemview:id` without leaking it into
+      real detail values or activating the initially inactive child tab.
 
 ## Backlog
 - Continue from `docs/migration/foolframe-parity.md` only when a concrete

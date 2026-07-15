@@ -279,7 +279,7 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
     <div v-if="!isEditing && (selectedObjectId || schemaOnly)" class="detail-field-grid">
       <div v-for="item in detailRows" :key="fieldKey(item)">
         <span class="detail-field-label">{{ fieldTitle(item) }}</span>
-        <span class="detail-field-value">{{ fieldDisplayValue(item) || "\u00a0" }}</span>
+        <span class="detail-field-value">{{ schemaOnly ? "你好" : fieldDisplayValue(item) || "\u00a0" }}</span>
       </div>
     </div>
 
