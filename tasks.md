@@ -1724,6 +1724,11 @@ item must land with its matching implementation and validation evidence.
 - [x] Browser-verify imported `User详细` View 112 at desktop and 390px: preserve
       View-before-data request order and render its DateTime and enum controls
       without binding the Vue component to a concrete User DTO.
+- [x] Keep zero-width legacy View columns readable through one shared bounded
+      minimum-width rule while preserving positive View width metadata.
+- [x] Browser-verify imported `User列表` View 113 at desktop and 390px: preserve
+      View-first loading, horizontal access to all 17 columns, row Edit and New
+      routes, plus the existing Sudoku request boundary.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from

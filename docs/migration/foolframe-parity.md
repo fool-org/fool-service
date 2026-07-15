@@ -4644,3 +4644,27 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   production build, 49 doctor unit tests, repository harness, and 69 Docker
   runtime checks passed after a second migration replay. MySQL retained one
   admin user, 8 orders, 4 order items, and unchanged order 1001 data.
+- 2026-07-15: restored readable legacy table sizing for imported Views whose
+  `VIEW_ITEM_WIDTH` is zero. Old `view.jade` gives each header its configured
+  width and lets the browser's table layout retain intrinsic content width;
+  PrimeVue previously compressed all 17 `User列表` columns into the viewport,
+  splitting `Male`, dates, and `编辑` vertically. The shared metadata table now
+  keeps a positive View width unchanged and otherwise derives one bounded
+  96-220px minimum from the View column title, reserves 72px for operations,
+  and exposes the existing horizontal scroller. No User DTO, page-specific
+  width, or duplicate table was added. Exact commit `645c12be` passed all 219
+  frontend tests, the production build, repository harness, and 69 runtime
+  checks. Authorized `admin/admin` acceptance loaded `/view113` through
+  `getlistview(113)` before `querydata(113)`: the table became 1704px inside
+  1198px desktop and 328px mobile viewports, with data columns at 96-132px and
+  the action column at 72px. Scrolling reached 506px / 1376px and kept `Male`,
+  dates, and `编辑` readable. The row operation preserved
+  `getreaditemview(112)` -> `querydatadetail(112,1)` -> `/view112/1`; `新建`
+  preserved `getreaditemview(112)` -> `initnew(112)` -> `/new112`. Rechecking
+  `/view103` retained all five Sudoku panels and its metadata-only Group request
+  boundary. Browser logs were empty, document widths matched 1280px / 390px,
+  and MySQL retained one user, 8 orders, 4 order items, and unchanged order
+  1001. The host-built dist was injected into image
+  `sha256:f8c91559a1c8720a9532f2d18f349bf18a173f014c512066ede2665f271a2bf0`
+  because both default and `desktop-linux` Buildx builders could not update
+  their activity files.
