@@ -1730,6 +1730,18 @@ item must land with its matching implementation and validation evidence.
       View-first loading, horizontal access to all 17 columns, row Edit and New
       routes, plus the existing Sudoku request boundary.
 
+- [x] Reconcile imported list-row identities and normalized relation metadata
+      against physical tables, then scan every imported list and every
+      data-backed default-detail route without binding Vue to business DTOs.
+- [x] Browser-verify representative repaired catalog routes through real row
+      clicks: ApplicationDatabase, View, Property, Model, and EventDefinition.
+- [ ] Classify all 118 imported Views by old template and supported interaction
+      surface, then record a stable route matrix beyond the 60 list reads and
+      47 data-backed default-detail reads already covered.
+- [ ] Run reversible browser write acceptance for the imported Views that are
+      genuinely editable: new, edit, save, child-row mutation, delete, and View
+      operations, restoring the database after each case.
+
 ## Backlog
-- Close the unchecked browser-acceptance items above, then continue from
-  `docs/migration/foolframe-parity.md` remaining migration work.
+- Close the two imported-View acceptance items above, then continue from
+  `docs/migration/foolframe-parity.md` only when a concrete legacy gap is found.

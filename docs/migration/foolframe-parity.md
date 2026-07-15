@@ -4668,3 +4668,32 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `sha256:f8c91559a1c8720a9532f2d18f349bf18a173f014c512066ede2665f271a2bf0`
   because both default and `desktop-linux` Buildx builders could not update
   their activity files.
+- 2026-07-15: completed the imported list-to-detail catalog read pass by
+  following the old View metadata to runtime data and physical identity
+  columns. The old `HandlerQueryData` exposes `ObjectProxy.ID`, while
+  `ObjectProxyClass.ID` uses the model id property when present and otherwise
+  its internal id; the runtime now preserves explicit and auto `SysId` reads,
+  qualifies joined detail identity predicates, reconciles projected id/display
+  properties with physical primary keys, and repairs normalized View/Model
+  One2Many target columns. The only editable list model lacking both an id
+  property and auto id was ApplicationDatabase, so its idempotent migration
+  adds a compatible `SysId` instead of introducing page-specific frontend
+  logic. Exact commits `6b6b82ce`, `b56521d3`, `2c6f4427`, `6833056e`,
+  `c14a7a78`, `08f7dbb4`, `278e5b46`, `160aec00`, and `dad7619f` keep the
+  repair in shared model/query/schema paths.
+  An authenticated API scan passed all 60 imported list Views. A second scan
+  followed the first row from every data-backed list with a default detail
+  View and passed 47/47; the previous ApplicationDatabase, View, Property, and
+  Model failures now return populated details. Real `admin/admin` row clicks
+  also opened those four detail routes plus EventDefinition through their
+  metadata-derived object ids, with detail fields/collections rendered and no
+  dialog error. The ApplicationDatabase list fit both 1280px and 390x844
+  pages without document overflow. Full Maven reactor tests, 50 doctor unit
+  tests, repository harness, and all 69 Docker runtime checks passed; Compose
+  was healthy with `db-migrate` at `Exited (0)`. The rebuilt backend image is
+  `sha256:72885b14ed031835c43f2e5ad7aceda1f709e9ec74696046da741d5d55c25318`.
+  Standard Compose Buildx still cannot update its local activity file, so the
+  Java-17 container-built JAR was injected through the documented clean image
+  fallback. Remaining imported-View work is breadth of interaction coverage:
+  classify all 118 old Views by template, then run reversible write acceptance
+  only for genuinely editable new/edit/save/child/delete/operation paths.
