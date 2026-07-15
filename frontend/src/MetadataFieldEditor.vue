@@ -76,7 +76,7 @@ const checked = computed({
   get: () => fieldInputChecked(props.field, value.value),
   set: (next: boolean) => { value.value = next ? "true" : "false"; }
 });
-const lookupChoices = computed(() => lookupOptions.value.map((item) => ({
+const lookupChoices = computed(() => lookupOptions.value.slice(0, 5).map((item) => ({
   id: inputQueryItemId(item) || inputQueryItemText(item),
   label: inputQueryItemText(item) || inputQueryItemId(item),
   item

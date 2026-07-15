@@ -4537,3 +4537,9 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   host-built `dist` was injected through the documented Nginx-image downgrade
   because local Buildx still could not write its activity file, producing
   `sha256:77f617bf0d6393b99726172639aa28363415859f4714d788834d129cd5cb3adf`.
+- 2026-07-15: restored `setextype.js`'s `limit: 5` BusinessObject suggestion
+  behavior. The shared Vue metadata editor now renders at most the first five
+  View-derived `inputquery` candidates. This also covers owner `Source`
+  collections, whose backend compatibility path can return more than the
+  normal paged query's five rows, without changing the protocol response or
+  adding a concrete business DTO dependency.

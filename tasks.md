@@ -1693,6 +1693,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Browser-verify `detailView.jade`'s initially inactive child tabs on detail
       and new-object routes: preserve View-first data loading, reveal each child
       table only after selection, and emit no request from the tab click.
+- [x] Restore `setextype.js`'s five-result BusinessObject suggestion limit in
+      the shared metadata editor, including source-list lookup responses that
+      are not paged by the backend.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from
