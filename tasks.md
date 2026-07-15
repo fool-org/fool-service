@@ -1788,6 +1788,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Inventory all 43 FoolFrame Web Jade/application-JavaScript assets and
       classify active behavior, replaced bootstrap infrastructure, unreferenced
       fragments, and placeholder pages before declaring another frontend gap.
+- [x] Clear pending new-object state when history navigation enters an
+      `/itemview:id` route, so metadata-only rendering cannot inherit the prior
+      detail editor while preserving the View-first request boundary.
 
 ## Backlog
 - Continue from `docs/migration/foolframe-parity.md` only when a concrete

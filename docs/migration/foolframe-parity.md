@@ -5036,3 +5036,22 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   Jade fragments, or generated placeholder pages. Current database metadata
   reaches only the default, `Sudoku`, and `viewWithChart` top-level renderers,
   and the 118/118 View matrix passed. No product code or DTO binding changed.
+- 2026-07-15: fixed cross-route state leakage found by the final representative
+  frontend replay. Navigating from `/new122` to `/itemview100` retained
+  `isCreatingObject`, so Vue rendered `OrderList -新建` and an edit grid instead
+  of `item.jade`'s metadata-only `你好` values. The shared ItemView route entry
+  now clears pending edits and new-object state before loading View metadata;
+  no View-id branch, request, component, or business DTO binding was added.
+  Authorized `admin/admin` replay passed chart, list/report, five-panel Sudoku,
+  detail-edit, new-object, and ItemView scenarios at 1280x900 and 390x844.
+  Browser errors, internal failures, write requests, and document overflow were
+  all zero. Before/after desktop ItemView SHA-256 values are
+  `324129cb793cc2437f9cd390bf97a8cfc54df024787a7bea6c1c602414661bba`
+  and `b4b4d7da91e5e4e8eec4b28dd5afbd17fd7ba5eed4cdc3bd8f7bed6b1c72ed18`;
+  aligned mobile is
+  `a757e87f66fdf1a15b17f3af5ba12d68c97ed93326977e9baccd5c5370b4fb93`.
+  All 227 frontend tests, production build, 118/118 View matrix, 69 runtime
+  checks, database baseline, and repository harness passed. Standard Compose
+  build remained blocked by Buildx activity-file permissions; validated `dist`
+  was injected into Nginx image
+  `sha256:1a590ca9b517a9941961ac166eb2aa67aa2cf1e066584c494f263a31b498c5d8`.

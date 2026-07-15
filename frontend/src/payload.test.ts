@@ -973,6 +973,8 @@ describe("App defaults", () => {
     );
 
     expect(itemViewSource).toContain("await loadReadItemView(viewId)");
+    expect(itemViewSource).toContain("clearPendingDetailChanges()");
+    expect(itemViewSource).toContain("isCreatingObject.value = false");
     expect(itemViewSource).not.toContain("queryDetail");
     expect(itemViewSource).not.toContain("querydatadetail");
     expect(appSource).toContain(':schema-only="isMetadataOnlyView"');

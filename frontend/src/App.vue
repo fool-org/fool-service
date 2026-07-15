@@ -786,6 +786,10 @@ async function loadLegacyItemView(viewId: number) {
   showAgentChat.value = false;
   stopAutoRefresh();
   showUnconfiguredHome.value = false;
+  operationResult.value = null;
+  infoMessage.value = "";
+  clearPendingDetailChanges();
+  isCreatingObject.value = false;
   isMetadataOnlyView.value = true;
   isStandaloneDetail.value = false;
   applyRequestedViewId(viewId);
