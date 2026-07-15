@@ -1714,6 +1714,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `QuerylistdataController`'s Sudoku list refresh feedback: show
       `更新中..` for root and grouped List panels while their query is pending,
       restore `FreshTime` on success, and retain the text on transport failure.
+- [x] Browser-verify Sudoku List updating feedback at desktop and 390px: delay
+      one successful root refresh, fail the next transport, and prove the Group
+      child with the same ViewId retains independent timestamp state.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from

@@ -4609,4 +4609,16 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   text. Map, line-chart, and Item passive timestamps, concurrent Refresh
   availability, View/data projection, and DTOs remain unchanged. All 218
   frontend tests, the TypeScript/Vite production build, and repository harness
-  pass.
+  pass. Exact commits `ca95ce2c`, `8050057a`, and `c2f97b97` respectively add
+  the visible state, preserve it for the real `{ view, data: null }` failure
+  shell, and isolate panels that share View 100. The final Docker image is
+  `sha256:e80d0135d2dc7f565fe37ec34c4e4bee6fa762328dbb7e0d2d00c38ff863defd`.
+  Authorized `admin/admin` acceptance on `/view103` paused one real root List
+  query: its footer changed from `FreshTime` to `更新中..`, while Group Orders
+  retained its own timestamp, then success restored the root time. A second
+  mobile query failed in-page with `TypeError: Failed to fetch`; the root
+  footer remained `更新中..` and Group Orders again stayed unchanged. Desktop
+  1280x800 and mobile 390x844 documents matched their viewport widths with all
+  five panels and no browser warnings/errors. Logout returned HTTP 200, all 68
+  runtime-doctor checks passed, and MySQL retained 8 orders, 4 order items, and
+  unchanged order 1001 data.
