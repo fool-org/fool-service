@@ -22,6 +22,10 @@ Design source: `docs/installation-and-initialization.md`. Owner: Codex.
 
 ## Active: Agent Configuration Workflow
 
+Design sources: `docs/agent-sessions.md` defines the current session/provider
+boundary; `docs/authorization-and-agent-risk-control.md` defines the required
+authorization, risk, approval, execution, and audit boundary. Owner: Codex.
+
 - [x] Bootstrap the ordered backend agent/session boundary for
       report/query -> form/view -> model -> data-source -> event/automation.
 - [x] Add the first agent API surface for capability discovery, session
@@ -56,6 +60,42 @@ Design source: `docs/installation-and-initialization.md`. Owner: Codex.
       provider client, keeping API keys out of browser/session payloads.
 - [x] Add the authenticated `/agent` Vue chat workspace with provider selection,
       ordered stage progression, conversation history, and draft validation.
+- [ ] Build the Phase 0 identity and authorization foundation: bearer-token
+      authentication, token TTL/rotation, `EffectiveSubject`, deny-by-default
+      `AuthorizationService`, policy versioning, and security audit storage.
+      Acceptance: unauthenticated requests and direct requests with only a known
+      ViewId or Agent session id cannot access protected resources; new Agent
+      sessions persist owner/scope without persisting a raw bearer token.
+- [ ] Enforce Phase 1 resource, row, and field authorization consistently across
+      menus, View metadata, list/detail/lookup queries, reports, exports, and
+      Agent metadata/preview paths. Acceptance: focused integration tests prove
+      one user's visible rows and fields are identical through UI APIs, report
+      APIs, and Agent APIs, including counts and aggregates.
+- [ ] Add Phase 1 model-outbound controls for PUBLIC/INTERNAL/CONFIDENTIAL/
+      RESTRICTED data, field masking, provider allowlists, and schema-validated
+      ActionIntent parsing. Acceptance: provider request tests prove tokens,
+      credentials, connection strings, restricted fields, and unauthorized
+      fields are never sent to external models.
+- [ ] Add the Phase 2 controlled Action Request workflow with deterministic risk
+      floors, preflight, immutable preview, canonical payload hash, confirmation,
+      idempotency, execution-time authorization recheck, and audit trace.
+      Acceptance: payload, object-version, policy-version, expiry, and replay
+      changes invalidate prior confirmation and prevent execution.
+- [ ] Enable only the first bounded MEDIUM actions through the controlled path:
+      saved report definitions, policy-limited report export, and single-object
+      create/update. Acceptance: both direct Vue actions and Chat-created intents
+      use the same `/api/v1/actions` state machine and domain handlers.
+- [ ] Add Phase 3 step-up authentication and independent approval, then onboard
+      HIGH actions one at a time: delete, bounded bulk update, View Operation,
+      non-destructive DDL, data-source routing/credential references, event
+      enablement, and message sending. Acceptance: each action has a dedicated
+      handler, preview, approval rule, idempotency/rollback or recovery path,
+      runtime evidence, and no generic arbitrary-SQL/code execution capability.
+- [ ] Complete Phase 4 compatibility removal and hardening: remove body-token
+      support and raw Agent session tokens, add policy-cache invalidation and
+      audit tamper detection, and exercise dependency/audit/provider failures.
+      Acceptance: the full Maven, frontend, repo-harness, Docker runtime-doctor,
+      browser-role matrix, and security regression suite pass.
 
 ## Active: Vue Interface Upgrade
 

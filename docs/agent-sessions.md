@@ -1,8 +1,12 @@
 # Agent Sessions
 
-This document defines the first backend boundary for agent-assisted metadata
+This document defines the current backend boundary for agent-assisted metadata
 configuration. The agent layer is intentionally a controlled coordinator over
 existing Fool Service metadata modules, not a free-form code generator.
+`docs/authorization-and-agent-risk-control.md` is the design source for the
+authentication, authorization, data-scope, approval, execution, and audit
+boundary required before medium- or high-risk actions are enabled. `tasks.md`
+tracks delivery status for both documents.
 
 ## Capability Order
 
@@ -156,6 +160,10 @@ bean exists. Docker/MySQL schema lives in `docker/mysql/init/011-agent.sql`:
 Tests and non-database embedded contexts fall back to `InMemoryAgentSessionStore`.
 
 ## Required Follow-Up
+
+The authorization and execution prerequisites for every item below are defined
+in `docs/authorization-and-agent-risk-control.md`. Completing a preview or
+dry-run comparison does not by itself enable the related write path.
 
 - Compare the agent's hydrated `ReportCols` against `/api/v1/report/getmkqview`
   in runtime smoke checks and add a small read-only preview gate before any
