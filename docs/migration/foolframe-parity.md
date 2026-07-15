@@ -4805,3 +4805,22 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   and the repository harness passed afterward. The existing shared auth/shell
   implementation is therefore sufficient; no user DTO, page branch, or
   permanent application asset was added.
+- 2026-07-15: completed the missing browser proof for `detailview.js` inline
+  child-edit staging without changing application source. The regular Docker
+  `Items` collection uses View 101 columns but normally selects existing rows,
+  so acceptance temporarily cleared only `fool_sys_view_item` 1204's edit and
+  selected View pointers and made item-name column 1102 editable. A dedicated
+  order `9915071502` and child `9915071521` avoided touching seeded business
+  rows. Authorized `admin/admin` replay entered parent Edit, then row Edit, on
+  both desktop and 390px. Row Save changed only the rendered value and emitted
+  zero API/write requests while MySQL retained the prior value. Parent Save
+  then emitted exactly one `saveobj` whose View-derived `UpdatedList` contained
+  the same child id and new item name; MySQL changed only at that boundary.
+  Both runs loaded `getreaditemview` before `querydatadetail`, document widths
+  matched 1280px / 390px, and browser runtime/log errors were zero. Screenshots
+  are under `artifacts/runs/20260715-inline-child-edit/`. Cleanup restored the
+  two metadata rows to `1102:0:NULL:NULL:NULL` and `1204:0:101:101:101`, then
+  removed the dedicated order and child. All 69 runtime checks and the
+  repository harness passed afterward. Existing shared `ViewDetailPanel.vue`
+  staging is therefore sufficient; no page branch, concrete DTO, or duplicate
+  child editor was added.

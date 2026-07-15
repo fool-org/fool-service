@@ -1755,6 +1755,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Close the deferred non-empty user-avatar browser proof with a reversible
       old asset: verify desktop/mobile loading, legacy 50px circular rendering,
       shell containment, and exact database/Nginx restoration.
+- [x] Browser-verify `detailview.js` inline child-edit staging with reversible
+      View metadata and dedicated rows: row Save stays local, parent Save owns
+      the write, and desktop/mobile runs restore metadata and data exactly.
 
 ## Backlog
 - Continue from `docs/migration/foolframe-parity.md` only when a concrete
