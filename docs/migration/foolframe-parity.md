@@ -4880,3 +4880,27 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `sha256:3360869fcdc4dcb20234fa0835e39c622a205018940fb90763b9901e986cba6f`,
   whose host/container `index.html` SHA-256 matched at
   `167c2a2e433859bb095248909f3762b8f1c53347d2c187444fa8f2d2cf359823`.
+- 2026-07-15: restored `detailView.jade`'s read-value typography across all 57
+  imported detail Views. The old template renders field names as `label` and
+  each formatted value as a normal `<p>`; Vue instead used `<strong>` for
+  every read value, producing an invented 700 weight. `ViewDetailPanel.vue`
+  now uses explicit shared label/value classes, and the value class restores
+  normal 400 weight without changing `fieldDisplayValue`, metadata, request
+  payloads, edit controls, or binding to a concrete DTO. Authorized
+  `admin/admin` browser acceptance on `/view112/1` measured the first value as
+  `STRONG/700` before and `SPAN/400` after on both 1280px and 390px, while the
+  label remained 750. The desktop 192.7px / 385.3px field tracks and mobile
+  326px stack were unchanged. Both runs loaded `getreaditemview(112)` before
+  `querydatadetail(112,1)`, emitted zero write requests, matched document and
+  viewport widths, and had no browser runtime/log errors. Screenshots are
+  under `artifacts/runs/20260715-detail-read-value/` with desktop SHA-256
+  `9e3845b4bd8ab9eeed50ef6d5a604d4d512a70336656cf3c9aed7ce6d4b8fdc3`
+  and mobile SHA-256
+  `e73514b1ef44e1e7aebe5a1ca9d572bbecd14f08d37255ded589f3f9fade73ce`.
+  All 225 frontend tests, the production build, 118/118 View matrix, 69
+  runtime checks, and repository harness passed. Standard Compose frontend
+  build remained blocked by the Buildx activity-file permission; the validated
+  clean `dist` was injected into Nginx image
+  `sha256:02741803f9cc964b7bbfca31ae2759c1a3923d52871b6c4c9ba1768afa14097f`,
+  whose host/container `index.html` SHA-256 matched at
+  `3f8ff4bbd0fec0ebc922343ca743878d11c17517a3c640a75f07ba2c65112417`.

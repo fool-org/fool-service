@@ -1160,14 +1160,15 @@ label {
   padding: 5px 2px;
 }
 
-.detail-field-grid > div span {
+.detail-field-label {
   color: #64748b;
   font-size: 0.8rem;
   font-weight: 750;
 }
 
-.detail-field-grid > div strong {
+.detail-field-value {
   overflow-wrap: anywhere;
+  font-weight: 400;
 }
 
 .detail-field-edit > label {

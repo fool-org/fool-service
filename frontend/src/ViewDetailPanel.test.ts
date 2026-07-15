@@ -41,6 +41,12 @@ describe("ViewDetailPanel legacy interactions", () => {
     expect(viewDetailPanelSource).not.toContain("keys[0]");
   });
 
+  it("renders read values as normal text instead of invented emphasis", () => {
+    expect(viewDetailPanelSource).toContain('class="detail-field-label"');
+    expect(viewDetailPanelSource).toContain('class="detail-field-value"');
+    expect(viewDetailPanelSource).not.toContain('<strong>{{ fieldDisplayValue(item)');
+  });
+
   it("keeps legacy child collection commands active during requests", () => {
     const collectionSource = viewDetailPanelSource.slice(
       viewDetailPanelSource.indexOf('class="detail-collection-toolbar legacy-button-group"'),

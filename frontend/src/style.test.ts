@@ -155,4 +155,10 @@ describe("legacy detail field layout", () => {
     grid-template-columns: 1fr;
     gap: 7px;`);
   });
+
+  it("keeps read values at the old paragraph weight", () => {
+    expect(styleSource).toContain(`.detail-field-value {
+  overflow-wrap: anywhere;
+  font-weight: 400;`);
+  });
 });

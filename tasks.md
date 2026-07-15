@@ -1767,6 +1767,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `detailView.jade`'s desktop field-pair geometry: keep two
       label/control pairs per row with the legacy 1:2 inner ratio, while
       stacking each pair at 390px and preserving View-first detail loading.
+- [x] Restore `detailView.jade`'s read-value typography: keep View-derived
+      labels emphasized but render values at normal paragraph weight across
+      desktop and 390px without changing the detail data or edit paths.
 
 ## Backlog
 - Continue from `docs/migration/foolframe-parity.md` only when a concrete
