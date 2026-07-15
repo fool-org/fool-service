@@ -1761,6 +1761,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Browser-verify `setextype.js`'s Boolean editor through imported Model
       View 146: render one checked checkbox without invented `是/否` text,
       toggle locally without a request, and retain the stored value on reload.
+- [x] Restore `view.jade`'s metadata create-command presentation: use the
+      transparent Bootstrap `.btn` surface instead of an outlined Vue button,
+      while preserving View-first new-object navigation at desktop and 390px.
 
 ## Backlog
 - Continue from `docs/migration/foolframe-parity.md` only when a concrete

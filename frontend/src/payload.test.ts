@@ -72,6 +72,9 @@ describe("App defaults", () => {
     expect(mainViewSource).not.toContain('disabled || !currentViewId');
     expect(mainViewSource).toContain('<template v-if="listView">');
     expect(mainViewSource).not.toMatch(/v-for="operation in createItems"[\s\S]*?:disabled="disabled"[\s\S]*?@click="emit\('newObject'/);
+    expect(mainViewSource).toMatch(/v-for="operation in createItems"[\s\S]*?class="legacy-create-operation"[\s\S]*?\s+text\s/);
+    expect(mainViewSource).not.toMatch(/v-for="operation in createItems"[\s\S]*?\s+outlined\s+[\s\S]*?@click="emit\('newObject'/);
+    expect(mainViewSource).toMatch(/\.legacy-create-operation[\s\S]*?border-color: transparent;[\s\S]*?background: transparent;[\s\S]*?color: #333333;/);
     expect(mainViewSource).not.toContain('icon="pi pi-search"');
     expect(mainViewSource).not.toContain('icon="pi pi-chart-bar"');
     expect(mainViewSource).not.toContain('icon="pi pi-plus"');

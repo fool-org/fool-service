@@ -4839,3 +4839,20 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   repository harness passed afterward. The existing shared
   `MetadataFieldEditor.vue` checkbox path is therefore sufficient; no fixture,
   concrete DTO, page branch, or duplicate Boolean editor was added.
+- 2026-07-15: restored `view.jade`'s create-operation command chrome across the
+  56 imported generated list Views. Old list templates render non-select
+  operations as a bare Bootstrap `.btn`, whose border is solid but transparent,
+  background is transparent, and text is `#333`; Vue instead used a visible
+  slate outlined button. The shared `ViewListPanel.vue` now gives only
+  metadata create commands a scoped PrimeVue text-button style, leaving Find,
+  Statistics, row operations, and navigation state unchanged. Before/after
+  computed styles on `/view123` moved from a visible `rgb(71, 85, 105)` border
+  and text to a transparent border, transparent background, and
+  `rgb(51, 51, 51)` text at both 1280px and 390px. Clicking `新建` still loaded
+  `getreaditemview(122)` before `initnew(122)`, navigated to `/new122`, and
+  emitted zero write requests. Both document widths matched their viewports,
+  browser logs were empty, and screenshots are under
+  `artifacts/runs/20260715-create-command/`. All 222 frontend tests, the
+  production build, 118/118 View matrix, 69 runtime checks, and repository
+  harness passed. No page-specific View id, business DTO, or duplicate toolbar
+  was added.

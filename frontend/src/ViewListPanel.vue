@@ -105,10 +105,11 @@ watch(tableVisible, (visible) => emit("tableVisibility", visible), { immediate: 
         <Button
           v-for="operation in createItems"
           :key="operationKey(operation)"
+          class="legacy-create-operation"
           type="button"
           :label="operationLabel(operation)"
           severity="secondary"
-          outlined
+          text
           @click="emit('newObject', operationTargetViewId(operation) || currentViewId)"
         />
       </template>
@@ -148,3 +149,14 @@ watch(tableVisible, (visible) => emit("tableVisibility", visible), { immediate: 
     />
   </article>
 </template>
+
+<style scoped>
+.legacy-create-operation,
+.legacy-create-operation:hover,
+.legacy-create-operation:focus-visible,
+.legacy-create-operation:active {
+  border-color: transparent;
+  background: transparent;
+  color: #333333;
+}
+</style>
