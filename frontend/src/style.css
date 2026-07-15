@@ -719,6 +719,7 @@ label {
   display: flex;
   gap: 4px;
   align-items: center;
+  white-space: nowrap;
 }
 
 .legacy-inert-operation {

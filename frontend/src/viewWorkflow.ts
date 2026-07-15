@@ -74,6 +74,12 @@ export function columnWidth(column: TableColumnInfo) {
   return Number.isFinite(width) && width > 0 ? width : 0;
 }
 
+export function columnMinimumWidth(column: TableColumnInfo) {
+  const configured = columnWidth(column);
+  if (configured) return configured;
+  return Math.min(220, Math.max(96, Array.from(columnTitle(column)).length * 8 + 20));
+}
+
 export function rowObjectId(row: ListDataItem, columns: TableColumnInfo[] = []) {
   const items = rowItems(row);
   const firstColumnItemWithId = columns

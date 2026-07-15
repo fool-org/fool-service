@@ -6,6 +6,7 @@ import DataTable from "primevue/datatable";
 import type { ListDataItem, OperationInfo, TableColumnInfo } from "./api";
 import {
   columnKey,
+  columnMinimumWidth,
   columnTitle,
   columnWidth,
   operationKey,
@@ -56,6 +57,11 @@ const renderedRows = computed<RenderedListDataItem[]>(() => [
     () => ({ [fillerRow]: true } as RenderedListDataItem)
   )
 ]);
+const showsActions = computed(() => props.rowOperations.length > 0 || props.showDefaultAction);
+const tableMinimumWidth = computed(() => (
+  props.columns.reduce((width, column) => width + columnMinimumWidth(column), 0)
+  + (showsActions.value ? 72 : 0)
+));
 
 function isFiller(row: RenderedListDataItem) {
   return row[fillerRow] === true;
@@ -63,7 +69,10 @@ function isFiller(row: RenderedListDataItem) {
 
 function tableColumnStyle(column: TableColumnInfo) {
   const width = columnWidth(column);
-  return width ? { width: `${width}px` } : undefined;
+  return {
+    minWidth: `${columnMinimumWidth(column)}px`,
+    ...(width ? { width: `${width}px` } : {})
+  };
 }
 
 function tableRowClass(row: RenderedListDataItem) {
@@ -81,6 +90,7 @@ function tableRowClass(row: RenderedListDataItem) {
     :class="{ 'metadata-empty-table': !columns.length || !renderedRows.length }"
     :value="columns.length ? renderedRows : []"
     :row-class="tableRowClass"
+    :table-style="{ minWidth: `${tableMinimumWidth}px` }"
     scrollable
     :striped-rows="striped"
     :size="condensed ? 'small' : undefined"
@@ -94,6 +104,7 @@ function tableRowClass(row: RenderedListDataItem) {
     <Column
       v-if="rowOperations.length || showDefaultAction"
       header="操作"
+      :style="{ minWidth: '72px' }"
       :header-style="showActionHeader ? undefined : { display: 'none' }"
     >
       <template #body="{ data: row }">

@@ -14,6 +14,7 @@ import {
   buildSelectedExistingItemProperty,
   buildUpdatedItemProperty,
   columnKey,
+  columnMinimumWidth,
   columnWidth,
   createOperations,
   dataCanEdit,
@@ -173,6 +174,10 @@ describe("view workflow helpers", () => {
     expect(columnWidth({ Width: 80 })).toBe(80);
     expect(columnWidth({ width: 0, Width: 90 })).toBe(0);
     expect(columnWidth({ width: -1 })).toBe(0);
+    expect(columnMinimumWidth({ name: "id", width: 120 })).toBe(120);
+    expect(columnMinimumWidth({ name: "id" })).toBe(96);
+    expect(columnMinimumWidth({ name: "lastModifyTime" })).toBe(132);
+    expect(columnMinimumWidth({ name: "x".repeat(40) })).toBe(220);
     expect(rowObjectId(row, columns)).toBe("1001");
     expect(rowValue(row, columns[1])).toBe("Open");
     expect(rowFormatClass({ ...row, rowFmt: "warning-row " })).toBe("warning-row");

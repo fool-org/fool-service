@@ -29,6 +29,12 @@ describe("ViewListPanel legacy interactions", () => {
     expect(viewListPanelSource).not.toMatch(/<SudokuPanels[^>]*:disabled=/);
   });
 
+  it("keeps unconfigured metadata columns readable through horizontal scrolling", () => {
+    expect(listDataTableSource).toContain("columnMinimumWidth(column)");
+    expect(listDataTableSource).toContain(':table-style="{ minWidth: `${tableMinimumWidth}px` }"');
+    expect(listDataTableSource).toContain(":style=\"{ minWidth: '72px' }\"");
+  });
+
   it("opens shared View errors in the legacy dialog", () => {
     expect(viewListPanelSource).toContain('<LegacyErrorDialog :message="errorMessage"');
     expect(viewListPanelSource).not.toContain('<Message v-if="errorMessage"');
