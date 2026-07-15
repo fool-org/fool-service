@@ -54,6 +54,7 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
+      TZ: Asia/Shanghai
       SPRING_PROFILES_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/car_wash?serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&allowMultiQueries=true&autoReconnect=true
       SPRING_DATASOURCE_USERNAME: root
