@@ -1782,6 +1782,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Align `detailView.jade` read labels with the old neutral bold treatment,
       normalizing the legacy 10px body scale to a readable 14px while retaining
       the established field geometry and View-first request flow.
+- [x] Reuse the aligned detail label treatment in edit mode so read and edit
+      states keep the same neutral 14px hierarchy without changing editor
+      geometry, responsive behavior, requests, or View-derived bindings.
 
 ## Backlog
 - Continue from `docs/migration/foolframe-parity.md` only when a concrete

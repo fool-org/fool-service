@@ -169,8 +169,9 @@ describe("legacy detail field layout", () => {
   font-weight: 400;`);
   });
 
-  it("uses the legacy neutral label treatment at a readable size", () => {
-    expect(styleSource).toContain(`.detail-field-label {
+  it("shares the legacy neutral label treatment across read and edit states", () => {
+    expect(styleSource).toContain(`.detail-field-label,
+.detail-field-edit > label {
   color: #333333;
   font-size: 14px;
   font-weight: 700;`);

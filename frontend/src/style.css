@@ -1160,7 +1160,8 @@ label {
   padding: 5px 2px;
 }
 
-.detail-field-label {
+.detail-field-label,
+.detail-field-edit > label {
   color: #333333;
   font-size: 14px;
   font-weight: 700;

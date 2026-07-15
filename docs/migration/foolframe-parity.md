@@ -5001,3 +5001,29 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `sha256:84825d3afef3670900a7bedcc102a15f992f3384806a38f32416837346eebccc`,
   whose host/container `index.html` SHA-256 matched at
   `f71d49f2a518a884a07675e367bb31a0dfe84ff36bf1b3e9e0171be4c5bdd19d`.
+- 2026-07-15: extended the aligned `detailView.jade` label treatment to edit
+  mode. The old template uses the same ordinary `label` element for read and
+  edit fields, while Vue's edit labels still inherited the global slate
+  `12.6px / rgb(71,85,105) / 700` rule after read labels had been aligned.
+  Read and edit labels now share one neutral `14px / #333 / 700` rule, with no
+  duplicate selector block, component change, View-id branch, request change,
+  or business DTO binding. Authorized `admin/admin` browser acceptance on
+  `/view112/1` measured the aligned edit label at 1280px, 768px, and 390px.
+  The outer/editor widths remained 594px / 385.3px, 688px / 684px, and 330px /
+  326px respectively. All runs retained the View-first `getreaditemview`,
+  `querydatadetail`, `getenums` sequence, emitted zero writes, matched document
+  and viewport widths, and had no browser runtime/log errors. Screenshots are
+  under `artifacts/runs/20260715-detail-edit-label-style/` with aligned desktop
+  SHA-256
+  `f190dec72f54a648d2486c8d97989bd0c3ac4e9e00b0ea298a74159b9dc64af7`,
+  tablet SHA-256
+  `92d6116ebc12d79a1118157822115738f3e60d0db920a16e1fe31e00e0a170fa`,
+  and mobile SHA-256
+  `9e0637a54df7e598095088d1486167eb179f18e2b10dc00ed17a157789172bf1`.
+  All 227 frontend tests, the production build, 118/118 View matrix, 69
+  runtime checks, database baseline, and repository harness passed. Standard
+  Compose frontend build remained blocked by the Buildx activity-file
+  permission; the validated clean `dist` was injected into Nginx image
+  `sha256:1a9d132662e3663b4c3fdb56f814bc1d821f0d472f5e8f097527a8e688e85b10`,
+  whose host/container `index.html` SHA-256 matched at
+  `7bf79b8bd27bd03d44fd2d95b90b312e91552dcdddc7df4db465e9302d42e24e`.
