@@ -553,6 +553,13 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertFalse(legacy_runtime_catalog_ok(raw.replace("id-properties\t0", "")))
         self.assertFalse(legacy_runtime_catalog_ok(raw.replace("views\t0", "views\tn/a")))
 
+    def test_legacy_runtime_catalog_accepts_only_single_physical_primary_key_overrides(self) -> None:
+        query = runtime_doctor.LEGACY_RUNTIME_CATALOG_QUERY
+
+        self.assertIn("physical_id.COLUMN_KEY='PRI'", query)
+        self.assertIn("HAVING COUNT(*)=1", query)
+        self.assertIn("runtime_id.property_type<>0", query)
+
     def test_common_response_list_requires_success_and_nonempty_list(self) -> None:
         self.assertTrue(common_response_list({"code": 0, "data": {"items": [1]}}, "items"))
         self.assertFalse(common_response_list({"code": 1, "data": {"items": [1]}}, "items"))

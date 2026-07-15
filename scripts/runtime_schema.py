@@ -40,7 +40,17 @@ LEGACY_RUNTIME_CATALOG_QUERY = (
     "JOIN fool_sys_model runtime_model ON runtime_model.id=view_model.VIEW_MODEL "
     "LEFT JOIN fool_sys_model_property runtime_id "
     "ON runtime_id.id=runtime_model.id_property AND runtime_id.owner=runtime_model.id "
-    "AND runtime_id.property_type=0 WHERE runtime_id.id IS NULL"
+    "LEFT JOIN information_schema.COLUMNS physical_id "
+    "ON physical_id.TABLE_SCHEMA=DATABASE() "
+    "AND BINARY physical_id.TABLE_NAME=BINARY runtime_model.table_name "
+    "AND LOWER(physical_id.COLUMN_NAME)=LOWER(runtime_id.`column`) "
+    "AND physical_id.COLUMN_KEY='PRI' "
+    "LEFT JOIN (SELECT TABLE_NAME FROM information_schema.COLUMNS "
+    "WHERE TABLE_SCHEMA=DATABASE() AND COLUMN_KEY='PRI' "
+    "GROUP BY BINARY TABLE_NAME, TABLE_NAME HAVING COUNT(*)=1) single_primary_key "
+    "ON BINARY single_primary_key.TABLE_NAME=BINARY runtime_model.table_name "
+    "WHERE runtime_id.id IS NULL OR (runtime_id.property_type<>0 "
+    "AND (physical_id.COLUMN_NAME IS NULL OR single_primary_key.TABLE_NAME IS NULL))"
 )
 LEGACY_CORE_SCHEMA_COLUMNS = (
     ("auth_user", "id"),
