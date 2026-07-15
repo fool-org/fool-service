@@ -49,6 +49,17 @@ FROM `SW_SYS_PROPERTY`
 WHERE `SW_SYS_MODEL_PropertiesSysId` IS NOT NULL
   AND COALESCE(NULLIF(`PROPERTY_PROPERTYNAME`, ''), `PROPERTY_NAME`) IS NOT NULL;
 
+UPDATE `fool_sys_model` model
+JOIN (
+  SELECT `owner`, MIN(`id`) AS `id_property`
+  FROM `fool_sys_model_property`
+  WHERE `property_type` = 0
+  GROUP BY `owner`
+) identified
+  ON identified.`owner` = model.`id`
+SET model.`id_property` = identified.`id_property`
+WHERE model.`id_property` IS NULL;
+
 INSERT INTO `fool_sys_model_enum` (`name`, `value`, `remark`, `owner`)
 SELECT
   legacy.`EMUN_STR`,
