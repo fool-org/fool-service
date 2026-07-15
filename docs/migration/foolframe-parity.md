@@ -4622,3 +4622,25 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   five panels and no browser warnings/errors. Logout returned HTTP 200, all 68
   runtime-doctor checks passed, and MySQL retained 8 orders, 4 order items, and
   unchanged order 1001 data.
+- 2026-07-15: connected the imported FoolFrame metadata catalogs to the
+  normalized runtime path. Idempotent migrations now project legacy
+  `SW_SYS_MODEL` / `SW_SYS_PROPERTY` / `SW_SYS_EMUNVALUE` and `SW_SYS_VIEW` /
+  `SW_SYS_VIEW_ITEM` rows without overwriting existing runtime records, and
+  infer a missing model id property only from legacy `IdentifyId` metadata.
+  Exact commits `d59e6c45`, `5dfedeea`, and `9f1f5005` restore the catalog and
+  object-query chain; `129d67d2` sets the backend runtime to `Asia/Shanghai` so
+  JDBC DateTime values match the MySQL session instead of drifting by eight
+  hours. Replaying all migrations retained 83 legacy / 82 runtime models, 478
+  properties, 137 enum values, 118 Views, and 922 legacy / 927 unioned runtime
+  ViewItems. The one skipped legacy model is the unreferenced duplicate-name
+  `AuthorizedUser` id 182; every model and property referenced by an old View
+  resolves. Commit `4aae9ddd` adds a runtime-doctor guard for that invariant.
+  Authorized `admin/admin` acceptance on `/view112/1` requested
+  `getreaditemview(112)` before `querydatadetail(112,1)`, then rendered all 16
+  `User详细` fields, three DateTime controls, and the `Male` enum from View
+  metadata. MySQL exposed create time `2026-07-03 12:22:51` and the API emitted
+  `2026-07-03 12:22:51.0`; desktop 1280x900 and mobile 390x844 layouts stayed
+  within their viewports with no browser errors. All 218 frontend tests, the
+  production build, 49 doctor unit tests, repository harness, and 69 Docker
+  runtime checks passed after a second migration replay. MySQL retained one
+  admin user, 8 orders, 4 order items, and unchanged order 1001 data.

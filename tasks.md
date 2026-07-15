@@ -1717,6 +1717,13 @@ item must land with its matching implementation and validation evidence.
 - [x] Browser-verify Sudoku List updating feedback at desktop and 390px: delay
       one successful root refresh, fail the next transport, and prove the Group
       child with the same ViewId retains independent timestamp state.
+- [x] Project imported FoolFrame Model, Property, Enum, View, and ViewItem
+      catalogs into the normalized runtime without overwriting local records.
+- [x] Restore imported View object loading through legacy `IdentifyId` metadata
+      and align backend DateTime handling with the MySQL `Asia/Shanghai` session.
+- [x] Browser-verify imported `User详细` View 112 at desktop and 390px: preserve
+      View-before-data request order and render its DateTime and enum controls
+      without binding the Vue component to a concrete User DTO.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from
