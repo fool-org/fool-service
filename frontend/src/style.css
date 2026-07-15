@@ -1161,9 +1161,9 @@ label {
 }
 
 .detail-field-label {
-  color: #64748b;
-  font-size: 0.8rem;
-  font-weight: 750;
+  color: #333333;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .detail-field-value {

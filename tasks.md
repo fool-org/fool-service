@@ -1779,6 +1779,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `detailView.jade`'s Bootstrap md breakpoint: retain two
       label/value pairs at 992px and above, then stack both the field pair and
       its label/value tracks below 992px without changing View/data requests.
+- [x] Align `detailView.jade` read labels with the old neutral bold treatment,
+      normalizing the legacy 10px body scale to a readable 14px while retaining
+      the established field geometry and View-first request flow.
 
 ## Backlog
 - Continue from `docs/migration/foolframe-parity.md` only when a concrete

@@ -4972,3 +4972,32 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `sha256:0ef28b0bee175d22b56f60481a4d55034619a204494609103c4c51752fe1280d`,
   whose host/container `index.html` SHA-256 matched at
   `aa5177d26d2da5c2398ad1d628c800ccda9a577da3f971c556f2e638ef05b4d6`.
+- 2026-07-15: aligned `detailView.jade`'s read-field label treatment. The old
+  template renders field names as ordinary `label` elements; its Bootstrap
+  and page CSS provide neutral `#333` text and bold weight. Vue retained an
+  invented slate `#64748b`, 750 weight, and 12px scale. The shared read-label
+  class now uses `#333`, standard 700 bold, and a readable 14px scale rather
+  than copying the old page's impractical 10px body size. No component,
+  metadata, field geometry, request, data merge, or business DTO binding
+  changed. Authorized `admin/admin` acceptance on `/view112/1` measured the
+  label change from `12px / rgb(100,116,139) / 750` to
+  `14px / rgb(51,51,51) / 700` at 1280px, 768px, and 390px. The outer/value
+  tracks remained 594px / 385.3px, 688px / 684px, and 330px / 326px
+  respectively. All runs retained the View-first `getreaditemview`,
+  `querydatadetail`, `getenums` sequence, emitted zero writes, matched document
+  and viewport widths, and had no browser runtime/log errors. Screenshots are
+  under `artifacts/runs/20260715-detail-label-style/` with aligned desktop
+  SHA-256
+  `54f7be8388dfdfa392f96106dc91f1bf8bd3ef382289613d9625322d6790fa1c`,
+  tablet SHA-256
+  `0636a5dd6fe1c1e888b4666b9b773713ff7ce91214d9163db1d1044640b1a97b`,
+  and mobile SHA-256
+  `3950bdb15113abd7514792b2ac2e670200b2b089b2e7c67266c700960677a641`.
+  All 227 frontend tests, the production build, 118/118 View matrix, 69
+  runtime checks after runtime-message seed replay, database baseline, and
+  repository harness passed. Standard Compose frontend build remained blocked
+  by the Buildx activity-file permission; the validated clean `dist` was
+  injected into Nginx image
+  `sha256:84825d3afef3670900a7bedcc102a15f992f3384806a38f32416837346eebccc`,
+  whose host/container `index.html` SHA-256 matched at
+  `f71d49f2a518a884a07675e367bb31a0dfe84ff36bf1b3e9e0171be4c5bdd19d`.

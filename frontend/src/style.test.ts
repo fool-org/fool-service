@@ -168,4 +168,11 @@ describe("legacy detail field layout", () => {
   overflow-wrap: anywhere;
   font-weight: 400;`);
   });
+
+  it("uses the legacy neutral label treatment at a readable size", () => {
+    expect(styleSource).toContain(`.detail-field-label {
+  color: #333333;
+  font-size: 14px;
+  font-weight: 700;`);
+  });
 });
