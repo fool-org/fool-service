@@ -4945,3 +4945,30 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `sha256:43800318f00ba54b508e42eb578bf358e63d20ec3206d0897f3fa5826dc0bf7c`,
   whose host/container `index.html` SHA-256 matched at
   `b1f4e0ecff1137e854fb80d7ab76c22404a9425e461cb20234af034b0b6efb43`.
+- 2026-07-15: restored `detailView.jade`'s Bootstrap md responsive boundary.
+  The old template emits each simple field as `.col-md-2` plus `.col-md-4`, so
+  both the outer field pair and inner label/value tracks become full width
+  below 992px. Vue previously retained the desktop two-pair layout down to
+  641px. The shared CSS now stacks both tracks below 992px without changing
+  components, View metadata, data merge logic, request payloads, or business
+  DTO bindings. Authorized `admin/admin` acceptance on `/view112/1` retained
+  the 594px outer pair and 192.7px / 385.3px inner tracks at 1280px, changed
+  the 768px layout from two 338px outer pairs with 110px / 212px inner tracks
+  to one 688px field with a 684px stacked value track, and retained the 330px
+  / 326px stack at 390px. All three runs kept the View-first `getreaditemview`,
+  `querydatadetail`, `getenums` sequence, emitted zero write requests, matched
+  document and viewport widths, and had no browser runtime/log errors.
+  Screenshots are under `artifacts/runs/20260715-detail-breakpoint/` with
+  desktop SHA-256
+  `9e3845b4bd8ab9eeed50ef6d5a604d4d512a70336656cf3c9aed7ce6d4b8fdc3`,
+  tablet SHA-256
+  `2ddc7bbe70b7daa35e66470b975daad743e00fffe5e6ad4a1108aea3088c53a9`,
+  and mobile SHA-256
+  `e73514b1ef44e1e7aebe5a1ca9d572bbecd14f08d37255ded589f3f9fade73ce`.
+  All 226 frontend tests, the production build, 118/118 View matrix, 69
+  runtime checks, database baseline, and repository harness passed. Standard
+  Compose frontend build remained blocked by the Buildx activity-file
+  permission; the validated clean `dist` was injected into Nginx image
+  `sha256:0ef28b0bee175d22b56f60481a4d55034619a204494609103c4c51752fe1280d`,
+  whose host/container `index.html` SHA-256 matched at
+  `aa5177d26d2da5c2398ad1d628c800ccda9a577da3f971c556f2e638ef05b4d6`.

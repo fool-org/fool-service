@@ -1387,6 +1387,18 @@ label {
 
 }
 
+@media (max-width: 991px) {
+  .detail-field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-field-grid > div,
+  .detail-field-edit > label {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+}
+
 @media (max-width: 640px) {
   .workspace {
     padding: 14px;
@@ -1399,16 +1411,6 @@ label {
   .list-query-input,
   .candidate-query-input {
     flex: 1 1 100%;
-  }
-
-  .detail-field-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .detail-field-grid > div,
-  .detail-field-edit > label {
-    grid-template-columns: 1fr;
-    gap: 7px;
   }
 
   .sudoku-panel {

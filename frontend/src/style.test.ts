@@ -145,12 +145,19 @@ describe("shared report styles", () => {
 });
 
 describe("legacy detail field layout", () => {
-  it("pairs labels and controls on desktop and stacks them on mobile", () => {
+  it("pairs labels and controls on desktop and stacks below the legacy md breakpoint", () => {
+    const responsiveSource = styleSource.slice(
+      styleSource.indexOf("@media (max-width: 991px)"),
+      styleSource.indexOf("@media (max-width: 640px)")
+    );
     expect(styleSource).toContain(`.detail-field-grid > div,
 .detail-field-edit > label {
   display: grid;
   grid-template-columns: minmax(110px, 0.5fr) minmax(0, 1fr);`);
-    expect(styleSource).toContain(`.detail-field-grid > div,
+    expect(responsiveSource).toContain(`.detail-field-grid {
+    grid-template-columns: 1fr;
+  }`);
+    expect(responsiveSource).toContain(`.detail-field-grid > div,
   .detail-field-edit > label {
     grid-template-columns: 1fr;
     gap: 7px;`);
