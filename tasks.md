@@ -1711,6 +1711,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Browser-verify the deployed Sudoku Group request boundary at desktop and
       390px: retain all five root panels and grouped-list data while emitting
       `getlistview(104)` without `querydata(104)` or database drift.
+- [x] Restore `QuerylistdataController`'s Sudoku list refresh feedback: show
+      `更新中..` for root and grouped List panels while their query is pending,
+      restore `FreshTime` on success, and retain the text on transport failure.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from

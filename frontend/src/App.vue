@@ -256,6 +256,7 @@ const isUnsupportedView = computed(() => viewTemplateKind(viewResponse.value?.da
 const sudokuPanels = computed(() => viewColumns(viewResponse.value?.data));
 const {
   panelData: sudokuPanelData,
+  panelUpdating: sudokuPanelUpdating,
   loadPanels: loadSudokuPanels,
   refreshPanel: refreshSudokuPanel,
   stopRefresh: stopSudokuPanelRefresh
@@ -1150,6 +1151,7 @@ function syncDetailDrafts() {
           :navigation-revision="viewNavigationRevision"
           :page-index="pageIndex"
           :panel-data="sudokuPanelData"
+          :panel-updating="sudokuPanelUpdating"
           :view="viewResponse?.data"
           @dismiss-error="errorMessage = ''"
           @new-object="openNewObject"

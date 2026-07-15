@@ -38,6 +38,7 @@ const props = defineProps<{
   pageIndex: number;
   pageSize: number;
   panelData: Record<number, { view: ListViewInfo; data: ListViewResult | null; detail?: QueryDataDetailResult | null }>;
+  panelUpdating: Record<number, boolean>;
   view?: ListViewInfo;
 }>();
 
@@ -125,7 +126,7 @@ watch(tableVisible, (visible) => emit("tableVisibility", visible), { immediate: 
       </TabList>
     </Tabs>
 
-    <SudokuPanels v-if="sudokuView" :panel-data="panelData" :panels="viewColumns(view)" @refresh-panel="emit('refreshPanel', $event)" />
+    <SudokuPanels v-if="sudokuView" :panel-data="panelData" :panel-updating="panelUpdating" :panels="viewColumns(view)" @refresh-panel="emit('refreshPanel', $event)" />
 
     <div ref="chartTablePane" v-if="supportedTemplate && !sudokuView" v-show="tableVisible" class="table-wrap view-table">
       <ListDataTable

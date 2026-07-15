@@ -2,7 +2,7 @@ import { ref } from "vue";
 import { describe, expect, it, vi } from "vitest";
 import appSource from "./App.vue?raw";
 import sudokuPanelsSource from "./SudokuPanels.vue?raw";
-import { useSudokuPanels } from "./useSudokuPanels";
+import { type SudokuPanelResult, useSudokuPanels } from "./useSudokuPanels";
 import sudokuWorkflowSource from "./useSudokuPanels.ts?raw";
 import viewListPanelSource from "./ViewListPanel.vue?raw";
 
@@ -47,5 +47,44 @@ describe("SudokuPanels legacy interactions", () => {
       view: { ViewId: 104, Items: [] },
       data: null
     });
+  });
+
+  it("exposes the legacy updating text until a List query succeeds", async () => {
+    let resolveLoad!: (result: SudokuPanelResult) => void;
+    const loadViewDataById = vi.fn(() => new Promise<SudokuPanelResult>((resolve) => { resolveLoad = resolve; }));
+    const workflow = useSudokuPanels({
+      enabled: ref(true),
+      loadViewById: vi.fn(),
+      loadViewDataById,
+      panels: ref([]),
+      runAction: vi.fn(),
+      token: ref("token")
+    });
+    const panel = { ListViewId: 100, ViewFile: "./includes/List" };
+
+    const refresh = workflow.refreshPanel(panel);
+    expect(workflow.panelUpdating.value[100]).toBe(true);
+    resolveLoad({ view: { ViewId: 100 }, data: { AutoFreshTime: 0 } });
+    await refresh;
+
+    expect(workflow.panelUpdating.value[100]).toBe(false);
+    expect(sudokuPanelsSource).toContain('return "更新中.."');
+    expect(appSource).toContain(':panel-updating="sudokuPanelUpdating"');
+    expect(viewListPanelSource).toContain(':panel-updating="panelUpdating"');
+  });
+
+  it("keeps the legacy updating text after a List transport failure", async () => {
+    const workflow = useSudokuPanels({
+      enabled: ref(true),
+      loadViewById: vi.fn(),
+      loadViewDataById: vi.fn(async () => null),
+      panels: ref([]),
+      runAction: vi.fn(),
+      token: ref("token")
+    });
+
+    await workflow.refreshPanel({ ListViewId: 100, ViewFile: "./includes/List" });
+
+    expect(workflow.panelUpdating.value[100]).toBe(true);
   });
 });

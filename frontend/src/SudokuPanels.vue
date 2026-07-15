@@ -28,6 +28,7 @@ import {
 
 const props = defineProps<{
   panelData: Record<number, SudokuPanelResult>;
+  panelUpdating: Record<number, boolean>;
   panels: TableColumnInfo[];
 }>();
 const emit = defineEmits<{ refreshPanel: [panel: TableColumnInfo] }>();
@@ -52,6 +53,7 @@ function sudokuPanelRows(panel: TableColumnInfo) {
 
 function sudokuPanelFreshTime(panel: TableColumnInfo) {
   if (sudokuPanelKind(panel) !== "list") return "";
+  if (props.panelUpdating[sudokuPanelViewId(panel)]) return "更新中..";
   return listFreshTime(sudokuPanelResult(panel)?.data || undefined);
 }
 

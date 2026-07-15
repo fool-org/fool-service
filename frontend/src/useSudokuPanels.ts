@@ -43,11 +43,13 @@ interface SudokuPanelWorkflowOptions {
 
 export function useSudokuPanels(options: SudokuPanelWorkflowOptions) {
   const panelData = ref<Record<number, SudokuPanelResult>>({});
+  const panelUpdating = ref<Record<number, boolean>>({});
   const refreshTimers = new Map<string, number>();
 
   async function loadPanels() {
     stopRefresh();
     panelData.value = {};
+    panelUpdating.value = {};
     if (!options.enabled.value) return;
     for (const panel of options.panels.value) await refreshPanel(panel);
   }
@@ -66,7 +68,7 @@ export function useSudokuPanels(options: SudokuPanelWorkflowOptions) {
     for (const childPanel of viewColumns(response.view)) {
       const childViewId = sudokuPanelViewId(childPanel);
       if (!childViewId || sudokuPanelListViewType(childPanel) !== 0) continue;
-      const childResponse = await options.loadViewDataById(childViewId, "sudoku-panel", 5, silentTransport);
+      const childResponse = await loadListPanel(childPanel);
       if (!childResponse) continue;
       mergePanelResult(childViewId, childResponse);
       scheduleRefresh(childPanel, childResponse);
@@ -81,7 +83,16 @@ export function useSudokuPanels(options: SudokuPanelWorkflowOptions) {
       const response = await options.loadViewById(panelViewId, "sudoku-group", silentTransport);
       return response ? { view: response.data, data: null } : null;
     }
+    if (kind === "list") return loadListPanel(panel);
     return options.loadViewDataById(panelViewId, "sudoku-panel", 5, silentTransport);
+  }
+
+  async function loadListPanel(panel: TableColumnInfo) {
+    const panelViewId = sudokuPanelViewId(panel);
+    panelUpdating.value = { ...panelUpdating.value, [panelViewId]: true };
+    const response = await options.loadViewDataById(panelViewId, "sudoku-panel", 5, silentTransport);
+    if (response) panelUpdating.value = { ...panelUpdating.value, [panelViewId]: false };
+    return response;
   }
 
   async function loadDetailPanel(panelViewId: number, label: string) {
@@ -147,5 +158,5 @@ export function useSudokuPanels(options: SudokuPanelWorkflowOptions) {
     refreshTimers.clear();
   }
 
-  return { panelData, loadPanels, refreshPanel, stopRefresh };
+  return { panelData, panelUpdating, loadPanels, refreshPanel, stopRefresh };
 }

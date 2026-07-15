@@ -4596,3 +4596,13 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   matched their viewport widths, browser warnings/errors were empty, logout
   returned HTTP 200, all 68 runtime-doctor checks passed, and MySQL retained 8
   orders, 4 order items, and unchanged order 1001 data.
+- 2026-07-15: restored `QuerylistdataController`'s pending timestamp feedback
+  for Sudoku List panels. The old controller sets its local `querytime` to
+  `更新中..` before every query and replaces it with `FreshTime` only inside the
+  successful HTTP callback, so a transport failure leaves the updating text in
+  place. Vue now keeps one View-id keyed updating record in `useSudokuPanels`
+  and reuses the same List loader for root and Group child panels. The View
+  component reads that UI state only for active List footers; Map, line-chart,
+  and Item passive timestamps, concurrent Refresh availability, View/data
+  projection, and DTOs remain unchanged. All 217 frontend tests, the
+  TypeScript/Vite production build, and repository harness pass.
