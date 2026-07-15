@@ -4697,3 +4697,20 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   fallback. Remaining imported-View work is breadth of interaction coverage:
   classify all 118 old Views by template, then run reversible write acceptance
   only for genuinely editable new/edit/save/child/delete/operation paths.
+- 2026-07-15: completed the stable imported-View route matrix from old source
+  before following runtime data. `routes/index.js` selects `view`,
+  `viewWithChart`, or `Sudoku` only from list View `TempFile`; object, new, and
+  schema routes render `detailView.jade` / `item.jade`; the sole type-3 View is
+  reached through `Sudoku.jade`'s `includes/Map` item rather than a separate
+  top-level template. Commit `173de400` adds a reusable stdlib auditor that
+  joins View, template, menu, default-detail, panel-reference, and operation
+  metadata, then logs in with the authorized local CAPTCHA and `admin/admin`.
+  The generated `docs/migration/foolframe-view-matrix.md` records all 118 rows:
+  58 ordinary lists, one `viewWithChart`, one Sudoku, 57 details, and one Map
+  panel. Runtime metadata/data checks passed 118/118, pairing
+  `getlistview + querydata` for 61 list-like Views and
+  `getreaditemview + initnew` for 57 detail Views without persistence. The
+  five focused auditor tests and repository harness passed. No template
+  dispatch or View/Data binding mismatch was found, so this slice adds no Vue
+  branch or DTO. Remaining imported-View work is now the reversible mutation
+  matrix for genuinely editable new/edit/save/child/delete/operation paths.

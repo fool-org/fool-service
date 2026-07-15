@@ -1735,7 +1735,7 @@ item must land with its matching implementation and validation evidence.
       data-backed default-detail route without binding Vue to business DTOs.
 - [x] Browser-verify representative repaired catalog routes through real row
       clicks: ApplicationDatabase, View, Property, Model, and EventDefinition.
-- [ ] Classify all 118 imported Views by old template and supported interaction
+- [x] Classify all 118 imported Views by old template and supported interaction
       surface, then record a stable route matrix beyond the 60 list reads and
       47 data-backed default-detail reads already covered.
 - [ ] Run reversible browser write acceptance for the imported Views that are

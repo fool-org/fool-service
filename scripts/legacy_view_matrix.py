@@ -234,10 +234,16 @@ def render_markdown(views: list[LegacyView]) -> str:
         "Generated from the Docker `SW_SYS_VIEW` catalog by",
         "`python scripts/legacy_view_matrix.py --output docs/migration/foolframe-view-matrix.md`.",
         "",
+        "Classification follows `../FoolFrame/src/Web/routes/index.js`: list routes",
+        "select `view`, `viewWithChart`, or `Sudoku` from `TempFile`; object, new,",
+        "and schema routes use `detailView.jade` and `item.jade`; Map is embedded",
+        "through `Sudoku.jade` and `includes/Map.jade`.",
+        "",
         f"Catalog: {len(views)} Views ({summary}). Runtime metadata/data: {passed}/{len(views)} passed.",
         "",
         "`Entry` records application/menu/default-detail/panel references. `Ops` is",
-        "`create/row`. Detail rows cover the old object, new, and schema-only routes.",
+        "`create/row`. Runtime checks pair `getlistview + querydata` for list-like",
+        "Views and `getreaditemview + initnew` for detail Views without persisting data.",
         "",
         "| ID | Name | Kind | Renderer | Entry | Routes | Ops | Runtime |",
         "|---:|---|---|---|---|---|---:|---|",
@@ -283,7 +289,7 @@ def main() -> int:
     document = render_markdown(views)
     if args.output:
         args.output.write_text(document, encoding="utf-8")
-    print(document.splitlines()[5])
+    print(next(line for line in document.splitlines() if line.startswith("Catalog:")))
     return 0 if all(view.metadata_ok and view.data_ok for view in views) or args.skip_api else 1
 
 
