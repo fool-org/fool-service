@@ -1702,6 +1702,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `savetext.js`'s unmatched BusinessObject input behavior: keep the
       original selected id when typed text is non-empty but unselected, while
       preserving explicit empty-input clearing.
+- [x] Browser-verify unmatched BusinessObject blur/save against the deployed
+      detail editor: retain customer id `3001`, emit an empty id only after an
+      explicit clear, and leave MySQL unchanged.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from

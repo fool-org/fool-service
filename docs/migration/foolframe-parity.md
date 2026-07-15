@@ -4565,3 +4565,15 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   without clearing the View-derived draft id, and the existing explicit-empty
   branch still emits an empty id. No save builder, protocol DTO, or concrete
   business model was changed.
+  Exact implementation commit `d8658f70` passed all 214 frontend tests, the
+  TypeScript/Vite build, repository harness, and 68 runtime-doctor checks. Its
+  deployed image was
+  `sha256:0beb64454641fbd7e9f86c44c4592be81f822f08970e6585b50bffd9ae7e92da`.
+  Authorized `admin/admin` acceptance entered the real `/view100/1001` editor.
+  `No Such Customer` remained visible after an empty result and blur, while
+  the captured Vue save payload retained `customer=3001`; a fresh explicit
+  clear produced `customer=""`. The final save requests were answered by a
+  page-local transport proxy and did not reach the backend. Browser
+  warnings/errors were empty, logout returned HTTP 200, Compose was healthy
+  with `db-migrate` at `Exited (0)`, and MySQL retained 8 orders, 4 order
+  items, and unchanged order 1001 data.
