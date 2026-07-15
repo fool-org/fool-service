@@ -1764,6 +1764,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `view.jade`'s metadata create-command presentation: use the
       transparent Bootstrap `.btn` surface instead of an outlined Vue button,
       while preserving View-first new-object navigation at desktop and 390px.
+- [x] Restore `detailView.jade`'s desktop field-pair geometry: keep two
+      label/control pairs per row with the legacy 1:2 inner ratio, while
+      stacking each pair at 390px and preserving View-first detail loading.
 
 ## Backlog
 - Continue from `docs/migration/foolframe-parity.md` only when a concrete

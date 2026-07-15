@@ -1149,9 +1149,10 @@ label {
   gap: 12px;
 }
 
-.detail-field-grid > div {
+.detail-field-grid > div,
+.detail-field-edit > label {
   display: grid;
-  grid-template-columns: minmax(110px, 0.35fr) minmax(0, 1fr);
+  grid-template-columns: minmax(110px, 0.5fr) minmax(0, 1fr);
   gap: 12px;
   align-items: center;
   min-height: 42px;
@@ -1401,6 +1402,12 @@ label {
 
   .detail-field-grid {
     grid-template-columns: 1fr;
+  }
+
+  .detail-field-grid > div,
+  .detail-field-edit > label {
+    grid-template-columns: 1fr;
+    gap: 7px;
   }
 
   .sudoku-panel {

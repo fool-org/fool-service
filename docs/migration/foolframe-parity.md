@@ -4856,3 +4856,27 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   production build, 118/118 View matrix, 69 runtime checks, and repository
   harness passed. No page-specific View id, business DTO, or duplicate toolbar
   was added.
+- 2026-07-15: restored `detailView.jade`'s desktop field-pair geometry in the
+  shared detail editor. The old Bootstrap template emits each simple field as
+  `.col-md-2` label plus `.col-md-4` value/control, giving two 1:2 pairs per
+  desktop row; Vue already grouped two fields per outer row, but edit labels
+  and controls still occupied a single 594px vertical track inside each half.
+  The shared CSS now applies the same two-column pair grid to read and edit
+  fields, without changing `ViewDetailPanel.vue`, request payloads, events, or
+  binding to a concrete DTO. Authorized `admin/admin` browser acceptance on
+  `/view112/1` measured the first desktop edit pair at 192.7px / 385.3px and
+  retained the 326px single-column stack at 390px. Both runs loaded
+  `getreaditemview(112)` before `querydatadetail(112,1)`, emitted zero write
+  requests, matched document and viewport widths at 1280px and 390px, and had
+  no browser runtime/log errors. Screenshots are under
+  `artifacts/runs/20260715-detail-field-layout/` with desktop SHA-256
+  `ed53d4883f948be1ebf68ea3d79adc2e1ec2e4d992ca8ac19e2d0f76e7a67733`
+  and mobile SHA-256
+  `93136e0bdb26303b3629218557e63b9dec0a049ebe1ff8e587b0b57196d5a139`.
+  All 223 frontend tests, the production build, 118/118 View matrix, 69
+  runtime checks, and repository harness passed. Standard Compose frontend
+  build remained blocked by the Buildx activity-file permission; the validated
+  clean `dist` was injected into Nginx image
+  `sha256:3360869fcdc4dcb20234fa0835e39c622a205018940fb90763b9901e986cba6f`,
+  whose host/container `index.html` SHA-256 matched at
+  `167c2a2e433859bb095248909f3762b8f1c53347d2c187444fa8f2d2cf359823`.
