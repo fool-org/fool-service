@@ -1741,10 +1741,10 @@ item must land with its matching implementation and validation evidence.
 - [x] Run reversible browser new/edit/save acceptance on imported
       ApplicationDatabase at desktop and 390px, including real persistence and
       exact `DB_AppDB` restoration.
-- [ ] Complete reversible browser write acceptance for shared child-row
+- [x] Complete reversible browser write acceptance for shared child-row
       mutation and the delete/View operations actually exposed by metadata,
       restoring the database after each case.
 
 ## Backlog
-- Close the remaining mutation-acceptance item above, then continue from
-  `docs/migration/foolframe-parity.md` only when a concrete legacy gap is found.
+- Continue from `docs/migration/foolframe-parity.md` only when a concrete
+  legacy source/runtime gap is found.

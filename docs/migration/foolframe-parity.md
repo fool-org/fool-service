@@ -4730,3 +4730,24 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `App_Id=1, DBNo=01, SysId=1` row. All 69 runtime-doctor checks then passed.
   No page-specific Vue branch or DTO was needed. Remaining mutation work is
   shared child-row add/edit/delete plus the real OrderList model operations.
+- 2026-07-15: completed reversible browser acceptance for the shared child
+  collection and reconciled the seeded OrderList operation metadata against
+  old Web behavior. On `/view102/9915071501`, authorized `admin/admin`
+  acceptance opened the inactive `Items` tab, clicked `增加`, loaded candidate
+  View 101, queried its rows, selected `CDX-MOVE`, and saved the parent through
+  `saveobj`; MySQL then showed item `9915071512` owned by order `9915071501`.
+  At 390x844 the same row was staged for deletion and persisted through the
+  parent save, leaving only `CDX-KEEP` visible. The old
+  `src/Web/public/javascripts/app/querylistdata.js` binds selected-row
+  operations only when `ViewId > 0`; OrderList's seeded `删除` and `保存` both
+  have `ViewId=0`, so `/view100` correctly rendered two link-colored inert
+  names, zero operation buttons, and sent zero `runoperation` requests. The
+  observed View-first/data chain included `getreaditemview`, `querydatadetail`,
+  `getlistview`, `querydata`, and `saveobj`. Document widths matched their
+  1280px and 390px viewports, browser runtime/log errors were zero, and visible
+  evidence is under
+  `artifacts/runs/20260715-legacy-order-child-mutation/`. Cleanup removed the
+  temporary order and both dedicated item ids; the final combined MySQL count
+  was zero. All 69 runtime checks, the 118/118 View matrix, and the repository
+  harness passed. No source change was needed because the shared Vue path
+  already matches the old interaction contract without a business DTO.
