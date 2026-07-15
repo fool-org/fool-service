@@ -4577,3 +4577,14 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   warnings/errors were empty, logout returned HTTP 200, Compose was healthy
   with `db-migrate` at `Exited (0)`, and MySQL retained 8 orders, 4 order
   items, and unchanged order 1001 data.
+- 2026-07-15: aligned the Sudoku `GroupViewController` request boundary. The
+  old controller posts `/view` for Group metadata and invokes
+  `QuerylistdataController` only for each `ListViewType=0` child; it never
+  queries list rows for the Group View itself. Vue now loads a Group through
+  the existing metadata-only `loadViewById` path before loading its eligible
+  child lists, removing the extra `querydata(GroupViewId)` request. List, Map,
+  Item, line-chart, child refresh, and success-only transport behavior remain
+  unchanged. A focused workflow test guards the metadata-only branch without
+  adding component state, a DTO, or a request-specific abstraction. All 215
+  frontend tests, the TypeScript/Vite production build, and repository harness
+  pass.

@@ -1705,6 +1705,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Browser-verify unmatched BusinessObject blur/save against the deployed
       detail editor: retain customer id `3001`, emit an empty id only after an
       explicit clear, and leave MySQL unchanged.
+- [x] Align `GroupViewController`'s Sudoku request boundary: load the Group View
+      as metadata only, then query row data only for its `ListViewType=0` child
+      Views instead of querying the Group View itself.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from

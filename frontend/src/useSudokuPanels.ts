@@ -77,6 +77,10 @@ export function useSudokuPanels(options: SudokuPanelWorkflowOptions) {
     const panelViewId = sudokuPanelViewId(panel);
     const kind = sudokuPanelKind(panel);
     if (kind === "item" || kind === "linechart") return loadDetailPanel(panelViewId, `sudoku-${kind}`);
+    if (kind === "group") {
+      const response = await options.loadViewById(panelViewId, "sudoku-group", silentTransport);
+      return response ? { view: response.data, data: null } : null;
+    }
     return options.loadViewDataById(panelViewId, "sudoku-panel", 5, silentTransport);
   }
 
