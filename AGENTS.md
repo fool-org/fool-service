@@ -25,6 +25,8 @@ Keep it short and route detail to versioned docs instead of duplicating rules.
 Run the smallest check that matches the change:
 
 - Harness/docs/standards: `python scripts/check_repo_harness.py`.
+- Migration contract changes:
+  `python scripts/legacy_migration_contract.py --require-legacy`.
 - Backend Java changes: `mvn test` from the repository root, or a focused
   module test when the scope is isolated.
 - Frontend changes: `cd frontend && npm test && npm run build`.

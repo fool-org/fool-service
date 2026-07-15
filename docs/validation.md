@@ -13,7 +13,7 @@ the heaviest runtime path for every edit.
 | Backend Java module | `docker run --rm --network fool-service_default -v "$PWD":/workspace -v "$HOME/.m2":/root/.m2 -w /workspace maven:3.9-eclipse-temurin-17 mvn test` after `docker compose up -d` | Focus with `-pl <module> -am -Dtest=<TestClass>` when the scope is isolated |
 | Frontend Vue workflow | `cd frontend && npm test && npm run build` | Browser smoke through Docker when API contracts or runtime routing changes |
 | Docker/runtime stack | `docker compose up -d --build`, then `python scripts/runtime_doctor.py` | Capture logs and add an artifact bundle under `artifacts/runs/<run_id>/` |
-| FoolFrame migration parity | Update `docs/migration/foolframe-parity.md` plus focused backend/frontend tests | Run `PYTHONPATH=scripts python scripts/legacy_view_matrix.py` when View routing, templates, or catalog metadata change |
+| FoolFrame migration parity | `python scripts/legacy_migration_contract.py --require-legacy` plus focused backend/frontend tests | Run `PYTHONPATH=scripts python scripts/legacy_view_matrix.py` when View routing, templates, or catalog metadata change; run the full Docker/Maven/frontend bundle before changing completion status |
 
 ## Command Surface
 
@@ -27,6 +27,8 @@ the heaviest runtime path for every edit.
 - `docker compose ps -a` (`db-migrate` must finish with exit code `0`)
 - `python scripts/runtime_doctor.py`
 - `python scripts/runtime_doctor_test.py`
+- `python scripts/legacy_migration_contract.py --require-legacy`
+- `PYTHONPATH=scripts python -m unittest scripts/legacy_migration_contract_test.py`
 - `PYTHONPATH=scripts python -m unittest scripts/legacy_view_matrix_test.py`
 - `PYTHONPATH=scripts python scripts/legacy_view_matrix.py`
 
@@ -40,7 +42,8 @@ the heaviest runtime path for every edit.
   `frontend/src/App.vue` capped at 2000 lines.
 - Repository harness checks fail Java package boundary drift across `fool-*`
   modules, Vue render paths that infer columns/cells from business DTO
-  `row.values`, and missing required migration parity markers.
+  `row.values`, missing required migration parity markers, and drift in the
+  closed FoolFrame Web/API/project inventory.
 - Runtime evidence should use `artifacts/runs/<run_id>/` when a browser,
   Docker, log, or HTTP observation is decisive.
 

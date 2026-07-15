@@ -4,7 +4,7 @@
 
 **一个由模型、视图、查询、权限、事件与报表驱动的应用框架**
 
-正在将旧版 FoolFrame 的 Node / Express / Jade / Angular 工作流迁移到<br>
+已将旧版 FoolFrame 的 Node / Express / Jade / Angular 工作流迁移到<br>
 **Spring Boot + Vue 3 + Docker Compose** 的现代化架构。
 
 [![Java 17](https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/17/)
@@ -19,7 +19,7 @@
 </div>
 
 > [!IMPORTANT]
-> 项目目前处于 **FoolFrame 迁移期**。Docker 基线、Vue 主工作台以及核心 View-first 流程已经可运行，剩余兼容性工作以 [迁移对照表](docs/migration/foolframe-parity.md) 为准。
+> **FoolFrame 迁移已完成。** Docker、Spring/Java、Vue、数据库迁移和当前导入 View 的完成边界与重开条件，以 [迁移对照表](docs/migration/foolframe-parity.md) 为准。
 
 ## 项目简介
 
@@ -117,7 +117,7 @@ flowchart LR
 | 应用能力 | `fool-app-manage`、`fool-auth` | 应用安装、数据库目录、菜单、角色和授权 |
 | 业务能力 | `fool-event`、`fool-report` | 事件通知、消息收件人与报表工作流 |
 | 智能配置 | `fool-agent` | 按报表/查询、表单/视图、模型、数据源、事件/自动化顺序推进的 agent 会话机制 |
-| 迁移支撑 | `fool-reflect`、`fool-dynamic` | 反射发现与配置驱动的旧能力兼容 |
+| 迁移支撑 | `fool-app-manage`、`fool-model` | 反射发现、初始化安装与配置驱动的旧能力兼容；`fool-reflect`、`fool-dynamic` 仅保留历史占位目录 |
 | Web 前端 | `frontend` | Vue 3、TypeScript、Vite 与 Vitest |
 
 ## 开发与验证
@@ -145,10 +145,11 @@ npm run dev
 
 ## 迁移进度
 
-当前迁移遵循“可运行基线 → 核心工作流 → 兼容性收口”的路径：
+Migration status: complete。
 
-- **已具备：** Docker Compose 全栈、数据库幂等迁移、Vue 登录与主工作台、View-first 列表/详情/新建、查询保存、操作、消息、报表，以及对应自动化验证。
-- **进行中：** 继续核对 FoolFrame 剩余运行时行为，并以真实旧路由、DTO 和 Docker smoke 逐项收口。
+- **完成范围：** Docker Compose 全栈、数据库幂等迁移、Spring/Java 框架模块、Vue 登录与主工作台、View-first 列表/详情/新建、查询保存、操作、消息、事件、报表，以及对应自动化与浏览器证据。
+- **完成依据：** 25 个旧 Web 路由、25 个 `IDataService` 操作、469 个生产 C# 编译源文件、43 个旧前端资产和 118 个导入 View 均已纳入版本化清单或运行门禁。
+- **重开规则：** 只有旧源码快照变化、新导入元数据触达不支持行为、发现可复现的新旧运行差异，或迁移门禁失败时，才重新进入迁移状态。
 - **唯一进度源：** [FoolFrame Migration Parity](docs/migration/foolframe-parity.md)。
 
 README 只保留稳定概览，具体完成项、验证证据与剩余差距统一记录在迁移对照表中，避免状态重复和过期。

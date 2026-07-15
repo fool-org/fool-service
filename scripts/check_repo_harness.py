@@ -17,6 +17,7 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from standard_engine import STANDARDS, standard_catalog_payload  # noqa: E402
+from legacy_migration_contract import validate_contract  # noqa: E402
 from runtime_schema import LEGACY_CORE_SCHEMA_COLUMNS, MARKET_SYMBOLS_COLUMNS  # noqa: E402
 
 
@@ -382,6 +383,9 @@ def check_migration_parity_contract(root: Path, report: HarnessReport) -> None:
             report.errors.append(
                 f"Migration parity doc missing required marker '{marker}'"
             )
+
+    for error in validate_contract(root):
+        report.errors.append(f"Migration completion contract: {error}")
 
 
 def docker_init_schema_columns(sql_text: str) -> set[tuple[str, str]]:

@@ -1792,6 +1792,21 @@ item must land with its matching implementation and validation evidence.
       `/itemview:id` route, so metadata-only rendering cannot inherit the prior
       detail editor while preserving the View-first request boundary.
 
+## Completed: FoolFrame Migration Closeout
+
+- [x] Lock the old production boundary at 469 compiled Server C# sources,
+      25 `IDataService` operations, 25 registered Web routes, 43 application
+      frontend assets, and 118 imported Views.
+- [x] Map every public old service operation and Web proxy route to its current
+      Spring/Vue replacement, including intentional legacy no-op responses.
+- [x] Add `scripts/legacy_migration_contract.py` and repository-harness
+      enforcement so removal or snapshot drift reopens migration status.
+- [x] Record intentional platform replacements and the concrete reopen rule in
+      `docs/migration/foolframe-server-assets.md` and the parity source of truth.
+- [x] Run the full Java 17 Maven reactor, frontend tests/build, 118-View matrix,
+      Docker runtime doctor, migration contract, and repository harness before
+      declaring the defined FoolFrame migration scope complete.
+
 ## Backlog
 - Continue from `docs/migration/foolframe-parity.md` only when a concrete
   legacy source/runtime gap is found.

@@ -214,6 +214,26 @@ class SourceFileSizeContractTest(unittest.TestCase):
                 report.errors,
             )
 
+    def test_reports_migration_completion_contract_failures(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            doc = root / "docs/migration/foolframe-parity.md"
+            doc.parent.mkdir(parents=True)
+            doc.write_text("\n".join(harness.MIGRATION_PARITY_MARKERS), encoding="utf-8")
+            report = HarnessReport(root=root)
+            original_validate_contract = harness.validate_contract
+
+            try:
+                harness.validate_contract = lambda _: ["missing legacy target route"]
+                check_migration_parity_contract(root, report)
+            finally:
+                harness.validate_contract = original_validate_contract
+
+            self.assertIn(
+                "Migration completion contract: missing legacy target route",
+                report.errors,
+            )
+
     def test_reports_vue_rendering_business_dto_bindings(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
