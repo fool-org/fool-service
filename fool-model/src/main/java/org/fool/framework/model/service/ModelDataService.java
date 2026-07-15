@@ -313,7 +313,8 @@ public class ModelDataService {
 
     private List<Property> selectProperties(Model model, List<Property> properties) {
         List<Property> selected = properties == null ? new ArrayList<>() : new ArrayList<>(properties);
-        if (model != null && model.getIdProperty() == null
+        if (model != null && Boolean.TRUE.equals(model.getAutoSysId())
+                && model.getIdProperty() == null
                 && selected.stream().filter(Objects::nonNull)
                 .noneMatch(property -> "SYSID".equalsIgnoreCase(property.getColumn()))) {
             selected.add(sysIdProperty());
