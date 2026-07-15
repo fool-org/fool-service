@@ -35,10 +35,10 @@ describe("ViewDetailPanel legacy interactions", () => {
     expect(footerSource.match(/@click=/g)).toHaveLength(1);
   });
 
-  it("leaves item metadata collection tabs inactive until selected", () => {
-    expect(viewDetailPanelSource).toContain('activeGroupKey.value = props.schemaOnly ? "" : firstGroup ? groupKey(firstGroup) : ""');
-    expect(viewDetailPanelSource).toContain('if (props.schemaOnly) activeGroupKey.value = ""');
-    expect(viewDetailPanelSource).toContain('else if (!keys.includes(activeGroupKey.value)) activeGroupKey.value = keys[0] || ""');
+  it("leaves legacy detail collection tabs inactive until selected", () => {
+    expect(viewDetailPanelSource).toContain('activeGroupKey.value = ""');
+    expect(viewDetailPanelSource).toContain('if (!keys.includes(activeGroupKey.value)) activeGroupKey.value = ""');
+    expect(viewDetailPanelSource).not.toContain("keys[0]");
   });
 
   it("keeps legacy child collection commands active during requests", () => {

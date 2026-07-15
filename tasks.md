@@ -902,8 +902,8 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `item.jade`'s `DetailViews` tab interaction on `/itemview:id`:
       reuse the detail collection tabs and metadata field table while hiding
       object-data Add, picker, and mutation controls; leave every tab inactive
-      until the user selects one, while detail/new pages still open the first
-      child collection by default.
+      until the user selects one, matching the shared `detailView.jade`
+      interaction on detail and new-object pages.
 - [x] Restore top-level command availability by old View template: keep
       `view.jade` search/report/create commands, limit `viewWithChart.jade` to
       search, and render no invented top toolbar or stale report on `Sudoku`.
@@ -1688,7 +1688,8 @@ item must land with its matching implementation and validation evidence.
       Vue-only feedback or a report request.
 - [x] Browser-verify `item.jade`'s initially inactive child tabs at desktop and
       390px: show no child table before selection, reveal the View-derived table
-      on click without a request, and retain first-tab defaults on detail/new.
+      on click without a request; a follow-up source audit covers the same
+      initially inactive contract on detail/new.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from

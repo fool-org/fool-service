@@ -2702,8 +2702,9 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   because item View routes remain metadata-only and never query object data.
   The old template gives neither its tab links nor tab panes an initial active
   class, so schema-only Vue pages now also wait for a user tab selection before
-  showing a child table; detail and new-object pages retain their first active
-  collection.
+  showing a child table. A follow-up audit found the same static markup and no
+  script-side tab activation in `detailView.jade`, so detail and new-object
+  pages now share that initially inactive contract.
 - 2026-07-12: restored template-specific top-level command availability.
   Normal `view.jade` pages retain search, report, and metadata create commands;
   `viewWithChart.jade` exposes only its old search command; and `Sudoku.jade`
@@ -4495,18 +4496,21 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - 2026-07-15: restored `item.jade`'s initially inactive child View tabs. Its
   server-rendered tab links and panes have no initial Bootstrap `active` class,
   while Vue previously opened the first child table immediately. Exact commit
-  `9716ca50` now initializes an empty tab value only for metadata-only
-  `/itemview:id`; detail and new-object pages keep their first child collection
-  active. The shared component grew by one line to 449 lines and gained no DTO,
-  state module, or new component. All 214 frontend tests, the TypeScript/Vite
-  production build, repository harness, and 68 runtime-doctor checks passed.
+  `9716ca50` first initialized an empty tab value for metadata-only
+  `/itemview:id`. A follow-up source audit found that `detailView.jade` uses the
+  same inactive markup and no legacy script activates a first tab, so the shared
+  Vue component now applies the empty initial value to item, detail, and new
+  routes. It is 447 lines and gained no DTO, state module, or new component.
+  All 214 frontend tests, the TypeScript/Vite production build, repository
+  harness, and 68 runtime-doctor checks passed.
   Authorized `admin/admin` acceptance proved `/itemview100` loads only
   `getmain` then `getreaditemview`, starts with `Items` at
   `aria-selected=false` and no visible child table, and reveals only the
   View-derived `Item ID` / `Item Name` / `操作` table after clicking the tab.
-  That click emitted zero requests. `/view100/1001` and `/new100` retained an
-  active first tab and the expected View-first `querydatadetail` / `initnew`
-  order. At 1280px and 390x844, document width matched the viewport; browser
+  That click emitted zero requests. The first slice proved `/view100/1001` and
+  `/new100` still retained the expected View-first `querydatadetail` / `initnew`
+  order before the follow-up removed their Vue-only active first tab. At 1280px
+  and 390x844, document width matched the viewport; browser
   warnings/errors were empty, logout returned HTTP 200, and the database still
   held 8 orders and 4 order items. Compose remained healthy with `db-migrate`
   at `Exited (0)`. The standard Compose build could not update the local
