@@ -49,11 +49,11 @@ Keep the implementation View-first and avoid business DTO bindings.
   `sha256:84825d3afef3670900a7bedcc102a15f992f3384806a38f32416837346eebccc`.
 - Visible evidence:
   - `artifacts/runs/20260715-detail-label-style/desktop-aligned.png`
-    (`54f7be8388dfdfa392f96106dc91f1bf8bd3ef382289613d9625322d6790fa1c`).
+    (`7ecced15f7e088061f3db8084210bc384c5400c0b3fb591921b85a638887937c`).
   - `artifacts/runs/20260715-detail-label-style/tablet-aligned.png`
-    (`0636a5dd6fe1c1e888b4666b9b773713ff7ce91214d9163db1d1044640b1a97b`).
+    (`f00d7da998183f860afb280b76605e6790e975e2e796ed6f57f8b2953d79fa64`).
   - `artifacts/runs/20260715-detail-label-style/mobile-aligned.png`
-    (`3950bdb15113abd7514792b2ac2e670200b2b089b2e7c67266c700960677a641`).
+    (`4fb03cce9ac553e6fb4b8c391b09b78a2bf51d2df32f986398b429068767a547`).
 
 ## Skipped Or Downgraded Checks
 
