@@ -77,7 +77,7 @@ describe("SudokuPanels legacy interactions", () => {
     const workflow = useSudokuPanels({
       enabled: ref(true),
       loadViewById: vi.fn(),
-      loadViewDataById: vi.fn(async () => null),
+      loadViewDataById: vi.fn(async () => ({ view: { ViewId: 100 }, data: null })),
       panels: ref([]),
       runAction: vi.fn(),
       token: ref("token")

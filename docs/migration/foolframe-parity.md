@@ -4602,7 +4602,10 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   successful HTTP callback, so a transport failure leaves the updating text in
   place. Vue now keeps one View-id keyed updating record in `useSudokuPanels`
   and reuses the same List loader for root and Group child panels. The View
-  component reads that UI state only for active List footers; Map, line-chart,
-  and Item passive timestamps, concurrent Refresh availability, View/data
-  projection, and DTOs remain unchanged. All 217 frontend tests, the
-  TypeScript/Vite production build, and repository harness pass.
+  component reads that UI state only for active List footers and clears it only
+  when the shared loader returns non-null list data; its metadata-preserving
+  `{ view, data: null }` transport-failure shell therefore keeps the old pending
+  text. Map, line-chart, and Item passive timestamps, concurrent Refresh
+  availability, View/data projection, and DTOs remain unchanged. All 217
+  frontend tests, the TypeScript/Vite production build, and repository harness
+  pass.

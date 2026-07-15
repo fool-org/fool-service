@@ -91,7 +91,7 @@ export function useSudokuPanels(options: SudokuPanelWorkflowOptions) {
     const panelViewId = sudokuPanelViewId(panel);
     panelUpdating.value = { ...panelUpdating.value, [panelViewId]: true };
     const response = await options.loadViewDataById(panelViewId, "sudoku-panel", 5, silentTransport);
-    if (response) panelUpdating.value = { ...panelUpdating.value, [panelViewId]: false };
+    if (response?.data) panelUpdating.value = { ...panelUpdating.value, [panelViewId]: false };
     return response;
   }
 
