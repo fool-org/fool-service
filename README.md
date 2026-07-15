@@ -51,6 +51,19 @@ docker compose up -d --build
 
 首次启动会创建 MySQL 数据卷，并自动执行 `docker/mysql/init/*.sql`。已有数据卷也会由一次性的 `db-migrate` 服务补齐幂等迁移。
 
+如需启用 Web 工作台中的 AI 配置助手，在启动前设置至少一个 provider
+密钥；密钥只进入后端容器，不会返回给浏览器：
+
+```bash
+export DEEPSEEK_API_KEY="your-deepseek-key"
+# 或 export OPENAI_API_KEY="your-openai-key"
+docker compose up -d --build
+```
+
+可选变量包括 `FOOL_AGENT_DEFAULT_PROVIDER`、`DEEPSEEK_BASE_URL`、
+`DEEPSEEK_MODEL`、`OPENAI_BASE_URL` 和 `OPENAI_MODEL`。登录后通过导航栏的
+“AI 助手”进入 `/agent`；未配置密钥时页面会明确使用本地规则回复。
+
 ### 3. 检查服务
 
 ```bash

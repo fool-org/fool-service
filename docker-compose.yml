@@ -61,6 +61,13 @@ services:
       SPRING_DATASOURCE_PASSWORD: Pa88word
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
+      FOOL_AGENT_DEFAULT_PROVIDER: ${FOOL_AGENT_DEFAULT_PROVIDER:-deepseek}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-deepseek-v4-flash}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5-mini}
     ports:
       - "8080:8080"
     depends_on:

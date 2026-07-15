@@ -3,6 +3,7 @@ package org.fool.framework.agent.api;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import org.fool.framework.agent.service.AgentCapability;
 import org.fool.framework.agent.service.AgentCapabilityType;
+import org.fool.framework.agent.service.AgentChatProviderService;
 import org.fool.framework.agent.service.AgentSession;
 import org.fool.framework.agent.service.AgentSessionService;
 import org.fool.framework.agent.service.AgentTurnResult;
@@ -22,15 +23,23 @@ import java.util.Map;
 @RequestMapping("/api/v1/agent")
 public class AgentController {
     private final AgentSessionService sessionService;
+    private final AgentChatProviderService chatProviderService;
 
-    public AgentController(AgentSessionService sessionService) {
+    public AgentController(AgentSessionService sessionService, AgentChatProviderService chatProviderService) {
         this.sessionService = sessionService;
+        this.chatProviderService = chatProviderService;
     }
 
     @GetMapping("/capabilities")
     @ResponseBody
     public CommonResponse<List<AgentCapability>> capabilities() {
         return new CommonResponse<>(sessionService.capabilities());
+    }
+
+    @GetMapping("/providers")
+    @ResponseBody
+    public CommonResponse<List<AgentChatProviderService.ProviderInfo>> providers() {
+        return new CommonResponse<>(chatProviderService.providers());
     }
 
     @PostMapping("/sessions")
@@ -49,7 +58,12 @@ public class AgentController {
     @ResponseBody
     public CommonResponse<AgentTurnResult> message(@PathVariable String sessionId, @RequestBody MessageRequest request) {
         return new CommonResponse<>(sessionService.recordUserMessage(
-                sessionId, request.getToken(), request.getCapability(), request.getContent(), request.getContext()));
+                sessionId,
+                request.getToken(),
+                request.getCapability(),
+                request.getContent(),
+                request.getContext(),
+                request.getProvider()));
     }
 
     @PostMapping("/sessions/{sessionId}/advance")
@@ -87,6 +101,7 @@ public class AgentController {
         private AgentCapabilityType capability;
         private String content;
         private Map<String, Object> context;
+        private String provider;
 
         public AgentCapabilityType getCapability() {
             return capability;
@@ -110,6 +125,14 @@ public class AgentController {
 
         public void setContext(Map<String, Object> context) {
             this.context = context;
+        }
+
+        public String getProvider() {
+            return provider;
+        }
+
+        public void setProvider(String provider) {
+            this.provider = provider;
         }
     }
 }

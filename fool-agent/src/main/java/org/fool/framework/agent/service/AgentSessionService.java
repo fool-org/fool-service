@@ -22,6 +22,7 @@ public class AgentSessionService {
     private final ModelMetadataProvider modelMetadataProvider;
     private final DataSourceMetadataProvider dataSourceMetadataProvider;
     private final EventAutomationMetadataProvider eventAutomationMetadataProvider;
+    private final AgentChatProviderService chatProviderService;
     private final Clock clock;
     private final List<AgentCapabilityType> orderedCapabilities;
 
@@ -30,12 +31,14 @@ public class AgentSessionService {
                                ReportQueryMetadataProvider reportQueryMetadataProvider,
                                ModelMetadataProvider modelMetadataProvider,
                                DataSourceMetadataProvider dataSourceMetadataProvider,
-                               EventAutomationMetadataProvider eventAutomationMetadataProvider) {
+                               EventAutomationMetadataProvider eventAutomationMetadataProvider,
+                               AgentChatProviderService chatProviderService) {
         this(store,
                 reportQueryMetadataProvider,
                 modelMetadataProvider,
                 dataSourceMetadataProvider,
                 eventAutomationMetadataProvider,
+                chatProviderService,
                 Clock.systemUTC());
     }
 
@@ -88,6 +91,22 @@ public class AgentSessionService {
                         DataSourceMetadataProvider dataSourceMetadataProvider,
                         EventAutomationMetadataProvider eventAutomationMetadataProvider,
                         Clock clock) {
+        this(store,
+                reportQueryMetadataProvider,
+                modelMetadataProvider,
+                dataSourceMetadataProvider,
+                eventAutomationMetadataProvider,
+                null,
+                clock);
+    }
+
+    private AgentSessionService(AgentSessionStore store,
+                                ReportQueryMetadataProvider reportQueryMetadataProvider,
+                                ModelMetadataProvider modelMetadataProvider,
+                                DataSourceMetadataProvider dataSourceMetadataProvider,
+                                EventAutomationMetadataProvider eventAutomationMetadataProvider,
+                                AgentChatProviderService chatProviderService,
+                                Clock clock) {
         this.store = store;
         this.reportQueryMetadataProvider = reportQueryMetadataProvider == null
                 ? ReportQueryMetadataProvider.unavailable()
@@ -101,6 +120,7 @@ public class AgentSessionService {
         this.eventAutomationMetadataProvider = eventAutomationMetadataProvider == null
                 ? EventAutomationMetadataProvider.unavailable()
                 : eventAutomationMetadataProvider;
+        this.chatProviderService = chatProviderService;
         this.clock = clock;
         this.orderedCapabilities = Arrays.stream(AgentCapabilityType.values())
                 .sorted(Comparator.comparingInt(AgentCapabilityType::getOrder))
@@ -139,6 +159,15 @@ public class AgentSessionService {
                                              AgentCapabilityType capability,
                                              String content,
                                              Map<String, Object> context) {
+        return recordUserMessage(sessionId, token, capability, content, context, null);
+    }
+
+    public AgentTurnResult recordUserMessage(String sessionId,
+                                             String token,
+                                             AgentCapabilityType capability,
+                                             String content,
+                                             Map<String, Object> context,
+                                             String provider) {
         AgentSession session = get(sessionId, token);
         assertActive(session);
         AgentCapabilityType requested = capability == null ? session.getCurrentCapability() : capability;
@@ -147,14 +176,23 @@ public class AgentSessionService {
                     + session.getCurrentCapability().getId() + ".");
         }
         String normalizedContent = requiredContent(content);
+        AgentDraft draft = draftFor(requested, normalizedContent, context == null ? Map.of() : context);
+        AgentChatProviderService.Reply generatedReply = chatProviderService == null
+                ? AgentChatProviderService.Reply.local(draft.getSummary())
+                : chatProviderService.reply(provider, session, requested, normalizedContent, draft);
         session.addMessage(new AgentMessage(UUID.randomUUID().toString(), AgentMessageRole.USER, requested,
                 normalizedContent, now()));
-        AgentDraft draft = draftFor(requested, normalizedContent, context == null ? Map.of() : context);
         AgentMessage reply = new AgentMessage(UUID.randomUUID().toString(), AgentMessageRole.AGENT, requested,
-                draft.getSummary(), now());
+                generatedReply.getContent(), now());
         session.addMessage(reply);
         store.save(session);
-        return new AgentTurnResult(session, reply, draft, true);
+        return new AgentTurnResult(
+                session,
+                reply,
+                draft,
+                true,
+                generatedReply.getProvider(),
+                generatedReply.getModel());
     }
 
     public AgentSession advance(String sessionId, String token) {

@@ -24,24 +24,52 @@ must target the current capability, and `/advance` moves one step at a time.
 
 - `GET /api/v1/agent/capabilities`
   returns the ordered capability catalog.
+- `GET /api/v1/agent/providers`
+  returns the DeepSeek/OpenAI model catalog and configured/default flags. API
+  keys are never included in this response.
 - `POST /api/v1/agent/sessions`
   creates a session with optional `token` / `Token` and `title`.
 - `POST /api/v1/agent/sessions/{sessionId}`
   returns the session when the supplied token matches the session token.
 - `POST /api/v1/agent/sessions/{sessionId}/messages`
-  appends a user message to the current capability and records the agent's
-  deterministic guidance reply plus a controlled `draft` payload. Optional
-  `context` can pass values such as `ViewId`.
+  appends a user message to the current capability and records the selected
+  provider reply plus a controlled `draft` payload. Optional `context` can pass
+  values such as `ViewId`; optional `provider` selects `deepseek`, `openai`, or
+  the explicit deterministic `local` fallback.
 - `POST /api/v1/agent/sessions/{sessionId}/advance`
   moves to the next capability or completes the session after
   `event-automation`.
 
+## Provider Configuration
+
+Both providers use the OpenAI-compatible `/chat/completions` wire format through
+one server-side client. The default Docker settings are:
+
+| Provider | Base URL | Default model | Required secret |
+| --- | --- | --- | --- |
+| DeepSeek | `https://api.deepseek.com` | `deepseek-v4-flash` | `DEEPSEEK_API_KEY` |
+| OpenAI | `https://api.openai.com/v1` | `gpt-5-mini` | `OPENAI_API_KEY` |
+
+`FOOL_AGENT_DEFAULT_PROVIDER` selects the default. Base URL and model can be
+overridden with `DEEPSEEK_BASE_URL`, `DEEPSEEK_MODEL`, `OPENAI_BASE_URL`, and
+`OPENAI_MODEL`. Secrets remain in backend environment/config binding and are
+not stored in agent sessions or exposed by the provider catalog.
+
+If neither key is configured and the request omits `provider`, the existing
+deterministic draft summary remains available as a visibly labeled local
+fallback. Explicitly requesting an unconfigured provider fails with a clear
+configuration error instead of silently changing providers.
+
+The Vue workspace exposes this flow at `/agent`, including provider selection,
+ordered stage progression, conversation history, draft summary, risk level,
+and validation steps.
+
 ## Current Boundary
 
-The first implementation provides the capability catalog, ordered session state,
-message history, token matching, JDBC-backed persistence when `JdbcTemplate` is
-available, and deterministic draft output. It does not yet call an external
-model provider or mutate metadata.
+The implementation provides the capability/provider catalogs, ordered session
+state, message history, token matching, JDBC-backed persistence when
+`JdbcTemplate` is available, OpenAI-compatible DeepSeek/OpenAI replies, and
+deterministic draft output. It does not mutate metadata.
 
 The `report-query` stage currently returns a low-risk read-only draft with:
 

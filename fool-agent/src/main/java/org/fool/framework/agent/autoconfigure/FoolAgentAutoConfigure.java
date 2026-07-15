@@ -1,6 +1,7 @@
 package org.fool.framework.agent.autoconfigure;
 
 import org.fool.framework.agent.service.AgentSessionStore;
+import org.fool.framework.agent.service.AgentProviderProperties;
 import org.fool.framework.agent.service.DataSourceMetadataProvider;
 import org.fool.framework.agent.service.EventAutomationMetadataProvider;
 import org.fool.framework.agent.service.InMemoryAgentSessionStore;
@@ -19,11 +20,13 @@ import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 @ConditionalOnProperty(prefix = "fool.agent", name = "enable", havingValue = "true", matchIfMissing = true)
 @AutoConfigureAfter(JdbcTemplateAutoConfiguration.class)
 @Configuration
+@EnableConfigurationProperties(AgentProviderProperties.class)
 @ComponentScan(value = {"org.fool.framework.agent"})
 public class FoolAgentAutoConfigure {
     @Bean

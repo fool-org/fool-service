@@ -32,3 +32,17 @@ fool:
   app:
     initialization:
       enabled: true
+  agent:
+    chat:
+      default-provider: ${FOOL_AGENT_DEFAULT_PROVIDER:deepseek}
+      providers:
+        deepseek:
+          display-name: DeepSeek
+          base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+          api-key: ${DEEPSEEK_API_KEY:}
+          model: ${DEEPSEEK_MODEL:deepseek-v4-flash}
+        openai:
+          display-name: OpenAI
+          base-url: ${OPENAI_BASE_URL:https://api.openai.com/v1}
+          api-key: ${OPENAI_API_KEY:}
+          model: ${OPENAI_MODEL:gpt-5-mini}

@@ -714,22 +714,66 @@ export interface LegacyRunOperationResult {
   ReturnMsg?: string;
 }
 
+export interface AgentProviderInfo {
+  id: string;
+  displayName: string;
+  model: string;
+  configured: boolean;
+  defaultProvider: boolean;
+}
+
+export interface AgentCapability {
+  id: string;
+  order: number;
+  displayName: string;
+  ownerModules: string;
+  intent: string;
+}
+
+export interface AgentMessage {
+  id: string;
+  role: "SYSTEM" | "USER" | "AGENT";
+  capability: string;
+  content: string;
+  createdAt: string;
+}
+
+export interface AgentSession {
+  id: string;
+  title: string;
+  currentCapability: string;
+  status: "ACTIVE" | "COMPLETED";
+  messages: AgentMessage[];
+}
+
+export interface AgentDraft {
+  capability: string;
+  summary: string;
+  ownerModules: string;
+  riskLevel: string;
+  draftPayload: Record<string, unknown>;
+  validationSteps: string[];
+}
+
+export interface AgentTurnResult {
+  session: AgentSession;
+  agentMessage: AgentMessage;
+  draft: AgentDraft;
+  readyToAdvance: boolean;
+  provider: string;
+  model: string;
+}
+
 export class ApiTransportError extends Error {}
 
 export function isTransportError(error: unknown) {
   return error instanceof ApiTransportError;
 }
 
-export async function postApi<T>(path: string, payload: unknown): Promise<CommonResponse<T>> {
+async function requestApi<T>(path: string, init?: RequestInit): Promise<CommonResponse<T>> {
   let response: Response;
   try {
-    response = await fetch(path, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    });
+    response = await fetch(path, init);
   } catch (error) {
     throw new ApiTransportError(error instanceof Error ? error.message : String(error));
   }
@@ -747,4 +791,18 @@ export async function postApi<T>(path: string, payload: unknown): Promise<Common
   }
 
   return body;
+}
+
+export function getApi<T>(path: string): Promise<CommonResponse<T>> {
+  return requestApi<T>(path);
+}
+
+export function postApi<T>(path: string, payload: unknown): Promise<CommonResponse<T>> {
+  return requestApi<T>(path, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
 }

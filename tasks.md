@@ -52,8 +52,10 @@ Design source: `docs/installation-and-initialization.md`. Owner: Codex.
       credential-reference, and routing validation drafts.
 - [x] Wire the event/automation agent stage to concrete trigger, recipient,
       idempotency, and audit dry-run drafts.
-- [ ] Add frontend workspace entry points after the backend session contract is
-      stable enough for browser smoke automation.
+- [x] Configure DeepSeek and OpenAI through one server-side OpenAI-compatible
+      provider client, keeping API keys out of browser/session payloads.
+- [x] Add the authenticated `/agent` Vue chat workspace with provider selection,
+      ordered stage progression, conversation history, and draft validation.
 
 ## Active: Vue Interface Upgrade
 

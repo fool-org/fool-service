@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { isTransportError, postApi } from "./api";
+import { getApi, isTransportError, postApi } from "./api";
 
 describe("postApi", () => {
   afterEach(() => {
@@ -25,5 +25,13 @@ describe("postApi", () => {
       throw new TypeError("offline");
     }));
     await expect(postApi("/api/test", {})).rejects.toSatisfy(isTransportError);
+  });
+
+  it("loads GET API catalogs without a request body", async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ code: 0, message: "success", data: ["openai"] })));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(getApi<string[]>("/api/v1/agent/providers")).resolves.toMatchObject({ data: ["openai"] });
+    expect(fetchMock).toHaveBeenCalledWith("/api/v1/agent/providers", undefined);
   });
 });

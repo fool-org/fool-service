@@ -114,6 +114,7 @@ import {
 } from "./payload";
 
 const ShellActions = defineAsyncComponent(() => import("./ShellActions.vue"));
+const AgentChatPage = defineAsyncComponent(() => import("./AgentChatPage.vue"));
 const ViewDetailPanel = defineAsyncComponent(() => import("./ViewDetailPanel.vue"));
 const ViewListPanel = defineAsyncComponent(() => import("./ViewListPanel.vue"));
 const ViewReportPanel = defineAsyncComponent(() => import("./ViewReportPanel.vue"));
@@ -141,6 +142,7 @@ const isStandaloneDetail = ref(false);
 const showUnconfiguredHome = ref(false);
 const unconfiguredHomeMessage = ref("");
 const showViewReport = ref(false);
+const showAgentChat = ref(false);
 const selectedObjectId = ref("");
 const isCreatingObject = ref(false);
 const detailDrafts = ref<Record<string, string>>({});
@@ -433,7 +435,21 @@ async function openPrimarySection() {
   await loadPrimarySection(true);
 }
 
+async function openAgentChat() {
+  await loadAgentChat(true);
+}
+
+async function loadAgentChat(updatePath: boolean) {
+  if (!(await ensureLegacyShell())) return;
+  if (updatePath) pushLegacyPath("/agent");
+  closeShellNavigation();
+  stopAutoRefresh();
+  showViewReport.value = false;
+  showAgentChat.value = true;
+}
+
 async function loadPrimarySection(updatePath: boolean) {
+  showAgentChat.value = false;
   if (!(await ensureLegacyShell())) return;
   if (updatePath) pushLegacyPath("/");
   closeShellNavigation();
@@ -458,6 +474,10 @@ async function loadPrimarySection(updatePath: boolean) {
 
 async function openMobilePrimarySection() {
   await openPrimarySection();
+}
+
+async function openMobileAgentChat() {
+  await openAgentChat();
 }
 
 async function openMobileShellMenu(item: LegacyAuthItem) {
@@ -711,6 +731,7 @@ async function ensureLegacyShell() {
 }
 
 async function loadViewWorkflow(resetPage = false) {
+  showAgentChat.value = false;
   viewNavigationRevision.value += 1;
   stopAutoRefresh();
   viewTableVisible.value = true;
@@ -745,6 +766,7 @@ async function searchCurrentView() {
 }
 
 async function loadLegacyDetailPath(route: { viewId: number; objectId?: string }) {
+  showAgentChat.value = false;
   stopAutoRefresh();
   showUnconfiguredHome.value = false;
   operationResult.value = null;
@@ -761,6 +783,7 @@ async function loadLegacyDetailPath(route: { viewId: number; objectId?: string }
 }
 
 async function loadLegacyItemView(viewId: number) {
+  showAgentChat.value = false;
   stopAutoRefresh();
   showUnconfiguredHome.value = false;
   isMetadataOnlyView.value = true;
@@ -774,6 +797,7 @@ async function loadLegacyItemView(viewId: number) {
 }
 
 async function loadLegacyNewPath(route: { viewId: number; parentObjId: string; ownerViewId: string; property: string }) {
+  showAgentChat.value = false;
   stopAutoRefresh();
   showUnconfiguredHome.value = false;
   isMetadataOnlyView.value = false;
@@ -784,6 +808,10 @@ async function loadLegacyNewPath(route: { viewId: number; parentObjId: string; o
 }
 
 async function loadInitialRoute() {
+  if (window.location.pathname === "/agent") {
+    await loadAgentChat(false);
+    return;
+  }
   const detailRoute = legacyDetailPath(window.location.pathname);
   if (detailRoute) {
     await loadLegacyDetailPath(detailRoute);
@@ -1090,6 +1118,7 @@ function syncDetailDrafts() {
       <div class="desktop-navigation">
         <nav class="nav-list nav-list-horizontal" aria-label="Main">
           <button type="button" @click="openPrimarySection">首页</button>
+          <button type="button" @click="openAgentChat">AI 助手</button>
         </nav>
         <LegacyMenuNav
           :expanded-auth-code="subMenuParentAuthCode"
@@ -1127,6 +1156,7 @@ function syncDetailDrafts() {
         </h2>
         <nav class="nav-list" aria-label="Mobile main">
           <button type="button" @click="openMobilePrimarySection">首页</button>
+          <button type="button" @click="openMobileAgentChat">AI 助手</button>
         </nav>
         <LegacyMenuNav
           :expanded-auth-code="subMenuParentAuthCode"
@@ -1140,7 +1170,8 @@ function syncDetailDrafts() {
         </nav>
       </Drawer>
 
-      <section class="view-workflow" :class="{ 'metadata-only': isMetadataOnlyView || isStandaloneDetail || isUnsupportedView }" aria-label="View workflow">
+      <AgentChatPage v-if="showAgentChat" :token="token" />
+      <section v-else class="view-workflow" :class="{ 'metadata-only': isMetadataOnlyView || isStandaloneDetail || isUnsupportedView }" aria-label="View workflow">
         <p v-if="showUnconfiguredHome" class="home-empty-state">{{ unconfiguredHomeMessage }}</p>
         <ViewListPanel
           v-if="!showUnconfiguredHome && !isMetadataOnlyView && !isStandaloneDetail"
