@@ -18,6 +18,30 @@ MARKET_SYMBOLS_COLUMNS = (
     "market_lot_size_qty_step_size",
     "max_iceberg_orders_num",
 )
+LEGACY_RUNTIME_CATALOG_ROWS = (
+    "views", "view-items", "view-models", "view-properties", "id-properties",
+)
+LEGACY_RUNTIME_CATALOG_QUERY = (
+    "SELECT 'views', COUNT(*) FROM SW_SYS_VIEW legacy "
+    "LEFT JOIN fool_sys_view runtime ON runtime.id=legacy.VIEW_ID WHERE runtime.id IS NULL "
+    "UNION ALL SELECT 'view-items', COUNT(*) FROM SW_SYS_VIEW_ITEM legacy "
+    "LEFT JOIN fool_sys_view_item runtime ON runtime.id=legacy.SysId WHERE runtime.id IS NULL "
+    "UNION ALL SELECT 'view-models', COUNT(DISTINCT legacy.VIEW_MODEL) FROM SW_SYS_VIEW legacy "
+    "LEFT JOIN fool_sys_model runtime ON runtime.id=legacy.VIEW_MODEL "
+    "WHERE legacy.VIEW_MODEL IS NOT NULL AND runtime.id IS NULL "
+    "UNION ALL SELECT 'view-properties', COUNT(*) FROM SW_SYS_PROPERTY legacy "
+    "JOIN (SELECT DISTINCT VIEW_MODEL FROM SW_SYS_VIEW WHERE VIEW_MODEL IS NOT NULL) view_model "
+    "ON view_model.VIEW_MODEL=legacy.SW_SYS_MODEL_PropertiesSysId "
+    "LEFT JOIN fool_sys_model_property runtime ON runtime.id=legacy.SysId WHERE runtime.id IS NULL "
+    "UNION ALL SELECT 'id-properties', COUNT(DISTINCT view_model.VIEW_MODEL) "
+    "FROM (SELECT DISTINCT VIEW_MODEL FROM SW_SYS_VIEW WHERE VIEW_MODEL IS NOT NULL) view_model "
+    "JOIN SW_SYS_PROPERTY legacy_id "
+    "ON legacy_id.SW_SYS_MODEL_PropertiesSysId=view_model.VIEW_MODEL AND legacy_id.PROPERTY_TYPE=0 "
+    "JOIN fool_sys_model runtime_model ON runtime_model.id=view_model.VIEW_MODEL "
+    "LEFT JOIN fool_sys_model_property runtime_id "
+    "ON runtime_id.id=runtime_model.id_property AND runtime_id.owner=runtime_model.id "
+    "AND runtime_id.property_type=0 WHERE runtime_id.id IS NULL"
+)
 LEGACY_CORE_SCHEMA_COLUMNS = (
     ("auth_user", "id"),
     ("auth_user", "mobile"),

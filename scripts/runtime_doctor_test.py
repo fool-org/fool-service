@@ -20,6 +20,7 @@ from runtime_doctor import (
     legacy_app_default_view_id,
     legacy_login_token,
     legacy_message_fields_ok,
+    legacy_runtime_catalog_ok,
     market_symbols_schema_ok,
     legacy_response_list,
     list_view_operation_labels_ok,
@@ -543,6 +544,14 @@ class RuntimeDoctorTest(unittest.TestCase):
         self.assertFalse(runtime_seed_rows_ok(raw.replace("compare-index\t1", "compare-index\t0")))
         self.assertFalse(runtime_seed_rows_ok(raw.replace("selected\t1\n", "")))
         self.assertFalse(runtime_seed_rows_ok(raw.replace("selected-index\t1\n", "")))
+
+    def test_legacy_runtime_catalog_requires_zero_missing_rows(self) -> None:
+        raw = "\n".join(f"{label}\t0" for label in runtime_doctor.LEGACY_RUNTIME_CATALOG_ROWS)
+
+        self.assertTrue(legacy_runtime_catalog_ok(raw))
+        self.assertFalse(legacy_runtime_catalog_ok(raw.replace("view-properties\t0", "view-properties\t1")))
+        self.assertFalse(legacy_runtime_catalog_ok(raw.replace("id-properties\t0", "")))
+        self.assertFalse(legacy_runtime_catalog_ok(raw.replace("views\t0", "views\tn/a")))
 
     def test_common_response_list_requires_success_and_nonempty_list(self) -> None:
         self.assertTrue(common_response_list({"code": 0, "data": {"items": [1]}}, "items"))

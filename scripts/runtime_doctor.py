@@ -11,7 +11,12 @@ import sys
 from typing import Any
 from urllib import error, request
 
-from runtime_schema import LEGACY_CORE_SCHEMA_COLUMNS, MARKET_SYMBOLS_COLUMNS
+from runtime_schema import (
+    LEGACY_CORE_SCHEMA_COLUMNS,
+    LEGACY_RUNTIME_CATALOG_QUERY,
+    LEGACY_RUNTIME_CATALOG_ROWS,
+    MARKET_SYMBOLS_COLUMNS,
+)
 
 
 REQUIRED_SERVICES = ("backend", "frontend", "mysql", "redis")
@@ -116,7 +121,7 @@ def legacy_core_schema_ok(raw: str) -> bool:
     return set(LEGACY_CORE_SCHEMA_COLUMNS).issubset(present)
 
 
-def runtime_seed_rows_ok(raw: str) -> bool:
+def labeled_counts(raw: str) -> dict[str, int] | None:
     rows: dict[str, int] = {}
     for line in raw.splitlines():
         label, sep, count = line.rstrip("\n").partition("\t")
@@ -124,8 +129,20 @@ def runtime_seed_rows_ok(raw: str) -> bool:
             try:
                 rows[label] = int(count)
             except ValueError:
-                return False
-    return all(rows.get(label, 0) > 0 for label in RUNTIME_SEED_ROWS)
+                return None
+    return rows
+
+
+def runtime_seed_rows_ok(raw: str) -> bool:
+    rows = labeled_counts(raw)
+    return rows is not None and all(rows.get(label, 0) > 0 for label in RUNTIME_SEED_ROWS)
+
+
+def legacy_runtime_catalog_ok(raw: str) -> bool:
+    rows = labeled_counts(raw)
+    if rows is None:
+        return False
+    return all(rows.get(label) == 0 for label in LEGACY_RUNTIME_CATALOG_ROWS)
 
 
 def seed_runtime_message() -> bool:
@@ -208,6 +225,26 @@ def run_mysql_schema_checks() -> list[CheckResult]:
         "mysql:legacy-core-schema",
         legacy_core_schema_ok(completed.stdout),
         "View-first legacy auth/app/model/view/operation/event/message/query/enum/connection schema is present",
+    ))
+    try:
+        completed = subprocess.run(
+            [
+                "docker", "compose", "exec", "-T", "mysql",
+                "mysql", "-uroot", "-pPa88word", "-N", "-B", "car_wash",
+                "-e", LEGACY_RUNTIME_CATALOG_QUERY,
+            ],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError) as exc:
+        results.append(CheckResult("mysql:legacy-runtime-catalog", False, f"catalog check failed: {exc}"))
+        return results
+    results.append(CheckResult(
+        "mysql:legacy-runtime-catalog",
+        legacy_runtime_catalog_ok(completed.stdout),
+        "Imported legacy View metadata resolves through the normalized runtime catalog",
     ))
     seed_query = (
         "SELECT 'app', COUNT(*) FROM SW_APPLICATION WHERE SW_APP_APPLICATIONID='fool-service' AND SW_APP_VIEW=100 "
