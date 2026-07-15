@@ -60,6 +60,33 @@ JOIN (
 SET model.`id_property` = identified.`id_property`
 WHERE model.`id_property` IS NULL;
 
+UPDATE `fool_sys_model` model
+JOIN (
+  SELECT property.`owner`, MIN(property.`id`) AS `id_property`
+  FROM `fool_sys_model_property` property
+  JOIN `fool_sys_model` owner_model
+    ON owner_model.`id` = property.`owner`
+  JOIN (
+    SELECT `TABLE_NAME`
+    FROM information_schema.`COLUMNS`
+    WHERE `TABLE_SCHEMA` = DATABASE()
+      AND `COLUMN_KEY` = 'PRI'
+    GROUP BY BINARY `TABLE_NAME`, `TABLE_NAME`
+    HAVING COUNT(*) = 1
+  ) single_primary_key
+    ON BINARY single_primary_key.`TABLE_NAME` = BINARY owner_model.`table_name`
+  JOIN information_schema.`COLUMNS` primary_column
+    ON primary_column.`TABLE_SCHEMA` = DATABASE()
+   AND BINARY primary_column.`TABLE_NAME` = BINARY owner_model.`table_name`
+   AND primary_column.`COLUMN_KEY` = 'PRI'
+   AND LOWER(primary_column.`COLUMN_NAME`) = LOWER(property.`column`)
+  GROUP BY property.`owner`
+) physical_key
+  ON physical_key.`owner` = model.`id`
+SET model.`id_property` = physical_key.`id_property`,
+    model.`auto_sys_id` = 0
+WHERE model.`id_property` IS NULL;
+
 INSERT INTO `fool_sys_model_enum` (`name`, `value`, `remark`, `owner`)
 SELECT
   legacy.`EMUN_STR`,
