@@ -750,6 +750,8 @@ describe("App defaults", () => {
     expect(metadataFieldEditorSource).toContain('emit("update:modelValue", "")');
     expect(metadataFieldEditorSource).not.toContain("force-selection");
     expect(metadataFieldEditorSource).not.toContain(':placeholder="readonlyValue || modelValue"');
+    expect(metadataFieldEditorSource).toMatch(/async function searchLookup[\s\S]*?lookupPending\.value = true;[\s\S]*?lookupOptions\.value = \[\];/);
+    expect(metadataFieldEditorSource).toContain('lookupPending ? "正在查询...." : "未找到匹配的选项"');
     expect(metadataFieldEditorSource).toContain("未找到匹配的选项");
     expect(metadataFieldEditorSource).toContain("&ndash; {{ option.id }}");
     expect(metadataFieldEditorSource).toContain("查找更多");

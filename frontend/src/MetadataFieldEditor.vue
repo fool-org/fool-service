@@ -90,6 +90,7 @@ watch(() => props.field, () => {
 
 async function searchLookup(query: string) {
   lookupPending.value = true;
+  lookupOptions.value = [];
   lookupError.value = "";
   try {
     const response = await postApi<InputQueryResult>(
@@ -155,7 +156,7 @@ function updateLookupTerm(term: string | LookupChoice | null) {
       <template #option="{ option }">
         <span class="metadata-lookup-option"><strong>{{ option.label }}</strong> &ndash; {{ option.id }}</span>
       </template>
-      <template #empty>未找到匹配的选项</template>
+      <template #empty>{{ lookupPending ? "正在查询...." : "未找到匹配的选项" }}</template>
       <template #footer><div class="metadata-lookup-footer">查找更多</div></template>
     </AutoComplete>
     <small v-if="lookupError" class="metadata-lookup-error">{{ lookupError }}</small>
