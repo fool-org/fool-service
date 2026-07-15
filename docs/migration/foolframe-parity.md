@@ -3024,7 +3024,7 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   Lookup results now render the old `Text - Id` information hierarchy with an
   en-dash separator and retain the fixed `查找更多` footer below result and
   empty menus. Existing View-derived `inputquery` context, debounce, empty
-  feedback, force-selection, and ID writeback remain unchanged.
+  feedback, explicit clearing, and selected ID writeback remain unchanged.
 - 2026-07-14: restored `detailview.js`'s readonly edit rendering. Entering edit
   mode now leaves readonly detail and child fields as plain text while only
   editable View fields become controls, matching the old `SetEdit` gate instead
@@ -4557,3 +4557,11 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   candidate. Browser warnings/errors were empty, logout returned HTTP 200,
   Compose was healthy with `db-migrate` at `Exited (0)`, and MySQL retained 8
   orders, 4 order items, and unchanged order 1001 data.
+- 2026-07-15: restored the old free-text BusinessObject blur/save behavior.
+  `setextype.js` changes the stored id only on `typeahead:select`, while
+  `savetext.js` submits the existing element id for any non-empty unmatched
+  input and clears it only when the input is empty. Vue therefore no longer
+  enables PrimeVue `forceSelection`: unmatched text can remain in the editor
+  without clearing the View-derived draft id, and the existing explicit-empty
+  branch still emits an empty id. No save builder, protocol DTO, or concrete
+  business model was changed.

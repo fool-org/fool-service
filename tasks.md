@@ -1699,6 +1699,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Browser-verify the five-result BusinessObject limit on the deployed
       detail editor at desktop and 390px, then restore the real `inputquery`
       path and confirm no database drift.
+- [x] Restore `savetext.js`'s unmatched BusinessObject input behavior: keep the
+      original selected id when typed text is non-empty but unselected, while
+      preserving explicit empty-input clearing.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from

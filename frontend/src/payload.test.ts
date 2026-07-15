@@ -748,6 +748,7 @@ describe("App defaults", () => {
     expect(metadataFieldEditorSource).toContain('@update:model-value="updateLookupTerm"');
     expect(metadataFieldEditorSource).toContain('if (term === "" || term === null) {');
     expect(metadataFieldEditorSource).toContain('emit("update:modelValue", "")');
+    expect(metadataFieldEditorSource).not.toContain("force-selection");
     expect(metadataFieldEditorSource).not.toContain(':placeholder="readonlyValue || modelValue"');
     expect(metadataFieldEditorSource).toContain("未找到匹配的选项");
     expect(metadataFieldEditorSource).toContain("&ndash; {{ option.id }}");

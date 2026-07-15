@@ -147,7 +147,6 @@ function updateLookupTerm(term: string | LookupChoice | null) {
       :delay="300"
       :min-length="1"
       :loading="lookupPending"
-      force-selection
       fluid
       @complete="searchLookup($event.query)"
       @option-select="selectLookup($event.value)"
