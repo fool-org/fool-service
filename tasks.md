@@ -1696,6 +1696,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `setextype.js`'s five-result BusinessObject suggestion limit in
       the shared metadata editor, including source-list lookup responses that
       are not paged by the backend.
+- [x] Browser-verify the five-result BusinessObject limit on the deployed
+      detail editor at desktop and 390px, then restore the real `inputquery`
+      path and confirm no database drift.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from

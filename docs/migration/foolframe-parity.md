@@ -4543,3 +4543,17 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   collections, whose backend compatibility path can return more than the
   normal paged query's five rows, without changing the protocol response or
   adding a concrete business DTO dependency.
+  Exact implementation commit `c43a8354` passed all 214 frontend tests, the
+  TypeScript/Vite production build, repository harness, and 68 runtime-doctor
+  checks. Its deployed image was
+  `sha256:242a1315cae58d1ed78599b27cc8cf540b300b55cd79bc8ca24ae91636a3493a`.
+  Authorized `admin/admin` acceptance loaded `/view100/1001` View-first and
+  entered its metadata-derived edit mode. A one-request browser interception
+  supplied seven protocol candidates without changing MySQL; both 1280px and
+  fresh 390px views rendered only Candidate One through Candidate Five plus
+  `查找更多`. The desktop menu aligned below the input, while the mobile menu
+  correctly flipped above it with a two-pixel gap and document width equal to
+  the viewport. Releasing interception restored the real `Ada Capital - 3001`
+  candidate. Browser warnings/errors were empty, logout returned HTTP 200,
+  Compose was healthy with `db-migrate` at `Exited (0)`, and MySQL retained 8
+  orders, 4 order items, and unchanged order 1001 data.
