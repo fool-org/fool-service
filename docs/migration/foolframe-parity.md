@@ -4789,3 +4789,19 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   checks and the repository harness passed afterward. Existing shared
   `LegacyMenuNav.vue` behavior is therefore sufficient; no duplicate menu,
   page-specific branch, or application asset was added.
+- 2026-07-15: closed the deferred real-browser proof for a non-empty legacy
+  user avatar without changing application source. FoolFrame's `default.jade`
+  and `layout.jade` render `UserAvtarUrl`; `soway.css` gives `.avtar` a 50x50
+  box and Bootstrap's `.img-circle` makes it circular. Acceptance temporarily
+  served original FoolFrame `02.png` (native 32x32) from the running Nginx
+  container and set only admin id 1's `SW_AUTH_USER.USER_AVTAR` to that URL.
+  Authorized `admin/admin` replay loaded the image on desktop and mobile,
+  rendered it at 50x50 with `border-radius: 50%`, and retained `Admin` beside
+  it. The desktop avatar occupied x=1165..1215 in a 1280px header; the mobile
+  avatar occupied x=14..64 in a 390px header. Both document widths matched
+  their viewports and browser runtime/log errors were zero. Screenshots are
+  under `artifacts/runs/20260715-user-avatar/`. Cleanup restored
+  `USER_AVTAR=NULL` and removed the temporary Nginx file. All 69 runtime checks
+  and the repository harness passed afterward. The existing shared auth/shell
+  implementation is therefore sufficient; no user DTO, page branch, or
+  permanent application asset was added.

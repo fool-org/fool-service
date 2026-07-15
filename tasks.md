@@ -1750,6 +1750,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Close the remaining menu-image runtime proof with reversible old-asset
       metadata: verify parent/child images, nested-menu interaction, and mobile
       Drawer containment, then restore both menu rows and Nginx files.
+- [x] Close the deferred non-empty user-avatar browser proof with a reversible
+      old asset: verify desktop/mobile loading, legacy 50px circular rendering,
+      shell containment, and exact database/Nginx restoration.
 
 ## Backlog
 - Continue from `docs/migration/foolframe-parity.md` only when a concrete
