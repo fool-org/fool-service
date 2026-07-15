@@ -4587,4 +4587,12 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   unchanged. A focused workflow test guards the metadata-only branch without
   adding component state, a DTO, or a request-specific abstraction. All 215
   frontend tests, the TypeScript/Vite production build, and repository harness
-  pass.
+  pass. Exact implementation commit `62f17909` was deployed as frontend image
+  `sha256:83fbae3abb39efb5164683cc3445fb96d4af7e84fba57cd3982e0d19a89d94e5`.
+  Authorized `admin/admin` acceptance on `/view103` retained all five root
+  panels and `Group Orders` at 1280px and 390x844. The captured initial request
+  sequence contained `getlistview(104)` and the grouped-child
+  `querydata(100,pageSize=5)`, but zero `querydata(104)` calls. Both documents
+  matched their viewport widths, browser warnings/errors were empty, logout
+  returned HTTP 200, all 68 runtime-doctor checks passed, and MySQL retained 8
+  orders, 4 order items, and unchanged order 1001 data.

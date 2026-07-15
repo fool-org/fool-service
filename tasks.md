@@ -1708,6 +1708,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Align `GroupViewController`'s Sudoku request boundary: load the Group View
       as metadata only, then query row data only for its `ListViewType=0` child
       Views instead of querying the Group View itself.
+- [x] Browser-verify the deployed Sudoku Group request boundary at desktop and
+      390px: retain all five root panels and grouped-list data while emitting
+      `getlistview(104)` without `querydata(104)` or database drift.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from
