@@ -4518,3 +4518,22 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `dist` was injected into the existing Nginx image for runtime acceptance,
   producing
   `sha256:3fef5b753aa96571f252580a25b647baeb54dde35f966b4dc0b4f762bef46e2e`.
+- 2026-07-15: completed the shared `detailView.jade` inactive-tab follow-up.
+  Source audit found no `detail-tab`, `tabbtn-*`, Bootstrap `tab('show')`, or
+  `active` manipulation anywhere in the old application scripts; the new-page
+  `beginedit()` callback edits fields only. Exact commit `82dc8eb5` therefore
+  removes Vue's first-group default for existing detail and new-object routes,
+  reusing the same empty selection already applied to item metadata. The shared
+  component shrank to 447 lines. All 214 frontend tests, the TypeScript/Vite
+  build, repository harness, and 68 runtime-doctor checks passed. Authorized
+  `admin/admin` acceptance proved `/view100/1001`, `/new100`, and
+  `/itemview100` all begin with `Items` at `aria-selected=false` and no visible
+  child table. Selecting `Items` on existing detail and new-object pages showed
+  their View-derived controls/table, retained the URL, and emitted zero
+  requests. Initial page loading still ordered `getreaditemview` before
+  `querydatadetail` or `initnew`. Desktop 1280px and mobile 390x844 documents
+  matched their viewport widths; browser warnings/errors were empty, logout
+  returned HTTP 200, and MySQL retained 8 orders and 4 order items. The
+  host-built `dist` was injected through the documented Nginx-image downgrade
+  because local Buildx still could not write its activity file, producing
+  `sha256:77f617bf0d6393b99726172639aa28363415859f4714d788834d129cd5cb3adf`.

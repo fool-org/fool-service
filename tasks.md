@@ -1690,6 +1690,9 @@ item must land with its matching implementation and validation evidence.
       390px: show no child table before selection, reveal the View-derived table
       on click without a request; a follow-up source audit covers the same
       initially inactive contract on detail/new.
+- [x] Browser-verify `detailView.jade`'s initially inactive child tabs on detail
+      and new-object routes: preserve View-first data loading, reveal each child
+      table only after selection, and emit no request from the tab click.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from
