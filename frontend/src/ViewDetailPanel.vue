@@ -75,7 +75,7 @@ watch(
   () => {
     const firstGroup = props.detailItemGroups[0];
     isEditing.value = props.isCreatingObject;
-    activeGroupKey.value = firstGroup ? groupKey(firstGroup) : "";
+    activeGroupKey.value = props.schemaOnly ? "" : firstGroup ? groupKey(firstGroup) : "";
     editingItemKey.value = "";
     pickerGroupKey.value = "";
     stagedItemKeys.value = new Set();
@@ -97,7 +97,8 @@ watch(isEditing, (editing) => {
 watch(
   () => props.detailItemGroups.map(groupKey),
   (keys) => {
-    if (!keys.includes(activeGroupKey.value)) activeGroupKey.value = keys[0] || "";
+    if (props.schemaOnly) activeGroupKey.value = "";
+    else if (!keys.includes(activeGroupKey.value)) activeGroupKey.value = keys[0] || "";
     if (!keys.includes(pickerGroupKey.value)) pickerGroupKey.value = "";
   },
   { immediate: true }

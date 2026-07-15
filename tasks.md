@@ -901,7 +901,9 @@ item must land with its matching implementation and validation evidence.
       binding an arbitrary first business row.
 - [x] Restore `item.jade`'s `DetailViews` tab interaction on `/itemview:id`:
       reuse the detail collection tabs and metadata field table while hiding
-      object-data Add, picker, and mutation controls.
+      object-data Add, picker, and mutation controls; leave every tab inactive
+      until the user selects one, while detail/new pages still open the first
+      child collection by default.
 - [x] Restore top-level command availability by old View template: keep
       `view.jade` search/report/create commands, limit `viewWithChart.jade` to
       search, and render no invented top toolbar or stale report on `Sudoku`.
