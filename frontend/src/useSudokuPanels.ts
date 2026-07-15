@@ -21,6 +21,14 @@ export type SudokuPanelResult = {
   chart?: LegacyChartData;
 };
 
+export function sudokuPanelStateKey(panel: TableColumnInfo) {
+  return [
+    sudokuPanelViewId(panel),
+    panel.id ?? panel.ID ?? panel.propertyName ?? panel.PropertyName ?? "panel",
+    sudokuPanelKind(panel)
+  ].join(":");
+}
+
 const silentTransport: WorkflowActionOptions = { silentTransport: true };
 
 interface SudokuPanelWorkflowOptions {
@@ -43,7 +51,7 @@ interface SudokuPanelWorkflowOptions {
 
 export function useSudokuPanels(options: SudokuPanelWorkflowOptions) {
   const panelData = ref<Record<number, SudokuPanelResult>>({});
-  const panelUpdating = ref<Record<number, boolean>>({});
+  const panelUpdating = ref<Record<string, boolean>>({});
   const refreshTimers = new Map<string, number>();
 
   async function loadPanels() {
@@ -89,9 +97,10 @@ export function useSudokuPanels(options: SudokuPanelWorkflowOptions) {
 
   async function loadListPanel(panel: TableColumnInfo) {
     const panelViewId = sudokuPanelViewId(panel);
-    panelUpdating.value = { ...panelUpdating.value, [panelViewId]: true };
+    const panelKey = sudokuPanelStateKey(panel);
+    panelUpdating.value = { ...panelUpdating.value, [panelKey]: true };
     const response = await options.loadViewDataById(panelViewId, "sudoku-panel", 5, silentTransport);
-    if (response?.data) panelUpdating.value = { ...panelUpdating.value, [panelViewId]: false };
+    if (response?.data) panelUpdating.value = { ...panelUpdating.value, [panelKey]: false };
     return response;
   }
 
@@ -146,11 +155,7 @@ export function useSudokuPanels(options: SudokuPanelWorkflowOptions) {
   }
 
   function refreshKey(panel: TableColumnInfo) {
-    return [
-      sudokuPanelViewId(panel),
-      panel.id ?? panel.ID ?? panel.propertyName ?? panel.PropertyName ?? "panel",
-      sudokuPanelKind(panel)
-    ].join(":");
+    return sudokuPanelStateKey(panel);
   }
 
   function stopRefresh() {

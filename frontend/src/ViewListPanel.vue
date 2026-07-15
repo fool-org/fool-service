@@ -38,7 +38,7 @@ const props = defineProps<{
   pageIndex: number;
   pageSize: number;
   panelData: Record<number, { view: ListViewInfo; data: ListViewResult | null; detail?: QueryDataDetailResult | null }>;
-  panelUpdating: Record<number, boolean>;
+  panelUpdating: Record<string, boolean>;
   view?: ListViewInfo;
 }>();
 

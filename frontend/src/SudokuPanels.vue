@@ -12,7 +12,7 @@ import LegacyChartPanel from "./LegacyChartPanel.vue";
 import LegacyItemPanel from "./LegacyItemPanel.vue";
 import LegacyMapPanel from "./LegacyMapPanel.vue";
 import ListDataTable from "./ListDataTable.vue";
-import type { SudokuPanelResult } from "./useSudokuPanels";
+import { sudokuPanelStateKey, type SudokuPanelResult } from "./useSudokuPanels";
 import {
   fieldTitle,
   legacyChartData,
@@ -28,7 +28,7 @@ import {
 
 const props = defineProps<{
   panelData: Record<number, SudokuPanelResult>;
-  panelUpdating: Record<number, boolean>;
+  panelUpdating: Record<string, boolean>;
   panels: TableColumnInfo[];
 }>();
 const emit = defineEmits<{ refreshPanel: [panel: TableColumnInfo] }>();
@@ -53,7 +53,7 @@ function sudokuPanelRows(panel: TableColumnInfo) {
 
 function sudokuPanelFreshTime(panel: TableColumnInfo) {
   if (sudokuPanelKind(panel) !== "list") return "";
-  if (props.panelUpdating[sudokuPanelViewId(panel)]) return "更新中..";
+  if (props.panelUpdating[sudokuPanelStateKey(panel)]) return "更新中..";
   return listFreshTime(sudokuPanelResult(panel)?.data || undefined);
 }
 
