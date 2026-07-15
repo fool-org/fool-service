@@ -1744,6 +1744,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Complete reversible browser write acceptance for shared child-row
       mutation and the delete/View operations actually exposed by metadata,
       restoring the database after each case.
+- [x] Restore `setextype.js`'s visible `正在查询....` BusinessObject lookup
+      feedback without retaining stale candidates, then browser-verify the
+      shared editor at desktop and 390px.
 
 ## Backlog
 - Continue from `docs/migration/foolframe-parity.md` only when a concrete

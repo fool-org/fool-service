@@ -4751,3 +4751,24 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   was zero. All 69 runtime checks, the 118/118 View matrix, and the repository
   harness passed. No source change was needed because the shared Vue path
   already matches the old interaction contract without a business DTO.
+- 2026-07-15: restored `setextype.js`'s visible BusinessObject lookup pending
+  state. Both old typeahead construction paths render `正在查询....` while
+  `inputquery` is unresolved; Vue previously retained the prior candidates and
+  showed only PrimeVue's spinner. Exact implementation commit `d8c5c099`
+  clears the shared editor's candidate list at request start and reuses its
+  existing empty-result slot for `正在查询....`, returning to
+  `未找到匹配的选项` after completion. No new component, state module, protocol
+  shape, or business DTO was added. All 219 frontend tests, the TypeScript/Vite
+  production build, repository harness, and 69 runtime checks passed.
+  Authorized `admin/admin` browser acceptance paused real `inputquery`
+  requests after View-first `getreaditemview` / `querydatadetail` loading on
+  `/view100/1001`. At 1280px and 390px, the deployed overlay displayed the old
+  pending text with zero stale suggestions, matched the input's left/right
+  bounds, and restored five candidate rows after the intercepted response.
+  Document widths matched both viewports, browser runtime/log errors were zero,
+  and screenshots are under `artifacts/runs/20260715-lookup-pending/`. MySQL
+  retained 8 orders, 4 order items, and unchanged order 1001. Standard Compose
+  build remained blocked by the Buildx activity-file permission; the validated
+  clean `dist` was injected into Nginx image
+  `sha256:70d0de41d699b7e0159f34deee3aa60a6f1356e04faa1207336020bcc8eb67b9`,
+  whose `index.html` hash matched the host build.
