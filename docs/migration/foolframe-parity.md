@@ -4772,3 +4772,20 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   clean `dist` was injected into Nginx image
   `sha256:70d0de41d699b7e0159f34deee3aa60a6f1356e04faa1207336020bcc8eb67b9`,
   whose `index.html` hash matched the host build.
+- 2026-07-15: closed the remaining browser-proof gap for old menu images and
+  nested navigation without changing Vue source. The Docker catalog already
+  exposes parent menu `Views` (`ViewId=0`) and child `OrderList` (`ViewId=100`),
+  but both image columns are normally null. Acceptance temporarily served two
+  original 32x32 FoolFrame PNG assets from the running Nginx container and set
+  only `SW_APP_AUTH_MENU.AUTH_MENU_IMAGE` for ids 1/2. Authorized
+  `admin/admin` browser replay rendered both metadata images at the old 30x30
+  `.sw-menuimg` size in the desktop dropdown and mobile Drawer. The stable
+  390px Drawer occupied x=0..300 with document width equal to the viewport;
+  selecting `OrderList` closed it, navigated to `/view100`, and preserved
+  `getlistview` before `querydata`. Desktop document width also matched its
+  1280px viewport, browser runtime/log errors were zero, and screenshots are
+  under `artifacts/runs/20260715-menu-images/`. Cleanup restored both image
+  columns to `NULL` and removed both temporary Nginx files. All 69 runtime
+  checks and the repository harness passed afterward. Existing shared
+  `LegacyMenuNav.vue` behavior is therefore sufficient; no duplicate menu,
+  page-specific branch, or application asset was added.

@@ -1747,6 +1747,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `setextype.js`'s visible `正在查询....` BusinessObject lookup
       feedback without retaining stale candidates, then browser-verify the
       shared editor at desktop and 390px.
+- [x] Close the remaining menu-image runtime proof with reversible old-asset
+      metadata: verify parent/child images, nested-menu interaction, and mobile
+      Drawer containment, then restore both menu rows and Nginx files.
 
 ## Backlog
 - Continue from `docs/migration/foolframe-parity.md` only when a concrete
