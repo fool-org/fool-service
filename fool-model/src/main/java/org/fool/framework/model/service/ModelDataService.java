@@ -222,6 +222,9 @@ public class ModelDataService {
                 ? model.getIdProperty().getColumn()
                 : "SYSID";
         List<Property> selectProperties = selectProperties(model, model.getProperties());
+        if (model.getIdProperty() == null) {
+            ensureSysIdProperty(selectProperties);
+        }
         QueryAndArgs queryAndArgs = sqlGenerator.generateSelect(
                 model,
                 selectProperties,
@@ -313,13 +316,17 @@ public class ModelDataService {
 
     private List<Property> selectProperties(Model model, List<Property> properties) {
         List<Property> selected = properties == null ? new ArrayList<>() : new ArrayList<>(properties);
-        if (model != null && Boolean.TRUE.equals(model.getAutoSysId())
-                && model.getIdProperty() == null
-                && selected.stream().filter(Objects::nonNull)
-                .noneMatch(property -> "SYSID".equalsIgnoreCase(property.getColumn()))) {
-            selected.add(sysIdProperty());
+        if (model != null && Boolean.TRUE.equals(model.getAutoSysId()) && model.getIdProperty() == null) {
+            ensureSysIdProperty(selected);
         }
         return selected;
+    }
+
+    private void ensureSysIdProperty(List<Property> properties) {
+        if (properties.stream().filter(Objects::nonNull)
+                .noneMatch(property -> "SYSID".equalsIgnoreCase(property.getColumn()))) {
+            properties.add(sysIdProperty());
+        }
     }
 
     private Property sysIdProperty() {
