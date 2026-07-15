@@ -1686,6 +1686,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Browser-verify empty `mkreport.js` condition merge as a silent no-op:
       keep the report dialog, empty condition state, and route unchanged without
       Vue-only feedback or a report request.
+- [x] Browser-verify `item.jade`'s initially inactive child tabs at desktop and
+      390px: show no child table before selection, reveal the View-derived table
+      on click without a request, and retain first-tab defaults on detail/new.
 
 ## Backlog
 - Close the unchecked browser-acceptance items above, then continue from

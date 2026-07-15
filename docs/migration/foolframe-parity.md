@@ -4492,3 +4492,25 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   only scheduled `getmsg` polls. Browser warnings/errors were empty and logout
   returned HTTP 200. The clean runtime image was
   `sha256:1678b94c10769ada34071d57b59331c1aa0a54f98e2b2fc76993f09b6cbe47b2`.
+- 2026-07-15: restored `item.jade`'s initially inactive child View tabs. Its
+  server-rendered tab links and panes have no initial Bootstrap `active` class,
+  while Vue previously opened the first child table immediately. Exact commit
+  `9716ca50` now initializes an empty tab value only for metadata-only
+  `/itemview:id`; detail and new-object pages keep their first child collection
+  active. The shared component grew by one line to 449 lines and gained no DTO,
+  state module, or new component. All 214 frontend tests, the TypeScript/Vite
+  production build, repository harness, and 68 runtime-doctor checks passed.
+  Authorized `admin/admin` acceptance proved `/itemview100` loads only
+  `getmain` then `getreaditemview`, starts with `Items` at
+  `aria-selected=false` and no visible child table, and reveals only the
+  View-derived `Item ID` / `Item Name` / `操作` table after clicking the tab.
+  That click emitted zero requests. `/view100/1001` and `/new100` retained an
+  active first tab and the expected View-first `querydatadetail` / `initnew`
+  order. At 1280px and 390x844, document width matched the viewport; browser
+  warnings/errors were empty, logout returned HTTP 200, and the database still
+  held 8 orders and 4 order items. Compose remained healthy with `db-migrate`
+  at `Exited (0)`. The standard Compose build could not update the local
+  Buildx activity file (`operation not permitted`), so the host-validated
+  `dist` was injected into the existing Nginx image for runtime acceptance,
+  producing
+  `sha256:3fef5b753aa96571f252580a25b647baeb54dde35f966b4dc0b4f762bef46e2e`.
