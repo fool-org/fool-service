@@ -1785,6 +1785,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Reuse the aligned detail label treatment in edit mode so read and edit
       states keep the same neutral 14px hierarchy without changing editor
       geometry, responsive behavior, requests, or View-derived bindings.
+- [x] Inventory all 43 FoolFrame Web Jade/application-JavaScript assets and
+      classify active behavior, replaced bootstrap infrastructure, unreferenced
+      fragments, and placeholder pages before declaring another frontend gap.
 
 ## Backlog
 - Continue from `docs/migration/foolframe-parity.md` only when a concrete

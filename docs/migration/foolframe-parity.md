@@ -5027,3 +5027,12 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `sha256:1a9d132662e3663b4c3fdb56f814bc1d821f0d472f5e8f097527a8e688e85b10`,
   whose host/container `index.html` SHA-256 matched at
   `7bf79b8bd27bd03d44fd2d95b90b312e91552dcdddc7df4db465e9302d42e24e`.
+- 2026-07-15: completed a source inventory of all 12 root Jade pages, eight
+  Jade includes, and 23 old application JavaScript modules. The resulting
+  classification lives in `foolframe-frontend-assets.md` so this chronology
+  does not absorb another large matrix. Every active behavior module maps to
+  an existing Vue/runtime surface; the remaining files are RequireJS/Angular
+  bootstrap infrastructure, a shallow pagination-option helper, unreferenced
+  Jade fragments, or generated placeholder pages. Current database metadata
+  reaches only the default, `Sudoku`, and `viewWithChart` top-level renderers,
+  and the 118/118 View matrix passed. No product code or DTO binding changed.
