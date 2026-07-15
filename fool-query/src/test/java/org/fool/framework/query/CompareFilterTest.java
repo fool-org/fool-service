@@ -9,6 +9,15 @@ import static org.junit.Assert.assertEquals;
 public class CompareFilterTest {
 
     @Test
+    public void compareFilterQualifiesColumnsWhenAJoinCanExposeTheSameName() {
+        QueryAndArgs sql = new CompareFilter("fool_sys_model", "name", CompareOp.EQUAL, "Order")
+                .generateSql();
+
+        assertEquals("`fool_sys_model`.`name`= ?", sql.getSql());
+        assertArrayEquals(new Object[]{"Order"}, sql.getArgs());
+    }
+
+    @Test
     public void betweenFilterGeneratesLegacyRangeSqlWithOrderedParameters() {
         QueryAndArgs sql = new BetweenFilter("ORDER_DATE", "2026-01-01", "2026-01-31").generateSql();
 

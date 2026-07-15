@@ -228,7 +228,7 @@ public class ModelDataService {
         QueryAndArgs queryAndArgs = sqlGenerator.generateSelect(
                 model,
                 selectProperties,
-                new CompareFilter(idColumn, CompareOp.EQUAL, dataId));
+                new CompareFilter(model.getTableName(), idColumn, CompareOp.EQUAL, dataId));
         var items = this.jdbcTemplate.query(queryAndArgs.getSql(), queryAndArgs.getArgs(), mapper);
         loadCollectionProperties(model, selectProperties, items);
         IDynamicData result = items.isEmpty() ? null : items.get(0);
