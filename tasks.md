@@ -1770,6 +1770,9 @@ item must land with its matching implementation and validation evidence.
 - [x] Restore `detailView.jade`'s read-value typography: keep View-derived
       labels emphasized but render values at normal paragraph weight across
       desktop and 390px without changing the detail data or edit paths.
+- [x] Audit editor coverage from all 927 current ViewItems before adding any
+      widget: map all 465 editable items through their View model/property and
+      confirm the shared Vue editor covers every reachable legacy type.
 
 ## Backlog
 - Continue from `docs/migration/foolframe-parity.md` only when a concrete

@@ -4904,3 +4904,19 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
   `sha256:02741803f9cc964b7bbfca31ae2759c1a3923d52871b6c4c9ba1768afa14097f`,
   whose host/container `index.html` SHA-256 matched at
   `3f8ff4bbd0fec0ebc922343ca743878d11c17517a3c640a75f07ba2c65112417`.
+- 2026-07-15: audited the current editor surface from View metadata before
+  considering any new widget. All 927 `fool_sys_view_item` rows across the 118
+  imported Views resolve to a model property when joined by the View's
+  `view_model` and the ViewItem's property name. The 465 editable rows use only
+  PropertyType values `0/1/3/8/11/14/15/16/18/21`, and every one carries the
+  old `ItemEditType.TextBox=1`; as in `setextype.js`, PropertyType remains the
+  effective control discriminator. The existing shared Vue path already maps
+  these reachable types to plain/constrained text, checkbox, datetime-local,
+  enum Select, BusinessObject lookup, or View-derived child collections.
+  MD5 and Guid retain the old ordinary text fallback. Consequently no custom
+  widget, View-id branch, concrete business DTO, or extra component was added.
+  The normalized join matched 927/927 rows, the 118/118 runtime View matrix and
+  repository harness passed, and current runtime data remained at admin id 1,
+  8 orders, and 4 order items. Future editor work must start with a newly
+  reachable View/PropertyType combination rather than stale generic backlog
+  wording.
