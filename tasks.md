@@ -19,6 +19,11 @@ Design source: `docs/installation-and-initialization.md`. Owner: Codex.
       `AppInstaller.createApp(...)`, and document the split between database
       migrations, system initialization, and application installation.
       Acceptance: design, code, tasks, and delivery evidence agree.
+- [x] Run the default application installation after system initialization,
+      creating or reusing its store-database relation, application-authorized
+      administrator, system menus, and administrator role. Acceptance: focused
+      tests prove a second run creates no duplicate application, menu, role, or
+      authorization-relation rows.
 
 ## Active: Agent Configuration Workflow
 

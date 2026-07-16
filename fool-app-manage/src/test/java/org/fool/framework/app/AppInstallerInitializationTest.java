@@ -17,6 +17,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class AppInstallerInitializationTest {
@@ -67,6 +68,37 @@ public class AppInstallerInitializationTest {
     @Test
     public void libraryStartupInitializationIsOptIn() {
         assertFalse(new AppInitializationProperties().isEnabled());
+        assertFalse(new AppInitializationProperties().isDefaultApplicationEnabled());
+    }
+
+    @Test
+    public void startupRunnerInstallsConfiguredDefaultApplicationAfterSystemInitialization() {
+        RecordingGateway gateway = new RecordingGateway();
+        AppInitializationProperties properties = new AppInitializationProperties();
+        properties.setModuleName("PKG01");
+        properties.setRootPackage("org.fool.framework.app.reflective");
+        properties.setDependencyPackages(List.of());
+        properties.setDefaultApplicationEnabled(true);
+        properties.setDefaultApplicationId("fool-service");
+        properties.setDefaultApplicationName("Fool System");
+        properties.setDefaultAdministratorId("admin");
+        properties.setDefaultDatabaseId("fool_system");
+        properties.setDefaultDatabaseName("Fool System");
+
+        new AppInitializationRunner(
+                new AppInstaller(gateway, AppBootstrapPlan.legacyDefaults()),
+                properties).run(new DefaultApplicationArguments(new String[0]));
+
+        assertEquals(List.of("metadata", "schema", "views"), gateway.actions);
+        assertNotNull(gateway.createdApplication);
+        assertEquals("fool-service", gateway.createdApplication.getAppId());
+        assertEquals("admin", gateway.createdApplication.getCreatorId());
+        assertEquals("fool_system", gateway.createdApplication.getDataBase().get(0).getStoreBaseId());
+        assertEquals(List.of("admin"), gateway.authorizedUserIds);
+        assertEquals(List.of("系统管理", "人员及权限"),
+                gateway.createdMenus.stream().map(BootstrapMenuItem::getText).toList());
+        assertEquals(List.of("应用管理员"),
+                gateway.createdRoles.stream().map(BootstrapRole::getRoleName).toList());
     }
 
     @Test
@@ -104,6 +136,10 @@ public class AppInstallerInitializationTest {
         private List<Model> models = List.of();
         private String metadataConnection;
         private String dataConnection;
+        private ApplicationDefinition createdApplication;
+        private final List<String> authorizedUserIds = new ArrayList<>();
+        private final List<BootstrapMenuItem> createdMenus = new ArrayList<>();
+        private final List<BootstrapRole> createdRoles = new ArrayList<>();
 
         @Override
         public List<String> installModuleSource(
@@ -137,6 +173,7 @@ public class AppInstallerInitializationTest {
 
         @Override
         public ApplicationDefinition createApplication(ApplicationDefinition app) {
+            createdApplication = app;
             return app;
         }
 
@@ -150,6 +187,7 @@ public class AppInstallerInitializationTest {
 
         @Override
         public void createAuthorizedUser(String sysCon, String userId) {
+            authorizedUserIds.add(userId);
         }
 
         @Override
@@ -163,10 +201,12 @@ public class AppInstallerInitializationTest {
 
         @Override
         public void createMenu(String sysCon, BootstrapMenuItem menu) {
+            createdMenus.add(menu);
         }
 
         @Override
         public void createRole(String sysCon, BootstrapRole role) {
+            createdRoles.add(role);
         }
     }
 

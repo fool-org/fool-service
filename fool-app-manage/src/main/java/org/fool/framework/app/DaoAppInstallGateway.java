@@ -79,8 +79,23 @@ public class DaoAppInstallGateway implements AppInstallGateway {
 
     @Override
     public ApplicationDefinition createApplication(ApplicationDefinition app) {
-        defaultDao().create(app);
-        return app;
+        DaoService daoService = defaultDao();
+        List<ApplicationDefinition> applications = daoService.selectList(
+                ApplicationDefinition.class,
+                "SELECT `SW_APP_APPLICATIONID`,`SW_APP_KEY`,`SW_APP_TYPE`,`SW_APP_AVATAR`,"
+                        + "`SW_APP_COMPANY`,`SW_APP_CREATEIME`,`SW_APP_CREATOR`,`SW_APP_INITPIC`,"
+                        + "`SW_APP_NAME`,`SW_APP_NOTE`,`SW_APP_OWNER`,`SW_APP_RELEASETIME`,"
+                        + "`SW_APP_UPDATETIME`,`SW_APP_URL`,`SW_APP_VERSION`,`SW_APP_CON`,`SW_APP_VIEW` "
+                        + "FROM `SW_APPLICATION` WHERE `SW_APP_APPLICATIONID` = ?",
+                app.getAppId());
+        ApplicationDefinition installed = applications.isEmpty() ? app : applications.get(0);
+        if (applications.isEmpty()) {
+            daoService.create(app);
+        }
+        for (StoreDatabase database : safeDatabases(app)) {
+            ensureStoreDatabase(daoService, app.getAppId(), database);
+        }
+        return installed;
     }
 
     @Override
@@ -111,9 +126,7 @@ public class DaoAppInstallGateway implements AppInstallGateway {
 
     @Override
     public void createAuthorizedUser(String sysCon, String userId) {
-        AuthorizedUser user = AuthorizedUser.forUser(userId);
-        daoFor(sysCon).create(user);
-        authorizedUsersByUserId.put(userId, user);
+        resolveAuthorizedUser(daoFor(sysCon), userId);
     }
 
     @Override
@@ -341,27 +354,122 @@ public class DaoAppInstallGateway implements AppInstallGateway {
     @Override
     public void createRole(String sysCon, BootstrapRole role) {
         DaoService daoService = daoFor(sysCon);
-        AuthRole authRole = AuthRole.fromBootstrap(role);
-        daoService.create(authRole);
+        AuthRole authRole = findRole(daoService, role.getRoleName());
+        if (authRole == null) {
+            authRole = AuthRole.fromBootstrap(role);
+            daoService.create(authRole);
+        }
 
         AuthorizedUser authorizedUser = resolveAuthorizedUser(daoService, role.getAuthorizedUserId());
-        daoService.create(AuthRoleAuthorizedUserRelation.of(authRole.getRoleId(), authorizedUser.getAuthorizedId()));
+        ensureRoleUserRelation(daoService, authRole.getRoleId(), authorizedUser.getAuthorizedId());
 
         for (BootstrapMenuItem item : role.getItems()) {
             if (item.getPersistedId() == null) {
                 throw new IllegalStateException("Bootstrap menu item must be persisted before role relation: " + item.getText());
             }
-            daoService.create(AuthRoleMenuItemRelation.of(authRole.getRoleId(), item.getPersistedId()));
+            ensureRoleMenuRelation(daoService, authRole.getRoleId(), item.getPersistedId());
         }
     }
 
     private void createMenuItem(DaoService daoService, BootstrapMenuItem menu) {
-        AuthMenuItem authMenuItem = AuthMenuItem.fromBootstrap(menu);
-        daoService.create(authMenuItem);
+        AuthMenuItem authMenuItem = findMenuItem(daoService, menu.getText());
+        if (authMenuItem == null) {
+            authMenuItem = AuthMenuItem.fromBootstrap(menu);
+            daoService.create(authMenuItem);
+        } else if (!Objects.equals(authMenuItem.getViewId(), menu.getViewId() == null ? 0L : menu.getViewId())) {
+            authMenuItem.setViewId(menu.getViewId() == null ? 0L : menu.getViewId());
+            daoService.save(authMenuItem);
+        }
         menu.setPersistedId(authMenuItem.getMenuId());
         for (BootstrapMenuItem subItem : menu.getSubItems()) {
             createMenuItem(daoService, subItem);
-            daoService.create(AuthMenuSubItemRelation.of(authMenuItem.getMenuId(), subItem.getPersistedId()));
+            ensureMenuSubItemRelation(daoService, authMenuItem.getMenuId(), subItem.getPersistedId());
+        }
+    }
+
+    private void ensureStoreDatabase(
+            DaoService daoService,
+            String applicationId,
+            StoreDatabase database) {
+        if (database == null || database.getStoreBaseId() == null || database.getStoreBaseId().isBlank()) {
+            return;
+        }
+        List<StoreDatabase> databases = daoService.selectList(
+                StoreDatabase.class,
+                "SELECT `SW_STORE_STOREID`,`SW_STORE_NAME`,`SW_STORE_CON`,`SW_STORE_Note` "
+                        + "FROM `SW_STOREDB` WHERE `SW_STORE_STOREID` = ?",
+                database.getStoreBaseId());
+        if (databases.isEmpty()) {
+            daoService.create(database);
+        }
+        daoService.update(
+                "INSERT IGNORE INTO `SW_APPLICATION_SW_STOREDB` "
+                        + "(`SW_APPLICATION_ID`,`SW_STOREDB_ID`) VALUES (?,?)",
+                applicationId,
+                database.getStoreBaseId());
+    }
+
+    private List<StoreDatabase> safeDatabases(ApplicationDefinition app) {
+        return app.getDataBase() == null ? List.of() : app.getDataBase();
+    }
+
+    private AuthMenuItem findMenuItem(DaoService daoService, String text) {
+        List<AuthMenuItem> items = daoService.selectList(
+                AuthMenuItem.class,
+                "SELECT `AUTH_MENU_ID`,`AUTH_MENU_TEXT`,`AUTH_MENU_SHORTCUTKEY`,`AUTH_MENU_IMAGE`,"
+                        + "`AUTH_MENU_VISIABLE`,`AUTH_MENU_ENABLE`,`AUTH_MENU_VIEWID`,"
+                        + "`AUTH_MENU_TEMPLATEFILE`,`AUTH_MENU_INDEX` "
+                        + "FROM `SW_APP_AUTH_MENU` WHERE `AUTH_MENU_TEXT` = ?",
+                text);
+        return items.isEmpty() ? null : items.get(0);
+    }
+
+    private void ensureMenuSubItemRelation(DaoService daoService, Long parentMenuId, Long subItemMenuId) {
+        List<AuthMenuSubItemRelation> relations = daoService.selectList(
+                AuthMenuSubItemRelation.class,
+                "SELECT `SW_APP_AUTH_MENU_SubItemsAUTH_MENU_ID`,`SW_APP_AUTH_MENU_SUBITEMS_ITEM` "
+                        + "FROM `SW_APP_AUTH_MENU_SubItems` "
+                        + "WHERE `SW_APP_AUTH_MENU_SubItemsAUTH_MENU_ID` = ? "
+                        + "AND `SW_APP_AUTH_MENU_SUBITEMS_ITEM` = ?",
+                parentMenuId,
+                subItemMenuId);
+        if (relations.isEmpty()) {
+            daoService.create(AuthMenuSubItemRelation.of(parentMenuId, subItemMenuId));
+        }
+    }
+
+    private AuthRole findRole(DaoService daoService, String roleName) {
+        List<AuthRole> roles = daoService.selectList(
+                AuthRole.class,
+                "SELECT `AUTH_ROLE_ID`,`AUTH_ROLE_NAME` FROM `SW_APP_AUTH_ROLE` "
+                        + "WHERE `AUTH_ROLE_NAME` = ?",
+                roleName);
+        return roles.isEmpty() ? null : roles.get(0);
+    }
+
+    private void ensureRoleUserRelation(DaoService daoService, Long roleId, Long authorizedUserId) {
+        List<AuthRoleAuthorizedUserRelation> relations = daoService.selectList(
+                AuthRoleAuthorizedUserRelation.class,
+                "SELECT `SW_APP_AUTH_ROLE_ID`,`SW_APP_AUTH_USER_ID` "
+                        + "FROM `SW_APP_AUTH_ROLE_SW_APP_AUTH_USER` "
+                        + "WHERE `SW_APP_AUTH_ROLE_ID` = ? AND `SW_APP_AUTH_USER_ID` = ?",
+                roleId,
+                authorizedUserId);
+        if (relations.isEmpty()) {
+            daoService.create(AuthRoleAuthorizedUserRelation.of(roleId, authorizedUserId));
+        }
+    }
+
+    private void ensureRoleMenuRelation(DaoService daoService, Long roleId, Long menuId) {
+        List<AuthRoleMenuItemRelation> relations = daoService.selectList(
+                AuthRoleMenuItemRelation.class,
+                "SELECT `SW_APP_AUTH_MENU_ID`,`SW_APP_AUTH_ROLE_ID` "
+                        + "FROM `SW_APP_AUTH_MENU_SW_APP_AUTH_ROLE` "
+                        + "WHERE `SW_APP_AUTH_MENU_ID` = ? AND `SW_APP_AUTH_ROLE_ID` = ?",
+                menuId,
+                roleId);
+        if (relations.isEmpty()) {
+            daoService.create(AuthRoleMenuItemRelation.of(roleId, menuId));
         }
     }
 

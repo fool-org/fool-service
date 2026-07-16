@@ -6,20 +6,35 @@ This document is the source of truth for the fool-service installation flow.
 
 ## Responsibilities
 
-The installation boundary has two entry points:
+The startup installation boundary has three stages:
 
 1. **System initialization** runs after the database migration prerequisite.
    It discovers configured framework model packages, installs module/model
    metadata, creates missing model and relation tables, and creates missing
    default views.
-2. **Application installation** provisions one application through the
+2. **Default application installation** optionally runs after system
+   initialization and reconciles the configured application, store-database
+   relation, application-authorized administrator, system menus, and
+   administrator role through `AppInstaller.createApp(...)`.
+3. **Application installation** provisions any additional application through the
    existing `AppInstaller.createApp(...)` flow: application metadata, system
    and authorization modules, authorized user, store-database user modules,
    default system views, menus, and the administrator role.
 
 Docker schema migrations remain responsible for creating and repairing the
 metadata tables needed before Java initialization can run. Java initialization
-does not replay or replace `docker/mysql/init/*.sql`.
+does not replay or replace `docker/mysql/init/*.sql`. The database migration
+also owns the login credential for the configured administrator; application
+installation links that existing identity into application authorization.
+
+For an empty Docker MySQL volume, the effective order is:
+
+1. MySQL entrypoint creates the configured database and applies the ordered SQL
+   catalog.
+2. `db-migrate` replays the same repeat-safe catalog and must exit successfully.
+3. Spring Boot installs missing framework metadata, tables, and default Views.
+4. The enabled default-application stage creates or reuses the application,
+   database relation, administrator authorization, menus, and role.
 
 ## System Initialization Order
 
@@ -53,6 +68,12 @@ The Spring Boot auto-configuration prefix is `fool.app.initialization`.
 | `dependency-packages` | Additional system packages scanned and installed before the root module. |
 | `metadata-connection` | Optional legacy/JDBC route for metadata; blank uses the primary `DataSource`. |
 | `data-connection` | Optional legacy/JDBC route for model tables; blank uses the primary `DataSource`. |
+| `default-application-enabled` | Installs and reconciles the default application after system initialization. |
+| `default-application-id` / `default-application-key` | Default application identity and login key. |
+| `default-application-name` / `default-application-version` | Default application display metadata. |
+| `default-administrator-id` | Existing login identity linked as the application administrator. |
+| `default-database-id` / `default-database-name` | Store-database identity exposed by application login. |
+| `default-view-id` | Default application landing View. |
 
 The default package catalog covers model, View, application/auth, database,
 and event framework metadata. Business packages are opt-in and belong in an
@@ -72,6 +93,9 @@ application-specific installation plan.
   step, so initialization can resume after a partially completed MySQL DDL run.
 - Existing metadata is preserved; startup initialization does not delete
   removed classes or overwrite operator-managed records.
+- Application, store database, application/database relation, authorized user,
+  menus, roles, and their relations are matched before insertion, so a restart
+  resumes a partially completed default-application installation.
 
 Destructive reconciliation, module upgrades, and removing stale metadata are
 separate migration operations and are intentionally outside automatic startup.
@@ -81,7 +105,8 @@ separate migration operations and are intentionally outside automatic startup.
 - Starting the Docker backend after `db-migrate` installs framework models that
   are not present in the static Market seed.
 - A second backend start creates no duplicate module, model, View, property, or
-  relation rows and performs no no-op property rewrites.
+  relation rows, application/menu/role rows, or authorization relations and
+  performs no no-op property rewrites.
 - Focused tests prove phase ordering, configured package discovery, default
   disabled library behavior, and enabled runner wiring.
 - `python scripts/check_repo_harness.py` remains green.

@@ -13,6 +13,7 @@ import org.springframework.jdbc.BadSqlGrammarException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -61,6 +62,52 @@ public class DaoAppInstallGatewayInitializationTest {
         assertEquals(Long.valueOf(21L), repaired.getPropertyId());
         assertEquals(PropertyType.String, repaired.getPropertyType());
         assertEquals("ORDER_SYMBOL", repaired.getColumnName());
+    }
+
+    @Test
+    public void defaultApplicationBootstrapIsRepeatSafe() {
+        IdempotentBootstrapDaoService daoService = new IdempotentBootstrapDaoService();
+        DaoAppInstallGateway gateway = new DaoAppInstallGateway(daoService);
+        ApplicationDefinition app = new ApplicationDefinition();
+        app.setAppId("fool-service");
+        app.setCreatorId("admin");
+        StoreDatabase database = new StoreDatabase();
+        database.setStoreBaseId("fool_system");
+        database.setName("Fool System");
+        app.setDataBase(List.of(database));
+
+        gateway.createApplication(app);
+        gateway.createApplication(app);
+        gateway.createAuthorizedUser(null, "admin");
+        gateway.createAuthorizedUser(null, "admin");
+
+        BootstrapMenuItem firstMenu = new BootstrapMenuItem("系统管理");
+        firstMenu.addSubItem("模型管理", "Model列表").getSubItems().get(0).setViewId(101L);
+        gateway.createMenu(null, firstMenu);
+        BootstrapRole firstRole = role(firstMenu);
+        gateway.createRole(null, firstRole);
+
+        BootstrapMenuItem secondMenu = new BootstrapMenuItem("系统管理");
+        secondMenu.addSubItem("模型管理", "Model列表").getSubItems().get(0).setViewId(101L);
+        gateway.createMenu(null, secondMenu);
+        gateway.createRole(null, role(secondMenu));
+
+        assertEquals(1, daoService.count(ApplicationDefinition.class));
+        assertEquals(1, daoService.count(StoreDatabase.class));
+        assertEquals(2, daoService.applicationDatabaseRelationAttempts);
+        assertEquals(1, daoService.count(AuthorizedUser.class));
+        assertEquals(2, daoService.count(AuthMenuItem.class));
+        assertEquals(1, daoService.count(AuthMenuSubItemRelation.class));
+        assertEquals(1, daoService.count(AuthRole.class));
+        assertEquals(1, daoService.count(AuthRoleAuthorizedUserRelation.class));
+        assertEquals(2, daoService.count(AuthRoleMenuItemRelation.class));
+    }
+
+    private static BootstrapRole role(BootstrapMenuItem menu) {
+        BootstrapRole role = new BootstrapRole("应用管理员", "admin");
+        role.getItems().add(menu);
+        role.getItems().addAll(menu.getSubItems());
+        return role;
     }
 
     private static Model model(String name, String tableName) {
@@ -148,6 +195,78 @@ public class DaoAppInstallGatewayInitializationTest {
         public <T> boolean save(T object) {
             saved.add(object);
             return true;
+        }
+    }
+
+    private static final class IdempotentBootstrapDaoService extends DaoService {
+        private final List<Object> records = new ArrayList<>();
+        private long nextId = 1;
+        private int applicationDatabaseRelationAttempts;
+
+        @Override
+        public <T> void create(T object) {
+            if (object instanceof AuthorizedUser user && user.getAuthorizedId() == null) {
+                user.setAuthorizedId(nextId++);
+            } else if (object instanceof AuthMenuItem item && item.getMenuId() == null) {
+                item.setMenuId(nextId++);
+            } else if (object instanceof AuthRole role && role.getRoleId() == null) {
+                role.setRoleId(nextId++);
+            }
+            records.add(object);
+        }
+
+        @Override
+        public int update(String sql, Object... args) {
+            if (sql.startsWith("INSERT IGNORE INTO `SW_APPLICATION_SW_STOREDB`")) {
+                applicationDatabaseRelationAttempts++;
+            }
+            return 1;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> List<T> selectList(Class<T> clazz, String sql, Object... args) {
+            return records.stream()
+                    .filter(clazz::isInstance)
+                    .map(clazz::cast)
+                    .filter(item -> matches(item, args))
+                    .map(item -> (T) item)
+                    .toList();
+        }
+
+        private boolean matches(Object item, Object[] args) {
+            if (item instanceof ApplicationDefinition app) {
+                return Objects.equals(app.getAppId(), args[0]);
+            }
+            if (item instanceof StoreDatabase database) {
+                return Objects.equals(database.getStoreBaseId(), args[0]);
+            }
+            if (item instanceof AuthorizedUser user) {
+                return Objects.equals(user.getUserId(), args[0]);
+            }
+            if (item instanceof AuthMenuItem menu) {
+                return Objects.equals(menu.getText(), args[0]);
+            }
+            if (item instanceof AuthMenuSubItemRelation relation) {
+                return Objects.equals(relation.getParentMenuId(), args[0])
+                        && Objects.equals(relation.getSubItemMenuId(), args[1]);
+            }
+            if (item instanceof AuthRole role) {
+                return Objects.equals(role.getRoleName(), args[0]);
+            }
+            if (item instanceof AuthRoleAuthorizedUserRelation relation) {
+                return Objects.equals(relation.getRoleId(), args[0])
+                        && Objects.equals(relation.getAuthorizedUserId(), args[1]);
+            }
+            if (item instanceof AuthRoleMenuItemRelation relation) {
+                return Objects.equals(relation.getMenuId(), args[0])
+                        && Objects.equals(relation.getRoleId(), args[1]);
+            }
+            return false;
+        }
+
+        private long count(Class<?> type) {
+            return records.stream().filter(type::isInstance).count();
         }
     }
 }

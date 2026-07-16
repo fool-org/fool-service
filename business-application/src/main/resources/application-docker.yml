@@ -32,6 +32,15 @@ fool:
   app:
     initialization:
       enabled: true
+      default-application-enabled: true
+      default-application-id: fool-service
+      default-application-key: fool-service
+      default-application-name: Fool System
+      default-application-version: 1.0.0
+      default-administrator-id: admin
+      default-database-id: car_wash
+      default-database-name: car_wash
+      default-view-id: 100
   agent:
     chat:
       default-provider: ${FOOL_AGENT_DEFAULT_PROVIDER:deepseek}

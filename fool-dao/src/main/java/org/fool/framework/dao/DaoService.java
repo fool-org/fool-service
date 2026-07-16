@@ -90,6 +90,10 @@ public class DaoService {
         this.jdbcTemplate.execute(sql);
     }
 
+    public int update(String sql, Object... args) {
+        return this.jdbcTemplate.update(sql, args);
+    }
+
     public <T> T inTransaction(Supplier<T> action) {
         if (transactionOperations == null) {
             return action.get();
