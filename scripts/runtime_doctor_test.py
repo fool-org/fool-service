@@ -941,7 +941,7 @@ class RuntimeDoctorTest(unittest.TestCase):
 
         by_name = {result.name: result for result in results}
         self.assertTrue(by_name["auth:getmenu-legacy-web-payload"].ok)
-        self.assertIn(("http://frontend/api/v1/auth/getmenu", {"Token": "t", "authcode": "0101"}), calls)
+        self.assertIn(("http://frontend/api/v1/auth/getmenu", {"authcode": "0101"}), calls)
 
     def test_api_checks_getmsg_accepts_legacy_web_route(self) -> None:
         calls: list[tuple[str, object]] = []
@@ -965,7 +965,7 @@ class RuntimeDoctorTest(unittest.TestCase):
 
         by_name = {result.name: result for result in results}
         self.assertTrue(by_name["message:getmsg-legacy-web-route"].ok)
-        self.assertIn(("http://frontend/api/v1/getmsg", {"Token": "t"}), calls)
+        self.assertIn(("http://frontend/api/v1/getmsg", {}), calls)
 
     def test_api_checks_saverpt_accepts_legacy_web_payload(self) -> None:
         calls: list[tuple[str, object]] = []

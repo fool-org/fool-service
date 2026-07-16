@@ -3,6 +3,8 @@ package org.fool.framework.agent.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.fool.framework.common.authz.DataClassification;
+import org.fool.framework.common.authz.DataPolicy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
@@ -29,23 +31,33 @@ public class AgentChatProviderService {
     private final AgentProviderProperties properties;
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
+    private final AgentOutboundPolicy outboundPolicy;
 
     @Autowired
     public AgentChatProviderService(AgentProviderProperties properties,
                                     ObjectMapper objectMapper,
-                                    RestTemplateBuilder restTemplateBuilder) {
+                                    RestTemplateBuilder restTemplateBuilder,
+                                    AgentOutboundPolicy outboundPolicy) {
         this(properties, objectMapper, restTemplateBuilder
                 .setConnectTimeout(Duration.ofSeconds(10))
                 .setReadTimeout(Duration.ofSeconds(90))
-                .build());
+                .build(), outboundPolicy);
     }
 
     AgentChatProviderService(AgentProviderProperties properties,
                              ObjectMapper objectMapper,
                              RestTemplate restTemplate) {
+        this(properties, objectMapper, restTemplate, new AgentOutboundPolicy());
+    }
+
+    AgentChatProviderService(AgentProviderProperties properties,
+                             ObjectMapper objectMapper,
+                             RestTemplate restTemplate,
+                             AgentOutboundPolicy outboundPolicy) {
         this.properties = properties;
         this.objectMapper = objectMapper;
         this.restTemplate = restTemplate;
+        this.outboundPolicy = outboundPolicy;
     }
 
     public List<ProviderInfo> providers() {
@@ -65,13 +77,28 @@ public class AgentChatProviderService {
                        AgentCapabilityType capability,
                        String userContent,
                        AgentDraft draft) {
+        return reply(requestedProvider, session, capability, userContent, draft, DataPolicy.unrestricted());
+    }
+
+    public Reply reply(String requestedProvider,
+                       AgentSession session,
+                       AgentCapabilityType capability,
+                       String userContent,
+                       AgentDraft draft,
+                       DataPolicy policy) {
         Map.Entry<String, AgentProviderProperties.Provider> selected = select(requestedProvider);
         if (selected == null) {
             return Reply.local(draft.getSummary());
         }
 
         AgentProviderProperties.Provider provider = selected.getValue();
-        List<Map<String, String>> messages = messages(session, capability, userContent, draft);
+        AgentDraft outboundDraft = outboundPolicy.sanitize(draft, policy);
+        DataClassification highest = outboundPolicy.highestClassification(outboundDraft, policy);
+        if (!policy.providerAllowed(selected.getKey(), highest)) {
+            return Reply.local("外部模型出站策略不允许发送当前上下文，已保留本地确定性草案。");
+        }
+        List<Map<String, String>> messages = messages(
+                session, capability, outboundPolicy.sanitizeText(userContent), outboundDraft);
         Map<String, Object> request = new LinkedHashMap<>();
         request.put("model", provider.getModel());
         request.put("messages", messages);
@@ -111,7 +138,7 @@ public class AgentChatProviderService {
         messages.add(message("system", systemPrompt(capability, draft)));
         int first = Math.max(0, session.getMessages().size() - MAX_HISTORY_MESSAGES);
         session.getMessages().subList(first, session.getMessages().size()).stream()
-                .map(existing -> message(role(existing.getRole()), existing.getContent()))
+                .map(existing -> message(role(existing.getRole()), outboundPolicy.sanitizeText(existing.getContent())))
                 .forEach(messages::add);
         messages.add(message("user", userContent));
         return messages;
@@ -120,7 +147,8 @@ public class AgentChatProviderService {
     private String systemPrompt(AgentCapabilityType capability, AgentDraft draft) {
         return "你是 Fool Service 的配置助手。当前阶段是“" + capability.getDisplayName() + "”。"
                 + "请用中文直接回答用户，基于系统生成的只读草案给出清晰、简短、可执行的建议。"
-                + "不要声称已经执行写入、DDL、操作或外部副作用；需要变更时明确要求人工确认。\n"
+                + "不要声称已经执行写入、DDL、操作或外部副作用；需要中风险变更时，可只返回一个 schemaVersion=1 的 ActionIntent JSON，由服务端预检并要求用户确认。"
+                + "你不能输出 actor、risk、policyVersion、approval、SQL、URL、类名、token 或凭据。\n"
                 + "草案摘要：" + draft.getSummary() + "\n"
                 + "风险级别：" + draft.getRiskLevel() + "\n"
                 + "草案数据：" + json(draft.getDraftPayload()) + "\n"

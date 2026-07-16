@@ -33,11 +33,13 @@ describe("ViewReportPanel legacy interactions", () => {
     expect(viewReportPanelSource).not.toContain("reportGridPage");
   });
 
-  it("keeps the old inert report-save command visible", () => {
+  it("routes report save through the controlled medium-action workflow", () => {
     expect(viewReportPanelSource).toContain('label="保存报表定义" severity="info"');
-    expect(viewReportPanelSource).not.toContain("saveReport");
+    expect(viewReportPanelSource).toContain("saveReportDefinition");
+    expect(viewReportPanelSource).toContain("executeMediumAction");
+    expect(viewReportPanelSource).toContain('action: "report.save"');
     expect(viewReportPanelSource).not.toContain("/api/v1/report/saverpt");
-    expect(viewReportPanelSource).not.toContain("报表定义已提交。");
+    expect(viewReportPanelSource).toContain("报表定义已保存。");
   });
 
   it("keeps the old single-type shortcut but requires a real output type", () => {

@@ -5,7 +5,17 @@ export interface CommonResponse<T> {
 }
 
 export interface CommonRequest {
-  token?: string;
+}
+
+export interface EffectiveAction {
+  action: string;
+  minimumRisk: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+}
+
+export interface EffectiveActionsResult {
+  resourceKey: string;
+  policyVersion: number;
+  actions: EffectiveAction[];
 }
 
 export interface UserDTO {
@@ -299,7 +309,6 @@ export interface ListViewInfo {
 }
 
 export interface ViewDataRequest {
-  token?: string;
   viewId?: number;
 }
 
@@ -398,7 +407,6 @@ export interface ListViewResult {
 }
 
 export interface GetEnumRequest {
-  token?: string;
   modelId?: string;
 }
 
@@ -415,7 +423,6 @@ export interface GetEnumResult {
 }
 
 export interface InputQueryRequest {
-  token?: string;
   text?: string;
   viewItemId?: string;
   viewId?: number;
@@ -479,7 +486,6 @@ export interface GetNotifyResult {
 }
 
 export interface LegacyQueryDataRequest {
-  token?: string;
   viewId?: number;
   pageSize?: number;
   pageIndex?: number;
@@ -515,7 +521,6 @@ export interface ReportFilterSequence {
 }
 
 export interface MakeReportRequest {
-  token?: string;
   viewId?: number;
   reportCols?: ReportCol[];
   currentPage?: number;
@@ -590,14 +595,12 @@ export interface ReportModelResult {
 }
 
 export interface LegacyQueryDataDetailRequest {
-  token?: string;
   viewId?: number;
   objId?: unknown;
   idExp?: string;
 }
 
 export interface LegacyInitNewRequest {
-  token?: string;
   viewId?: number;
   parentObjId?: string;
 }
@@ -684,7 +687,6 @@ export interface SaveObject {
 }
 
 export interface SaveObjRequest {
-  token?: string;
   saveObj?: SaveObject;
 }
 
@@ -695,7 +697,6 @@ export interface LegacySaveNewObjRequest extends SaveObjRequest {
 }
 
 export interface LegacyRunOperationRequest {
-  token?: string;
   objectId?: string;
   operationId?: number;
   viewId?: number;
@@ -762,6 +763,47 @@ export interface AgentTurnResult {
   readyToAdvance: boolean;
   provider: string;
   model: string;
+  actionRequestId?: string;
+}
+
+export type ActionRequestStatus =
+  | "DRAFT" | "PREFLIGHT_DENIED" | "PREVIEW_READY" | "AWAITING_CONFIRMATION"
+  | "AWAITING_APPROVAL" | "APPROVED" | "EXECUTING" | "SUCCEEDED" | "FAILED"
+  | "ROLLED_BACK" | "PARTIALLY_SUCCEEDED" | "CANCELLED" | "EXPIRED";
+
+export interface ActionIntent {
+  schemaVersion: 1;
+  action: string;
+  resource: { type: string; id: string };
+  arguments: Record<string, unknown>;
+  rationale: string;
+}
+
+export interface ActionRequestView {
+  actionRequestId: string;
+  action: string;
+  resourceKey: string;
+  source: string;
+  riskLevel: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  riskReasons: string[];
+  status: ActionRequestStatus;
+  preview: {
+    affectedObjectCount?: number;
+    fieldDiff?: Record<string, unknown>;
+    effectiveScope?: Record<string, unknown>;
+    rollbackStrategy?: string;
+    warnings?: string[];
+    previewExpiresAt?: string;
+  };
+  expiresAt: string;
+  owned: boolean;
+  confirmable: boolean;
+  executable: boolean;
+  approvable: boolean;
+  cancellable: boolean;
+  requiredApprovals: number;
+  approvalCount: number;
+  result: Record<string, unknown>;
 }
 
 export class ApiTransportError extends Error {}
@@ -773,7 +815,7 @@ export function isTransportError(error: unknown) {
 async function requestApi<T>(path: string, init?: RequestInit): Promise<CommonResponse<T>> {
   let response: Response;
   try {
-    response = await fetch(path, init);
+    response = await fetch(path, withBearerToken(init));
   } catch (error) {
     throw new ApiTransportError(error instanceof Error ? error.message : String(error));
   }
@@ -793,16 +835,24 @@ async function requestApi<T>(path: string, init?: RequestInit): Promise<CommonRe
   return body;
 }
 
+function withBearerToken(init?: RequestInit): RequestInit | undefined {
+  const token = typeof localStorage === "undefined" ? "" : localStorage.getItem("fool-service-token")?.trim();
+  if (!token) return init;
+  const headers = new Headers(init?.headers);
+  headers.set("Authorization", `Bearer ${token}`);
+  return { ...init, headers };
+}
+
 export function getApi<T>(path: string): Promise<CommonResponse<T>> {
   return requestApi<T>(path);
 }
 
-export function postApi<T>(path: string, payload: unknown): Promise<CommonResponse<T>> {
+export function postApi<T>(path: string, payload: unknown, headers?: HeadersInit): Promise<CommonResponse<T>> {
+  const requestHeaders = new Headers(headers);
+  requestHeaders.set("Content-Type", "application/json");
   return requestApi<T>(path, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: requestHeaders,
     body: JSON.stringify(payload)
   });
 }

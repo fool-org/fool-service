@@ -1,6 +1,7 @@
 package org.fool.framework.view.service;
 
 import org.fool.framework.common.PropertyType;
+import org.fool.framework.common.authz.AuthorizationDeniedException;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.dao.DaoService;
 import org.fool.framework.dao.PageNavigator;
@@ -40,6 +41,7 @@ public class DataQueryServiceOrderingTest {
     @Test
     public void queryViewDataListRejectsBusinessNameShortcut() {
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", mock(DaoService.class));
 
         CommonException exception = assertThrows(CommonException.class,
@@ -54,6 +56,7 @@ public class DataQueryServiceOrderingTest {
         ModelDataService modelDataService = mock(ModelDataService.class);
         ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", viewAdapter);
@@ -106,6 +109,7 @@ public class DataQueryServiceOrderingTest {
         ModelDataService modelDataService = mock(ModelDataService.class);
         ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", viewAdapter);
@@ -157,6 +161,7 @@ public class DataQueryServiceOrderingTest {
         ModelDataService modelDataService = mock(ModelDataService.class);
         ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", viewAdapter);
@@ -198,16 +203,17 @@ public class DataQueryServiceOrderingTest {
                 eq("order_id"),
                 eq(true));
         var sql = filterCaptor.getValue().generateSql();
-        assertEquals("(`order_state`='OPEN') And (`order_symbol`= ?)", sql.getSql());
+        assertEquals("(`order_state`='OPEN') And (`order_symbol`= ?) And ( 1=1 )", sql.getSql());
         assertArrayEquals(new Object[]{"BTC-USDT"}, sql.getArgs());
     }
 
     @Test
-    public void queryLegacyViewDataAppliesLegacyQueryFilterAfterViewFilter() {
+    public void queryLegacyViewDataRejectsClientRawFilter() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
         ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", viewAdapter);
@@ -234,19 +240,11 @@ public class DataQueryServiceOrderingTest {
                 .thenReturn(pageResult);
         when(viewAdapter.getListViewResult(eq(view), eq(pageResult))).thenReturn(new ListViewResult());
 
-        service.queryLegacyViewData("42", pageNavigator, "`order_state`='OPEN'");
+        AuthorizationDeniedException exception = assertThrows(
+                AuthorizationDeniedException.class,
+                () -> service.queryLegacyViewData("42", pageNavigator, "`order_state`='OPEN'"));
 
-        ArgumentCaptor<IQueryFilter> filterCaptor = ArgumentCaptor.forClass(IQueryFilter.class);
-        verify(modelDataService).getDataListWithPageInfo(
-                eq("Order"),
-                filterCaptor.capture(),
-                anyList(),
-                eq(pageNavigator),
-                eq("order_id"),
-                eq(true));
-        var sql = filterCaptor.getValue().generateSql();
-        assertEquals("(`tenant_id`=1) And (`order_state`='OPEN')", sql.getSql());
-        assertArrayEquals(new Object[]{}, sql.getArgs());
+        assertEquals("CLIENT_RAW_FILTER_FORBIDDEN", exception.getMessage());
     }
 
     @Test
@@ -255,6 +253,7 @@ public class DataQueryServiceOrderingTest {
         ModelDataService modelDataService = mock(ModelDataService.class);
         ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", viewAdapter);
@@ -293,7 +292,7 @@ public class DataQueryServiceOrderingTest {
                 eq("candidate_id"),
                 eq(true));
         var sql = filterCaptor.getValue().generateSql();
-        assertEquals("( 1=1 ) And (`display_name` LIKE ?)", sql.getSql());
+        assertEquals("( 1=1 ) And (`display_name` LIKE ?) And ( 1=1 )", sql.getSql());
         assertArrayEquals(new Object[]{"%Ada%"}, sql.getArgs());
     }
 
@@ -303,6 +302,7 @@ public class DataQueryServiceOrderingTest {
         ModelDataService modelDataService = mock(ModelDataService.class);
         ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", viewAdapter);
@@ -348,6 +348,7 @@ public class DataQueryServiceOrderingTest {
         ModelDataService modelDataService = mock(ModelDataService.class);
         ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", viewAdapter);
@@ -391,11 +392,12 @@ public class DataQueryServiceOrderingTest {
     }
 
     @Test
-    public void queryLegacyViewDataIgnoresExplicitOrderOutsideRenderedViewItems() {
+    public void queryLegacyViewDataRejectsExplicitOrderOutsideRenderedViewItems() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
         ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", viewAdapter);
@@ -424,16 +426,12 @@ public class DataQueryServiceOrderingTest {
                 .thenReturn(pageResult);
         when(viewAdapter.getListViewResult(eq(view), eq(pageResult))).thenReturn(new ListViewResult());
 
-        service.queryLegacyViewData("101", pageNavigator, null, null,
-                new DataQueryService.QueryOrder("hiddenRank", false));
+        AuthorizationDeniedException exception = assertThrows(
+                AuthorizationDeniedException.class,
+                () -> service.queryLegacyViewData("101", pageNavigator, null, null,
+                        new DataQueryService.QueryOrder("hiddenRank", false)));
 
-        verify(modelDataService).getDataListWithPageInfo(
-                eq("Candidate"),
-                any(IQueryFilter.class),
-                anyList(),
-                eq(pageNavigator),
-                eq("candidate_id"),
-                eq(true));
+        assertEquals("FIELD_NOT_SORTABLE", exception.getMessage());
     }
 
     @Test
@@ -442,6 +440,7 @@ public class DataQueryServiceOrderingTest {
         ModelDataService modelDataService = mock(ModelDataService.class);
         ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", viewAdapter);
@@ -482,7 +481,7 @@ public class DataQueryServiceOrderingTest {
                 eq("order_id"),
                 eq(true));
         var sql = filterCaptor.getValue().generateSql();
-        assertEquals("( 1=1 ) And (`order_symbol` LIKE ? OR `order_state` LIKE ?)", sql.getSql());
+        assertEquals("( 1=1 ) And (`order_symbol` LIKE ? OR `order_state` LIKE ?) And ( 1=1 )", sql.getSql());
         assertArrayEquals(new Object[]{"%USDT%", "%USDT%"}, sql.getArgs());
     }
 
@@ -492,6 +491,7 @@ public class DataQueryServiceOrderingTest {
         ModelDataService modelDataService = mock(ModelDataService.class);
         ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", viewAdapter);
@@ -539,7 +539,7 @@ public class DataQueryServiceOrderingTest {
                 eq("order_id"),
                 eq(true));
         var sql = filterCaptor.getValue().generateSql();
-        assertEquals("( 1=1 ) And (`customer`.`customer_name` LIKE ?)", sql.getSql());
+        assertEquals("( 1=1 ) And (`customer`.`customer_name` LIKE ?) And ( 1=1 )", sql.getSql());
         assertArrayEquals(new Object[]{"%Ada%"}, sql.getArgs());
     }
 

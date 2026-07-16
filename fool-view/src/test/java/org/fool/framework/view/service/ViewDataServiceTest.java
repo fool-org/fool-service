@@ -38,7 +38,7 @@ public class ViewDataServiceTest {
         ViewDataService service = new ViewDataService();
         ReflectionTestUtils.setField(service, "daoService", mock(DaoService.class));
 
-        CommonException exception = assertThrows(CommonException.class, () -> service.getViewData("OrderList", ""));
+        CommonException exception = assertThrows(CommonException.class, () -> service.getViewData("OrderList"));
 
         assertEquals("ViewId is required", exception.getMessage());
     }
@@ -64,7 +64,7 @@ public class ViewDataServiceTest {
         when(daoService.getOneDetailByKey(View.class, "100")).thenReturn(view);
         when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(model);
 
-        View result = service.getViewData("100", "");
+        View result = service.getViewData("100");
 
         assertSame(property, itemProperty(result.getListItems().get(0)));
     }
@@ -97,7 +97,7 @@ public class ViewDataServiceTest {
         when(daoService.selectList(eq(PersistedViewOperation.class), anyString(), eq(100L))).thenReturn(List.of(row));
         when(daoService.selectList(eq(OperationCommand.class), anyString(), eq(7001L))).thenReturn(List.of(command));
 
-        View result = service.getViewData("100", "");
+        View result = service.getViewData("100");
 
         assertEquals(1, result.getOperations().size());
         assertEquals(7001L, result.getOperations().get(0).getOperation().getId().longValue());
@@ -129,7 +129,7 @@ public class ViewDataServiceTest {
         when(daoService.selectList(eq(ViewDataService.DefaultDetailViewRow.class), anyString(), eq(100L)))
                 .thenReturn(List.of(row));
 
-        View result = service.getViewData("100", "");
+        View result = service.getViewData("100");
 
         assertEquals(Long.valueOf(102L), result.getDefaultDetailView().getId());
         ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
@@ -163,7 +163,7 @@ public class ViewDataServiceTest {
         when(daoService.selectList(eq(ViewDataService.ViewItemFileRow.class), anyString(), eq(100L)))
                 .thenReturn(List.of(itemFile));
 
-        View result = service.getViewData("100", "");
+        View result = service.getViewData("100");
 
         assertEquals("viewWithChart", result.getTempFile());
         assertEquals("./includes/List", result.getListItems().get(0).getViewFile());
@@ -199,7 +199,7 @@ public class ViewDataServiceTest {
         when(daoService.getOneDetailByKey(Model.class, "Order")).thenReturn(new Model());
         when(daoService.getOneDetailByKey(Model.class, "OrderItem")).thenReturn(itemModel);
 
-        View result = service.getViewData("100", "");
+        View result = service.getViewData("100");
 
         assertEquals(Integer.valueOf(1), result.getListItems().get(0).getListViewType());
         assertEquals("OrderItemList", result.getListItems().get(0).getListViewName());
@@ -237,7 +237,7 @@ public class ViewDataServiceTest {
         when(daoService.selectList(eq(OperationViewParam.class), anyString(), eq(8002L))).thenReturn(List.of(param));
         when(daoService.selectList(eq(OperationCommand.class), anyString(), eq(7002L))).thenReturn(List.of());
 
-        View result = service.getViewData("100", "");
+        View result = service.getViewData("100");
 
         OperationViewParam hydrated = result.getOperations().get(0).getParams().get(0);
         assertEquals(Long.valueOf(8101L), hydrated.getId());
@@ -279,7 +279,7 @@ public class ViewDataServiceTest {
         when(daoService.selectList(eq(PersistedViewOperation.class), anyString(), eq(100L))).thenReturn(List.of(row));
         when(daoService.selectList(eq(OperationCommand.class), anyString(), eq(7001L))).thenReturn(List.of());
 
-        service.getViewData("100", "");
+        service.getViewData("100");
 
         ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
         verify(daoService).selectList(eq(OperationCommand.class), sql.capture(), eq(7001L));
@@ -321,7 +321,7 @@ public class ViewDataServiceTest {
         when(daoService.selectList(eq(PersistedViewOperation.class), anyString(), eq(100L))).thenReturn(List.of(row));
         when(daoService.selectList(eq(OperationCommand.class), anyString(), eq(7003L))).thenReturn(List.of());
 
-        View result = service.getViewData("100", "");
+        View result = service.getViewData("100");
 
         ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
         verify(daoService).selectList(eq(PersistedViewOperation.class), sql.capture(), eq(100L));

@@ -239,7 +239,6 @@ function workflowRefs(overrides: Partial<ReturnType<typeof baseRefs>> = {}) {
 
 function baseRefs() {
   return {
-    token: ref("token-1"),
     listViewId: ref(100),
     readItemViewId: ref(0),
     pageIndex: ref(1),

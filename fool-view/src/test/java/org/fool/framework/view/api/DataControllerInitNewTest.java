@@ -22,6 +22,7 @@ public class DataControllerInitNewTest {
         when(dataQueryService.initLegacyNewObject("100", "5001")).thenReturn(expected);
 
         DataController controller = new DataController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "dataQueryService", dataQueryService);
         LegacyInitNewRequest request = new LegacyInitNewRequest();
         request.setViewId(100L);

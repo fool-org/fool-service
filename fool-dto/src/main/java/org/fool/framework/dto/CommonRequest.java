@@ -1,10 +1,7 @@
 package org.fool.framework.dto;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@Data
+@JsonIgnoreProperties({"token", "Token"})
 public class CommonRequest {
-    @JsonAlias("Token")
-    private String token;
 }

@@ -7,6 +7,9 @@ import org.fool.framework.dao.QueryAndArgs;
 import org.fool.framework.dto.CommonException;
 import org.fool.framework.common.PropertyType;
 import org.fool.framework.common.context.LegacyContextValueService;
+import org.fool.framework.common.authz.AuthorizationDeniedException;
+import org.fool.framework.common.authz.ControlledActionExecutionGuard;
+import org.fool.framework.common.authz.DataPolicy;
 import org.fool.framework.common.data.SubItemList;
 import org.fool.framework.common.dynamic.IDynamicData;
 import org.fool.framework.model.model.DbMysqlDynamic;
@@ -68,6 +71,10 @@ public class DataQueryService {
     private ModelDataService modelDataService;
     @Autowired
     private ViewDataService viewDataService;
+    @Autowired
+    private ReadAuthorizationEnforcer authorizationEnforcer;
+    @Autowired
+    private ControlledActionExecutionGuard actionExecutionGuard;
 
     private final OperationCommandValueResolver commandValueResolver = new OperationCommandValueResolver();
     @Autowired(required = false)
@@ -123,7 +130,17 @@ public class DataQueryService {
             String queryFilter,
             String keyword,
             QueryOrder order) {
-        return queryViewDataList(viewId, null, pageInfo, keyword, queryFilter, order);
+        if (StringUtils.hasText(queryFilter)) {
+            throw new AuthorizationDeniedException("CLIENT_RAW_FILTER_FORBIDDEN");
+        }
+        return queryViewDataList(viewId, null, pageInfo, keyword, null, order);
+    }
+
+    public ListViewResult queryReportViewData(String viewId,
+                                              PageNavigator pageInfo,
+                                              IQueryFilter validatedFilter,
+                                              QueryOrder order) {
+        return queryViewDataList(viewId, null, pageInfo, null, null, order, validatedFilter);
     }
 
     public QueryDataDetailResult queryLegacyViewDataDetail(String viewId, String dataId) {
@@ -131,11 +148,8 @@ public class DataQueryService {
     }
 
     public QueryDataDetailResult queryLegacyViewDataDetail(String viewId, String dataId, String idExp) {
-        return queryLegacyViewDataDetail(viewId, dataId, idExp, null);
-    }
-
-    public QueryDataDetailResult queryLegacyViewDataDetail(String viewId, String dataId, String idExp, String token) {
-        View view = viewDataService.getViewData(viewId, token);
+        DataPolicy policy = authorizationEnforcer.requireView("view.query", viewId);
+        View view = authorizationEnforcer.constrainView(viewDataService.getViewData(viewId), policy);
         if (view == null) {
             throw new CommonException(ErrorCode.VIEW_NOT_FOUND, "没有查到视图");
         }
@@ -143,11 +157,32 @@ public class DataQueryService {
         if (model == null) {
             throw new CommonException(ErrorCode.MODEL_NOT_FOUND, "没有查到元数据定义");
         }
-        return viewAdapter.getDetailViewResult(view,
-                modelDataService.getOneData(view.getViewModel(), legacyDetailObjectId(dataId, idExp, view, model, token)));
+        String objectId = legacyDetailObjectId(dataId, idExp, view, model, policy);
+        if (!StringUtils.hasText(objectId) || model.getIdProperty() == null) {
+            throw new AuthorizationDeniedException("RESOURCE_OUT_OF_SCOPE");
+        }
+        IQueryFilter filter = authorizationEnforcer.rowFilter(policy, model)
+                .and(new CompareFilter(model.getIdProperty().getColumn(), CompareOp.EQUAL, objectId));
+        PageNavigator page = new PageNavigator();
+        page.setPageIndex(1);
+        page.setPageSize(1);
+        List<Property> properties = new ArrayList<>(getViewProperies(view, model));
+        if (!properties.contains(model.getIdProperty())) {
+            properties.add(model.getIdProperty());
+        }
+        PageResult<IDynamicData> rows = modelDataService.getDataListWithPageInfo(
+                view.getViewModel(), filter, properties, page);
+        if (rows == null || CollectionUtils.isEmpty(rows.getItems())) {
+            throw new AuthorizationDeniedException("RESOURCE_OUT_OF_SCOPE");
+        }
+        return authorizationEnforcer.mask(viewAdapter.getDetailViewResult(view, rows.getItems().get(0)), policy);
     }
 
-    private String legacyDetailObjectId(String dataId, String idExp, View view, Model model, String token) {
+    private String legacyDetailObjectId(String dataId,
+                                        String idExp,
+                                        View view,
+                                        Model model,
+                                        DataPolicy policy) {
         if (StringUtils.hasText(dataId)) {
             return dataId;
         }
@@ -156,7 +191,7 @@ public class DataQueryService {
             page.setPageIndex(1);
             page.setPageSize(10);
             PageResult<IDynamicData> result = modelDataService.getDataListWithPageInfo(
-                    view.getViewModel(), IQueryFilter.init(),
+                    view.getViewModel(), authorizationEnforcer.rowFilter(policy, model),
                     model.getProperties() == null ? List.of() : model.getProperties(),
                     page);
             return result == null || CollectionUtils.isEmpty(result.getItems())
@@ -164,13 +199,15 @@ public class DataQueryService {
                     : LegacyDynamicIds.id(result.getItems().get(0));
         }
         String expression = idExp.trim();
-        Object resolved = commandValue(null, null, expression, token);
+        Object resolved = commandValue(null, null, expression, null);
         String resolvedId = resolved == null ? "" : String.valueOf(resolved);
         return StringUtils.hasText(resolvedId) ? resolvedId : dataId;
     }
 
     public QueryDataDetailResult initLegacyNewObject(String viewId, String parentObjId) {
-        View view = viewDataService.getViewData(viewId, null);
+        DataPolicy policy = authorizationEnforcer.requireView("data.create", viewId);
+        View view = authorizationEnforcer.constrainWritableView(
+                viewDataService.getViewData(viewId), policy);
         if (view == null) {
             throw new CommonException(ErrorCode.VIEW_NOT_FOUND, "没有查到视图");
         }
@@ -195,26 +232,37 @@ public class DataQueryService {
             throw new CommonException(ErrorCode.MODEL_NOT_FOUND, "没有查到元数据定义");
         }
         attachProperties(view, model);
+        DataPolicy policy = authorizationEnforcer.requireView("view.query", inputQueryViewId(request, view));
+        authorizationEnforcer.constrainView(view, policy);
         ViewItem item = orderedListItems(view).stream()
                 .filter(viewItem -> Objects.equals(viewItem.getItemName(), request.getViewItemId())
                         || Objects.equals(viewItem.getModelProperty(), request.getViewItemId()))
                 .findFirst()
                 .orElseThrow(() -> new CommonException(ErrorCode.VIEW_MODEL_NOT_FOUND, "没有查到视图字段"));
         Property property = item.getProperty();
+        authorizationEnforcer.requireFilterable(policy, property);
         Model targetModel = property == null ? null : property.getPropertyModel();
         if (targetModel == null) {
             return new InputQueryResult();
         }
         Property idProperty = targetModel.getIdProperty();
         Property showProperty = ModelDisplayProperties.displayProperty(targetModel);
+        if (!authorizationEnforcer.readable(policy, showProperty)) {
+            throw new AuthorizationDeniedException("FIELD_NOT_READABLE");
+        }
         InputQueryResult sourceResult = inputQueryFromSourceList(request, view.getViewModel(), model, item, property, showProperty);
         if (sourceResult != null) {
+            if (policy.rowRules().stream().noneMatch(rule -> "ALL".equals(rule.scopeType()))) {
+                throw new AuthorizationDeniedException("LOOKUP_ROW_POLICY_UNSUPPORTED");
+            }
             return sourceResult;
         }
         PageNavigator page = new PageNavigator();
         page.setPageIndex(1);
         page.setPageSize(5);
-        IQueryFilter queryFilter = inputQueryFilter(item, showProperty, request.getText());
+        IQueryFilter queryFilter = inputQueryFilter(item, showProperty, request.getText())
+                .and(authorizationEnforcer.rowFilter(policy, targetModel));
+        authorizationEnforcer.constrainPage(policy, page);
         PageResult<IDynamicData> pageResult = modelDataService.getDataListWithPageInfo(
                 targetModel.getName(),
                 queryFilter,
@@ -251,6 +299,16 @@ public class DataQueryService {
         return daoService.getOneDetailByKey(
                 View.class,
                 viewId == null ? viewName.trim() : viewId.toString());
+    }
+
+    private String inputQueryViewId(InputQueryRequest request, View view) {
+        if (request.getViewId() != null) {
+            return request.getViewId().toString();
+        }
+        if (view.getId() != null) {
+            return view.getId().toString();
+        }
+        throw new AuthorizationDeniedException("RESOURCE_OUT_OF_SCOPE");
     }
 
     private InputQueryResult inputQueryFromSourceList(
@@ -360,10 +418,14 @@ public class DataQueryService {
     }
 
     public void saveLegacyObject(SaveObjRequest request) {
+        actionExecutionGuard.require("data.update", request == null || request.getSaveObj() == null
+                ? null : request.getSaveObj().getViewID());
         modelDataService.saveData(legacyObjectData(request.getSaveObj()));
     }
 
     public void saveLegacyNewObject(LegacySaveNewObjRequest request) {
+        actionExecutionGuard.require("data.create", request == null || request.getSaveObj() == null
+                ? null : request.getSaveObj().getViewID());
         DbMysqlDynamic data = legacyObjectData(request.getSaveObj());
         if (StringUtils.hasText(request.getOwnerViewId())) {
             View ownerView = daoService.getOneDetailByKey(View.class, request.getOwnerViewId());
@@ -382,9 +444,11 @@ public class DataQueryService {
     }
 
     public LegacyRunOperationResult runLegacyOperation(LegacyRunOperationRequest request) {
+        actionExecutionGuard.require("operation.execute",
+                request == null || request.getOperationId() == null ? null : request.getOperationId().toString());
         LegacyRunOperationResult result = new LegacyRunOperationResult();
         String viewId = request.getViewId() == null ? null : request.getViewId().toString();
-        View view = viewDataService.getViewData(viewId, request.getToken());
+        View view = viewDataService.getViewData(viewId);
         if (view == null) {
             throw new CommonException(ErrorCode.VIEW_NOT_FOUND, "没有查到视图");
         }
@@ -402,10 +466,10 @@ public class DataQueryService {
         boolean success;
         try {
             if (legacyOperation.getArgModelId() != null && legacyOperation.getArgModelId() > 0) {
-                success = executeArgModelOperation(legacyOperation, data, request.getToken());
+                success = executeArgModelOperation(legacyOperation, data, null);
             } else {
                 OperationCommandValues commandValues = applyOperationCommands(
-                        legacyOperation, model, data, data, request.getToken());
+                        legacyOperation, model, data, data, null);
                 if (operationType == OperationBaseType.DELETE) {
                     success = Boolean.TRUE.equals(modelDataService.deleteData(data));
                 } else if (operationType == OperationBaseType.UPDATE) {
@@ -822,6 +886,17 @@ public class DataQueryService {
             String keyword,
             String legacyQueryFilter,
             QueryOrder order) {
+        return queryViewDataList(viewId, filter, pageInfo, keyword, legacyQueryFilter, order, null);
+    }
+
+    private ListViewResult queryViewDataList(
+            String viewId,
+            Map<String, QueryValue> filter,
+            PageNavigator pageInfo,
+            String keyword,
+            String legacyQueryFilter,
+            QueryOrder order,
+            IQueryFilter validatedFilter) {
 
         View view = daoService.getOneDetailByKey(View.class, ViewDataService.requireViewId(viewId));
         if (view == null) {
@@ -831,10 +906,17 @@ public class DataQueryService {
         if (model == null) {
             throw new CommonException(ErrorCode.MODEL_NOT_FOUND, "没有查到元数据定义");
         }
-        var properties = getViewProperies(view, model);
         attachProperties(view, model);
-        IQueryFilter queryFilter = generateFilter(model, view, filter, keyword, legacyQueryFilter);
-        OrderSelection orderSelection = orderSelection(view, model, order);
+        DataPolicy policy = authorizationEnforcer.requireView("view.query", viewId);
+        authorizationEnforcer.constrainView(view, policy);
+        var properties = getViewProperies(view, model);
+        IQueryFilter queryFilter = generateFilter(model, view, filter, keyword, legacyQueryFilter, policy);
+        if (validatedFilter != null) {
+            queryFilter = queryFilter.and(validatedFilter);
+        }
+        queryFilter = queryFilter.and(authorizationEnforcer.rowFilter(policy, model));
+        authorizationEnforcer.constrainPage(policy, pageInfo);
+        OrderSelection orderSelection = orderSelection(view, model, order, policy);
         var result = queryDataList(
                 view.getViewModel(),
                 queryFilter,
@@ -842,7 +924,7 @@ public class DataQueryService {
                 pageInfo,
                 orderSelection.columns());
 
-        return viewAdapter.getListViewResult(view, result);
+        return authorizationEnforcer.mask(viewAdapter.getListViewResult(view, result), policy);
     }
 
     private PageResult<IDynamicData> queryDataList(
@@ -869,7 +951,12 @@ public class DataQueryService {
      * @param filter
      * @return
      */
-    private IQueryFilter generateFilter(Model model, View view, Map<String, QueryValue> filter, String keyword, String legacyQueryFilter) {
+    private IQueryFilter generateFilter(Model model,
+                                        View view,
+                                        Map<String, QueryValue> filter,
+                                        String keyword,
+                                        String legacyQueryFilter,
+                                        DataPolicy policy) {
         IQueryFilter queryFilter = rawViewFilter(view.getFilter());
         queryFilter = appendRawFilter(queryFilter, legacyQueryFilter);
         queryFilter = appendKeywordFilter(queryFilter, model, view, keyword);
@@ -879,6 +966,8 @@ public class DataQueryService {
             ) {
                 var value = filter.get(key);
                 if (properties.stream().filter(p -> p.getName().equals(key)).count() > 0) {
+                    Property property = properties.stream().filter(p -> p.getName().equals(key)).findFirst().orElseThrow();
+                    authorizationEnforcer.requireFilterable(policy, property);
                     if (!StringUtils.isEmpty(value.getValue())) {
                         /**
                          * 如果传了一个值，就是相等
@@ -1071,8 +1160,8 @@ public class DataQueryService {
         return null;
     }
 
-    private OrderSelection orderSelection(View view, Model model, QueryOrder order) {
-        List<ModelDataService.OrderColumn> columns = orderColumns(view, model, order);
+    private OrderSelection orderSelection(View view, Model model, QueryOrder order, DataPolicy policy) {
+        List<ModelDataService.OrderColumn> columns = orderColumns(view, model, order, policy);
         if (!columns.isEmpty()) {
             return new OrderSelection(columns);
         }
@@ -1082,24 +1171,31 @@ public class DataQueryService {
                 : List.of(new ModelDataService.OrderColumn(orderColumnExpression(defaultProperty), true)));
     }
 
-    private List<ModelDataService.OrderColumn> orderColumns(View view, Model model, QueryOrder order) {
+    private List<ModelDataService.OrderColumn> orderColumns(View view,
+                                                            Model model,
+                                                            QueryOrder order,
+                                                            DataPolicy policy) {
         if (order == null || order.items().isEmpty()) {
             return List.of();
         }
         return order.items().stream()
-                .map(item -> orderColumn(view, model, item))
+                .map(item -> orderColumn(view, model, item, policy))
                 .filter(Objects::nonNull)
                 .toList();
     }
 
-    private ModelDataService.OrderColumn orderColumn(View view, Model model, QueryOrder.Item item) {
+    private ModelDataService.OrderColumn orderColumn(View view,
+                                                     Model model,
+                                                     QueryOrder.Item item,
+                                                     DataPolicy policy) {
         if (item == null || !StringUtils.hasText(item.itemToken())) {
             return null;
         }
         Property property = propertyByViewToken(view, model, item.itemToken());
         if (property == null) {
-            return null;
+            throw new AuthorizationDeniedException("FIELD_NOT_SORTABLE");
         }
+        authorizationEnforcer.requireSortable(policy, property);
         String column = orderColumnExpression(property);
         return StringUtils.hasText(column) ? new ModelDataService.OrderColumn(column, item.descending()) : null;
     }

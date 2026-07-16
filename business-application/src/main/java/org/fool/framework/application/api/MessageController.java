@@ -2,7 +2,7 @@ package org.fool.framework.application.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import org.fool.framework.auth.business.service.AuthService;
+import org.fool.framework.common.authz.EffectiveSubjectContext;
 import org.fool.framework.dto.CommonRequest;
 import org.fool.framework.dto.CommonResponse;
 import org.fool.framework.event.EventMessage;
@@ -17,17 +17,15 @@ import java.util.List;
 
 @RestController
 public class MessageController {
-    private final AuthService authService;
     private final EventMessageRepository messageRepository;
 
-    public MessageController(AuthService authService, EventMessageRepository messageRepository) {
-        this.authService = authService;
+    public MessageController(EventMessageRepository messageRepository) {
         this.messageRepository = messageRepository;
     }
 
     @PostMapping({"/api/v1/message/getmsg", "/api/v1/getmsg"})
     public CommonResponse<GetMessageResult> getMessages(@RequestBody CommonRequest request) {
-        String userId = authService.getInfoByToken(request.getToken()).getId();
+        String userId = EffectiveSubjectContext.require().userId();
         List<EventMessage> messages = messageRepository.findGeneratedForUser(userId, 1);
         LocalDateTime pushedAt = LocalDateTime.now();
         messages.forEach(message -> messageRepository.markPushed(message.getMessageId(), pushedAt));
@@ -37,7 +35,7 @@ public class MessageController {
     @PostMapping("/api/v1/message/getnotify")
     public CommonResponse<GetNotifyResult> getNotify(@RequestBody CommonRequest request) {
         // ponytail: legacy DataService.GetNotify throws NotImplementedException; keep the migrated shell empty.
-        authService.getInfoByToken(request.getToken());
+        EffectiveSubjectContext.require();
         return new CommonResponse<>(new GetNotifyResult(List.of()));
     }
 

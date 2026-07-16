@@ -36,7 +36,6 @@ describe("SudokuPanels legacy interactions", () => {
       loadViewDataById,
       panels: ref([{ ListViewId: 104, ViewFile: "./includes/Group" }]),
       runAction: vi.fn(),
-      token: ref("token")
     });
 
     await workflow.loadPanels();
@@ -58,7 +57,6 @@ describe("SudokuPanels legacy interactions", () => {
       loadViewDataById,
       panels: ref([]),
       runAction: vi.fn(),
-      token: ref("token")
     });
     const panel = { ID: 1301, ListViewId: 100, ViewFile: "./includes/List" };
     const panelKey = sudokuPanelStateKey(panel);
@@ -81,7 +79,6 @@ describe("SudokuPanels legacy interactions", () => {
       loadViewDataById: vi.fn(async () => ({ view: { ViewId: 100 }, data: null })),
       panels: ref([]),
       runAction: vi.fn(),
-      token: ref("token")
     });
 
     const panel = { ID: 1301, ListViewId: 100, ViewFile: "./includes/List" };
@@ -98,7 +95,6 @@ describe("SudokuPanels legacy interactions", () => {
       loadViewDataById: vi.fn(() => new Promise<SudokuPanelResult>((resolve) => { resolvers.push(resolve); })),
       panels: ref([]),
       runAction: vi.fn(),
-      token: ref("token")
     });
     const root = { ID: 1301, ListViewId: 100, ViewFile: "./includes/List" };
     const child = { ID: 1401, ListViewId: 100, ViewFile: "./includes/List" };

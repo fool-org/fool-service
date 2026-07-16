@@ -39,6 +39,7 @@ public class DataQueryServiceInputQueryTest {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
@@ -51,6 +52,7 @@ public class DataQueryServiceInputQueryTest {
         order.setName("Order");
         order.setProperties(List.of(customerProperty));
         View view = new View();
+        view.setId(100L);
         view.setViewName("OrderList");
         view.setViewModel("Order");
         view.setListItems(List.of(viewItem("Customer", "customer")));
@@ -85,7 +87,7 @@ public class DataQueryServiceInputQueryTest {
                 pageCaptor.capture(),
                 eq("customer_id"),
                 eq(true));
-        assertEquals("`customer_name` LIKE ?", filterCaptor.getValue().generateSql().getSql());
+        assertEquals("(`customer_name` LIKE ?) And ( 1=1 )", filterCaptor.getValue().generateSql().getSql());
         assertArrayEquals(new Object[]{"%Ad%"}, filterCaptor.getValue().generateSql().getArgs());
         assertEquals(1, pageCaptor.getValue().getPageIndex());
         assertEquals(5, pageCaptor.getValue().getPageSize());
@@ -96,6 +98,7 @@ public class DataQueryServiceInputQueryTest {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
@@ -113,6 +116,7 @@ public class DataQueryServiceInputQueryTest {
         order.setName("Order");
         order.setProperties(List.of(customerProperty));
         View view = new View();
+        view.setId(100L);
         view.setViewName("OrderList");
         view.setViewModel("Order");
         view.setListItems(List.of(viewItem("Customer", "customer")));
@@ -151,6 +155,7 @@ public class DataQueryServiceInputQueryTest {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
@@ -160,6 +165,7 @@ public class DataQueryServiceInputQueryTest {
         order.setName("Order");
         order.setProperties(List.of(customerProperty));
         View view = new View();
+        view.setId(100L);
         view.setViewName("OrderList");
         view.setViewModel("Order");
         view.setListItems(List.of(viewItem("Customer", "customer")));
@@ -181,6 +187,7 @@ public class DataQueryServiceInputQueryTest {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
@@ -190,6 +197,7 @@ public class DataQueryServiceInputQueryTest {
         order.setName("Order");
         order.setProperties(List.of(customerProperty));
         View view = new View();
+        view.setId(100L);
         view.setViewName("OrderList");
         view.setViewModel("Order");
         view.setListItems(List.of(viewItem("Customer", "customer")));
@@ -209,6 +217,7 @@ public class DataQueryServiceInputQueryTest {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
@@ -218,6 +227,7 @@ public class DataQueryServiceInputQueryTest {
         order.setName("Order");
         order.setProperties(List.of(customerProperty));
         View view = new View();
+        view.setId(100L);
         view.setViewName("OrderDetail");
         view.setViewModel("Order");
         view.setListItems(List.of(viewItem("Customer", "customer")));
@@ -237,6 +247,7 @@ public class DataQueryServiceInputQueryTest {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
@@ -256,6 +267,7 @@ public class DataQueryServiceInputQueryTest {
         order.setName("Order");
         order.setProperties(List.of(customerProperty));
         View view = new View();
+        view.setId(100L);
         view.setViewName("OrderList");
         view.setViewModel("Order");
         view.setListItems(List.of(viewItem("Customer", "customer")));
@@ -292,7 +304,7 @@ public class DataQueryServiceInputQueryTest {
                 any(PageNavigator.class),
                 eq("customer_id"),
                 eq(true));
-        assertEquals("`display_name` LIKE ?", filterCaptor.getValue().generateSql().getSql());
+        assertEquals("(`display_name` LIKE ?) And ( 1=1 )", filterCaptor.getValue().generateSql().getSql());
         assertArrayEquals(new Object[]{"%Ada%"}, filterCaptor.getValue().generateSql().getArgs());
     }
 
@@ -301,6 +313,7 @@ public class DataQueryServiceInputQueryTest {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
@@ -315,6 +328,7 @@ public class DataQueryServiceInputQueryTest {
         ViewItem customerItem = viewItem("Customer", "customer");
         customerItem.setSelectedViewId(201L);
         View view = new View();
+        view.setId(100L);
         view.setViewName("OrderList");
         view.setViewModel("Order");
         view.setListItems(List.of(customerItem));
@@ -351,7 +365,7 @@ public class DataQueryServiceInputQueryTest {
                 any(PageNavigator.class),
                 eq("customer_id"),
                 eq(true));
-        assertEquals("(customer_state='active') And (`customer_name` LIKE ?)", filterCaptor.getValue().generateSql().getSql());
+        assertEquals("(customer_state='active') And (`customer_name` LIKE ?) And ( 1=1 )", filterCaptor.getValue().generateSql().getSql());
         assertArrayEquals(new Object[]{"%Ada%"}, filterCaptor.getValue().generateSql().getArgs());
     }
 
@@ -360,6 +374,7 @@ public class DataQueryServiceInputQueryTest {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
@@ -372,6 +387,7 @@ public class DataQueryServiceInputQueryTest {
         Model order = model("Order", "market_order", "orderId", "order_id", "orderId", "order_id");
         order.setProperties(List.of(order.getIdProperty(), customerProperty));
         View view = new View();
+        view.setId(100L);
         view.setViewName("OrderList");
         view.setViewModel("Order");
         view.setListItems(List.of(viewItem("Customer", "customer")));
@@ -425,6 +441,7 @@ public class DataQueryServiceInputQueryTest {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
@@ -439,6 +456,7 @@ public class DataQueryServiceInputQueryTest {
         ViewItem customerItem = viewItem("Customer", "customer");
         customerItem.setSourceExpression("viewCustomers");
         View view = new View();
+        view.setId(100L);
         view.setViewName("OrderList");
         view.setViewModel("Order");
         view.setListItems(List.of(customerItem));
@@ -472,6 +490,7 @@ public class DataQueryServiceInputQueryTest {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
@@ -487,6 +506,7 @@ public class DataQueryServiceInputQueryTest {
         ViewItem customerItem = viewItem("Customer", "customer");
         customerItem.setSourceExpression("#.availableCustomers");
         View view = new View();
+        view.setId(100L);
         view.setViewName("OrderItemEdit");
         view.setViewModel("OrderItem");
         view.setListItems(List.of(customerItem));
@@ -529,6 +549,7 @@ public class DataQueryServiceInputQueryTest {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
@@ -547,6 +568,7 @@ public class DataQueryServiceInputQueryTest {
         ViewItem customerItem = viewItem("Customer", "customer");
         customerItem.setSourceExpression("#.availableCustomers");
         View view = new View();
+        view.setId(100L);
         view.setViewName("OrderItemEdit");
         view.setViewModel("OrderItem");
         view.setListItems(List.of(customerItem));
@@ -599,6 +621,7 @@ public class DataQueryServiceInputQueryTest {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
@@ -614,6 +637,7 @@ public class DataQueryServiceInputQueryTest {
         ViewItem customerItem = viewItem("Customer", "customer");
         customerItem.setSourceExpression("#.availableCustomers");
         View view = new View();
+        view.setId(100L);
         view.setViewName("OrderItemEdit");
         view.setViewModel("OrderItem");
         view.setListItems(List.of(customerItem));

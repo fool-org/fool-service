@@ -70,7 +70,7 @@ public class ViewDataService {
     @Autowired
     private DaoService daoService;
 
-    public View getViewData(String viewId, String token) {
+    public View getViewData(String viewId) {
         var view = daoService.getOneDetailByKey(View.class, requireViewId(viewId));
         attachProperties(view);
         attachDefaultDetailView(view);

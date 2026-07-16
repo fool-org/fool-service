@@ -55,7 +55,7 @@ const props = defineProps<{
   isCreatingObject: boolean;
   isPendingAddedItem: (group: QueryDataDetailItemGroup, item: QueryDataDetailDataItem) => boolean;
   loadExistingDetailView: (group: QueryDataDetailItemGroup) => Promise<boolean>;
-  operationResult: { message: string; success: boolean } | null;
+  operationResult: { message: string; status: "AWAITING_APPROVAL" } | null;
   saveDialogVisible: boolean;
   saving: boolean;
   schemaOnly: boolean;
@@ -305,12 +305,12 @@ function childActionColumnCount(group: QueryDataDetailItemGroup) {
       v-if="operationResult"
       :visible="true"
       modal
-      header="执行结果"
+      header="审批状态"
       :closable="false"
       :draggable="false"
       @update:visible="(visible) => { if (!visible) emit('dismissOperationResult') }"
     >
-      <p>{{ operationResult.success ? "操作成功" : "操作失败" }}</p>
+      <p>等待独立审批</p>
       <p>{{ operationResult.message }}</p>
       <template #footer>
         <Button type="button" label="确定" severity="secondary" outlined @click="emit('dismissOperationResult')" />

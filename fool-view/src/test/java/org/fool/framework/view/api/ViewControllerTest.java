@@ -3,6 +3,9 @@ package org.fool.framework.view.api;
 import lombok.extern.slf4j.Slf4j;
 import org.fool.framework.view.dto.ViewDataRequest;
 import org.fool.framework.view.Application;
+import org.fool.framework.view.TestReadAuthorization;
+import org.fool.framework.view.service.ReadAuthorizationEnforcer;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +23,13 @@ public class ViewControllerTest {
 
     @Autowired
     private ViewController viewController;
+    @Autowired
+    private ReadAuthorizationEnforcer authorizationEnforcer;
+
+    @Before
+    public void configureAuthorization() {
+        TestReadAuthorization.configure(authorizationEnforcer);
+    }
 
     @Test
     public void TestGetView() {

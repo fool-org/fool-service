@@ -7,6 +7,7 @@ import org.fool.framework.auth.business.model.User;
 import org.fool.framework.auth.foolframework.auth.MenuItem;
 import org.fool.framework.auth.dto.LoginVo;
 import org.fool.framework.auth.dto.UserDTO;
+import org.fool.framework.auth.authorization.MenuAuthorizationService;
 import org.fool.framework.app.AppFacade;
 import org.fool.framework.app.ApplicationDefinition;
 import org.fool.framework.app.StoreDatabase;
@@ -27,6 +28,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -34,8 +36,18 @@ public class AuthService {
     private static final String LEGACY_MENU_BASE_SQL = """
             select distinct m.* from SW_APP_AUTH_MENU m
             join SW_APP_AUTH_MENU_SW_APP_AUTH_ROLE mr on mr.SW_APP_AUTH_MENU_ID = m.AUTH_MENU_ID
-            join SW_APP_AUTH_ROLE_SW_APP_AUTH_USER ru on ru.SW_APP_AUTH_ROLE_ID = mr.SW_APP_AUTH_ROLE_ID
-            join SW_APP_AUTH_USER u on u.APP_AUTH_ID = ru.SW_APP_AUTH_USER_ID
+            join SW_APP_AUTH_USER u on (
+              exists (
+                select 1 from SW_APP_AUTH_ROLE_SW_APP_AUTH_USER ru
+                where ru.SW_APP_AUTH_ROLE_ID = mr.SW_APP_AUTH_ROLE_ID
+                  and ru.SW_APP_AUTH_USER_ID = u.APP_AUTH_ID
+              )
+              or exists (
+                select 1 from SW_APP_AUTH_DEPARTMENT_SW_APP_AUTH_ROLE dr
+                where dr.SW_APP_AUTH_ROLE_ID = mr.SW_APP_AUTH_ROLE_ID
+                  and dr.SW_APP_AUTH_DEPARTMENT_ID = u.APP_AUTH_DEP
+              )
+            )
             """;
     private static final String LEGACY_TOP_MENU_SQL = LEGACY_MENU_BASE_SQL + """
             where u.APP_AUTH_USERLOGINNAME = ?
@@ -62,6 +74,11 @@ public class AuthService {
     @Autowired
     private AppFacade appFacade;
 
+    @Autowired(required = false)
+    private CredentialService credentialService;
+    @Autowired(required = false)
+    private MenuAuthorizationService menuAuthorizationService;
+
 
     /**
      * 登录
@@ -76,9 +93,18 @@ public class AuthService {
             throw new CommonException(BusinessErrorCode.USER_NOT_FOUND, "用户不存在");
         } else {
             try {
-                String info = passwordHash(user.getId(), password);
-                if (!user.getPassword().equals(info)) {
+                Optional<String> adaptiveHash = credentialService == null
+                        ? Optional.empty()
+                        : credentialService.passwordHash(id);
+                boolean legacyPassword = adaptiveHash.isEmpty();
+                boolean passwordMatches = legacyPassword
+                        ? passwordHash(user.getId(), password).equals(user.getPassword())
+                        : credentialService.matches(password, adaptiveHash.orElseThrow());
+                if (!passwordMatches) {
                     throw new CommonException(BusinessErrorCode.PASSWORD_WRONG, "密码不正确");
+                }
+                if (legacyPassword && credentialService != null) {
+                    credentialService.store(id, password);
                 }
                 loginVo.setUser(new UserDTO());
                 BeanUtils.copyProperties(user, loginVo.getUser());
@@ -107,6 +133,9 @@ public class AuthService {
             user.setMobile(mobile);
             user.setPassword(passwordHash(id, password));
             daoService.create(user);
+            if (credentialService != null) {
+                credentialService.store(id, password);
+            }
             return user;
         } catch (Exception ex) {
             log.info("", ex);
@@ -127,9 +156,16 @@ public class AuthService {
      * @param token
      */
     public List<TreeNode<Auth>> getAuth(String token) {
-        String userId = tokenService.getUidByToken(token);
+        return getAuthForUser(tokenService.getUidByToken(token));
+    }
+
+    public List<TreeNode<Auth>> getAuthForUser(String userId) {
         String sql = " select distinct a.id,a.name ,a.auth_type, a.auth_name from auth_item a where a.id in (select auth_id from auth_role_auth where role_id in (select role_id from auth_user_role where user_id = ?)) order by a.id";
-        return new ITreeFactory<Auth>().createTreeByLevel(daoService.selectList(Auth.class, sql, userId),
+        List<Auth> authItems = daoService.selectList(Auth.class, sql, userId);
+        if (menuAuthorizationService != null) {
+            authItems = menuAuthorizationService.visibleAuthItems(authItems);
+        }
+        return new ITreeFactory<Auth>().createTreeByLevel(authItems,
                 (child, parent) -> {
                     String childId = child.getId();
                     String parentId = parent.getId();
@@ -155,15 +191,24 @@ public class AuthService {
     }
 
     public List<LegacyAuthItem> getLegacySubMenus(String token, String parentAuthCode) {
-        String userId = tokenService.getUidByToken(token);
+        return getLegacySubMenusForUser(tokenService.getUidByToken(token), parentAuthCode);
+    }
+
+    public List<LegacyAuthItem> getLegacySubMenusForUser(String userId, String parentAuthCode) {
         List<MenuItem> items = StringUtils.hasText(parentAuthCode)
                 ? daoService.selectList(MenuItem.class, LEGACY_CHILD_MENU_SQL, userId, Long.parseLong(parentAuthCode))
                 : daoService.selectList(MenuItem.class, LEGACY_TOP_MENU_SQL, userId);
+        if (menuAuthorizationService != null) {
+            items = menuAuthorizationService.visibleLegacyMenus(items);
+        }
         return items.stream().map(this::legacyAuthItem).toList();
     }
 
     public String getLegacyUserAvatar(String token) {
-        String userId = tokenService.getUidByToken(token);
+        return getLegacyUserAvatarForUser(tokenService.getUidByToken(token));
+    }
+
+    public String getLegacyUserAvatarForUser(String userId) {
         return daoService.selectList(
                         org.fool.framework.auth.foolframework.auth.User.class,
                         "select * from SW_AUTH_USER where USER_LOGINNAME = ?",
@@ -179,6 +224,10 @@ public class AuthService {
         return legacyAppInfo(getLegacyApplication(token));
     }
 
+    public LegacyAppInfo getLegacyAppInfoForScope(String appId) {
+        return legacyAppInfo(getLegacyApplicationForScope(appId));
+    }
+
     public void rememberLegacyApp(String token, String appId, String dbId) {
         tokenService.setLegacyAppId(token, appId);
         tokenService.setLegacyDbId(token, dbId);
@@ -189,9 +238,26 @@ public class AuthService {
         return app == null ? "" : empty(app.getSysCon());
     }
 
+    public String getLegacyAppConnectionForScope(String appId) {
+        ApplicationDefinition app = getLegacyApplicationForScope(appId);
+        return app == null ? "" : empty(app.getSysCon());
+    }
+
     public String getLegacyDataConnection(String token) {
         ApplicationDefinition app = getLegacyApplication(token);
         String dbId = tokenService.getLegacyDbId(token);
+        if (app == null || !StringUtils.hasText(dbId)) {
+            return "";
+        }
+        return getLegacyStoreDatabaseRows(app.getAppId()).stream()
+                .filter(db -> dbId.equalsIgnoreCase(empty(db.getStoreBaseId())))
+                .map(StoreDatabase::getConnection)
+                .findFirst()
+                .orElse("");
+    }
+
+    public String getLegacyDataConnectionForScope(String appId, String dbId) {
+        ApplicationDefinition app = getLegacyApplicationForScope(appId);
         if (app == null || !StringUtils.hasText(dbId)) {
             return "";
         }
@@ -209,6 +275,14 @@ public class AuthService {
         return apps.stream()
                 .filter(candidate -> StringUtils.hasText(sessionAppId)
                         && sessionAppId.equals(candidate.getAppId()))
+                .findFirst()
+                .orElseGet(() -> apps.stream().findFirst().orElse(null));
+    }
+
+    private ApplicationDefinition getLegacyApplicationForScope(String appId) {
+        List<ApplicationDefinition> apps = appFacade.getApps();
+        return apps.stream()
+                .filter(candidate -> StringUtils.hasText(appId) && appId.equals(candidate.getAppId()))
                 .findFirst()
                 .orElseGet(() -> apps.stream().findFirst().orElse(null));
     }
@@ -302,7 +376,10 @@ public class AuthService {
      * @return
      */
     public UserDTO getInfoByToken(String token) {
-        String userId = tokenService.getUidByToken(token);
+        return getInfoForUser(tokenService.getUidByToken(token));
+    }
+
+    public UserDTO getInfoForUser(String userId) {
         var dbuser = daoService.getOneByKey(User.class, userId);
         var user = new UserDTO();
         BeanUtils.copyProperties(dbuser, user);
@@ -311,6 +388,10 @@ public class AuthService {
 
     public void logout(String token) {
         tokenService.logoutToken(token);
+    }
+
+    public void logoutUser(String userId) {
+        tokenService.revokeUser(userId);
     }
 
     @Data

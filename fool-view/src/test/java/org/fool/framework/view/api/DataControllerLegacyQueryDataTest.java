@@ -24,12 +24,11 @@ import static org.mockito.Mockito.when;
 
 public class DataControllerLegacyQueryDataTest {
     @Test
-    public void queryDataRequestAcceptsLegacyPascalFields() throws Exception {
+    public void queryDataRequestIgnoresBodyTokenAndAcceptsLegacyPascalFields() throws Exception {
         LegacyQueryDataRequest request = new ObjectMapper().readValue(
                 "{\"Token\":\"token-1\",\"ViewId\":42,\"PageSize\":20,\"PageIndex\":3,\"QueryFilter\":\"state=0\",\"OrderByItem\":2,\"OrderByType\":1}",
                 LegacyQueryDataRequest.class);
 
-        assertEquals("token-1", request.getToken());
         assertEquals(Long.valueOf(42), request.getViewId());
         assertEquals(Integer.valueOf(20), request.getPageSize());
         assertEquals(Integer.valueOf(3), request.getPageIndex());
@@ -44,7 +43,6 @@ public class DataControllerLegacyQueryDataTest {
                 "{\"Token\":\"token-1\",\"viewid\":42,\"pagesize\":20,\"page\":3,\"filter\":\"state=0\",\"orderitem\":2,\"ordertype\":1}",
                 LegacyQueryDataRequest.class);
 
-        assertEquals("token-1", request.getToken());
         assertEquals(Long.valueOf(42), request.getViewId());
         assertEquals(Integer.valueOf(20), request.getPageSize());
         assertEquals(Integer.valueOf(3), request.getPageIndex());
@@ -75,6 +73,7 @@ public class DataControllerLegacyQueryDataTest {
                 .thenReturn(expected);
 
         DataController controller = new DataController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "dataQueryService", dataQueryService);
         LegacyQueryDataRequest request = new LegacyQueryDataRequest();
         request.setViewId(42L);
@@ -101,6 +100,7 @@ public class DataControllerLegacyQueryDataTest {
                 .thenReturn(expected);
 
         DataController controller = new DataController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "dataQueryService", dataQueryService);
         QueryDataRequest request = new ObjectMapper().readValue(
                 "{\"ViewId\":42,\"viewName\":\"WrongBusinessViewName\",\"keyword\":\"USDT\"}",
@@ -116,6 +116,7 @@ public class DataControllerLegacyQueryDataTest {
     @Test
     public void queryListRejectsViewNameOnlyRequest() throws Exception {
         DataController controller = new DataController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "dataQueryService", mock(DataQueryService.class));
         QueryDataRequest request = new ObjectMapper().readValue(
                 "{\"ViewName\":\"BusinessNameShortcut\"}",

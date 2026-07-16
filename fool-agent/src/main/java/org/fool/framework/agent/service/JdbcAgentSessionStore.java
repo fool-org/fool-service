@@ -23,14 +23,20 @@ public class JdbcAgentSessionStore implements AgentSessionStore {
     public void save(AgentSession session) {
         int updated = jdbcTemplate.update("""
                         UPDATE `FOOL_AGENT_SESSION`
-                           SET `SESSION_TOKEN` = ?,
+                           SET `OWNER_USER_ID` = ?,
+                               `APP_ID` = ?,
+                               `DATABASE_ID` = ?,
+                               `AUTH_SESSION_ID` = ?,
                                `SESSION_TITLE` = ?,
                                `CURRENT_CAPABILITY` = ?,
                                `SESSION_STATUS` = ?,
                                `UPDATED_AT` = ?
                          WHERE `SESSION_ID` = ?
                         """,
-                session.getToken(),
+                session.getOwnerUserId(),
+                session.getAppId(),
+                session.getDatabaseId(),
+                session.getAuthSessionId(),
                 session.getTitle(),
                 idOf(session.getCurrentCapability()),
                 nameOf(session.getStatus()),
@@ -39,12 +45,16 @@ public class JdbcAgentSessionStore implements AgentSessionStore {
         if (updated == 0) {
             jdbcTemplate.update("""
                             INSERT INTO `FOOL_AGENT_SESSION`
-                                (`SESSION_ID`, `SESSION_TOKEN`, `SESSION_TITLE`, `CURRENT_CAPABILITY`,
-                                 `SESSION_STATUS`, `CREATED_AT`, `UPDATED_AT`)
-                            VALUES (?, ?, ?, ?, ?, ?, ?)
+                                (`SESSION_ID`, `OWNER_USER_ID`, `APP_ID`, `DATABASE_ID`,
+                                 `AUTH_SESSION_ID`, `SESSION_TITLE`, `CURRENT_CAPABILITY`, `SESSION_STATUS`,
+                                 `CREATED_AT`, `UPDATED_AT`)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                             """,
                     session.getId(),
-                    session.getToken(),
+                    session.getOwnerUserId(),
+                    session.getAppId(),
+                    session.getDatabaseId(),
+                    session.getAuthSessionId(),
                     session.getTitle(),
                     idOf(session.getCurrentCapability()),
                     nameOf(session.getStatus()),
@@ -73,8 +83,8 @@ public class JdbcAgentSessionStore implements AgentSessionStore {
     @Override
     public Optional<AgentSession> findById(String sessionId) {
         List<AgentSession> sessions = jdbcTemplate.query("""
-                        SELECT `SESSION_ID`, `SESSION_TOKEN`, `SESSION_TITLE`, `CURRENT_CAPABILITY`,
-                               `SESSION_STATUS`, `CREATED_AT`, `UPDATED_AT`
+                        SELECT `SESSION_ID`, `OWNER_USER_ID`, `APP_ID`, `DATABASE_ID`, `AUTH_SESSION_ID`,
+                               `SESSION_TITLE`, `CURRENT_CAPABILITY`, `SESSION_STATUS`, `CREATED_AT`, `UPDATED_AT`
                           FROM `FOOL_AGENT_SESSION`
                          WHERE `SESSION_ID` = ?
                          LIMIT 1
@@ -126,7 +136,10 @@ public class JdbcAgentSessionStore implements AgentSessionStore {
         public AgentSession mapRow(ResultSet rs, int rowNum) throws SQLException {
             AgentSession session = new AgentSession(
                     rs.getString("SESSION_ID"),
-                    rs.getString("SESSION_TOKEN"),
+                    rs.getString("OWNER_USER_ID"),
+                    rs.getString("APP_ID"),
+                    rs.getString("DATABASE_ID"),
+                    rs.getString("AUTH_SESSION_ID"),
                     rs.getString("SESSION_TITLE"),
                     AgentCapabilityType.fromJson(rs.getString("CURRENT_CAPABILITY")),
                     instantOf(rs.getTimestamp("CREATED_AT")));

@@ -8,6 +8,8 @@ import org.fool.framework.view.dto.ListViewInfo;
 import org.fool.framework.view.dto.ViewDataRequest;
 import org.fool.framework.view.model.View;
 import org.fool.framework.view.service.ViewDataService;
+import org.fool.framework.view.service.ReadAuthorizationEnforcer;
+import org.fool.framework.common.authz.DataPolicy;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
@@ -21,12 +23,11 @@ import static org.mockito.Mockito.when;
 
 public class ViewControllerLegacyGetListViewTest {
     @Test
-    public void viewDataRequestAcceptsLegacyPascalViewId() throws Exception {
+    public void viewDataRequestIgnoresLegacyBodyTokenAndAcceptsPascalViewId() throws Exception {
         ViewDataRequest request = new ObjectMapper().readValue(
                 "{\"Token\":\"token-1\",\"ViewId\":100}",
                 ViewDataRequest.class);
 
-        assertEquals("token-1", request.getToken());
         assertEquals(Long.valueOf(100), request.getViewId());
     }
 
@@ -36,7 +37,6 @@ public class ViewControllerLegacyGetListViewTest {
                 "{\"Token\":\"token-1\",\"id\":100}",
                 ViewDataRequest.class);
 
-        assertEquals("token-1", request.getToken());
         assertEquals(Long.valueOf(100), request.getViewId());
     }
 
@@ -49,21 +49,26 @@ public class ViewControllerLegacyGetListViewTest {
     public void getListViewMapsLegacyViewIdPayload() throws Exception {
         ViewDataService viewDataService = mock(ViewDataService.class);
         ViewAdapter viewAdapter = mock(ViewAdapter.class);
+        ReadAuthorizationEnforcer authorizationEnforcer = mock(ReadAuthorizationEnforcer.class);
         View view = new View();
+        DataPolicy policy = DataPolicy.unrestricted();
         ListViewInfo expected = new ListViewInfo();
-        when(viewDataService.getViewData("100", "token-1")).thenReturn(view);
+        when(authorizationEnforcer.requireView("view.read", "100")).thenReturn(policy);
+        when(authorizationEnforcer.constrainView(view, policy)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(viewAdapter.getViewInfo(view)).thenReturn(expected);
 
         ViewController controller = new ViewController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "viewDataService", viewDataService);
         setField(controller, "viewAdapter", viewAdapter);
+        setField(controller, "authorizationEnforcer", authorizationEnforcer);
         ViewDataRequest request = new ViewDataRequest();
-        request.setToken("token-1");
         request.setViewId(100L);
 
         CommonResponse<ListViewInfo> response = controller.getListView(request);
 
-        verify(viewDataService).getViewData("100", "token-1");
+        verify(viewDataService).getViewData("100");
         assertEquals(0, response.getCode());
         assertSame(expected, response.getData());
     }
@@ -72,21 +77,27 @@ public class ViewControllerLegacyGetListViewTest {
     public void getViewPrefersViewIdOverViewName() throws Exception {
         ViewDataService viewDataService = mock(ViewDataService.class);
         ViewAdapter viewAdapter = mock(ViewAdapter.class);
+        ReadAuthorizationEnforcer authorizationEnforcer = mock(ReadAuthorizationEnforcer.class);
         View view = new View();
+        DataPolicy policy = DataPolicy.unrestricted();
         ListViewInfo expected = new ListViewInfo();
-        when(viewDataService.getViewData("100", "token-1")).thenReturn(view);
+        when(authorizationEnforcer.requireView("view.read", "100")).thenReturn(policy);
+        when(authorizationEnforcer.constrainView(view, policy)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(viewAdapter.getViewInfo(view)).thenReturn(expected);
 
         ViewController controller = new ViewController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "viewDataService", viewDataService);
         setField(controller, "viewAdapter", viewAdapter);
+        setField(controller, "authorizationEnforcer", authorizationEnforcer);
         ViewDataRequest request = new ObjectMapper().readValue(
                 "{\"Token\":\"token-1\",\"ViewId\":100,\"ViewName\":\"WrongBusinessViewName\"}",
                 ViewDataRequest.class);
 
         CommonResponse<ListViewInfo> response = controller.getViewData(request);
 
-        verify(viewDataService).getViewData("100", "token-1");
+        verify(viewDataService).getViewData("100");
         assertEquals(0, response.getCode());
         assertSame(expected, response.getData());
     }
@@ -94,6 +105,7 @@ public class ViewControllerLegacyGetListViewTest {
     @Test
     public void getViewRejectsViewNameOnlyRequest() throws Exception {
         ViewController controller = new ViewController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "viewDataService", mock(ViewDataService.class));
         setField(controller, "viewAdapter", mock(ViewAdapter.class));
         ViewDataRequest request = new ObjectMapper().readValue(
@@ -108,6 +120,7 @@ public class ViewControllerLegacyGetListViewTest {
     @Test
     public void getListViewRejectsViewNameOnlyRequest() throws Exception {
         ViewController controller = new ViewController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "viewDataService", mock(ViewDataService.class));
         setField(controller, "viewAdapter", mock(ViewAdapter.class));
         ViewDataRequest request = new ObjectMapper().readValue(

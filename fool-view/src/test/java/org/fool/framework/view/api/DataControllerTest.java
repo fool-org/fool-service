@@ -3,12 +3,16 @@ package org.fool.framework.view.api;
 import lombok.extern.slf4j.Slf4j;
 import org.fool.framework.dao.PageNavigator;
 import org.fool.framework.view.Application;
+import org.fool.framework.view.TestReadAuthorization;
 import org.fool.framework.view.dto.QueryDataRequest;
+import org.fool.framework.view.service.ReadAuthorizationEnforcer;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @Slf4j
@@ -19,7 +23,13 @@ public class DataControllerTest {
 
     @Autowired
     private DataController dataController;
+    @MockBean
+    private ReadAuthorizationEnforcer authorizationEnforcer;
 
+    @Before
+    public void configureAuthorization() {
+        TestReadAuthorization.configure(authorizationEnforcer);
+    }
 
     @Test
     public void queryViewDataList() {

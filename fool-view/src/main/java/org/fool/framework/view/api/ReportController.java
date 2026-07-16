@@ -3,13 +3,18 @@ package org.fool.framework.view.api;
 import org.fool.framework.dao.DaoService;
 import org.fool.framework.dao.PageNavigator;
 import org.fool.framework.common.PropertyType;
+import org.fool.framework.common.authz.AuthorizationDeniedException;
+import org.fool.framework.common.authz.DataPolicy;
 import org.fool.framework.dto.CommonResponse;
 import org.fool.framework.model.model.EnumValue;
 import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.query.JdbcCompareOpCatalog;
 import org.fool.framework.query.JdbcSelectTypeCatalog;
+import org.fool.framework.query.IQueryFilter;
 import org.fool.framework.query.SelectType;
+import org.fool.framework.query.SimpleFilter;
+import org.fool.framework.dao.QueryAndArgs;
 import org.fool.framework.report.ReportGridRenderer;
 import org.fool.framework.report.ReportGridResult;
 import org.fool.framework.view.dto.ListDataItem;
@@ -20,6 +25,7 @@ import org.fool.framework.view.dto.ReportModelResult;
 import org.fool.framework.view.model.View;
 import org.fool.framework.view.model.ViewItem;
 import org.fool.framework.view.service.DataQueryService;
+import org.fool.framework.view.service.ReadAuthorizationEnforcer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -47,6 +53,8 @@ public class ReportController {
     private JdbcCompareOpCatalog compareOpCatalog;
     @Autowired(required = false)
     private JdbcSelectTypeCatalog selectTypeCatalog;
+    @Autowired
+    private ReadAuthorizationEnforcer authorizationEnforcer;
 
     private final ReportGridRenderer renderer = new ReportGridRenderer();
 
@@ -66,14 +74,15 @@ public class ReportController {
     @ResponseBody
     public CommonResponse<ReportGridResult> makeReport(@RequestBody MakeReportRequest request) {
         ReportViewContext context = viewContext(request);
+        validateRequestedFields(request, context);
         PageNavigator page = new PageNavigator();
         page.setPageIndex(request.getCurrentPage() == null ? 0 : request.getCurrentPage());
         page.setPageSize(request.getPageSize() == null ? 0 : request.getPageSize());
-        ListViewResult queryResult = dataQueryService.queryLegacyViewData(
+        authorizationEnforcer.constrainPage(context.policy(), page);
+        ListViewResult queryResult = dataQueryService.queryReportViewData(
                 request.getViewId() == null ? null : request.getViewId().toString(),
                 page,
                 queryFilter(request, context),
-                null,
                 reportOrder(request, context));
         boolean countReport = singleCountReport(request, context);
         List<Map<String, Object>> reportRows = rows(request, context, queryResult, countReport);
@@ -95,13 +104,17 @@ public class ReportController {
 
     private ReportViewContext viewContext(MakeReportRequest request) {
         if (daoService == null || request.getViewId() == null) {
-            return ReportViewContext.empty();
+            throw new AuthorizationDeniedException("RESOURCE_OUT_OF_SCOPE");
         }
+        DataPolicy policy = authorizationEnforcer.requireView(
+                "report.preview", request.getViewId().toString());
         View view = daoService.getOneDetailByKey(View.class, request.getViewId().toString());
+        authorizationEnforcer.constrainView(view, policy);
         if (view == null || !StringUtils.hasText(view.getViewModel())) {
-            return new ReportViewContext(view, null);
+            return new ReportViewContext(view, null, policy);
         }
-        return new ReportViewContext(view, daoService.getOneDetailByKey(Model.class, view.getViewModel()));
+        return new ReportViewContext(
+                view, daoService.getOneDetailByKey(Model.class, view.getViewModel()), policy);
     }
 
     private List<ReportModelResult.QueryCol> reportModelCols(ReportViewContext context) {
@@ -181,22 +194,54 @@ public class ReportController {
         return state;
     }
 
-    private String queryFilter(MakeReportRequest request, ReportViewContext context) {
+    private IQueryFilter queryFilter(MakeReportRequest request, ReportViewContext context) {
         if (StringUtils.hasText(request.getQueryFilter())) {
-            return request.getQueryFilter();
+            throw new AuthorizationDeniedException("CLIENT_RAW_FILTER_FORBIDDEN");
         }
-        return filterExpSql(context, request.getFilterExp());
+        return filterExpFilter(context, request.getFilterExp());
     }
 
-    private String filterExpSql(ReportViewContext context, MakeReportRequest.BoolExp filterExp) {
+    private void validateRequestedFields(MakeReportRequest request, ReportViewContext context) {
+        if (!CollectionUtils.isEmpty(request.getReportCols())) {
+            request.getReportCols().forEach(col -> {
+                Property property = propertyByToken(context, col.getColId());
+                if (property == null || !authorizationEnforcer.readable(context.policy(), property)) {
+                    throw new AuthorizationDeniedException("FIELD_NOT_READABLE");
+                }
+            });
+        }
+        validateFilterFields(context, request.getFilterExp());
+    }
+
+    private void validateFilterFields(ReportViewContext context, MakeReportRequest.BoolExp expression) {
+        if (expression == null) {
+            return;
+        }
+        if (expression.getFirstExp() != null) {
+            validateFilterFields(context, expression.getFirstExp());
+        } else if (expression.getCol() != null) {
+            Property property = propertyByToken(context,
+                    StringUtils.hasText(expression.getCol().getId())
+                            ? expression.getCol().getId()
+                            : expression.getCol().getName());
+            authorizationEnforcer.requireFilterable(context.policy(), property);
+        }
+        if (expression.getSequences() != null) {
+            expression.getSequences().forEach(sequence -> validateFilterFields(context, sequence.getAddedExp()));
+        }
+    }
+
+    private IQueryFilter filterExpFilter(ReportViewContext context, MakeReportRequest.BoolExp filterExp) {
         if (filterExp == null) {
             return null;
         }
         if (filterExp.getFirstExp() != null) {
-            String result = "(" + filterExpSql(context, filterExp.getFirstExp()) + ")";
+            IQueryFilter result = filterExpFilter(context, filterExp.getFirstExp());
             if (filterExp.getSequences() != null) {
                 for (MakeReportRequest.AddBoolExp sequence : filterExp.getSequences()) {
-                    result += boolSql(sequence.getBoolOp()) + "(" + filterExpSql(context, sequence.getAddedExp()) + ")";
+                    String bool = boolSql(sequence.getBoolOp()).trim();
+                    IQueryFilter added = filterExpFilter(context, sequence.getAddedExp());
+                    result = "OR".equals(bool) ? result.or(added) : result.and(added);
                 }
             }
             return result;
@@ -210,7 +255,17 @@ public class ReportController {
             throw new IllegalArgumentException("Only simple FilterExp compare types are supported.");
         }
         String value = filterExp.getValueExp() == null ? "" : filterExp.getValueExp();
-        return "`" + column.trim() + "`" + op + "'" + filterValue(op, value) + "'";
+        String parameter = " LIKE ".equals(op) ? "%" + value + "%" : value;
+        String sql = "`" + column.trim() + "`" + op + "?";
+        return new SimpleFilter() {
+            @Override
+            public QueryAndArgs generateSql() {
+                QueryAndArgs result = new QueryAndArgs();
+                result.setSql(sql);
+                result.setArgs(new Object[]{parameter});
+                return result;
+            }
+        };
     }
 
     private String filterColumn(ReportViewContext context, MakeReportRequest.BoolExp filterExp) {
@@ -329,11 +384,6 @@ public class ReportController {
             default:
                 return null;
         }
-    }
-
-    private String filterValue(String op, String value) {
-        String escaped = value.replace("'", "''");
-        return " LIKE ".equals(op) ? "%" + escaped + "%" : escaped;
     }
 
     private String boolSql(MakeReportRequest.BoolOp boolOp) {
@@ -533,9 +583,9 @@ public class ReportController {
         return row;
     }
 
-    private record ReportViewContext(View view, Model model) {
+    private record ReportViewContext(View view, Model model, DataPolicy policy) {
         private static ReportViewContext empty() {
-            return new ReportViewContext(null, null);
+            return new ReportViewContext(null, null, DataPolicy.unrestricted());
         }
     }
 }

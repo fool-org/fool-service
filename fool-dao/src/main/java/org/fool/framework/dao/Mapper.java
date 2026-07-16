@@ -114,7 +114,7 @@ public class Mapper<T> extends
          */
         if (this.primaryField == null && this.groupKeys.keySet().size() == 1) {
             var keys = this.groupKeys.get(this.groupKeys.keySet().toArray()[0]);
-            if (keys.size() == 0) {
+            if (keys.size() == 1) {
                 this.primaryField = keys.get(0);
                 this.groupKeys.clear();
             }

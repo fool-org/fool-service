@@ -19,6 +19,7 @@ public class DataControllerSaveObjTest {
     public void saveObjPassesLegacyRequestToService() throws Exception {
         DataQueryService dataQueryService = mock(DataQueryService.class);
         DataController controller = new DataController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "dataQueryService", dataQueryService);
         SaveObjRequest request = new SaveObjRequest();
         SaveObjRequest.SaveObject saveObj = new SaveObjRequest.SaveObject();

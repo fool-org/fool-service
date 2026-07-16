@@ -9,6 +9,8 @@ import org.fool.framework.view.dto.ListViewInfo;
 import org.fool.framework.view.dto.ReadItemViewInfo;
 import org.fool.framework.view.dto.ViewDataRequest;
 import org.fool.framework.view.service.ViewDataService;
+import org.fool.framework.view.service.ReadAuthorizationEnforcer;
+import org.fool.framework.view.model.View;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,13 +23,15 @@ public class ViewController {
     private ViewDataService viewDataService;
     @Autowired
     private ViewAdapter viewAdapter;
+    @Autowired
+    private ReadAuthorizationEnforcer authorizationEnforcer;
 
     @ResponseBody
     @PostMapping("/get-view")
     @ApiOperation("得到视图的定义")
     public CommonResponse<ListViewInfo> getViewData(@RequestBody ViewDataRequest request) {
         String viewId = requireViewId(request.getViewId());
-        return new CommonResponse<>(viewAdapter.getViewInfo(viewDataService.getViewData(viewId, request.getToken())));
+        return new CommonResponse<>(viewAdapter.getViewInfo(authorizedView(viewId)));
     }
 
     @ResponseBody
@@ -35,7 +39,7 @@ public class ViewController {
     @ApiOperation("得到旧版视图定义")
     public CommonResponse<ListViewInfo> getListView(@RequestBody ViewDataRequest request) {
         String viewId = requireViewId(request.getViewId());
-        return new CommonResponse<>(viewAdapter.getViewInfo(viewDataService.getViewData(viewId, request.getToken())));
+        return new CommonResponse<>(viewAdapter.getViewInfo(authorizedView(viewId)));
     }
 
     @ResponseBody
@@ -43,10 +47,14 @@ public class ViewController {
     @ApiOperation("得到旧版只读详情视图")
     public CommonResponse<ReadItemViewInfo> getReadItemView(@RequestBody ViewDataRequest request) {
         String viewId = requireViewId(request.getViewId());
-        String token = request.getToken();
         return new CommonResponse<>(viewAdapter.getReadItemView(
-                viewDataService.getViewData(viewId, token),
-                childViewId -> viewDataService.getViewData(childViewId.toString(), token)));
+                authorizedView(viewId),
+                childViewId -> authorizedView(childViewId.toString())));
+    }
+
+    private View authorizedView(String viewId) {
+        var policy = authorizationEnforcer.requireView("view.read", viewId);
+        return authorizationEnforcer.constrainView(viewDataService.getViewData(viewId), policy);
     }
 
     private static String requireViewId(Long viewId) {

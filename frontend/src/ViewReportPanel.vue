@@ -23,6 +23,7 @@ import {
   isTransportError,
   postApi
 } from "./api";
+import { executeMediumAction, withoutBodyToken } from "./actionWorkflow";
 import { buildLegacyListViewRequest, buildMakeReportRequest } from "./payload";
 import { reportConditionEditorField, reportConditionFormattedValue, reportConditionInitialValue } from "./reportConditionValue";
 import {
@@ -51,7 +52,6 @@ import {
 
 const props = defineProps<{
   runAction: WorkflowActionRunner;
-  token: string;
   visible: boolean;
   viewId: number;
 }>();
@@ -211,7 +211,6 @@ async function loadReportColumns() {
   statusMessage.value = "";
   const { response, transportFailed } = await runSuccessOnlyAction("report-columns", () =>
     postApi<ReportModelResult>("/api/v1/report/getmkqview", buildLegacyListViewRequest({
-      token: props.token,
       viewId: props.viewId
     }))
   );
@@ -227,13 +226,63 @@ async function loadReportColumns() {
 
 function buildRequest() {
   return buildMakeReportRequest({
-    token: props.token,
     viewId: props.viewId,
     currentPage: currentPage.value,
     pageSize,
     reportCols: reportCols.value.map((column, index) => ({ ...column, index })),
-    filterExp: filterExp.value
+    filterExp: filterExp.value,
+    reportName: reportName.value
   });
+}
+
+async function saveReportDefinition() {
+  statusMessage.value = "";
+  if (!reportName.value.trim()) {
+    statusMessage.value = "请输入报表名称。";
+    return;
+  }
+  if (!reportCols.value.length) {
+    statusMessage.value = "请至少选择一个输出字段。";
+    return;
+  }
+  const { response } = await runSuccessOnlyAction("save-report", () => executeMediumAction({
+    schemaVersion: 1,
+    action: "report.save",
+    resource: { type: "view", id: String(props.viewId) },
+    arguments: { request: withoutBodyToken(buildRequest() as unknown as Record<string, unknown>) },
+    rationale: "保存已审阅的报表定义"
+  }));
+  statusMessage.value = response?.data.status === "SUCCEEDED" ? "报表定义已保存。" : "已取消保存。";
+}
+
+async function exportReport(all: boolean) {
+  statusMessage.value = "";
+  if (!reportCols.value.length) {
+    statusMessage.value = "请至少选择一个输出字段。";
+    return;
+  }
+  const { response } = await runSuccessOnlyAction("export-report", () => executeMediumAction({
+    schemaVersion: 1,
+    action: "report.export",
+    resource: { type: "view", id: String(props.viewId) },
+    arguments: {
+      request: withoutBodyToken(buildRequest() as unknown as Record<string, unknown>),
+      all
+    },
+    rationale: all ? "导出授权范围内的有界报表结果" : "导出当前授权报表页"
+  }));
+  if (response?.data.status !== "SUCCEEDED") {
+    statusMessage.value = "已取消导出。";
+    return;
+  }
+  const report = response.data.result.report;
+  const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${reportName.value.trim() || `report-${props.viewId}`}.json`;
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 async function runReport(page = currentPage.value) {
@@ -302,8 +351,8 @@ watch(() => props.visible, (visible) => { if (visible) void loadReportColumns();
         <div class="report-result-actions legacy-button-group-xs">
           <Button type="button" label="前一页" severity="secondary" outlined @click="changeReportPage(-1)" />
           <Button type="button" label="下一页" severity="secondary" outlined @click="changeReportPage(1)" />
-          <Button type="button" label="导出当前页" severity="secondary" outlined />
-          <Button type="button" label="导出全部" severity="secondary" outlined />
+          <Button type="button" label="导出当前页" severity="secondary" outlined @click="exportReport(false)" />
+          <Button type="button" label="导出全部" severity="secondary" outlined @click="exportReport(true)" />
         </div>
       </div>
       <div class="table-wrap report-results">
@@ -380,7 +429,7 @@ watch(() => props.visible, (visible) => { if (visible) void loadReportColumns();
                   <span v-else aria-hidden="true"></span>
                   <Select v-model="condition.columnId" :options="modelColumnOptions()" option-label="label" option-value="value" aria-label="条件字段" @change="updateConditionColumn(condition)" />
                   <Select v-model="condition.compareId" :options="compareTypeOptions(condition)" option-label="label" option-value="value" aria-label="条件运算" />
-                  <MetadataFieldEditor v-if="condition.columnId && condition.compareId" v-model="condition.value" :field="conditionEditorField(condition)" :options="stateOptions(condition)" :token="token" :view-id="viewId" @update:formatted-value="condition.formattedValue = $event" />
+                  <MetadataFieldEditor v-if="condition.columnId && condition.compareId" v-model="condition.value" :field="conditionEditorField(condition)" :options="stateOptions(condition)" :view-id="viewId" @update:formatted-value="condition.formattedValue = $event" />
                   <span v-else aria-hidden="true"></span>
                 </div>
               </div>
@@ -407,7 +456,7 @@ watch(() => props.visible, (visible) => { if (visible) void loadReportColumns();
       <Button v-if="showingResults" type="button" label="返回" @click="backToReportSetup" />
       <Button v-if="!showingResults" type="button" label="取消" severity="secondary" outlined @click="emit('close')" />
       <Button v-if="!showingResults" type="button" label="确定" @click="runReport()" />
-      <Button v-if="!showingResults" type="button" label="保存报表定义" severity="info" />
+      <Button v-if="!showingResults" type="button" label="保存报表定义" severity="info" @click="saveReportDefinition" />
     </template>
   </Dialog>
 </template>

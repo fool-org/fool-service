@@ -25,7 +25,6 @@ public class SaveObjRequestTest {
                         + "}]}}",
                 SaveObjRequest.class);
 
-        assertEquals("token-1", request.getToken());
         assertEquals("1001", request.getSaveObj().getId());
         assertEquals("100", request.getSaveObj().getViewID());
         assertEquals("5001", request.getSaveObj().getParentId());

@@ -1,4 +1,4 @@
-import { ref, type Ref } from "vue";
+import { ref } from "vue";
 import type { GetEnumResult, ListDataValue } from "./api";
 import { postApi } from "./api";
 import { buildGetEnumRequest } from "./payload";
@@ -12,7 +12,7 @@ import {
   legacyEnumValues
 } from "./viewWorkflow";
 
-export function useFieldEnums(token: Ref<string>, runAction: WorkflowActionRunner) {
+export function useFieldEnums(runAction: WorkflowActionRunner) {
   const enumOptions = ref<Record<string, SelectOption[]>>({});
 
   async function loadFieldEnums(fields: ListDataValue[]) {
@@ -23,7 +23,7 @@ export function useFieldEnums(token: Ref<string>, runAction: WorkflowActionRunne
       }
       const response = await runAction(
         "field-enums",
-        () => postApi<GetEnumResult>("/api/v1/data/getenums", buildGetEnumRequest({ token: token.value, modelId })),
+        () => postApi<GetEnumResult>("/api/v1/data/getenums", buildGetEnumRequest({ modelId })),
         { silentTransport: true }
       );
       if (response) {

@@ -10,8 +10,10 @@ import org.fool.framework.agent.service.JdbcAgentSessionStore;
 import org.fool.framework.agent.service.JdbcEventAutomationMetadataProvider;
 import org.fool.framework.agent.service.JdbcModelMetadataProvider;
 import org.fool.framework.agent.service.JdbcReportQueryMetadataProvider;
+import org.fool.framework.agent.service.JdbcTableSchemaProvider;
 import org.fool.framework.agent.service.ModelMetadataProvider;
 import org.fool.framework.agent.service.ReportQueryMetadataProvider;
+import org.fool.framework.agent.service.TableSchemaProvider;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -92,5 +94,18 @@ public class FoolAgentAutoConfigure {
     @ConditionalOnMissingBean(EventAutomationMetadataProvider.class)
     public EventAutomationMetadataProvider unavailableEventAutomationMetadataProvider() {
         return EventAutomationMetadataProvider.unavailable();
+    }
+
+    @Bean
+    @ConditionalOnBean(JdbcTemplate.class)
+    @ConditionalOnMissingBean(TableSchemaProvider.class)
+    public TableSchemaProvider jdbcTableSchemaProvider(JdbcTemplate jdbcTemplate) {
+        return new JdbcTableSchemaProvider(jdbcTemplate);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(TableSchemaProvider.class)
+    public TableSchemaProvider unavailableTableSchemaProvider() {
+        return TableSchemaProvider.unavailable();
     }
 }

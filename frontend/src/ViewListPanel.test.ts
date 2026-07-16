@@ -41,4 +41,9 @@ describe("ViewListPanel legacy interactions", () => {
     expect(legacyErrorDialogSource).toContain('header="发生错误"');
     expect(legacyErrorDialogSource).toContain('label="关闭" severity="secondary" outlined');
   });
+
+  it("renders report and create commands only from effective action hints", () => {
+    expect(viewListPanelSource).toContain('v-if="canPreviewReport"');
+    expect(viewListPanelSource).toContain("v-for=\"operation in canCreate ? createItems : []\"");
+  });
 });

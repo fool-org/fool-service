@@ -25,6 +25,7 @@ public class DataControllerRunOperationTest {
     public void runOperationPassesLegacyRequestToService() throws Exception {
         DataQueryService dataQueryService = mock(DataQueryService.class);
         DataController controller = new DataController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "dataQueryService", dataQueryService);
         LegacyRunOperationRequest request = new LegacyRunOperationRequest();
         LegacyRunOperationResult expected = new LegacyRunOperationResult();

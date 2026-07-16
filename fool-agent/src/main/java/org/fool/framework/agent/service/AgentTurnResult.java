@@ -7,9 +7,10 @@ public class AgentTurnResult {
     private final boolean readyToAdvance;
     private final String provider;
     private final String model;
+    private final String actionRequestId;
 
     public AgentTurnResult(AgentSession session, AgentMessage agentMessage, AgentDraft draft, boolean readyToAdvance) {
-        this(session, agentMessage, draft, readyToAdvance, "local", "deterministic");
+        this(session, agentMessage, draft, readyToAdvance, "local", "deterministic", null);
     }
 
     public AgentTurnResult(AgentSession session,
@@ -18,12 +19,23 @@ public class AgentTurnResult {
                            boolean readyToAdvance,
                            String provider,
                            String model) {
+        this(session, agentMessage, draft, readyToAdvance, provider, model, null);
+    }
+
+    public AgentTurnResult(AgentSession session,
+                           AgentMessage agentMessage,
+                           AgentDraft draft,
+                           boolean readyToAdvance,
+                           String provider,
+                           String model,
+                           String actionRequestId) {
         this.session = session;
         this.agentMessage = agentMessage;
         this.draft = draft;
         this.readyToAdvance = readyToAdvance;
         this.provider = provider;
         this.model = model;
+        this.actionRequestId = actionRequestId;
     }
 
     public AgentSession getSession() {
@@ -48,5 +60,9 @@ public class AgentTurnResult {
 
     public String getModel() {
         return model;
+    }
+
+    public String getActionRequestId() {
+        return actionRequestId;
     }
 }

@@ -48,13 +48,13 @@ authorization, risk, approval, execution, and audit boundary. Owner: Codex.
 - [x] Wire the model agent stage to concrete read-only model draft generation
       with actual property, relation, operation, and DDL dry-run metadata
       hydration against `fool-model`.
-- [ ] Add a runtime read-only preview gate that compares the hydrated agent
+- [x] Add a runtime read-only preview gate that compares the hydrated agent
       `ReportCols` with `/api/v1/report/getmkqview` before enabling saved
       report definitions.
-- [ ] Add a runtime read-only preview gate that compares the hydrated agent
+- [x] Add a runtime read-only preview gate that compares the hydrated agent
       form/view draft with `/api/v1/view/getlistview` before enabling View
       metadata writes or operation execution.
-- [ ] Add a runtime DDL dry-run preview gate that compares the hydrated agent
+- [x] Add a runtime DDL dry-run preview gate that compares the hydrated agent
       model draft with the target table schema before enabling model metadata
       writes.
 - [x] Wire the data-source agent stage to concrete connection catalog,
@@ -65,32 +65,32 @@ authorization, risk, approval, execution, and audit boundary. Owner: Codex.
       provider client, keeping API keys out of browser/session payloads.
 - [x] Add the authenticated `/agent` Vue chat workspace with provider selection,
       ordered stage progression, conversation history, and draft validation.
-- [ ] Build the Phase 0 identity and authorization foundation: bearer-token
+- [x] Build the Phase 0 identity and authorization foundation: bearer-token
       authentication, token TTL/rotation, `EffectiveSubject`, deny-by-default
       `AuthorizationService`, policy versioning, and security audit storage.
       Acceptance: unauthenticated requests and direct requests with only a known
       ViewId or Agent session id cannot access protected resources; new Agent
       sessions persist owner/scope without persisting a raw bearer token.
-- [ ] Enforce Phase 1 resource, row, and field authorization consistently across
+- [x] Enforce Phase 1 resource, row, and field authorization consistently across
       menus, View metadata, list/detail/lookup queries, reports, exports, and
       Agent metadata/preview paths. Acceptance: focused integration tests prove
       one user's visible rows and fields are identical through UI APIs, report
       APIs, and Agent APIs, including counts and aggregates.
-- [ ] Add Phase 1 model-outbound controls for PUBLIC/INTERNAL/CONFIDENTIAL/
+- [x] Add Phase 1 model-outbound controls for PUBLIC/INTERNAL/CONFIDENTIAL/
       RESTRICTED data, field masking, provider allowlists, and schema-validated
       ActionIntent parsing. Acceptance: provider request tests prove tokens,
       credentials, connection strings, restricted fields, and unauthorized
       fields are never sent to external models.
-- [ ] Add the Phase 2 controlled Action Request workflow with deterministic risk
+- [x] Add the Phase 2 controlled Action Request workflow with deterministic risk
       floors, preflight, immutable preview, canonical payload hash, confirmation,
       idempotency, execution-time authorization recheck, and audit trace.
       Acceptance: payload, object-version, policy-version, expiry, and replay
       changes invalidate prior confirmation and prevent execution.
-- [ ] Enable only the first bounded MEDIUM actions through the controlled path:
+- [x] Enable only the first bounded MEDIUM actions through the controlled path:
       saved report definitions, policy-limited report export, and single-object
       create/update. Acceptance: both direct Vue actions and Chat-created intents
       use the same `/api/v1/actions` state machine and domain handlers.
-- [ ] Add Phase 3 step-up authentication and independent approval, then onboard
+- [x] Add Phase 3 step-up authentication and independent approval, then onboard
       HIGH actions one at a time: delete, bounded bulk update, View Operation,
       non-destructive DDL, data-source routing/credential references, event
       enablement, and message sending. Acceptance: each action has a dedicated
@@ -101,6 +101,21 @@ authorization, risk, approval, execution, and audit boundary. Owner: Codex.
       audit tamper detection, and exercise dependency/audit/provider failures.
       Acceptance: the full Maven, frontend, repo-harness, Docker runtime-doctor,
       browser-role matrix, and security regression suite pass.
+      Status: implementation, full Maven/frontend builds, fresh/existing
+      migration, repository harness, runtime doctor, security regression,
+      strict permission review, HIGH-action recheck, and four-role API preflight
+      pass. Authenticated effective-action discovery drives frontend commands,
+      and direct plus department-assigned legacy roles resolve with the expected
+      actions and row scopes. The only open gate is the four-identity browser
+      UI/network matrix. Current Browser Use discovery reaches the registered
+      IAB route but its native-pipe server rejects every client with
+      `failed to read peer grandparent code signing identity`; strict macOS
+      verification reports invalid signatures for `ChatGPT.app`, `codex`,
+      `node_repl`, and the Chrome extension host. Reinstall a consistently
+      signed official application/plugin, then capture the ordinary-user,
+      department-administrator, independent-approver, and system-administrator
+      proofs. Phase 4 remains open until those visible/network results pass.
+      Evidence: `agent_chats/2026/07/15/2026-07-15T12-22-00Z-phase4-hardening.md`.
 
 ## Active: Vue Interface Upgrade
 

@@ -1,5 +1,6 @@
 package org.fool.framework.dao;
 
+import org.fool.framework.common.annotation.Id;
 import org.fool.framework.common.annotation.Table;
 import org.junit.Test;
 
@@ -7,6 +8,7 @@ import java.sql.ResultSet;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -46,6 +48,25 @@ public class SqlScriptGeneratorMigrationTest {
         assertEquals(CodeState.SECOND, record.state);
     }
 
+    @Test
+    public void singleIdFieldIsUsedForSelectAndUpdatePredicates() {
+        Mapper<IdRecord> mapper = new Mapper<>(IdRecord.class);
+        SqlScriptGenerator generator = new SqlScriptGenerator();
+
+        QueryAndArgs select = generator.generateSelectOne(mapper, "phase4-ordinary");
+        assertTrue(select.getSql().contains("AND `id` = ?"));
+        assertArrayEquals(new Object[]{"phase4-ordinary"}, select.getArgs());
+
+        IdRecord record = new IdRecord();
+        record.id = "phase4-ordinary";
+        record.name = "Phase 4 Ordinary";
+        QueryAndArgs update = generator.generateUpdate(mapper, record);
+        assertTrue(update.getSql().contains("WHERE `id`= ?"));
+        assertArrayEquals(
+                new Object[]{"phase4-ordinary", "Phase 4 Ordinary", "phase4-ordinary"},
+                update.getArgs());
+    }
+
     @Table("enum_record")
     private static class EnumRecord {
         private String name;
@@ -61,6 +82,13 @@ public class SqlScriptGeneratorMigrationTest {
     static class CodeRecord {
         private String name;
         private CodeState state;
+    }
+
+    @Table("id_record")
+    static class IdRecord {
+        @Id
+        private String id;
+        private String name;
     }
 
     private enum CodeState {

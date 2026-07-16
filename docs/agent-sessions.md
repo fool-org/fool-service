@@ -27,14 +27,18 @@ must target the current capability, and `/advance` moves one step at a time.
 ## API Surface
 
 - `GET /api/v1/agent/capabilities`
-  returns the ordered capability catalog.
+  returns the ordered capability catalog after bearer authentication and an
+  `agent.use` authorization decision.
 - `GET /api/v1/agent/providers`
   returns the DeepSeek/OpenAI model catalog and configured/default flags. API
   keys are never included in this response.
 - `POST /api/v1/agent/sessions`
-  creates a session with optional `token` / `Token` and `title`.
+  creates a session owned by the authenticated user in the resolved
+  app/database scope. Request-body `token` / `Token` fields are ignored and
+  cannot authenticate this protected endpoint.
 - `POST /api/v1/agent/sessions/{sessionId}`
-  returns the session when the supplied token matches the session token.
+  returns the session only when its owner and app/database scope match the
+  request's `EffectiveSubject`.
 - `POST /api/v1/agent/sessions/{sessionId}/messages`
   appends a user message to the current capability and records the selected
   provider reply plus a controlled `draft` payload. Optional `context` can pass
@@ -71,9 +75,32 @@ and validation steps.
 ## Current Boundary
 
 The implementation provides the capability/provider catalogs, ordered session
-state, message history, token matching, JDBC-backed persistence when
-`JdbcTemplate` is available, OpenAI-compatible DeepSeek/OpenAI replies, and
-deterministic draft output. It does not mutate metadata.
+state, message history, bearer authentication, `EffectiveSubject` owner/scope
+checks, deny-by-default resource authorization, JDBC-backed persistence,
+OpenAI-compatible DeepSeek/OpenAI replies, and deterministic draft output. It
+does not mutate metadata outside the controlled Action Request path.
+
+Phase 1 applies the same `DataPolicy` to menus, View definitions, list/detail/
+lookup queries, report models/runs, and Agent metadata/runtime previews. Agent
+report previews call the authorized query service for a maximum of ten rows;
+the returned count, rows, masks, and fields therefore share the direct API's
+row/field policy. Report, form, and DDL drafts include deterministic
+`PASSED`/`BLOCKED` gates and evidence hashes. Unavailable metadata, schema, or
+audit dependencies block the gate.
+
+External model context is separately minimized after read authorization:
+unauthorized fields, credentials, connection data, executable expressions,
+and `RESTRICTED` values are removed; provider allowlists and classification
+rules can force a local deterministic fallback. Model replies that propose an
+action must pass the server-owned `ActionIntent` catalog and JSON shape and
+cannot supply SQL, URLs, classes, credentials, actor, risk, policy, approval,
+or executor fields.
+
+Opaque bearer tokens use idle and absolute TTLs and are stored in Redis only by
+SHA-256 hash. Successful legacy-password login upgrades the credential to
+BCrypt. Request/response logging recursively redacts passwords, tokens,
+connection strings, and credential fields. Protected endpoints authenticate
+only from the bearer header; legacy body-token fields are ignored.
 
 The `report-query` stage currently returns a low-risk read-only draft with:
 
@@ -152,27 +179,39 @@ evidence before any model, View, data-source, or event configuration is applied.
 ## Storage
 
 The runtime auto-configuration uses `JdbcAgentSessionStore` when a `JdbcTemplate`
-bean exists. Docker/MySQL schema lives in `docker/mysql/init/011-agent.sql`:
+bean exists. Base Docker/MySQL schema lives in
+`docker/mysql/init/011-agent.sql`, and the Phase 0 identity/policy/action/audit
+schema plus Agent owner/scope columns live in
+`docker/mysql/init/016-authorization-and-agent-control.sql`:
 
 - `FOOL_AGENT_SESSION`
 - `FOOL_AGENT_MESSAGE`
+- `FOOL_AUTH_CREDENTIAL`
+- `FOOL_AUTHZ_PERMISSION`, `FOOL_AUTHZ_BINDING`, and
+  `FOOL_AUTHZ_POLICY_VERSION`
+- `FOOL_SECURITY_AUDIT_EVENT`
+- active `FOOL_AGENT_ACTION_REQUEST`, `FOOL_AGENT_APPROVAL`,
+  `FOOL_DATASOURCE_CREDENTIAL_REF`, and `FOOL_AGENT_OUTBOX` stores
+
+`FOOL_AGENT_SESSION.SESSION_TOKEN` is invalidated and removed by migration 016;
+the session owner comes only from the authenticated bearer subject.
+Sessions persist `OWNER_USER_ID`, `APP_ID`, `DATABASE_ID`, and
+`AUTH_SESSION_ID`; existing sessions without a provable owner remain
+inaccessible.
 
 Tests and non-database embedded contexts fall back to `InMemoryAgentSessionStore`.
 
-## Required Follow-Up
+## Controlled Action Status
 
-The authorization and execution prerequisites for every item below are defined
-in `docs/authorization-and-agent-risk-control.md`. Completing a preview or
-dry-run comparison does not by itself enable the related write path.
+The authorization and execution prerequisites are defined in
+`docs/authorization-and-agent-risk-control.md`. The completed read gates remain
+mandatory preflight inputs for the dedicated MEDIUM and HIGH handlers.
 
-- Compare the agent's hydrated `ReportCols` against `/api/v1/report/getmkqview`
-  in runtime smoke checks and add a small read-only preview gate before any
-  report definitions are saved.
-- Compare the agent's hydrated form/view field and operation draft against
-  `/api/v1/view/getlistview` in runtime smoke checks.
-- Compare the agent's hydrated model draft against `fool_sys_model`,
-  `fool_sys_model_property`, and a generated DDL diff before enabling model
-  metadata writes.
-- Add dry-run, diff, approval, rollback, and audit evidence before allowing
-  data-source route/credential writes, event creation, message sending, or
-  scheduler mutation.
+- The completed report, form/View, and target-schema preview gates remain
+  mandatory preflight inputs to their dedicated write handlers.
+- Saved reports, bounded export, single-object create/update, delete, bounded
+  bulk update, fixed View Operation, additive DDL, data-source route/credential
+  references, event enablement, and message sending now use the neutral Action
+  Request state machine.
+- CRITICAL actions, arbitrary SQL/code, destructive DDL, unrestricted external
+  calls, and scheduler mutation remain unavailable to Agent execution.

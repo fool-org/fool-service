@@ -29,6 +29,8 @@ public class CommonLogInterceptor implements HandlerInterceptor {
 
     @Autowired
     private ResponseBodyCapture responseBodyCapture;
+    @Autowired
+    private SensitiveLogSanitizer sensitiveLogSanitizer;
 
 
     @Override
@@ -49,7 +51,8 @@ public class CommonLogInterceptor implements HandlerInterceptor {
         String path = wrappedRequest.getServletPath();
         GuaziThreadContextHelper.setFilter(path);
         //
-        log.debug("ServiceRequest [{}] {}", wrappedRequest.getRequestURL(), IOUtils.toString(wrappedRequest.getInputStream(), "UTF-8"));
+        log.debug("ServiceRequest [{}] {}", wrappedRequest.getRequestURL(),
+                sensitiveLogSanitizer.sanitize(IOUtils.toString(wrappedRequest.getInputStream(), "UTF-8")));
         return true;
     }
 
@@ -72,7 +75,11 @@ public class CommonLogInterceptor implements HandlerInterceptor {
             latency = now.getTime() - startTime;
         }
 
-        log.info("ServiceResponse [{}]( latency: {} ms ). {} . With Request {} .", request.getRequestURL(), latency, body, IOUtils.toString(request.getInputStream(), "UTF-8"));
+        log.info("ServiceResponse [{}]( latency: {} ms ). {} . With Request {} .",
+                request.getRequestURL(),
+                latency,
+                sensitiveLogSanitizer.sanitize(body),
+                sensitiveLogSanitizer.sanitize(IOUtils.toString(request.getInputStream(), "UTF-8")));
 
         GuaziThreadContextHelper.clearThreadContext();
     }

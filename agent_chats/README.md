@@ -12,8 +12,11 @@ Each entry should include:
 - Prompt
 - Scope
 - Changes
+- Changed Files
 - Validation
 - Runtime Evidence
+- Skipped or Downgraded Checks
 - Risks
 - Follow-ups
+- Task-state link or update
 - Linked commits or PRs when available

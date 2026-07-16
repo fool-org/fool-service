@@ -1,5 +1,9 @@
 package org.fool.framework.agent.service;
 
+import org.fool.framework.common.authz.EffectiveSubject;
+import org.fool.framework.common.authz.AuthorizationDecision;
+import org.fool.framework.common.authz.AuthorizationService;
+import org.fool.framework.common.authz.DataPolicy;
 import org.junit.Test;
 
 import java.time.Clock;
@@ -13,9 +17,10 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 public class AgentSessionServiceTest {
-    private final AgentSessionService service = new AgentSessionService(
-            new InMemoryAgentSessionStore(),
-            Clock.fixed(Instant.parse("2026-07-15T00:00:00Z"), ZoneOffset.UTC));
+    private static final EffectiveSubject SUBJECT = subject("user-1", "fool-service", "car_wash");
+    private static final EffectiveSubject OTHER_USER = subject("user-2", "fool-service", "car_wash");
+
+    private final AgentSessionService service = service();
 
     @Test
     public void capabilitiesExposeConfiguredOrder() {
@@ -30,14 +35,14 @@ public class AgentSessionServiceTest {
 
     @Test
     public void sessionStartsAtReportQueryAndRecordsMessages() {
-        AgentSession session = service.start("token-1", "配置客户报表");
+        AgentSession session = service.start(SUBJECT, "配置客户报表");
 
         assertEquals(AgentCapabilityType.REPORT_QUERY, session.getCurrentCapability());
         assertEquals(1, session.getMessages().size());
 
         AgentTurnResult result = service.recordUserMessage(
                 session.getId(),
-                "token-1",
+                SUBJECT,
                 AgentCapabilityType.REPORT_QUERY,
                 "需要客户订单统计报表");
 
@@ -48,12 +53,26 @@ public class AgentSessionServiceTest {
     }
 
     @Test
+    public void sessionPersistsRedactedUserAndProviderText() {
+        AgentSession session = service.start(SUBJECT, "sensitive input");
+
+        AgentTurnResult result = service.recordUserMessage(
+                session.getId(), SUBJECT, AgentCapabilityType.REPORT_QUERY,
+                "token=raw-token-123 Authorization: Bearer abcdefghijklmnop");
+
+        String persistedUser = result.getSession().getMessages().get(1).getContent();
+        assertTrue(persistedUser.contains("[REDACTED]"));
+        assertTrue(!persistedUser.contains("raw-token-123"));
+        assertTrue(!persistedUser.contains("abcdefghijklmnop"));
+    }
+
+    @Test
     public void reportQueryTurnReturnsReadOnlyDraft() {
-        AgentSession session = service.start("token-1", "配置客户报表");
+        AgentSession session = service.start(SUBJECT, "配置客户报表");
 
         AgentTurnResult result = service.recordUserMessage(
                 session.getId(),
-                "token-1",
+                SUBJECT,
                 AgentCapabilityType.REPORT_QUERY,
                 "需要客户订单统计报表",
                 Map.of("ViewId", 100));
@@ -67,15 +86,12 @@ public class AgentSessionServiceTest {
 
     @Test
     public void reportQueryTurnHydratesViewModelColumnsWhenMetadataExists() {
-        AgentSessionService hydratedService = new AgentSessionService(
-                new InMemoryAgentSessionStore(),
-                viewMetadataProvider(),
-                Clock.fixed(Instant.parse("2026-07-15T00:00:00Z"), ZoneOffset.UTC));
-        AgentSession session = hydratedService.start("token-1", "配置客户报表");
+        AgentSessionService hydratedService = service(viewMetadataProvider());
+        AgentSession session = hydratedService.start(SUBJECT, "配置客户报表");
 
         AgentTurnResult result = hydratedService.recordUserMessage(
                 session.getId(),
-                "token-1",
+                SUBJECT,
                 AgentCapabilityType.REPORT_QUERY,
                 "需要客户订单统计报表",
                 Map.of("ViewId", "100"));
@@ -100,20 +116,58 @@ public class AgentSessionServiceTest {
         assertEquals(1, reportCols.size());
         assertEquals("Symbol", reportCols.get(0).get("ColName"));
         assertEquals("symbol", reportCols.get(0).get("ColId"));
+        @SuppressWarnings("unchecked")
+        Map<String, Object> previewGate = (Map<String, Object>) payload.get("previewGate");
+        assertEquals("PASSED", previewGate.get("Status"));
+    }
+
+    @Test
+    public void reportAgentMetadataUsesTheAuthorizationDataPolicy() {
+        DataPolicy limited = new DataPolicy(
+                List.of(new DataPolicy.RowRule("ALL", Map.of())),
+                java.util.Set.of("symbol"),
+                java.util.Set.of("symbol"),
+                java.util.Set.of("symbol"),
+                java.util.Set.of("symbol"),
+                java.util.Set.of(),
+                java.util.Set.of("symbol"),
+                Map.of(), Map.of(), java.util.Set.of("local"), 10, 10);
+        AuthorizationService authorization = request -> AuthorizationDecision.allow(
+                request.subject().policyVersion(), "limited",
+                "report.preview".equals(request.action()) ? limited : DataPolicy.unrestricted());
+        AgentSessionService limitedService = new AgentSessionService(
+                new InMemoryAgentSessionStore(),
+                viewMetadataProvider(),
+                ModelMetadataProvider.unavailable(),
+                DataSourceMetadataProvider.unavailable(),
+                EventAutomationMetadataProvider.unavailable(),
+                TableSchemaProvider.unavailable(),
+                null,
+                new AgentOutboundPolicy(),
+                authorization,
+                event -> { },
+                Clock.fixed(Instant.parse("2026-07-15T00:00:00Z"), ZoneOffset.UTC));
+        AgentSession session = limitedService.start(SUBJECT, "limited report");
+
+        AgentTurnResult result = limitedService.recordUserMessage(
+                session.getId(), SUBJECT, AgentCapabilityType.REPORT_QUERY, "preview", Map.of("ViewId", 100));
+
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> columns = (List<Map<String, Object>>)
+                result.getDraft().getDraftPayload().get("candidateColumns");
+        assertEquals(1, columns.size());
+        assertEquals("symbol", columns.get(0).get("PropertyName"));
     }
 
     @Test
     public void formViewTurnHydratesFieldsChildCollectionsAndOperationsWhenMetadataExists() {
-        AgentSessionService hydratedService = new AgentSessionService(
-                new InMemoryAgentSessionStore(),
-                viewMetadataProvider(),
-                Clock.fixed(Instant.parse("2026-07-15T00:00:00Z"), ZoneOffset.UTC));
-        AgentSession session = hydratedService.start("token-1", "配置订单视图");
-        hydratedService.advance(session.getId(), "token-1");
+        AgentSessionService hydratedService = service(viewMetadataProvider());
+        AgentSession session = hydratedService.start(SUBJECT, "配置订单视图");
+        hydratedService.advance(session.getId(), SUBJECT);
 
         AgentTurnResult result = hydratedService.recordUserMessage(
                 session.getId(),
-                "token-1",
+                SUBJECT,
                 AgentCapabilityType.FORM_VIEW,
                 "需要订单列表和详情表单",
                 Map.of("ViewId", 100));
@@ -126,7 +180,7 @@ public class AgentSessionServiceTest {
 
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> fields = (List<Map<String, Object>>) payload.get("fields");
-        assertEquals(2, fields.size());
+        assertEquals(1, fields.size());
         assertEquals("Symbol", fields.get(0).get("Name"));
         assertEquals(true, fields.get(0).get("Readonly"));
         assertEquals("readonly-field", fields.get(0).get("DraftControlType"));
@@ -151,22 +205,26 @@ public class AgentSessionServiceTest {
         assertEquals(fields, draftView.get("Fields"));
         assertEquals(childCollections, draftView.get("ChildCollections"));
         assertEquals(operations, draftView.get("Operations"));
+        @SuppressWarnings("unchecked")
+        Map<String, Object> previewGate = (Map<String, Object>) payload.get("previewGate");
+        assertEquals("PASSED", previewGate.get("Status"));
     }
 
     @Test
     public void modelTurnHydratesPropertiesRelationsOperationsAndDdlDryRunPlan() {
-        AgentSessionService hydratedService = new AgentSessionService(
-                new InMemoryAgentSessionStore(),
+        AgentSessionService hydratedService = service(
                 viewMetadataProvider(),
                 modelMetadataProvider(),
-                Clock.fixed(Instant.parse("2026-07-15T00:00:00Z"), ZoneOffset.UTC));
-        AgentSession session = hydratedService.start("token-1", "配置订单模型");
-        hydratedService.advance(session.getId(), "token-1");
-        hydratedService.advance(session.getId(), "token-1");
+                DataSourceMetadataProvider.unavailable(),
+                EventAutomationMetadataProvider.unavailable(),
+                tableName -> TableSchemaSnapshot.hydrated(java.util.Set.of("order_id", "items")));
+        AgentSession session = hydratedService.start(SUBJECT, "配置订单模型");
+        hydratedService.advance(session.getId(), SUBJECT);
+        hydratedService.advance(session.getId(), SUBJECT);
 
         AgentTurnResult result = hydratedService.recordUserMessage(
                 session.getId(),
-                "token-1",
+                SUBJECT,
                 AgentCapabilityType.MODEL,
                 "需要订单模型字段、关系和 DDL dry-run",
                 Map.of("ModelId", 100));
@@ -207,24 +265,27 @@ public class AgentSessionServiceTest {
         List<Map<String, Object>> columnChecks =
                 (List<Map<String, Object>>) ddlDryRunPlan.get("ColumnChecks");
         assertEquals(2, columnChecks.size());
+        @SuppressWarnings("unchecked")
+        Map<String, Object> previewGate = (Map<String, Object>) ddlDryRunPlan.get("PreviewGate");
+        assertEquals("PASSED", previewGate.get("Status"));
     }
 
     @Test
     public void dataSourceTurnHydratesRoutesAndCredentialBoundary() {
-        AgentSessionService hydratedService = new AgentSessionService(
-                new InMemoryAgentSessionStore(),
+        AgentSessionService hydratedService = service(
                 viewMetadataProvider(),
                 modelMetadataProvider(),
                 dataSourceMetadataProvider(),
-                Clock.fixed(Instant.parse("2026-07-15T00:00:00Z"), ZoneOffset.UTC));
-        AgentSession session = hydratedService.start("token-1", "配置订单数据源");
-        hydratedService.advance(session.getId(), "token-1");
-        hydratedService.advance(session.getId(), "token-1");
-        hydratedService.advance(session.getId(), "token-1");
+                EventAutomationMetadataProvider.unavailable(),
+                TableSchemaProvider.unavailable());
+        AgentSession session = hydratedService.start(SUBJECT, "配置订单数据源");
+        hydratedService.advance(session.getId(), SUBJECT);
+        hydratedService.advance(session.getId(), SUBJECT);
+        hydratedService.advance(session.getId(), SUBJECT);
 
         AgentTurnResult result = hydratedService.recordUserMessage(
                 session.getId(),
-                "token-1",
+                SUBJECT,
                 AgentCapabilityType.DATA_SOURCE,
                 "需要绑定 car_wash 数据源",
                 Map.of("DataSourceKey", "car_wash"));
@@ -269,22 +330,21 @@ public class AgentSessionServiceTest {
 
     @Test
     public void eventAutomationTurnHydratesDefinitionsDryRunAndAuditPlan() {
-        AgentSessionService hydratedService = new AgentSessionService(
-                new InMemoryAgentSessionStore(),
+        AgentSessionService hydratedService = service(
                 viewMetadataProvider(),
                 modelMetadataProvider(),
                 dataSourceMetadataProvider(),
                 eventAutomationMetadataProvider(),
-                Clock.fixed(Instant.parse("2026-07-15T00:00:00Z"), ZoneOffset.UTC));
-        AgentSession session = hydratedService.start("token-1", "配置订单事件");
-        hydratedService.advance(session.getId(), "token-1");
-        hydratedService.advance(session.getId(), "token-1");
-        hydratedService.advance(session.getId(), "token-1");
-        hydratedService.advance(session.getId(), "token-1");
+                TableSchemaProvider.unavailable());
+        AgentSession session = hydratedService.start(SUBJECT, "配置订单事件");
+        hydratedService.advance(session.getId(), SUBJECT);
+        hydratedService.advance(session.getId(), SUBJECT);
+        hydratedService.advance(session.getId(), SUBJECT);
+        hydratedService.advance(session.getId(), SUBJECT);
 
         AgentTurnResult result = hydratedService.recordUserMessage(
                 session.getId(),
-                "token-1",
+                SUBJECT,
                 AgentCapabilityType.EVENT_AUTOMATION,
                 "需要订单状态事件",
                 Map.of("EventDefinitionId", "00000000-0000-0000-0000-000000000100"));
@@ -299,7 +359,7 @@ public class AgentSessionServiceTest {
         assertEquals(1, definitions.size());
         assertEquals("00000000-0000-0000-0000-000000000100", definitions.get(0).get("DefinitionId"));
         assertEquals(true, definitions.get(0).get("Running"));
-        assertEquals("SELECT * FROM market_order WHERE `order_state` = 0", definitions.get(0).get("QueryPreview"));
+        assertEquals(false, definitions.get(0).containsKey("QueryPreview"));
 
         @SuppressWarnings("unchecked")
         Map<String, Object> recipientSummary =
@@ -326,36 +386,94 @@ public class AgentSessionServiceTest {
 
     @Test
     public void sessionCannotSkipCapabilityOrder() {
-        AgentSession session = service.start("token-1", null);
+        AgentSession session = service.start(SUBJECT, null);
 
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
-                () -> service.recordUserMessage(session.getId(), "token-1", AgentCapabilityType.MODEL, "先建模型"));
+                () -> service.recordUserMessage(session.getId(), SUBJECT, AgentCapabilityType.MODEL, "先建模型"));
 
         assertTrue(error.getMessage().contains("Current capability is report-query"));
     }
 
     @Test
     public void sessionAdvancesInConfiguredOrderAndCompletesAtEnd() {
-        AgentSession session = service.start("token-1", null);
+        AgentSession session = service.start(SUBJECT, null);
 
-        assertEquals(AgentCapabilityType.FORM_VIEW, service.advance(session.getId(), "token-1").getCurrentCapability());
-        assertEquals(AgentCapabilityType.MODEL, service.advance(session.getId(), "token-1").getCurrentCapability());
-        assertEquals(AgentCapabilityType.DATA_SOURCE, service.advance(session.getId(), "token-1").getCurrentCapability());
-        assertEquals(AgentCapabilityType.EVENT_AUTOMATION, service.advance(session.getId(), "token-1").getCurrentCapability());
+        assertEquals(AgentCapabilityType.FORM_VIEW, service.advance(session.getId(), SUBJECT).getCurrentCapability());
+        assertEquals(AgentCapabilityType.MODEL, service.advance(session.getId(), SUBJECT).getCurrentCapability());
+        assertEquals(AgentCapabilityType.DATA_SOURCE, service.advance(session.getId(), SUBJECT).getCurrentCapability());
+        assertEquals(AgentCapabilityType.EVENT_AUTOMATION, service.advance(session.getId(), SUBJECT).getCurrentCapability());
 
-        AgentSession completed = service.advance(session.getId(), "token-1");
+        AgentSession completed = service.advance(session.getId(), SUBJECT);
 
         assertEquals(AgentSessionStatus.COMPLETED, completed.getStatus());
     }
 
     @Test
-    public void sessionTokenMustMatchWhenSessionHasToken() {
-        AgentSession session = service.start("token-1", null);
+    public void sessionOwnerAndScopeMustMatch() {
+        AgentSession session = service.start(SUBJECT, null);
 
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
-                () -> service.get(session.getId(), "token-2"));
+                () -> service.get(session.getId(), OTHER_USER));
 
-        assertEquals("Token does not match the agent session.", error.getMessage());
+        assertEquals("AGENT_SESSION_OUT_OF_SCOPE", error.getMessage());
+    }
+
+    @Test
+    public void sessionPersistsEffectiveOwnerAndScope() {
+        AgentSession session = service.start(SUBJECT, null);
+
+        assertEquals("user-1", session.getOwnerUserId());
+        assertEquals("fool-service", session.getAppId());
+        assertEquals("car_wash", session.getDatabaseId());
+        assertEquals("auth-user-1", session.getAuthSessionId());
+    }
+
+    private static EffectiveSubject subject(String userId, String appId, String databaseId) {
+        return new EffectiveSubject(
+                userId,
+                List.of("admin"),
+                "company-1",
+                List.of("department-1"),
+                appId,
+                databaseId,
+                "auth-" + userId,
+                Instant.parse("2026-07-15T00:00:00Z"),
+                null,
+                1L);
+    }
+
+    private AgentSessionService service() {
+        return service(ReportQueryMetadataProvider.unavailable());
+    }
+
+    private AgentSessionService service(ReportQueryMetadataProvider reportProvider) {
+        return service(
+                reportProvider,
+                ModelMetadataProvider.unavailable(),
+                DataSourceMetadataProvider.unavailable(),
+                EventAutomationMetadataProvider.unavailable(),
+                TableSchemaProvider.unavailable());
+    }
+
+    private AgentSessionService service(ReportQueryMetadataProvider reportProvider,
+                                        ModelMetadataProvider modelProvider,
+                                        DataSourceMetadataProvider dataSourceProvider,
+                                        EventAutomationMetadataProvider eventProvider,
+                                        TableSchemaProvider schemaProvider) {
+        AuthorizationService allow = request -> AuthorizationDecision.allow(
+                request.subject().policyVersion(), "test", org.fool.framework.common.authz.DataPolicy.unrestricted());
+        return new AgentSessionService(
+                new InMemoryAgentSessionStore(),
+                reportProvider,
+                modelProvider,
+                dataSourceProvider,
+                eventProvider,
+                schemaProvider,
+                null,
+                new AgentOutboundPolicy(),
+                allow,
+                event -> { },
+                Clock.fixed(Instant.parse("2026-07-15T00:00:00Z"), ZoneOffset.UTC));
     }
 
     private ReportQueryMetadataProvider viewMetadataProvider() {

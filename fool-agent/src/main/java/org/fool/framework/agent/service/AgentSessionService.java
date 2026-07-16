@@ -1,11 +1,24 @@
 package org.fool.framework.agent.service;
 
+import org.fool.framework.agent.action.ActionRequestService;
+import org.fool.framework.agent.action.ActionRequestView;
+import org.fool.framework.common.authz.EffectiveSubject;
+import org.fool.framework.common.authz.AuthorizationDecision;
+import org.fool.framework.common.authz.AuthorizationDeniedException;
+import org.fool.framework.common.authz.AuthorizationRequest;
+import org.fool.framework.common.authz.AuthorizationService;
+import org.fool.framework.common.authz.DataPolicy;
+import org.fool.framework.common.authz.RiskLevel;
+import org.fool.framework.common.authz.SecurityAuditEvent;
+import org.fool.framework.common.authz.SecurityAuditService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -13,6 +26,9 @@ import java.util.Map;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.HexFormat;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,9 +38,17 @@ public class AgentSessionService {
     private final ModelMetadataProvider modelMetadataProvider;
     private final DataSourceMetadataProvider dataSourceMetadataProvider;
     private final EventAutomationMetadataProvider eventAutomationMetadataProvider;
+    private final TableSchemaProvider tableSchemaProvider;
     private final AgentChatProviderService chatProviderService;
+    private final AgentOutboundPolicy outboundPolicy;
+    private final AuthorizationService authorizationService;
+    private final SecurityAuditService securityAuditService;
     private final Clock clock;
     private final List<AgentCapabilityType> orderedCapabilities;
+    @Autowired(required = false)
+    private AgentReadPreviewProvider readPreviewProvider;
+    @Autowired(required = false)
+    private ActionRequestService actionRequestService;
 
     @Autowired
     public AgentSessionService(AgentSessionStore store,
@@ -32,13 +56,21 @@ public class AgentSessionService {
                                ModelMetadataProvider modelMetadataProvider,
                                DataSourceMetadataProvider dataSourceMetadataProvider,
                                EventAutomationMetadataProvider eventAutomationMetadataProvider,
-                               AgentChatProviderService chatProviderService) {
+                               TableSchemaProvider tableSchemaProvider,
+                               AgentChatProviderService chatProviderService,
+                               AgentOutboundPolicy outboundPolicy,
+                               AuthorizationService authorizationService,
+                               SecurityAuditService securityAuditService) {
         this(store,
                 reportQueryMetadataProvider,
                 modelMetadataProvider,
                 dataSourceMetadataProvider,
                 eventAutomationMetadataProvider,
+                tableSchemaProvider,
                 chatProviderService,
+                outboundPolicy,
+                authorizationService,
+                securityAuditService,
                 Clock.systemUTC());
     }
 
@@ -48,6 +80,11 @@ public class AgentSessionService {
                 ModelMetadataProvider.unavailable(),
                 DataSourceMetadataProvider.unavailable(),
                 EventAutomationMetadataProvider.unavailable(),
+                TableSchemaProvider.unavailable(),
+                null,
+                new AgentOutboundPolicy(),
+                AuthorizationService.denyByDefault(),
+                event -> { },
                 clock);
     }
 
@@ -57,6 +94,11 @@ public class AgentSessionService {
                 ModelMetadataProvider.unavailable(),
                 DataSourceMetadataProvider.unavailable(),
                 EventAutomationMetadataProvider.unavailable(),
+                TableSchemaProvider.unavailable(),
+                null,
+                new AgentOutboundPolicy(),
+                AuthorizationService.denyByDefault(),
+                event -> { },
                 clock);
     }
 
@@ -69,6 +111,11 @@ public class AgentSessionService {
                 modelMetadataProvider,
                 DataSourceMetadataProvider.unavailable(),
                 EventAutomationMetadataProvider.unavailable(),
+                TableSchemaProvider.unavailable(),
+                null,
+                new AgentOutboundPolicy(),
+                AuthorizationService.denyByDefault(),
+                event -> { },
                 clock);
     }
 
@@ -82,6 +129,11 @@ public class AgentSessionService {
                 modelMetadataProvider,
                 dataSourceMetadataProvider,
                 EventAutomationMetadataProvider.unavailable(),
+                TableSchemaProvider.unavailable(),
+                null,
+                new AgentOutboundPolicy(),
+                AuthorizationService.denyByDefault(),
+                event -> { },
                 clock);
     }
 
@@ -96,16 +148,24 @@ public class AgentSessionService {
                 modelMetadataProvider,
                 dataSourceMetadataProvider,
                 eventAutomationMetadataProvider,
+                TableSchemaProvider.unavailable(),
                 null,
+                new AgentOutboundPolicy(),
+                AuthorizationService.denyByDefault(),
+                event -> { },
                 clock);
     }
 
-    private AgentSessionService(AgentSessionStore store,
+    AgentSessionService(AgentSessionStore store,
                                 ReportQueryMetadataProvider reportQueryMetadataProvider,
                                 ModelMetadataProvider modelMetadataProvider,
                                 DataSourceMetadataProvider dataSourceMetadataProvider,
                                 EventAutomationMetadataProvider eventAutomationMetadataProvider,
+                                TableSchemaProvider tableSchemaProvider,
                                 AgentChatProviderService chatProviderService,
+                                AgentOutboundPolicy outboundPolicy,
+                                AuthorizationService authorizationService,
+                                SecurityAuditService securityAuditService,
                                 Clock clock) {
         this.store = store;
         this.reportQueryMetadataProvider = reportQueryMetadataProvider == null
@@ -120,7 +180,13 @@ public class AgentSessionService {
         this.eventAutomationMetadataProvider = eventAutomationMetadataProvider == null
                 ? EventAutomationMetadataProvider.unavailable()
                 : eventAutomationMetadataProvider;
+        this.tableSchemaProvider = tableSchemaProvider == null ? TableSchemaProvider.unavailable() : tableSchemaProvider;
         this.chatProviderService = chatProviderService;
+        this.outboundPolicy = outboundPolicy == null ? new AgentOutboundPolicy() : outboundPolicy;
+        this.authorizationService = authorizationService == null
+                ? AuthorizationService.denyByDefault()
+                : authorizationService;
+        this.securityAuditService = securityAuditService == null ? event -> { } : securityAuditService;
         this.clock = clock;
         this.orderedCapabilities = Arrays.stream(AgentCapabilityType.values())
                 .sorted(Comparator.comparingInt(AgentCapabilityType::getOrder))
@@ -131,10 +197,14 @@ public class AgentSessionService {
         return orderedCapabilities.stream().map(AgentCapability::new).toList();
     }
 
-    public AgentSession start(String token, String title) {
+    public AgentSession start(EffectiveSubject subject, String title) {
+        authorize(subject, "agent.use", "AgentCapability", "agent:capability:report-query", null);
         AgentSession session = new AgentSession(
                 UUID.randomUUID().toString(),
-                normalized(token),
+                subject.userId(),
+                subject.appId(),
+                subject.databaseId(),
+                subject.sessionId(),
                 StringUtils.hasText(title) ? title.trim() : "Agent configuration session",
                 orderedCapabilities.get(0),
                 now());
@@ -144,31 +214,36 @@ public class AgentSessionService {
         return session;
     }
 
-    public AgentSession get(String sessionId, String token) {
+    public AgentSession get(String sessionId, EffectiveSubject subject) {
         AgentSession session = find(sessionId);
-        assertToken(session, token);
+        assertOwner(session, subject);
+        authorize(subject,
+                "agent.use",
+                "AgentCapability",
+                "agent:capability:" + session.getCurrentCapability().getId(),
+                sessionId);
         return session;
     }
 
-    public AgentTurnResult recordUserMessage(String sessionId, String token, AgentCapabilityType capability, String content) {
-        return recordUserMessage(sessionId, token, capability, content, Map.of());
+    public AgentTurnResult recordUserMessage(String sessionId, EffectiveSubject subject, AgentCapabilityType capability, String content) {
+        return recordUserMessage(sessionId, subject, capability, content, Map.of());
     }
 
     public AgentTurnResult recordUserMessage(String sessionId,
-                                             String token,
+                                             EffectiveSubject subject,
                                              AgentCapabilityType capability,
                                              String content,
                                              Map<String, Object> context) {
-        return recordUserMessage(sessionId, token, capability, content, context, null);
+        return recordUserMessage(sessionId, subject, capability, content, context, null);
     }
 
     public AgentTurnResult recordUserMessage(String sessionId,
-                                             String token,
+                                             EffectiveSubject subject,
                                              AgentCapabilityType capability,
                                              String content,
                                              Map<String, Object> context,
                                              String provider) {
-        AgentSession session = get(sessionId, token);
+        AgentSession session = get(sessionId, subject);
         assertActive(session);
         AgentCapabilityType requested = capability == null ? session.getCurrentCapability() : capability;
         if (requested != session.getCurrentCapability()) {
@@ -176,14 +251,23 @@ public class AgentSessionService {
                     + session.getCurrentCapability().getId() + ".");
         }
         String normalizedContent = requiredContent(content);
-        AgentDraft draft = draftFor(requested, normalizedContent, context == null ? Map.of() : context);
+        String persistedContent = outboundPolicy.sanitizeText(normalizedContent);
+        Map<String, Object> safeContext = context == null ? Map.of() : context;
+        AuthorizationDecision decision = authorizeForDraft(subject, requested, safeContext, sessionId);
+        DataPolicy dataPolicy = decision.dataPolicy() == null ? DataPolicy.unrestricted() : decision.dataPolicy();
+        AgentDraft draft = outboundPolicy.sanitize(
+                draftFor(requested, normalizedContent, safeContext, dataPolicy, subject, sessionId),
+                dataPolicy);
         AgentChatProviderService.Reply generatedReply = chatProviderService == null
                 ? AgentChatProviderService.Reply.local(draft.getSummary())
-                : chatProviderService.reply(provider, session, requested, normalizedContent, draft);
+                : chatProviderService.reply(provider, session, requested, normalizedContent, draft, dataPolicy);
         session.addMessage(new AgentMessage(UUID.randomUUID().toString(), AgentMessageRole.USER, requested,
-                normalizedContent, now()));
+                persistedContent, now()));
+        String persistedReply = outboundPolicy.sanitizeText(generatedReply.getContent());
         AgentMessage reply = new AgentMessage(UUID.randomUUID().toString(), AgentMessageRole.AGENT, requested,
-                generatedReply.getContent(), now());
+                persistedReply, now());
+        ActionRequestView actionRequest = createProposedAction(
+                generatedReply.getContent(), subject, sessionId);
         session.addMessage(reply);
         store.save(session);
         return new AgentTurnResult(
@@ -192,11 +276,27 @@ public class AgentSessionService {
                 draft,
                 true,
                 generatedReply.getProvider(),
-                generatedReply.getModel());
+                generatedReply.getModel(),
+                actionRequest == null ? null : actionRequest.actionRequestId());
     }
 
-    public AgentSession advance(String sessionId, String token) {
-        AgentSession session = get(sessionId, token);
+    private ActionRequestView createProposedAction(String providerContent,
+                                                   EffectiveSubject subject,
+                                                   String sessionId) {
+        if (actionRequestService == null || !StringUtils.hasText(providerContent)) {
+            return null;
+        }
+        String content = providerContent.trim();
+        if (!content.startsWith("{") || !content.endsWith("}")
+                || !content.contains("\"schemaVersion\"") || !content.contains("\"action\"")) {
+            return null;
+        }
+        return actionRequestService.create(
+                subject, content, "CHAT", sessionId, "chat-" + UUID.randomUUID());
+    }
+
+    public AgentSession advance(String sessionId, EffectiveSubject subject) {
+        AgentSession session = get(sessionId, subject);
         assertActive(session);
         int index = orderedCapabilities.indexOf(session.getCurrentCapability());
         if (index < 0) {
@@ -223,10 +323,11 @@ public class AgentSessionService {
                 .orElseThrow(() -> new IllegalArgumentException("Agent session not found: " + sessionId));
     }
 
-    private void assertToken(AgentSession session, String token) {
-        String normalized = normalized(token);
-        if (StringUtils.hasText(session.getToken()) && !Objects.equals(session.getToken(), normalized)) {
-            throw new IllegalArgumentException("Token does not match the agent session.");
+    private void assertOwner(AgentSession session, EffectiveSubject subject) {
+        if (!Objects.equals(session.getOwnerUserId(), subject.userId())
+                || !Objects.equals(session.getAppId(), subject.appId())
+                || !Objects.equals(session.getDatabaseId(), subject.databaseId())) {
+            throw new IllegalArgumentException("AGENT_SESSION_OUT_OF_SCOPE");
         }
     }
 
@@ -234,10 +335,6 @@ public class AgentSessionService {
         if (session.getStatus() != AgentSessionStatus.ACTIVE) {
             throw new IllegalStateException("Agent session is already completed.");
         }
-    }
-
-    private String normalized(String token) {
-        return StringUtils.hasText(token) ? token.trim() : "";
     }
 
     private String requiredContent(String content) {
@@ -255,17 +352,126 @@ public class AgentSessionService {
         return Instant.now(clock);
     }
 
-    private AgentDraft draftFor(AgentCapabilityType capability, String content, Map<String, Object> context) {
+    private AuthorizationDecision authorizeForDraft(EffectiveSubject subject,
+                                                    AgentCapabilityType capability,
+                                                    Map<String, Object> context,
+                                                    String sessionId) {
+        AuthorizationDecision agentDecision = authorize(
+                subject,
+                "agent.use",
+                "AgentCapability",
+                "agent:capability:" + capability.getId(),
+                sessionId);
+        Object rawId;
+        String action;
+        String resourceType;
+        String resourceKey;
+        switch (capability) {
+            case REPORT_QUERY -> {
+                rawId = firstPresent(context, "viewId", "ViewId", "viewid");
+                action = "report.preview";
+                resourceType = "View";
+                resourceKey = viewResource(subject, rawId);
+            }
+            case FORM_VIEW -> {
+                rawId = firstPresent(context, "viewId", "ViewId", "viewid");
+                action = "view.read";
+                resourceType = "View";
+                resourceKey = viewResource(subject, rawId);
+            }
+            case MODEL -> {
+                rawId = firstPresent(context, "modelId", "ModelId", "modelid");
+                action = "model.read";
+                resourceType = "Model";
+                resourceKey = modelResource(subject, rawId);
+            }
+            default -> {
+                return agentDecision;
+            }
+        }
+        return resourceKey == null
+                ? agentDecision
+                : authorize(subject, action, resourceType, resourceKey, sessionId);
+    }
+
+    private AuthorizationDecision authorize(EffectiveSubject subject,
+                                            String action,
+                                            String resourceType,
+                                            String resourceKey,
+                                            String sessionId) {
+        AuthorizationDecision decision = authorizationService.decide(
+                new AuthorizationRequest(subject, action, resourceType, resourceKey));
+        securityAuditService.record(new SecurityAuditEvent(
+                UUID.randomUUID().toString(),
+                UUID.randomUUID().toString(),
+                subject.userId(),
+                "AGENT",
+                sessionId,
+                null,
+                action,
+                resourceKey,
+                decision.allowed() ? "ALLOW" : "DENY",
+                decision.reasonCode(),
+                RiskLevel.LOW,
+                decision.policyVersion(),
+                null,
+                null,
+                now()));
+        if (!decision.allowed()) {
+            throw new AuthorizationDeniedException(decision.reasonCode());
+        }
+        return decision;
+    }
+
+    private boolean can(EffectiveSubject subject,
+                        String action,
+                        String resourceType,
+                        String resourceKey,
+                        String sessionId) {
+        try {
+            AuthorizationDecision decision = authorizationService.decide(
+                    new AuthorizationRequest(subject, action, resourceType, resourceKey));
+            securityAuditService.record(new SecurityAuditEvent(
+                    UUID.randomUUID().toString(), UUID.randomUUID().toString(), subject.userId(),
+                    "AGENT", sessionId, null, action, resourceKey,
+                    decision.allowed() ? "ALLOW" : "DENY", decision.reasonCode(), RiskLevel.LOW,
+                    decision.policyVersion(), null, null, now()));
+            return decision.allowed();
+        } catch (RuntimeException ex) {
+            return false;
+        }
+    }
+
+    private String viewResource(EffectiveSubject subject, Object rawId) {
+        Long id = numericViewId(rawId);
+        return id == null ? null : scopePrefix(subject) + ":view:" + id;
+    }
+
+    private String modelResource(EffectiveSubject subject, Object rawId) {
+        Long id = numericViewId(rawId);
+        return id == null ? null : scopePrefix(subject) + ":model:" + id;
+    }
+
+    private String scopePrefix(EffectiveSubject subject) {
+        return "app:" + subject.appId() + ":db:" + subject.databaseId();
+    }
+
+    private AgentDraft draftFor(AgentCapabilityType capability,
+                                String content,
+                                Map<String, Object> context,
+                                DataPolicy policy,
+                                EffectiveSubject subject,
+                                String sessionId) {
         return switch (capability) {
-            case REPORT_QUERY -> reportQueryDraft(content, context);
-            case FORM_VIEW -> formViewDraft(content, context);
+            case REPORT_QUERY -> reportQueryDraft(content, context, policy);
+            case FORM_VIEW -> formViewDraft(content, context, policy, subject, sessionId);
             case MODEL -> modelDraft(content, context);
             case DATA_SOURCE -> dataSourceDraft(content, context);
             case EVENT_AUTOMATION -> eventAutomationDraft(content, context);
         };
     }
 
-    private AgentDraft reportQueryDraft(String content, Map<String, Object> context) {
+    private AgentDraft reportQueryDraft(String content, Map<String, Object> context, DataPolicy policy) {
         Object viewId = firstPresent(context, "viewId", "ViewId", "viewid");
         Long numericViewId = numericViewId(viewId);
         ReportQueryMetadataSnapshot metadata = metadataFor(viewId, numericViewId);
@@ -274,7 +480,7 @@ public class AgentSessionService {
         request.put("CurrentPage", 1);
         request.put("PageSize", 10);
         request.put("FilterExp", null);
-        request.put("ReportCols", reportCols(metadata));
+        request.put("ReportCols", reportCols(metadata, policy));
 
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("reportModelEndpoint", "/api/v1/report/getmkqview");
@@ -287,8 +493,10 @@ public class AgentSessionService {
         }
         payload.put("view", viewPayload(metadata));
         payload.put("model", modelPayload(metadata));
-        payload.put("candidateColumns", candidateColumns(metadata));
+        payload.put("candidateColumns", candidateColumns(metadata, policy));
         payload.put("draftRequest", request);
+        payload.put("previewGate", reportPreviewGate(metadata, request, policy));
+        payload.put("runtimeReadPreview", runtimeReadPreview(numericViewId));
         payload.put("sourceRequest", content);
 
         return new AgentDraft(
@@ -306,13 +514,17 @@ public class AgentSessionService {
                         "Record the request/response pair as agent evidence."));
     }
 
-    private AgentDraft formViewDraft(String content, Map<String, Object> context) {
+    private AgentDraft formViewDraft(String content,
+                                     Map<String, Object> context,
+                                     DataPolicy policy,
+                                     EffectiveSubject subject,
+                                     String sessionId) {
         Object viewId = firstPresent(context, "viewId", "ViewId", "viewid");
         Long numericViewId = numericViewId(viewId);
         ReportQueryMetadataSnapshot metadata = metadataFor(viewId, numericViewId);
-        List<Map<String, Object>> fields = formFields(metadata);
-        List<Map<String, Object>> childCollections = childCollections(metadata);
-        List<Map<String, Object>> operations = operations(metadata);
+        List<Map<String, Object>> fields = formFields(metadata, policy);
+        List<Map<String, Object>> childCollections = childCollections(metadata, policy);
+        List<Map<String, Object>> operations = operations(metadata, subject, sessionId);
 
         Map<String, Object> draftView = new LinkedHashMap<>();
         draftView.put("ViewId", metadata.isHydrated() ? metadata.getViewId() : viewId);
@@ -343,6 +555,7 @@ public class AgentSessionService {
         payload.put("childCollections", childCollections);
         payload.put("operations", operations);
         payload.put("draftView", draftView);
+        payload.put("previewGate", formPreviewGate(metadata, fields, operations));
         payload.put("dryRun", "render View metadata without writing business rows or executing operations");
         payload.put("sourceRequest", content);
 
@@ -366,6 +579,9 @@ public class AgentSessionService {
         Long numericModelId = numericViewId(modelId);
         String modelName = textValue(firstPresent(context, "modelName", "ModelName", "model", "Model", "name", "Name"));
         AgentModelMetadataSnapshot metadata = modelMetadataFor(modelId, numericModelId, modelName, context);
+        TableSchemaSnapshot tableSchema = metadata.isHydrated()
+                ? tableSchemaProvider.load(metadata.getTableName())
+                : TableSchemaSnapshot.unavailable("Model metadata is not hydrated.");
         List<Map<String, Object>> properties = modelProperties(metadata);
         List<Map<String, Object>> relations = modelRelations(metadata);
         List<Map<String, Object>> operations = modelOperations(metadata);
@@ -390,7 +606,7 @@ public class AgentSessionService {
         payload.put("relations", relations);
         payload.put("operations", operations);
         payload.put("draftModel", draftModel);
-        payload.put("ddlDryRunPlan", ddlDryRunPlan(metadata));
+        payload.put("ddlDryRunPlan", ddlDryRunPlan(metadata, tableSchema));
         payload.put("sourceRequest", content);
 
         return new AgentDraft(
@@ -614,8 +830,9 @@ public class AgentSessionService {
         return model;
     }
 
-    private List<Map<String, Object>> candidateColumns(ReportQueryMetadataSnapshot metadata) {
+    private List<Map<String, Object>> candidateColumns(ReportQueryMetadataSnapshot metadata, DataPolicy policy) {
         return metadata.getColumns().stream()
+                .filter(column -> columnReadable(policy, column))
                 .map(column -> {
                     Map<String, Object> item = new LinkedHashMap<>();
                     item.put("ViewItemId", column.getViewItemId());
@@ -643,8 +860,10 @@ public class AgentSessionService {
                 .toList();
     }
 
-    private List<Map<String, Object>> formFields(ReportQueryMetadataSnapshot metadata) {
+    private List<Map<String, Object>> formFields(ReportQueryMetadataSnapshot metadata, DataPolicy policy) {
         return metadata.getColumns().stream()
+                .filter(column -> !column.isChildCollection())
+                .filter(column -> columnReadable(policy, column))
                 .map(column -> {
                     Map<String, Object> field = new LinkedHashMap<>();
                     field.put("ViewItemId", column.getViewItemId());
@@ -674,9 +893,10 @@ public class AgentSessionService {
                 .toList();
     }
 
-    private List<Map<String, Object>> childCollections(ReportQueryMetadataSnapshot metadata) {
+    private List<Map<String, Object>> childCollections(ReportQueryMetadataSnapshot metadata, DataPolicy policy) {
         return metadata.getColumns().stream()
                 .filter(ReportQueryMetadataColumn::isChildCollection)
+                .filter(column -> columnReadable(policy, column))
                 .map(column -> {
                     Map<String, Object> child = new LinkedHashMap<>();
                     child.put("ViewItemId", column.getViewItemId());
@@ -692,8 +912,17 @@ public class AgentSessionService {
                 .toList();
     }
 
-    private List<Map<String, Object>> operations(ReportQueryMetadataSnapshot metadata) {
+    private List<Map<String, Object>> operations(ReportQueryMetadataSnapshot metadata,
+                                                  EffectiveSubject subject,
+                                                  String sessionId) {
         return metadata.getOperations().stream()
+                .filter(operation -> operation.getOperationId() != null)
+                .filter(operation -> can(
+                        subject,
+                        "operation.execute",
+                        "Operation",
+                        scopePrefix(subject) + ":operation:" + operation.getOperationId(),
+                        sessionId))
                 .map(operation -> {
                     Map<String, Object> item = new LinkedHashMap<>();
                     item.put("ViewOperationId", operation.getViewOperationId());
@@ -713,11 +942,12 @@ public class AgentSessionService {
                 .toList();
     }
 
-    private List<Map<String, Object>> reportCols(ReportQueryMetadataSnapshot metadata) {
+    private List<Map<String, Object>> reportCols(ReportQueryMetadataSnapshot metadata, DataPolicy policy) {
         if (!metadata.isHydrated()) {
             return List.of();
         }
         return metadata.reportableColumns().stream()
+                .filter(column -> columnReadable(policy, column))
                 .map(column -> {
                     Map<String, Object> reportCol = new LinkedHashMap<>();
                     reportCol.put("ColName", column.displayName());
@@ -798,14 +1028,134 @@ public class AgentSessionService {
                 .toList();
     }
 
-    private Map<String, Object> ddlDryRunPlan(AgentModelMetadataSnapshot metadata) {
+    private Map<String, Object> ddlDryRunPlan(AgentModelMetadataSnapshot metadata, TableSchemaSnapshot schema) {
         Map<String, Object> plan = new LinkedHashMap<>();
         plan.put("Mode", "read-only-ddl-diff");
         plan.put("TableName", metadata.getTableName());
         plan.put("IdPropertyId", metadata.getIdPropertyId());
         plan.put("ColumnChecks", ddlColumnChecks(metadata));
+        plan.put("PreviewGate", ddlPreviewGate(metadata, schema));
         plan.put("RequiredGate", "Generate and review DDL diff before metadata/table writes.");
         return plan;
+    }
+
+    private Map<String, Object> reportPreviewGate(ReportQueryMetadataSnapshot metadata,
+                                                  Map<String, Object> request,
+                                                  DataPolicy policy) {
+        Set<String> allowed = metadata.reportableColumns().stream()
+                .filter(column -> columnReadable(policy, column))
+                .map(ReportQueryMetadataColumn::reportColumnId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        @SuppressWarnings("unchecked")
+        Set<String> drafted = ((List<Map<String, Object>>) request.get("ReportCols")).stream()
+                .map(column -> String.valueOf(column.get("ColId")))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        return previewGate(
+                "report-model-match",
+                metadata.isHydrated() && allowed.equals(drafted),
+                "Compare with /api/v1/report/getmkqview",
+                allowed,
+                drafted,
+                metadata.getReason());
+    }
+
+    private Map<String, Object> formPreviewGate(ReportQueryMetadataSnapshot metadata,
+                                                List<Map<String, Object>> fields,
+                                                List<Map<String, Object>> operations) {
+        Set<String> expected = new LinkedHashSet<>();
+        fields.forEach(field -> expected.add("field:" + field.get("ViewItemId")));
+        operations.forEach(operation -> expected.add("operation:" + operation.get("OperationId")));
+        Set<String> drafted = new LinkedHashSet<>();
+        fields.forEach(field -> drafted.add("field:" + field.get("ViewItemId")));
+        operations.forEach(operation -> drafted.add("operation:" + operation.get("OperationId")));
+        return previewGate(
+                "form-view-model-match",
+                metadata.isHydrated() && expected.equals(drafted),
+                "Compare with /api/v1/view/getlistview",
+                expected,
+                drafted,
+                metadata.getReason());
+    }
+
+    private Map<String, Object> ddlPreviewGate(AgentModelMetadataSnapshot metadata,
+                                               TableSchemaSnapshot schema) {
+        Set<String> expected = metadata.getProperties().stream()
+                .map(AgentModelPropertyMetadata::getDbColumn)
+                .filter(StringUtils::hasText)
+                .map(String::toLowerCase)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<String> actual = schema.columns().stream()
+                .map(String::toLowerCase)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<String> missing = new LinkedHashSet<>(expected);
+        missing.removeAll(actual);
+        Map<String, Object> gate = previewGate(
+                "model-table-schema-match",
+                metadata.isHydrated() && schema.isHydrated() && missing.isEmpty(),
+                "Compare with information_schema.COLUMNS",
+                expected,
+                actual,
+                schema.reason());
+        gate.put("MissingColumns", missing);
+        return gate;
+    }
+
+    private Map<String, Object> previewGate(String gate,
+                                            boolean passed,
+                                            String source,
+                                            Object expected,
+                                            Object actual,
+                                            String reason) {
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("Gate", gate);
+        result.put("Status", passed ? "PASSED" : "BLOCKED");
+        result.put("Source", source);
+        result.put("ExpectedHash", evidenceHash(expected));
+        result.put("ActualHash", evidenceHash(actual));
+        if (!passed && StringUtils.hasText(reason)) {
+            result.put("Reason", reason);
+        }
+        return result;
+    }
+
+    private String evidenceHash(Object value) {
+        try {
+            byte[] digest = MessageDigest.getInstance("SHA-256")
+                    .digest(String.valueOf(value).getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(digest);
+        } catch (Exception ex) {
+            throw new IllegalStateException("Unable to hash preview gate evidence.", ex);
+        }
+    }
+
+    private boolean columnReadable(DataPolicy policy, ReportQueryMetadataColumn column) {
+        return java.util.stream.Stream.of(
+                        column.getPropertyName(),
+                        column.getModelProperty(),
+                        column.getDbColumn(),
+                        column.getPropertyId() == null ? null : column.getPropertyId().toString(),
+                        column.getViewItemId() == null ? null : column.getViewItemId().toString())
+                .filter(StringUtils::hasText)
+                .anyMatch(policy::readable);
+    }
+
+    private Map<String, Object> runtimeReadPreview(Long viewId) {
+        Map<String, Object> result = new LinkedHashMap<>();
+        if (viewId == null || readPreviewProvider == null) {
+            result.put("Status", "UNAVAILABLE");
+            result.put("Reason", "Authorized runtime preview provider is unavailable.");
+            return result;
+        }
+        AgentReadPreviewProvider.ReadPreview preview = readPreviewProvider.preview(viewId.toString(), 10);
+        result.put("Status", preview.passed() ? "PASSED" : "BLOCKED");
+        result.put("TotalRecords", preview.totalRecords());
+        result.put("Columns", preview.columns());
+        result.put("Rows", preview.rows());
+        if (StringUtils.hasText(preview.reason())) {
+            result.put("Reason", preview.reason());
+        }
+        return result;
     }
 
     private List<Map<String, Object>> ddlColumnChecks(AgentModelMetadataSnapshot metadata) {

@@ -6,6 +6,7 @@ import org.fool.framework.dao.DaoService;
 import org.fool.framework.dao.PageNavigator;
 import org.fool.framework.dao.PageResult;
 import org.fool.framework.model.model.Model;
+import org.fool.framework.model.model.Property;
 import org.fool.framework.model.service.ModelDataService;
 import org.fool.framework.query.IQueryFilter;
 import org.fool.framework.view.adapter.ViewDataAdapter;
@@ -34,6 +35,7 @@ public class DataQueryServiceDetailTest {
         ViewDataService viewDataService = mock(ViewDataService.class);
         ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewDataService", viewDataService);
@@ -41,48 +43,48 @@ public class DataQueryServiceDetailTest {
 
         View view = new View();
         view.setViewModel("Order");
-        Model model = new Model();
+        Model model = model();
         IDynamicData data = mock(IDynamicData.class);
         QueryDataDetailResult expected = new QueryDataDetailResult();
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
-        when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
+        stubDetailQuery(modelDataService, data);
         when(viewAdapter.getDetailViewResult(view, data)).thenReturn(expected);
 
         QueryDataDetailResult actual = service.queryLegacyViewDataDetail("100", "1001");
 
         assertSame(expected, actual);
         InOrder inOrder = inOrder(viewDataService, modelDataService);
-        inOrder.verify(viewDataService).getViewData("100", null);
+        inOrder.verify(viewDataService).getViewData("100");
         inOrder.verify(modelDataService).getModel("Order");
-        inOrder.verify(modelDataService).getOneData("Order", "1001");
         verify(viewAdapter).getDetailViewResult(view, data);
     }
 
     @Test
-    public void queryLegacyViewDataDetailPassesTokenToViewLookup() {
+    public void queryLegacyViewDataDetailUsesServerOwnedContext() {
         ModelDataService modelDataService = mock(ModelDataService.class);
         ViewDataService viewDataService = mock(ViewDataService.class);
         ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewDataService", viewDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", viewAdapter);
 
         View view = new View();
         view.setViewModel("Order");
-        Model model = new Model();
+        Model model = model();
         IDynamicData data = mock(IDynamicData.class);
         QueryDataDetailResult expected = new QueryDataDetailResult();
-        when(viewDataService.getViewData("100", "token-1")).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
-        when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
+        stubDetailQuery(modelDataService, data);
         when(viewAdapter.getDetailViewResult(view, data)).thenReturn(expected);
 
-        QueryDataDetailResult actual = service.queryLegacyViewDataDetail("100", "1001", null, "token-1");
+        QueryDataDetailResult actual = service.queryLegacyViewDataDetail("100", "1001", null);
 
         assertSame(expected, actual);
-        verify(viewDataService).getViewData("100", "token-1");
+        verify(viewDataService).getViewData("100");
     }
 
     @Test
@@ -92,6 +94,7 @@ public class DataQueryServiceDetailTest {
         ViewDataService viewDataService = mock(ViewDataService.class);
         ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewDataService", viewDataService);
@@ -99,18 +102,17 @@ public class DataQueryServiceDetailTest {
 
         View view = new View();
         view.setViewModel("Order");
-        Model model = new Model();
+        Model model = model();
         IDynamicData data = mock(IDynamicData.class);
         QueryDataDetailResult expected = new QueryDataDetailResult();
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
-        when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
+        stubDetailQuery(modelDataService, data);
         when(viewAdapter.getDetailViewResult(view, data)).thenReturn(expected);
 
         QueryDataDetailResult actual = service.queryLegacyViewDataDetail("100", " ", "$1001");
 
         assertSame(expected, actual);
-        verify(modelDataService).getOneData("Order", "1001");
         verify(viewAdapter).getDetailViewResult(view, data);
     }
 
@@ -120,33 +122,34 @@ public class DataQueryServiceDetailTest {
         ViewDataService viewDataService = mock(ViewDataService.class);
         ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewDataService", viewDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", viewAdapter);
 
         View view = new View();
         view.setViewModel("Order");
-        Model model = new Model();
+        Model model = model();
         IDynamicData data = mock(IDynamicData.class);
         QueryDataDetailResult expected = new QueryDataDetailResult();
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
-        when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
+        stubDetailQuery(modelDataService, data);
         when(viewAdapter.getDetailViewResult(view, data)).thenReturn(expected);
 
         QueryDataDetailResult actual = service.queryLegacyViewDataDetail("100", "", "$1000+$1");
 
         assertSame(expected, actual);
-        verify(modelDataService).getOneData("Order", "1001");
     }
 
     @Test
-    public void queryLegacyViewDataDetailResolvesContextIdExpressionFromToken() {
+    public void queryLegacyViewDataDetailResolvesContextFromEffectiveSubject() {
         ModelDataService modelDataService = mock(ModelDataService.class);
         ViewDataService viewDataService = mock(ViewDataService.class);
         ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
         LegacyContextValueService contextValueService = mock(LegacyContextValueService.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewDataService", viewDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", viewAdapter);
@@ -154,19 +157,19 @@ public class DataQueryServiceDetailTest {
 
         View view = new View();
         view.setViewModel("Order");
-        Model model = new Model();
+        Model model = model();
         IDynamicData data = mock(IDynamicData.class);
         QueryDataDetailResult expected = new QueryDataDetailResult();
-        when(viewDataService.getViewData("100", "token-1")).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
-        when(contextValueService.getValue("token-1", "userid")).thenReturn("admin");
-        when(modelDataService.getOneData("Order", "admin")).thenReturn(data);
+        when(contextValueService.getValue(null, "userid")).thenReturn("admin");
+        stubDetailQuery(modelDataService, data);
         when(viewAdapter.getDetailViewResult(view, data)).thenReturn(expected);
 
-        QueryDataDetailResult actual = service.queryLegacyViewDataDetail("100", "", "@userid", "token-1");
+        QueryDataDetailResult actual = service.queryLegacyViewDataDetail("100", "", "@userid");
 
         assertSame(expected, actual);
-        verify(modelDataService).getOneData("Order", "admin");
+        verify(contextValueService).getValue(null, "userid");
     }
 
     @Test
@@ -176,6 +179,7 @@ public class DataQueryServiceDetailTest {
         ViewDataService viewDataService = mock(ViewDataService.class);
         ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewDataService", viewDataService);
@@ -183,26 +187,25 @@ public class DataQueryServiceDetailTest {
 
         View view = new View();
         view.setViewModel("Order");
-        Model model = new Model();
-        model.setProperties(List.of());
+        Model model = model();
         IDynamicData first = mock(IDynamicData.class);
         IDynamicData data = mock(IDynamicData.class);
         PageResult<IDynamicData> page = new PageResult<>();
         page.setItems(List.of(first));
         QueryDataDetailResult expected = new QueryDataDetailResult();
         when(first.get("SYSID")).thenReturn("1001");
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
+        PageResult<IDynamicData> authorized = new PageResult<>();
+        authorized.setItems(List.of(data));
         when(modelDataService.getDataListWithPageInfo(
-                eq("Order"), any(IQueryFilter.class), eq(model.getProperties()), any(PageNavigator.class)))
-                .thenReturn(page);
-        when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
+                eq("Order"), any(IQueryFilter.class), any(), any(PageNavigator.class)))
+                .thenReturn(page, authorized);
         when(viewAdapter.getDetailViewResult(view, data)).thenReturn(expected);
 
         QueryDataDetailResult actual = service.queryLegacyViewDataDetail("100", "", "");
 
         assertSame(expected, actual);
-        verify(modelDataService).getOneData("Order", "1001");
         verify(viewAdapter).getDetailViewResult(view, data);
     }
 
@@ -213,6 +216,7 @@ public class DataQueryServiceDetailTest {
         ViewDataService viewDataService = mock(ViewDataService.class);
         ViewDataAdapter viewAdapter = mock(ViewDataAdapter.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewDataService", viewDataService);
@@ -224,7 +228,7 @@ public class DataQueryServiceDetailTest {
         QueryDataDetailResult expected = new QueryDataDetailResult();
         QueryDataDetailResult.DataDetail detail = new QueryDataDetailResult.DataDetail();
         expected.setData(detail);
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
         when(viewAdapter.getDetailViewResult(view, null)).thenReturn(expected);
 
@@ -232,7 +236,25 @@ public class DataQueryServiceDetailTest {
 
         assertSame(expected, actual);
         assertEquals("5001", actual.getData().getParentId());
-        verify(viewDataService).getViewData("100", null);
+        verify(viewDataService).getViewData("100");
         verify(viewAdapter).getDetailViewResult(view, null);
+    }
+
+    private static Model model() {
+        Property id = new Property();
+        id.setName("orderId");
+        id.setColumn("ORDER_ID");
+        Model model = new Model();
+        model.setProperties(List.of(id));
+        model.setIdProperty(id);
+        return model;
+    }
+
+    private static void stubDetailQuery(ModelDataService service, IDynamicData data) {
+        PageResult<IDynamicData> page = new PageResult<>();
+        page.setItems(List.of(data));
+        when(service.getDataListWithPageInfo(
+                eq("Order"), any(IQueryFilter.class), any(), any(PageNavigator.class)))
+                .thenReturn(page);
     }
 }

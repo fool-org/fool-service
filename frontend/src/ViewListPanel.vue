@@ -32,6 +32,8 @@ import {
 } from "./viewWorkflow";
 
 const props = defineProps<{
+  canCreate: boolean;
+  canPreviewReport: boolean;
   data?: ListViewResult;
   errorMessage?: string;
   navigationRevision: number;
@@ -101,9 +103,9 @@ watch(tableVisible, (visible) => emit("tableVisibility", visible), { immediate: 
       <InputText v-model="keyword" class="list-query-input" type="text" placeholder="输入条件" aria-label="查询条件" @keyup.enter="emit('search')" />
       <Button type="button" label="查找" severity="secondary" outlined @click="emit('search')" />
       <template v-if="listView">
-        <Button type="button" label="统计" severity="secondary" outlined :disabled="!currentViewId" @click="emit('toggleReport')" />
+        <Button v-if="canPreviewReport" type="button" label="统计" severity="secondary" outlined :disabled="!currentViewId" @click="emit('toggleReport')" />
         <Button
-          v-for="operation in createItems"
+          v-for="operation in canCreate ? createItems : []"
           :key="operationKey(operation)"
           class="legacy-create-operation"
           type="button"

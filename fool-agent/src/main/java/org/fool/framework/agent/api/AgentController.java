@@ -1,12 +1,12 @@
 package org.fool.framework.agent.api;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import org.fool.framework.agent.service.AgentCapability;
 import org.fool.framework.agent.service.AgentCapabilityType;
 import org.fool.framework.agent.service.AgentChatProviderService;
 import org.fool.framework.agent.service.AgentSession;
 import org.fool.framework.agent.service.AgentSessionService;
 import org.fool.framework.agent.service.AgentTurnResult;
+import org.fool.framework.common.authz.EffectiveSubjectContext;
 import org.fool.framework.dto.CommonResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,13 +45,13 @@ public class AgentController {
     @PostMapping("/sessions")
     @ResponseBody
     public CommonResponse<AgentSession> start(@RequestBody StartSessionRequest request) {
-        return new CommonResponse<>(sessionService.start(request.getToken(), request.getTitle()));
+        return new CommonResponse<>(sessionService.start(EffectiveSubjectContext.require(), request.getTitle()));
     }
 
     @PostMapping("/sessions/{sessionId}")
     @ResponseBody
     public CommonResponse<AgentSession> get(@PathVariable String sessionId, @RequestBody SessionRequest request) {
-        return new CommonResponse<>(sessionService.get(sessionId, request.getToken()));
+        return new CommonResponse<>(sessionService.get(sessionId, EffectiveSubjectContext.require()));
     }
 
     @PostMapping("/sessions/{sessionId}/messages")
@@ -59,7 +59,7 @@ public class AgentController {
     public CommonResponse<AgentTurnResult> message(@PathVariable String sessionId, @RequestBody MessageRequest request) {
         return new CommonResponse<>(sessionService.recordUserMessage(
                 sessionId,
-                request.getToken(),
+                EffectiveSubjectContext.require(),
                 request.getCapability(),
                 request.getContent(),
                 request.getContext(),
@@ -69,20 +69,10 @@ public class AgentController {
     @PostMapping("/sessions/{sessionId}/advance")
     @ResponseBody
     public CommonResponse<AgentSession> advance(@PathVariable String sessionId, @RequestBody SessionRequest request) {
-        return new CommonResponse<>(sessionService.advance(sessionId, request.getToken()));
+        return new CommonResponse<>(sessionService.advance(sessionId, EffectiveSubjectContext.require()));
     }
 
     public static class SessionRequest {
-        @JsonAlias("Token")
-        private String token;
-
-        public String getToken() {
-            return token;
-        }
-
-        public void setToken(String token) {
-            this.token = token;
-        }
     }
 
     public static class StartSessionRequest extends SessionRequest {

@@ -28,19 +28,19 @@ public class ViewControllerLegacyGetReadItemViewTest {
         ViewAdapter viewAdapter = mock(ViewAdapter.class);
         View view = new View();
         ReadItemViewInfo expected = new ReadItemViewInfo();
-        when(viewDataService.getViewData("200", "token-2")).thenReturn(view);
+        when(viewDataService.getViewData("200")).thenReturn(view);
         when(viewAdapter.getReadItemView(eq(view), any())).thenReturn(expected);
 
         ViewController controller = new ViewController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "viewDataService", viewDataService);
         setField(controller, "viewAdapter", viewAdapter);
         ViewDataRequest request = new ViewDataRequest();
-        request.setToken("token-2");
         request.setViewId(200L);
 
         CommonResponse<ReadItemViewInfo> response = controller.getReadItemView(request);
 
-        verify(viewDataService).getViewData("200", "token-2");
+        verify(viewDataService).getViewData("200");
         verify(viewAdapter).getReadItemView(eq(view), any());
         assertEquals(0, response.getCode());
         assertSame(expected, response.getData());
@@ -49,6 +49,7 @@ public class ViewControllerLegacyGetReadItemViewTest {
     @Test
     public void getReadItemViewRejectsViewNameOnlyRequest() throws Exception {
         ViewController controller = new ViewController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "viewDataService", mock(ViewDataService.class));
         setField(controller, "viewAdapter", mock(ViewAdapter.class));
         ViewDataRequest request = new ObjectMapper().readValue(

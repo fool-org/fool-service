@@ -23,6 +23,7 @@ import org.fool.framework.view.dto.QueryDataDetailResult;
 import org.fool.framework.view.dto.QueryDataRequest;
 import org.fool.framework.view.dto.SaveObjRequest;
 import org.fool.framework.view.service.DataQueryService;
+import org.fool.framework.view.service.ReadAuthorizationEnforcer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,6 +42,8 @@ public class DataController {
 
     @Autowired
     private ModelDataService modelDataService;
+    @Autowired
+    private ReadAuthorizationEnforcer authorizationEnforcer;
 
     @PostMapping("/query-list")
     @ResponseBody
@@ -73,19 +76,21 @@ public class DataController {
         String viewId = request.getViewId() == null ? null : request.getViewId().toString();
         String objId = request.getObjId() == null ? null : request.getObjId().toString();
         return new CommonResponse<>(dataQueryService.queryLegacyViewDataDetail(
-                viewId, objId, request.getIdExp(), request.getToken()));
+                viewId, objId, request.getIdExp()));
     }
 
     @PostMapping("/initnew")
     @ResponseBody
     public CommonResponse<QueryDataDetailResult> initNew(@RequestBody LegacyInitNewRequest request) {
         String viewId = request.getViewId() == null ? null : request.getViewId().toString();
+        authorizationEnforcer.requireView("data.create", viewId);
         return new CommonResponse<>(dataQueryService.initLegacyNewObject(viewId, request.getParentObjId()));
     }
 
     @PostMapping({"/getenums", "/getenum"})
     @ResponseBody
     public CommonResponse<GetEnumResult> getEnums(@RequestBody GetEnumRequest request) {
+        authorizationEnforcer.requireModel("model.read", String.valueOf(request.getModelId()));
         GetEnumResult result = new GetEnumResult();
         Model model = modelDataService.getModel(request.getModelId());
         if (model != null && model.getEnumValues() != null) {

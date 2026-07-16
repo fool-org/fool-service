@@ -50,6 +50,7 @@ public class DataControllerEnumTest {
         when(modelDataService.getModel("state")).thenReturn(model);
 
         DataController controller = new DataController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "modelDataService", modelDataService);
         GetEnumRequest request = new GetEnumRequest();
         request.setModelId("state");

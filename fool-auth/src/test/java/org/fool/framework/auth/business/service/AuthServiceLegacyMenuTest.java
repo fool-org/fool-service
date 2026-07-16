@@ -6,11 +6,13 @@ import org.fool.framework.app.ApplicationDefinition;
 import org.fool.framework.app.StoreDatabase;
 import org.fool.framework.dao.DaoService;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.lang.reflect.Field;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -55,6 +57,10 @@ public class AuthServiceLegacyMenuTest {
         assertEquals("OrderList", items.get(0).getText());
         assertEquals(100L, items.get(0).getViewId());
         assertEquals(7, items.get(0).getIndex());
+        ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
+        verify(daoService).selectList(eq(MenuItem.class), sql.capture(), eq("admin"));
+        assertTrue(sql.getValue().contains("SW_APP_AUTH_ROLE_SW_APP_AUTH_USER"));
+        assertTrue(sql.getValue().contains("SW_APP_AUTH_DEPARTMENT_SW_APP_AUTH_ROLE"));
     }
 
     @Test

@@ -5,12 +5,12 @@ import Drawer from "primevue/drawer";
 import {
   type CheckCodeResult,
   type CommonResponse,
+  type EffectiveActionsResult,
   type GetMessageResult,
   type LegacyAuthItem,
   type LegacyInitAppResult,
   type LegacyLoginResult,
   type LegacyMainResult,
-  type LegacyRunOperationResult,
   type LegacySubMenuResult,
   type QueryDataDetailResult,
   type QueryDataDetailDataItem,
@@ -22,9 +22,11 @@ import {
   type MessageInfo,
   type OperationInfo,
   type SaveItemProperty,
+  getApi,
   isTransportError,
   postApi
 } from "./api";
+import { executeMediumAction, prepareHighAction, withoutBodyToken } from "./actionWorkflow";
 import LoginPanel from "./LoginPanel.vue";
 import LegacyMenuNav from "./LegacyMenuNav.vue";
 import { useChildCandidates } from "./useChildCandidates";
@@ -77,8 +79,6 @@ import {
   legacyMessageResultKey,
   legacyMessageResultView,
   legacyMessages,
-  legacyRunOperationMessage,
-  legacyRunOperationSuccess,
   legacySubMenuItems,
   legacyUserAvatar,
   legacyUserName,
@@ -114,6 +114,7 @@ import {
 } from "./payload";
 
 const ShellActions = defineAsyncComponent(() => import("./ShellActions.vue"));
+const ActionCenterPage = defineAsyncComponent(() => import("./ActionCenterPage.vue"));
 const AgentChatPage = defineAsyncComponent(() => import("./AgentChatPage.vue"));
 const ViewDetailPanel = defineAsyncComponent(() => import("./ViewDetailPanel.vue"));
 const ViewListPanel = defineAsyncComponent(() => import("./ViewListPanel.vue"));
@@ -143,6 +144,9 @@ const showUnconfiguredHome = ref(false);
 const unconfiguredHomeMessage = ref("");
 const showViewReport = ref(false);
 const showAgentChat = ref(false);
+const showActionCenter = ref(false);
+const shellEffectiveActions = ref<string[]>([]);
+const viewEffectiveActions = ref<string[]>([]);
 const selectedObjectId = ref("");
 const isCreatingObject = ref(false);
 const detailDrafts = ref<Record<string, string>>({});
@@ -172,7 +176,7 @@ const activeShellMessage = ref<MessageInfo | null>(null);
 const errorMessage = ref("");
 const loginErrorCode = ref("");
 const infoMessage = ref("");
-const operationResult = ref<{ message: string; success: boolean } | null>(null);
+const operationResult = ref<{ message: string; status: "AWAITING_APPROVAL" } | null>(null);
 const pendingAction = ref("");
 const saveDialogVisible = ref(false);
 const navigateAfterSave = ref(false);
@@ -198,7 +202,6 @@ const {
   loadViewDataById,
   queryCurrentViewData: queryCurrentViewDataBase
 } = useViewDataWorkflow({
-  token,
   listViewId: legacyListViewId,
   readItemViewId,
   pageIndex,
@@ -207,7 +210,7 @@ const {
   detailViewId,
   runAction
 });
-const { enumOptions, loadFieldEnums: loadFieldEnumsFor } = useFieldEnums(token, runAction);
+const { enumOptions, loadFieldEnums: loadFieldEnumsFor } = useFieldEnums(runAction);
 
 const detailDataRows = computed(() => detailResultSimpleData(detailResponse.value?.data));
 const currentReadItemView = computed(() => readItemViewFor(Number(detailViewId.value)));
@@ -230,19 +233,23 @@ const shellUserName = computed(() => legacyUserName(mainInfoResponse.value?.data
 const shellAppName = computed(() => legacyAppName(mainInfoResponse.value?.data, "Fool Service"));
 const shellAppVersion = computed(() => legacyAppVersion(mainInfoResponse.value?.data));
 const shellAppPowerBy = computed(() => legacyAppPowerBy(mainInfoResponse.value?.data));
+const canUseAgent = computed(() => shellEffectiveActions.value.includes("agent.use"));
+const canPreviewReport = computed(() => viewEffectiveActions.value.includes("report.preview"));
+const canCreateViewData = computed(() => viewEffectiveActions.value.includes("data.create"));
+const canUpdateViewData = computed(() => viewEffectiveActions.value.includes("data.update"));
 watchEffect(() => {
   document.title = token.value
     ? shellAppName.value
     : legacyAppName(initAppResponse.value?.data, "Fool Service");
 });
-const viewCanEdit = computed(() => dataCanEdit(detailResponse.value?.data));
+const viewCanEdit = computed(() => dataCanEdit(detailResponse.value?.data)
+  && (isCreatingObject.value ? canCreateViewData.value : canUpdateViewData.value));
 const candidateViewLoading = computed(() => pendingAction.value === "child-select-view");
 const savingDetail = computed(() => pendingAction.value === "saveobj" || pendingAction.value === "savenewobj");
 const fieldEditorContext = computed(() => ({
   isAdded: isCreatingObject.value,
   objectId: selectedObjectId.value,
   ownerId: detailOwnerId.value,
-  token: token.value,
   viewId: Number(detailViewId.value),
   viewName: detailResultViewName(detailResponse.value?.data)
 }));
@@ -267,8 +274,7 @@ const {
   loadViewById,
   loadViewDataById,
   panels: sudokuPanels,
-  runAction,
-  token
+  runAction
 });
 let autoRefreshTimer: number | undefined;
 let autoRefreshInterval = 0;
@@ -386,6 +392,26 @@ async function loadCheckCode() {
   checkCodeKey.value = legacyCheckCodeKey(response.data);
 }
 
+async function loadEffectiveActions(resourceType: string, resourceId: string) {
+  try {
+    const query = new URLSearchParams({ resourceType, resourceId });
+    const response = await getApi<EffectiveActionsResult>(`/api/v1/authz/effective-actions?${query}`);
+    return response.data.actions.map((item) => item.action);
+  } catch {
+    return [];
+  }
+}
+
+async function loadShellEffectiveActions() {
+  shellEffectiveActions.value = await loadEffectiveActions("AgentCapability", "*");
+}
+
+async function loadViewEffectiveActions(viewId: number) {
+  viewEffectiveActions.value = viewId > 0
+    ? await loadEffectiveActions("View", String(viewId))
+    : [];
+}
+
 async function refreshLoginCheckCode() {
   checkCodeValue.value = "";
   await loadCheckCode();
@@ -400,7 +426,6 @@ async function loadSubMenu() {
   const response = await runAction(
     "getsubmenu",
     () => postApi<LegacySubMenuResult>("/api/v1/auth/getsubmenu", {
-      token: token.value,
       ParentAuthCode: subMenuParentAuthCode.value.trim()
     }),
     { silentTransport: true }
@@ -445,11 +470,23 @@ async function loadAgentChat(updatePath: boolean) {
   closeShellNavigation();
   stopAutoRefresh();
   showViewReport.value = false;
+  showActionCenter.value = false;
   showAgentChat.value = true;
+}
+
+async function openActionCenter() {
+  if (!(await ensureLegacyShell())) return;
+  pushLegacyPath("/actions");
+  closeShellNavigation();
+  stopAutoRefresh();
+  showViewReport.value = false;
+  showAgentChat.value = false;
+  showActionCenter.value = true;
 }
 
 async function loadPrimarySection(updatePath: boolean) {
   showAgentChat.value = false;
+  showActionCenter.value = false;
   if (!(await ensureLegacyShell())) return;
   if (updatePath) pushLegacyPath("/");
   closeShellNavigation();
@@ -480,6 +517,11 @@ async function openMobileAgentChat() {
   await openAgentChat();
 }
 
+async function openMobileActionCenter() {
+  mobileMenuOpen.value = false;
+  await openActionCenter();
+}
+
 async function openMobileShellMenu(item: LegacyAuthItem) {
   await openShellMenu(item);
 }
@@ -504,7 +546,7 @@ async function pollShellMessages() {
   try {
     const messages = await postApi<GetMessageResult>(
       "/api/v1/message/getmsg",
-      buildTokenRequest(token.value)
+      buildTokenRequest()
     );
     const fetchedMessages = legacyMessages(messages.data);
     if (fetchedMessages.length) {
@@ -546,7 +588,7 @@ function clearLegacySession() {
 async function logout() {
   const response = await runAction(
     "logout",
-    () => postApi<void>("/api/v1/auth/logout", buildTokenRequest(token.value)),
+    () => postApi<void>("/api/v1/auth/logout", buildTokenRequest()),
     { silentTransport: true }
   );
   if (response) {
@@ -591,7 +633,6 @@ async function queryDetail(viewId = Number(detailViewId.value), objectId = selec
   const readView = await loadReadItemView(viewId);
   if (!readView?.data) return null;
   const request = buildQueryDataDetailRequest({
-    token: token.value,
     viewId,
     objId: objectId
   });
@@ -613,7 +654,6 @@ async function initNew(viewId: number, parentObjId = "") {
   const readView = await loadReadItemView(viewId);
   if (!readView?.data) return null;
   const request = buildInitNewRequest({
-    token: token.value,
     viewId,
     parentObjId
   });
@@ -628,7 +668,6 @@ async function initNew(viewId: number, parentObjId = "") {
 
 async function saveObj(itemproperties: SaveItemProperty[] = []) {
   const request = buildSaveObjRequest({
-    token: token.value,
     id: selectedObjectId.value,
     viewID: detailSaveViewKey.value,
     propertyies: buildSavePropertyies(detailRows.value, detailDrafts.value),
@@ -637,15 +676,20 @@ async function saveObj(itemproperties: SaveItemProperty[] = []) {
 
   const response = await runAction(
     "saveobj",
-    () => postApi<void>("/api/v1/data/saveobj", request),
+    () => executeMediumAction({
+      schemaVersion: 1,
+      action: "data.update",
+      resource: { type: "view", id: detailSaveViewKey.value },
+      arguments: { request: withoutBodyToken(request as unknown as Record<string, unknown>) },
+      rationale: "保存当前页面中已审阅的单个业务对象"
+    }),
     { silentTransport: true }
   );
-  return Boolean(response);
+  return response?.data.status === "SUCCEEDED";
 }
 
 async function saveNewObj() {
   const request = buildSaveNewObjRequest({
-    token: token.value,
     id: selectedObjectId.value,
     viewID: detailSaveViewKey.value,
     propertyies: buildSavePropertyies(detailRows.value, detailDrafts.value),
@@ -654,23 +698,37 @@ async function saveNewObj() {
 
   const response = await runAction(
     "savenewobj",
-    () => postApi<void>("/api/v1/data/savenewobj", request),
+    () => executeMediumAction({
+      schemaVersion: 1,
+      action: "data.create",
+      resource: { type: "view", id: detailSaveViewKey.value },
+      arguments: { request: withoutBodyToken(request as unknown as Record<string, unknown>) },
+      rationale: "创建当前页面中已审阅的单个业务对象"
+    }),
     { silentTransport: true }
   );
-  return Boolean(response);
+  return response?.data.status === "SUCCEEDED";
 }
 
 async function runOperation(operationId: number) {
   const request = buildRunOperationRequest({
-    token: token.value,
     objectId: selectedObjectId.value,
     viewId: Number(detailViewId.value),
     operationId
   });
 
+  const stepUpPassword = window.prompt("这是高风险操作，请重新输入登录密码以生成审批请求：") || "";
+  if (!stepUpPassword) return null;
+
   return runAction(
     "runoperation",
-    () => postApi<LegacyRunOperationResult>("/api/v1/data/runoperation", request),
+    () => prepareHighAction({
+      schemaVersion: 1,
+      action: "operation.execute",
+      resource: { type: "operation", id: String(operationId) },
+      arguments: { request: withoutBodyToken(request as unknown as Record<string, unknown>) },
+      rationale: "执行当前页面中已审阅的高风险 View Operation"
+    }, stepUpPassword),
     { silentTransport: true }
   );
 }
@@ -691,9 +749,10 @@ async function runViewOperation(operation: OperationInfo, editing = false) {
   operationResult.value = null;
   const response = await runOperation(id);
   if (!response) return;
-  const success = legacyRunOperationSuccess(response.data);
-  const message = legacyRunOperationMessage(response.data) || (success ? "操作成功。" : "操作失败。");
-  operationResult.value = { message, success };
+  operationResult.value = {
+    message: `审批请求 ${response.data.actionRequestId} 已创建，独立审批通过后方可执行。`,
+    status: "AWAITING_APPROVAL"
+  };
 }
 
 function applyDefaultAppView(source?: unknown) {
@@ -732,6 +791,7 @@ async function ensureLegacyShell() {
 
 async function loadViewWorkflow(resetPage = false) {
   showAgentChat.value = false;
+  showActionCenter.value = false;
   viewNavigationRevision.value += 1;
   stopAutoRefresh();
   viewTableVisible.value = true;
@@ -750,6 +810,7 @@ async function loadViewWorkflow(resetPage = false) {
   if (!loadedView) {
     return;
   }
+  await loadViewEffectiveActions(Number(currentViewId.value));
   const response = await queryCurrentViewData();
   if (!response) return;
   selectedObjectId.value = "";
@@ -767,6 +828,7 @@ async function searchCurrentView() {
 
 async function loadLegacyDetailPath(route: { viewId: number; objectId?: string }) {
   showAgentChat.value = false;
+  showActionCenter.value = false;
   stopAutoRefresh();
   showUnconfiguredHome.value = false;
   operationResult.value = null;
@@ -780,10 +842,12 @@ async function loadLegacyDetailPath(route: { viewId: number; objectId?: string }
   isCreatingObject.value = false;
   selectedObjectId.value = objectId;
   await queryDetail(route.viewId, objectId);
+  await loadViewEffectiveActions(route.viewId);
 }
 
 async function loadLegacyItemView(viewId: number) {
   showAgentChat.value = false;
+  showActionCenter.value = false;
   stopAutoRefresh();
   showUnconfiguredHome.value = false;
   operationResult.value = null;
@@ -798,20 +862,27 @@ async function loadLegacyItemView(viewId: number) {
   detailResponse.value = null;
   if (!(await ensureLegacyShell())) return;
   await loadReadItemView(viewId);
+  await loadViewEffectiveActions(viewId);
 }
 
 async function loadLegacyNewPath(route: { viewId: number; parentObjId: string; ownerViewId: string; property: string }) {
   showAgentChat.value = false;
+  showActionCenter.value = false;
   stopAutoRefresh();
   showUnconfiguredHome.value = false;
   isMetadataOnlyView.value = false;
   isStandaloneDetail.value = true;
   applyRequestedViewId(route.viewId);
   if (!(await ensureLegacyShell())) return;
+  await loadViewEffectiveActions(route.viewId);
   await startNewObject(route.viewId, route.parentObjId, route.ownerViewId, route.property);
 }
 
 async function loadInitialRoute() {
+  if (window.location.pathname === "/actions") {
+    await openActionCenter();
+    return;
+  }
   if (window.location.pathname === "/agent") {
     await loadAgentChat(false);
     return;
@@ -841,6 +912,7 @@ async function loadInitialRoute() {
 }
 
 async function enterAuthenticatedShell() {
+  await loadShellEffectiveActions();
   await loadInitialRoute();
   if (!token.value) return;
   startShellPolling();
@@ -986,7 +1058,6 @@ async function loadExistingDetailView(group: QueryDataDetailItemGroup) {
     return false;
   }
   const viewRequest = buildLegacyListViewRequest({
-    token: token.value,
     viewId
   });
   const view = await runAction(
@@ -1015,7 +1086,6 @@ async function queryExistingDetailItems(group: QueryDataDetailItemGroup, resetPa
   if (resetPage) setCandidateState(group, { pageIndex: 1 });
   const state = candidateState(group);
   const dataRequest = buildLegacyQueryDataRequest({
-    token: token.value,
     viewId,
     pageIndex: state.pageIndex,
     pageSize: state.pageSize,
@@ -1122,7 +1192,8 @@ function syncDetailDrafts() {
       <div class="desktop-navigation">
         <nav class="nav-list nav-list-horizontal" aria-label="Main">
           <button type="button" @click="openPrimarySection">首页</button>
-          <button type="button" @click="openAgentChat">AI 助手</button>
+          <button v-if="canUseAgent" type="button" @click="openAgentChat">AI 助手</button>
+          <button type="button" @click="openActionCenter">动作中心</button>
         </nav>
         <LegacyMenuNav
           :expanded-auth-code="subMenuParentAuthCode"
@@ -1160,7 +1231,8 @@ function syncDetailDrafts() {
         </h2>
         <nav class="nav-list" aria-label="Mobile main">
           <button type="button" @click="openMobilePrimarySection">首页</button>
-          <button type="button" @click="openMobileAgentChat">AI 助手</button>
+          <button v-if="canUseAgent" type="button" @click="openMobileAgentChat">AI 助手</button>
+          <button type="button" @click="openMobileActionCenter">动作中心</button>
         </nav>
         <LegacyMenuNav
           :expanded-auth-code="subMenuParentAuthCode"
@@ -1174,12 +1246,15 @@ function syncDetailDrafts() {
         </nav>
       </Drawer>
 
-      <AgentChatPage v-if="showAgentChat" :token="token" />
+      <ActionCenterPage v-if="showActionCenter" />
+      <AgentChatPage v-else-if="showAgentChat" />
       <section v-else class="view-workflow" :class="{ 'metadata-only': isMetadataOnlyView || isStandaloneDetail || isUnsupportedView }" aria-label="View workflow">
         <p v-if="showUnconfiguredHome" class="home-empty-state">{{ unconfiguredHomeMessage }}</p>
         <ViewListPanel
           v-if="!showUnconfiguredHome && !isMetadataOnlyView && !isStandaloneDetail"
           v-model:keyword="viewKeyword"
+          :can-create="canCreateViewData"
+          :can-preview-report="canPreviewReport"
           :page-size="pageSize"
           :data="dataResponse?.data"
           :error-message="errorMessage"
@@ -1243,7 +1318,6 @@ function syncDetailDrafts() {
           v-if="isListView && !isMetadataOnlyView && !isStandaloneDetail && currentViewId"
           :key="currentViewId"
           :run-action="runAction"
-          :token="token"
           :visible="showViewReport"
           :view-id="currentViewId"
           @close="showViewReport = false"

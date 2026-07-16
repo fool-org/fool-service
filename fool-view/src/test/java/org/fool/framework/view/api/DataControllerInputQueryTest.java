@@ -61,6 +61,7 @@ public class DataControllerInputQueryTest {
         when(dataQueryService.inputQuery(request)).thenReturn(expected);
 
         DataController controller = new DataController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "dataQueryService", dataQueryService);
 
         CommonResponse<InputQueryResult> response = controller.inputQuery(request);

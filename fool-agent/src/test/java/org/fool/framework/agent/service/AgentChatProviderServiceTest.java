@@ -1,25 +1,34 @@
 package org.fool.framework.agent.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.fool.framework.common.authz.DataClassification;
+import org.fool.framework.common.authz.DataPolicy;
 import org.junit.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 
 public class AgentChatProviderServiceTest {
     @Test
@@ -100,6 +109,76 @@ public class AgentChatProviderServiceTest {
                 "deepseek", session(), AgentCapabilityType.REPORT_QUERY, "hello", draft));
     }
 
+    @Test
+    public void providerHttpFailureIsContainedAsAStableServiceError() {
+        AgentProviderProperties properties = new AgentProviderProperties();
+        AgentProviderProperties.Provider openai = properties.getProviders().get("openai");
+        openai.setApiKey("secret-key");
+        openai.setBaseUrl("https://provider.test/v1");
+        RestTemplate restTemplate = new RestTemplate();
+        MockRestServiceServer server = MockRestServiceServer.createServer(restTemplate);
+        server.expect(requestTo("https://provider.test/v1/chat/completions"))
+                .andRespond(withStatus(HttpStatus.SERVICE_UNAVAILABLE));
+        AgentChatProviderService service = service(properties, restTemplate);
+        AgentDraft draft = new AgentDraft(AgentCapabilityType.REPORT_QUERY, "local draft",
+                "fool-report", "low-read-only", Map.of(), List.of());
+
+        IllegalStateException error = assertThrows(IllegalStateException.class,
+                () -> service.reply("openai", session(), AgentCapabilityType.REPORT_QUERY, "hello", draft));
+
+        assertTrue(error.getMessage().contains("HTTP 503"));
+        server.verify();
+    }
+
+    @Test
+    public void providerRequestNeverContainsSecretsOrUnauthorizedFields() {
+        AgentProviderProperties properties = new AgentProviderProperties();
+        AgentProviderProperties.Provider openai = properties.getProviders().get("openai");
+        openai.setApiKey("server-only-key");
+        openai.setBaseUrl("https://provider.test/v1");
+        RestTemplate restTemplate = new RestTemplate();
+        MockRestServiceServer server = MockRestServiceServer.createServer(restTemplate);
+        server.expect(requestTo("https://provider.test/v1/chat/completions"))
+                .andExpect(content().string(allOf(
+                        not(containsString("raw-token-1234567890")),
+                        not(containsString("database-password")),
+                        not(containsString("jdbc:mysql://private")),
+                        not(containsString("privateAmount")),
+                        not(containsString("DangerousExecutor")))))
+                .andRespond(withSuccess(
+                        "{\"choices\":[{\"message\":{\"content\":\"安全草案\"}}]}",
+                        MediaType.APPLICATION_JSON));
+        DataPolicy dataPolicy = new DataPolicy(
+                List.of(new DataPolicy.RowRule("ALL", Map.of())),
+                Set.of("publicName"),
+                Set.of(), Set.of(), Set.of(), Set.of(), Set.of("publicName"),
+                Map.of(), Map.of("publicName", DataClassification.PUBLIC), Set.of("openai"), 10, 10);
+        AgentDraft draft = new AgentDraft(
+                AgentCapabilityType.REPORT_QUERY,
+                "已生成草案",
+                "fool-report",
+                "low-read-only",
+                Map.of(
+                        "fields", List.of(
+                                Map.of("PropertyName", "publicName", "Value", "visible"),
+                                Map.of("PropertyName", "privateAmount", "Value", "99")),
+                        "Password", "database-password",
+                        "ConnectionString", "jdbc:mysql://private",
+                        "ClassName", "DangerousExecutor"),
+                List.of());
+
+        AgentChatProviderService.Reply reply = service(properties, restTemplate).reply(
+                "openai",
+                session(),
+                AgentCapabilityType.REPORT_QUERY,
+                "Authorization: Bearer raw-token-1234567890",
+                draft,
+                dataPolicy);
+
+        assertEquals("安全草案", reply.getContent());
+        server.verify();
+    }
+
     private AgentChatProviderService service(AgentProviderProperties properties, RestTemplate restTemplate) {
         return new AgentChatProviderService(properties, new ObjectMapper(), restTemplate);
     }
@@ -107,7 +186,10 @@ public class AgentChatProviderServiceTest {
     private AgentSession session() {
         AgentSession session = new AgentSession(
                 "session-1",
-                "token-1",
+                "user-1",
+                "fool-service",
+                "car_wash",
+                "auth-session-1",
                 "配置订单报表",
                 AgentCapabilityType.REPORT_QUERY,
                 Instant.parse("2026-07-15T00:00:00Z"));

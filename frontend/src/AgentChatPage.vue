@@ -10,8 +10,6 @@ import type {
 } from "./api";
 import { getApi, postApi } from "./api";
 
-const props = defineProps<{ token: string }>();
-
 const providers = ref<AgentProviderInfo[]>([]);
 const capabilities = ref<AgentCapability[]>([]);
 const selectedProvider = ref("local");
@@ -21,6 +19,7 @@ const input = ref("");
 const busy = ref(false);
 const errorMessage = ref("");
 const replySource = ref("");
+const actionRequestId = ref("");
 
 const currentCapability = computed(() =>
   capabilities.value.find((item) => item.id === session.value?.currentCapability) || capabilities.value[0]
@@ -60,14 +59,12 @@ async function sendMessage() {
   try {
     if (!session.value) {
       session.value = (await postApi<AgentSession>("/api/v1/agent/sessions", {
-        token: props.token,
         title: content.slice(0, 60)
       })).data;
     }
     const response = await postApi<AgentTurnResult>(
       `/api/v1/agent/sessions/${session.value.id}/messages`,
       {
-        token: props.token,
         capability: session.value.currentCapability,
         content,
         provider: selectedProvider.value
@@ -76,6 +73,7 @@ async function sendMessage() {
     session.value = response.data.session;
     draft.value = response.data.draft;
     replySource.value = `${response.data.provider} / ${response.data.model}`;
+    actionRequestId.value = response.data.actionRequestId || "";
     input.value = "";
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : String(error);
@@ -91,7 +89,7 @@ async function advanceCapability() {
   try {
     session.value = (await postApi<AgentSession>(
       `/api/v1/agent/sessions/${session.value.id}/advance`,
-      { token: props.token }
+      {}
     )).data;
     draft.value = null;
     replySource.value = "";
@@ -108,6 +106,7 @@ function newConversation() {
   input.value = "";
   errorMessage.value = "";
   replySource.value = "";
+  actionRequestId.value = "";
 }
 
 function roleLabel(role: string) {
@@ -200,6 +199,9 @@ function roleLabel(role: string) {
         <template v-if="draft">
           <span class="agent-risk">{{ draft.riskLevel }}</span>
           <p>{{ draft.summary }}</p>
+          <p v-if="actionRequestId" class="agent-action-request">
+            已创建受控动作请求 <code>{{ actionRequestId }}</code>；确认、审批和执行不会由模型自动完成。
+          </p>
           <h3>验证步骤</h3>
           <ol>
             <li v-for="step in draft.validationSteps" :key="step">{{ step }}</li>
@@ -273,6 +275,14 @@ function roleLabel(role: string) {
   border-color: #2563eb;
   background: #eff6ff;
   color: #1d4ed8;
+}
+
+.agent-action-request {
+  overflow-wrap: anywhere;
+  border-left: 3px solid #f59e0b;
+  background: #fffbeb;
+  padding: 10px 12px;
+  color: #78350f;
 }
 
 .agent-chat-layout {

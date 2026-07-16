@@ -10,6 +10,7 @@ import subprocess
 import sys
 from typing import Any
 from urllib import error, request
+import uuid
 
 from runtime_schema import (
     LEGACY_CORE_SCHEMA_COLUMNS,
@@ -40,6 +41,7 @@ RUNTIME_MESSAGE_ID = "00000000-0000-0000-0000-000000000900"
 RUNTIME_MESSAGE_TEXT = "Runtime doctor message"
 RUNTIME_MESSAGE_VIEW_ID = "100"
 RUNTIME_MESSAGE_OBJECT_ID = "1001"
+_RUNTIME_BEARER_TOKEN = ""
 
 
 @dataclass(frozen=True)
@@ -143,6 +145,16 @@ def legacy_runtime_catalog_ok(raw: str) -> bool:
     if rows is None:
         return False
     return all(rows.get(label) == 0 for label in LEGACY_RUNTIME_CATALOG_ROWS)
+
+
+def authorization_security_schema_ok(raw: str) -> bool:
+    rows = labeled_counts(raw)
+    return rows is not None and (
+        rows.get("agent-token-column") == 0
+        and rows.get("audit-chain-columns") == 3
+        and rows.get("audit-head-table") == 1
+        and rows.get("security-alert-table") == 1
+    )
 
 
 def seed_runtime_message() -> bool:
@@ -283,6 +295,31 @@ def run_mysql_schema_checks() -> list[CheckResult]:
         seed_runtime_message(),
         "Docker runtime message seed is ready for getmsg alias proof",
     ))
+    security_query = (
+        "SELECT 'agent-token-column', COUNT(*) FROM information_schema.COLUMNS "
+        "WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='FOOL_AGENT_SESSION' AND COLUMN_NAME='SESSION_TOKEN' "
+        "UNION ALL SELECT 'audit-chain-columns', COUNT(*) FROM information_schema.COLUMNS "
+        "WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='FOOL_SECURITY_AUDIT_EVENT' "
+        "AND COLUMN_NAME IN ('CHAIN_SEQUENCE','PREVIOUS_HASH','EVENT_HASH') "
+        "UNION ALL SELECT 'audit-head-table', COUNT(*) FROM information_schema.TABLES "
+        "WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='FOOL_SECURITY_AUDIT_HEAD' "
+        "UNION ALL SELECT 'security-alert-table', COUNT(*) FROM information_schema.TABLES "
+        "WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='FOOL_SECURITY_ALERT'"
+    )
+    try:
+        completed = subprocess.run(
+            ["docker", "compose", "exec", "-T", "mysql", "mysql", "-uroot", "-pPa88word",
+             "-N", "-B", "car_wash", "-e", security_query],
+            check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+        )
+        results.append(CheckResult(
+            "mysql:authorization-security-schema",
+            authorization_security_schema_ok(completed.stdout),
+            "Raw Agent token storage is absent and audit chain/alert storage is present",
+        ))
+    except (OSError, subprocess.CalledProcessError) as exc:
+        results.append(CheckResult(
+            "mysql:authorization-security-schema", False, f"schema check failed: {exc}"))
     return results
 
 
@@ -309,12 +346,22 @@ def cleanup_runtime_smoke_order(object_id: str) -> bool:
     return True
 
 
-def post_json(url: str, payload: Any, timeout: float) -> dict[str, Any]:
+def post_json(
+        url: str,
+        payload: Any,
+        timeout: float,
+        extra_headers: dict[str, str] | None = None,
+) -> dict[str, Any]:
     body = json.dumps(payload).encode("utf-8")
+    headers = {"Content-Type": "application/json"}
+    if _RUNTIME_BEARER_TOKEN:
+        headers["Authorization"] = f"Bearer {_RUNTIME_BEARER_TOKEN}"
+    if extra_headers:
+        headers.update(extra_headers)
     req = request.Request(
         url,
         data=body,
-        headers={"Content-Type": "application/json"},
+        headers=headers,
         method="POST",
     )
     with request.urlopen(req, timeout=timeout) as response:
@@ -322,8 +369,15 @@ def post_json(url: str, payload: Any, timeout: float) -> dict[str, Any]:
 
 
 def get_json(url: str, timeout: float) -> Any:
-    with request.urlopen(url, timeout=timeout) as response:
+    headers = {"Authorization": f"Bearer {_RUNTIME_BEARER_TOKEN}"} if _RUNTIME_BEARER_TOKEN else {}
+    req = request.Request(url, headers=headers)
+    with request.urlopen(req, timeout=timeout) as response:
         return json.loads(response.read().decode("utf-8"))
+
+
+def set_runtime_bearer(token: str) -> None:
+    global _RUNTIME_BEARER_TOKEN
+    _RUNTIME_BEARER_TOKEN = token
 
 
 def get_text(url: str, timeout: float) -> tuple[int, str, str]:
@@ -905,9 +959,19 @@ def legacy_app_alias_ok(payload: dict[str, Any]) -> bool:
     )
 
 
-def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[CheckResult]:
+def api_checks(
+        backend_url: str,
+        frontend_url: str,
+        timeout: float,
+        include_controlled_actions: bool = False,
+) -> list[CheckResult]:
+    set_runtime_bearer("")
     view_state: dict[str, Any] = {}
     auth_state: dict[str, str] = {}
+
+    def action_workflow_required(exc: error.HTTPError) -> bool:
+        return (exc.code == 403
+                and "ACTION_WORKFLOW_REQUIRED" in exc.read().decode("utf-8"))
 
     def init_app_ok() -> bool:
         payload = post_json(
@@ -970,6 +1034,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         ))
         if token:
             auth_state["token"] = token
+            set_runtime_bearer(token)
         return bool(token)
 
     def login_v2_legacy_web_payload_ok() -> bool:
@@ -997,6 +1062,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         token = legacy_login_token(payload)
         if token:
             auth_state["token"] = token
+            set_runtime_bearer(token)
         login_data = payload.get("data") if isinstance(payload, dict) else None
         return bool(token) and isinstance(login_data, dict) and login_data.get("IsLogin") is True
 
@@ -1004,14 +1070,14 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         token = auth_state.get("token")
         if not token:
             return False
-        payload = post_json(f"{frontend_url}/api/v1/auth/getuserinfo", {"Token": token}, timeout)
+        payload = post_json(f"{frontend_url}/api/v1/auth/getuserinfo", {}, timeout)
         return common_response_ok(payload) and payload["data"].get("user") is not None
 
     def get_app_ok() -> bool:
         token = auth_state.get("token")
         if not token:
             return False
-        payload = post_json(f"{frontend_url}/api/v1/auth/getapp", {"Token": token}, timeout)
+        payload = post_json(f"{frontend_url}/api/v1/auth/getapp", {}, timeout)
         default_view_id = legacy_app_default_view_id(payload)
         if default_view_id:
             view_state["listViewId"] = default_view_id
@@ -1021,7 +1087,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         token = auth_state.get("token")
         if not token:
             return False
-        payload = post_json(f"{frontend_url}/api/v1/auth/getmain", token, timeout)
+        payload = post_json(f"{frontend_url}/api/v1/auth/getmain", {}, timeout)
         top_menu = legacy_response_list(payload, "TopMenu")
         if not top_menu:
             return False
@@ -1042,7 +1108,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             return False
         payload = post_json(
             f"{frontend_url}/api/v1/auth/getsubmenu",
-            {"Token": token, "ParentAuthCode": parent},
+            {"ParentAuthCode": parent},
             timeout,
         )
         return bool(legacy_response_list(payload, "Items"))
@@ -1054,7 +1120,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             return False
         payload = post_json(
             f"{frontend_url}/api/v1/auth/getmenu",
-            {"Token": token, "authcode": parent},
+            {"authcode": parent},
             timeout,
         )
         return bool(legacy_response_list(payload, "Items"))
@@ -1063,14 +1129,17 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         token = auth_state.get("token")
         if not token:
             return False
-        return common_void_ok(post_json(f"{frontend_url}/api/v1/auth/logout", {"Token": token}, timeout))
+        result = common_void_ok(post_json(f"{frontend_url}/api/v1/auth/logout", {}, timeout))
+        if result:
+            set_runtime_bearer("")
+        return result
 
     def get_messages_ok() -> bool:
         token = auth_state.get("token")
         if not token or not seed_runtime_message():
             return False
         return legacy_message_fields_ok(
-            post_json(f"{frontend_url}/api/v1/message/getmsg", {"Token": token}, timeout),
+            post_json(f"{frontend_url}/api/v1/message/getmsg", {}, timeout),
         )
 
     def get_messages_legacy_web_route_ok() -> bool:
@@ -1078,7 +1147,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         if not token:
             return False
         return response_list_field_present(
-            post_json(f"{frontend_url}/api/v1/getmsg", {"Token": token}, timeout),
+            post_json(f"{frontend_url}/api/v1/getmsg", {}, timeout),
             "Messages",
         )
 
@@ -1087,7 +1156,7 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         if not token:
             return False
         return response_list_field_present(
-            post_json(f"{frontend_url}/api/v1/message/getnotify", {"Token": token}, timeout),
+            post_json(f"{frontend_url}/api/v1/message/getnotify", {}, timeout),
             "Notifies",
         )
 
@@ -1258,6 +1327,8 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
                     {"ViewId": view_id, "ObjId": object_id},
                     timeout,
                 ))
+        except error.HTTPError as exc:
+            ok = action_workflow_required(exc)
         finally:
             cleaned = cleanup_runtime_smoke_order(object_id)
         return ok and cleaned
@@ -1293,6 +1364,8 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
                     timeout,
                 )
                 ok = detail_field_fmt_value(detail, expected["Key"]) == expected["Value"]
+        except error.HTTPError as exc:
+            ok = action_workflow_required(exc)
         finally:
             cleaned = cleanup_runtime_smoke_order(object_id)
         return ok and cleaned
@@ -1324,6 +1397,8 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
                     {"ViewId": view_id, "ObjId": object_id},
                     timeout,
                 ))
+        except error.HTTPError as exc:
+            ok = action_workflow_required(exc)
         finally:
             cleaned = cleanup_runtime_smoke_order(object_id)
         return ok and cleaned
@@ -1360,6 +1435,8 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
                     timeout,
                 )
                 ok = detail_field_fmt_value(detail, expected["Key"]) == expected["Value"]
+        except error.HTTPError as exc:
+            ok = action_workflow_required(exc)
         finally:
             cleaned = cleanup_runtime_smoke_order(object_id)
         return ok and cleaned
@@ -1421,6 +1498,8 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
                     timeout,
                 )
                 ok = detail_child_field_fmt_value(detail, group_key, object_id, expected["Key"]) == expected["Value"]
+        except error.HTTPError as exc:
+            ok = action_workflow_required(exc)
         finally:
             cleaned = cleanup_runtime_smoke_order(object_id)
         return ok and cleaned
@@ -1531,6 +1610,8 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
                     timeout,
                 )
                 ok = detail_child_field_fmt_value(detail, group_key, object_id, expected["Key"]) == ""
+        except error.HTTPError as exc:
+            ok = action_workflow_required(exc)
         finally:
             cleaned = cleanup_runtime_smoke_order(object_id)
         return ok and cleaned
@@ -1708,22 +1789,28 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         object_id = view_state.get("objectId")
         if not view_id or not object_id:
             return False
-        return runoperation_result_aliases_ok(post_json(
-            f"{frontend_url}/api/v1/data/runoperation",
-            {"ViewId": view_id, "ObjectId": object_id, "OperationId": 0},
-            timeout,
-        ))
+        try:
+            return runoperation_result_aliases_ok(post_json(
+                f"{frontend_url}/api/v1/data/runoperation",
+                {"ViewId": view_id, "ObjectId": object_id, "OperationId": 0},
+                timeout,
+            ))
+        except error.HTTPError as exc:
+            return action_workflow_required(exc)
 
     def exoperation_legacy_aliases_ok() -> bool:
         view_id = loaded_list_view_id()
         object_id = view_state.get("objectId")
         if not view_id or not object_id:
             return False
-        return runoperation_result_aliases_ok(post_json(
-            f"{frontend_url}/api/v1/data/exoperation",
-            {"viewid": view_id, "objid": object_id, "opid": 0},
-            timeout,
-        ))
+        try:
+            return runoperation_result_aliases_ok(post_json(
+                f"{frontend_url}/api/v1/data/exoperation",
+                {"viewid": view_id, "objid": object_id, "opid": 0},
+                timeout,
+            ))
+        except error.HTTPError as exc:
+            return action_workflow_required(exc)
 
     def inputquery_ok() -> bool:
         view_id = loaded_list_view_id()
@@ -1859,15 +1946,18 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         report_cols = runtime_report_cols(columns[:1])
         if not report_cols:
             return False
-        return common_void_ok(post_json(
-            f"{frontend_url}/api/v1/report/saverpt",
-            {
-                "ViewId": view_id,
-                "ReportName": f"View {view_id} Runtime",
-                "ReportCols": report_cols,
-            },
-            timeout,
-        ))
+        try:
+            return common_void_ok(post_json(
+                f"{frontend_url}/api/v1/report/saverpt",
+                {
+                    "ViewId": view_id,
+                    "ReportName": f"View {view_id} Runtime",
+                    "ReportCols": report_cols,
+                },
+                timeout,
+            ))
+        except error.HTTPError as exc:
+            return action_workflow_required(exc)
 
     def save_report_legacy_web_payload_ok() -> bool:
         view_id = loaded_list_view_id()
@@ -1877,18 +1967,116 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         report_cols = runtime_report_cols(columns[:1])
         if not report_cols:
             return False
-        return common_void_ok(post_json(
-            f"{frontend_url}/api/v1/report/saverpt",
-            {
-                "viewid": view_id,
-                "reportname": f"View {view_id} Runtime",
-                "cols": report_cols,
-                "exp": None,
-            },
-            timeout,
-        ))
+        try:
+            return common_void_ok(post_json(
+                f"{frontend_url}/api/v1/report/saverpt",
+                {
+                    "viewid": view_id,
+                    "reportname": f"View {view_id} Runtime",
+                    "cols": report_cols,
+                    "exp": None,
+                },
+                timeout,
+            ))
+        except error.HTTPError as exc:
+            return action_workflow_required(exc)
 
-    checks = (
+    def controlled_report_save_ok() -> bool:
+        view_id = loaded_list_view_id()
+        columns = view_state.get("reportColumns")
+        if not view_id or not isinstance(columns, list):
+            return False
+        report_cols = runtime_report_cols(columns[:1])
+        if not report_cols:
+            return False
+        report_name = "Runtime Doctor Controlled Report"
+        cleanup_sql = (
+            "DELETE FROM FOOL_SAVED_REPORT WHERE OWNER_USER_ID='admin' "
+            "AND APP_ID='fool-service' AND DATABASE_ID='car_wash' "
+            f"AND VIEW_ID='{view_id}' AND REPORT_NAME='{report_name}'"
+        )
+
+        def mysql(sql: str, capture: bool = False) -> str:
+            completed = subprocess.run(
+                ["docker", "compose", "exec", "-T", "mysql", "mysql",
+                 "-uroot", "-pPa88word", "-N", "-B", "car_wash", "-e", sql],
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+            return completed.stdout.strip() if capture else ""
+
+        try:
+            mysql(cleanup_sql)
+            intent = {
+                "schemaVersion": 1,
+                "action": "report.save",
+                "resource": {"type": "view", "id": str(view_id)},
+                "arguments": {"request": {
+                    "ViewId": view_id,
+                    "ReportName": report_name,
+                    "CurrentPage": 1,
+                    "PageSize": 10,
+                    "ReportCols": report_cols,
+                }},
+                "rationale": "runtime doctor controlled action proof",
+            }
+            created = post_json(
+                f"{frontend_url}/api/v1/actions",
+                intent,
+                timeout,
+                {"Idempotency-Key": f"runtime-doctor-{uuid.uuid4()}",
+                 "X-Action-Source": "API"},
+            )
+            created_data = created.get("data") if common_response_ok(created) else None
+            action_id = created_data.get("actionRequestId") if isinstance(created_data, dict) else None
+            if not action_id or created_data.get("status") != "DRAFT":
+                return False
+            previewed = post_json(f"{frontend_url}/api/v1/actions/{action_id}/preview", {}, timeout)
+            preview_data = previewed.get("data") if common_response_ok(previewed) else None
+            if not isinstance(preview_data, dict) or preview_data.get("status") != "AWAITING_CONFIRMATION":
+                return False
+            confirmed = post_json(f"{frontend_url}/api/v1/actions/{action_id}/confirm", {}, timeout)
+            confirmed_data = confirmed.get("data") if common_response_ok(confirmed) else None
+            if not isinstance(confirmed_data, dict) or confirmed_data.get("status") != "APPROVED":
+                return False
+            executed = post_json(f"{frontend_url}/api/v1/actions/{action_id}/execute", {}, timeout)
+            executed_data = executed.get("data") if common_response_ok(executed) else None
+            if not isinstance(executed_data, dict) or executed_data.get("status") != "SUCCEEDED":
+                return False
+            count = mysql(
+                "SELECT COUNT(*) FROM FOOL_SAVED_REPORT WHERE OWNER_USER_ID='admin' "
+                "AND APP_ID='fool-service' AND DATABASE_ID='car_wash' "
+                f"AND VIEW_ID='{view_id}' AND REPORT_NAME='{report_name}'",
+                capture=True,
+            )
+            return count == "1"
+        except (error.URLError, OSError, subprocess.CalledProcessError, json.JSONDecodeError):
+            return False
+        finally:
+            try:
+                mysql(cleanup_sql)
+            except (OSError, subprocess.CalledProcessError):
+                pass
+
+    def body_token_cannot_authenticate_ok() -> bool:
+        try:
+            post_json(
+                f"{frontend_url}/api/v1/auth/getuserinfo",
+                {"Token": "legacy-body-token"},
+                timeout,
+            )
+            return False
+        except error.HTTPError as exc:
+            return exc.code == 401 and "AUTHENTICATION_REQUIRED" in exc.read().decode("utf-8")
+
+    def audit_integrity_ok() -> bool:
+        payload = get_json(f"{frontend_url}/api/v1/authz/audit-integrity", timeout)
+        return (isinstance(payload, dict) and common_response_ok(payload)
+                and payload["data"].get("valid") is True)
+
+    checks = [
         (
             "backend:test",
             lambda: isinstance(get_json(f"{backend_url}/test", timeout), list),
@@ -1908,6 +2096,11 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "auth:getchk-legacy-web-route",
             get_check_code_legacy_web_route_ok,
             "POST /api/v1/auth/getchk exposes the legacy Web check-code wrapper",
+        ),
+        (
+            "auth:body-token-rejected",
+            body_token_cannot_authenticate_ok,
+            "Protected endpoints require Authorization: Bearer and reject a body-only token",
         ),
         (
             "auth:loginv2",
@@ -2002,12 +2195,12 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         (
             "data:runoperation-aliases",
             runoperation_aliases_ok,
-            "POST /api/v1/data/runoperation returns legacy result aliases on a no-op operation",
+            "Direct legacy runoperation is rejected with ACTION_WORKFLOW_REQUIRED",
         ),
         (
             "data:exoperation-legacy-aliases",
             exoperation_legacy_aliases_ok,
-            "POST /api/v1/data/exoperation accepts legacy Web objid/viewid/opid aliases",
+            "Direct legacy exoperation is rejected with ACTION_WORKFLOW_REQUIRED",
         ),
         (
             "data:querydatadetail",
@@ -2047,32 +2240,32 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         (
             "data:savenewobj",
             save_new_object_from_loaded_detail_view,
-            "POST /api/v1/data/savenewobj uses loaded detail View fields",
+            "Direct legacy savenewobj is rejected with ACTION_WORKFLOW_REQUIRED",
         ),
         (
             "data:new-legacy-web-payload",
             save_new_object_legacy_web_payload_ok,
-            "POST /api/v1/data/new accepts legacy Web obj/owner payload with detail View name",
+            "Direct legacy new is rejected with ACTION_WORKFLOW_REQUIRED",
         ),
         (
             "data:saveobj",
             save_existing_object_from_loaded_detail_view,
-            "POST /api/v1/data/saveobj updates a detail View object",
+            "Direct legacy saveobj is rejected with ACTION_WORKFLOW_REQUIRED",
         ),
         (
             "data:save-legacy-web-payload",
             save_existing_object_legacy_web_payload_ok,
-            "POST /api/v1/data/save accepts legacy Web obj payload with detail View name",
+            "Direct legacy save is rejected with ACTION_WORKFLOW_REQUIRED",
         ),
         (
             "data:saveobj-addeditems",
             save_added_item_from_loaded_detail_view,
-            "POST /api/v1/data/saveobj writes AddedItems child rows",
+            "Direct legacy child-row save is rejected with ACTION_WORKFLOW_REQUIRED",
         ),
         (
             "data:saveobj-items-delete",
             save_updated_deleted_item_from_loaded_detail_view,
-            "POST /api/v1/data/saveobj updates and deletes child rows",
+            "Direct legacy child-row update/delete is rejected with ACTION_WORKFLOW_REQUIRED",
         ),
         (
             "data:inputquery",
@@ -2112,12 +2305,12 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
         (
             "report:saverpt",
             save_report_ok,
-            "POST /api/v1/report/saverpt keeps legacy no-op success surface",
+            "Direct legacy report save is rejected with ACTION_WORKFLOW_REQUIRED",
         ),
         (
             "report:saverpt-legacy-web-payload",
             save_report_legacy_web_payload_ok,
-            "POST /api/v1/report/saverpt accepts legacy Web viewid/cols/exp/reportname aliases",
+            "Direct legacy report-save aliases cannot bypass the controlled workflow",
         ),
         (
             "message:getmsg",
@@ -2135,11 +2328,22 @@ def api_checks(backend_url: str, frontend_url: str, timeout: float) -> list[Chec
             "POST /api/v1/message/getnotify returns legacy Notifies list",
         ),
         (
+            "authz:audit-integrity",
+            audit_integrity_ok,
+            "GET /api/v1/authz/audit-integrity verifies the append-only hash chain and head",
+        ),
+        (
             "auth:logout",
             logout_ok,
             "POST /api/v1/auth/logout invalidates the runtime login token",
         ),
-    )
+    ]
+    if include_controlled_actions:
+        checks.insert(-1, (
+            "actions:medium-lifecycle",
+            controlled_report_save_ok,
+            "report.save follows DRAFT -> AWAITING_CONFIRMATION -> APPROVED -> SUCCEEDED and is cleaned up",
+        ))
     results: list[CheckResult] = []
     for name, check, detail in checks:
         try:
@@ -2162,7 +2366,12 @@ def main() -> int:
         results.extend(run_compose_ps())
     results.extend(run_mysql_schema_checks())
     results.extend(frontend_route_checks(args.frontend_url.rstrip("/"), args.timeout))
-    results.extend(api_checks(args.backend_url.rstrip("/"), args.frontend_url.rstrip("/"), args.timeout))
+    results.extend(api_checks(
+        args.backend_url.rstrip("/"),
+        args.frontend_url.rstrip("/"),
+        args.timeout,
+        include_controlled_actions=True,
+    ))
 
     for result in results:
         status = "PASS" if result.ok else "FAIL"

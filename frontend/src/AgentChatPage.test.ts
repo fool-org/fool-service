@@ -12,7 +12,8 @@ describe("AgentChatPage integration", () => {
 
   it("registers the authenticated agent route in desktop and mobile navigation", () => {
     expect(appSource).toContain('window.location.pathname === "/agent"');
-    expect(appSource).toContain('<AgentChatPage v-if="showAgentChat" :token="token" />');
-    expect(appSource.match(/>AI 助手<\/button>/g)).toHaveLength(2);
+    expect(appSource).toContain('<AgentChatPage v-else-if="showAgentChat" />');
+    expect(appSource.match(/v-if="canUseAgent"[^>]*>AI 助手<\/button>/g)).toHaveLength(2);
+    expect(appSource).toContain("/api/v1/authz/effective-actions");
   });
 });

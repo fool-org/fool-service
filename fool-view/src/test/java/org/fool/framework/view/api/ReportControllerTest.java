@@ -1,8 +1,10 @@
 package org.fool.framework.view.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.fool.framework.common.authz.AuthorizationDeniedException;
 import org.fool.framework.dao.PageNavigator;
 import org.fool.framework.dao.DaoService;
+import org.fool.framework.dao.QueryAndArgs;
 import org.fool.framework.common.PropertyType;
 import org.fool.framework.dto.CommonResponse;
 import org.fool.framework.model.model.EnumValue;
@@ -10,6 +12,7 @@ import org.fool.framework.model.model.Model;
 import org.fool.framework.model.model.Property;
 import org.fool.framework.query.JdbcCompareOpCatalog;
 import org.fool.framework.query.JdbcSelectTypeCatalog;
+import org.fool.framework.query.IQueryFilter;
 import org.fool.framework.query.LegacyCompareOp;
 import org.fool.framework.query.SelectType;
 import org.fool.framework.report.ReportCell;
@@ -30,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
@@ -59,6 +63,7 @@ public class ReportControllerTest {
         when(selectTypeCatalog.listFor(PropertyType.Enum)).thenReturn(List.of(selectType(1, "原值")));
 
         ReportController controller = new ReportController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "daoService", daoService);
         setField(controller, "compareOpCatalog", compareOpCatalog);
         setField(controller, "selectTypeCatalog", selectTypeCatalog);
@@ -94,6 +99,7 @@ public class ReportControllerTest {
         when(selectTypeCatalog.listFor(PropertyType.String)).thenReturn(List.of(selectType(1, "原值")));
 
         ReportController controller = new ReportController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "daoService", daoService);
         setField(controller, "compareOpCatalog", compareOpCatalog);
         setField(controller, "selectTypeCatalog", selectTypeCatalog);
@@ -119,6 +125,7 @@ public class ReportControllerTest {
         when(daoService.getOneDetailByKey(eq(Model.class), eq("100"))).thenReturn(model(symbol, state));
 
         ReportController controller = new ReportController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "daoService", daoService);
         MakeReportRequest request = new MakeReportRequest();
         request.setViewId(100L);
@@ -190,7 +197,7 @@ public class ReportControllerTest {
     }
 
     @Test
-    public void makeReportMapsLegacyQueryDataIntoReportGridCells() throws Exception {
+    public void makeReportRejectsLegacyRawQueryFilter() throws Exception {
         DataQueryService dataQueryService = mock(DataQueryService.class);
         ListViewResult queryResult = new ListViewResult();
         queryResult.setTotalItem(42L);
@@ -199,6 +206,7 @@ public class ReportControllerTest {
         stubReportQuery(dataQueryService, "100", "order_state=\"0\"", queryResult);
 
         ReportController controller = new ReportController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "dataQueryService", dataQueryService);
 
         MakeReportRequest request = new MakeReportRequest();
@@ -206,31 +214,12 @@ public class ReportControllerTest {
         request.setCurrentPage(2);
         request.setPageSize(20);
         request.setQueryFilter("order_state=\"0\"");
-        request.setReportCols(List.of(reportCol("State", 2), reportCol("Symbol", 1)));
 
-        CommonResponse<ReportGridResult> response = controller.makeReport(request);
+        AuthorizationDeniedException exception = assertThrows(
+                AuthorizationDeniedException.class,
+                () -> controller.makeReport(request));
 
-        ArgumentCaptor<PageNavigator> pageCaptor = ArgumentCaptor.forClass(PageNavigator.class);
-        verify(dataQueryService).queryLegacyViewData(
-                eq("100"),
-                pageCaptor.capture(),
-                eq("order_state=\"0\""),
-                org.mockito.ArgumentMatchers.<String>isNull(),
-                org.mockito.ArgumentMatchers.nullable(DataQueryService.QueryOrder.class));
-        assertEquals(20, pageCaptor.getValue().getPageSize());
-        assertEquals(2, pageCaptor.getValue().getPageIndex());
-        assertEquals(0, response.getCode());
-
-        ReportGridResult result = response.getData();
-        assertEquals(100, result.getViewId());
-        assertEquals(2, result.getCurrentPage());
-        assertEquals(20, result.getPageSize());
-        assertEquals(42, result.getTotalRecords());
-        assertEquals(3, result.getTotalPages());
-        assertCell(result.getCells().get(0), 0, 0, "Symbol");
-        assertCell(result.getCells().get(1), 1, 0, "State");
-        assertCell(result.getCells().get(2), 0, 1, "BTC-USDT");
-        assertCell(result.getCells().get(3), 1, 1, "Open");
+        assertEquals("CLIENT_RAW_FILTER_FORBIDDEN", exception.getMessage());
     }
 
     @Test
@@ -243,9 +232,10 @@ public class ReportControllerTest {
         stubReportQuery(dataQueryService, "100", null, queryResult);
 
         ReportController controller = new ReportController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "dataQueryService", dataQueryService);
 
-        MakeReportRequest.ReportCol symbol = reportCol("Symbol", 0);
+        MakeReportRequest.ReportCol symbol = reportCol("Symbol", "Symbol", 0);
         symbol.setOrderType("2");
         MakeReportRequest request = new MakeReportRequest();
         request.setViewId(100L);
@@ -253,21 +243,19 @@ public class ReportControllerTest {
 
         controller.makeReport(request);
 
-        verify(dataQueryService).queryLegacyViewData(
+        verify(dataQueryService).queryReportViewData(
                 eq("100"),
                 org.mockito.ArgumentMatchers.any(PageNavigator.class),
                 eq(null),
-                org.mockito.ArgumentMatchers.<String>isNull(),
                 eq(new DataQueryService.QueryOrder("Symbol", false)));
 
         symbol.setOrderType("1");
         controller.makeReport(request);
 
-        verify(dataQueryService).queryLegacyViewData(
+        verify(dataQueryService).queryReportViewData(
                 eq("100"),
                 org.mockito.ArgumentMatchers.any(PageNavigator.class),
                 eq(null),
-                org.mockito.ArgumentMatchers.<String>isNull(),
                 eq(new DataQueryService.QueryOrder("Symbol", true)));
     }
 
@@ -279,11 +267,12 @@ public class ReportControllerTest {
         stubReportQuery(dataQueryService, "100", null, queryResult);
 
         ReportController controller = new ReportController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "dataQueryService", dataQueryService);
 
-        MakeReportRequest.ReportCol symbol = reportCol("Symbol", 2);
+        MakeReportRequest.ReportCol symbol = reportCol("Symbol", "Symbol", 2);
         symbol.setOrderType("0");
-        MakeReportRequest.ReportCol state = reportCol("State", 1);
+        MakeReportRequest.ReportCol state = reportCol("State", "State", 1);
         state.setOrderType("1");
         MakeReportRequest request = new MakeReportRequest();
         request.setViewId(100L);
@@ -291,11 +280,10 @@ public class ReportControllerTest {
 
         controller.makeReport(request);
 
-        verify(dataQueryService).queryLegacyViewData(
+        verify(dataQueryService).queryReportViewData(
                 eq("100"),
                 org.mockito.ArgumentMatchers.any(PageNavigator.class),
                 eq(null),
-                org.mockito.ArgumentMatchers.<String>isNull(),
                 eq(new DataQueryService.QueryOrder(List.of(
                         new DataQueryService.QueryOrder.Item("State", true),
                         new DataQueryService.QueryOrder.Item("Symbol", false)))));
@@ -359,6 +347,7 @@ public class ReportControllerTest {
         when(daoService.getOneDetailByKey(eq(Model.class), eq("100"))).thenReturn(model(symbol));
 
         ReportController controller = new ReportController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "dataQueryService", dataQueryService);
         setField(controller, "daoService", daoService);
 
@@ -388,6 +377,7 @@ public class ReportControllerTest {
                 .thenReturn(model(property(1002L, "symbol", "order_symbol", PropertyType.String)));
 
         ReportController controller = new ReportController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "dataQueryService", dataQueryService);
         setField(controller, "daoService", daoService);
 
@@ -405,7 +395,7 @@ public class ReportControllerTest {
     }
 
     @Test
-    public void makeReportRowsIgnoreValuesMapAndRenderLegacyItems() throws Exception {
+    public void makeReportRejectsUnknownRequestedColumn() throws Exception {
         DataQueryService dataQueryService = mock(DataQueryService.class);
         ListDataItem row = row();
         row.setValues(Map.of("DTO Only", "from-values"));
@@ -414,18 +404,18 @@ public class ReportControllerTest {
         stubReportQuery(dataQueryService, "100", null, queryResult);
 
         ReportController controller = new ReportController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "dataQueryService", dataQueryService);
 
         MakeReportRequest request = new MakeReportRequest();
         request.setViewId(100L);
         request.setReportCols(List.of(reportCol("DTO Only", 1), reportCol("Symbol", 2)));
 
-        CommonResponse<ReportGridResult> response = controller.makeReport(request);
+        AuthorizationDeniedException exception = assertThrows(
+                AuthorizationDeniedException.class,
+                () -> controller.makeReport(request));
 
-        assertCell(response.getData().getCells().get(0), 0, 0, "DTO Only");
-        assertCell(response.getData().getCells().get(1), 1, 0, "Symbol");
-        assertCell(response.getData().getCells().get(2), 0, 1, "");
-        assertCell(response.getData().getCells().get(3), 1, 1, "BTC-USDT");
+        assertEquals("FIELD_NOT_READABLE", exception.getMessage());
     }
 
     @Test
@@ -443,6 +433,7 @@ public class ReportControllerTest {
         when(selectTypeCatalog.listFor(PropertyType.String)).thenReturn(List.of(selectType(2, "计数", "COUNT({0})")));
 
         ReportController controller = new ReportController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "dataQueryService", dataQueryService);
         setField(controller, "daoService", daoService);
         setField(controller, "selectTypeCatalog", selectTypeCatalog);
@@ -465,6 +456,7 @@ public class ReportControllerTest {
     @Test
     public void saveReportKeepsLegacyNoOpSuccessSurface() {
         ReportController controller = new ReportController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         MakeReportRequest request = new MakeReportRequest();
         request.setViewId(100L);
         request.setReportName("Order Daily");
@@ -482,6 +474,7 @@ public class ReportControllerTest {
         stubReportQuery(dataQueryService, "100", "`order_state`='0'", new ListViewResult());
 
         ReportController controller = new ReportController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "dataQueryService", dataQueryService);
 
         MakeReportRequest request = new MakeReportRequest();
@@ -492,12 +485,7 @@ public class ReportControllerTest {
 
         CommonResponse<ReportGridResult> response = controller.makeReport(request);
 
-        verify(dataQueryService).queryLegacyViewData(
-                eq("100"),
-                org.mockito.ArgumentMatchers.any(PageNavigator.class),
-                eq("`order_state`='0'"),
-                org.mockito.ArgumentMatchers.<String>isNull(),
-                org.mockito.ArgumentMatchers.nullable(DataQueryService.QueryOrder.class));
+        assertFilter(dataQueryService, "100", "`order_state`=?", "0");
         assertEquals(0, response.getCode());
     }
 
@@ -512,6 +500,7 @@ public class ReportControllerTest {
         stubReportQuery(dataQueryService, "100", "`asset_code` LIKE '%Bond%'", new ListViewResult());
 
         ReportController controller = new ReportController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "dataQueryService", dataQueryService);
         setField(controller, "daoService", daoService);
 
@@ -521,12 +510,7 @@ public class ReportControllerTest {
 
         CommonResponse<ReportGridResult> response = controller.makeReport(request);
 
-        verify(dataQueryService).queryLegacyViewData(
-                eq("100"),
-                org.mockito.ArgumentMatchers.any(PageNavigator.class),
-                eq("`asset_code` LIKE '%Bond%'"),
-                org.mockito.ArgumentMatchers.<String>isNull(),
-                org.mockito.ArgumentMatchers.nullable(DataQueryService.QueryOrder.class));
+        assertFilter(dataQueryService, "100", "`asset_code` LIKE ?", "%Bond%");
         assertEquals(0, response.getCode());
     }
 
@@ -539,6 +523,7 @@ public class ReportControllerTest {
         stubReportQuery(dataQueryService, "100", "`order_price`>'100'", new ListViewResult());
 
         ReportController controller = new ReportController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "dataQueryService", dataQueryService);
         setField(controller, "daoService", daoService);
 
@@ -548,12 +533,7 @@ public class ReportControllerTest {
 
         CommonResponse<ReportGridResult> response = controller.makeReport(request);
 
-        verify(dataQueryService).queryLegacyViewData(
-                eq("100"),
-                org.mockito.ArgumentMatchers.any(PageNavigator.class),
-                eq("`order_price`>'100'"),
-                org.mockito.ArgumentMatchers.<String>isNull(),
-                org.mockito.ArgumentMatchers.nullable(DataQueryService.QueryOrder.class));
+        assertFilter(dataQueryService, "100", "`order_price`>?", "100");
         assertEquals(0, response.getCode());
     }
 
@@ -568,6 +548,7 @@ public class ReportControllerTest {
                 new ListViewResult());
 
         ReportController controller = new ReportController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "dataQueryService", dataQueryService);
         setField(controller, "daoService", daoService);
 
@@ -580,12 +561,9 @@ public class ReportControllerTest {
 
         CommonResponse<ReportGridResult> response = controller.makeReport(request);
 
-        verify(dataQueryService).queryLegacyViewData(
-                eq("100"),
-                org.mockito.ArgumentMatchers.any(PageNavigator.class),
-                eq("(`order_state`='0') And (`order_symbol` LIKE '%BTC%') OR (`order_price`>'100')"),
-                org.mockito.ArgumentMatchers.<String>isNull(),
-                org.mockito.ArgumentMatchers.nullable(DataQueryService.QueryOrder.class));
+        assertFilter(dataQueryService, "100",
+                "(`order_state`=?) And (`order_symbol` LIKE ?) OR (`order_price`>?)",
+                "0", "%BTC%", "100");
         assertEquals(0, response.getCode());
     }
 
@@ -600,6 +578,7 @@ public class ReportControllerTest {
                 new ListViewResult());
 
         ReportController controller = new ReportController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         setField(controller, "dataQueryService", dataQueryService);
         setField(controller, "daoService", daoService);
 
@@ -613,19 +592,18 @@ public class ReportControllerTest {
 
         CommonResponse<ReportGridResult> response = controller.makeReport(request);
 
-        verify(dataQueryService).queryLegacyViewData(
-                eq("100"),
-                org.mockito.ArgumentMatchers.any(PageNavigator.class),
-                eq("((`order_state`='0') And (`order_symbol` LIKE '%BTC%')) OR (`order_price`>'100')"),
-                org.mockito.ArgumentMatchers.<String>isNull(),
-                org.mockito.ArgumentMatchers.nullable(DataQueryService.QueryOrder.class));
+        assertFilter(dataQueryService, "100",
+                "(`order_state`=?) And (`order_symbol` LIKE ?) OR (`order_price`>?)",
+                "0", "%BTC%", "100");
         assertEquals(0, response.getCode());
     }
 
     @Test
     public void makeReportRejectsUnknownFilterExpInsteadOfIgnoringIt() throws Exception {
         ReportController controller = new ReportController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         MakeReportRequest request = new MakeReportRequest();
+        request.setViewId(100L);
         request.setFilterExp(filterExp("order_state", "99", "自定义", "0", "Open"));
 
         assertThrows(IllegalArgumentException.class, () -> controller.makeReport(request));
@@ -634,7 +612,9 @@ public class ReportControllerTest {
     @Test
     public void makeReportRejectsUnknownCompositeBoolOp() throws Exception {
         ReportController controller = new ReportController();
+        org.fool.framework.view.TestReadAuthorization.install(controller);
         MakeReportRequest request = new MakeReportRequest();
+        request.setViewId(100L);
         request.setFilterExp(compositeFilterExp(
                 filterExp("order_state", "1", "等于", "0", "Open"),
                 seq("or 1=1", "or 1=1", filterExp("symbol", "7", "包含", "BTC", "BTC"))));
@@ -642,6 +622,7 @@ public class ReportControllerTest {
         assertThrows(IllegalArgumentException.class, () -> controller.makeReport(request));
 
         MakeReportRequest emptyBoolOpRequest = new MakeReportRequest();
+        emptyBoolOpRequest.setViewId(100L);
         emptyBoolOpRequest.setFilterExp(compositeFilterExp(
                 filterExp("order_state", "1", "等于", "0", "Open"),
                 seq(null, null, filterExp("symbol", "7", "包含", "BTC", "BTC"))));
@@ -664,13 +645,28 @@ public class ReportControllerTest {
             String viewId,
             String filter,
             ListViewResult result) {
-        when(dataQueryService.queryLegacyViewData(
+        when(dataQueryService.queryReportViewData(
                 eq(viewId),
                 org.mockito.ArgumentMatchers.any(PageNavigator.class),
-                eq(filter),
-                org.mockito.ArgumentMatchers.<String>isNull(),
+                org.mockito.ArgumentMatchers.nullable(IQueryFilter.class),
                 org.mockito.ArgumentMatchers.nullable(DataQueryService.QueryOrder.class)))
                 .thenReturn(result);
+    }
+
+    private static void assertFilter(
+            DataQueryService dataQueryService,
+            String viewId,
+            String sql,
+            Object... args) {
+        ArgumentCaptor<IQueryFilter> filter = ArgumentCaptor.forClass(IQueryFilter.class);
+        verify(dataQueryService).queryReportViewData(
+                eq(viewId),
+                org.mockito.ArgumentMatchers.any(PageNavigator.class),
+                filter.capture(),
+                org.mockito.ArgumentMatchers.nullable(DataQueryService.QueryOrder.class));
+        QueryAndArgs query = filter.getValue().generateSql();
+        assertEquals(sql, query.getSql());
+        assertArrayEquals(args, query.getArgs());
     }
 
     private static ListDataValue value(String id, String name, String value) {

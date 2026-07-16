@@ -46,7 +46,6 @@ interface SudokuPanelWorkflowOptions {
   ) => Promise<SudokuPanelResult | null>;
   panels: Readonly<Ref<TableColumnInfo[]>>;
   runAction: WorkflowActionRunner;
-  token: Ref<string>;
 }
 
 export function useSudokuPanels(options: SudokuPanelWorkflowOptions) {
@@ -112,7 +111,6 @@ export function useSudokuPanels(options: SudokuPanelWorkflowOptions) {
     const detailResponse = await options.runAction(
       `${label}-detail`,
       () => postApi<QueryDataDetailResult>("/api/v1/data/querydatadetail", buildQueryDataDetailRequest({
-        token: options.token.value,
         viewId: loadedViewId,
         objId: ""
       })),

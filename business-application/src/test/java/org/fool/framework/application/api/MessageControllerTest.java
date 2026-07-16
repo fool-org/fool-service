@@ -2,15 +2,18 @@ package org.fool.framework.application.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.fool.framework.auth.business.service.AuthService;
-import org.fool.framework.auth.dto.UserDTO;
+import org.fool.framework.common.authz.EffectiveSubject;
+import org.fool.framework.common.authz.EffectiveSubjectContext;
 import org.fool.framework.dto.CommonRequest;
 import org.fool.framework.dto.CommonResponse;
 import org.fool.framework.event.EventMessage;
 import org.fool.framework.event.EventMessageRepository;
 import org.fool.framework.event.MsgState;
 import org.junit.Test;
+import org.junit.Before;
+import org.junit.After;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -24,6 +27,18 @@ import static org.junit.Assert.assertTrue;
 public class MessageControllerTest {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(new JavaTimeModule());
 
+    @Before
+    public void setSubject() {
+        EffectiveSubjectContext.set(new EffectiveSubject(
+                "admin", List.of(), "", List.of(), "fool-service", "car_wash",
+                "auth-session", Instant.EPOCH, null, 7L));
+    }
+
+    @After
+    public void clearSubject() {
+        EffectiveSubjectContext.clear();
+    }
+
     @Test
     public void getmsgReturnsCurrentUserGeneratedMessagesAndMarksThemPushed() throws Exception {
         UUID messageId = UUID.randomUUID();
@@ -36,9 +51,8 @@ public class MessageControllerTest {
         message.setGenerateTime(generated);
         message.setState(MsgState.Generate);
         CapturingMessageRepository repository = new CapturingMessageRepository(List.of(message));
-        MessageController controller = new MessageController(new StubAuthService("admin"), repository);
+        MessageController controller = new MessageController(repository);
         CommonRequest request = new CommonRequest();
-        request.setToken("token-1");
 
         CommonResponse<MessageController.GetMessageResult> response = controller.getMessages(request);
 
@@ -76,35 +90,15 @@ public class MessageControllerTest {
 
     @Test
     public void getnotifyReturnsEmptyLegacyNotifyList() throws Exception {
-        StubAuthService authService = new StubAuthService("admin");
-        MessageController controller = new MessageController(authService, new CapturingMessageRepository(List.of()));
+        MessageController controller = new MessageController(new CapturingMessageRepository(List.of()));
         CommonRequest request = new CommonRequest();
-        request.setToken("token-1");
 
         CommonResponse<MessageController.GetNotifyResult> response = controller.getNotify(request);
 
         assertEquals(0, response.getCode());
-        assertEquals(List.of("token-1"), authService.tokens);
         assertEquals(0, response.getData().getNotifies().size());
         String json = OBJECT_MAPPER.writeValueAsString(response.getData());
         assertTrue(json.contains("\"Notifies\":[]"));
-    }
-
-    private static final class StubAuthService extends AuthService {
-        private final String userId;
-        private final List<String> tokens = new ArrayList<>();
-
-        private StubAuthService(String userId) {
-            this.userId = userId;
-        }
-
-        @Override
-        public UserDTO getInfoByToken(String token) {
-            tokens.add(token);
-            UserDTO user = new UserDTO();
-            user.setId(userId);
-            return user;
-        }
     }
 
     private static final class CapturingMessageRepository implements EventMessageRepository {

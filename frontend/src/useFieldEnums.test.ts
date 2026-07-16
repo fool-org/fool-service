@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ref } from "vue";
 import type { CommonResponse } from "./api";
 import { useFieldEnums } from "./useFieldEnums";
 import type { WorkflowActionOptions } from "./useViewDataWorkflow";
@@ -20,7 +19,7 @@ describe("useFieldEnums", () => {
         data: { EnumValues: [{ Name: "Open", Value: 0 }, { Name: "Filled", Value: 1 }] }
       }), { status: 200 });
     }));
-    const enums = useFieldEnums(ref("token-1"), async <T>(
+    const enums = useFieldEnums(async <T>(
       _label: string,
       action: () => Promise<CommonResponse<T>>,
       options?: WorkflowActionOptions
@@ -36,7 +35,7 @@ describe("useFieldEnums", () => {
     ]);
     await enums.loadFieldEnums([{ PrpId: "cached", PrpType: "Enum", PrpModelId: 300 }]);
 
-    expect(requests).toEqual([{ token: "token-1", modelId: "300" }]);
+    expect(requests).toEqual([{ modelId: "300" }]);
     expect(actionOptions).toEqual([{ silentTransport: true }]);
     expect(enums.enumOptions.value["300"]).toEqual([
       { label: "Open", value: "0" },

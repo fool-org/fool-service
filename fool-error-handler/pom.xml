@@ -42,6 +42,10 @@
             <groupId>com.github.yfge.fool</groupId>
             <artifactId>fool-dto</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.github.yfge.fool</groupId>
+            <artifactId>fool-common</artifactId>
+        </dependency>
 
     </dependencies>
 </project>

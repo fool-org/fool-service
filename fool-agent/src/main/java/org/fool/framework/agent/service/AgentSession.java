@@ -7,7 +7,10 @@ import java.util.List;
 
 public class AgentSession {
     private final String id;
-    private final String token;
+    private final String ownerUserId;
+    private final String appId;
+    private final String databaseId;
+    private final String authSessionId;
     private final String title;
     private AgentCapabilityType currentCapability;
     private AgentSessionStatus status;
@@ -15,9 +18,19 @@ public class AgentSession {
     private Instant updatedAt;
     private final List<AgentMessage> messages = new ArrayList<>();
 
-    public AgentSession(String id, String token, String title, AgentCapabilityType currentCapability, Instant createdAt) {
+    public AgentSession(String id,
+                        String ownerUserId,
+                        String appId,
+                        String databaseId,
+                        String authSessionId,
+                        String title,
+                        AgentCapabilityType currentCapability,
+                        Instant createdAt) {
         this.id = id;
-        this.token = token;
+        this.ownerUserId = ownerUserId;
+        this.appId = appId;
+        this.databaseId = databaseId;
+        this.authSessionId = authSessionId;
         this.title = title;
         this.currentCapability = currentCapability;
         this.status = AgentSessionStatus.ACTIVE;
@@ -29,8 +42,20 @@ public class AgentSession {
         return id;
     }
 
-    public String getToken() {
-        return token;
+    public String getOwnerUserId() {
+        return ownerUserId;
+    }
+
+    public String getAppId() {
+        return appId;
+    }
+
+    public String getDatabaseId() {
+        return databaseId;
+    }
+
+    public String getAuthSessionId() {
+        return authSessionId;
     }
 
     public String getTitle() {

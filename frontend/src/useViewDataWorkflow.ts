@@ -30,7 +30,6 @@ export interface WorkflowActionOptions {
 }
 
 export interface ViewDataWorkflowRefs {
-  token: Ref<string>;
   listViewId: Ref<number>;
   readItemViewId: Ref<number>;
   pageIndex: Ref<number>;
@@ -74,7 +73,6 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
       return null;
     }
     const request = buildLegacyListViewRequest({
-      token: options.token.value,
       viewId: requestedViewId
     });
 
@@ -97,7 +95,6 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
       return null;
     }
     const request = buildLegacyReadItemViewRequest({
-      token: options.token.value,
       viewId
     });
 
@@ -124,7 +121,6 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
       return null;
     }
     const request = buildLegacyQueryDataRequest({
-      token: options.token.value,
       viewId: loadedViewId,
       pageIndex,
       pageSize,
@@ -153,7 +149,6 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
     return options.runAction(
       `${label}-view`,
       () => postApi<ListViewInfo>("/api/v1/view/getlistview", buildLegacyListViewRequest({
-        token: options.token.value,
         viewId: requestedViewId
       })),
       actionOptions
@@ -177,7 +172,6 @@ export function useViewDataWorkflow(options: ViewDataWorkflowRefs) {
     const dataResponse = await options.runAction(
       `${label}-data`,
       () => postApi<ListViewResult>("/api/v1/data/querydata", buildLegacyQueryDataRequest({
-        token: options.token.value,
         viewId: loadedViewId,
         pageIndex: 1,
         pageSize

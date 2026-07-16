@@ -34,6 +34,7 @@ public class DataQueryServiceSaveObjTest {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
@@ -69,6 +70,7 @@ public class DataQueryServiceSaveObjTest {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
@@ -114,6 +116,7 @@ public class DataQueryServiceSaveObjTest {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
@@ -155,6 +158,7 @@ public class DataQueryServiceSaveObjTest {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
@@ -187,6 +191,7 @@ public class DataQueryServiceSaveObjTest {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
@@ -219,6 +224,7 @@ public class DataQueryServiceSaveObjTest {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));
@@ -247,6 +253,7 @@ public class DataQueryServiceSaveObjTest {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));

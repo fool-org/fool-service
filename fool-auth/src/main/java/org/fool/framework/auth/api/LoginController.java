@@ -10,6 +10,8 @@ import org.fool.framework.auth.dto.LoginDTO;
 import org.fool.framework.auth.dto.LoginVo;
 import org.fool.framework.auth.dto.UserDTO;
 import org.fool.framework.common.data.tree.TreeNode;
+import org.fool.framework.common.authz.EffectiveSubject;
+import org.fool.framework.common.authz.EffectiveSubjectContext;
 import org.fool.framework.dto.CommonRequest;
 import org.fool.framework.dto.CommonResponse;
 import io.swagger.annotations.Api;
@@ -95,7 +97,7 @@ public class LoginController {
     @PostMapping("/profile")
     @ResponseBody
     public CommonResponse<UserDTO> getProfile(@RequestBody CommonRequest request) {
-        var user = authService.getInfoByToken(request.getToken());
+        var user = authService.getInfoForUser(subject().userId());
         return new CommonResponse<UserDTO>(user);
     }
 
@@ -103,7 +105,7 @@ public class LoginController {
     @PostMapping("/auth-menus")
     @ResponseBody
     public CommonResponse<List<TreeNode<Auth>>> getMenus(@RequestBody CommonRequest request) {
-        return new CommonResponse<List<TreeNode<Auth>>>(authService.getAuth(request.getToken()));
+        return new CommonResponse<List<TreeNode<Auth>>>(authService.getAuthForUser(subject().userId()));
     }
 
     @ApiOperation("得到旧版子菜单")
@@ -111,21 +113,21 @@ public class LoginController {
     @ResponseBody
     public CommonResponse<LegacySubMenuResult> getSubMenu(@RequestBody LegacySubMenuRequest request) {
         return new CommonResponse<>(
-                new LegacySubMenuResult(request.getToken(),
-                        authService.getLegacySubMenus(request.getToken(), request.getParentAuthCode())));
+                new LegacySubMenuResult("",
+                        authService.getLegacySubMenusForUser(subject().userId(), request.getParentAuthCode())));
     }
 
     @ApiOperation("得到旧版主界面信息")
     @PostMapping("/getmain")
     @ResponseBody
-    public CommonResponse<LegacyMainResult> getMain(@RequestBody String token) {
-        String normalizedToken = legacyRawToken(token);
-        UserDTO user = authService.getInfoByToken(normalizedToken);
+    public CommonResponse<LegacyMainResult> getMain() {
+        EffectiveSubject subject = subject();
+        UserDTO user = authService.getInfoForUser(subject.userId());
         return new CommonResponse<>(new LegacyMainResult(
-                normalizedToken,
-                legacyUser(user, authService.getLegacyUserAvatar(normalizedToken)),
-                authService.getLegacyAppInfo(normalizedToken),
-                authService.getLegacySubMenus(normalizedToken, "")));
+                "",
+                legacyUser(user, authService.getLegacyUserAvatarForUser(subject.userId())),
+                authService.getLegacyAppInfoForScope(subject.appId()),
+                authService.getLegacySubMenusForUser(subject.userId(), "")));
     }
 
     @ApiOperation("得到旧版应用信息")
@@ -133,15 +135,15 @@ public class LoginController {
     @ResponseBody
     public CommonResponse<LegacyAppResult> getApp(@RequestBody CommonRequest request) {
         return new CommonResponse<>(new LegacyAppResult(
-                request.getToken(),
-                authService.getLegacyAppInfo(request.getToken())));
+                "",
+                authService.getLegacyAppInfoForScope(subject().appId())));
     }
 
     @ApiOperation("登出")
     @PostMapping("/logout")
     @ResponseBody
     public CommonResponse<Void> logout(@RequestBody CommonRequest request) {
-        authService.logout(request.getToken());
+        authService.logoutUser(subject().userId());
         return new CommonResponse<>((Void) null);
     }
 
@@ -149,9 +151,14 @@ public class LoginController {
     @PostMapping("/getuserinfo")
     @ResponseBody
     public CommonResponse<LegacyUserInfoResult> getUserInfo(@RequestBody CommonRequest request) {
-        UserDTO user = authService.getInfoByToken(request.getToken());
+        EffectiveSubject subject = subject();
+        UserDTO user = authService.getInfoForUser(subject.userId());
         return new CommonResponse<>(new LegacyUserInfoResult(
-                request.getToken(), legacyUser(user, authService.getLegacyUserAvatar(request.getToken()))));
+                "", legacyUser(user, authService.getLegacyUserAvatarForUser(subject.userId()))));
+    }
+
+    private static EffectiveSubject subject() {
+        return EffectiveSubjectContext.require();
     }
 
     private static LegacyUserInfo legacyUser(UserDTO user, String avatar) {
@@ -161,14 +168,6 @@ public class LoginController {
         legacyUser.setUserId(longOrZero(user.getId()));
         legacyUser.setUserAvtarUrl(avatar == null ? "" : avatar);
         return legacyUser;
-    }
-
-    private static String legacyRawToken(String token) {
-        String value = token == null ? "" : token.trim();
-        if (value.length() >= 2 && value.startsWith("\"") && value.endsWith("\"")) {
-            return value.substring(1, value.length() - 1);
-        }
-        return value;
     }
 
     private static long longOrZero(String value) {

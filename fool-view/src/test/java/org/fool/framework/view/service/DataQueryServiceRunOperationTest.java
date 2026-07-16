@@ -50,7 +50,7 @@ public class DataQueryServiceRunOperationTest {
         View view = view(deleteOperation(7001L, "操作成功"));
         DbMysqlDynamic data = new DbMysqlDynamic(model);
         data.set("orderId", "1001");
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
         when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
         when(modelDataService.deleteData(data)).thenReturn(true);
@@ -77,7 +77,7 @@ public class DataQueryServiceRunOperationTest {
         View view = view(operation);
         DbMysqlDynamic data = new DbMysqlDynamic(model);
         data.set("orderId", "1001");
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
         when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
         when(modelDataService.saveData(data)).thenReturn(true);
@@ -101,7 +101,7 @@ public class DataQueryServiceRunOperationTest {
         DbMysqlDynamic data = new DbMysqlDynamic(model);
         data.set("orderId", "970733");
         data.set("symbol", "SOL-USDT");
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
         when(modelDataService.getOneData("Order", "970733")).thenReturn(data);
         when(modelDataService.createData(data)).thenReturn(true);
@@ -125,7 +125,7 @@ public class DataQueryServiceRunOperationTest {
         DbMysqlDynamic data = new DbMysqlDynamic(model);
         data.set("orderId", "1001");
         data.set("state", "0");
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
         when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
         when(modelDataService.saveData(data)).thenReturn(true);
@@ -148,7 +148,7 @@ public class DataQueryServiceRunOperationTest {
                 command(CommandsType.SET_VALUE, 1004L, "$7", 1)));
         DbMysqlDynamic data = new DbMysqlDynamic(model);
         data.set("orderId", "1001");
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
         when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
         when(modelDataService.saveData(data)).thenReturn(true);
@@ -172,7 +172,7 @@ public class DataQueryServiceRunOperationTest {
         DbMysqlDynamic data = new DbMysqlDynamic(model);
         data.set("orderId", "1001");
         data.set("retryCount", 7);
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
         when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
         when(modelDataService.saveData(data)).thenReturn(true);
@@ -201,7 +201,7 @@ public class DataQueryServiceRunOperationTest {
                 command(CommandsType.SET_VALUE, 1011L, "$2026-07-03T10:00:00", 7)));
         DbMysqlDynamic data = new DbMysqlDynamic(model);
         data.set("orderId", "1001");
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
         when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
         when(modelDataService.saveData(data)).thenReturn(true);
@@ -238,7 +238,7 @@ public class DataQueryServiceRunOperationTest {
         DbMysqlDynamic data = new DbMysqlDynamic(model);
         data.set("orderId", "1001");
         DbMysqlDynamic customer = new DbMysqlDynamic(customerModel);
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
         when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
         when(modelDataService.getOneData("Customer", "C001")).thenReturn(customer);
@@ -262,7 +262,7 @@ public class DataQueryServiceRunOperationTest {
                 command(CommandsType.SET_VALUE, 1011L, "@datetime", 1)));
         DbMysqlDynamic data = new DbMysqlDynamic(model);
         data.set("orderId", "1001");
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
         when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
         when(modelDataService.saveData(data)).thenReturn(true);
@@ -275,7 +275,7 @@ public class DataQueryServiceRunOperationTest {
     }
 
     @Test
-    public void runLegacyUpdateOperationResolvesContextValueFromRequestToken() {
+    public void runLegacyUpdateOperationUsesEffectiveSubjectContext() {
         DaoService daoService = mock(DaoService.class);
         ModelDataService modelDataService = mock(ModelDataService.class);
         ViewDataService viewDataService = mock(ViewDataService.class);
@@ -286,13 +286,12 @@ public class DataQueryServiceRunOperationTest {
                 command(CommandsType.SET_VALUE, 1003L, "@userid", 1)));
         DbMysqlDynamic data = new DbMysqlDynamic(model);
         data.set("orderId", "1001");
-        when(viewDataService.getViewData("100", "token-1")).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
         when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
-        when(contextValueService.getValue("token-1", "userid")).thenReturn("admin");
+        when(contextValueService.getValue(null, "userid")).thenReturn("admin");
         when(modelDataService.saveData(data)).thenReturn(true);
         LegacyRunOperationRequest request = request("1001", 100L, 7002L);
-        request.setToken("token-1");
 
         LegacyRunOperationResult result = service.runLegacyOperation(request);
 
@@ -314,7 +313,7 @@ public class DataQueryServiceRunOperationTest {
         data.set("orderId", "1001");
         data.set("symbol", "BTC-USDT");
         data.set("state", "0");
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
         when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
         when(modelDataService.saveData(data)).thenReturn(true);
@@ -341,7 +340,7 @@ public class DataQueryServiceRunOperationTest {
         DbMysqlDynamic data = new DbMysqlDynamic(model);
         data.set("orderId", "1001");
         data.set("state", "0");
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
         when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
         when(modelDataService.getDataList(eq("Order"), any(IQueryFilter.class), eq(model.getProperties())))
@@ -368,7 +367,7 @@ public class DataQueryServiceRunOperationTest {
         DbMysqlDynamic data = new DbMysqlDynamic(model);
         data.set("SYSID", "1001");
         data.set("state", "1");
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
         when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
         when(modelDataService.getDataList(eq("Order"), any(IQueryFilter.class), eq(model.getProperties())))
@@ -398,7 +397,7 @@ public class DataQueryServiceRunOperationTest {
         IDynamicData customer = mock(IDynamicData.class);
         data.set("orderId", "1001");
         data.set("customer", customer);
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
         when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
         when(modelDataService.saveData(data)).thenReturn(true);
@@ -424,7 +423,7 @@ public class DataQueryServiceRunOperationTest {
         IDynamicData secondItem = mock(IDynamicData.class);
         data.set("orderId", "1001");
         data.set("items", List.of(firstItem, secondItem));
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
         when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
         when(modelDataService.saveData(data)).thenReturn(true);
@@ -450,7 +449,7 @@ public class DataQueryServiceRunOperationTest {
         RecordingItemList items = new RecordingItemList();
         data.set("orderId", "1001");
         data.set("items", items);
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
         when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
         when(modelDataService.saveData(data)).thenReturn(true);
@@ -479,7 +478,7 @@ public class DataQueryServiceRunOperationTest {
         DbMysqlDynamic data = new DbMysqlDynamic(model);
         data.set("orderId", "1001");
         data.set("symbol", "BTC-USDT");
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
         when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
 
@@ -514,7 +513,7 @@ public class DataQueryServiceRunOperationTest {
         DbMysqlDynamic shipment = new DbMysqlDynamic(shipmentModel);
         shipment.set("shipmentId", "S001");
         shipment.set("status", "pending");
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
         when(modelDataService.getModel("200")).thenReturn(shipmentModel);
         when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
@@ -550,7 +549,7 @@ public class DataQueryServiceRunOperationTest {
         DbMysqlDynamic shipment = new DbMysqlDynamic(shipmentModel);
         shipment.set("shipmentId", "S001");
         shipment.set("status", "delivered");
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
         when(modelDataService.getModel("200")).thenReturn(shipmentModel);
         when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
@@ -585,7 +584,7 @@ public class DataQueryServiceRunOperationTest {
         DbMysqlDynamic shipment = new DbMysqlDynamic(shipmentModel);
         shipment.set("shipmentId", "S001");
         shipment.set("status", "pending");
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
         when(modelDataService.getModel("200")).thenReturn(shipmentModel);
         when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
@@ -610,7 +609,7 @@ public class DataQueryServiceRunOperationTest {
         View view = view(operation(7002L, OperationBaseType.UPDATE, "保存成功", "保存失败"));
         DbMysqlDynamic data = new DbMysqlDynamic(model);
         data.set("orderId", "1001");
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
         when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
         when(modelDataService.saveData(data)).thenThrow(new IllegalStateException("db down"));
@@ -629,7 +628,7 @@ public class DataQueryServiceRunOperationTest {
         ViewDataService viewDataService = mock(ViewDataService.class);
         DataQueryService service = service(daoService, modelDataService, viewDataService);
         View view = view(operation(7003L, OperationBaseType.JSONPOST, "posted"));
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model());
 
         LegacyRunOperationResult result = service.runLegacyOperation(request("1001", 100L, 7003L));
@@ -650,7 +649,7 @@ public class DataQueryServiceRunOperationTest {
         Model model = model();
         DbMysqlDynamic data = new DbMysqlDynamic(model);
         View view = view(operation(7006L, OperationBaseType.NULL, "noop"));
-        when(viewDataService.getViewData("100", null)).thenReturn(view);
+        when(viewDataService.getViewData("100")).thenReturn(view);
         when(modelDataService.getModel("Order")).thenReturn(model);
         when(modelDataService.getOneData("Order", "1001")).thenReturn(data);
 
@@ -676,6 +675,7 @@ public class DataQueryServiceRunOperationTest {
             ViewDataService viewDataService,
             LegacyContextValueService contextValueService) {
         DataQueryService service = new DataQueryService();
+        org.fool.framework.view.TestReadAuthorization.install(service);
         ReflectionTestUtils.setField(service, "daoService", daoService);
         ReflectionTestUtils.setField(service, "modelDataService", modelDataService);
         ReflectionTestUtils.setField(service, "viewAdapter", mock(ViewDataAdapter.class));

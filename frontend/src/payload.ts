@@ -18,7 +18,6 @@ import type {
 } from "./api";
 
 export interface InputQueryRequestInput {
-  token: string;
   viewId?: number;
   viewName?: string;
   viewItemId: string;
@@ -30,7 +29,6 @@ export interface InputQueryRequestInput {
 }
 
 export interface SaveObjRequestInput {
-  token: string;
   id: string;
   viewID: string;
   propertyies?: SaveKeypair[];
@@ -46,37 +44,31 @@ export interface SaveNewObjRequestInput extends SaveObjRequestInput {
 }
 
 export interface RunOperationRequestInput {
-  token: string;
   objectId: string;
   viewId: number;
   operationId: number;
 }
 
 export interface QueryDataDetailRequestInput {
-  token: string;
   viewId: number;
   objId: string;
   idExp?: string;
 }
 
 export interface InitNewRequestInput {
-  token: string;
   viewId: number;
   parentObjId?: string;
 }
 
 export interface GetEnumRequestInput {
-  token: string;
   modelId: string;
 }
 
 export interface LegacyListViewRequestInput {
-  token: string;
   viewId: number;
 }
 
 export interface LegacyQueryDataRequestInput {
-  token: string;
   viewId: number;
   pageSize: number;
   pageIndex: number;
@@ -87,7 +79,6 @@ export interface LegacyQueryDataRequestInput {
 }
 
 export interface MakeReportRequestInput {
-  token: string;
   viewId: number;
   currentPage: number;
   pageSize: number;
@@ -97,15 +88,12 @@ export interface MakeReportRequestInput {
   reportName?: string;
 }
 
-export function buildTokenRequest(token: string): CommonRequest {
-  return {
-    token: token.trim()
-  };
+export function buildTokenRequest(): CommonRequest {
+  return {};
 }
 
 export function buildInputQueryRequest(input: InputQueryRequestInput): InputQueryRequest {
   const request: InputQueryRequest = {
-    token: input.token,
     viewItemId: input.viewItemId.trim(),
     text: input.text?.trim() || "",
     isAdded: Boolean(input.isAdded)
@@ -137,7 +125,6 @@ export function buildSaveObjRequest(input: SaveObjRequestInput): SaveObjRequest 
     saveObj.model = model;
   }
   return {
-    token: input.token,
     saveObj
   };
 }
@@ -161,7 +148,6 @@ export function buildSaveNewObjRequest(input: SaveNewObjRequestInput): LegacySav
 
 export function buildRunOperationRequest(input: RunOperationRequestInput): LegacyRunOperationRequest {
   return {
-    token: input.token,
     objectId: input.objectId.trim(),
     viewId: input.viewId,
     operationId: input.operationId
@@ -170,7 +156,6 @@ export function buildRunOperationRequest(input: RunOperationRequestInput): Legac
 
 export function buildQueryDataDetailRequest(input: QueryDataDetailRequestInput): LegacyQueryDataDetailRequest {
   const request: LegacyQueryDataDetailRequest = {
-    token: input.token,
     viewId: input.viewId,
     objId: input.objId.trim()
   };
@@ -183,7 +168,6 @@ export function buildQueryDataDetailRequest(input: QueryDataDetailRequestInput):
 
 export function buildInitNewRequest(input: InitNewRequestInput): LegacyInitNewRequest {
   const request: LegacyInitNewRequest = {
-    token: input.token,
     viewId: input.viewId
   };
   const parentObjId = input.parentObjId?.trim();
@@ -195,14 +179,12 @@ export function buildInitNewRequest(input: InitNewRequestInput): LegacyInitNewRe
 
 export function buildGetEnumRequest(input: GetEnumRequestInput): GetEnumRequest {
   return {
-    token: input.token,
     modelId: input.modelId.trim()
   };
 }
 
 export function buildLegacyListViewRequest(input: LegacyListViewRequestInput): ViewDataRequest {
   return {
-    token: input.token,
     viewId: input.viewId
   };
 }
@@ -213,7 +195,6 @@ export function buildLegacyReadItemViewRequest(input: LegacyListViewRequestInput
 
 export function buildLegacyQueryDataRequest(input: LegacyQueryDataRequestInput): LegacyQueryDataRequest {
   const request: LegacyQueryDataRequest = {
-    token: input.token,
     viewId: input.viewId,
     pageSize: input.pageSize,
     pageIndex: input.pageIndex
@@ -237,7 +218,6 @@ export function buildLegacyQueryDataRequest(input: LegacyQueryDataRequestInput):
 
 export function buildMakeReportRequest(input: MakeReportRequestInput): MakeReportRequest {
   const request: MakeReportRequest = {
-    token: input.token,
     viewId: input.viewId,
     currentPage: input.currentPage,
     pageSize: input.pageSize,

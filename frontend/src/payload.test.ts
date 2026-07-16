@@ -72,7 +72,7 @@ describe("App defaults", () => {
     expect(mainViewSource).not.toContain('disabled || !currentViewId');
     expect(mainViewSource).toContain('<template v-if="listView">');
     expect(mainViewSource).not.toMatch(/v-for="operation in createItems"[\s\S]*?:disabled="disabled"[\s\S]*?@click="emit\('newObject'/);
-    expect(mainViewSource).toMatch(/v-for="operation in createItems"[\s\S]*?class="legacy-create-operation"[\s\S]*?\s+text\s/);
+    expect(mainViewSource).toMatch(/v-for="operation in canCreate \? createItems : \[\]"[\s\S]*?class="legacy-create-operation"[\s\S]*?\s+text\s/);
     expect(mainViewSource).not.toMatch(/v-for="operation in createItems"[\s\S]*?\s+outlined\s+[\s\S]*?@click="emit\('newObject'/);
     expect(mainViewSource).toMatch(/\.legacy-create-operation[\s\S]*?border-color: transparent;[\s\S]*?background: transparent;[\s\S]*?color: #333333;/);
     expect(mainViewSource).not.toContain('icon="pi pi-search"');
@@ -196,14 +196,15 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain("emit('dismissError')");
     expect(toolbarSource).not.toContain(':disabled="pending"');
     expect(viewDetailPanelSource).not.toContain("operationParams(operation)");
-    expect(appSource).toContain("legacyRunOperationMessage(response.data)");
+    expect(operationRequestSource).toContain('action: "operation.execute"');
+    expect(operationRequestSource).toContain("prepareHighAction");
     expect(operationRequestSource).toContain("{ silentTransport: true }");
-    expect(appSource).toContain("operationResult.value = { message, success }");
+    expect(appSource).toContain('status: "AWAITING_APPROVAL"');
     expect(operationHandlerSource).not.toContain("queryCurrentViewData()");
     expect(operationHandlerSource).not.toContain("queryDetail()");
     expect(appSource).toContain('@dismiss-operation-result="operationResult = null"');
-    expect(viewDetailPanelSource).toContain('header="执行结果"');
-    expect(viewDetailPanelSource).toContain('operationResult.success ? "操作成功" : "操作失败"');
+    expect(viewDetailPanelSource).toContain('header="审批状态"');
+    expect(viewDetailPanelSource).toContain("等待独立审批");
     expect(viewDetailPanelSource).toContain("emit('dismissOperationResult')");
     expect(viewDetailPanelSource).not.toContain("<Message v-if=\"operationResult\"");
     expect(operationDialogSource).toContain('label="确定"');
@@ -1107,8 +1108,9 @@ describe("App defaults", () => {
     const allPagesExport = viewReportPanelSource.match(/<Button[^>]*label="导出全部"[^>]*\/>/)?.[0] ?? "";
     expect(currentPageExport).toContain('label="导出当前页"');
     expect(allPagesExport).toContain('label="导出全部"');
-    expect(currentPageExport).not.toContain("@click");
-    expect(allPagesExport).not.toContain("@click");
+    expect(currentPageExport).toContain('@click="exportReport(false)"');
+    expect(allPagesExport).toContain('@click="exportReport(true)"');
+    expect(viewReportPanelSource).toContain('action: "report.export"');
     expect(viewReportPanelSource).toContain('class="report-result-table"');
     expect(viewReportPanelSource).toContain("backToReportSetup");
     expect(viewReportPanelSource).toContain("currentPage.value = 1");
@@ -1201,7 +1203,7 @@ describe("App defaults", () => {
     expect(viewReportPanelSource).not.toContain("QueryFilter");
   });
 
-  it("keeps the legacy inert save report command in the View report panel", () => {
+  it("keeps the legacy save surface but uses the controlled action protocol", () => {
     const footerSource = viewReportPanelSource.slice(viewReportPanelSource.indexOf("<template #footer>"));
 
     expect(viewReportPanelSource).toContain("保存报表定义");
@@ -1218,7 +1220,9 @@ describe("App defaults", () => {
     expect(footerSource).toContain('label="取消" severity="secondary" outlined');
     expect(footerSource).toContain('label="确定" @click="runReport()"');
     expect(footerSource).toContain('label="保存报表定义" severity="info"');
-    expect(footerSource).not.toContain('@click="saveReport"');
+    expect(footerSource).toContain('@click="saveReportDefinition"');
+    expect(viewReportPanelSource).toContain('action: "report.save"');
+    expect(viewReportPanelSource).toContain("executeMediumAction");
     expect(viewReportPanelSource).not.toContain("canRun");
     expect(viewReportPanelSource).not.toContain("conditionsComplete");
     expect(footerSource).not.toContain('severity="secondary" text');
@@ -1454,7 +1458,7 @@ describe("App defaults", () => {
     expect(initNewSource).toContain("{ silentTransport: true }");
   });
 
-  it("runs legacy savenewobj from the rendered View workflow", () => {
+  it("routes create and update through the controlled medium-action workflow", () => {
     const saveRequestSource = appSource.slice(
       appSource.indexOf("async function saveObj"),
       appSource.indexOf("async function runOperation")
@@ -1464,7 +1468,11 @@ describe("App defaults", () => {
       appSource.indexOf("function finishSaveNavigation")
     );
 
-    expect(appSource).toContain("/api/v1/data/savenewobj");
+    expect(appSource).not.toContain("/api/v1/data/savenewobj");
+    expect(appSource).not.toContain("/api/v1/data/saveobj");
+    expect(saveRequestSource).toContain('action: "data.update"');
+    expect(saveRequestSource).toContain('action: "data.create"');
+    expect(saveRequestSource).toContain("executeMediumAction");
     expect(appSource).toContain("async function saveSelectedObject");
     expect(saveRequestSource.match(/\{ silentTransport: true \}/g)).toHaveLength(2);
     expect(appSource).toContain("saveDialogVisible.value = true");
@@ -1479,8 +1487,11 @@ describe("App defaults", () => {
     expect(viewDetailPanelSource).toContain(':loading="saving"');
   });
 
-  it("runs legacy operations from rendered View metadata", () => {
-    expect(appSource).toContain("/api/v1/data/runoperation");
+  it("routes rendered View operations through the controlled high-risk workflow", () => {
+    expect(appSource).not.toContain('postApi<LegacyRunOperationResult>("/api/v1/data/runoperation"');
+    expect(appSource).toContain('action: "operation.execute"');
+    expect(appSource).toContain("prepareHighAction");
+    expect(appSource).toContain("window.prompt");
     expect(appSource).toContain("const response = await runOperation(id)");
   });
 
@@ -1502,19 +1513,16 @@ describe("App defaults", () => {
 });
 
 describe("buildTokenRequest", () => {
-  it("matches the common token-only request DTO shape", () => {
-    const request = buildTokenRequest(" token-1 ");
+  it("never copies the bearer token into the request body", () => {
+    const request = buildTokenRequest();
 
-    expect(request).toEqual({
-      token: "token-1"
-    });
+    expect(request).toEqual({});
   });
 });
 
 describe("buildInputQueryRequest", () => {
   it("matches the legacy inputquery DTO shape", () => {
     const request = buildInputQueryRequest({
-      token: "token-1",
       viewId: 100,
       viewName: " OrderDetail ",
       viewItemId: "name",
@@ -1525,7 +1533,6 @@ describe("buildInputQueryRequest", () => {
     });
 
     expect(request).toEqual({
-      token: "token-1",
       viewName: "OrderDetail",
       viewItemId: "name",
       text: "Ada",
@@ -1537,14 +1544,12 @@ describe("buildInputQueryRequest", () => {
 
   it("includes the current view id for view-driven lookup", () => {
     const request = buildInputQueryRequest({
-      token: "token-1",
       viewId: 100,
       viewItemId: "customer",
       text: "Ad"
     });
 
     expect(request).toEqual({
-      token: "token-1",
       viewId: 100,
       viewItemId: "customer",
       text: "Ad",
@@ -1556,7 +1561,6 @@ describe("buildInputQueryRequest", () => {
 describe("buildSaveObjRequest", () => {
   it("matches the legacy saveobj DTO shape", () => {
     const request = buildSaveObjRequest({
-      token: "token-1",
       id: " 1001 ",
       viewID: " 100 ",
       propertyies: [
@@ -1574,7 +1578,6 @@ describe("buildSaveObjRequest", () => {
     });
 
     expect(request).toEqual({
-      token: "token-1",
       saveObj: {
         id: "1001",
         viewID: "100",
@@ -1603,7 +1606,6 @@ describe("buildSaveObjRequest", () => {
 describe("buildSaveNewObjRequest", () => {
   it("matches the legacy savenewobj DTO shape", () => {
     const request = buildSaveNewObjRequest({
-      token: "token-1",
       id: " 2009 ",
       viewID: " 200 ",
       propertyies: [{ key: "itemName", value: "New child" }],
@@ -1613,7 +1615,6 @@ describe("buildSaveNewObjRequest", () => {
     });
 
     expect(request).toEqual({
-      token: "token-1",
       saveObj: {
         id: "2009",
         viewID: "200",
@@ -1630,14 +1631,12 @@ describe("buildSaveNewObjRequest", () => {
 describe("buildRunOperationRequest", () => {
   it("matches the legacy runoperation DTO shape", () => {
     const request = buildRunOperationRequest({
-      token: "token-1",
       objectId: " 1001 ",
       viewId: 100,
       operationId: 7001
     });
 
     expect(request).toEqual({
-      token: "token-1",
       objectId: "1001",
       viewId: 100,
       operationId: 7001
@@ -1648,14 +1647,12 @@ describe("buildRunOperationRequest", () => {
 describe("buildQueryDataDetailRequest", () => {
   it("matches the legacy querydatadetail DTO shape", () => {
     const request = buildQueryDataDetailRequest({
-      token: "token-1",
       viewId: 100,
       objId: " 1001 ",
       idExp: " record_id "
     });
 
     expect(request).toEqual({
-      token: "token-1",
       viewId: 100,
       objId: "1001",
       idExp: "record_id"
@@ -1666,13 +1663,11 @@ describe("buildQueryDataDetailRequest", () => {
 describe("buildInitNewRequest", () => {
   it("matches the legacy initnew DTO shape", () => {
     const request = buildInitNewRequest({
-      token: "token-1",
       viewId: 100,
       parentObjId: " 5001 "
     });
 
     expect(request).toEqual({
-      token: "token-1",
       viewId: 100,
       parentObjId: "5001"
     });
@@ -1682,12 +1677,10 @@ describe("buildInitNewRequest", () => {
 describe("buildGetEnumRequest", () => {
   it("matches the legacy getenums DTO shape", () => {
     const request = buildGetEnumRequest({
-      token: "token-1",
       modelId: " 100 "
     });
 
     expect(request).toEqual({
-      token: "token-1",
       modelId: "100"
     });
   });
@@ -1696,12 +1689,10 @@ describe("buildGetEnumRequest", () => {
 describe("buildLegacyListViewRequest", () => {
   it("matches the legacy getlistview DTO shape", () => {
     const request = buildLegacyListViewRequest({
-      token: "token-1",
       viewId: 100
     });
 
     expect(request).toEqual({
-      token: "token-1",
       viewId: 100
     });
   });
@@ -1710,12 +1701,10 @@ describe("buildLegacyListViewRequest", () => {
 describe("buildLegacyReadItemViewRequest", () => {
   it("matches the legacy getreaditemview DTO shape", () => {
     const request = buildLegacyReadItemViewRequest({
-      token: "token-1",
       viewId: 100
     });
 
     expect(request).toEqual({
-      token: "token-1",
       viewId: 100
     });
   });
@@ -1724,7 +1713,6 @@ describe("buildLegacyReadItemViewRequest", () => {
 describe("buildLegacyQueryDataRequest", () => {
   it("matches the legacy querydata DTO shape", () => {
     const request = buildLegacyQueryDataRequest({
-      token: "token-1",
       viewId: 100,
       pageSize: 10,
       pageIndex: 2,
@@ -1735,7 +1723,6 @@ describe("buildLegacyQueryDataRequest", () => {
     });
 
     expect(request).toEqual({
-      token: "token-1",
       viewId: 100,
       pageSize: 10,
       pageIndex: 2,
@@ -1750,7 +1737,6 @@ describe("buildLegacyQueryDataRequest", () => {
 describe("buildMakeReportRequest", () => {
   it("matches the legacy makereport DTO shape", () => {
     const request = buildMakeReportRequest({
-      token: "token-1",
       viewId: 100,
       currentPage: 2,
       pageSize: 10,
@@ -1769,7 +1755,6 @@ describe("buildMakeReportRequest", () => {
     });
 
     expect(request).toEqual({
-      token: "token-1",
       viewId: 100,
       currentPage: 2,
       pageSize: 10,

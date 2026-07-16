@@ -2,6 +2,8 @@ package org.fool.framework.view.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.fool.framework.view.Application;
+import org.fool.framework.view.TestReadAuthorization;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +21,19 @@ public class ViewDataQueryServiceTest {
 
     @Autowired
     private ViewDataService viewDataService;
+    @Autowired
+    private ReadAuthorizationEnforcer authorizationEnforcer;
+
+    @Before
+    public void configureAuthorization() {
+        TestReadAuthorization.configure(authorizationEnforcer);
+    }
 
     @Test
     public void getViewData() {
         String name = "100";
 
-        var view = viewDataService.getViewData(name, "");
+        var view = viewDataService.getViewData(name);
 
         log.info("{}", view);
     }
