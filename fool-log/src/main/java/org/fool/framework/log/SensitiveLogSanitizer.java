@@ -17,7 +17,12 @@ public class SensitiveLogSanitizer {
     private static final Set<String> SENSITIVE_KEYS = Set.of(
             "token", "accesstoken", "refreshtoken", "authorization",
             "password", "passwd", "pwd", "secret", "clientsecret",
-            "appkey", "connection", "connectionstring", "syscon");
+            "appkey", "connection", "connectionstring", "syscon",
+            "checkcode", "checkcodekey", "chk", "chkid",
+            "chkkey", "chkcodeimg", "chkimg");
+    private static final Set<String> CAPTCHA_CONTEXT_KEYS = Set.of(
+            "checkcodekey", "chk", "chkid", "chkkey", "chkcodeimg", "chkimg");
+    private static final Set<String> CAPTCHA_VALUE_KEYS = Set.of("code", "key");
 
     private final ObjectMapper objectMapper;
 
@@ -37,33 +42,56 @@ public class SensitiveLogSanitizer {
             if (root.isTextual()) {
                 return objectMapper.writeValueAsString(REDACTED);
             }
-            redact(root);
+            redact(root, false);
             return objectMapper.writeValueAsString(root);
         } catch (Exception ignored) {
             return "[REDACTED_NON_JSON_BODY]";
         }
     }
 
-    private void redact(JsonNode node) {
+    private void redact(JsonNode node, boolean captchaContext) {
         if (node instanceof ObjectNode object) {
+            boolean redactCaptchaValues = captchaContext || isCaptchaObject(object);
             Iterator<Map.Entry<String, JsonNode>> fields = object.fields();
             while (fields.hasNext()) {
                 Map.Entry<String, JsonNode> field = fields.next();
-                if (isSensitive(field.getKey())) {
+                String normalized = normalize(field.getKey());
+                if ("checkcode".equals(normalized) && field.getValue().isContainerNode()) {
+                    redact(field.getValue(), true);
+                } else if (isSensitive(normalized)
+                        || (redactCaptchaValues && CAPTCHA_VALUE_KEYS.contains(normalized))) {
                     object.put(field.getKey(), REDACTED);
                 } else {
-                    redact(field.getValue());
+                    redact(field.getValue(), captchaContext);
                 }
             }
         } else if (node instanceof ArrayNode array) {
-            array.forEach(this::redact);
+            array.forEach(item -> redact(item, captchaContext));
         }
     }
 
-    private static boolean isSensitive(String key) {
-        String normalized = key == null
+    private static boolean isCaptchaObject(ObjectNode object) {
+        boolean hasCode = false;
+        boolean hasKey = false;
+        Iterator<String> fields = object.fieldNames();
+        while (fields.hasNext()) {
+            String normalized = normalize(fields.next());
+            if (CAPTCHA_CONTEXT_KEYS.contains(normalized)) {
+                return true;
+            }
+            hasCode |= "code".equals(normalized);
+            hasKey |= "key".equals(normalized);
+        }
+        return hasCode && hasKey;
+    }
+
+    private static boolean isSensitive(String normalized) {
+        return SENSITIVE_KEYS.contains(normalized);
+    }
+
+    private static String normalize(String key) {
+        return key == null
                 ? ""
                 : key.replace("_", "").replace("-", "").toLowerCase(Locale.ROOT);
-        return SENSITIVE_KEYS.contains(normalized);
     }
 }

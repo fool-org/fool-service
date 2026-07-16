@@ -96,26 +96,23 @@ authorization, risk, approval, execution, and audit boundary. Owner: Codex.
       enablement, and message sending. Acceptance: each action has a dedicated
       handler, preview, approval rule, idempotency/rollback or recovery path,
       runtime evidence, and no generic arbitrary-SQL/code execution capability.
-- [ ] Complete Phase 4 compatibility removal and hardening: remove body-token
+- [x] Complete Phase 4 compatibility removal and hardening: remove body-token
       support and raw Agent session tokens, add policy-cache invalidation and
       audit tamper detection, and exercise dependency/audit/provider failures.
       Acceptance: the full Maven, frontend, repo-harness, Docker runtime-doctor,
       browser-role matrix, and security regression suite pass.
-      Status: implementation, full Maven/frontend builds, fresh/existing
-      migration, repository harness, runtime doctor, security regression,
-      strict permission review, HIGH-action recheck, and four-role API preflight
-      pass. Authenticated effective-action discovery drives frontend commands,
-      and direct plus department-assigned legacy roles resolve with the expected
-      actions and row scopes. The only open gate is the four-identity browser
-      UI/network matrix. Current Browser Use discovery reaches the registered
-      IAB route but its native-pipe server rejects every client with
-      `failed to read peer grandparent code signing identity`; strict macOS
-      verification reports invalid signatures for `ChatGPT.app`, `codex`,
-      `node_repl`, and the Chrome extension host. Reinstall a consistently
-      signed official application/plugin, then capture the ordinary-user,
-      department-administrator, independent-approver, and system-administrator
-      proofs. Phase 4 remains open until those visible/network results pass.
-      Evidence: `agent_chats/2026/07/15/2026-07-15T12-22-00Z-phase4-hardening.md`.
+      Status: complete on 2026-07-16. Dedicated system Chrome/CDP run
+      `20260716-browser-role-matrix-07` passed the ordinary-user,
+      department-administrator, independent-approver, and isolated
+      system-administrator UI/network matrix. Owner self-approval and execution
+      without fresh step-up returned true HTTP 403 responses, both denials were
+      audited, CAPTCHA material was redacted from runtime logs and artifacts,
+      and fixture/token/profile cleanup passed. The final full Maven reactor,
+      frontend tests/build, repository harness, Docker runtime doctor, strict
+      permission review, migration contract, and reversible security regression
+      also passed.
+      Evidence:
+      `agent_chats/2026/07/16/2026-07-16T11-19-38Z-phase4-browser-role-matrix.md`.
 
 ## Active: Vue Interface Upgrade
 

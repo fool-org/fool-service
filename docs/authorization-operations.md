@@ -86,3 +86,28 @@ administrator, independent approver, and system administrator. It must verify
 both visible UI capability and the corresponding network response; hidden
 buttons alone are not authorization evidence. HIGH actions still require
 step-up and independent approval for system administrators.
+
+Run the matrix against the Docker frontend with a unique evidence ID:
+
+```bash
+PYTHONPATH=scripts python -m unittest scripts/browser_role_matrix_test.py
+python scripts/harness/browser_role_matrix.py \
+  --run-id "$(date -u +%Y%m%dT%H%M%SZ)-browser-role-matrix"
+```
+
+The harness creates four temporary local identities, including an isolated
+system-administrator fixture so it does not rotate a developer's active
+`admin` token. It launches a dedicated headless Google Chrome through a
+temporary profile and loopback CDP port, performs CAPTCHA login through the
+real Vue form, and removes the identities, action request, credentials, Redis
+tokens, and Chrome profile in `finally`. An occupied CDP port is an
+environment failure; the harness never connects to an existing Chrome.
+
+Evidence is written under `artifacts/runs/<run-id>/` and is limited to the
+summary, sanitized UI/network matrix, selected audit rows, masked screenshots,
+and a checksum manifest. Passwords, CAPTCHA values or images, bearer tokens,
+headers, full bodies, full DOM snapshots, HAR files, traces, and video are
+forbidden artifacts. A run passes only when the ordinary and department data
+scopes, approver controls, owner self-approval denial, independent approval,
+post-approval `STEP_UP_REQUIRED` denial, audit trace, secret scan, fixture
+cleanup, and Chrome-profile cleanup all pass.

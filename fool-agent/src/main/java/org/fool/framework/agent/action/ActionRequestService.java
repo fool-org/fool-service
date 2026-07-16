@@ -259,8 +259,14 @@ public class ActionRequestService {
             throw new ControlledActionException(409, "CONFIRMATION_EXPIRED");
         }
         if (request.risk() == RiskLevel.HIGH) {
-            requireRecentStepUp(subject);
-            requireValidApprovals(request);
+            try {
+                requireRecentStepUp(subject);
+                requireValidApprovals(request);
+            } catch (RuntimeException ex) {
+                audit(subject, request.source(), request.agentSessionId(), id, request.action(),
+                        request.resourceKey(), "DENY", reason(ex), request.risk(), request.policyVersion());
+                throw ex;
+            }
         }
         Revalidated validated = revalidate(subject, request);
         audit(subject, request.source(), request.agentSessionId(), id, request.action(), request.resourceKey(),
@@ -312,6 +318,9 @@ public class ActionRequestService {
             throw new ControlledActionException(409, "APPROVAL_NOT_REQUIRED");
         }
         if (request.ownerUserId().equals(approver.userId())) {
+            audit(approver, request.source(), request.agentSessionId(), id, request.action(),
+                    request.resourceKey(), "DENY", "SELF_APPROVAL_FORBIDDEN",
+                    request.risk(), request.policyVersion());
             throw new ControlledActionException(403, "SELF_APPROVAL_FORBIDDEN");
         }
         requireCurrentPolicy(approver);

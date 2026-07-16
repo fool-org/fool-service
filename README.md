@@ -189,7 +189,7 @@ Run the smallest check that matches the change:
 | Vue frontend | `cd frontend && npm test && npm run build` |
 | Java backend | `mvn test`, or a focused module test |
 | Docker or runtime | `docker compose up -d --build && python scripts/runtime_doctor.py` |
-| Authorization or Agent controls | Run backend and frontend checks, then follow the strict review and reversible regression steps in the [authorization operations guide](docs/authorization-operations.md) |
+| Authorization or Agent controls | Run backend and frontend checks, then `python scripts/harness/browser_role_matrix.py --run-id <run-id>` and the remaining strict review steps in the [authorization operations guide](docs/authorization-operations.md) |
 
 See the [validation guide](docs/validation.md) for the full command matrix, CI
 gates, and skip policy.

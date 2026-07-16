@@ -227,6 +227,9 @@ public class ActionRequestServiceTest {
         assertEquals(1, preview.requiredApprovals());
         assertEquals("SELF_APPROVAL_FORBIDDEN", assertThrows(ControlledActionException.class,
                 () -> service.approve(owner, created.actionRequestId(), "APPROVE", "self")).getMessage());
+        assertTrue(audits.stream().anyMatch(event ->
+                "SELF_APPROVAL_FORBIDDEN".equals(event.reasonCode())
+                        && created.actionRequestId().equals(event.actionRequestId())));
 
         EffectiveSubject approver = new EffectiveSubject("approver", List.of("auth:9001"), "c1", List.of(),
                 "app", "db", "approver-session", clock.instant(), null, 1);
@@ -241,6 +244,11 @@ public class ActionRequestServiceTest {
         assertTrue(!approvalDecisions.isEmpty());
         assertTrue(approvalDecisions.stream().allMatch(request -> "View".equals(request.resourceType())
                 && "app:app:db:db:view:100".equals(request.resourceKey())));
+        assertEquals("STEP_UP_REQUIRED", assertThrows(ControlledActionException.class,
+                () -> service.execute(withoutStepUp, created.actionRequestId())).getMessage());
+        assertTrue(audits.stream().anyMatch(event ->
+                "STEP_UP_REQUIRED".equals(event.reasonCode())
+                        && created.actionRequestId().equals(event.actionRequestId())));
         approverAllowed.set(false);
         assertEquals("APPROVER_PERMISSION_REVOKED", assertThrows(ControlledActionException.class,
                 () -> service.execute(owner, created.actionRequestId())).getMessage());

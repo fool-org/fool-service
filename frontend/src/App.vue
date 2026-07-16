@@ -372,7 +372,7 @@ async function dismissLoginError() {
 async function loadMainInfo() {
   const response = await runAction(
     "getmain",
-    () => postApi<LegacyMainResult>("/api/v1/auth/getmain", token.value),
+    () => postApi<LegacyMainResult>("/api/v1/auth/getmain", buildTokenRequest()),
     { silentTransport: true }
   );
   if (response) {

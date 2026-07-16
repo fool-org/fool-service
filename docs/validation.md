@@ -31,6 +31,8 @@ the heaviest runtime path for every edit.
 - `PYTHONPATH=scripts python -m unittest scripts/authorization_review_test.py`
 - `python scripts/authorization_review.py --strict` (run at least quarterly and archive the JSON result)
 - `python scripts/authorization_security_regression.py --report-json artifacts/runs/<run_id>/security-regression.json`
+- `PYTHONPATH=scripts python -m unittest scripts/browser_role_matrix_test.py`
+- `python scripts/harness/browser_role_matrix.py --run-id <run_id>`
 - `python scripts/legacy_migration_contract.py --require-legacy`
 - `PYTHONPATH=scripts python -m unittest scripts/legacy_migration_contract_test.py`
 - `PYTHONPATH=scripts python -m unittest scripts/legacy_view_matrix_test.py`
@@ -52,6 +54,11 @@ the heaviest runtime path for every edit.
   Docker, log, or HTTP observation is decisive.
 - Authorization operations, audit-integrity response, policy invalidation, and
   the four-identity browser matrix follow `docs/authorization-operations.md`.
+- The browser matrix launches a dedicated system Chrome with a temporary
+  profile and a private loopback CDP port. It refuses an occupied port instead
+  of attaching to an existing user browser, and it keeps credentials,
+  CAPTCHA values, bearer tokens, full request bodies, and full DOM snapshots
+  out of the artifact bundle.
 
 ## CI Gates
 

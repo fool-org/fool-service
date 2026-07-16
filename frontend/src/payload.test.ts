@@ -1420,8 +1420,15 @@ describe("App defaults", () => {
   });
 
   it("loads legacy main info into the signed-in shell", () => {
+    const mainInfoSource = appSource.slice(
+      appSource.indexOf("async function loadMainInfo"),
+      appSource.indexOf("async function loadCheckCode")
+    );
+
     expect(appSource).toContain("/api/v1/auth/getmain");
     expect(appSource).toContain("mainInfoResponse");
+    expect(mainInfoSource).toContain('postApi<LegacyMainResult>("/api/v1/auth/getmain", buildTokenRequest())');
+    expect(mainInfoSource).not.toContain("token.value");
     expect(appSource).toContain("legacyAppName(mainInfoResponse.value?.data");
     expect(appSource).toContain("legacyAppVersion(mainInfoResponse.value?.data)");
     expect(appSource).toContain("legacyAppPowerBy(mainInfoResponse.value?.data)");

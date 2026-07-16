@@ -6,6 +6,8 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.fool.framework.common.authz.AuthorizationDeniedException;
+import org.fool.framework.common.authz.ControlledActionException;
 import org.fool.framework.dto.CommonResponse;
 import org.fool.framework.error.ExceptionDealerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,8 @@ public class ErrorHandleAspect {
         Object result = null;
         try {
             result = joinPoint.proceed();
+        } catch (AuthorizationDeniedException | ControlledActionException ex) {
+            throw ex;
         } catch (Throwable ex) {
             result = dealerService.handle(ex);
             if (result == null) {
@@ -50,4 +54,3 @@ public class ErrorHandleAspect {
         return result;
     }
 }
-

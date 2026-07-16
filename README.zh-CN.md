@@ -175,7 +175,7 @@ npm run dev
 | Vue 前端 | `cd frontend && npm test && npm run build` |
 | Java 后端 | `mvn test`，或运行聚焦模块测试 |
 | Docker / 运行时 | `docker compose up -d --build && python scripts/runtime_doctor.py` |
-| 权限 / Agent 风控 | 运行后端与前端检查，并按 [授权运行手册](docs/authorization-operations.md) 执行严格权限审查和可逆安全回归 |
+| 权限 / Agent 风控 | 运行后端与前端检查，再执行 `python scripts/harness/browser_role_matrix.py --run-id <run-id>`，并按 [授权运行手册](docs/authorization-operations.md) 完成其余严格权限审查和可逆安全回归 |
 
 完整命令、CI 门禁和跳过规则见 [验证指南](docs/validation.md)。
 
