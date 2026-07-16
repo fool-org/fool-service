@@ -64,26 +64,35 @@ function dismissLoginDialog() {
 
 <template>
   <main class="login-page">
-    <header class="login-brand">
-      <img v-if="appImage" :alt="appName" :src="appImage" />
-      <h1>{{ appName }}</h1>
-    </header>
+    <section class="login-card">
+      <header class="login-brand">
+        <img v-if="appImage" :alt="appName" :src="appImage" />
+        <h1>{{ appName }}</h1>
+        <p>欢迎回来，请登录后继续。</p>
+      </header>
 
-    <form class="login-form" aria-label="登录" @submit.prevent="submit">
-      <InputText v-model="userId" aria-label="用户名" autocomplete="username" placeholder="用户名" fluid />
-      <InputText v-model="password" aria-label="密码" autocomplete="current-password" placeholder="密码" type="password" fluid />
-      <InputText v-model="checkCodeValue" aria-label="验证码" autocomplete="one-time-code" placeholder="验证码" fluid />
-      <div class="captcha-preview">
-        <img v-if="captchaImage" alt="验证码" :src="`data:image/jpeg;base64,${captchaImage}`" />
-        <Button type="button" label="刷新" severity="secondary" text @click="emit('refresh')" />
-      </div>
-      <input name="check-code-key" type="hidden" :value="captchaKey" />
+      <form class="login-form" aria-label="登录" @submit.prevent="submit">
+        <InputText v-model="userId" aria-label="用户名" autocomplete="username" placeholder="用户名" fluid />
+        <InputText v-model="password" aria-label="密码" autocomplete="current-password" placeholder="密码" type="password" fluid />
+        <InputText v-model="checkCodeValue" aria-label="验证码" autocomplete="one-time-code" placeholder="验证码" fluid />
+        <div class="captcha-preview">
+          <img v-if="captchaImage" alt="验证码" :src="`data:image/jpeg;base64,${captchaImage}`" />
+          <Button type="button" label="刷新" severity="secondary" text @click="emit('refresh')" />
+        </div>
+        <input name="check-code-key" type="hidden" :value="captchaKey" />
 
-      <div class="login-actions">
-        <Button type="submit" label="登录" :disabled="!captchaKey" />
-        <Button type="button" label="重置" severity="secondary" @click="resetDialogVisible = true" />
-      </div>
-    </form>
+        <div class="login-actions">
+          <Button type="submit" label="登录" :disabled="!captchaKey" />
+          <Button type="button" label="重置" severity="secondary" @click="resetDialogVisible = true" />
+        </div>
+      </form>
+
+      <footer v-if="appVersion || appPowerBy">
+        <span>{{ appVersion }}</span>
+        <a v-if="appPowerBy && appHref" :href="appHref" rel="noreferrer" target="_blank">{{ appPowerBy }}</a>
+        <span v-else>{{ appPowerBy }}</span>
+      </footer>
+    </section>
 
     <Dialog
       v-if="errorMessage || resetDialogVisible"
@@ -101,25 +110,32 @@ function dismissLoginDialog() {
       </template>
     </Dialog>
 
-    <footer v-if="appVersion || appPowerBy">
-      <span>{{ appVersion }}</span>
-      <a v-if="appPowerBy && appHref" :href="appHref" rel="noreferrer" target="_blank">{{ appPowerBy }}</a>
-      <span v-else>{{ appPowerBy }}</span>
-    </footer>
   </main>
 </template>
 
 <style scoped>
 .login-page {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   min-height: 100vh;
-  align-items: center;
-  gap: 18px;
   padding: 24px 16px;
-  background: #ffffff;
-  color: #333333;
+  background:
+    radial-gradient(circle at 15% 15%, rgba(51, 122, 183, 0.18), transparent 28rem),
+    radial-gradient(circle at 85% 85%, rgba(125, 211, 252, 0.2), transparent 24rem),
+    #f4f7fb;
+  color: #0f172a;
+}
+
+.login-card {
+  display: grid;
+  width: min(100%, 420px);
+  gap: 24px;
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
+  padding: 32px;
+  backdrop-filter: blur(16px);
 }
 
 .login-brand {
@@ -136,15 +152,21 @@ function dismissLoginDialog() {
 
 .login-brand h1 {
   margin: 12px 0 0;
-  font-size: 2rem;
-  font-weight: 500;
-  letter-spacing: 0;
+  font-size: 1.8rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.login-brand p {
+  margin: 7px 0 0;
+  color: #64748b;
+  font-size: 0.9rem;
 }
 
 .login-form {
   display: grid;
-  width: min(100%, 240px);
-  gap: 8px;
+  width: 100%;
+  gap: 12px;
 }
 
 .login-form :deep(.p-inputtext),
@@ -152,25 +174,36 @@ function dismissLoginDialog() {
   width: 100%;
 }
 
+.login-form :deep(.p-inputtext) {
+  height: 44px;
+  border-radius: 10px;
+  padding-inline: 13px;
+}
+
 .captcha-preview {
   display: flex;
-  min-height: 40px;
-  justify-content: flex-end;
+  min-height: 52px;
+  justify-content: space-between;
   gap: 8px;
   align-items: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+  padding: 5px 8px;
 }
 
 .captcha-preview img {
   width: 100px;
   height: 40px;
-  border: 1px solid #cccccc;
-  border-radius: 4px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
   object-fit: cover;
 }
 
 .login-actions {
   display: grid;
-  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
 }
 
 .login-actions :deep(.p-button) {
@@ -182,7 +215,7 @@ function dismissLoginDialog() {
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  color: #666666;
+  color: #64748b;
   font-size: 0.8rem;
   text-align: center;
 }
@@ -193,7 +226,12 @@ function dismissLoginDialog() {
 
 @media (max-width: 520px) {
   .login-page {
-    padding: 24px 14px;
+    padding: 14px;
+  }
+
+  .login-card {
+    border-radius: 16px;
+    padding: 24px 20px;
   }
 }
 </style>

@@ -1,6 +1,13 @@
 :root {
+  --app-primary: #337ab7;
+  --app-primary-strong: #286090;
+  --app-page: #f4f7fb;
+  --app-surface: #ffffff;
+  --app-border: #e2e8f0;
+  --app-muted: #64748b;
+  --app-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
   color: #0f172a;
-  background: #f8fafc;
+  background: var(--app-page);
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 15px;
@@ -1421,5 +1428,235 @@ label {
   .button-row,
   .inline-fields {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Modern product skin; legacy structure and interaction contracts stay intact. */
+body {
+  background:
+    radial-gradient(circle at top left, rgba(51, 122, 183, 0.09), transparent 30rem),
+    var(--app-page);
+}
+
+.app-shell {
+  background: transparent;
+}
+
+.shell-header {
+  position: sticky;
+  top: 0;
+  min-height: 64px;
+  border-color: rgba(226, 232, 240, 0.9);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  padding: 0 clamp(18px, 3vw, 40px);
+  backdrop-filter: blur(14px);
+}
+
+.brand {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.2rem;
+  font-weight: 750;
+}
+
+.brand small {
+  margin-left: 7px;
+  color: var(--app-muted);
+  font-size: 0.68rem;
+}
+
+.nav-list-horizontal button,
+.nav-list-horizontal .nav-static-item {
+  min-height: 64px;
+  padding: 0 14px;
+  transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+.nav-list button:hover,
+.nav-list button.expanded {
+  background: #eff6ff;
+  color: var(--app-primary-strong);
+}
+
+.nav-list-horizontal button.expanded {
+  box-shadow: inset 0 -2px var(--app-primary);
+}
+
+.nav-list-horizontal .nav-sublist {
+  margin-top: 8px;
+  border-color: var(--app-border);
+  border-radius: 10px;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.14);
+  padding: 6px;
+}
+
+.nav-list-horizontal .nav-sublist button,
+.nav-list-horizontal .nav-sublist .nav-static-item {
+  min-height: 38px;
+  margin: 0;
+  border: 0;
+  border-radius: 7px;
+  padding: 9px 12px;
+}
+
+.shell-header .shell-user {
+  max-width: 220px;
+  gap: 8px;
+  color: #334155;
+  font-size: 0.84rem;
+}
+
+.shell-header .shell-user > i,
+.shell-header .shell-avatar {
+  flex-basis: 32px;
+  width: 32px;
+  height: 32px;
+}
+
+.shell-header .shell-user-name {
+  color: var(--app-primary);
+  padding: 8px 10px;
+}
+
+.workspace {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  gap: 20px;
+  padding: clamp(18px, 3vw, 34px);
+}
+
+.panel {
+  gap: 18px;
+  border-color: var(--app-border);
+  border-radius: 14px;
+  padding: 0 20px 20px;
+  box-shadow: var(--app-shadow);
+}
+
+.panel-heading {
+  margin: 0 -20px;
+  border-color: #edf1f6;
+  border-radius: 13px 13px 0 0;
+  background: transparent;
+  padding: 18px 20px 14px;
+}
+
+.panel-heading h2 {
+  color: #0f172a;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.workflow-toolbar,
+.candidate-query-toolbar {
+  gap: 8px;
+}
+
+.workflow-toolbar .p-inputtext,
+.candidate-query-toolbar .p-inputtext,
+.workflow-toolbar .p-button,
+.candidate-query-toolbar .p-button {
+  height: 40px;
+  border-radius: 8px;
+  padding: 8px 13px;
+}
+
+.p-dialog {
+  border-color: var(--app-border);
+  border-radius: 14px;
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.2);
+}
+
+.p-dialog .p-dialog-header,
+.p-dialog .p-dialog-content,
+.p-dialog .p-dialog-footer {
+  padding: 20px;
+}
+
+.table-wrap {
+  border-color: var(--app-border);
+  border-radius: 10px;
+  background: var(--app-surface);
+}
+
+.view-table {
+  min-height: 360px;
+}
+
+.metadata-data-table .p-datatable-thead > tr > th {
+  border-bottom: 1px solid var(--app-border);
+  background: #f8fafc;
+  color: #334155;
+}
+
+.metadata-data-table .p-datatable-tbody > tr > td {
+  border-top: 0;
+  border-bottom: 1px solid #eef2f7;
+  padding: 11px 12px;
+  transition: background-color 140ms ease;
+}
+
+.metadata-data-table.p-datatable-striped .p-datatable-tbody > tr.p-row-even {
+  background: #fbfdff;
+}
+
+.metadata-data-table .p-datatable-tbody > tr:hover > td {
+  background: #f1f5f9;
+}
+
+.view-table tr.selected td {
+  background: #eff6ff;
+}
+
+.view-table tr.selected td:first-child {
+  box-shadow: inset 3px 0 var(--app-primary);
+}
+
+.legacy-pagination .p-paginator {
+  gap: 4px;
+}
+
+.legacy-pagination .p-paginator-prev,
+.legacy-pagination .p-paginator-next,
+.legacy-pagination .p-paginator-page {
+  margin-left: 0;
+  border-color: var(--app-border);
+  border-radius: 8px;
+}
+
+.legacy-pagination .p-paginator-prev,
+.legacy-pagination .p-paginator-next {
+  border-radius: 8px;
+}
+
+.home-empty-state,
+.empty-state {
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+@media (max-width: 1023px) {
+  .shell-header {
+    gap: 10px;
+    padding: 12px 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .workspace {
+    padding: 12px;
+  }
+
+  .panel {
+    border-radius: 12px;
+    padding: 0 14px 14px;
+  }
+
+  .panel-heading {
+    margin: 0 -14px;
+    padding: 15px 14px 12px;
   }
 }

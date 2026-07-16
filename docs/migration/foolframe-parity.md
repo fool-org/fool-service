@@ -2654,6 +2654,11 @@ The new Vue app under `frontend/` replaces the first operator workflow with:
 - Shared list/detail panels use the old Bootstrap 3 geometry: `#ddd` borders,
   4px corners, `#f5f5f5` heading bands, 15px content spacing, and a subtle
   one-pixel shadow. The invented 12px floating-card treatment is removed.
+- 2026-07-15 product direction supersedes the pixel-only portion of that
+  contract for the default Vue surface: the shell, panels, tables, dialogs,
+  pagination, empty states, and login screen now use a modern visual skin.
+  Legacy routes, copy, payloads, action ordering, and pending-state behavior
+  remain unchanged.
 - Shared Vue row tables render only after View columns exist, so data rows from
   `querydata` cannot draw a page or row actions without a rendered View shape.
 - A default Vue child collection workflow that renders from
