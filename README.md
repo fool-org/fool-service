@@ -2,10 +2,10 @@
 
 # Fool Service
 
-**一个由模型、视图、查询、权限、事件与报表驱动的应用框架**
+**A metadata-driven application framework with governed Agent workflows**
 
-已将旧版 FoolFrame 的 Node / Express / Jade / Angular 工作流迁移到<br>
-**Spring Boot + Vue 3 + Docker Compose** 的现代化架构。
+Built with **Spring Boot + Vue 3 + Docker Compose** for models, views, queries,
+permissions, events, reports, and reviewable AI-assisted actions.
 
 [![Java 17](https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/17/)
 [![Spring Boot 2.7](https://img.shields.io/badge/Spring_Boot-2.7.4-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
@@ -14,35 +14,72 @@
 [![Docker Compose](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 [![Repo Harness](https://github.com/fool-org/fool-service/actions/workflows/repo-harness.yml/badge.svg)](https://github.com/fool-org/fool-service/actions/workflows/repo-harness.yml)
 
-[快速开始](#快速开始) · [Agent 安全](#agent-与受控动作) · [系统架构](#系统架构) · [模块说明](#模块说明) · [开发与验证](#开发与验证) · [迁移进度](#迁移进度)
+**English** · [简体中文](README.zh-CN.md)
+
+[Agent](#agent-workspace-and-controlled-actions) · [Quick Start](#quick-start) ·
+[Architecture](#architecture) · [Modules](#modules) ·
+[Development](#development-and-validation)
 
 </div>
 
 > [!IMPORTANT]
-> **FoolFrame 迁移已完成。** Docker、Spring/Java、Vue、数据库迁移和当前导入 View 的完成边界与重开条件，以 [迁移对照表](docs/migration/foolframe-parity.md) 为准。
+> **Working on this repository with a coding agent?** Start with
+> [AGENTS.md](AGENTS.md). It routes agents to the current task state,
+> validation commands, engineering standards, and delivery-evidence contract.
 
-## 项目简介
+## Overview
 
-Fool Service 将业务模型、界面视图、数据查询、权限、事件通知和报表能力拆成可组合模块，用配置与元数据组织常见的后台业务流程。
+Fool Service composes business models, interface views, data queries,
+permissions, event notifications, reports, and governed Agent actions through
+configuration and metadata.
 
-| 能力 | 说明 |
+| Capability | Description |
 | --- | --- |
-| 模型与视图 | 以模型元数据生成列表、详情、新建、子项和组合视图 |
-| 数据访问 | 统一 DAO、数据源路由、查询、保存和 SQL 执行能力 |
-| 应用管理 | 管理应用、工作数据库、菜单、角色及初始化安装流程 |
-| 业务运行时 | 提供认证授权、事件消息、操作执行与报表工作流 |
-| Agent 与受控动作 | 在用户权限和数据范围内生成草案，并通过预览、确认、审批、执行与审计状态机处理受控动作 |
-| 现代化前端 | 使用 Vue 3 + TypeScript 重建旧版 FoolFrame 操作界面 |
-| 可复现环境 | 使用 Docker Compose 统一启动 MySQL、Redis、后端和前端 |
+| Agent and controlled actions | Generates reviewable drafts within the current user's permissions, then uses preview, confirmation, approval, execution, and audit states for controlled actions |
+| Models and views | Builds list, detail, create, child-item, and composite views from model metadata |
+| Data access | Provides unified DAO, data-source routing, query, persistence, and SQL execution capabilities |
+| Application management | Manages applications, working databases, menus, roles, and initialization |
+| Business runtime | Provides authentication, authorization, event messaging, operations, and report workflows |
+| Web workspace | Uses Vue 3 and TypeScript for the interactive application workspace |
+| Reproducible environment | Starts MySQL, Redis, backend, and frontend through Docker Compose |
 
-## 快速开始
+## Agent Workspace and Controlled Actions
 
-### 1. 环境要求
+After signing in, users can access two complementary Agent surfaces:
 
-- Docker Desktop 或 Docker Engine
+- `/agent` creates ordered, reviewable drafts for reports and queries, forms and
+  views, models, data sources, and events or automation.
+- `/actions` lists Action Requests the current user may review, approve, execute,
+  or cancel, together with immutable previews, risk levels, and approval state.
+
+Protected endpoints accept only `Authorization: Bearer <token>` and deny by
+default. The Agent inherits the current user's application, database, resource,
+row, and field scope. A model may propose a structured `ActionIntent`, but it
+cannot decide permissions, risk levels, or approvals, and it cannot execute an
+action directly.
+
+- `MEDIUM` actions require an immutable preview and confirmation by the
+  requester.
+- `HIGH` actions require step-up verification, independent approval, and
+  authorization revalidation before execution.
+- `CRITICAL` actions, arbitrary SQL or code, destructive DDL, and unrestricted
+  external calls are unavailable to the Agent.
+- Tokens, passwords, connection strings, credentials, and `RESTRICTED` data are
+  excluded from model context, Agent sessions, approval records, and normal
+  logs.
+
+Implementation and acceptance status is tracked in [tasks.md](tasks.md).
+Detailed identity, risk, approval, execution, and audit rules live in the
+[authorization and Agent risk-control design](docs/authorization-and-agent-risk-control.md).
+
+## Quick Start
+
+### 1. Requirements
+
+- Docker Desktop or Docker Engine
 - Docker Compose v2
 
-### 2. 启动完整环境
+### 2. Start the Full Stack
 
 ```bash
 git clone git@github.com:fool-org/fool-service.git
@@ -50,42 +87,49 @@ cd fool-service
 docker compose up -d --build
 ```
 
-首次启动会创建 MySQL 数据卷，并自动执行 `docker/mysql/init/*.sql`。已有数据卷也会由一次性的 `db-migrate` 服务补齐幂等迁移。
+The first start creates the MySQL data volume and applies
+`docker/mysql/init/*.sql`. The one-shot `db-migrate` service also applies
+idempotent database updates to existing volumes.
 
-如需启用 Web 工作台中的 AI 配置助手，在启动前设置至少一个 provider
-密钥；密钥只进入后端容器，不会返回给浏览器：
+To enable the AI configuration assistant in the web workspace, set at least one
+provider key before starting the stack. Keys are available only to the backend
+container and are never returned to the browser.
 
 ```bash
 export DEEPSEEK_API_KEY="your-deepseek-key"
-# 或 export OPENAI_API_KEY="your-openai-key"
+# or export OPENAI_API_KEY="your-openai-key"
 docker compose up -d --build
 ```
 
-可选变量包括 `FOOL_AGENT_DEFAULT_PROVIDER`、`DEEPSEEK_BASE_URL`、
-`DEEPSEEK_MODEL`、`OPENAI_BASE_URL` 和 `OPENAI_MODEL`。登录后通过导航栏的
-“AI 助手”进入 `/agent`；未配置密钥时页面会明确使用本地规则回复。
+Optional variables include `FOOL_AGENT_DEFAULT_PROVIDER`,
+`DEEPSEEK_BASE_URL`, `DEEPSEEK_MODEL`, `OPENAI_BASE_URL`, and
+`OPENAI_MODEL`. After signing in, open “AI Assistant” or visit `/agent`. When
+no provider key is configured, the page clearly falls back to local
+rule-based responses.
 
-### 3. 检查服务
+### 3. Check Services
 
 ```bash
 docker compose ps -a
 python scripts/runtime_doctor.py
 ```
 
-`db-migrate` 应显示为 `Exited (0)`，其余长期服务应处于运行或健康状态。
+`db-migrate` should report `Exited (0)`. Long-running services should be
+running or healthy.
 
-| 服务 | 地址 / 端口 | 说明 |
+| Service | Address / Port | Description |
 | --- | --- | --- |
-| Web 工作台 | <http://localhost:8081/> | Vue 前端，默认开发账号 `admin / admin` |
-| 后端 API | <http://localhost:8080/> | Spring Boot 服务 |
-| 健康检查 | <http://localhost:8080/test> | 最小后端 smoke 路由 |
-| MySQL | `127.0.0.1:3307` | 数据库 `car_wash`，root 密码 `Pa88word` |
-| Redis | `127.0.0.1:6380` | 映射到容器的 `6379` |
+| Web workspace | <http://localhost:8081/> | Vue frontend; local development account: `admin / admin` |
+| Backend API | <http://localhost:8080/> | Spring Boot service |
+| Health check | <http://localhost:8080/test> | Minimal backend smoke endpoint |
+| MySQL | `127.0.0.1:3307` | Database `car_wash`; root password `Pa88word` |
+| Redis | `127.0.0.1:6380` | Maps to container port `6379` |
 
 > [!WARNING]
-> 默认账号和数据库密码只用于本地开发环境，部署前请通过环境变量替换。
+> The default account and database password are for local development only.
+> Replace them through environment variables before deployment.
 
-常用运维命令：
+Common operations:
 
 ```bash
 docker compose logs -f backend frontend
@@ -93,53 +137,41 @@ docker compose restart backend frontend
 docker compose down
 ```
 
-## Agent 与受控动作
-
-登录后可以从导航进入两个互补入口：
-
-- `/agent` 按报表/查询、表单/视图、模型、数据源、事件/自动化的顺序生成可审核草案；
-- `/actions` 展示当前用户拥有、可审批、可执行或可取消的 Action Request，以及不可变预览、风险和审批状态。
-
-受保护接口只接受 `Authorization: Bearer <token>` 并默认拒绝。Agent 始终继承当前用户的应用、数据库、资源、数据行和字段范围；模型只能提出结构化 `ActionIntent`，不能决定权限、风险等级或审批结果，也不能直接执行动作。
-
-- `MEDIUM` 动作需要不可变预览和发起人确认；
-- `HIGH` 动作需要 step-up、独立审批和执行前重新鉴权；
-- `CRITICAL` 动作、任意 SQL/代码、破坏性 DDL 和不受限外部调用不向 Agent 开放；
-- token、密码、连接串、凭据和 `RESTRICTED` 数据不会进入模型上下文、Agent 会话、审批记录或普通日志。
-
-准确实施与验收状态以 [任务看板](tasks.md) 为准；四身份浏览器可见性与网络响应矩阵仍是 Phase 4 的开放门禁。
-
-## 系统架构
+## Architecture
 
 ```mermaid
 flowchart LR
-    U["浏览器"] --> FE["Vue 3 / Vite<br/>localhost:8081"]
+    U["Browser"] --> FE["Vue 3 / Vite<br/>localhost:8081"]
     FE --> API["Spring Boot API<br/>localhost:8080"]
-    API --> CORE["模型 · 视图 · 查询<br/>权限 · 事件 · 报表"]
+    API --> CORE["Models · Views · Queries<br/>Permissions · Events · Reports"]
+    API --> AGENT["Agent Intent<br/>Review · Approval · Audit"]
     CORE --> DB[("MySQL 8")]
     CORE --> CACHE[("Redis 7")]
+    AGENT --> CORE
     MIG["db-migrate"] --> DB
 ```
 
-请求从 Vue 工作台进入 Spring Boot API，再由 View-first 运行时组合模型、数据、权限和展示元数据。Docker Compose 负责服务编排，`db-migrate` 确保新旧数据卷使用同一套数据库迁移路径。
+Requests enter through the Vue workspace and Spring Boot API. The runtime
+combines model, data, permission, and presentation metadata. Agent intents pass
+through authorization, risk, preview, approval, and audit controls before
+approved operations reach the core runtime.
 
-## 模块说明
+## Modules
 
-| 分组 | 模块 | 职责 |
+| Group | Module | Responsibility |
 | --- | --- | --- |
-| 应用入口 | `business-application` | Spring Boot 启动、运行时配置与模块装配 |
-| 基础设施 | `fool-common`、`fool-log`、`fool-error-handler`、`fool-dto` | 公共类型、日志、异常和请求响应模型 |
-| 数据层 | `fool-dao`、`fool-db-manage`、`fool-query` | DAO、数据源、SQL 执行与查询能力 |
-| 元数据层 | `fool-model`、`fool-view` | 模型、关系、属性和视图定义 |
-| 应用能力 | `fool-app-manage`、`fool-auth` | 应用安装、数据库目录、菜单、角色和授权 |
-| 业务能力 | `fool-event`、`fool-report` | 事件通知、消息收件人与报表工作流 |
-| 智能配置 | `fool-agent` | 有序 Agent 会话、模型出站控制、Action Intent 校验，以及 MEDIUM/HIGH 受控动作的预览、审批和执行编排 |
-| 迁移支撑 | `fool-app-manage`、`fool-model` | 反射发现、初始化安装与配置驱动的旧能力兼容；`fool-reflect`、`fool-dynamic` 仅保留历史占位目录 |
-| Web 前端 | `frontend` | Vue 3、TypeScript、Vite 与 Vitest |
+| Application entry | `business-application` | Spring Boot startup, runtime configuration, and module assembly |
+| Infrastructure | `fool-common`, `fool-log`, `fool-error-handler`, `fool-dto` | Shared types, logging, error handling, and request/response models |
+| Data layer | `fool-dao`, `fool-db-manage`, `fool-query` | DAO, data sources, SQL execution, and queries |
+| Metadata layer | `fool-model`, `fool-view` | Models, relationships, attributes, and view definitions |
+| Application capabilities | `fool-app-manage`, `fool-auth` | Application setup, database catalog, menus, roles, and authorization |
+| Business capabilities | `fool-event`, `fool-report` | Event notifications, message recipients, and report workflows |
+| Agent | `fool-agent` | Ordered Agent sessions, model egress control, Action Intent validation, and governed execution for `MEDIUM` and `HIGH` actions |
+| Web frontend | `frontend` | Vue 3, TypeScript, Vite, and Vitest |
 
-## 开发与验证
+## Development and Validation
 
-### 前端开发
+### Frontend Development
 
 ```bash
 cd frontend
@@ -147,50 +179,41 @@ npm install
 npm run dev
 ```
 
-### 最小验证矩阵
+### Minimum Validation Matrix
 
-根据改动范围运行最小匹配检查：
+Run the smallest check that matches the change:
 
-| 改动范围 | 命令 |
+| Change | Command |
 | --- | --- |
-| README、文档、仓库规范 | `python scripts/check_repo_harness.py` |
-| Vue 前端 | `cd frontend && npm test && npm run build` |
-| Java 后端 | `mvn test`，或运行聚焦模块测试 |
-| Docker / 运行时 | `docker compose up -d --build && python scripts/runtime_doctor.py` |
-| 权限 / Agent 风控 | 运行后端与前端检查，并按 [授权运行手册](docs/authorization-operations.md) 执行严格权限审查和可逆安全回归 |
+| README, docs, or repository rules | `python scripts/check_repo_harness.py` |
+| Vue frontend | `cd frontend && npm test && npm run build` |
+| Java backend | `mvn test`, or a focused module test |
+| Docker or runtime | `docker compose up -d --build && python scripts/runtime_doctor.py` |
+| Authorization or Agent controls | Run backend and frontend checks, then follow the strict review and reversible regression steps in the [authorization operations guide](docs/authorization-operations.md) |
 
-完整命令、CI 门禁和跳过规则见 [验证指南](docs/validation.md)。
+See the [validation guide](docs/validation.md) for the full command matrix, CI
+gates, and skip policy.
 
-## 迁移进度
+## Documentation
 
-Migration status: complete。
-
-- **完成范围：** Docker Compose 全栈、数据库幂等迁移、Spring/Java 框架模块、Vue 登录与主工作台、View-first 列表/详情/新建、查询保存、操作、消息、事件、报表，以及对应自动化与浏览器证据。
-- **完成依据：** 25 个旧 Web 路由、25 个 `IDataService` 操作、469 个生产 C# 编译源文件、43 个旧前端资产和 118 个导入 View 均已纳入版本化清单或运行门禁。
-- **重开规则：** 只有旧源码快照变化、新导入元数据触达不支持行为、发现可复现的新旧运行差异，或迁移门禁失败时，才重新进入迁移状态。
-- **唯一进度源：** [FoolFrame Migration Parity](docs/migration/foolframe-parity.md)。
-
-README 只保留稳定概览，具体完成项、验证证据与剩余差距统一记录在迁移对照表中，避免状态重复和过期。
-
-## 项目文档
-
-| 文档 | 用途 |
+| Document | Purpose |
 | --- | --- |
-| [迁移对照表](docs/migration/foolframe-parity.md) | FoolFrame 迁移进度、运行时证据和剩余差距 |
-| [Agent 会话机制](docs/agent-sessions.md) | agent 能力顺序、会话 API 和当前边界 |
-| [权限与 Agent 风控设计](docs/authorization-and-agent-risk-control.md) | 身份、数据范围、风险、审批、执行与审计的设计源 |
-| [授权运行手册](docs/authorization-operations.md) | 策略新鲜度、审计完整性、权限复核和安全回归操作 |
-| [验证指南](docs/validation.md) | 本地验证矩阵、CI 门禁和运行时检查 |
-| [标准目录](docs/standards/README.md) | 仓库内版本化工程标准 |
-| [Agent 指南](AGENTS.md) | 自动化协作入口与变更纪律 |
-| [任务看板](tasks.md) | 当前工作的状态源 |
+| [Agent guide](AGENTS.md) | First-read entrypoint for coding agents and change discipline |
+| [Agent sessions](docs/agent-sessions.md) | Agent capability order, session API, and current boundaries |
+| [Authorization and Agent risk control](docs/authorization-and-agent-risk-control.md) | Identity, scope, risk, approval, execution, and audit design |
+| [Authorization operations](docs/authorization-operations.md) | Policy freshness, audit integrity, permission review, and security regression procedures |
+| [Validation guide](docs/validation.md) | Local validation matrix, CI gates, and runtime checks |
+| [Standards catalog](docs/standards/README.md) | Versioned engineering standards |
+| [Task board](tasks.md) | Current work state |
+| [Delivery evidence](agent_chats/README.md) | Required evidence shape for meaningful changes |
 
-## 参与开发
+## Contributing
 
-1. 先阅读 [Agent 指南](AGENTS.md) 和对应模块代码。
-2. 保持改动聚焦，并同步更新相关测试与迁移状态。
-3. 按 [验证指南](docs/validation.md) 运行最小匹配检查。
-4. 对有意义的运行时或迁移改动，在 `agent_chats/` 中保留交付证据。
+1. Read [AGENTS.md](AGENTS.md) and the relevant module code first.
+2. Keep changes focused and update related tests and task state.
+3. Run the smallest matching check from the [validation guide](docs/validation.md).
+4. Record meaningful runtime, architecture, or Agent-control changes under
+   `agent_chats/`.
 
 ---
 
